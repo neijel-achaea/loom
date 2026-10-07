@@ -23,6 +23,7 @@ their tab its own icon.
 | **eleusis** | — | Ambassador aide (`NEWBIECT`/`NEWBIECLT`/`NEWBIEBOTH`, `VEON`/`VEOFF`, lesson requests refused for enemies), monolith and flame sigil watcher (`MONOWATCH`, `MONOREPORT`, `MONOIGNORE`, …), and the Saiha `GRADUATION <name> <step>` ritual. |
 | **fishing** | — | Fishing automation: `BAIT <bait>`, `CL <direction>` to bait and cast, then tease, jerk and reel on the game's cues, with stage markers on each line. Statistics live in **fishingstats**. |
 | **fishingstats** | fishingstats, fishinglog | Live fishing session (by angler, by species, recent catches) and a log of past sessions. |
+| **groves** | — | *Retired (druid).* Opens the grove gate for city members who send "Gate." while you are in your grove. |
 | **harvesting** | — | Stock-aware auto-harvest on room entry: harvests and stores only plants below their minimum rift stock. `HARVESTING ON/OFF/MIN/RESET`. |
 | **hunting** | — | Battlerage cooldown tracking with highlighted F-key buttons, ability highlights per class, affliction markers, critical-hit and status highlights, `AUTOGOLD ON/OFF/ALL`, and combat gags. |
 | **huntstats** | Stats | Per-area hunting sessions: xp/hr, gold/hr, kills, Dragonhood progress, area comparison. `HUNTSTATS`. |
@@ -31,6 +32,7 @@ their tab its own icon.
 | **numpad_movement** | — | Movement and quick commands on the number pad. |
 | **partycomms** | Party | Shares party vitals and targets over party tell, shown as bars in a Party tab. `PARTYNAME`, `PARTYON`/`PARTYOFF`. |
 | **patrolling** | — | Checks each room's plants against what its environment should hold and flags shrines (`PATROLLING ON/OFF/HERE/LEARN`), suggests areas to patrol (`PATROL_SUGGEST`), storm and fire alerts, and logs replantings to the clan log. |
+| **reclamation** | — | *Retired (druid).* Records where enemies are seen in Eleusis and can alert the party (`REPORTENEMIES ON/OFF`, `WHEREIS <name>`, `VINESREPORT [days]`). |
 | **roleplay** | — | A large set of custom emotes, step-by-step rituals, and the ambient emote system (`AEM ON/OFF/NOW/RELOAD`). |
 | **security** | — | Antitheft (`ANTITHEFT ON/OFF`, re-wears or re-stores what gets taken), `GG`/`PG` to move gold in and out of the backpack, and give, sell, drop and offer wrappers that lift selfishness around the action. |
 | **self** | Self | Replacement for the stock character panel (see below). `SELF`. |
@@ -49,6 +51,7 @@ Most packages stand alone. The exceptions:
 - **hunting** draws the battlerage highlights on the buttons that **common** lays out.
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
 - **security** and **hunting** share the `backpack` variable.
+- **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
 - Many triggers respect the `pauseTriggers` flag from **common**.
 
 ### Installing a package
