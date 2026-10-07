@@ -2271,7 +2271,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[args[1]] = true;\nset_variable(\"rage_cd\", cd);\nrun_function(\"hl_buttons\", [], \"battlerage\");"
+       "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[args[1]] = true;\nset_variable(\"rage_cd\", cd);\nrun_function(\"hl_buttons\", [], \"hunting\");"
       }
      ],
      "text": "^Your (\\w+) ability could be used again but you lack the necessary Rage\\.$",
