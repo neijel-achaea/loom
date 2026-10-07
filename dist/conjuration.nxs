@@ -1,0 +1,37 @@
+{
+ "type": "group",
+ "name": "conjuration",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var sigil = args[1];\n\nswitch (sigil) {\n  case \"bauble\":\n    display_notice(\"[conjuration] Insufficient skill to create a scented bauble.\", \"orange\");\n    break;\n\n  case \"brooch\":\n    display_notice(\"[conjuration] Insufficient skill to create a brooch of Thoth.\", \"orange\");\n    break;\n\n  case \"comprehension\":\n    display_notice(\"[conjuration] Insufficient skill to create a necklace of comprehension.\", \"orange\");\n\n    break;\n\n  case \"concealment\":\n    display_notice(\"[conjuration] Insufficient skill to create an orb of concealment .\", \"orange\");\n\n    break;\n    \n  case \"cube\":\n    display_notice(\"[conjuration] Insufficient skill to create a vibration-dampening cube.\", \"orange\");\n\n    break;\n\n  case \"dreamcatcher\":\n    display_notice(\"[conjuration] Insufficient skill to create a dreamcatcher.\", \"orange\");\n\n    break;\n\n  case \"eye\":\n    display_notice(\"[conjuration] Insufficient skill to create an eye sigil .\", \"orange\");\n\n    break;\n    \n  case \"fist\":\n    send_command(\"outr silver\");\n    send_command(\"outr 2 horn\");  \n    send_command(\"put silver in ouroboros263287\");\n    send_command(\"put horn in ouroboros263287\");\n    send_command(\"put horn in ouroboros263287\");\n    send_command(\"begin creation of fist sigil\");\n    send_command(\"chant fartak ishla spooz tran\");\n    send_command(\"chant fartak ishla spooz tran\");\n    send_command(\"chant fartak ishla spooz tran\");\n    send_command(\"ring bell\");\n    send_command(\"end ritual\");\n    send_command(\"get sigil from ouroboros275085\");\n    break;\n    \n  case \"flame\":\n    send_command(\"outr silver\");\n    send_command(\"put silver in ouroboros263287\");\n    send_command(\"begin creation of flame sigil\");\n    send_command(\"chant flet lhar abe minlo eec\");\n    send_command(\"chant flet lhar abe minlo eec\");\n    send_command(\"chant flet lhar abe minlo eec\");\n    send_command(\"ring bell\");\n    send_command(\"end ritual\");\n    send_command(\"get sigil from ouroboros275085\");\n    break;\n    \n  case \"key\":\n    display_notice(\"[conjuration] Insufficient skill to create a key sigil.\", \"orange\");\n\n    break;\n    \n  case \"monolith\":\n    display_notice(\"[conjuration] Insufficient skill to create a monolith sigil.\", \"orange\");\n\n    break;\n    \n  case \"mushroom\":\n    display_notice(\"[conjuration] Insufficient skill to create a mushroom sigil.\", \"orange\");\n\n    break;\n    \n  case \"negation\":\n    display_notice(\"[conjuration] Insufficient skill to create a gem of negation.\", \"orange\");\n\n    break;\n    \n  case \"orb\":\n    display_notice(\"[conjuration] Insufficient skill to create a chaos-destroying orb.\", \"orange\");\n\n    break;\n    \n  case \"pestilence\":\n    display_notice(\"[conjuration] Insufficient skill to create a ring of pestilence.\", \"orange\");\n\n    break;\n    \n  case \"star\":\n    display_notice(\"[conjuration] Insufficient skill to create a star sigil.\", \"orange\");\n\n    break;\n    \n  case \"stasis\":\n    display_notice(\"[conjuration] Insufficient skill to create a bag of stasis.\", \"orange\");\n\n    break;\n\n  case \"whirlwind\":\n    display_notice(\"[conjuration] Insufficient skill to create a whirlwind of Vastar.\", \"orange\");\n\n    break;\n\n  default:\n    display_notice(\"[conjuration] Invalid sigil. Should be one of: bauble, brooch, comprehension, concealment, cube, dreamcatcher, eye, fist, flame, key, monolith, mushroom, negation, orb, pestilence, star, statis, whirlwind.\");\n}"
+    }
+   ],
+   "text": "^conjure (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  }
+ ],
+ "description": ""
+}
