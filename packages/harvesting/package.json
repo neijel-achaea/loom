@@ -1,0 +1,201 @@
+{
+  "type": "group",
+  "name": "harvesting",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "hv_build",
+      "enabled": true,
+      "code": "@file:hv_build.js"
+    },
+    {
+      "type": "function",
+      "name": "hv_save",
+      "enabled": true,
+      "code": "@file:hv_save.js"
+    },
+    {
+      "type": "function",
+      "name": "hv_room",
+      "enabled": true,
+      "code": "@file:hv_room.js"
+    },
+    {
+      "type": "function",
+      "name": "hv_next",
+      "enabled": true,
+      "code": "@file:hv_next.js"
+    },
+    {
+      "type": "function",
+      "name": "hv_status",
+      "enabled": true,
+      "code": "@file:hv_status.js"
+    },
+    {
+      "type": "alias",
+      "name": "Harvesting control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_harvesting_control.js"
+        }
+      ],
+      "text": "^harvesting(?:\\s+(.+))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Harvest success",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_harvest_success_1.js"
+        }
+      ],
+      "text": "^You reach out and carefully harvest (.*)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Harvest failure",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#ff0074",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_harvest_failure_1.js"
+        }
+      ],
+      "text": "^(?:What do you wish to harvest\\?|That plant has been fully harvested\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Balance recovered",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_balance_recovered.js"
+        }
+      ],
+      "text": "^You have recovered balance on all limbs\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift store",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_store.js"
+        }
+      ],
+      "text": "^You store ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift header",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_header.js"
+        }
+      ],
+      "text": "^Glancing into your rift, you see:$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift rule",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_rule.js"
+        }
+      ],
+      "text": "^-{20,}$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift rows",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_rows.js"
+        }
+      ],
+      "text": "^\\s*\\[\\s*[\\d,]+\\]\\s.*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Harvesting 2.0 - stock-aware auto-harvest on room entry. HARVESTING ON/OFF/MIN/RESET."
+}

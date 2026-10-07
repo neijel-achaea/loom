@@ -1,0 +1,201 @@
+{
+ "type": "group",
+ "name": "harvesting",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "send_command(\"harvesting on\");\nif (!client.hv) run_function(\"hv_build\", [], \"harvesting\");"
+  },
+  {
+   "type": "function",
+   "name": "hv_build",
+   "enabled": true,
+   "code": "// harvesting 2.0 - builds client.hv from saved variables.\nvar minRaw = get_variable(\"hv_min\");\nvar mapRaw = get_variable(\"hv_map\");\nvar stockRaw = get_variable(\"hv_stock\");\nclient.hv = {\n  env: {\n    forest:                [\"ginseng\", \"echinacea\", \"ginger\", \"burdock\", \"myrrh\", \"lobelia\", \"elm\"],\n    swamp:                 [\"ash\", \"bellwort\", \"cohosh\"],\n    \"natural underground\": [\"bloodroot\", \"irid\"],\n    hills:                 [\"hawthorn\", \"bayberry\"],\n    jungle:                [\"kuzu\", \"skullcap\", \"kola\"],\n    grasslands:            [\"slipper\", \"goldenseal\"],\n    mountain:              [\"valerian\"],\n    mountains:             [\"valerian\"],\n    desert:                [\"pear\", \"weed\"],\n    valley:                [\"sileris\"],\n    freshwater:            [\"kelp\"],\n    river:                 [\"kelp\"]\n  },\n  defMin: 2000,\n  min:   typeof minRaw == \"string\" ? JSON.parse(minRaw) : (minRaw || {}),\n  map:   typeof mapRaw == \"string\" ? JSON.parse(mapRaw) : (mapRaw || { myrrh: \"myrrh gum\" }),\n  stock: typeof stockRaw == \"string\" ? JSON.parse(stockRaw) : (stockRaw || {}),\n  queue: [],\n  current: null,\n  waitBal: false,\n  inrFor: null,\n  inRift: false,\n  quiet: false,\n  dashes: 0\n};"
+  },
+  {
+   "type": "function",
+   "name": "hv_save",
+   "enabled": true,
+   "code": "set_variable(\"hv_min\", JSON.stringify(client.hv.min));\nset_variable(\"hv_map\", JSON.stringify(client.hv.map));\nset_variable(\"hv_stock\", JSON.stringify(client.hv.stock));"
+  },
+  {
+   "type": "function",
+   "name": "hv_room",
+   "enabled": true,
+   "code": "// Call from your onGMCP handler on room change:\n//   run_function(\"hv_room\", [], \"harvesting\");\nif (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nH.queue = [];\nH.current = null;\nH.waitBal = false;\nif (get_variable(\"hv_on\") == \"on\" && get_variable(\"pauseTriggers\") == \"off\") {\n  var env = String(get_variable(\"currentEnvironment\") || \"\").toLowerCase();\n  var list = H.env[env] || [];\n  for (var i = 0; i < list.length; i++) {\n    var p = list[i];\n    var have = H.stock[H.map[p] || p] || 0;\n    var min = (H.min[p] != null) ? H.min[p] : H.defMin;\n    if (have < min) H.queue.push(p);\n  }\n  if (H.queue.length) run_function(\"hv_next\", [], \"harvesting\");\n}"
+  },
+  {
+   "type": "function",
+   "name": "hv_next",
+   "enabled": true,
+   "code": "var H = client.hv;\nH.waitBal = false;\nif (H.queue.length == 0) {\n  H.current = null;\n} else {\n  H.current = H.queue.shift();\n  send_command(\"harvest \" + H.current);\n}"
+  },
+  {
+   "type": "function",
+   "name": "hv_status",
+   "enabled": true,
+   "code": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nvar out = [];\nfor (var env in H.env) {\n  var list = H.env[env];\n  for (var i = 0; i < list.length; i++) {\n    var p = list[i];\n    var have = H.stock[H.map[p] || p];\n    var min = (H.min[p] != null) ? H.min[p] : H.defMin;\n    if (have == null || have < min) out.push(p + \" \" + (have == null ? \"?\" : have) + \"/\" + min);\n  }\n}\ndisplay_notice(\"[harvesting] Harvesting \" + (get_variable(\"hv_on\") == \"on\" ? \"ON\" : \"OFF\") + \" | environment: \" + (get_variable(\"currentEnvironment\") || \"?\"), \"cyan\");\ndisplay_notice(out.length ? \"[harvesting] Below minimum: \" + out.join(\", \") : \"Everything at or above minimum.\", \"cyan\");"
+  },
+  {
+   "type": "alias",
+   "name": "Harvesting control",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nvar a = (args[1] || \"status\").toLowerCase().trim().split(/\\s+/);\nif (a[0] == \"on\") {\n  set_variable(\"hv_on\", \"on\");\n  H.quiet = true;\n  send_command(\"ir herbs\");\n  display_notice(\"[harvesting] Harvesting ON - refreshing rift stock.\", \"cyan\");\n} else if (a[0] == \"off\") {\n  set_variable(\"hv_on\", \"off\");\n  H.queue = [];\n  H.current = null;\n  H.waitBal = false;\n  display_notice(\"[harvesting] Harvesting OFF.\", \"cyan\");\n} else if (a[0] == \"min\" && a.length == 3) {\n  if (a[2] == \"default\") delete H.min[a[1]];\n  else H.min[a[1]] = parseInt(a[2], 10);\n  run_function(\"hv_save\", [], \"harvesting\");\n  display_notice(\"[harvesting] Minimum for \" + a[1] + \": \" + (H.min[a[1]] != null ? H.min[a[1]] : H.defMin + \" (default)\"), \"cyan\");\n} else if (a[0] == \"reset\") {\n  delete client.hv;\n  run_function(\"hv_build\", [], \"harvesting\");\n  display_notice(\"[harvesting] Harvesting state rebuilt from saved variables.\", \"cyan\");\n} else {\n  run_function(\"hv_status\", [], \"harvesting\");\n}"
+    }
+   ],
+   "text": "^harvesting(?:\\s+(.+))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "Harvest success",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#00ffb3",
+     "highlight_bg": "#000000",
+     "highlight": "line",
+     "highlight_backref": ""
+    },
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (get_variable(\"pauseTriggers\") == \"off\") {\n  var H = client.hv;\n  if (H && H.current) {\n    H.inrFor = H.current;\n    H.waitBal = true;\n    send_command(\"queue add be inr \" + H.current);\n  }\n}"
+    }
+   ],
+   "text": "^You reach out and carefully harvest (.*)\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "Harvest failure",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#ff0074",
+     "highlight_bg": "#000000",
+     "highlight": "line",
+     "highlight_backref": ""
+    },
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (get_variable(\"pauseTriggers\") == \"off\") {\n  var H = client.hv;\n  if (H && H.current && !H.waitBal) run_function(\"hv_next\", [], \"harvesting\");\n}"
+    }
+   ],
+   "text": "^(?:What do you wish to harvest\\?|That plant has been fully harvested\\.)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "Balance recovered",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (get_variable(\"pauseTriggers\") == \"off\") {\n  var H = client.hv;\n  if (H && H.waitBal) run_function(\"hv_next\", [], \"harvesting\");\n  else if (H && H.current) send_command(\"harvest \" + H.current);\n}"
+    }
+   ],
+   "text": "^You have recovered balance on all limbs\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "Rift store",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nH.stock[args[2]] = parseInt(args[3].replace(/,/g, \"\"), 10);\nif (H.inrFor) {\n  H.map[H.inrFor] = args[2];\n  H.inrFor = null;\n}\nrun_function(\"hv_save\", [], \"harvesting\");"
+    }
+   ],
+   "text": "^You store ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "Rift header",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nclient.hv.inRift = true;\nclient.hv.dashes = 0;\nif (client.hv.quiet) gag_current_line();"
+    }
+   ],
+   "text": "^Glancing into your rift, you see:$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "Rift rule",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var H = client.hv;\nif (H && H.inRift) {\n  if (H.quiet) gag_current_line();\n  H.dashes++;\n  if (H.dashes >= 2) {\n    H.inRift = false;\n    if (H.quiet) {\n      H.quiet = false;\n      run_function(\"hv_room\", [], \"harvesting\");\n    }\n  }\n}"
+    }
+   ],
+   "text": "^-{20,}$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "Rift rows",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var H = client.hv;\nif (H && H.inRift) {\n  if (H.quiet) gag_current_line();\n  var re = /\\[\\s*([\\d,]+)\\]\\s+(.+?)(?=\\s+\\[|\\s*$)/g;\n  var m;\n  while ((m = re.exec(args[0])) !== null) {\n    H.stock[m[2]] = parseInt(m[1].replace(/,/g, \"\"), 10);\n  }\n  run_function(\"hv_save\", [], \"harvesting\");\n}"
+    }
+   ],
+   "text": "^\\s*\\[\\s*[\\d,]+\\]\\s.*$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  }
+ ],
+ "description": "Harvesting 2.0 - stock-aware auto-harvest on room entry. HARVESTING ON/OFF/MIN/RESET."
+}
