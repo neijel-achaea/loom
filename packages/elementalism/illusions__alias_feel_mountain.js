@@ -1,0 +1,1 @@
+send_command("cast illusion A thread of cold, clean air spills down from far overhead, sharp with the bite of snow.");

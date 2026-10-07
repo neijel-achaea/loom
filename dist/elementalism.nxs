@@ -1,0 +1,357 @@
+{
+ "type": "group",
+ "name": "elementalism",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "group",
+   "name": "Illusions",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var illusionType = args[1];\nvar illusionTarget = args[2];\n\nswitch (illusionType) {\n  case \"mosstattoo\":\n    send_command(\"cast illusion \" + illusionTarget + \" A moss tattoo fades from view and disappears.\");\n    break;\n\n  default:\n    display_notice(\"[elementalism] Invalid Illusion\", \"orange\");\n}"
+      }
+     ],
+     "text": "^illusion (\\w+) (\\w+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var illusionType = args[1];\n\nswitch (illusionType) {\n  case \"mosstattoo\":\n    send_command(\"cast illusion A moss tattoo fades from view and disappears.\");\n    break;\n\n  default:\n    display_notice(\"[elementalism] Invalid Illusion\", \"orange\");\n}"
+      }
+     ],
+     "text": "^illusion (\\w+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "cast illusion A pink light suddenly emanates from within Neijel as he wills forth the Dragon within him.",
+       "prefix_suffix": false
+      },
+      {
+       "type": "wait",
+       "enabled": true,
+       "seconds": 2,
+       "milliseconds": 0
+      },
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "cast illusion The Pink light grows to blinding intensity as Neijel's body quickly changes into that of a powerful and massive Dragon.",
+       "prefix_suffix": false
+      },
+      {
+       "type": "wait",
+       "enabled": true,
+       "seconds": 2,
+       "milliseconds": 0
+      },
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "cast illusion Reveling in his power, Neijel beats his mighty wings, throws his massive head back, and roars a challenge as if to the world itself.",
+       "prefix_suffix": false
+      },
+      {
+       "type": "wait",
+       "enabled": true,
+       "seconds": 2,
+       "milliseconds": 0
+      },
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "cast illusion The saucer-sized eyes of Neijel close briefly in ominous concentration.",
+       "prefix_suffix": false
+      },
+      {
+       "type": "wait",
+       "enabled": true,
+       "seconds": 2,
+       "milliseconds": 0
+      },
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "cast illusion With a low rumbling from deep within his belly, Neijel utters a guttural chant. His skin ripples as a web of magical confetti dances like fire across its surface, settling to solidify into a flexible, delicious shell.",
+       "prefix_suffix": false
+      }
+     ],
+     "text": "^pink_dragon$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion For a heartbeat the damp chamber grows dry and still, smelling of sunbaked stone.\");"
+      }
+     ],
+     "text": "^feel_desert$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion The scent of wet bark and moss drifts down the stair, as if carried from the woods above.\");"
+      }
+     ],
+     "text": "^feel_forest$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion A warm breath of air stirs the vines, fragrant with sun and tall grass.\");"
+      }
+     ],
+     "text": "^feel_grassland$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion A soft wind sighs down the stair, smelling of heather and bayberry, and carries with it the lonely cry of a circling hawk.\");"
+      }
+     ],
+     "text": "^feel_hill$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion The air grows thick and heavy with warmth, and the cry of some unseen bird echoes briefly from far away.\");"
+      }
+     ],
+     "text": "^feel_jungle$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion A thread of cold, clean air spills down from far overhead, sharp with the bite of snow.\");"
+      }
+     ],
+     "text": "^feel_mountain$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion A rich smell of peat and still water rises from the floor, and somewhere in the dark a frog croaks once.\");"
+      }
+     ],
+     "text": "^feel_swamp$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion The limestone walls hum with a deep, slow resonance, and for a moment the weight of the earth above feels less a burden than an embrace.\");"
+      }
+     ],
+     "text": "^feel_underground$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion A mild, sheltered warmth settles over the chamber, sweet with the scent of blossoming orchards.\");"
+      }
+     ],
+     "text": "^feel_valley$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"cast illusion Somewhere beyond the limestone, the faint sound of running water rises and fades.\");"
+      }
+     ],
+     "text": "^feel_water$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "Complex Illusions",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var target = args[1];\nvar step = args[2];\nvar textStep = \"\";\n\nswitch (step) {\n  case \"1\":\n    textStep = \"Without breaking off mid-sentence, \" + target + \" dips the end of her quarterstaff into an enormous mug of kawhe and gives it two brisk stirs.\";\n    break;\n\n  case \"2\":\n    textStep = target + \" regards the enormous mug of kawhe for a long moment, then tips it back and drains the whole of it without pausing once for breath.\";\n    break;\n\n  case \"3\":\n    textStep = \"A rich brown light suddenly wells up from within \" + target + \", and the air about her turns thick with the scent of roasting beans.\";\n    break;\n\n  case \"4\":\n    textStep = \"The kawhe-dark glow deepens to a scalding intensity as \" + target + \"'s body swells and remakes itself into that of a powerful and massive Dragon.\";\n    break;\n\n  case \"5\":\n    textStep = \"Reveling in her power, \" + target + \" beats her mighty wings, throws her horned head back, and roars a challenge that rolls out over the world like steam from a spilt pot.\";\n    break;\n\n  case \"6\":\n    textStep = \"The saucer-sized eyes of \" + target + \" close briefly in ominous concentration, and twin curls of fragrant vapour drift up from her nostrils.\";\n    break;\n\n  case \"7\":\n    textStep = \"With a low percolating rumble from deep within her belly, \" + target + \" utters a guttural chant. Her skin ripples as a froth of golden cream races like fire across its surface, settling to solidify into a flexible, faintly steaming shell.\";\n    break;\n\n  case \"8\":\n    textStep = target + \" begins to flap her wings powerfully, and rises quickly up into the firmament.\";\n    break;\n\n  case \"9\":\n    textStep = \"LETHAL A massive shadow begins to circle in the skies above, trailing a plume of steam and the unmistakable smell of a fresh pot.\";\n    break;\n\n  case \"10\":\n    textStep = \"High above, \" + target + \" opens her glistening, tooth-lined maw wide and pours a great tempest of scalding kawhe down upon you, served black, unsweetened, and with no escape or reprieve.\";\n    break;\n\n  case \"11\":\n    textStep = target + \" touches down amid the wreckage, folds her wings, and licks a stray drop of kawhe from her muzzle with evident satisfaction.\";\n    break;\n}\n\nif (textStep != \"\") {\n  send_command(\"cast illusion \" + textStep);\n  display_notice(\"Step \" + step + \" out of 11.\");\n} else {\n  display_notice (\"Wrong step: \" + args[1]);\n}"
+      }
+     ],
+     "text": "^kawhedragon_f (\\w+) (\\d+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var target = args[1];\nvar step = args[2];\nvar textStep = \"\";\n\nswitch (step) {\n  case \"1\":\n    textStep = \"Without breaking off mid-sentence, \" + target + \" dips the end of his quarterstaff into an enormous mug of kawhe and gives it two brisk stirs.\";\n    break;\n\n  case \"2\":\n    textStep = target + \" regards the enormous mug of kawhe for a long moment, then tips it back and drains the whole of it without pausing once for breath.\";\n    break;\n\n  case \"3\":\n    textStep = \"A rich brown light suddenly wells up from within \" + target + \", and the air about him turns thick with the scent of roasting beans.\";\n    break;\n\n  case \"4\":\n    textStep = \"The kawhe-dark glow deepens to a scalding intensity as \" + target + \"'s body swells and remakes itself into that of a powerful and massive Dragon.\";\n    break;\n\n  case \"5\":\n    textStep = \"Reveling in his power, \" + target + \" beats his mighty wings, throws his horned head back, and roars a challenge that rolls out over the world like steam from a spilt pot.\";\n    break;\n\n  case \"6\":\n    textStep = \"The saucer-sized eyes of \" + target + \" close briefly in ominous concentration, and twin curls of fragrant vapour drift up from his nostrils.\";\n    break;\n\n  case \"7\":\n    textStep = \"With a low percolating rumble from deep within his belly, \" + target + \" utters a guttural chant. His skin ripples as a froth of golden cream races like fire across its surface, settling to solidify into a flexible, faintly steaming shell.\";\n    break;\n\n  case \"8\":\n    textStep = target + \" begins to flap his wings powerfully, and rises quickly up into the firmament.\";\n    break;\n\n  case \"9\":\n    textStep = \"LETHAL A massive shadow begins to circle in the skies above, trailing a plume of steam and the unmistakable smell of a fresh pot.\";\n    break;\n\n  case \"10\":\n    textStep = \"High above, \" + target + \" opens his glistening, tooth-lined maw wide and pours a great tempest of scalding kawhe down upon you, served black, unsweetened, and with no escape or reprieve.\";\n    break;\n\n  case \"11\":\n    textStep = target + \" touches down amid the wreckage, folds his wings, and licks a stray drop of kawhe from his muzzle with evident satisfaction.\";\n    break;\n}\n\nif (textStep != \"\") {\n  send_command(\"cast illusion \" + textStep);\n  display_notice(\"Step \" + step + \" out of 11.\");\n} else {\n  display_notice (\"Wrong step: \" + args[1]);\n}"
+      }
+     ],
+     "text": "^kawhedragon_m (\\w+) (\\d+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#00e9ff",
+     "highlight_bg": "#000000",
+     "highlight": "match",
+     "highlight_backref": ""
+    }
+   ],
+   "text": "This area is unnaturally flooded with water.",
+   "matching": "substring",
+   "whole_words": false,
+   "case_sensitive": true
+  }
+ ],
+ "description": ""
+}

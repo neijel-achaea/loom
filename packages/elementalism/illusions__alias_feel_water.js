@@ -1,0 +1,1 @@
+send_command("cast illusion Somewhere beyond the limestone, the faint sound of running water rises and fades.");

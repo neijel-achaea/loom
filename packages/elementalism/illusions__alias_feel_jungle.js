@@ -1,0 +1,1 @@
+send_command("cast illusion The air grows thick and heavy with warmth, and the cry of some unseen bird echoes briefly from far away.");

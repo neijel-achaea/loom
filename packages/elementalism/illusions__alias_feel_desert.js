@@ -1,0 +1,1 @@
+send_command("cast illusion For a heartbeat the damp chamber grows dry and still, smelling of sunbaked stone.");

@@ -1,0 +1,357 @@
+{
+  "type": "group",
+  "name": "elementalism",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "group",
+      "name": "Illusions",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_illusion_w_w.js"
+            }
+          ],
+          "text": "^illusion (\\w+) (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_illusion_w.js"
+            }
+          ],
+          "text": "^illusion (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "cast illusion A pink light suddenly emanates from within Neijel as he wills forth the Dragon within him.",
+              "prefix_suffix": false
+            },
+            {
+              "type": "wait",
+              "enabled": true,
+              "seconds": 2,
+              "milliseconds": 0
+            },
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "cast illusion The Pink light grows to blinding intensity as Neijel's body quickly changes into that of a powerful and massive Dragon.",
+              "prefix_suffix": false
+            },
+            {
+              "type": "wait",
+              "enabled": true,
+              "seconds": 2,
+              "milliseconds": 0
+            },
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "cast illusion Reveling in his power, Neijel beats his mighty wings, throws his massive head back, and roars a challenge as if to the world itself.",
+              "prefix_suffix": false
+            },
+            {
+              "type": "wait",
+              "enabled": true,
+              "seconds": 2,
+              "milliseconds": 0
+            },
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "cast illusion The saucer-sized eyes of Neijel close briefly in ominous concentration.",
+              "prefix_suffix": false
+            },
+            {
+              "type": "wait",
+              "enabled": true,
+              "seconds": 2,
+              "milliseconds": 0
+            },
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "cast illusion With a low rumbling from deep within his belly, Neijel utters a guttural chant. His skin ripples as a web of magical confetti dances like fire across its surface, settling to solidify into a flexible, delicious shell.",
+              "prefix_suffix": false
+            }
+          ],
+          "text": "^pink_dragon$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_desert.js"
+            }
+          ],
+          "text": "^feel_desert$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_forest.js"
+            }
+          ],
+          "text": "^feel_forest$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_grassland.js"
+            }
+          ],
+          "text": "^feel_grassland$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_hill.js"
+            }
+          ],
+          "text": "^feel_hill$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_jungle.js"
+            }
+          ],
+          "text": "^feel_jungle$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_mountain.js"
+            }
+          ],
+          "text": "^feel_mountain$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_swamp.js"
+            }
+          ],
+          "text": "^feel_swamp$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_underground.js"
+            }
+          ],
+          "text": "^feel_underground$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_valley.js"
+            }
+          ],
+          "text": "^feel_valley$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:illusions__alias_feel_water.js"
+            }
+          ],
+          "text": "^feel_water$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "Complex Illusions",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:complex_illusions__alias_kawhedragon_f_w_d.js"
+            }
+          ],
+          "text": "^kawhedragon_f (\\w+) (\\d+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:complex_illusions__alias_kawhedragon_m_w_d.js"
+            }
+          ],
+          "text": "^kawhedragon_m (\\w+) (\\d+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00e9ff",
+          "highlight_bg": "#000000",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "This area is unnaturally flooded with water.",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": ""
+}

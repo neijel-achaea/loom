@@ -1,0 +1,1 @@
+send_command("cast illusion The limestone walls hum with a deep, slow resonance, and for a moment the weight of the earth above feels less a burden than an embrace.");
