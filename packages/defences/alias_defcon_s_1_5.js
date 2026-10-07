@@ -1,0 +1,1 @@
+run_function("defcon_set", {level: args[1] ? parseInt(args[1]) : null}, "defences");

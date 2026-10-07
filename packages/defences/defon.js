@@ -1,0 +1,1 @@
+send_command("curing defences on");

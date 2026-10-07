@@ -1,0 +1,232 @@
+{
+  "type": "group",
+  "name": "defences",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "defon",
+      "enabled": true,
+      "code": "@file:defon.js"
+    },
+    {
+      "type": "function",
+      "name": "defoff",
+      "enabled": true,
+      "code": "@file:defoff.js"
+    },
+    {
+      "type": "function",
+      "name": "defcon_set",
+      "enabled": true,
+      "code": "@file:defcon_set.js"
+    },
+    {
+      "type": "function",
+      "name": "defcon_drain",
+      "enabled": true,
+      "code": "@file:defcon_drain.js"
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_initdef.js"
+        }
+      ],
+      "text": "^initdef$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_defcon_s_1_5.js"
+        }
+      ],
+      "text": "^defcon(?:\\s+([1-5]))?$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "outr pear",
+          "prefix_suffix": false
+        },
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "eat pear",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "You choke as you inhale water.",
+      "matching": "substring",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#ff0000",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "fades from view and disappears.",
+      "matching": "substring",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#000000",
+          "highlight_bg": "#84e251",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "You have writhed free of your state of transfixation.",
+      "matching": "substring",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#000000",
+          "highlight_bg": "#84e251",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "You are no longer stunned.",
+      "matching": "substring",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#000000",
+          "highlight_bg": "#84e251",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "You have writhed free of your entanglement by webs.",
+      "matching": "substring",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "flail staff",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "^You start to wield a wyvern-etched druidic quarterstaff in your hands\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "gag",
+          "enabled": true
+        }
+      ],
+      "text": "^You have set the '.*' defence to the \\d+ priority\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "insomnia",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "^Your insomnia has cleared up\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Defence upkeep, defence configuration, initdef"
+}
