@@ -1,0 +1,55 @@
+{
+  "type": "group",
+  "name": "standings",
+  "enabled": true,
+  "description": "Standings 0.2 - EVE-style standings with adventurers and organisations, kept per character. Nudges (+ to +++, - to ---) with notes and IC dates; diminishing returns on a -10..+10 scale; tags with weighted averages; a review queue for trigger suggestions; 'Standings' tab. STN HELP for commands.",
+  "items": [
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "st_ensure",
+      "enabled": true,
+      "code": "@file:st_ensure.js"
+    },
+    {
+      "type": "function",
+      "name": "st_cmd",
+      "enabled": true,
+      "code": "@file:st_cmd.js"
+    },
+    {
+      "type": "function",
+      "name": "st_render",
+      "enabled": true,
+      "code": "@file:st_render.js"
+    },
+    {
+      "type": "function",
+      "name": "st_suggest",
+      "enabled": true,
+      "code": "@file:st_suggest.js"
+    },
+    {
+      "type": "alias",
+      "name": "Standings",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_standings.js"
+        }
+      ],
+      "text": "^stn(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+// Nothing to tear down; fsh_session is left intact.

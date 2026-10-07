@@ -1,0 +1,1 @@
+// Nothing to tear down; every gc_* variable is left intact.

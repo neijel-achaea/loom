@@ -1,0 +1,273 @@
+{
+  "type": "group",
+  "name": "ledger",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "lg_build",
+      "enabled": true,
+      "code": "@file:lg_build.js"
+    },
+    {
+      "type": "function",
+      "name": "lg_sync",
+      "enabled": true,
+      "code": "@file:lg_sync.js"
+    },
+    {
+      "type": "function",
+      "name": "lg_check",
+      "enabled": true,
+      "code": "@file:lg_check.js"
+    },
+    {
+      "type": "function",
+      "name": "lg_digest",
+      "enabled": true,
+      "code": "@file:lg_digest.js"
+    },
+    {
+      "type": "function",
+      "name": "lg_render",
+      "enabled": true,
+      "code": "@file:lg_render.js"
+    },
+    {
+      "type": "trigger",
+      "name": "lg_date",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_lg_date.js"
+        }
+      ],
+      "text": "^(?:It is now|Today is) the (\\d+)(?:st|nd|rd|th) of (\\w+), (\\d+) years after",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_date.js"
+        }
+      ],
+      "text": "^date$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_it_is_a_z.js"
+        }
+      ],
+      "text": "^It is [a-z\\- ]+\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_in_your_world_it_is.js"
+        }
+      ],
+      "text": "^In your world it is ",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledger.js"
+        }
+      ],
+      "text": "^ledger$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledger_add.js"
+        }
+      ],
+      "text": "^ledger add (.+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledger_done_d.js"
+        }
+      ],
+      "text": "^ledger done (\\d+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledger_drop_d.js"
+        }
+      ],
+      "text": "^ledger drop (\\d+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledger_touch_d.js"
+        }
+      ],
+      "text": "^ledger touch (\\d+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledger_date.js"
+        }
+      ],
+      "text": "^ledger date$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledgerstatus.js"
+        }
+      ],
+      "text": "^ledgerstatus$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledgerdebug_on_off.js"
+        }
+      ],
+      "text": "^ledgerdebug (on|off)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_ledgerreset.js"
+        }
+      ],
+      "text": "^ledgerreset$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ],
+  "description": "Ledger 0.1 - IC reminders and standing items on the Achaean calendar."
+}

@@ -1,0 +1,1 @@
+// Nothing to tear down; the persistent tal_pieces variable is left intact.

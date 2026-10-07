@@ -1,0 +1,273 @@
+{
+ "type": "group",
+ "name": "ledger",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Create persistent stores only if absent, so a reimport never clobbers data.\nvar have = false;\ntry { if (get_variable(\"lg_items\") !== undefined && (\"\" + get_variable(\"lg_items\")).length) { have = true; } } catch (e) { have = false; }\nif (!have) { set_variable(\"lg_items\", \"[]\"); set_variable(\"lg_seq\", \"0\"); }\ndisplay_notice(\"[ledger] installed. Create a UI tab named 'Ledger', and add the onLoad reflex.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Nothing to tear down; persistent variables are left intact."
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "// Tab icon: pure CSS keyed on the tab button's title, so Nexus's own\n// redraws (selecting, dragging, layout resets) cannot undo it.\nvar tiTabs = [[\"Ledger\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 17\"><path d=\"M14.5 1 C9 2.5 5.5 6.5 3.5 12.5 L5 12.8 C7 8 10 4.5 14.5 1 Z\" fill=\"#e6d5ac\"/><path d=\"M14.5 1 C10.5 4 7.5 8 5 12.8\" fill=\"none\" stroke=\"#8b6b47\" stroke-width=\"0.7\"/><path d=\"M3.5 12.5 L2.2 15.8\" stroke=\"#e6d5ac\" stroke-width=\"1.1\"/><circle cx=\"2\" cy=\"16\" r=\"0.9\" fill=\"#d0604c\"/></svg>']];\nfor (var tiI = 0; tiI < tiTabs.length; tiI++) {\n  var tiId = \"tabicon-\" + tiTabs[tiI][0].toLowerCase();\n  if (!document.getElementById(tiId)) {\n    var tiSel = '.flexlayout__tab_button[title=\"' + tiTabs[tiI][0] + '\" i]';\n    var tiSt = document.createElement(\"style\");\n    tiSt.id = tiId;\n    tiSt.textContent = tiSel + ' > * { display: none !important; } ' + tiSel + '::before { content: \"\"; display: block; width: 20px; height: 20px; margin: auto; background: url(\"data:image/svg+xml,' + encodeURIComponent(tiTabs[tiI][1]) + '\") center / contain no-repeat; }';\n    document.head.appendChild(tiSt);\n  }\n}\n\n// Ledger: self-contained startup. Seeds the Achaean date and queues the digest.\nrun_function(\"lg_build\", [], \"ledger\");\nclient.lg.pendingDigest = true;\nrun_function(\"lg_sync\", [], \"ledger\");\n"
+  },
+  {
+   "type": "function",
+   "name": "lg_build",
+   "enabled": true,
+   "code": "// Builder guard. Safe to call from anywhere; does nothing once built.\nif (!client.lg) {\n  client.lg = {};\n  client.lg.months = [\"Sarapin\", \"Daedalan\", \"Aeguary\", \"Miraman\", \"Scarlatan\", \"Ero\", \"Valnuary\", \"Lupar\", \"Phaestian\", \"Chronos\", \"Glacian\", \"Mayan\"];\n  client.lg.day = 0;\n  client.lg.armed = false;\n  client.lg.inBlock = false;\n  client.lg.pendingDigest = false;\n  client.lg.debug = (get_variable(\"lg_debug\") === \"1\");\n  var stored = get_variable(\"lg_day\");\n  if (stored && (\"\" + stored).length) { client.lg.day = parseInt(stored, 10) || 0; }\n  if (client.lg.debug) { display_notice(\"[ledger] built (day \" + client.lg.day + \")\", \"cyan\"); }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "lg_sync",
+   "enabled": true,
+   "code": "// Ask the game for the date. Suppressed while triggers are paused,\n// because that is the one thing that must not reach the server.\nrun_function(\"lg_build\", [], \"ledger\");\nvar pause = get_variable(\"pauseTriggers\");\nif (pause == \"off\") {\n  client.lg.armed = true;\n  send_command(\"date\");\n} else {\n  if (client.lg.debug) { display_notice(\"[ledger] sync skipped - triggers paused\", \"orange\"); }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "lg_check",
+   "enabled": true,
+   "code": "// Fire notices for anything now due, then refresh the tab.\nrun_function(\"lg_build\", [], \"ledger\");\nvar items = [];\ntry { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\nvar today = client.lg.day;\nvar dirty = false;\nvar i;\nfor (i = 0; i < items.length; i++) {\n  if (items[i].due && items[i].due <= today && !items[i].notified) {\n    items[i].notified = true;\n    dirty = true;\n    display_notice(\"[ledger] #\" + items[i].id + \" due - \" + items[i].text, \"#ffd77f\");\n  }\n}\nif (dirty) { set_variable(\"lg_items\", JSON.stringify(items)); }\nrun_function(\"lg_render\", [], \"ledger\");\nif (client.lg.pendingDigest) {\n  client.lg.pendingDigest = false;\n  run_function(\"lg_digest\", [], \"ledger\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "lg_digest",
+   "enabled": true,
+   "code": "// On-demand / login summary printed to the main window.\nrun_function(\"lg_build\", [], \"ledger\");\nvar items = [];\ntry { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\nvar today = client.lg.day;\n\nvar n = today - 1;\nvar yy = Math.floor(n / 300);\nvar rem = n - yy * 300;\nvar mi = Math.floor(rem / 25);\nvar dd = (rem % 25) + 1;\nvar stamp = today > 0 ? (dd + \" \" + client.lg.months[mi] + \" \" + yy) : \"date unknown\";\ndisplay_notice(\"[ledger] \" + stamp, \"cyan\");\n\nvar dated = [];\nvar standing = [];\nvar i;\nfor (i = 0; i < items.length; i++) {\n  if (items[i].due) { dated.push(items[i]); } else { standing.push(items[i]); }\n}\n\nvar j, cur;\nfor (i = 1; i < dated.length; i++) {\n  cur = dated[i]; j = i - 1;\n  while (j >= 0 && dated[j].due > cur.due) { dated[j + 1] = dated[j]; j--; }\n  dated[j + 1] = cur;\n}\nfor (i = 1; i < standing.length; i++) {\n  cur = standing[i]; j = i - 1;\n  while (j >= 0 && standing[j].touched > cur.touched) { standing[j + 1] = standing[j]; j--; }\n  standing[j + 1] = cur;\n}\n\nvar shown = 0;\nfor (i = 0; i < dated.length; i++) {\n  var diff = dated[i].due - today;\n  var mag = diff < 0 ? -diff : diff;\n  var mm = Math.floor(mag / 25);\n  var ddiff = mag % 25;\n  var rel = \"\";\n  if (mm > 0) { rel = mm + (mm == 1 ? \" month\" : \" months\"); }\n  if (ddiff > 0) { rel = rel + (rel.length ? \", \" : \"\") + ddiff + (ddiff == 1 ? \" day\" : \" days\"); }\n  if (!rel.length) { rel = \"today\"; }\n  if (diff < 0) {\n    display_notice(\"[ledger] #\" + dated[i].id + \" OVERDUE by \" + rel + \" - \" + dated[i].text, \"#ff5f5f\");\n    shown++;\n  } else if (shown < 5) {\n    var lead = (diff === 0) ? \"today\" : (\"in \" + rel);\n    display_notice(\"[ledger] #\" + dated[i].id + \" \" + lead + \" - \" + dated[i].text, \"#ffd77f\");\n    shown++;\n  }\n}\nif (dated.length === 0) { display_notice(\"[ledger] nothing on the calendar\", \"#889999\"); }\n\nif (standing.length > 0) {\n  display_notice(\"[ledger] \" + standing.length + \" standing - oldest: #\" + standing[0].id + \" \" + standing[0].text, \"#8fe0c8\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "lg_render",
+   "enabled": true,
+   "code": "// Rebuild the 'Ledger' custom tab in the house style shared with Coffers and\n// Level: ink panel, serif small-caps headings, one large figure (here the\n// Achaean date), monospace ledger rows. Accents are parchment, sepia ink and\n// sealing-wax red for anything overdue.\nrun_function(\"lg_build\", [], \"ledger\");\nvar items = [];\ntry { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\nvar today = client.lg.day;\n\nvar PARCH = \"#e6d5ac\";\nvar SEPIA = \"#8b6b47\";\nvar WAX = \"#d0604c\";\nvar AMBER = \"#e0a95a\";\nvar TXT = \"#e4dccb\";\nvar MUTED = \"#8c8272\";\nvar RULE = \"#352c22\";\nvar SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\nvar MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\nvar SOON = 5;\n\nfunction esc(s) { return String(s).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\"); }\nfunction rel(mag) {\n  var mm = Math.floor(mag / 25);\n  var dd = mag % 25;\n  var r = \"\";\n  if (mm > 0) { r = mm + \"mo\"; }\n  if (dd > 0) { r = r + (r.length ? \" \" : \"\") + dd + \"d\"; }\n  return r;\n}\nfunction dayName(d) {\n  var n = d - 1;\n  var y = Math.floor(n / 300);\n  var rem = n - y * 300;\n  return ((rem % 25) + 1) + \" \" + client.lg.months[Math.floor(rem / 25)];\n}\nfunction caps(t, col) { return '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || SEPIA) + ';font-size:11px;margin:0 0 2px;\">' + t + '</div>'; }\nfunction section(title, inner, col) { return '<div style=\"border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;\">' + caps(title, col) + inner + '</div>'; }\nfunction quiet(t) { return '<div style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">' + t + '</div>'; }\n// One ledger line: entry number in the margin, the text, and the reckoning on the right.\nfunction entry(id, text, right, rightCol, textCol) {\n  return '<div style=\"display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;\">' +\n    '<span style=\"color:' + SEPIA + ';min-width:2.4em;\">#' + id + '</span>' +\n    '<span style=\"flex:1 1 auto;min-width:0;color:' + (textCol || TXT) + ';\">' + text + '</span>' +\n    '<span style=\"color:' + rightCol + ';white-space:nowrap;text-align:right;\">' + right + '</span></div>';\n}\n\n// Sort: dated by due day, standing by oldest touch first.\nvar dated = [];\nvar standing = [];\nvar i, j, cur;\nfor (i = 0; i < items.length; i++) { if (items[i].due) { dated.push(items[i]); } else { standing.push(items[i]); } }\nfor (i = 1; i < dated.length; i++) {\n  cur = dated[i]; j = i - 1;\n  while (j >= 0 && dated[j].due > cur.due) { dated[j + 1] = dated[j]; j--; }\n  dated[j + 1] = cur;\n}\nfor (i = 1; i < standing.length; i++) {\n  cur = standing[i]; j = i - 1;\n  while (j >= 0 && standing[j].touched > cur.touched) { standing[j + 1] = standing[j]; j--; }\n  standing[j + 1] = cur;\n}\nvar overdue = 0, soon = 0;\nfor (i = 0; i < dated.length; i++) {\n  if (today > 0 && dated[i].due < today) { overdue++; }\n  else if (today > 0 && dated[i].due - today <= SOON) { soon++; }\n}\n\n// A quill for the title, the ledger's counterpart of the coin stack.\nvar quill = '<svg width=\"16\" height=\"17\" viewBox=\"0 0 16 17\" style=\"vertical-align:-3px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n  '<path d=\"M14.5 1 C9 2.5 5.5 6.5 3.5 12.5 L5 12.8 C7 8 10 4.5 14.5 1 Z\" fill=\"' + PARCH + '\"/>' +\n  '<path d=\"M14.5 1 C10.5 4 7.5 8 5 12.8\" fill=\"none\" stroke=\"' + SEPIA + '\" stroke-width=\"0.7\"/>' +\n  '<path d=\"M3.5 12.5 L2.2 15.8\" stroke=\"' + PARCH + '\" stroke-width=\"1.1\"/><circle cx=\"2\" cy=\"16\" r=\"0.9\" fill=\"' + WAX + '\"/></svg>';\n\nvar html = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#15120e;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\nhtml += '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + SEPIA + ';padding-bottom:3px;\">';\nhtml += '<div style=\"font-family:' + SERIF + ';color:' + PARCH + ';font-size:14px;letter-spacing:0.22em;\">' + quill + 'LEDGER</div>';\nvar tally = [];\nif (overdue > 0) { tally.push('<span style=\"color:' + WAX + ';\">' + overdue + ' overdue</span>'); }\nif (soon > 0) { tally.push('<span style=\"color:' + AMBER + ';\">' + soon + ' soon</span>'); }\ntally.push(standing.length + ' standing');\nhtml += '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + SEPIA + ';font-size:11px;\">' + tally.join(' &middot; ') + '</div></div>';\n\n// The date itself is the headline figure.\nif (today > 0) {\n  var n = today - 1;\n  var yy = Math.floor(n / 300);\n  var rem = n - yy * 300;\n  var mi = Math.floor(rem / 25);\n  var dd = (rem % 25) + 1;\n  html += '<div style=\"margin:6px 0 2px;\"><span style=\"font-family:' + SERIF + ';font-size:24px;color:' + PARCH + ';\">' + dd + ' ' + client.lg.months[mi] + '</span>';\n  html += ' <span style=\"font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;\">the year ' + yy + ' AF</span></div>';\n\n  // The month as a strip of 25 days: past days faded, today lit, and a wax\n  // dot on any day this month that has something due.\n  var monthStart = yy * 300 + mi * 25 + 1;\n  var marks = {};\n  for (i = 0; i < dated.length; i++) {\n    if (dated[i].due >= monthStart && dated[i].due < monthStart + 25) { marks[dated[i].due - monthStart + 1] = dated[i].due < today ? WAX : AMBER; }\n  }\n  var strip = '<div style=\"display:flex;gap:2px;margin:3px 0 1px;\">';\n  for (var c = 1; c <= 25; c++) {\n    var bg = c < dd ? \"#2a231b\" : (c === dd ? PARCH : \"#1f1a14\");\n    var bd = c === dd ? PARCH : (c < dd ? \"#2a231b\" : RULE);\n    strip += '<div style=\"flex:1 1 0;height:9px;background:' + bg + ';border:1px solid ' + bd + ';position:relative;\">';\n    if (marks[c]) { strip += '<div style=\"position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:' + (c === dd ? \"#15120e\" : marks[c]) + ';\"></div>'; }\n    strip += '</div>';\n  }\n  strip += '</div>';\n  html += strip;\n  html += '<div style=\"display:flex;justify-content:space-between;color:' + MUTED + ';\"><span>1 ' + client.lg.months[mi] + '</span><span>' + (25 - dd) + ' day' + (25 - dd === 1 ? '' : 's') + ' left in the month</span><span>25</span></div>';\n} else {\n  html += '<div style=\"margin:6px 0 2px;font-family:' + SERIF + ';font-size:18px;color:' + MUTED + ';font-style:italic;\">date not yet known</div>';\n  html += '<div style=\"color:' + MUTED + ';\">LEDGER DATE asks the game.</div>';\n}\n\n// Approaching: dated items in due order.\nvar ap = \"\";\nif (dated.length === 0) {\n  ap = quiet(\"Nothing on the calendar.\");\n} else {\n  for (i = 0; i < dated.length; i++) {\n    var diff = dated[i].due - today;\n    var r = rel(diff < 0 ? -diff : diff);\n    var when, col;\n    if (diff < 0) { when = \"overdue \" + r; col = WAX; }\n    else if (diff === 0) { when = \"today\"; col = AMBER; }\n    else if (diff <= SOON) { when = \"in \" + r; col = AMBER; }\n    else { when = \"in \" + r; col = TXT; }\n    var txt = esc(dated[i].text);\n    if (dated[i].repeat) { txt += ' <span style=\"color:' + SEPIA + ';\" title=\"repeats\">&#8635;</span>'; }\n    var right = '<span style=\"color:' + MUTED + ';\">' + dayName(dated[i].due) + '</span>&nbsp; ' + when;\n    ap += entry(dated[i].id, txt, right, col, diff < 0 ? WAX : TXT);\n  }\n}\nhtml += section(\"Approaching\", ap, PARCH);\n\n// Standing: undated items, oldest touch first; long neglect warms toward amber.\nvar st = \"\";\nif (standing.length === 0) {\n  st = quiet(\"Nothing outstanding.\");\n} else {\n  for (i = 0; i < standing.length; i++) {\n    var age = today - standing[i].touched;\n    var arel = rel(age);\n    if (!arel.length) { arel = \"fresh\"; }\n    else { arel = \"untouched \" + arel; }\n    st += entry(standing[i].id, esc(standing[i].text), arel, age >= 50 ? AMBER : MUTED);\n  }\n}\nhtml += section(\"Standing\", st, PARCH);\n\nhtml += '</div>';\ntry { set_custom_tab_html(\"Ledger\", html); } catch (e) {}"
+  },
+  {
+   "type": "trigger",
+   "name": "lg_date",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Handles BOTH the hourly rollover and the DATE reply - same tail, one pattern.\nrun_function(\"lg_build\", [], \"ledger\");\nvar dd = parseInt(args[1], 10);\nvar mn = args[2].toLowerCase();\nvar yy = parseInt(args[3], 10);\nvar mi = -1;\nvar i;\nfor (i = 0; i < client.lg.months.length; i++) {\n  if (client.lg.months[i].toLowerCase() == mn) { mi = i; }\n}\nif (mi < 0) {\n  display_notice(\"[ledger] unknown month in date line: \" + args[2], \"#ff5f5f\");\n} else {\n  if (client.lg.armed) {\n    gag_current_line();\n    client.lg.armed = false;\n    client.lg.inBlock = true;\n  }\n  client.lg.day = yy * 300 + mi * 25 + dd;\n  set_variable(\"lg_day\", \"\" + client.lg.day);\n  run_function(\"lg_check\", [], \"ledger\");\n}\n"
+    }
+   ],
+   "text": "^(?:It is now|Today is) the (\\d+)(?:st|nd|rd|th) of (\\w+), (\\d+) years after",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Echoed command. Only ever gagged between asking for the date and getting it.\nif (client.lg && client.lg.armed) { gag_current_line(); }"
+    }
+   ],
+   "text": "^date$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Only inside a confirmed DATE block, so a stray \"It is raining.\" is never eaten.\nif (client.lg && client.lg.inBlock) { gag_current_line(); }"
+    }
+   ],
+   "text": "^It is [a-z\\- ]+\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Known last line of the DATE block - this is what closes the capture.\nif (client.lg && client.lg.inBlock) {\n  gag_current_line();\n  client.lg.inBlock = false;\n}\n"
+    }
+   ],
+   "text": "^In your world it is ",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nrun_function(\"lg_digest\", [], \"ledger\");\nrun_function(\"lg_sync\", [], \"ledger\");\n"
+    }
+   ],
+   "text": "^ledger$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nvar raw = args[1];\nvar at = raw.indexOf(\" @ \");\nvar txt = raw;\nvar tail = \"\";\nif (at >= 0) {\n  txt = raw.substring(0, at).trim();\n  tail = raw.substring(at + 3).trim().toLowerCase();\n}\nvar today = client.lg.day;\nvar due = null;\nvar rep = null;\nvar bad = \"\";\n\nif (!txt.length) {\n  bad = \"no text given\";\n} else if (tail.length && today === 0) {\n  bad = \"date not known yet - run LEDGER DATE first\";\n} else if (tail.length) {\n  var mRel = tail.match(/^\\+(\\d+)\\s+(day|days|month|months)(\\s+repeat)?$/);\n  var mFix = tail.match(/^(\\d+)\\s+([a-z]+)\\s+(\\d+)(\\s+repeat)?$/);\n  if (mRel) {\n    var nn = parseInt(mRel[1], 10);\n    var step = (mRel[2].charAt(0) == \"m\") ? nn * 25 : nn;\n    due = today + step;\n    if (mRel[3]) { rep = { t: \"i\", n: step }; }\n  } else if (mFix) {\n    var fd = parseInt(mFix[1], 10);\n    var fy = parseInt(mFix[3], 10);\n    var fi = -1;\n    var k;\n    for (k = 0; k < client.lg.months.length; k++) {\n      if (client.lg.months[k].toLowerCase() == mFix[2]) { fi = k; }\n    }\n    if (fi < 0) { bad = \"unknown month: \" + mFix[2]; }\n    else if (fd < 1 || fd > 25) { bad = \"day must be 1-25\"; }\n    else {\n      due = fy * 300 + fi * 25 + fd;\n      if (mFix[4]) { rep = { t: \"a\", m: fi, d: fd }; }\n    }\n  } else {\n    bad = \"cannot read '\" + tail + \"' - use '15 Miraman 1015' or '+4 months', optionally + ' repeat'\";\n  }\n  if (!bad.length && due < today) { bad = \"that date is already behind you - nothing added\"; }\n}\n\nif (bad.length) {\n  display_notice(\"[ledger] \" + bad, \"#ff5f5f\");\n} else {\n  var items = [];\n  try { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\n  var seq = parseInt(get_variable(\"lg_seq\") || \"0\", 10) + 1;\n  var rec = {};\n  rec.id = seq;\n  rec.text = txt;\n  rec.source = \"manual\";\n  rec.status = \"open\";\n  rec.created = today;\n  rec.touched = today;\n  rec.due = due;\n  rec.repeat = rep;\n  rec.tag = null;\n  rec.link = null;\n  rec.notified = false;\n  items.push(rec);\n  set_variable(\"lg_items\", JSON.stringify(items));\n  set_variable(\"lg_seq\", \"\" + seq);\n  display_notice(\"[ledger] #\" + seq + \" added\" + (due ? \"\" : \" (standing)\"), \"#8fe0c8\");\n  run_function(\"lg_check\", [], \"ledger\");\n}\n"
+    }
+   ],
+   "text": "^ledger add (.+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nvar want = parseInt(args[1], 10);\nvar items = [];\ntry { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\nvar today = client.lg.day;\nvar idx = -1;\nvar i;\nfor (i = 0; i < items.length; i++) { if (items[i].id === want) { idx = i; } }\n\nif (idx < 0) {\n  display_notice(\"[ledger] no item #\" + want, \"#ff5f5f\");\n} else if (items[idx].repeat) {\n  var r = items[idx].repeat;\n  var next;\n  if (r.t == \"i\") {\n    next = today + r.n;\n  } else {\n    var y = Math.floor((today - 1) / 300);\n    next = y * 300 + r.m * 25 + r.d;\n    while (next <= today) { next = next + 300; }\n  }\n  items[idx].due = next;\n  items[idx].touched = today;\n  items[idx].notified = false;\n  set_variable(\"lg_items\", JSON.stringify(items));\n  var gap = next - today;\n  display_notice(\"[ledger] #\" + want + \" done - next in \" + Math.floor(gap / 25) + \"mo \" + (gap % 25) + \"d\", \"#8fe0c8\");\n  run_function(\"lg_render\", [], \"ledger\");\n} else {\n  var gone = items[idx].text;\n  items.splice(idx, 1);\n  set_variable(\"lg_items\", JSON.stringify(items));\n  display_notice(\"[ledger] #\" + want + \" done - \" + gone, \"#8fe0c8\");\n  run_function(\"lg_render\", [], \"ledger\");\n}\n"
+    }
+   ],
+   "text": "^ledger done (\\d+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nvar want = parseInt(args[1], 10);\nvar items = [];\ntry { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\nvar idx = -1;\nvar i;\nfor (i = 0; i < items.length; i++) { if (items[i].id === want) { idx = i; } }\nif (idx < 0) {\n  display_notice(\"[ledger] no item #\" + want, \"#ff5f5f\");\n} else {\n  var gone = items[idx].text;\n  items.splice(idx, 1);\n  set_variable(\"lg_items\", JSON.stringify(items));\n  display_notice(\"[ledger] #\" + want + \" dropped - \" + gone, \"orange\");\n  run_function(\"lg_render\", [], \"ledger\");\n}\n"
+    }
+   ],
+   "text": "^ledger drop (\\d+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nvar want = parseInt(args[1], 10);\nvar items = [];\ntry { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\nvar idx = -1;\nvar i;\nfor (i = 0; i < items.length; i++) { if (items[i].id === want) { idx = i; } }\nif (idx < 0) {\n  display_notice(\"[ledger] no item #\" + want, \"#ff5f5f\");\n} else {\n  items[idx].touched = client.lg.day;\n  set_variable(\"lg_items\", JSON.stringify(items));\n  display_notice(\"[ledger] #\" + want + \" touched\", \"#8fe0c8\");\n  run_function(\"lg_render\", [], \"ledger\");\n}\n"
+    }
+   ],
+   "text": "^ledger touch (\\d+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nrun_function(\"lg_sync\", [], \"ledger\");\n"
+    }
+   ],
+   "text": "^ledger date$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nvar items = [];\ntry { items = JSON.parse(get_variable(\"lg_items\")) || []; } catch (e) { items = []; }\ndisplay_notice(\"[ledger] day \" + client.lg.day + \" | items \" + items.length + \" | seq \" + get_variable(\"lg_seq\") + \" | armed \" + (client.lg.armed ? \"yes\" : \"no\") + \" | inblock \" + (client.lg.inBlock ? \"yes\" : \"no\") + \" | debug \" + (client.lg.debug ? \"ON\" : \"OFF\"), \"cyan\");\n"
+    }
+   ],
+   "text": "^ledgerstatus$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lg_build\", [], \"ledger\");\nvar v = args[1].toLowerCase();\nclient.lg.debug = (v === \"on\");\nset_variable(\"lg_debug\", client.lg.debug ? \"1\" : \"0\");\ndisplay_notice(\"[ledger] debug \" + (client.lg.debug ? \"ON\" : \"OFF\"), \"cyan\");\n"
+    }
+   ],
+   "text": "^ledgerdebug (on|off)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "client.lg = null;\ndisplay_notice(\"[ledger] cleared - rebuilds on next command\", \"cyan\");\n"
+    }
+   ],
+   "text": "^ledgerreset$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  }
+ ],
+ "description": "Ledger 0.1 - IC reminders and standing items on the Achaean calendar."
+}

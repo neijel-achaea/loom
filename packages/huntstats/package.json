@@ -1,0 +1,199 @@
+{
+  "type": "group",
+  "name": "huntstats",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "hs_ensureTable",
+      "enabled": true,
+      "code": "@file:hs_ensuretable.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "hs_finalize",
+      "enabled": true,
+      "code": "@file:hs_finalize.js"
+    },
+    {
+      "type": "function",
+      "name": "hs_render",
+      "enabled": true,
+      "code": "@file:hs_render.js"
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_huntstats.js"
+        }
+      ],
+      "text": "^huntstats$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_huntareas.js"
+        }
+      ],
+      "text": "^huntareas$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_huntlog.js"
+        }
+      ],
+      "text": "^huntlog$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_huntflush.js"
+        }
+      ],
+      "text": "^huntflush$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_huntwipe_s_confirm.js"
+        }
+      ],
+      "text": "^huntwipe(?:\\s+(confirm))?$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_have_gained_d_experience.js"
+        }
+      ],
+      "text": "^You have gained (\\d+) experience\\.",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_pick_up_d_gold_sovereigns.js"
+        }
+      ],
+      "text": "^You pick up ([\\d,]+) gold sovereigns\\.",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_have_slain.js"
+        }
+      ],
+      "text": "^You have slain ",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_level_s_s_d_s_d.js"
+        }
+      ],
+      "text": "Level\\s*:\\s*(\\d+)\\s*\\(([\\d.]+)%\\)",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Automatic per-area hunting sessions with persistent stats, kill counts, group co-presence, Dragonhood progress, crash-safe checkpointing, a quit wrapper, and a 'Stats' UI tab."
+}

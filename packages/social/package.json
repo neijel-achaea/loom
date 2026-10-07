@@ -1,0 +1,380 @@
+{
+  "type": "group",
+  "name": "social",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "hlinit",
+      "enabled": true,
+      "code": "@file:hlinit.js"
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_hlsetup.js"
+        }
+      ],
+      "text": "^hlsetup$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_hladd_w_w.js"
+        }
+      ],
+      "text": "^hladd (\\w+) (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_hldel_w_w.js"
+        }
+      ],
+      "text": "^hldel (\\w+) (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_hllist_w.js"
+        }
+      ],
+      "text": "^hllist (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_hlreset.js"
+        }
+      ],
+      "text": "^hlreset$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_hlcolor_w_0_9a_fa_f_6.js"
+        }
+      ],
+      "text": "^hlcolor (\\w+) (#[0-9A-Fa-f]{6})$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_hlcolor_w.js"
+        }
+      ],
+      "text": "^hlcolor (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#fdff4d",
+          "highlight_bg": "#000000",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "Neijel",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "hl",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_hl.js"
+        }
+      ],
+      "text": "^(.*)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_enemies_of_the_verdant_wilds_of_eleusis.js"
+        }
+      ],
+      "text": "^Enemies of the Verdant Wilds of Eleusis:",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_a_z_a_z_s_a_z_a_z_s.js"
+        }
+      ],
+      "text": "^([A-Z][a-z]+(?:,\\s*[A-Z][a-z]+)*),?\\s*$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_total_d.js"
+        }
+      ],
+      "text": "^Total: (\\d+)",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "wl",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_wl.js"
+        }
+      ],
+      "text": "^(.*)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wlwatch_w.js"
+        }
+      ],
+      "text": "^wlwatch (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wlunwatch_w.js"
+        }
+      ],
+      "text": "^wlunwatch (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wllist.js"
+        }
+      ],
+      "text": "^wllist$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wlpoll_on_off.js"
+        }
+      ],
+      "text": "^wlpoll (on|off)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wlreset.js"
+        }
+      ],
+      "text": "^wlreset$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wlpollnow.js"
+        }
+      ],
+      "text": "^wlpollnow$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wlstatus.js"
+        }
+      ],
+      "text": "^wlstatus$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_wldebug_on_off.js"
+        }
+      ],
+      "text": "^wldebug (on|off)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    }
+  ],
+  "description": ""
+}

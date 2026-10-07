@@ -1,0 +1,191 @@
+{
+  "type": "group",
+  "name": "levelgraph",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "lvl_ensure",
+      "enabled": true,
+      "code": "@file:lvl_ensure.js"
+    },
+    {
+      "type": "function",
+      "name": "lvl_sample",
+      "enabled": true,
+      "code": "@file:lvl_sample.js"
+    },
+    {
+      "type": "function",
+      "name": "lvl_render",
+      "enabled": true,
+      "code": "@file:lvl_render.js"
+    },
+    {
+      "type": "function",
+      "name": "lvl_rate",
+      "enabled": true,
+      "code": "@file:lvl_rate.js"
+    },
+    {
+      "type": "trigger",
+      "name": "Level Prompt Tick",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_level_prompt_tick.js"
+        }
+      ],
+      "text": "^\\d+h,\\s*\\d+m,",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    },
+    {
+      "type": "alias",
+      "name": "Level Rate",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_level_rate.js"
+        }
+      ],
+      "text": "^lvlrate$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "Level Mark",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_level_mark.js"
+        }
+      ],
+      "text": "^lvlmark$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "Level Graph Toggle",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_level_graph_toggle.js"
+        }
+      ],
+      "text": "^lvlgraph(?:\\s+(session|long))?(?:\\s+(on|off))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "Level Graph Size",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_level_graph_size.js"
+        }
+      ],
+      "text": "^lvlgraphsize(?:\\s+(\\d+))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "Level Span",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_level_span.js"
+        }
+      ],
+      "text": "^lvlspan(?:\\s+(session|long)(?:\\s+(\\d+))?)?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "Level History Wipe",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_level_history_wipe.js"
+        }
+      ],
+      "text": "^lvlhistwipe(?:\\s+(confirm))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "Level History CSV",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_level_history_csv.js"
+        }
+      ],
+      "text": "^lvlhistcsv(?:\\s+(session|long))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    }
+  ],
+  "description": "Level progress tracker with two graphs in a UI tab named 'Level': a session pane (one point per minute, trailing window) and a long-term pane (one point per day). Reads my_level and my_nl. Buffers are lvl_min and lvl_day, each [unixSeconds, level, nl]."
+}

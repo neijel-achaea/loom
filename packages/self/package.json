@@ -1,0 +1,222 @@
+{
+  "type": "group",
+  "name": "self",
+  "enabled": true,
+  "description": "Self 0.4 - a 'Self' tab replacing the stock character panel: afflictions grouped by cure, character stats, defences with a watch list (missing ones in red, losses announced) and recently lost defences. Live from GMCP Char.Afflictions / Char.Defences / Char.Vitals / Char.Status.",
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "self_init",
+      "enabled": true,
+      "code": "@file:self_init.js"
+    },
+    {
+      "type": "function",
+      "name": "self_render",
+      "enabled": true,
+      "code": "@file:self_render.js"
+    },
+    {
+      "type": "function",
+      "name": "self_cmd",
+      "enabled": true,
+      "code": "@file:self_cmd.js"
+    },
+    {
+      "type": "alias",
+      "name": "Self",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_self.js"
+        }
+      ],
+      "text": "^self(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self DIAG needed",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_diag_needed.js"
+        }
+      ],
+      "text": "^You are confused as to the effects of the venom\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self DIAG done",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_diag_done.js"
+        }
+      ],
+      "text": "^You are\\:$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self score age",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_score_age.js"
+        }
+      ],
+      "text": "^\\|?\\s*Age\\s*:\\s*(\\d+)",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self score ranks",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_score_ranks.js"
+        }
+      ],
+      "text": "^\\|?\\s*XP Rank:\\s*(\\d+)\\s+Explorer Rank:\\s*(\\d+)",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self score rest",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_score_rest.js"
+        }
+      ],
+      "text": "^\\|?\\s*Rest\\s*:\\s*(.+?)\\s+Bleeding\\s*:",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self score hunger",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_score_hunger.js"
+        }
+      ],
+      "text": "^\\|?\\s*Hunger\\s*:\\s*(.+?)\\s+Sobriety\\s*:\\s*(.+?)\\s*\\|?\\s*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self score city",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_score_city.js"
+        }
+      ],
+      "text": "^\\|?\\s*[A-Z][a-z]+\\s*:\\s*Rank (\\d+) - (.+?)\\s*\\|?\\s*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self score house",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_score_house.js"
+        }
+      ],
+      "text": "^\\|?\\s*\\(Rank (\\d+) - (.+?)\\)\\s*\\|?\\s*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Self score soldier",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_self_score_soldier.js"
+        }
+      ],
+      "text": "^\\|?\\s*Soldier\\s*:\\s*(\\w+)",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "Self setname",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_self_setname.js"
+        }
+      ],
+      "text": "^setname (\\w+)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ]
+}

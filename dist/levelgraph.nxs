@@ -1,0 +1,191 @@
+{
+ "type": "group",
+ "name": "levelgraph",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Initialise the history store without clobbering it on reimport.\nvar have = false;\ntry { if (get_variable(\"lvl_hist\") !== undefined) { have = true; } } catch (e) { have = false; }\nif (!have) { set_variable(\"lvl_day\", \"[]\"); set_variable(\"lvl_min\", \"[]\"); }\ndisplay_notice(\"[level] installed. Create a UI tab named 'Level' for the panel. Commands: lvlrate, lvlmark, lvlgraph [session|long] on|off, lvlgraphsize 40-400, lvlspan session <min> / long <days>, lvlhistcsv [session], lvlhistwipe confirm.\", \"cyan\");"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Nothing to tear down; lvl_day and lvl_min are left intact."
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "// Tab icon: pure CSS keyed on the tab button's title, so Nexus's own\n// redraws (selecting, dragging, layout resets) cannot undo it.\nvar tiTabs = [[\"Level\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 18 16\"><rect x=\"1\" y=\"11\" width=\"4\" height=\"4\" fill=\"#4d6f86\"/><rect x=\"7\" y=\"7\" width=\"4\" height=\"8\" fill=\"#8fbfe0\" fill-opacity=\"0.7\"/><rect x=\"13\" y=\"2\" width=\"4\" height=\"13\" fill=\"#8fbfe0\"/><path d=\"M13 1.5 L15 0 L17 1.5\" fill=\"none\" stroke=\"#e8f3fb\" stroke-width=\"0.8\"/></svg>']];\nfor (var tiI = 0; tiI < tiTabs.length; tiI++) {\n  var tiId = \"tabicon-\" + tiTabs[tiI][0].toLowerCase();\n  if (!document.getElementById(tiId)) {\n    var tiSel = '.flexlayout__tab_button[title=\"' + tiTabs[tiI][0] + '\" i]';\n    var tiSt = document.createElement(\"style\");\n    tiSt.id = tiId;\n    tiSt.textContent = tiSel + ' > * { display: none !important; } ' + tiSel + '::before { content: \"\"; display: block; width: 20px; height: 20px; margin: auto; background: url(\"data:image/svg+xml,' + encodeURIComponent(tiTabs[tiI][1]) + '\") center / contain no-repeat; }';\n    document.head.appendChild(tiSt);\n  }\n}"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "try { run_function(\"lvl_sample\", [], \"levelgraph\"); } catch (e) {}"
+  },
+  {
+   "type": "function",
+   "name": "lvl_ensure",
+   "enabled": true,
+   "code": "// Two independent ring buffers, each bounded by construction:\n//   lvl_day  one point per calendar day, trailing 100 days  (long-term trend)\n//   lvl_min  one point per wall-clock minute, trailing 120  (current session)\n// Both store [unixSeconds, level, nl]. Progress is level + nl/100.\nfunction lvlDayKey(t) {\n  var d = new Date(t * 1000);\n  return d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate();\n}\nfunction lvlLoadArr(name) {\n  var a = [];\n  try { a = JSON.parse(get_variable(name)) || []; } catch (e) { a = []; }\n  if (Object.prototype.toString.call(a) !== \"[object Array]\") { a = []; }\n  return a;\n}\nfunction lvlNum(name, def, lo, hi) {\n  var v = def;\n  try { if (get_variable(name) !== undefined) { v = parseInt(get_variable(name), 10); } } catch (e) { v = def; }\n  if (!v || isNaN(v) || v < lo) { v = def; }\n  if (v > hi) { v = hi; }\n  return v;\n}\n\nif (!client.lvlMin) { client.lvlMin = lvlLoadArr(\"lvl_min\"); }\n\nif (!client.lvlDay) {\n  var day = lvlLoadArr(\"lvl_day\");\n  if (day.length === 0) {\n    // One-time migration: fold any legacy lvl_hist down to one point per day\n    // so previously collected history is not thrown away.\n    var old = lvlLoadArr(\"lvl_hist\");\n    var lastKey = \"\";\n    for (var mi = 0; mi < old.length; mi++) {\n      var k = lvlDayKey(old[mi][0]);\n      if (k === lastKey && day.length > 0) { day[day.length - 1] = old[mi]; }\n      else { day.push(old[mi]); lastKey = k; }\n    }\n    if (day.length > 0) {\n      try { set_variable(\"lvl_day\", JSON.stringify(day)); } catch (e) {}\n    }\n  }\n  client.lvlDay = day;\n}\n\nif (client.lvlGraphLong === undefined) {\n  var gl = \"1\";\n  try { if (get_variable(\"lvl_graph_long\") !== undefined) { gl = String(get_variable(\"lvl_graph_long\")); } } catch (e) { gl = \"1\"; }\n  client.lvlGraphLong = (gl !== \"0\");\n}\nif (client.lvlGraphSess === undefined) {\n  var gs = \"1\";\n  try { if (get_variable(\"lvl_graph_sess\") !== undefined) { gs = String(get_variable(\"lvl_graph_sess\")); } } catch (e) { gs = \"1\"; }\n  client.lvlGraphSess = (gs !== \"0\");\n}\nif (client.lvlChartH === undefined) { client.lvlChartH = lvlNum(\"lvl_graph_h\", 105, 40, 400); }\nif (client.lvlDays === undefined) { client.lvlDays = lvlNum(\"lvl_span_days\", 100, 7, 365); }\nif (client.lvlMins === undefined) { client.lvlMins = lvlNum(\"lvl_span_mins\", 120, 15, 720); }"
+  },
+  {
+   "type": "function",
+   "name": "lvl_sample",
+   "enabled": true,
+   "code": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nvar lv = 0;\nvar nl = 0;\ntry { lv = parseFloat(String(get_variable(\"my_level\"))); } catch (e) { lv = 0; }\ntry { nl = parseFloat(String(get_variable(\"my_nl\"))); } catch (e) { nl = 0; }\nif (isNaN(lv)) { lv = 0; }\nif (isNaN(nl)) { nl = 0; }\nif (nl < 0) { nl = 0; }\nif (nl > 100) { nl = 100; }\n\nif (lv > 0) {\n  var now = Math.floor(new Date().getTime() / 1000);\n  var nlr = Math.round(nl * 100) / 100;\n  var force = client.lvlForceMark ? true : false;\n  client.lvlForceMark = false;\n  var wrote = false;\n\n  // Absolute buckets rather than elapsed time. Sliding a point's timestamp\n  // within its own bucket cannot move it to another bucket, so no separate\n  // anchor is needed to decide when a new point begins.\n  function minKey(t) { return Math.floor(t / 60); }\n  function dayKey(t) {\n    var d = new Date(t * 1000);\n    return d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate();\n  }\n\n  function dayStart(t) {\n    var d = new Date(t * 1000);\n    d.setHours(0, 0, 0, 0);\n    return Math.floor(d.getTime() / 1000);\n  }\n\n  // Session buffer ticks once a minute whether or not experience moved, so\n  // the pane reads as a clock over the trailing window. Idle time is a flat\n  // segment rather than a gap.\n  function feedMin() {\n    var arr = client.lvlMin;\n    if (arr.length === 0) { arr.push([now, lv, nlr]); return true; }\n    var last = arr[arr.length - 1];\n    if (minKey(last[0]) !== minKey(now)) { arr.push([now, lv, nlr]); return true; }\n    if (last[1] !== lv || last[2] !== nlr) {\n      last[0] = now; last[1] = lv; last[2] = nlr;\n      return true;\n    }\n    return false;\n  }\n\n  // Day buffer carries the last known value across days that were never\n  // played, so a week away shows as a week of flat line rather than a jump.\n  function feedDay() {\n    var arr = client.lvlDay;\n    if (arr.length === 0) { arr.push([now, lv, nlr]); return true; }\n    var last = arr[arr.length - 1];\n    if (dayKey(last[0]) === dayKey(now)) {\n      if (last[1] !== lv || last[2] !== nlr) {\n        last[0] = now; last[1] = lv; last[2] = nlr;\n        return true;\n      }\n      return false;\n    }\n    var carryLv = last[1];\n    var carryNl = last[2];\n    var cut = now - client.lvlDays * 86400;\n    var todayStart = dayStart(now);\n    // Step by calendar date rather than by 86400 so daylight saving does not\n    // drift the cursor off midnight.\n    var cur = new Date(dayStart(last[0]) * 1000);\n    cur.setDate(cur.getDate() + 1);\n    var guard = 0;\n    while (Math.floor(cur.getTime() / 1000) < todayStart && guard < 400) {\n      var noon = Math.floor(cur.getTime() / 1000) + 43200;\n      if (noon >= cut) { arr.push([noon, carryLv, carryNl]); }\n      cur.setDate(cur.getDate() + 1);\n      guard++;\n    }\n    arr.push([now, lv, nlr]);\n    return true;\n  }\n\n  if (feedMin()) { wrote = true; }\n  if (feedDay()) { wrote = true; }\n\n  // Trailing windows: anything older than the span simply falls off the front.\n  var minCut = now - client.lvlMins * 60;\n  while (client.lvlMin.length > 0 && client.lvlMin[0][0] < minCut) { client.lvlMin.shift(); }\n  var dayCut = now - client.lvlDays * 86400;\n  while (client.lvlDay.length > 0 && client.lvlDay[0][0] < dayCut) { client.lvlDay.shift(); }\n\n  var lastWrite = client.lvlLastWrite || 0;\n  if (wrote && (force || (now - lastWrite) >= 5)) {\n    client.lvlLastWrite = now;\n    try { set_variable(\"lvl_min\", JSON.stringify(client.lvlMin)); } catch (e) {}\n    try { set_variable(\"lvl_day\", JSON.stringify(client.lvlDay)); } catch (e) {}\n    run_function(\"lvl_render\", [], \"levelgraph\");\n  }\n}"
+  },
+  {
+   "type": "function",
+   "name": "lvl_render",
+   "enabled": true,
+   "code": "// Draws the Level tab in the house style shared with Coffers: ink panel,\n// serif small-caps headings, one large figure, monospace ledger rows.\n// Nexus tabs will not run injected <script>, so charts are static inline SVG,\n// redrawn whenever a new sample lands.\nrun_function(\"lvl_ensure\", [], \"levelgraph\");\nvar MN = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\nvar ACC = \"#8fbfe0\";\nvar ACC2 = \"#c8a2d8\";\nvar DEEP = \"#4d6f86\";\nvar BRIGHT = \"#e8f3fb\";\nvar TXT = \"#dde8ee\";\nvar MUTED = \"#7d8c96\";\nvar RULE = \"#26353e\";\nvar UP = \"#8fe0c8\";\nvar SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\nvar MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\n\nfunction n1(n) { return Math.round(n * 10) / 10; }\nfunction pad2(n) { return (n < 10 ? \"0\" : \"\") + n; }\nfunction prog(p) { return p[1] + p[2] / 100; }\nfunction dur(secs) {\n  if (secs < 3600) { return Math.max(0, Math.round(secs / 60)) + \"m\"; }\n  if (secs >= 86400) { return Math.round(secs / 86400 * 10) / 10 + \"d\"; }\n  var h = Math.floor(secs / 3600);\n  var m = Math.round((secs - h * 3600) / 60);\n  return h + \"h\" + (m > 0 ? \" \" + m + \"m\" : \"\");\n}\n// dayScale is set by the pane, not inferred from the data span: the long-term\n// pane must read as dates even on its first day, when it holds only hours.\nfunction fmtT(sec, span, dayScale) {\n  var d = new Date(sec * 1000);\n  if (dayScale) {\n    if (span < 300 * 86400) { return d.getDate() + \" \" + MN[d.getMonth()]; }\n    return MN[d.getMonth()] + \" \" + d.getFullYear();\n  }\n  return d.getHours() + \":\" + pad2(d.getMinutes());\n}\n\nfunction lvlChart(hs, W, H, accent, dayScale) {\n  var fs = Math.max(7, Math.min(10, Math.round(H * 0.085)));\n  var y0 = Math.round(fs * 0.9);\n  var y1 = H - Math.round(fs * 1.9);\n  var first = hs[0];\n  var last = hs[hs.length - 1];\n  var tmin = first[0];\n  var tmax = last[0];\n  if (tmax <= tmin) { tmax = tmin + 60; }\n  var span = tmax - tmin;\n\n  var vmin = 1e9, vmax = -1e9, i, v;\n  for (i = 0; i < hs.length; i++) { v = prog(hs[i]); if (v < vmin) { vmin = v; } if (v > vmax) { vmax = v; } }\n  if ((vmax - vmin) < 0.0005) { vmin -= 0.01; vmax += 0.01; }\n  var padV = (vmax - vmin) * 0.12;\n  vmin = Math.max(0, vmin - padV);\n  vmax += padV;\n\n  var steps = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 25, 50, 100];\n  var stepv = steps[steps.length - 1];\n  for (i = 0; i < steps.length; i++) { if ((vmax - vmin) / steps[i] <= 5) { stepv = steps[i]; break; } }\n  var dp = stepv < 0.01 ? 3 : (stepv < 1 ? 2 : 0);\n\n  var widest = 2;\n  var probe = Math.ceil(vmin / stepv) * stepv;\n  while (probe <= vmax) { widest = Math.max(widest, (dp === 0 ? String(Math.round(probe)) : probe.toFixed(dp)).length); probe += stepv; }\n  var x0 = Math.round(widest * fs * 0.62) + 6;\n  var x1 = W - 6;\n\n  var svg = '<svg viewBox=\"0 0 ' + W + ' ' + H + '\" width=\"100%\" style=\"display:block;height:auto;overflow:visible;\" xmlns=\"http://www.w3.org/2000/svg\">';\n  // Whole-level gridlines are drawn stronger: they are the boundaries crossed.\n  var gv = Math.ceil(vmin / stepv) * stepv;\n  while (gv <= vmax) {\n    var gy = n1(y1 - ((gv - vmin) / (vmax - vmin)) * (y1 - y0));\n    var whole = (Math.abs(gv - Math.round(gv)) < 0.0005);\n    svg += '<line x1=\"' + x0 + '\" y1=\"' + gy + '\" x2=\"' + x1 + '\" y2=\"' + gy + '\" stroke=\"' + (whole ? DEEP : RULE) + '\" stroke-width=\"' + (whole ? 0.9 : 0.6) + '\"/>';\n    svg += '<text x=\"' + (x0 - 3) + '\" y=\"' + n1(gy + fs * 0.35) + '\" text-anchor=\"end\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + MUTED + '\">' + (dp === 0 ? String(Math.round(gv)) : gv.toFixed(dp)) + '</text>';\n    gv += stepv;\n  }\n  var stride = Math.ceil(hs.length / 320);\n  var line = \"\";\n  var k = 0;\n  for (i = 0; i < hs.length; i += stride) {\n    line += (k === 0 ? \"M\" : \"L\") + n1(x0 + ((hs[i][0] - tmin) / (tmax - tmin)) * (x1 - x0)) + \",\" + n1(y1 - ((prog(hs[i]) - vmin) / (vmax - vmin)) * (y1 - y0));\n    k++;\n  }\n  var lx = n1(x0 + ((last[0] - tmin) / (tmax - tmin)) * (x1 - x0));\n  var ly = n1(y1 - ((prog(last) - vmin) / (vmax - vmin)) * (y1 - y0));\n  line += \"L\" + lx + \",\" + ly;\n  var area = line + \"L\" + lx + \",\" + y1 + \"L\" + x0 + \",\" + y1 + \"Z\";\n  svg += '<path d=\"' + area + '\" fill=\"' + accent + '\" fill-opacity=\"0.13\" stroke=\"none\"/>';\n  svg += '<path d=\"' + line + '\" fill=\"none\" stroke=\"' + accent + '\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/>';\n  svg += '<circle cx=\"' + lx + '\" cy=\"' + ly + '\" r=\"2.4\" fill=\"' + BRIGHT + '\"/>';\n  svg += '<text x=\"' + x0 + '\" y=\"' + (H - 3) + '\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + MUTED + '\">' + fmtT(first[0], span, dayScale) + '</text>';\n  svg += '<text x=\"' + x1 + '\" y=\"' + (H - 3) + '\" text-anchor=\"end\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + MUTED + '\">' + fmtT(last[0], span, dayScale) + '</text>';\n  return svg + '</svg>';\n}\n\n// Ledger typography, matching Coffers.\nfunction caps(t, col) { return '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || DEEP) + ';font-size:11px;margin:0 0 2px;\">' + t + '</div>'; }\nfunction row(label, value, col) {\n  return '<div style=\"display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\"><span style=\"color:' + MUTED + ';white-space:nowrap;\">' + label + '</span><span style=\"color:' + (col || TXT) + ';white-space:nowrap;\">' + value + '</span></div>';\n}\nfunction box(inner, col) { return '<div style=\"flex:1 1 150px;min-width:150px;border-top:2px solid ' + (col || DEEP) + ';padding:3px 2px 0;\">' + inner + '</div>'; }\nfunction big(t, col) { return '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + col + ';\">' + t + '</div>'; }\nfunction section(title, inner, col) { return '<div style=\"border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;\">' + caps(title, col) + inner + '</div>'; }\nfunction quiet(t) { return '<div style=\"color:' + MUTED + ';\">' + t + '</div>'; }\n\n// A small rising-stair glyph for the title, the level-up counterpart of the coin stack.\nvar glyph = '<svg width=\"18\" height=\"16\" viewBox=\"0 0 18 16\" style=\"vertical-align:-2px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n  '<rect x=\"1\" y=\"11\" width=\"4\" height=\"4\" fill=\"' + DEEP + '\"/><rect x=\"7\" y=\"7\" width=\"4\" height=\"8\" fill=\"' + ACC + '\" fill-opacity=\"0.7\"/>' +\n  '<rect x=\"13\" y=\"2\" width=\"4\" height=\"13\" fill=\"' + ACC + '\"/><path d=\"M13 1.5 L15 0 L17 1.5\" fill=\"none\" stroke=\"' + BRIGHT + '\" stroke-width=\"0.8\"/></svg>';\n\nvar mins = client.lvlMin || [];\nvar days = client.lvlDay || [];\nvar cur = null;\nif (mins.length > 0) { cur = mins[mins.length - 1]; }\nelse if (days.length > 0) { cur = days[days.length - 1]; }\n\nvar html = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0f1418;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\nhtml += '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;\">';\nhtml += '<div style=\"font-family:' + SERIF + ';color:' + ACC + ';font-size:14px;letter-spacing:0.22em;\">' + glyph + 'LEVEL</div>';\n\nif (!cur) {\n  html += '</div><div style=\"color:' + MUTED + ';margin-top:8px;font-family:' + SERIF + ';font-style:italic;\">No samples yet. Play a little, or use LVLMARK.</div></div>';\n} else {\n  // Session figures: gain across the minute buffer, rate, and time to level.\n  var sSpan = 0, sGain = 0, perHour = 0, togo = -1;\n  if (mins.length >= 2) {\n    sSpan = mins[mins.length - 1][0] - mins[0][0];\n    sGain = prog(mins[mins.length - 1]) - prog(mins[0]);\n    if (sSpan > 0) { perHour = sGain / (sSpan / 3600); }\n    if (perHour > 0) { togo = (1 - cur[2] / 100) / perHour * 3600; }\n  }\n  // Long-term figures: gain across the daily buffer.\n  var lSpan = 0, lGain = 0, perDay = 0;\n  if (days.length >= 2) {\n    lSpan = days[days.length - 1][0] - days[0][0];\n    lGain = prog(days[days.length - 1]) - prog(days[0]);\n    if (lSpan > 0) { perDay = lGain / (lSpan / 86400); }\n  }\n\n  html += '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + DEEP + ';font-size:11px;\">' + (togo > 0 ? 'next in ~' + dur(togo) : 'onward') + '</div></div>';\n\n  html += '<div style=\"margin:6px 0 1px;\"><span style=\"font-family:' + SERIF + ';font-size:26px;color:' + ACC + ';\">' + cur[1] + '</span>';\n  // Days at this level: walk the day buffer back while the level matches. If\n  // the walk reaches the start of the buffer, the true figure may be longer.\n  var atLvl = \"\";\n  if (days.length > 0) {\n    var dj = days.length - 1;\n    while (dj > 0 && days[dj - 1][1] === cur[1]) { dj--; }\n    var dFrom = new Date(days[dj][0] * 1000);\n    dFrom.setHours(0, 0, 0, 0);\n    var dNow = new Date();\n    dNow.setHours(0, 0, 0, 0);\n    var nDays = Math.round((dNow.getTime() - dFrom.getTime()) / 86400000);\n    var known = (dj > 0 && days[dj - 1][1] < cur[1]);\n    if (known) { atLvl = nDays === 0 ? \"reached today\" : (nDays + (nDays === 1 ? \" day\" : \" days\") + \" at this level\"); }\n    else { atLvl = nDays > 0 ? (nDays + \"+ days at this level\") : \"at this level since tracking began\"; }\n  }\n  html += ' <span style=\"font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;\">' + atLvl + '</span></div>';\n  html += '<div style=\"background:#1a252c;height:6px;width:100%;margin:2px 0 1px;\"><div style=\"background:' + ACC + ';height:6px;width:' + n1(cur[2]) + '%;\"></div></div>';\n  html += '<div style=\"display:flex;justify-content:space-between;color:' + MUTED + ';\"><span>' + cur[2].toFixed(2) + '% done</span><span>' + (100 - cur[2]).toFixed(2) + '% to go</span></div>';\n\n  var cols = '<div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;\">';\n  var sb = caps(\"This session\", ACC);\n  if (sSpan > 0) {\n    sb += big((sGain >= 0 ? \"+\" : \"\") + (Math.round(sGain * 10000) / 100) + \"%\", sGain > 0 ? UP : MUTED);\n    sb += row(\"window\", dur(sSpan));\n    sb += row(\"per hour\", perHour > 0 ? (Math.round(perHour * 10000) / 100) + \"%\" : \"&hellip;\", perHour > 0 ? UP : MUTED);\n    sb += row(\"started at\", prog(mins[0]).toFixed(2));\n  } else {\n    sb += quiet(\"Collecting; a point lands every minute.\");\n  }\n  cols += box(sb, ACC);\n\n  var lb = caps(\"Long term\", ACC2);\n  if (lSpan > 0) {\n    lb += big((lGain >= 0 ? \"+\" : \"\") + (Math.round(lGain * 100) / 100) + \" lv\", lGain > 0 ? ACC2 : MUTED);\n    lb += row(\"window\", dur(lSpan));\n    lb += row(\"per day\", perDay > 0 ? (Math.round(perDay * 100) / 100) + \" lv\" : \"&hellip;\", perDay > 0 ? ACC2 : MUTED);\n    lb += row(\"started at\", prog(days[0]).toFixed(2));\n  } else {\n    lb += quiet(\"Collecting; one point is kept per day.\");\n  }\n  cols += box(lb, ACC2);\n  html += cols + '</div>';\n\n  if (client.lvlGraphSess) {\n    html += section(\"Last \" + client.lvlMins + \" minutes\", mins.length < 2 ? quiet(\"Collecting. A point lands every minute that your experience moves.\") : lvlChart(mins, 640, client.lvlChartH, ACC, false), ACC);\n  }\n  if (client.lvlGraphLong) {\n    html += section(\"Last \" + client.lvlDays + \" days\", days.length < 2 ? quiet(\"Collecting. One point is kept per day.\") : lvlChart(days, 640, client.lvlChartH, ACC2, true), ACC2);\n  }\n  html += '</div>';\n}\n\ntry { set_custom_tab_html(\"Level\", html); } catch (e) {}"
+  },
+  {
+   "type": "function",
+   "name": "lvl_rate",
+   "enabled": true,
+   "code": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nvar mins = client.lvlMin || [];\nvar days = client.lvlDay || [];\nvar MN = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\nfunction fl(sec) {\n  var d = new Date(sec * 1000);\n  var mi = d.getMinutes();\n  return d.getDate() + \" \" + MN[d.getMonth()] + \" \" + d.getFullYear() + \" \" + d.getHours() + \":\" + (mi < 10 ? \"0\" : \"\") + mi;\n}\nfunction prog(p) { return p[1] + p[2] / 100; }\n\nvar cur = null;\nif (mins.length > 0) { cur = mins[mins.length - 1]; }\nelse if (days.length > 0) { cur = days[days.length - 1]; }\n\nif (!cur) {\n  display_notice(\"[levelgraph] no samples recorded yet. Use LVLMARK to store the first point.\", \"cyan\");\n} else {\n  display_notice(\"[levelgraph] level \" + cur[1] + \", \" + cur[2].toFixed(2) + \"% to next\", \"cyan\");\n\n  if (mins.length >= 2) {\n    var sSpan = mins[mins.length - 1][0] - mins[0][0];\n    var sGain = prog(mins[mins.length - 1]) - prog(mins[0]);\n    if (sSpan > 0) {\n      var perHour = sGain / (sSpan / 3600);\n      display_notice(\"[levelgraph] session (\" + Math.round(sSpan / 60) + \" min, \" + mins.length + \" points): +\" +\n        (Math.round(sGain * 10000) / 100) + \"% = \" + (Math.round(perHour * 10000) / 100) + \"%/hr\", \"cyan\");\n      if (perHour > 0) {\n        var togo = (1 - (cur[2] / 100)) / perHour;\n        var hh = Math.floor(togo);\n        var mm = Math.round((togo - hh) * 60);\n        display_notice(\"[levelgraph] at that rate, level \" + (cur[1] + 1) + \" in about \" + (hh > 0 ? hh + \"h \" : \"\") + mm + \"m\", \"cyan\");\n      }\n    }\n  } else {\n    display_notice(\"[levelgraph] session buffer has \" + mins.length + \" point(s); needs two for a rate.\", \"orange\");\n  }\n\n  if (days.length >= 2) {\n    var lSpan = (days[days.length - 1][0] - days[0][0]) / 86400;\n    var lGain = prog(days[days.length - 1]) - prog(days[0]);\n    display_notice(\"[levelgraph] long term (\" + days.length + \" days stored, first \" + fl(days[0][0]) + \"): +\" +\n      (Math.round(lGain * 100) / 100) + \" levels over \" + (Math.round(lSpan * 10) / 10) + \"d\", \"cyan\");\n    if (lSpan > 0) {\n      display_notice(\"[levelgraph] average \" + (Math.round((lGain / lSpan) * 100) / 100) + \" levels/day\", \"cyan\");\n    }\n  } else {\n    display_notice(\"[levelgraph] long-term buffer has \" + days.length + \" day(s); needs two for a rate.\", \"orange\");\n  }\n  display_notice(\"[levelgraph] windows: \" + client.lvlMins + \" min session, \" + client.lvlDays + \" day long term\", \"cyan\");\n}"
+  },
+  {
+   "type": "trigger",
+   "name": "Level Prompt Tick",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "try { run_function(\"lvl_sample\", [], \"levelgraph\"); } catch (e) {}"
+    }
+   ],
+   "text": "^\\d+h,\\s*\\d+m,",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false
+  },
+  {
+   "type": "alias",
+   "name": "Level Rate",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nrun_function(\"lvl_rate\", [], \"levelgraph\");"
+    }
+   ],
+   "text": "^lvlrate$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "Level Mark",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nclient.lvlForceMark = true;\nrun_function(\"lvl_sample\", [], \"levelgraph\");\ndisplay_notice(\"[level] sample recorded. Session buffer \" + client.lvlMin.length + \" point(s), long term \" + client.lvlDay.length + \" day(s).\", \"cyan\");"
+    }
+   ],
+   "text": "^lvlmark$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "Level Graph Toggle",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nvar which = args[1] || \"both\";\nvar mode = args[2] || \"\";\nif (which === \"session\" || which === \"both\") {\n  if (mode === \"on\") { client.lvlGraphSess = true; }\n  else if (mode === \"off\") { client.lvlGraphSess = false; }\n  else { client.lvlGraphSess = !client.lvlGraphSess; }\n  try { set_variable(\"lvl_graph_sess\", client.lvlGraphSess ? \"1\" : \"0\"); } catch (e) {}\n}\nif (which === \"long\" || which === \"both\") {\n  if (mode === \"on\") { client.lvlGraphLong = true; }\n  else if (mode === \"off\") { client.lvlGraphLong = false; }\n  else { client.lvlGraphLong = !client.lvlGraphLong; }\n  try { set_variable(\"lvl_graph_long\", client.lvlGraphLong ? \"1\" : \"0\"); } catch (e) {}\n}\nrun_function(\"lvl_render\", [], \"levelgraph\");\ndisplay_notice(\"[level] session graph \" + (client.lvlGraphSess ? \"shown\" : \"hidden\") + \", long-term graph \" + (client.lvlGraphLong ? \"shown\" : \"hidden\") + \".\", \"cyan\");"
+    }
+   ],
+   "text": "^lvlgraph(?:\\s+(session|long))?(?:\\s+(on|off))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "Level Graph Size",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nvar v = args[1] ? parseInt(args[1], 10) : 0;\nif (!v) { display_notice(\"[level] panel graph height is \" + client.lvlChartH + \". Usage: lvlgraphsize 40-400 (default 105), applies to both panes.\", \"cyan\"); }\nelse if (v < 40 || v > 400) { display_notice(\"[level] pick a height between 40 and 400.\", \"yellow\"); }\nelse {\n  client.lvlChartH = v;\n  try { set_variable(\"lvl_graph_h\", String(v)); } catch (e) {}\n  run_function(\"lvl_render\", [], \"levelgraph\");\n  display_notice(\"[level] panel graph height set to \" + v + \".\", \"cyan\");\n}"
+    }
+   ],
+   "text": "^lvlgraphsize(?:\\s+(\\d+))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "Level Span",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nvar which = args[1] || \"\";\nvar v = args[2] ? parseInt(args[2], 10) : 0;\nif (!which) { display_notice(\"[level] windows: session \" + client.lvlMins + \" min, long \" + client.lvlDays + \" days. Usage: lvlspan session 15-720 | lvlspan long 7-365.\", \"cyan\"); }\nelse if (!v) { display_notice(\"[level] \" + which + \" window is \" + (which === \"session\" ? client.lvlMins + \" minutes\" : client.lvlDays + \" days\") + \".\", \"cyan\"); }\nelse if (which === \"session\" && (v < 15 || v > 720)) { display_notice(\"[level] session window must be 15-720 minutes.\", \"yellow\"); }\nelse if (which === \"long\" && (v < 7 || v > 365)) { display_notice(\"[level] long window must be 7-365 days.\", \"yellow\"); }\nelse {\n  if (which === \"session\") { client.lvlMins = v; try { set_variable(\"lvl_span_mins\", String(v)); } catch (e) {} }\n  else { client.lvlDays = v; try { set_variable(\"lvl_span_days\", String(v)); } catch (e) {} }\n  run_function(\"lvl_render\", [], \"levelgraph\");\n  display_notice(\"[level] \" + which + \" window set to \" + v + (which === \"session\" ? \" minutes.\" : \" days.\") + \" Points beyond it drop off at the next sample.\", \"cyan\");\n}"
+    }
+   ],
+   "text": "^lvlspan(?:\\s+(session|long)(?:\\s+(\\d+))?)?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "Level History Wipe",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nvar arg = args[1] || \"\";\nif (arg === \"confirm\") {\n  client.lvlMin = [];\n  client.lvlDay = [];\n  try { set_variable(\"lvl_min\", \"[]\"); set_variable(\"lvl_day\", \"[]\"); set_variable(\"lvl_hist\", \"[]\"); } catch (e) {}\n  run_function(\"lvl_render\", [], \"levelgraph\");\n  display_notice(\"[level] both level buffers cleared, legacy history too.\", \"red\");\n} else {\n  display_notice(\"[level] this clears BOTH the session and long-term buffers. Type 'lvlhistwipe confirm' to proceed.\", \"yellow\");\n}"
+    }
+   ],
+   "text": "^lvlhistwipe(?:\\s+(confirm))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "Level History CSV",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"lvl_ensure\", [], \"levelgraph\");\nvar which = args[1] || \"long\";\nvar hs = (which === \"session\") ? (client.lvlMin || []) : (client.lvlDay || []);\ndisplay_notice(\"[level] \" + which + \" buffer, \" + hs.length + \" point(s):\", \"cyan\");\ndisplay_notice(\"datetime,unix,level,nl,progress\", \"white\");\nfor (var i = 0; i < hs.length; i++) {\n  var d = new Date(hs[i][0] * 1000);\n  var mm = d.getMonth() + 1;\n  var dd = d.getDate();\n  var hh = d.getHours();\n  var mi = d.getMinutes();\n  var iso = d.getFullYear() + \"-\" + (mm < 10 ? \"0\" : \"\") + mm + \"-\" + (dd < 10 ? \"0\" : \"\") + dd + \" \" + (hh < 10 ? \"0\" : \"\") + hh + \":\" + (mi < 10 ? \"0\" : \"\") + mi;\n  display_notice(iso + \",\" + hs[i][0] + \",\" + hs[i][1] + \",\" + hs[i][2] + \",\" + (Math.round((hs[i][1] + hs[i][2] / 100) * 100) / 100), \"white\");\n}"
+    }
+   ],
+   "text": "^lvlhistcsv(?:\\s+(session|long))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  }
+ ],
+ "description": "Level progress tracker with two graphs in a UI tab named 'Level': a session pane (one point per minute, trailing window) and a long-term pane (one point per day). Reads my_level and my_nl. Buffers are lvl_min and lvl_day, each [unixSeconds, level, nl]."
+}

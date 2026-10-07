@@ -1,0 +1,380 @@
+{
+ "type": "group",
+ "name": "social",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "hlinit",
+   "enabled": true,
+   "code": "if (!client.hl) {\n  client.hl = {\n    groups: [\"family\", \"enemies\", \"order\", \"house\", \"city\", \"allies\", \"friends\"],   // priority order\n    color:  {\n      family:  \"#30c4ff\",\n      enemies: \"#ff5f5f\",\n      order:   \"#e0b8ff\",\n      house:   \"#b8ff29\",\n      city:    \"#27f5c5\",\n      allies:  \"#ff9f4f\",\n      friends: \"#ffd77f\"\n    },\n    vari:   {\n      family:  \"hlFamily\",\n      enemies: \"hlEnemies\",\n      order:   \"hlOrder\",\n      house:   \"hlHouse\",\n      city:    \"hlCity\",\n      allies:  \"hlAllies\",\n      friends: \"hlFriends\"\n    },\n    re: /[A-Z][a-z]+/g\n  };\n  client.hl.defColor = {};                         // <-- holds the hardcoded defaults\n  client.hl.groups.forEach(function (g) {\n    client.hl.defColor[g] = client.hl.color[g];    // <-- snapshot default before any override\n\n    client.hl[g] = {};\n    (get_variable(client.hl.vari[g]) || \"\").split(\",\").forEach(function (n) {\n      n = n.trim();\n      if (n.length) client.hl[g][n] = true;\n    });\n\n    var savedColor = get_variable(\"hlColor_\" + g);\n    if (savedColor && savedColor.length) client.hl.color[g] = savedColor;\n  });\n  client.hl.save = function (g) {\n    set_variable(client.hl.vari[g], Object.keys(client.hl[g]).join(\",\"));\n  };\n}"
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// ---- hlsetup: build the system directly, no run_function ----\nvar groups = [\"family\",\"enemies\",\"order\",\"house\",\"city\",\"allies\",\"friends\"];\nvar defColor = { family:\"#30c4ff\", enemies:\"#ff5f5f\", order:\"#e0b8ff\", house:\"#b8ff29\", city:\"#27f5c5\", allies:\"#ff9f4f\", friends:\"#ffd77f\" };\nvar vari = { family:\"hlFamily\", enemies:\"hlEnemies\", order:\"hlOrder\", house:\"hlHouse\", city:\"hlCity\", allies:\"hlAllies\", friends:\"hlFriends\" };\n\nclient.hl = { groups: groups, color: {}, vari: vari, defColor: {}, re: /[A-Z][a-z]+/g };\ngroups.forEach(function (g) {\n  client.hl.defColor[g] = defColor[g];\n  var saved = get_variable(\"hlColor_\" + g);\n  if (!saved || !saved.length) { set_variable(\"hlColor_\" + g, defColor[g]); saved = defColor[g]; }\n  client.hl.color[g] = saved;\n  client.hl[g] = {};\n  (get_variable(vari[g]) || \"\").split(\",\").forEach(function (n) {\n    n = n.trim(); if (n.length) client.hl[g][n] = true;\n  });\n});\nclient.hl.save = function (g) { set_variable(client.hl.vari[g], Object.keys(client.hl[g]).join(\",\")); };\n\ndisplay_notice(\"[social] ready - groups: \" + groups.join(\", \"), \"cyan\");"
+    }
+   ],
+   "text": "^hlsetup$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var g = args[1].toLowerCase(), n = args[2].toLowerCase();\nif (client.hl[g]) { client.hl[g][n] = true; client.hl.save(g); display_notice(\"[social] +\" + n + \" -> \" + g, \"cyan\"); }\nelse display_notice(\"[social] no group: \" + g, \"cyan\");"
+    }
+   ],
+   "text": "^hladd (\\w+) (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var g = args[1].toLowerCase(), n = args[2].toLowerCase();\nif (client.hl[g] && client.hl[g][n]) { delete client.hl[g][n]; client.hl.save(g); display_notice(\"[social] -\" + n + \" from \" + g, \"cyan\"); }"
+    }
+   ],
+   "text": "^hldel (\\w+) (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var g = args[1].toLowerCase();\nif (!client.hl || !client.hl[g]) { display_notice(\"[hl] no group: \" + g); }\nelse {\n  var names = Object.keys(client.hl[g]).sort();\n  display_notice(\"[hl] \" + g + \" (\" + names.length + \"): \" + (names.length ? names.join(\", \") : \"empty\"));\n}"
+    }
+   ],
+   "text": "^hllist (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "client.hl = null;\ndisplay_notice(\"[hl] cleared - will rebuild on next reflex\");"
+    }
+   ],
+   "text": "^hlreset$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var g = args[1].toLowerCase(), c = args[2];\nif (!client.hl || !client.hl.color[g]) { display_notice(\"[hl] no group: \" + g); }\nelse {\n  client.hl.color[g] = c;\n  set_variable(\"hlColor_\" + g, c);\n  display_notice(\"[hl] \" + g + \" colour set to \" + c);\n}"
+    }
+   ],
+   "text": "^hlcolor (\\w+) (#[0-9A-Fa-f]{6})$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var g = args[1].toLowerCase();\nif (!client.hl || !client.hl.color[g]) { display_notice(\"[hl] no group: \" + g); }\nelse {\n  client.hl.color[g] = client.hl.defColor[g];\n  set_variable(\"hlColor_\" + g, \"\");\n  display_notice(\"[hl] \" + g + \" colour reset to default \" + client.hl.defColor[g]);\n}"
+    }
+   ],
+   "text": "^hlcolor (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#fdff4d",
+     "highlight_bg": "#000000",
+     "highlight": "match",
+     "highlight_backref": ""
+    }
+   ],
+   "text": "Neijel",
+   "matching": "substring",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "hl",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.hl) {\n  client.hl = {\n    groups: [\"family\", \"enemies\", \"order\", \"house\", \"city\", \"allies\", \"friends\"],\n    color:  { family: \"#30c4ff\", enemies:\"#ff5f5f\", order:\"#e0b8ff\", house:\"#b8ff29\", city:\"#27f5c5\", allies:\"#ff9f4f\", friends:\"#ffd77f\" },\n    vari:   { family:\"hlFamily\", enemies:\"hlEnemies\", order:\"hlOrder\", house:\"hlHouse\", city:\"hlCity\", allies:\"hlAllies\", friends:\"hlFriends\" },\n    re: /[A-Z][a-z]+/g\n  };\n  client.hl.groups.forEach(function (g) {\n    client.hl[g] = {};\n    (get_variable(client.hl.vari[g]) || \"\").split(\",\").forEach(function (n) {\n      n = n.trim(); if (n.length) client.hl[g][n] = true;\n    });\n  });\n  client.hl.save = function (g) {\n    set_variable(client.hl.vari[g], Object.keys(client.hl[g]).join(\",\"));\n  };\n}\n\nvar line = args[1];\nif (line) {\n  var re = client.hl.re; re.lastIndex = 0;\n  var m, name, groups = client.hl.groups, i;\n  while ((m = re.exec(line)) !== null) {\n    name = m[0].toLowerCase();\n    for (i = 0; i < groups.length; i++) {\n      if (client.hl[groups[i]][name]) {\n        colorize_current_line(m.index, m[0].length, client.hl.color[groups[i]], \"\");\n        break;\n      }\n    }\n  }\n}"
+    }
+   ],
+   "text": "^(.*)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"hlinit\", null, \"social\");\nclient.hl.enemies = {};\nclient.hl.capturing = true;"
+    }
+   ],
+   "text": "^Enemies of the Verdant Wilds of Eleusis:",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (client.hl && client.hl.capturing) {\n  var parts = args[1].split(\",\");\n  for (var i = 0; i < parts.length; i++) {\n    var nm = parts[i].trim().toLowerCase();\n    if (nm.length && nm !== \"none\") client.hl.enemies[nm] = true;\n  }\n}"
+    }
+   ],
+   "text": "^([A-Z][a-z]+(?:,\\s*[A-Z][a-z]+)*),?\\s*$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (client.hl && client.hl.capturing) {\n  client.hl.capturing = false;\n  client.hl.save(\"enemies\");\n  var have = Object.keys(client.hl.enemies).length;\n  var want = parseInt(args[1], 10);\n  display_notice(\"[hl] enemies loaded \" + have + \" / \" + want);\n  if (have !== want) display_notice(\"[hl] WARNING: count mismatch\");\n}"
+    }
+   ],
+   "text": "^Total: (\\d+)",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "wl",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.wl) {\n  client.wl = {};\n  var W = client.wl;\n\n  W.interval = 5000;                       // poll cadence in ms\n  W.enabled  = (get_variable(\"wlEnabled\") !== \"0\");\n  W.debug    = (get_variable(\"wlDebug\") === \"1\");\n  W.prev = null;                            // {lowerName:true} once primed; null = unprimed\n  W.capturing = false;\n  W.reportOnce = false;\n  W.lastCount = 0;\n  W.buf = [];\n  W.reNames  = /^[A-Z][a-z]+(?:,\\s*[A-Z][a-z]+)*(?:,?\\s*and\\s+[A-Z][a-z]+)?\\.?$/;\n  W.reFooter = /^Plus another \\d+/;\n\n  var order;\n  if (client.hl && client.hl.groups) { order = client.hl.groups.slice(); }\n  else { order = [\"family\",\"enemies\",\"order\",\"house\",\"city\",\"allies\",\"friends\"]; }\n  W.order = order;\n\n  W.watch = {};\n  var wlSaved = (get_variable(\"wlWatch\") || \"\").trim();\n  if (wlSaved.length) {\n    var on = {};\n    wlSaved.split(\",\").forEach(function (s) { s = s.trim(); if (s) on[s] = true; });\n    W.order.forEach(function (g) { W.watch[g] = !!on[g]; });\n  } else {\n    W.order.forEach(function (g) { W.watch[g] = true; });   // default: watch every group\n  }\n\n  W.saveWatch = function () {\n    var arr = [];\n    W.order.forEach(function (g) { if (W.watch[g]) arr.push(g); });\n    set_variable(\"wlWatch\", arr.join(\",\"));\n  };\n\n  // name -> {group,color}, highest-priority watched group wins\n  W.index = function () {\n    var idx = {};\n    if (!client.hl) return idx;\n    var i, g, members, n;\n    for (i = 0; i < W.order.length; i++) {\n      g = W.order[i];\n      if (!W.watch[g]) continue;\n      members = client.hl[g] || {};\n      for (n in members) { if (!idx[n]) idx[n] = { group: g, color: client.hl.color[g] }; }\n    }\n    return idx;\n  };\n\n  W.notify = function (name, idx, online) {\n    var hit = idx[name];\n    if (!hit) return;\n    var disp = name.charAt(0).toUpperCase() + name.slice(1);\n    display_notice(\"[social] \" + disp + (online ? \" has awoken.\" : \" has drifted into slumber.\"), hit.color);\n  };\n\n  W.snapshot = function (names) {\n    var now = {}, i, n, up = 0, down = 0;\n    for (i = 0; i < names.length; i++) now[names[i].toLowerCase()] = true;\n    if (W.prev === null) { W.prev = now; return { primed: true, online: 0, offline: 0, total: names.length }; }\n    var idx = W.index();\n    for (n in now)    { if (!W.prev[n]) { W.notify(n, idx, true);  up++; } }\n    for (n in W.prev) { if (!now[n])  { W.notify(n, idx, false); down++; } }\n    W.prev = now;\n    return { primed: false, online: up, offline: down, total: names.length };\n  };\n\n  W.parse = function (text) {\n    text = text.replace(/Plus another[\\s\\S]*$/, \"\");\n    text = text.replace(/\\[([^\\]]+)\\]\\([^)]*\\)/g, \"$1\");\n    var out = [], parts = text.split(/,|\\band\\b/), i, s;\n    for (i = 0; i < parts.length; i++) {\n      s = parts[i].replace(/[^A-Za-z]/g, \"\");\n      if (/^[A-Z][a-z]+$/.test(s)) out.push(s);\n    }\n    return out;\n  };\n\n  W.flush = function () {\n    W.capturing = false;\n    clearTimeout(W.safetyT);\n    clearTimeout(W.flushT);\n    var names = W.parse(W.buf.join(\" \"));\n    W.buf = [];\n    W.lastCount = names.length;\n    if (!names.length) {\n      if (W.reportOnce) { display_notice(\"[social] poll returned no names (kept previous set)\"); W.reportOnce = false; }\n      return;\n    }\n    var r = W.snapshot(names);\n    if (W.reportOnce || W.debug) {\n      var msg;\n      if (r.primed) { msg = \"[social] primed with \" + r.total + \" names\"; }\n      else { msg = \"[social] poll: \" + r.online + \" new, \" + r.offline + \" gone (\" + r.total + \" online)\"; }\n      display_notice(msg, \"cyan\");\n      W.reportOnce = false;\n    }\n  };\n\n    W.poll = function () {\n      if (!W.enabled) return;\n      var pause = get_variable(\"pauseTriggers\");\n      if (pause != \"off\") return;\n\n      if (W.debug) display_notice(\"[social] tick -> qw\");\n      W.buf = [];\n      W.capturing = true;\n      clearTimeout(W.safetyT);\n      W.safetyT = setTimeout(function () { W.flush(); }, 1500);\n      send_command(\"qw\");\n    };\n\n  if (W.timer) clearInterval(W.timer);\n  W.timer = setInterval(function () { W.poll(); }, W.interval);\n}\n\n// capture phase: active only inside a poll window, only for qw-shaped lines\nif (client.wl && client.wl.capturing) {\n  var L = args[1];\n  if (L === \"qw\") { gag_current_line(); }\n  else if (client.wl.reFooter.test(L) || client.wl.reNames.test(L)) {\n    client.wl.buf.push(L);\n    clearTimeout(client.wl.flushT);\n    client.wl.flushT = setTimeout(function () { client.wl.flush(); }, 5000);\n    gag_current_line();\n  }\n}"
+    }
+   ],
+   "text": "^(.*)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var g = args[1].toLowerCase();\nif (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build\", \"cyan\"); }\nelse if (client.wl.watch[g] === undefined) { display_notice(\"[social] no such group: \" + g, \"cyan\"); }\nelse { client.wl.watch[g] = true; client.wl.saveWatch(); display_notice(\"[social] now watching \" + g, \"cyan\"); }"
+    }
+   ],
+   "text": "^wlwatch (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var g = args[1].toLowerCase();\nif (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build.\", \"cyan\"); }\nelse if (client.wl.watch[g] === undefined) { display_notice(\"[social] no such group: \" + g, \"cyan\"); }\nelse { client.wl.watch[g] = false; client.wl.saveWatch(); display_notice(\"[social] no longer watching \" + g, \"cyan\"); }"
+    }
+   ],
+   "text": "^wlunwatch (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build.\", \"cyan\"); }\nelse {\n  var on = [], off = [], i, g;\n  for (i = 0; i < client.wl.order.length; i++) {\n    g = client.wl.order[i];\n    if (client.wl.watch[g]) on.push(g); else off.push(g);\n  }\n  display_notice(\"[social] polling \" + (client.wl.enabled ? \"ON\" : \"OFF\") + \", every \" + (client.wl.interval / 1000) + \"s\", \"cyan\");\n  display_notice(\"[social] watching (priority order): \" + (on.length ? on.join(\", \") : \"none\", \"cyan\"));\n  display_notice(\"[social] ignoring: \" + (off.length ? off.join(\", \") : \"none\"), \"cyan\");\n}"
+    }
+   ],
+   "text": "^wllist$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var v = args[1].toLowerCase();\nif (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build.\", \"cyan\"); }\nelse {\n  client.wl.enabled = (v === \"on\");\n  set_variable(\"wlEnabled\", client.wl.enabled ? \"1\" : \"0\");\n  display_notice(\"[social] polling \" + (client.wl.enabled ? \"enabled\" : \"disabled\"), \"cyan\");\n}"
+    }
+   ],
+   "text": "^wlpoll (on|off)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (client.wl && client.wl.timer) clearInterval(client.wl.timer);\nclient.wl = null;\ndisplay_notice(\"[social] cleared - rebuilds on next line (run LOOK if idle)\", \"cyan\");"
+    }
+   ],
+   "text": "^wlreset$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build\", \"cyan\"); }\nelse {\n  client.wl.reportOnce = true;\n  client.wl.enabled = true;\n  client.wl.buf = [];\n  client.wl.capturing = true;\n  clearTimeout(client.wl.safetyT);\n  client.wl.safetyT = setTimeout(function () { client.wl.flush(); }, 1500);\n  send_command(\"qw\");\n}"
+    }
+   ],
+   "text": "^wlpollnow$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.wl) { display_notice(\"[social] not built - trigger any line to build.\", \"cyan\"); }\nelse {\n  var W = client.wl;\n  var primed = W.prev ? (\"yes (\" + Object.keys(W.prev).length + \")\") : \"no\";\n  display_notice(\"[social] built | polling \" + (W.enabled ? \"ON\" : \"OFF\") + \" every \" + (W.interval / 1000) + \"s | primed \" + primed + \" | timer \" + (W.timer ? \"set\" : \"NONE\") + \" | debug \" + (W.debug ? \"ON\" : \"OFF\") + \" | lastCount \" + (W.lastCount || 0), \"cyan\");\n}"
+    }
+   ],
+   "text": "^wlstatus$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (!client.wl) { display_notice(\"[social] not built - trigger any line to build.\", \"cyan\"); }\nelse {\n  var v = args[1].toLowerCase();\n  client.wl.debug = (v === \"on\");\n  set_variable(\"wlDebug\", client.wl.debug ? \"1\" : \"0\");\n  display_notice(\"[social] debug \" + (client.wl.debug ? \"ON - heartbeat each poll\" : \"OFF\"), \"cyan\");\n}"
+    }
+   ],
+   "text": "^wldebug (on|off)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  }
+ ],
+ "description": ""
+}

@@ -1,0 +1,1 @@
+// Nothing to tear down; persistent variables are left intact.

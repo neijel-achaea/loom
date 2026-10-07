@@ -1,0 +1,108 @@
+{
+  "type": "group",
+  "name": "dmgchart",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "dc_add",
+      "enabled": true,
+      "code": "@file:dc_add.js"
+    },
+    {
+      "type": "function",
+      "name": "dc_render",
+      "enabled": true,
+      "code": "@file:dc_render.js"
+    },
+    {
+      "type": "trigger",
+      "name": "dc outgoing",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_dc_outgoing.js"
+        }
+      ],
+      "text": "^Damage dealt: (\\d+) \\(([^)]+)\\)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "dc incoming",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_dc_incoming.js"
+        }
+      ],
+      "text": "^Health lost: (\\d+) \\(([^)]+)\\)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "dc bleed",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_dc_bleed.js"
+        }
+      ],
+      "text": "^You bleed (\\d+) health\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "dc main",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_dc_main.js"
+        }
+      ],
+      "text": "^dmgchart(?:\\s+(\\w+))?(?:\\s+(.+))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "dc rebuild",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_dc_rebuild.js"
+        }
+      ],
+      "text": "^dcreset$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ],
+  "description": "dmgchart 0.2 - live incoming/outgoing damage-by-type donuts in a 'DmgChart' tab, plus manual START/END sessions saved to a list."
+}
