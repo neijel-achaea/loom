@@ -1,0 +1,915 @@
+{
+  "type": "group",
+  "name": "common",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "group",
+      "name": "gags",
+      "enabled": true,
+      "items": [
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "..o@@@@@@@@@@@@@o..",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "..@@@@@@@@@@@@@@@@@@@@@@@@@..",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": ".@@@@@@@@@@@\"'@@@@@@@@@\"'@@@@@@@@@@@.",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": ".@@@@@@@@@@@@@    @@@@@@@    @@@@@@@@@@@@@.",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@0    0@@@@@0    0@@@@@@@@@@@@@@",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@@0    0@@@@@0    0@@@@@@@@@@@@@@@",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@@@@.  .@@@@@@@.  .@@@@@@@@@@@@@@@@@",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@@@@@..@@@@@@@@@..@@@@@@@@@@@@@@@@@@",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@0",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@'^@@@@@@@@@@@@@@@@@@@@@@@@@@@@^`@@@@@@@@0",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@~  <@@@@@@@@@@@@@@@@@@@@@@@@@@@@>  ~@@@@@0",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@        `\"Y88@@@@@@@@@@@@88Y\"'        @@@00",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@.AOO@oo..                  ..oo@OO6.@@@0",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@oo..        ..oo@@@@@@@@@@@00",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "`@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@000'",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "`@@@@@@@@@@@@@@@@@@@@@@@@00^'",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "`@@@@@@@@@@@@@00^'",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "multiclass",
+      "enabled": true,
+      "items": [
+        {
+          "type": "function",
+          "name": "set_buttons",
+          "enabled": true,
+          "code": "@file:multiclass__set_buttons.js"
+        },
+        {
+          "type": "function",
+          "name": "best_dragon_mode",
+          "enabled": true,
+          "code": "@file:multiclass__best_dragon_mode.js"
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__alias_dragonmode.js"
+            }
+          ],
+          "text": "^dragonmode$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__trigger_with_an_ear_splitting_roar_you_rear.js"
+            }
+          ],
+          "text": "^With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__trigger_your_draconic_form_melts_away_leaving.js"
+            }
+          ],
+          "text": "^Your draconic form melts away, leaving you suddenly weaker and more vulnerable\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__trigger_with_a_grimness_born_of_determination.js"
+            }
+          ],
+          "text": "^With a grimness born of determination\\, you begin to unleash the Dragon that is now so much a part of the fabric of your soul\\. A black light begins to shine through from within you\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "oceana",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:oceana__alias_tto.js"
+            }
+          ],
+          "text": "^tto$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:oceana__trigger_oceana_beckons_you_to_her.js"
+            }
+          ],
+          "text": "^Oceana beckons you to her\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:oceana__trigger_oceana_tells_you_tto.js"
+            }
+          ],
+          "text": "Oceana tells you(.*)\"Tto.\"",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:oceana__trigger_oceana_has_invited_you_to_join_a_party.js"
+            }
+          ],
+          "text": "Oceana has invited you to join a party. PARTY ACCEPT to accept the invitation.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:oceana__trigger_oceana_says_let_me_on.js"
+            }
+          ],
+          "text": "^Oceana(.*)says(.*)\\, \\\"Let me on\\.\\\"$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:oceana__trigger_party_oceana_says_sudo.js"
+            }
+          ],
+          "text": "^\\(Party\\)\\: Oceana says\\, \\\"Sudo (.*)\\.\\\"$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:oceana__trigger_party_oceana_says_tto.js"
+            }
+          ],
+          "text": "(Party): Oceana says, \"Tto.\"",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_quit_qq.js"
+        }
+      ],
+      "text": "^(quit|qq)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_refillvial_w.js"
+        }
+      ],
+      "text": "^refillvial (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_roomid.js"
+        },
+        {
+          "type": "sound",
+          "enabled": true,
+          "sound": "bang"
+        }
+      ],
+      "text": "^roomid$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_debug.js"
+        }
+      ],
+      "text": "^debug (.*)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_pausetriggers.js"
+        }
+      ],
+      "text": "^pausetriggers (.*)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#bcff00",
+          "highlight_bg": "#000000",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "Vines have overtaken this location.",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#23f50a",
+          "highlight_bg": "#000000",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "Amberous spores drift through the atmosphere, petrifying into the perennial form of the Earthmother.",
+      "matching": "substring",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#ff8f00",
+          "highlight_bg": "#000000",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "a magnificent lightning eagle",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "gag",
+          "enabled": true
+        }
+      ],
+      "text": "(Eleusian Techs):",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_close_your_eyes_curl_up_in_a_bal_l.js"
+        }
+      ],
+      "text": "^You close your eyes\\, curl up in a bal\\l, and fall asleep\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_open_your_eyes_and_yawn_mightily.js"
+        }
+      ],
+      "text": "^You open your eyes and yawn mightily\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_open_your_eyes_and_stretch.js"
+        }
+      ],
+      "text": "^You open your eyes and stretch languidly\\, feeling deliciously well\\-rested\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_close_your_eyes_bow_your_head_and.js"
+        }
+      ],
+      "text": "^You close your eyes\\, bow your head\\, and empty your mind of all thought\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_snap_your_head_up_as_you_break_your.js"
+        }
+      ],
+      "text": "^You snap your head up as you break your meditation\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_cease_your_meditation_having.js"
+        }
+      ],
+      "text": "^You cease your meditation having achieved full will and mana\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_begin_to_wade_out_into_the_depths.js"
+        }
+      ],
+      "text": "^You begin to wade out into the depths of the Mnemosyne\\, Creation shivering around you as that which was and that which is begin to blur\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_silently_slip_beneath_the_water_and.js"
+        }
+      ],
+      "text": "^You silently slip beneath the water and the world is as it once was\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_begin_to_seek_a_path_free_of_the.js"
+        }
+      ],
+      "text": "^You begin to seek a path free of the Mnemosyne\\'s depths\\, the process taking all of your concentration\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_the_mnemosyne_relinquishes_memory_s.js"
+        }
+      ],
+      "text": "^The Mnemosyne relinquishes memory\\'s grip upon you\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00d7ff",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "^With the completion of your adventure\\, you feel your renown grow to new heights\\! \\(You gain (\\d+) Renown\\.\\)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_are_attempting_to_convert_d_bound.js"
+        }
+      ],
+      "text": "^You are attempting to convert (\\d+) Bound Credits into (\\d+) Lessons\\. If you are sure you would like to do this\\, type in AGREE\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "rewrite",
+          "enabled": true,
+          "rewrite_text_type": "value",
+          "rewrite_text": "[LEVEL UP!]",
+          "rewrite": "prefix",
+          "rewrite_backref": "",
+          "rewrite_colors": false,
+          "rewrite_fg": "#ffff00",
+          "rewrite_bg": "#000000"
+        },
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#8772ea",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "^You gasp with the realisation that (/w+) has reached the level of (.*)\\.$",
+      "matching": "substring",
+      "whole_words": true,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Generic alias and triggers that don't fit any specific packages"
+}
