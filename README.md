@@ -1,5 +1,7 @@
 # Achaea Nexus packages
 
+**Version 0.1**: everything as it runs in game today, with source and history in one place. Tidying the dependencies between packages comes next.
+
 Reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
 package is self-contained: it can be dropped onto any character without
 bringing the others along. The tab packages share one house style (ink panel,
@@ -21,13 +23,21 @@ their tab its own icon.
 | **eleusis** | — | Ambassador aide (`NEWBIECT`/`NEWBIECLT`/`NEWBIEBOTH`, `VEON`/`VEOFF`, lesson requests refused for enemies), monolith and flame sigil watcher (`MONOWATCH`, `MONOREPORT`, `MONOIGNORE`, …), and the Saiha `GRADUATION <name> <step>` ritual. |
 | **fishing** | — | Fishing automation: `BAIT <bait>`, `CL <direction>` to bait and cast, then tease, jerk and reel on the game's cues, with stage markers on each line. Statistics live in **fishingstats**. |
 | **fishingstats** | fishingstats, fishinglog | Live fishing session (by angler, by species, recent catches) and a log of past sessions. |
+| **harvesting** | — | Stock-aware auto-harvest on room entry: harvests and stores only plants below their minimum rift stock. `HARVESTING ON/OFF/MIN/RESET`. |
+| **hunting** | — | Battlerage cooldown tracking with highlighted F-key buttons, ability highlights per class, affliction markers, critical-hit and status highlights, `AUTOGOLD ON/OFF/ALL`, and combat gags. |
 | **huntstats** | Stats | Per-area hunting sessions: xp/hr, gold/hr, kills, Dragonhood progress, area comparison. `HUNTSTATS`. |
 | **ledger** | Ledger | IC reminders and standing items on the Achaean calendar. `LEDGER`. |
 | **levelgraph** | Level | Level progress graphs per minute and per day, days at the current level. |
+| **numpad_movement** | — | Movement and quick commands on the number pad. |
+| **partycomms** | Party | Shares party vitals and targets over party tell, shown as bars in a Party tab. `PARTYNAME`, `PARTYON`/`PARTYOFF`. |
+| **patrolling** | — | Checks each room's plants against what its environment should hold and flags shrines (`PATROLLING ON/OFF/HERE/LEARN`), suggests areas to patrol (`PATROL_SUGGEST`), storm and fire alerts, and logs replantings to the clan log. |
+| **roleplay** | — | A large set of custom emotes, step-by-step rituals, and the ambient emote system (`AEM ON/OFF/NOW/RELOAD`). |
+| **security** | — | Antitheft (`ANTITHEFT ON/OFF`, re-wears or re-stores what gets taken), `GG`/`PG` to move gold in and out of the backpack, and give, sell, drop and offer wrappers that lift selfishness around the action. |
 | **self** | Self | Replacement for the stock character panel (see below). `SELF`. |
 | **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends) and an online watchlist. Shared by other packages. |
 | **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STN HELP`. |
 | **talismans** | Talismans, TalGraph | Dragon talisman piece tracker with progress and projected finish. |
+| **vision** | — | Alertness: hides reports about city members and alerts the party when an enemy comes near. |
 
 ### Dependencies between packages
 
@@ -35,7 +45,10 @@ Most packages stand alone. The exceptions:
 
 - **common** feeds the others: its onGMCP sets `currentRoomId`, `currentArea`, `currentEnvironment` and `activeClass`, and calls `mono_enter` (**eleusis**) and `hv_room` (**harvesting**) on every room change; `set_buttons` calls `hl_buttons` (**hunting**).
 - **defences**, **artificing** and the button setup read `activeClass`, set by **common**.
-- **eleusis**, **crystalism** and **standings** read the lists of **social** (`client.hl`).
+- **eleusis**, **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
+- **hunting** draws the battlerage highlights on the buttons that **common** lays out.
+- **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
+- **security** and **hunting** share the `backpack` variable.
 - Many triggers respect the `pauseTriggers` flag from **common**.
 
 ### Installing a package
