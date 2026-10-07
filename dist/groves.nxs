@@ -1,0 +1,42 @@
+{
+ "type": "group",
+ "name": "groves",
+ "enabled": false,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "if (args.gmcp_method === \"Room.Info\") {\n  client.room = args.gmcp_args.num;\n}"
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var who = args[1];\nvar GROVE_ROOM = 23748;   // <-- your grove's room number\nvar pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  if (client.hl) {\n    if (!client.hl.city || !client.hl.city[who.toLowerCase()]) {\n      send_command(\"tell \" + who + \" Sorry, you're not in my allowed list.\");\n    } else if (client.room !== GROVE_ROOM) {\n      send_command(\"tell \" + who + \" Sorry, I'm not in my grove.\");\n    } else {\n      send_command(\"grove gate \" + who);   \n      display_notice(\"[grove] portal opened for \" + who, \"cyan\");\n    }\n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+    }
+   ],
+   "text": "^(\\w+) tells you(.*)\\, \\\"Gate\\.\\\"$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  }
+ ],
+ "description": "Groves related "
+}

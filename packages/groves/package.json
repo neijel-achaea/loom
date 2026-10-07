@@ -1,0 +1,42 @@
+{
+  "type": "group",
+  "name": "groves",
+  "enabled": false,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_w_tells_you_gate.js"
+        }
+      ],
+      "text": "^(\\w+) tells you(.*)\\, \\\"Gate\\.\\\"$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Groves related "
+}
