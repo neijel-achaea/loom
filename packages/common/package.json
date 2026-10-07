@@ -905,8 +905,8 @@
           "highlight_backref": ""
         }
       ],
-      "text": "^You gasp with the realisation that (/w+) has reached the level of (.*)\\.$",
-      "matching": "substring",
+      "text": "^You gasp with the realisation that (\\w+) has reached the level of (.*)\\.$",
+      "matching": "regexp",
       "whole_words": true,
       "case_sensitive": true
     }
