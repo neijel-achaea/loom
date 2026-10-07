@@ -12,6 +12,9 @@ import json, os, re, sys, shutil
 
 def slug(s):
     s = re.sub(r"[^A-Za-z0-9]+", "_", s or "").strip("_").lower()
+    # Triggers are often named after their whole line: keep names readable.
+    if len(s) > 40:
+        s = s[:40].rsplit("_", 1)[0] or s[:40]
     return s or "unnamed"
 
 def extract(nxs, name=None, root="packages"):
