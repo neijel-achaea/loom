@@ -1,0 +1,141 @@
+{
+ "type": "group",
+ "name": "crystalism",
+ "enabled": true,
+ "items": [
+  {
+   "type": "group",
+   "name": "autorefine",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "window.nj = window.nj || {};\n\nwindow.nj.ar = {\n  state: \"ir\",\n  rift: {},\n  facets: 0,\n  hardCap: 200,\n  askCap: args[1] ? parseInt(args[1], 10) : Infinity,\n  queue: [],\n  settle: null,\n  watchdog: null,\n  shapes: [\"cube\", \"cylinder\", \"diamond\", \"disc\", \"egg\", \"pentagon\",\n           \"polyhedron\", \"pyramid\", \"sphere\", \"spiral\", \"torus\"],\n  maxPerCommand: 10,\n  facetsPerCrystal: 1\n};\n\nwindow.nj.ar.abort = function (why) {\n  display_notice(\"[crystalism] Autorefine aborted: \" + why);\n  window.nj.ar.state = \"idle\";\n  window.nj.ar.queue = [];\n};\n\nwindow.nj.ar.pump = function () {\n  var ar = window.nj.ar;\n  if (ar.state !== \"refining\") { return; }\n  if (!ar.queue.length) {\n    ar.state = \"finishing\";\n    send_command(\"inr all\");\n    display_notice(\"[crystalism] Autorefine: done.\");\n    ar.state = \"idle\";\n    return;\n  }\n  send_command(ar.queue.shift());\n  setTimeout(window.nj.ar.pump, 1500);\n};\n\nwindow.nj.ar.plan = function () {\n  var ar = window.nj.ar;\n  var counts = {};\n  var add = {};\n  var budget, i, best, bestVal, order, parts;\n\n  ar.shapes.forEach(function (s) {\n    counts[s] = ar.rift[s] || 0;\n    add[s] = 0;\n  });\n\n  budget = Math.min(\n    Math.floor(ar.facets / ar.facetsPerCrystal),\n    ar.hardCap,\n    ar.askCap\n  );\n\n  if (budget < 1) {\n    display_notice(\"[crystalism] Autorefine: nothing to do (\" + ar.facets + \" facets stored).\");\n    ar.state = \"idle\";\n    return;\n  }\n\n  for (i = 0; i < budget; i++) {\n    best = null;\n    bestVal = Infinity;\n    ar.shapes.forEach(function (s) {\n      if (counts[s] + add[s] < bestVal) {\n        bestVal = counts[s] + add[s];\n        best = s;\n      }\n    });\n    add[best] += 1;\n  }\n\n  order = ar.shapes.slice().sort(function (a, b) {\n    return counts[a] - counts[b];\n  });\n\n  ar.queue = [];\n  parts = [];\n  order.forEach(function (s) {\n    var n = add[s];\n    if (n > 0) { parts.push(s + \" +\" + n); }\n    while (n > 0) {\n      ar.queue.push(\"refine \" + Math.min(n, ar.maxPerCommand) + \" \" + s);\n      n -= Math.min(n, ar.maxPerCommand);\n    }\n  });\n\n  display_notice(\"[crystalism] Autorefine: \" + budget + \" crystals in \"\n                 + ar.queue.length + \" commands (\" + parts.join(\", \") + \")\");\n\n  ar.state = \"refining\";\n  window.nj.ar.pump();\n};\n\nwindow.nj.ar.watchdog = setTimeout(function () {\n  if (window.nj.ar.state === \"ir\" || window.nj.ar.state === \"touch\") {\n    window.nj.ar.abort(\"no response at state '\" + window.nj.ar.state + \"'\");\n  }\n}, 8000);\n\nsend_command(\"ir crystal\");"
+      }
+     ],
+     "text": "^autorefine(?:\\s+(\\d+))?$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "window.nj = window.nj || {};\nif (!window.nj.ar || window.nj.ar.state !== \"ir\") { }\nelse {\n  var ar = window.nj.ar;\n  var re = /\\[\\s*(\\d+)\\]\\s*crystal\\s+([a-z]+)/g;\n  var m = re.exec(args[1]);\n\n  while (m !== null) {\n    if (ar.shapes.indexOf(m[2]) !== -1) {\n      ar.rift[m[2]] = parseInt(m[1], 10);\n    }\n    m = re.exec(args[1]);\n  }\n\n  clearTimeout(ar.settle);\n  ar.settle = setTimeout(function () {\n    window.nj.ar.state = \"touch\";\n    send_command(\"touch crystal\");\n  }, 400);\n}"
+      }
+     ],
+     "text": "^(.*\\[\\s*\\d+\\]\\s*crystal\\s+\\w+.*)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "window.nj = window.nj || {};\nif (!window.nj.ar || window.nj.ar.state !== \"touch\") { }\nelse {\n  window.nj.ar.facets = parseInt(args[1], 10);\n  clearTimeout(window.nj.ar.watchdog);\n  window.nj.ar.plan();\n}"
+      }
+     ],
+     "text": "^You have stored (\\d+) facets? for refinement\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "command",
+     "enabled": true,
+     "command": "queue add eb get pearl",
+     "prefix_suffix": false
+    }
+   ],
+   "text": "^A glistening iridescent pearl tumbles out of the corpse of (.*)\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var who = args[1];\nvar pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  if (client.hl) {\n    if (!client.hl.city || !client.hl.city[who.toLowerCase()]) {\n      send_command(\"tell \" + who + \" Sorry, you're not in my allowed list.\");\n    } else {\n      send_command(\"embed sonicportal \" + who);   \n      display_notice(\"[crystalism] portal opened for \" + who, \"cyan\");\n    }\n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+    }
+   ],
+   "text": "^(\\w+) tells you(.*)\\, \\\"Gate\\.\\\"$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"on\");\n"
+    }
+   ],
+   "text": "^You relax your muscles and attune yourself to your Master Crystal\\, feeling its vibrations draw your soul\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"off\");\n"
+    }
+   ],
+   "text": "^The call of the Master Crystal is irresistible and you are drawn to it\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  }
+ ],
+ "description": ""
+}

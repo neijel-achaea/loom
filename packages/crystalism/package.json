@@ -1,0 +1,141 @@
+{
+  "type": "group",
+  "name": "crystalism",
+  "enabled": true,
+  "items": [
+    {
+      "type": "group",
+      "name": "autorefine",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autorefine__alias_autorefine_s_d.js"
+            }
+          ],
+          "text": "^autorefine(?:\\s+(\\d+))?$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autorefine__trigger_s_d_s_crystal_s_w.js"
+            }
+          ],
+          "text": "^(.*\\[\\s*\\d+\\]\\s*crystal\\s+\\w+.*)$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autorefine__trigger_you_have_stored_d_facets_for_refinement.js"
+            }
+          ],
+          "text": "^You have stored (\\d+) facets? for refinement\\.$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "queue add eb get pearl",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "^A glistening iridescent pearl tumbles out of the corpse of (.*)\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_w_tells_you_gate.js"
+        }
+      ],
+      "text": "^(\\w+) tells you(.*)\\, \\\"Gate\\.\\\"$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_relax_your_muscles_and_attune.js"
+        }
+      ],
+      "text": "^You relax your muscles and attune yourself to your Master Crystal\\, feeling its vibrations draw your soul\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_the_call_of_the_master_crystal_is.js"
+        }
+      ],
+      "text": "^The call of the Master Crystal is irresistible and you are drawn to it\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    }
+  ],
+  "description": ""
+}
