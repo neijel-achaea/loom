@@ -1,0 +1,93 @@
+{
+  "type": "group",
+  "name": "artificing",
+  "enabled": true,
+  "items": [
+    {
+      "type": "group",
+      "name": "treaties",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:treaties__alias_tf_w.js"
+            }
+          ],
+          "text": "^tf (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:treaties__trigger_at_last_the_communion_ends_and_a.js"
+            }
+          ],
+          "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:treaties__trigger_at_last_you_are_let_go_and_a_delighted.js"
+            }
+          ],
+          "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_staffattack_w.js"
+        }
+      ],
+      "text": "^staffattack (\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    }
+  ],
+  "description": ""
+}

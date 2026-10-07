@@ -1,0 +1,93 @@
+{
+ "type": "group",
+ "name": "artificing",
+ "enabled": true,
+ "items": [
+  {
+   "type": "group",
+   "name": "treaties",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var elemental = args[1];\n\nif (elemental != \"waterweird\" && elemental != \"djinn\" && elemental != \"sandling\" && elemental != \"efreeti\" && elemental != \"stoneback\" && elemental != \"breath\" && elemental != \"mistfiend\" && elemental != \"ashbeast\") {\n  display_notice(\"[artificing] You can only form treaties with these elementals: WATERWEIRD, DJINN, SANDLING, EFREETI, STONEBACK, BREATH, MISTFIEND, ASHBEAST\", \"cyan\");\n} else {\n    send_command(\"pausetriggers on\");\n    send_command(\"curing sipping off\");\n    send_command(\"treaty form \" + elemental);\n}"
+      }
+     ],
+     "text": "^tf (\\w+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"pausetriggers off\");\nsend_command(\"curing sipping on\");"
+      }
+     ],
+     "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"pausetriggers off\");\nsend_command(\"curing sipping on\");"
+      }
+     ],
+     "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var staffAttack = args[1];\n\nif (staffAttack == \"fire\") {\n  set_variable(\"staffAttack\", \"scintilla\");\n  display_notice(\"[artificing] New staff attack: fire\", \"cyan\")  \n} else if (staffAttack == \"frost\") {\n  set_variable(\"staffAttack\", \"horripilation\");\n  display_notice(\"[artificing] New staff attack: frost\", \"cyan\")   \n} else if (staffAttack == \"lightning\") {\n  set_variable(\"staffAttack\", \"lightning\");\n  display_notice(\"[artificing] New staff attack: lightning\", \"cyan\")   \n} else {\n  display_notice(\"[artificing] Wrong staff attack. Select fire, frost or lightning\", \"orange\");\n}"
+    }
+   ],
+   "text": "^staffattack (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  }
+ ],
+ "description": ""
+}
