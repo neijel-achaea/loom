@@ -1,0 +1,413 @@
+{
+ "type": "group",
+ "name": "eleusis",
+ "enabled": true,
+ "items": [
+  {
+   "type": "group",
+   "name": "Ambassador Aide",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var newbie = args[1];\n\nsend_command(\"ct Welcome, \" + newbie + \"! You can talk here with CT message. Please have a look at CHELP WELCOME when you have some time.\");"
+      }
+     ],
+     "text": "^newbiect (\\w+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var newbie = args[1];\n\nsend_command(\"clt Welcome, \" + newbie + \"! You can talk here with CLT message. Please have a look at CLHELP WELCOME to learn how to progress through your novicehood. Don't hesitate to ask any questions here.\");"
+      }
+     ],
+     "text": "^newbieclt (\\w+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var newbie = args[1];\n\nsend_command(\"ct Welcome, \" + newbie + \"! You can talk here with CT message. Please have a look at CHELP WELCOME when you have some time.\");\n\nsend_command(\"clan switch 1\");\n\nsend_command(\"clt And welcome here too! You can talk with CLT message. Please have a look at CLHELP WELCOME to learn how to progress through your novicehood. Don't hesitate to ask any questions here.\");"
+      }
+     ],
+     "text": "^newbieboth (\\w+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#00ffbc",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      },
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var newbie = args[1];\n\nsend_command(\"hladd city \" + newbie);\ndisplay_notice(\"[eleusis] New citizen: \" + newbie + \". Greet him with NEWBIECT, NEWBIECLT or NEWBIEBOTH\", \"cyan\");"
+      }
+     ],
+     "text": "Your fellow citizen, (\\w+), has just escaped imprisonment in the foul pygmy dungeon. Welcome (\\w+) to Eleusis!",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"city guide available\");\nsend_command(\"clan switch saiha\");\nsend_command(\"newbieon\");\nsend_command(\"clt Verdant Emissary on duty. If you have any questions or need anything, don't hesitate to ask!\");"
+      }
+     ],
+     "text": "^veon$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"city guide unavailable\");\nsend_command(\"clan switch saiha\");\nsend_command(\"newbieoff\");\nsend_command(\"clt Verdant Emissary off duty. If you have any questions or need anything, still don't hesitate to ask!\");\n"
+      }
+     ],
+     "text": "^veoff$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var who = args[1];\nvar skill = args[2];\nvar pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  if (client.hl) {\n    if (client.hl.enemies[who.toLowerCase()]) {\n      display_notice(\"[eleusis] You cannot teach enemies!\", \"orange\");\n    } else {\n      send_command(\"ok\");   \n      display_notice(\"[eleusis] teaching \" + skill + \" to \" + who, \"cyan\");\n    }\n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+      }
+     ],
+     "text": "^(\\w+) has requested that you share some of your knowledge of (.*) with (\\w+)\\. \\'OK\\' to commence the lesson\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "monoliths",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "mono_enter",
+     "enabled": true,
+     "code": "// mono_enter -- called on every room change (wired from onGMCP).\n// Queues the room and probes it. No dedupe buffer: every entry is re-probed.\nvar rid = get_variable(\"currentRoomId\");\nvar rnm = get_variable(\"currentRoomName\");\nif ((rid === null || rid === undefined) && typeof currentRoomId !== \"undefined\") rid = currentRoomId;\nif ((rnm === null || rnm === undefined) && typeof currentRoomName !== \"undefined\") rnm = currentRoomName;\n\nif (get_variable(\"mono_on\") && rid !== null && rid !== undefined && rid !== \"\") {\n  var key = String(rid);\n\n  // A monolith read in the previous room is waiting for a flame line that\n  // never came -- settle it now as \"no flame\".\n  run_function(\"mono_settle\", [], \"eleusis\");\n\n  var ign = get_variable(\"mono_ignore\");\n  if (!ign) { ign = { \"6742\": \"?\" }; set_variable(\"mono_ignore\", ign); }\n\n  if (!ign[key]) {\n    var q = get_variable(\"mono_queue\") || [];\n    q.push({ id: key, name: rnm || \"?\", t: Date.now() });\n    if (q.length > 20) q = q.slice(q.length - 20);\n    set_variable(\"mono_queue\", q);\n    send_command(\"probe monolith here\");\n  }\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "mono_take",
+     "enabled": true,
+     "code": "// mono_take -- pops the oldest queued room into mono_head (or null).\n// Entries older than 15s are dropped: their reply was lost somewhere.\nvar q = get_variable(\"mono_queue\") || [];\nvar now = Date.now();\nvar head = null;\nwhile (q.length > 0 && head === null) {\n  var e = q.shift();\n  if (now - e.t < 15000) head = e;\n}\nset_variable(\"mono_queue\", q);\nset_variable(\"mono_head\", head);\n"
+    },
+    {
+     "type": "function",
+     "name": "mono_parse",
+     "enabled": true,
+     "code": "// mono_parse -- mono_p_txt (\"109 months\", \"about a month\", ...) -> mono_p_months.\n// -1 = unreadable, 0 = under a month.\nvar txt = String(get_variable(\"mono_p_txt\") || \"\");\nvar months = -1;\nif (/^about a month$/i.test(txt)) months = 1;\nelse if (/^about a year$/i.test(txt)) months = 12;\nelse {\n  var m = /(\\d+)\\s*month/i.exec(txt);\n  var y = /(\\d+)\\s*year/i.exec(txt);\n  if (m) months = parseInt(m[1], 10);\n  else if (y) months = parseInt(y[1], 10) * 12;\n  else if (/less than/i.test(txt)) months = 0;\n}\nset_variable(\"mono_p_months\", months);\n"
+    },
+    {
+     "type": "function",
+     "name": "mono_settle",
+     "enabled": true,
+     "code": "// mono_settle -- finalises the monolith waiting in mono_await.\n// flame undefined at this point means the flame line never showed: missing.\nvar aw = get_variable(\"mono_await\");\nif (aw) {\n  set_variable(\"mono_await\", null);\n  var fl = (aw.flame === undefined || aw.flame === null) ? -1 : aw.flame;\n  set_variable(\"mono_f_id\", aw.id);\n  set_variable(\"mono_f_name\", aw.name);\n  set_variable(\"mono_f_months\", aw.months);\n  set_variable(\"mono_f_flame\", fl);\n  run_function(\"mono_flag\", [], \"eleusis\");\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "mono_flag",
+     "enabled": true,
+     "code": "// mono_flag -- inputs are read from variables, not arguments:\n//   mono_f_id, mono_f_name, mono_f_months, mono_f_flame\n//   months/flame < 0 means none / no reading\nvar fid = get_variable(\"mono_f_id\");\nvar fnm = get_variable(\"mono_f_name\");\nvar fmo = get_variable(\"mono_f_months\");\nvar ffl = get_variable(\"mono_f_flame\");\nif (fmo === null || fmo === undefined) fmo = -1;\nif (ffl === null || ffl === undefined || fmo < 0) ffl = -1;\n\nif (fid !== null && fid !== undefined && fid !== \"\") {\n  var key = String(fid);\n  var nm = fnm ? String(fnm) : \"?\";\n  var thr = get_variable(\"mono_threshold\");\n  if (thr === null || thr === undefined) thr = 10;\n  var bad = get_variable(\"mono_bad\") || {};\n  var ign = get_variable(\"mono_ignore\") || {};\n  var prev = bad[key];\n\n  var monoBad = fmo < thr;\n  var flameBad = ffl < thr;\n\n  if (ign[key] || (!monoBad && !flameBad)) {\n    // Healthy (or ignored): drop any earlier flag for this room.\n    if (prev) {\n      delete bad[key];\n      set_variable(\"mono_bad\", bad);\n      if (!ign[key]) display_notice(\"[eleusis] \" + nm + \" (\" + key + \") -- all good now.\", \"lime\");\n    }\n  } else {\n    bad[key] = { id: key, name: nm, months: fmo, flame: ffl, t: Date.now() };\n    set_variable(\"mono_bad\", bad);\n\n    // Only announce new flags or changed readings, not every re-probe.\n    if (!prev || prev.months !== fmo || prev.flame !== ffl) {\n      var parts = [];\n      if (monoBad) {\n        if (fmo < 0) parts.push(\"no monolith\");\n        else if (fmo === 0) parts.push(\"monolith under a month\");\n        else parts.push(\"monolith \" + fmo + (fmo === 1 ? \" month\" : \" months\"));\n      }\n      if (flameBad && fmo >= 0) {\n        if (ffl < 0) parts.push(\"no flame sigil\");\n        else if (ffl === 0) parts.push(\"flame under a month\");\n        else parts.push(\"flame \" + ffl + (ffl === 1 ? \" month\" : \" months\"));\n      }\n      display_notice(\"[eleusis] \" + nm + \" (\" + key + \") -- \" + parts.join(\", \"), \"orange\");\n    }\n  }\n}\n"
+    },
+    {
+     "type": "trigger",
+     "name": "mono_usefulness",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var q = get_variable(\"mono_queue\") || [];\nif (q.length > 0) {\n  run_function(\"mono_settle\", [], \"eleusis\");\n  run_function(\"mono_take\", [], \"eleusis\");\n  var head = get_variable(\"mono_head\");\n  if (head) {\n    set_variable(\"mono_p_txt\", args[1]);\n    run_function(\"mono_parse\", [], \"eleusis\");\n    head.months = get_variable(\"mono_p_months\");\n    // Wait for a possible flame line before deciding.\n    set_variable(\"mono_await\", head);\n  }\n}\n"
+      }
+     ],
+     "text": "^It has (.+?) of usefulness left\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "mono_flame",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#ff008f",
+       "highlight_bg": "#000000",
+       "highlight": "line",
+       "highlight_backref": ""
+      },
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var aw = get_variable(\"mono_await\");\nif (aw) {\n  set_variable(\"mono_p_txt\", args[1]);\n  run_function(\"mono_parse\", [], \"eleusis\");\n  aw.flame = get_variable(\"mono_p_months\");\n  set_variable(\"mono_await\", aw);\n  run_function(\"mono_settle\", [], \"eleusis\");\n}\n"
+      }
+     ],
+     "text": "^There is a flame-shaped sigil attached\\. \\((.+?) remaining\\)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "mono_nothing",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var q = get_variable(\"mono_queue\") || [];\nif (q.length > 0) {\n  run_function(\"mono_settle\", [], \"eleusis\");\n  run_function(\"mono_take\", [], \"eleusis\");\n  var head = get_variable(\"mono_head\");\n  if (head) {\n    set_variable(\"mono_f_id\", head.id);\n    set_variable(\"mono_f_name\", head.name);\n    set_variable(\"mono_f_months\", -1);\n    set_variable(\"mono_f_flame\", -1);\n    run_function(\"mono_flag\", [], \"eleusis\");\n  }\n}\n"
+      }
+     ],
+     "text": "^You (?:do not|don't) see that here\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "alias",
+     "name": "monowatch",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var mode = args[1] ? String(args[1]).toLowerCase() : \"\";\nvar next = get_variable(\"mono_on\") ? false : true;\nif (mode === \"on\") next = true;\nif (mode === \"off\") next = false;\n\nvar thr = get_variable(\"mono_threshold\");\nif (thr === null || thr === undefined) { thr = 10; set_variable(\"mono_threshold\", 10); }\nif (!get_variable(\"mono_bad\")) set_variable(\"mono_bad\", {});\nif (!get_variable(\"mono_ignore\")) set_variable(\"mono_ignore\", { \"6742\": \"?\" });\n\nrun_function(\"mono_settle\", [], \"eleusis\");\nset_variable(\"mono_on\", next);\nset_variable(\"mono_queue\", []);\nset_variable(\"mono_await\", null);\nif (next) {\n  display_notice(\"[eleusis] Watch ON. Probing every room, flagging under \" + thr + \" months (monolith and flame).\", \"lime\");\n} else {\n  var n = Object.keys(get_variable(\"mono_bad\") || {}).length;\n  display_notice(\"[eleusis] Watch OFF. \" + n + \" room(s) flagged. MONOREPORT to see them.\", \"yellow\");\n}\n"
+      }
+     ],
+     "text": "^monowatch(?:\\s+(on|off))?$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monoreport",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "run_function(\"mono_settle\", [], \"eleusis\");\n\nvar bad = get_variable(\"mono_bad\") || {};\nvar ign = get_variable(\"mono_ignore\") || {};\nvar thr = get_variable(\"mono_threshold\");\nif (thr === null || thr === undefined) thr = 10;\nvar cm = get_variable(\"mono_cost_monolith\");\nif (cm === null || cm === undefined) cm = 1500;\nvar cf = get_variable(\"mono_cost_flame\");\nif (cf === null || cf === undefined) cf = 500;\n\nvar monoRows = [];\nvar flameRows = [];\nvar keys = Object.keys(bad);\nvar i = 0;\nfor (i = 0; i < keys.length; i++) {\n  var r = bad[keys[i]];\n  if (ign[r.id]) continue;\n  var fl = (r.flame === undefined || r.flame === null || r.months < 0) ? -1 : r.flame;\n  var idcol = (\"      \" + r.id).slice(-6);\n\n  if (r.months < thr) {\n    var ms = \"none\";\n    if (r.months === 0) ms = \"<1\";\n    if (r.months > 0) ms = String(r.months);\n    monoRows.push((\"00000\" + (r.months < 0 ? 0 : r.months + 1)).slice(-5)\n      + \"  \" + (\"      \" + ms).slice(-6) + \"  \" + idcol + \"  \" + r.name);\n  }\n  if (fl < thr) {\n    var fs = \"none\";\n    if (fl === 0) fs = \"<1\";\n    if (fl > 0) fs = String(fl);\n    flameRows.push((\"00000\" + (fl < 0 ? 0 : fl + 1)).slice(-5)\n      + \"  \" + (\"      \" + fs).slice(-6) + \"  \" + idcol + \"  \" + r.name);\n  }\n}\nmonoRows.sort();\nflameRows.sort();\n\nvar colhead = \"  Months    Room  Location\";\n\ndisplay_notice(\"ELEUSIS SIGIL REPORT\", \"yellow\");\ndisplay_notice(\"Rooms with less than \" + thr + \" months of usefulness left.\", \"white\");\ndisplay_notice(\" \", \"white\");\n\ndisplay_notice(\"EXPIRING MONOLITH SIGILS (\" + monoRows.length + \")\", \"yellow\");\nif (monoRows.length === 0) display_notice(\"  None.\", \"white\");\nelse {\n  display_notice(colhead, \"white\");\n  for (i = 0; i < monoRows.length; i++) display_notice(monoRows[i].slice(5), \"white\");\n}\ndisplay_notice(\" \", \"white\");\n\ndisplay_notice(\"EXPIRING FLAME SIGILS (\" + flameRows.length + \")\", \"yellow\");\nif (flameRows.length === 0) display_notice(\"  None.\", \"white\");\nelse {\n  display_notice(colhead, \"white\");\n  for (i = 0; i < flameRows.length; i++) display_notice(flameRows[i].slice(5), \"white\");\n}\ndisplay_notice(\" \", \"white\");\n\nvar tm = monoRows.length * cm;\nvar tf = flameRows.length * cf;\nvar money = [String(cm), String(cf), String(tm), String(tf), String(tm + tf)];\nfor (i = 0; i < money.length; i++) money[i] = money[i].replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");\n\ndisplay_notice(\"ESTIMATED COST (NEXT 6 MONTHS)\", \"yellow\");\ndisplay_notice(\"  Monolith sigils \" + (\"   \" + monoRows.length).slice(-3) + \" x \" + (\"     \" + money[0]).slice(-5)\n  + \" = \" + (\"       \" + money[2]).slice(-7) + \" gold\", \"white\");\ndisplay_notice(\"  Flame sigils    \" + (\"   \" + flameRows.length).slice(-3) + \" x \" + (\"     \" + money[1]).slice(-5)\n  + \" = \" + (\"       \" + money[3]).slice(-7) + \" gold\", \"white\");\ndisplay_notice(\"  Total                         \" + (\"       \" + money[4]).slice(-7) + \" gold\", \"white\");\n\ndisplay_notice(\"[eleusis] MONOCLEAR to wipe the list.\", \"cyan\");\n"
+      }
+     ],
+     "text": "^monoreport$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monoignore",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var ign = get_variable(\"mono_ignore\");\nif (!ign) { ign = { \"6742\": \"?\" }; set_variable(\"mono_ignore\", ign); }\nvar arg = args[1] ? String(args[1]).toLowerCase() : \"\";\n\nif (arg === \"\") {\n  var keys = Object.keys(ign);\n  if (keys.length === 0) display_notice(\"[eleusis] No rooms ignored.\", \"cyan\");\n  else {\n    display_notice(\"[eleusis] \" + keys.length + \" room(s) ignored:\", \"cyan\");\n    var i = 0;\n    for (i = 0; i < keys.length; i++) display_notice(\"  \" + (\"      \" + keys[i]).slice(-6) + \"  \" + ign[keys[i]], \"white\");\n  }\n} else {\n  var key = arg;\n  var nm = \"?\";\n  if (arg === \"here\") {\n    key = String(get_variable(\"currentRoomId\"));\n    nm = get_variable(\"currentRoomName\") || \"?\";\n  }\n  var bad = get_variable(\"mono_bad\") || {};\n  if (bad[key]) {\n    if (nm === \"?\") nm = bad[key].name;\n    delete bad[key];\n    set_variable(\"mono_bad\", bad);\n  }\n  ign[key] = nm;\n  set_variable(\"mono_ignore\", ign);\n  display_notice(\"[eleusis] Ignoring room \" + key + (nm !== \"?\" ? \" (\" + nm + \")\" : \"\") + \".\", \"cyan\");\n}\n"
+      }
+     ],
+     "text": "^monoignore(?:\\s+(here|\\d+))?$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monounignore",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var ign = get_variable(\"mono_ignore\") || {};\nvar key = String(args[1]).toLowerCase();\nif (key === \"here\") key = String(get_variable(\"currentRoomId\"));\nif (ign[key] !== undefined) {\n  delete ign[key];\n  set_variable(\"mono_ignore\", ign);\n  display_notice(\"[eleusis] Room \" + key + \" is watched again.\", \"cyan\");\n} else {\n  display_notice(\"[eleusis] Room \" + key + \" was not on the ignore list.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^monounignore\\s+(here|\\d+)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monoclear",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "set_variable(\"mono_bad\", {});\nset_variable(\"mono_queue\", []);\nset_variable(\"mono_await\", null);\ndisplay_notice(\"[eleusis] List cleared.\", \"cyan\");\n"
+      }
+     ],
+     "text": "^monoclear$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monothreshold",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (args[1]) set_variable(\"mono_threshold\", parseInt(args[1], 10));\nvar thr = get_variable(\"mono_threshold\");\nif (thr === null || thr === undefined) { thr = 10; set_variable(\"mono_threshold\", 10); }\ndisplay_notice(\"[eleusis] Threshold: \" + thr + \" months.\", \"cyan\");"
+      }
+     ],
+     "text": "^monothreshold(?:\\s+(\\d+))?$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monocheck",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var was = get_variable(\"mono_on\");\nset_variable(\"mono_on\", true);\nrun_function(\"mono_enter\", [], \"eleusis\");\nset_variable(\"mono_on\", was);\n"
+      }
+     ],
+     "text": "^monocheck$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monoinit",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (get_variable(\"mono_threshold\") === null || get_variable(\"mono_threshold\") === undefined) {\n  set_variable(\"mono_threshold\", 10);\n}\nif (!get_variable(\"mono_bad\")) set_variable(\"mono_bad\", {});\nif (!get_variable(\"mono_ignore\")) set_variable(\"mono_ignore\", { \"6742\": \"?\" });\nset_variable(\"mono_queue\", []);\nset_variable(\"mono_await\", null);\ndisplay_notice(\"[eleusis] 0.4 ready. Threshold \" + get_variable(\"mono_threshold\") + \" months. MONOWATCH ON to start.\", \"cyan\");\n"
+      }
+     ],
+     "text": "^monoinit$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "alias",
+     "name": "monodebug",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "display_notice(\"[eleusis] on=\" + get_variable(\"mono_on\")\n  + \" thr=\" + get_variable(\"mono_threshold\")\n  + \" flagged=\" + Object.keys(get_variable(\"mono_bad\") || {}).length\n  + \" ignored=\" + Object.keys(get_variable(\"mono_ignore\") || {}).join(\",\")\n  + \" queue=\" + JSON.stringify(get_variable(\"mono_queue\"))\n  + \" await=\" + JSON.stringify(get_variable(\"mono_await\"))\n  + \" roomId=\" + get_variable(\"currentRoomId\")\n  + \" roomName=\" + get_variable(\"currentRoomName\"), \"cyan\");\n"
+      }
+     ],
+     "text": "^monodebug$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "Rituals",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var target = args[1];\nvar step = args[2];\nvar textStep = \"\";\n\nswitch (step) {\n  case \"1\":\n    textStep = \"emote steps onto the stone floor, waiting amongst the roots until the murmuring of the gathered falls still.\";\n    break;\n\n  case \"2\":\n    textStep = \"cast illusion The drifting wisps slow in their wandering and gather overhead, their green light pooling softly upon the floor.\";\n    break;\n\n  case \"3\":\n    textStep = \"say Welcome, everyone. We gather here beneath the roots of Eleusis, amongst those who rest within these walls, to mark the moment a seed breaks the soil and turns towards the light.\";\n    display_notice(\"[eleusis] Skip to step 6 if Lady Gaia is not present.\", \"cyan\");\n    break;\n\n  case \"4\":\n    textStep = \"emote turns towards Lady Gaia and bows deeply, holding the bow for a long breath before rising.\";\n    break;\n\n  case \"5\":\n    textStep = \"say Earthmother, we are honoured beyond words by Your presence. With Your leave, we begin.\";\n    break;\n\n  case \"6\":\n    textStep = \"emote extends an open hand towards $\" + target + \", inviting $\" + target + \"_him to stand in the center of the room.\";\n    break;\n\n  case \"7\":\n    textStep = \"say Gather around \" + target + \", please.\";\n    break;\n\n  case \"8\":\n    textStep = \"say \" + target + \" came to us as a Uaithne, and has walked the paths of the Saiha since.\";\n    break;\n\n  case \"9\":\n    textStep = \"cast illusion A single wisp drifts down from amongst the roots and hovers at the heart of the gathering, casting a pale green light over all.\";\n    break;\n\n  case \"10\":\n    textStep = \"say \" + target + \", each of us is bound to some corner of Nature's vast body. Tell us, which environment calls to you?\";\n    display_notice(\"[eleusis] Use feel_environment optional after the reply.\", \"cyan\");\n\n    break;   \n\n  case \"11\":\n    textStep = \"say Then let it know you as its own, and may you never walk there as a stranger.\";\n    break;\n\n  case \"12\":\n    textStep = \"say Before we proceed, the floor belongs to those who have walked beside \" + target + \". Is there any here who would offer words?\";\n    break;\n\n  case \"13\":\n    textStep = \"emote lets his gaze travel slowly across every face in the gathering.\";\n    break;\n\n  case \"14\":\n    textStep = \"say It is our custom that none join us unwelcomed. If any here holds a true objection to the graduation of \" + target + \", let them speak it now, openly and before all.\";\n    break;\n    \n  case \"15\":\n    textStep = \"say \" + target + \", you will now speak the Oath. Repeat after me, and let each word be your own.\";\n    display_notice(\"[eleusis] Oath 1: I, \" + target + \", of (environment),\", \"cyan\");\n    display_notice(\"[eleusis] Oath 2: Do hereby submit to the Wildwood Queen, Lady Gaia, She Who is Nature.\", \"cyan\");\n    display_notice(\"[eleusis] Oath 3: In life, I shall seek to serve Nature, to defend Her realm, and to strike back against those who would trespass upon Her until my final breath.\", \"cyan\");\n    display_notice(\"[eleusis] Oath 4: In death, I shall return to Her, my infested body a feast as my flesh is reclaimed down to the bone.\", \"cyan\");\n    display_notice(\"[eleusis] Oath 5: That which is borrowed from the earth shall be inevitably returned; in life, growth, death, and decay, I am one with Nature.\", \"cyan\");\n    break;\n    \n  case \"16\":\n    textStep = \"say Now come, \" + target + \", and lay your hand upon the roots. They reach down from every tree of Eleusis, and they hold all of us together.\";\n    break;\n\n  case \"17\":\n    textStep = \"cast illusion One by one, the wisps abandon their wandering and gather about the roots until their green light thickens and the gnarled wood seems to breathe.\";\n    break;\n\n  case \"18\":\n    textStep = \"t \" + target + \" TOUCH ROOTS\";\n    break;\n    \n  case \"19\":\n    textStep = \"cast illusion The wisps lift from the roots in a joyful spiral, dancing along the vines before drifting slowly back to their quiet wandering amongs the roots and earth.\";\n    break;\n    \n  case \"20\":\n    textStep = \"say Congratulations, \" + target + \", and welcome to our family :)\";\n    break;\n}\n\nif (textStep != \"\") {\n  send_command(textStep);\n  display_notice(\"Step \" + step + \" out of 20.\");\n} else {\n  display_notice (\"Wrong step: \" + args[1]);\n}"
+      }
+     ],
+     "text": "^graduation (\\w+) (\\d+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed\n\nrun_function(\"mono_init\", null, \"eleusis\");"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  }
+ ],
+ "description": ""
+}
