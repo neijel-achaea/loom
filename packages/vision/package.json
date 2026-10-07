@@ -1,0 +1,36 @@
+{
+  "type": "group",
+  "name": "vision",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "trigger",
+      "name": "Alertness",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_alertness.js"
+        }
+      ],
+      "text": "^Your enhanced senses inform you that (\\w+) has entered (\\w+(?: \\w+)*), to the (\\w+)\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    }
+  ],
+  "description": ""
+}

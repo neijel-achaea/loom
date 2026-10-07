@@ -1,0 +1,36 @@
+{
+ "type": "group",
+ "name": "vision",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "trigger",
+   "name": "Alertness",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var who = args[1];\nvar location = args[2];\nvar direction = args[3];\n\nif (client.hl && client.hl.city[who.toLowerCase()]) {\n    gag_current_line();\n} else {\n  if (client.hl.enemies[who.toLowerCase()]) {\n    send_command(\"pt ENEMY ALERT: \" + who + \" is \" + direction + \" of me, at \" + location);\n  }\n}"
+    }
+   ],
+   "text": "^Your enhanced senses inform you that (\\w+) has entered (\\w+(?: \\w+)*), to the (\\w+)\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  }
+ ],
+ "description": ""
+}
