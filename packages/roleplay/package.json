@@ -1,0 +1,1966 @@
+{
+  "type": "group",
+  "name": "roleplay",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "group",
+      "name": "Emotes",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_custom_emotes.js"
+            }
+          ],
+          "text": "^custom_emotes$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_emote.js"
+            }
+          ],
+          "text": "^_emote$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_emote_w.js"
+            }
+          ],
+          "text": "^_emote (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_applaud.js"
+            }
+          ],
+          "text": "^applaud$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_aww.js"
+            }
+          ],
+          "text": "^aww$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_aww_w.js"
+            }
+          ],
+          "text": "^aww (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_bearhug_w.js"
+            }
+          ],
+          "text": "^bearhug (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_blink.js"
+            }
+          ],
+          "text": "^blink$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_blush.js"
+            }
+          ],
+          "text": "^blush$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_boo.js"
+            }
+          ],
+          "text": "^boo$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_boo_w.js"
+            }
+          ],
+          "text": "^boo (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_bow.js"
+            }
+          ],
+          "text": "^bow$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_bow_w.js"
+            }
+          ],
+          "text": "^bow (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_brb.js"
+            }
+          ],
+          "text": "^brb$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_bye.js"
+            }
+          ],
+          "text": "^bye$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_cackle.js"
+            }
+          ],
+          "text": "^cackle$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_caress_w.js"
+            }
+          ],
+          "text": "^caress (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_cheer.js"
+            }
+          ],
+          "text": "^cheer$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_cheer_w.js"
+            }
+          ],
+          "text": "^cheer (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_chin.js"
+            }
+          ],
+          "text": "^chin$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_chuckle.js"
+            }
+          ],
+          "text": "^chuckle$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_chuckle_w.js"
+            }
+          ],
+          "text": "^chuckle (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_clap.js"
+            }
+          ],
+          "text": "^clap$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_comfort_w.js"
+            }
+          ],
+          "text": "^comfort (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_contentsigh.js"
+            }
+          ],
+          "text": "^contentsigh$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_crackneck.js"
+            }
+          ],
+          "text": "^crackneck$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_cuddle_w.js"
+            }
+          ],
+          "text": "^cuddle (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_dance_w.js"
+            }
+          ],
+          "text": "^dance (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_drawclose_w.js"
+            }
+          ],
+          "text": "^drawclose (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_drool.js"
+            }
+          ],
+          "text": "^drool$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_duh.js"
+            }
+          ],
+          "text": "^duh$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_earnibble_w.js"
+            }
+          ],
+          "text": "^earnibble (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_eek_eep.js"
+            }
+          ],
+          "text": "^eek|eep$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_embrace_w.js"
+            }
+          ],
+          "text": "^embrace (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_eww.js"
+            }
+          ],
+          "text": "^eww$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_exhale.js"
+            }
+          ],
+          "text": "^exhale$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_flex.js"
+            }
+          ],
+          "text": "^flex$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_frown.js"
+            }
+          ],
+          "text": "^frown$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_fume.js"
+            }
+          ],
+          "text": "^fume$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_gasp.js"
+            }
+          ],
+          "text": "^gasp$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_glare_w.js"
+            }
+          ],
+          "text": "^glare (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_grab_w.js"
+            }
+          ],
+          "text": "^grab (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_grin.js"
+            }
+          ],
+          "text": "^grin$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_grin_w.js"
+            }
+          ],
+          "text": "^grin (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_growl.js"
+            }
+          ],
+          "text": "^growl$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_grunt.js"
+            }
+          ],
+          "text": "^grunt$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_guard_w.js"
+            }
+          ],
+          "text": "^guard (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_hi.js"
+            }
+          ],
+          "text": "^hi$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_highfive_w.js"
+            }
+          ],
+          "text": "^highfive (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_hug_w.js"
+            }
+          ],
+          "text": "^hug (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_hugbehind_w.js"
+            }
+          ],
+          "text": "^hugbehind (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_innocent.js"
+            }
+          ],
+          "text": "^innocent$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_jaw_w.js"
+            }
+          ],
+          "text": "^jaw (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_kiss_w.js"
+            }
+          ],
+          "text": "^kiss (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_lacehand_w.js"
+            }
+          ],
+          "text": "^lacehand (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_layback.js"
+            }
+          ],
+          "text": "^layback$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_laugh.js"
+            }
+          ],
+          "text": "^laugh$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_laugh_w.js"
+            }
+          ],
+          "text": "^laugh (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_love_w.js"
+            }
+          ],
+          "text": "^love (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_lovetoo_w.js"
+            }
+          ],
+          "text": "^lovetoo (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_massage_w.js"
+            }
+          ],
+          "text": "^massage (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_neckkiss_w.js"
+            }
+          ],
+          "text": "^neckkiss (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_nibblekiss_w.js"
+            }
+          ],
+          "text": "^nibblekiss (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_nice.js"
+            }
+          ],
+          "text": "^nice$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_nice_w.js"
+            }
+          ],
+          "text": "^nice (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_np.js"
+            }
+          ],
+          "text": "^np$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_np_w.js"
+            }
+          ],
+          "text": "^np (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_nudge_w.js"
+            }
+          ],
+          "text": "^nudge (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_nuzzle_w.js"
+            }
+          ],
+          "text": "^nuzzle (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_ohh.js"
+            }
+          ],
+          "text": "^ohh$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_oops.js"
+            }
+          ],
+          "text": "^oops$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_ouch.js"
+            }
+          ],
+          "text": "^ouch$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_ouch_w.js"
+            }
+          ],
+          "text": "^ouch (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_peck_w.js"
+            }
+          ],
+          "text": "^peck (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_pff.js"
+            }
+          ],
+          "text": "^pff$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_pff_w.js"
+            }
+          ],
+          "text": "^pff (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_phew.js"
+            }
+          ],
+          "text": "^phew$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_pinch_w.js"
+            }
+          ],
+          "text": "^pinch (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_point_w.js"
+            }
+          ],
+          "text": "^point (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_poke_w.js"
+            }
+          ],
+          "text": "^poke (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_raisehand.js"
+            }
+          ],
+          "text": "^raisehand$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_raisehand_w.js"
+            }
+          ],
+          "text": "^raisehand (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_rolleyes.js"
+            }
+          ],
+          "text": "^rolleyes$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_rufflehair_w.js"
+            }
+          ],
+          "text": "^rufflehair (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_shake.js"
+            }
+          ],
+          "text": "^shake$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "",
+              "prefix_suffix": false
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_shrug_1.js"
+            }
+          ],
+          "text": "^shrug$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_sigh.js"
+            }
+          ],
+          "text": "^sigh$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_sit.js"
+            }
+          ],
+          "text": "^sit$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_smile.js"
+            }
+          ],
+          "text": "^smile$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_smile_w.js"
+            }
+          ],
+          "text": "^smile (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_snuggle_w.js"
+            }
+          ],
+          "text": "^snuggle (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "",
+              "prefix_suffix": false
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_softsmile_1.js"
+            }
+          ],
+          "text": "^softsmile$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "",
+              "prefix_suffix": false
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_stiffle_1.js"
+            }
+          ],
+          "text": "^stiffle$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_strand_w.js"
+            }
+          ],
+          "text": "^strand (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_suck.js"
+            }
+          ],
+          "text": "^suck$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_thank.js"
+            }
+          ],
+          "text": "^thank$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_thank_w.js"
+            }
+          ],
+          "text": "^thank (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_think.js"
+            }
+          ],
+          "text": "^think$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_tiptoe.js"
+            }
+          ],
+          "text": "^tiptoe$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_waist_w.js"
+            }
+          ],
+          "text": "^waist (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "",
+              "prefix_suffix": false
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_windy_w_1.js"
+            }
+          ],
+          "text": "^windy (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_yawn.js"
+            }
+          ],
+          "text": "^yawn$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_yay.js"
+            }
+          ],
+          "text": "^yay$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:emotes__alias_yum.js"
+            }
+          ],
+          "text": "^yum$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "Rituals",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rituals__alias_shoulder_massage_w_d.js"
+            }
+          ],
+          "text": "^shoulder_massage (\\w+) (\\d+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rituals__alias_foot_massage_w_d.js"
+            }
+          ],
+          "text": "^foot_massage (\\w+) (\\d+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rituals__alias_wash_hair_w_d.js"
+            }
+          ],
+          "text": "^wash_hair (\\w+) (\\d+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "alias",
+      "name": "AEM ON/OFF/NOW/RELOAD",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_aem_on_off_now_reload.js"
+        }
+      ],
+      "text": "^aem(?:\\s+(on|off|now|reload))?$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "say Emerald grass and familiar soil, looming mountains with amazing girth, a volcano erasing a farmer's toil, proving dominion of the earth",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "cairnearth",
+      "matching": "begins",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "say Comforting warmth and dancing light, rays of a sun that never tire, insatiable flames that rage out of sight, the machinations of the fire.",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "cairnfire",
+      "matching": "begins",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "say A touch of chill, a gentle breeze, phantom fingers through your hair, fearful tornado, destroying at ease, such is the power of the air.",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "cairnair",
+      "matching": "begins",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "say Bluest ocean, harmonious rain, the lake that rests in tranquillity, terrible deluge, scarring terrain, there lies the strength of water and sea.",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "cairnwater",
+      "matching": "begins",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    }
+  ],
+  "description": ""
+}
