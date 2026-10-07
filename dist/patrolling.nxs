@@ -1,0 +1,417 @@
+{
+ "type": "group",
+ "name": "patrolling",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "client.patrol = client.patrol || {};\nvar p = client.patrol;\nif (p.on === undefined)       p.on = false;\nif (p.flagGaia === undefined) p.flagGaia = false;   // false = don't alert on your own Gaia shrines\np.active = false; p.phase = null; p.present = []; p.shrines = []; p.env = p.env || \"\";\np.expected = {\n  \"Deep Ocean\": [],\n  \"Reef\": [],\n  \"Shadowscape\": [],\n  \"Wastelands\": [],\n  \"Water\": [],\n  \"Ocean\": [\"kelp\"],\n  \"Trees\": [],\n  \"Ruins\": [],\n  \"Road\": [],\n  \"Constructed underground\": [],\n  \"Blighted\": [],\n  \"Hills\": [\"hawthorn\",\"bayberry\"],\n  \"Desert\": [\"pear\",\"weed\"],\n  \"Jungle\": [\"kola\",\"skullcap\",\"kuzu\",\"fruit\",\"cacao\"],\n  \"Valley\": [\"sileris\",\"olive\"],\n  \"Mountains\": [\"valerian\"],\n  \"Beach\": [],\n  \"Path\": [],\n  \"Urban\": [],\n  \"Natural underground\": [\"moss\",\"lumic\",\"bloodroot\"],\n  \"Garden\": [\"echinacea\",\"ginger\",\"lobelia\",\"myrrh\",\"ginseng\",\"elm\",\"fruit\",\"vegetable\"],\n  \"River\": [\"kelp\"],\n  \"Swamp\": [\"cohosh\",\"bellwort\",\"ash\"],\n  \"Freshwater\": [\"kelp\"],\n  \"Grasslands\": [\"slipper\",\"sugarcane\",\"grain\",\"goldenseal\"],\n  \"Forest\": [\"burdock\",\"ginseng\",\"ginger\",\"myrrh\",\"echinacea\",\"lobelia\",\"elm\",\"nut\"]\n};\n\np.area = p.area || \"\";\np.areas = {\n  \"Aalen\": 10,\n  \"Actar Valley\": 3,\n  \"Adryn's Keep\": 3,\n  \"Aerinewild\": 10,\n  \"Ageiro\": 3,\n  \"Annwyn\": 1,\n  \"Aran'riod\": 1,\n  \"Arcadia\": 1,\n  \"Asterian Peninsula\": 1,\n  \"Aster Keep\": 1,\n  \"Atrousian Jungle\": 1,\n  \"Aureliana\": 10,\n  \"Aurick Manor\": 3,\n  \"Azdun\": 3,\n  \"Bagwar's Copse\": 3,\n  \"Bataoac\": 1,\n  \"Battlesite of Mourning Pass\": 1,\n  \"Belladona's Keep\": 3,\n  \"Bitterfork\": 3,\n  \"Black Forest\": 10,\n  \"Blackrock\": 3,\n  \"Bog\": 3,\n  \"Boldarihm\": 3,\n  \"Bopalopia\": 1,\n  \"Brass Lantern Inn\": 3,\n  \"Chaghut Encampment\": 1,\n  \"Chapel of All Gods\": 3,\n  \"Clockwork Isle\": 3,\n  \"Colchis\": 3,\n  \"Cormorant Rock\": 3,\n  \"Creville Asylum\": 3,\n  \"Crystal Leaf Inn\": 3,\n  \"Dakhota Hills\": 3,\n  \"Daoric Plains\": 1,\n  \"Dardanic Plains\": 3,\n  \"Darkenwood\": 10,\n  \"Delos\": 3,\n  \"Digsite of Blood\": 3,\n  \"Digsite of Discord\": 1,\n  \"Digsite of Equilibrium\": 3,\n  \"Digsite of Husks\": 3,\n  \"Digsite of Luck\": 3,\n  \"Digsite of Pain\": 3,\n  \"Digsite of Rage\": 3,\n  \"Digsite of the Mind\": 3,\n  \"Digsite of the Soul\": 1,\n  \"Digsite of War\": 3,\n  \"Digsite of Waves\": 3,\n  \"Digsite of Wealth\": 3,\n  \"Dreamspear\": 1,\n  \"Dryad Gardens\": 10,\n  \"Dun\": 3,\n  \"Dwarven Camp\": 3,\n  \"Eastern Ithmia\": 10,\n  \"Eastern Reaches\": 3,\n  \"Eastern Road\": 3,\n  \"Eastern Shore\": 3,\n  \"Eirenwaar\": 3,\n  \"Enverren Marsh\": 3,\n  \"Erymanthus\": 1,\n  \"Fissure of Echoes\": 1,\n  \"Fluvadha River\": 1,\n  \"Forest Watch\": 3,\n  \"Frozen Tundra\": 1,\n  \"Genji\": 3,\n  \"Ghezavat Commune\": 3,\n  \"Goblin Village\": 3,\n  \"Granite Hills\": 3,\n  \"Great Rock\": 3,\n  \"Green Lake\": 3,\n  \"Grukai Swamp\": 1,\n  \"Gulf of Nilakantha\": 1,\n  \"Hriddan\": 1,\n  \"Hthrak\": 1,\n  \"Ilyrean Tundra\": 3,\n  \"Inbhir Ness\": 1,\n  \"Isaia\": 1,\n  \"Ishana Steppes\": 1,\n  \"Isle of Harae\": 3,\n  \"Isolation\": 1,\n  \"Istar Jungle\": 1,\n  \"Istarion\": 1,\n  \"Jaru\": 3,\n  \"Judgement Mountain\": 1,\n  \"Ka'doloki\": 3,\n  \"Kamleikan\": 1,\n  \"Karbaz\": 3,\n  \"Lake Dakhota\": 3,\n  \"Lake Narcisse\": 3,\n  \"Lake Vundamere\": 3,\n  \"Lake Xulighae\": 1,\n  \"Luman Village\": 1,\n  \"Mannaseh Swamp\": 3,\n  \"Manticore Caves\": 3,\n  \"Manusha\": 3,\n  \"Mesmerium\": 3,\n  \"Mhaldor Isle\": 3,\n  \"Mhojave\": 3,\n  \"Mines of Iskadar\": 1,\n  \"Minos\": 3,\n  \"Mirror Caves\": 1,\n  \"Mnemosyne Delta\": 1,\n  \"Mnemosyne River\": 1,\n  \"Morindar\": 1,\n  \"Mount Piraeus\": 3,\n  \"Muurn Jungle/Lake\": 3,\n  \"Mysia\": 3,\n  \"New Hope\": 3,\n  \"New Thera\": 3,\n  \"Nilakantha\": 1,\n  \"Nimick\": 3,\n  \"Northern Ithmia\": 10,\n  \"Northern Plains\": 3,\n  \"Northern Scrublands\": 1,\n  \"Northern Vashnars\": 3,\n  \"Northreach\": 10,\n  \"Northreach Barrows\": 3,\n  \"Orcish Outpost\": 3,\n  \"Pachacacha\": 3,\n  \"Pash Valley\": 3,\n  \"Peshwar Delta\": 3,\n  \"Petra\": 3,\n  \"Pherklos Ruins\": 3,\n  \"Polyargos\": 3,\n  \"Prin\": 0,\n  \"Prison\": 1,\n  \"Quartz Peak\": 3,\n  \"Qurnok\": 3,\n  \"Rheodad\": 1,\n  \"Rhodestrian\": 3,\n  \"Riagath\": 1,\n  \"Riparium\": 3,\n  \"Saiha'balan Grotto\": 3,\n  \"Salt mines of Ulsyndar\": 1,\n  \"Saoghal Valley\": 1,\n  \"Sangre Plains\": 3,\n  \"Sarave Foothills\": 1,\n  \"Savannah\": 3,\n  \"Scorpion Pit\": 3,\n  \"Sea Lion Cove\": 3,\n  \"Seat of Vastar\": 1,\n  \"Shala-Khulia\": 3,\n  \"Shala'jen-Past\": 1,\n  \"Shala'jen-Present\": 3,\n  \"Shamtota Hills\": 3,\n  \"Shipwrecks Isle\": 3,\n  \"Silverveil River\": 3,\n  \"Siroccian Mountains\": 3,\n  \"Sirocco Fortress\": 1,\n  \"Southern Vashnars\": 3,\n  \"Squall Cleft\": 1,\n  \"Suliel\": 3,\n  \"Sunderlands\": 0, // Nothing to patrol there\n  \"Tapoa\": 3,\n  \"Tasur'ke\": 3,\n  \"Temple of the Sky\": 0,\n  \"Thraasi Foothills\": 3,\n  \"Tir Murann\": 3,\n  \"Tomacula Village\": 3,\n  \"Tower of Falaq'tor\": 1,\n  \"Tuar\": 3,\n  \"Ulangi\": 3,\n  \"Umbrin\": 3,\n  \"Urubamba\": 3,\n  \"Valho Coast\": 1,\n  \"Vashnars\": 3,\n  \"Vasnari Mountains\": 1,\n  \"Wevaga Valley\": 1,\n  \"Western Ithmia\": 10,\n  \"Western Vashnars\": 3,\n  \"Xhaiden Dale\": 3,\n  \"Zanzibaar\": 3,\n  \"Zaphar Isle\": 3,\n  \"Zaphar River\": 3,\n}"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "if (args.gmcp_method == \"Room.Info\") {\n  var p = client.patrol;\n  if (p) {\n    p.env = (args.gmcp_args && args.gmcp_args.environment) || \"\";\n    p.active = false; p.phase = null;               // clear any half-finished check\n    if (p.on) run_function(\"patrol_check\", null, \"patrolling\");\n  }\n}"
+  },
+  {
+   "type": "group",
+   "name": "highlights",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "alarm"
+      }
+     ],
+     "text": "The area is ablaze!",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#ffce00",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "^The loud sound of thunder rolls through the skies\\, shaking the air around you\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#fdfdfd",
+       "highlight_bg": "#b9670b",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "Dark clouds churn through storm-tossed skies\\, light dwindling beneath the echoing roar of the heavens\\.",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#fdfdfd",
+       "highlight_bg": "#b9670b",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "The feeble rays of the waning sun glimmer with hollow promise before the storm\\-filled clouds consuming the skies\\.",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#ff0000",
+       "highlight_bg": "#fffc00",
+       "highlight": "match",
+       "highlight_backref": ""
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "alarm"
+      },
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var currentArea = get_variable(\"currentArea\");\n\nsend_command(\"clan switch wildwalkers\");\nsend_command(\"clt Lightning strike at \" + currentArea);"
+      }
+     ],
+     "text": "^A lightning bolt streaks down from the skies\\, full of fury and anger\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#fdfdfd",
+       "highlight_bg": "#b9670b",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "Utter blackness descends\\, the starlit heavens utterly concealed behind roiling clouds marked by thunderous portent\\.",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#fdfdfd",
+       "highlight_bg": "#b9670b",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "The rising sun provides little relief to the fulminous roar of the heavens above as the Skylord\\'s presence is felt within storm\\-grey skies\\.",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#fdfdfd",
+       "highlight_bg": "#b9670b",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "Rain pours down from dark thunderclouds\\, only the merest hints of sunset breaking through\\.",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#fdfdfd",
+       "highlight_bg": "#b9670b",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "Lightning crackles against the darkening sky\\, giving brief glimpses of rotating clouds\\.",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "suggest",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var input = (args[1] || \"\").trim().toLowerCase();\nvar p = client.patrol;\nvar names = Object.keys((p && p.areas) || {});\nvar match = \"\";\nfor (var i = 0; i < names.length; i++) { if (names[i].toLowerCase() == input) match = names[i]; }\nif (match) {\n  var last = get_variable(\"patrol_last\") || {};\n  last[match] = Date.now();\n  set_variable(\"patrol_last\", last);\n  display_notice(\"[patrolling] Stamped \" + match + \" as patrolled.\", \"cyan\");\n} else {\n  display_notice(\"[patrolling] Area '\" + args[1] + \"' not found.\", \"orange\");\n}"
+      }
+     ],
+     "text": "^patrol_stamp (.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var p = client.patrol;\nvar last = get_variable(\"patrol_last\") || {};\nvar now = Date.now();\nvar names = Object.keys((p && p.areas) || {});\nvar scores = [];\nvar total = 0;\nfor (var i = 0; i < names.length; i++) {\n  var h = last[names[i]] ? (now - last[names[i]]) / 3600000 : 168;   // never patrolled = treat as a week stale\n  var s = p.areas[names[i]] * h;\n  scores.push(s);\n  total += s;\n}\nif (total <= 0) {\n  display_notice(\"[patrolling] No areas configured - add some to p.areas in onLoad.\", \"#ffcc55\");\n} else {\n  var r = Math.random() * total;\n  var k = 0;\n  while (k < names.length - 1 && r >= scores[k]) { r -= scores[k]; k++; }\n  var pick = names[k];\n  var ago = last[pick] ? Math.round((now - last[pick]) / 3600000) + \"h ago\" : \"never\";\n  display_notice(\"[patrolling] Suggest: \" + pick + \" (weight \" + p.areas[pick] + \", last patrolled \" + ago + \")\", \"cyan\");\n}"
+      }
+     ],
+     "text": "^patrol_suggest$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "function",
+   "name": "patrol_check",
+   "enabled": true,
+   "code": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  var p = client.patrol;\n  if (p) {\n    p.present = []; p.shrines = []; p.active = true; p.gag = false;\n    send_command(\"PLANTS\", 1);\n    send_command(\"INFO HERE\", 1);\n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+  },
+  {
+   "type": "alias",
+   "name": "patrolling",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "//Enter the script herevar p = client.patrol; if (!p) { client.patrol = {}; p = client.patrol; }\nif (!client.patrol) client.patrol = { on:false, flagGaia:false, active:false, phase:null, env:\"\", present:[], shrines:[], expected:{} };\nif ((args[1]||\"\").toLowerCase()==\"on\")   { client.patrol.on=true;  display_notice(\"[patrolling] Patrol: ON\", \"cyan\");\nrun_function(\"patrol_check\", null, \"patrolling\"); }\nif ((args[1]||\"\").toLowerCase()==\"off\")  { client.patrol.on=false; client.patrol.active=false; client.patrol.phase=null; display_notice(\"[patrolling] Patrol: OFF\", \"cyan\"); }\nif ((args[1]||\"\").toLowerCase()==\"here\")  { run_function(\"patrol_check\", [], \"patrolling\"); }\nif ((args[1]||\"\").toLowerCase()==\"learn\") { client.patrol.learn=true; run_function(\"patrol_check\", null, \"patrolling\"); }"
+    }
+   ],
+   "text": "^patrolling\\s+(\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "patrol_plants_header",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active) { client.patrol.gag = true; gag_current_line(); }"
+    }
+   ],
+   "text": "growing in this room",
+   "matching": "substring",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "patrol_plant_line",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active) { client.patrol.present.push(args[1]); gag_current_line(); }"
+    }
+   ],
+   "text": "\\(([a-z]+)\\)\\s+[A-Z][a-z]+\\s*$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "patrol_info_shrine",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active && client.patrol.gag && !/Number of objects/i.test(current_text())) { gag_current_line(); if (client.patrol.flagGaia || !/of\\s+Gaia\\b/i.test(current_text())) client.patrol.shrines.push(current_text().trim()); }"
+    }
+   ],
+   "text": "\\b(?:shrine|totem)\\b",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "patrol_info_gag",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active && client.patrol.gag && !/Number of objects/i.test(current_text())) gag_current_line();"
+    }
+   ],
+   "text": "^\\S+\\s+\\S",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "patrol_info_end",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active) { gag_current_line(); client.patrol.active=false; client.patrol.gag=false; run_function(\"patrol_report\", null, \"patrolling\"); }"
+    }
+   ],
+   "text": "Number of objects:",
+   "matching": "substring",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "function",
+   "name": "patrol_report",
+   "enabled": true,
+   "code": "var p = client.patrol;\nif (p) {\n  if (p.learn) {\n    p.learn = false;\n    display_notice('[patrolling] onLoad entry ->  \"' + (p.env || \"unknown\") + '\": ' + JSON.stringify(p.present) + ',');\n  } else {\n    var env = p.env || \"unknown\";\n    var exp = p.expected[env];\n    var out = [];\n    var color = \"#55ff55\";                 // green = all good\n    if (!exp) {\n      out.push(\"no expected list for '\" + env + \"' — add one in onLoad\");\n      color = \"#ffcc55\";                   // amber = environment not in your table yet\n    } else {\n      var missing = exp.filter(function (x) { return p.present.indexOf(x) < 0; });\n      if (missing.length) { out.push(\"missing \" + missing.join(\", \")); color = \"#ff5555\"; }  // red\n      else out.push(\"all present\");\n    }\n    if (p.shrines.length) { out.push(\"SHRINE/TOTEM: \" + p.shrines.join(\" ; \")); color = \"#ff5555\"; }\n    display_notice(\"[patrolling] Patrol [\" + env + \"]: \" + out.join(\"  |  \"), color);\n  }\n}"
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var currentArea = get_variable(\"currentArea\");\nvar currentRoomName = get_variable(\"currentRoomName\");\nvar currentRoomId = get_variable(\"currentRoomId\");\n\nsend_command(\"clan switch wildwalkers\");\nsend_command(\"clt Fire at me! \" + currentRoomName + \" (\" + currentRoomId + \") at \" + currentArea);\n"
+    }
+   ],
+   "text": "^fireatme$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "run_function(\"onLoad\", [], \"patrolling\");\ndisplay_notice(\"[patrolling] Environments reloaded.\", \"cyan\");"
+    }
+   ],
+   "text": "^patrol_reload$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var plant = args[1];\nvar currentArea = get_variable(\"currentArea\");\nvar currentRoomName = get_variable(\"currentRoomName\");\nvar currentRoomId = get_variable(\"currentRoomId\");\nvar today = client.lg.day;\n\nvar n = today - 1;\nvar yy = Math.floor(n / 300);\nvar rem = n - yy * 300;\nvar mi = Math.floor(rem / 25);\nvar dd = (rem % 25) + 1;\nvar stamp = today > 0 ? (dd + \" \" + client.lg.months[mi] + \", \" + yy + \" AF\") : \"date not yet known\";\n\nsend_command(\"writelog wildwalkers \" + stamp + \" - Replanted \" + plant + \" at \" + currentRoomName + \" (\" + currentRoomId + \") in \" + currentArea);"
+    }
+   ],
+   "text": "^You reach down and dig a small hole for (.*)\\. Putting it in the hole\\, you then cover it with dirt and chant a prayer to the spirits of Nature\\. Soon after you finish the prayer\\, (.*) quickly grows into a small seedling\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  }
+ ],
+ "description": ""
+}

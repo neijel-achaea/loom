@@ -1,0 +1,417 @@
+{
+  "type": "group",
+  "name": "patrolling",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "group",
+      "name": "highlights",
+      "enabled": true,
+      "items": [
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "alarm"
+            }
+          ],
+          "text": "The area is ablaze!",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ffce00",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "^The loud sound of thunder rolls through the skies\\, shaking the air around you\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#fdfdfd",
+              "highlight_bg": "#b9670b",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "Dark clouds churn through storm-tossed skies\\, light dwindling beneath the echoing roar of the heavens\\.",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#fdfdfd",
+              "highlight_bg": "#b9670b",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "The feeble rays of the waning sun glimmer with hollow promise before the storm\\-filled clouds consuming the skies\\.",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ff0000",
+              "highlight_bg": "#fffc00",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "alarm"
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:highlights__trigger_a_lightning_bolt_streaks_down_from_the_2.js"
+            }
+          ],
+          "text": "^A lightning bolt streaks down from the skies\\, full of fury and anger\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#fdfdfd",
+              "highlight_bg": "#b9670b",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "Utter blackness descends\\, the starlit heavens utterly concealed behind roiling clouds marked by thunderous portent\\.",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#fdfdfd",
+              "highlight_bg": "#b9670b",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "The rising sun provides little relief to the fulminous roar of the heavens above as the Skylord\\'s presence is felt within storm\\-grey skies\\.",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#fdfdfd",
+              "highlight_bg": "#b9670b",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "Rain pours down from dark thunderclouds\\, only the merest hints of sunset breaking through\\.",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#fdfdfd",
+              "highlight_bg": "#b9670b",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "Lightning crackles against the darkening sky\\, giving brief glimpses of rotating clouds\\.",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "suggest",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:suggest__alias_patrol_stamp.js"
+            }
+          ],
+          "text": "^patrol_stamp (.*)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:suggest__alias_patrol_suggest.js"
+            }
+          ],
+          "text": "^patrol_suggest$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "patrol_check",
+      "enabled": true,
+      "code": "@file:patrol_check.js"
+    },
+    {
+      "type": "alias",
+      "name": "patrolling",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_patrolling.js"
+        }
+      ],
+      "text": "^patrolling\\s+(\\w+)$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "patrol_plants_header",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_patrol_plants_header.js"
+        }
+      ],
+      "text": "growing in this room",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "patrol_plant_line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_patrol_plant_line.js"
+        }
+      ],
+      "text": "\\(([a-z]+)\\)\\s+[A-Z][a-z]+\\s*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "patrol_info_shrine",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_patrol_info_shrine.js"
+        }
+      ],
+      "text": "\\b(?:shrine|totem)\\b",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "patrol_info_gag",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_patrol_info_gag.js"
+        }
+      ],
+      "text": "^\\S+\\s+\\S",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "patrol_info_end",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_patrol_info_end.js"
+        }
+      ],
+      "text": "Number of objects:",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "function",
+      "name": "patrol_report",
+      "enabled": true,
+      "code": "@file:patrol_report.js"
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_fireatme.js"
+        }
+      ],
+      "text": "^fireatme$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_patrol_reload.js"
+        }
+      ],
+      "text": "^patrol_reload$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_reach_down_and_dig_a_small_hole_for.js"
+        }
+      ],
+      "text": "^You reach down and dig a small hole for (.*)\\. Putting it in the hole\\, you then cover it with dirt and chant a prayer to the spirits of Nature\\. Soon after you finish the prayer\\, (.*) quickly grows into a small seedling\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    }
+  ],
+  "description": ""
+}
