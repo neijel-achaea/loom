@@ -1,0 +1,2286 @@
+{
+  "type": "group",
+  "name": "hunting",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "group",
+      "name": "afflictions",
+      "enabled": true,
+      "items": [
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "rewrite",
+              "enabled": true,
+              "rewrite_text_type": "value",
+              "rewrite_text": "[AGUE] ",
+              "rewrite": "prefix",
+              "rewrite_backref": "",
+              "rewrite_colors": true,
+              "rewrite_fg": "#007dff",
+              "rewrite_bg": "#060606"
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "spell 4"
+            }
+          ],
+          "text": "^(\\w+) lets loose a steady stream of cold air around (.*)\\, who begins to shiver uncontrollably\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "rewrite",
+              "enabled": true,
+              "rewrite_text_type": "value",
+              "rewrite_text": "[-CLUMSINESS] ",
+              "rewrite": "prefix",
+              "rewrite_backref": "",
+              "rewrite_colors": true,
+              "rewrite_fg": "#007dff",
+              "rewrite_bg": "#000000"
+            }
+          ],
+          "text": "^(.*) rallies\\, no longer plagued with clumsiness\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "spell 4"
+            },
+            {
+              "type": "rewrite",
+              "enabled": true,
+              "rewrite_text_type": "value",
+              "rewrite_text": "[+CLUMSINESS] ",
+              "rewrite": "prefix",
+              "rewrite_backref": "",
+              "rewrite_colors": true,
+              "rewrite_fg": "#007dff",
+              "rewrite_bg": "#000000"
+            }
+          ],
+          "text": "^(.*) reels\\, flinching as clumsiness takes hold\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "rewrite",
+              "enabled": true,
+              "rewrite_text_type": "value",
+              "rewrite_text": "[-CLUMSINESS] ",
+              "rewrite": "prefix",
+              "rewrite_backref": "",
+              "rewrite_colors": true,
+              "rewrite_fg": "#007dff",
+              "rewrite_bg": "#000000"
+            }
+          ],
+          "text": "^(.*) shakes off the cold and clumsiness plaguing (\\w+)\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "spell 4"
+            },
+            {
+              "type": "rewrite",
+              "enabled": true,
+              "rewrite_text_type": "value",
+              "rewrite_text": "[+CLUMSINESS] ",
+              "rewrite": "prefix",
+              "rewrite_backref": "",
+              "rewrite_colors": true,
+              "rewrite_fg": "#007dff",
+              "rewrite_bg": "#000000"
+            }
+          ],
+          "text": "^Frost blooms outwards from you\\, wreathing (.*) in frigid cold as clumsiness takes hold\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "highlights",
+      "enabled": true,
+      "items": [
+        {
+          "type": "group",
+          "name": "Druid",
+          "enabled": true,
+          "items": [
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[RAVAGE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "You roar in rage and spring upon",
+              "matching": "substring",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[MAUL] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "sound",
+                  "enabled": true,
+                  "sound": "knifes"
+                }
+              ],
+              "text": "You spring forwards onto ",
+              "matching": "begins",
+              "whole_words": false,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[STRANGLE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "Rising in response to your incantation, vines burst forth from the very earth",
+              "matching": "substring",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[GLARE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "You cause the tip of your quarterstaff to glow brightly before thrusting it at the face of",
+              "matching": "substring",
+              "whole_words": true,
+              "case_sensitive": true
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "name": "Black Dragon",
+          "enabled": true,
+          "items": [
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[GUT] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^You rip into (.*) with your massive\\, deadly claws\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[DRAGONSPIT] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__black_dragon__trigger_you_spit_a_stream_of_acidic_venom_at_2.js"
+                }
+              ],
+              "text": "^You spit a stream of acidic venom at (.*) who writhes in agony as the spittle seeps into (\\w+) skin\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[INCANTATION] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^Drawing from the well of your puissance, you invoke a dramatic chant in the dragon tongue. Your voice resonates with each word, culminating in a wave of magical energy that you bend to your will and thrust towards (.*)\\, bombarding (\\w+) with the ancient power\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[CORRODE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__black_dragon__trigger_you_open_your_gigantic_maw_and_spew_2.js"
+                }
+              ],
+              "text": "^You open your gigantic maw and spew acid on (.*). (\\w+) dodges to the side and is only partially covered by the corrosive slime\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[CORRODE++] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__black_dragon__trigger_you_open_your_gigantic_maw_and_spew_2_2.js"
+                }
+              ],
+              "text": "^You open your gigantic maw and spew acid on (.*)\\. (\\w+) is too clumsy to dodge the deluge and is coated in the corrosive slime\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[DISSOLVE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__black_dragon__trigger_you_bathe_s_translucent_shield_in_your_2.js"
+                }
+              ],
+              "text": "^You bathe (.*)\\'s translucent shield in your noxious breath\\, dissolving it\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[DRAGONSTING] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__black_dragon__trigger_you_swing_your_mighty_tail_around_2.js"
+                }
+              ],
+              "text": "^You swing your mighty tail around\\, stabbing (.+) with an acid\\-covered spine\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[BLAST] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^Opening your maw\\, you force out a tremendous stream of acid\\, blasting the flesh from the very bones of (.*)\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[OVERRIDE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__black_dragon__trigger_you_barrel_into_and_knock_w_to_the_2.js"
+                }
+              ],
+              "text": "^You barrel into (.*) and knock (\\w+) to the ground before stomping over (\\w+) prone form\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[DRAGONHEAL] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^You let out a great keening\\, and cast the impurities from your form\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "name": "Magi",
+          "enabled": true,
+          "items": [
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[STAFF] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^As you point an elemental staff at (.*)\\, a scintilla of bright\\, burning light shoots out\\, striking (\\w+) with focused elemental power\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[WINDLASH] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__magi__trigger_you_draw_upon_the_power_of_air_to_2.js"
+                }
+              ],
+              "text": "^You draw upon the power of air to summon sharp gusts of wind which begin to whip across (.*)\\'s exposed flesh\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[SQUEEZE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__magi__trigger_you_raise_a_clenched_fist_and_in_2.js"
+                }
+              ],
+              "text": "^You raise a clenched fist and in obedience the earth rises in turn\\, a great hand of stone unfurling to clamp about (.*) in a vice-like squeeze\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[FIREFALL] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__magi__trigger_you_raise_your_hands_dramatically_and_2.js"
+                }
+              ],
+              "text": "^You raise your hands dramatically and summon a mighty flaming rock from the sky down at (.*)\\, but (\\w+) dodges aside and is only dealt a glancing blow\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[DISINTEGRATE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__magi__trigger_you_summon_a_whirlwind_of_flame_around_2.js"
+                }
+              ],
+              "text": "^You summon a whirlwind of flame around (.*) which consumes (\\w+) translucent shield\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[STORMBOLT] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__magi__trigger_a_bolt_of_lightning_roars_out_from_your_2.js"
+                }
+              ],
+              "text": "^A bolt of lightning roars out from your hands as you cast a powerful spell at (.*)\\, inciting sensitive nerves across (\\w+) skin\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[FIREFALL++] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__magi__trigger_you_raise_your_hands_dramatically_and_2_2.js"
+                }
+              ],
+              "text": "^You raise your hands dramatically and summon a mighty flaming rock from the sky that slams into the clumsy form of (.*)\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[STAFF] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^You point an elemental staff at (.*) and (\\w+) screams in pain as (\\w+) skin begins to freeze and crack\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "name": "Sylvan",
+          "enabled": true,
+          "items": [
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[THORNREND] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^You command the razor\\-edged thorny vines around you to lash out and rend the flesh of (.*)\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[TORRENT] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__sylvan__trigger_coughs_and_splutters_as_you_channel_a_2.js"
+                }
+              ],
+              "text": "^(.*) coughs and splutters as you channel a gout of water at (\\w+) face\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[SANDSTORM] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__sylvan__trigger_stumbles_about_in_fear_and_flails_at_w_2.js"
+                }
+              ],
+              "text": "^(.*) stumbles about in fear and flails at (\\w+) head as you summon a small sandstorm around it\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[THORNPIERCE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__sylvan__trigger_a_thorny_vine_reaches_out_from_you_and_2.js"
+                }
+              ],
+              "text": "^A thorny vine reaches out from you and pierces through (.*)\\'s translucent shield\\, causing it to fade\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[STONEVINE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__sylvan__trigger_you_summon_a_great_vine_to_wrap_itself_2.js"
+                }
+              ],
+              "text": "^You summon a great vine to wrap itself around (.*)\\, then channel the element of earth into it, causing it to become rock hard and shatter as it constricts around (\\w+)\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[LEECHROOT] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__sylvan__trigger_a_deadly_root_flies_from_your_hand_and_2.js"
+                }
+              ],
+              "text": "^A deadly root flies from your hand and burrows into (.*)\\'s flesh\\, but is unable to find sufficient sustenance\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[ROCKSHOT] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__sylvan__trigger_you_form_a_small_pebble_then_channel_2.js"
+                }
+              ],
+              "text": "^You form a small pebble\\, then channel air to fling it violently at (.*)\\'s head\\, causing (\\w+) to look dazed\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "name": "Blue Dragon",
+          "enabled": true,
+          "items": [
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[DRAGONCHILL] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__blue_dragon__trigger_you_form_small_chunks_of_ice_in_your_2.js"
+                }
+              ],
+              "text": "^You form small chunks of ice in your enormous maw\\, then spit them at (.*) in a barrage\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[FROSTWAVE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__blue_dragon__trigger_you_breathe_a_wave_of_icy_air_at_2.js"
+                }
+              ],
+              "text": "^You breathe a wave of icy air at (.*)\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[AGUE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__blue_dragon__trigger_you_let_loose_a_steady_stream_of_cold_2.js"
+                }
+              ],
+              "text": "^You let loose a steady stream of cold air around (.*)\\, who begins to shiver uncontrollably\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[GLACIATE] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                },
+                {
+                  "type": "script",
+                  "enabled": true,
+                  "script": "@file:highlights__blue_dragon__trigger_you_breathe_a_column_of_icy_air_at_s_2.js"
+                }
+              ],
+              "text": "^You breathe a column of icy air at (.*)'s head, stunning (\\w+)\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            },
+            {
+              "type": "trigger",
+              "name": "",
+              "enabled": true,
+              "actions": [
+                {
+                  "type": "highlight",
+                  "enabled": true,
+                  "highlight_fg": "#d8f37e",
+                  "highlight_bg": "#000000",
+                  "highlight": "line",
+                  "highlight_backref": ""
+                },
+                {
+                  "type": "rewrite",
+                  "enabled": true,
+                  "rewrite_text_type": "value",
+                  "rewrite_text": "[BLAST] ",
+                  "rewrite": "prefix",
+                  "rewrite_backref": "",
+                  "rewrite_colors": true,
+                  "rewrite_fg": "#d8f37e",
+                  "rewrite_bg": "#000000"
+                }
+              ],
+              "text": "^Opening your massive maw\\, you throw your head forward and blast wave after wave of deadly\\, all\\-consuming cold at (.*)\\.$",
+              "matching": "regexp",
+              "whole_words": true,
+              "case_sensitive": true
+            }
+          ]
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#a8598c",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "CRITICAL",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#a8598c",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "CRUSHING CRITICAL",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#a8598c",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "OBLITERATING CRITICAL",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#a8598c",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "WORLD-SHATTERING CRITICAL",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#a8598c",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "ANNIHILATINGLY POWERFUL CRITICAL",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#a8598c",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "PLANE-RAZING CRITICAL",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#6db0fd",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "A nearly invisible magical shield forms around",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#c15608",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:highlights__trigger_health_lost_d_1.js"
+            }
+          ],
+          "text": "^Health lost: (\\d+) \\((.*)\\)\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#9e9e5e",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "Damage dealt:",
+          "matching": "begins",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#6db0fd",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "The magical shield surrounding",
+          "matching": "begins",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ffbc00",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "You are too stunned to be able to do anything.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ffbc00",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "You do not have enough rage to perform that ability.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ffbc00",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "You cannot use that ability again so soon.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ffbc00",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "A dizzying beam of energy strikes you as your attack rebounds off of",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ffbc00",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "Sticky strands of webbing cling to you, making that impossible.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#c15608",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "swoosh deep"
+            }
+          ],
+          "text": "^You detect nothing here by that name\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#c15608",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "swoosh deep"
+            }
+          ],
+          "text": "^You cannot see that being here\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#c15608",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "swoosh deep"
+            }
+          ],
+          "text": "^Ahh, I am truly sorry, but I do not see anyone by that name here\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#c15608",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "swoosh deep"
+            }
+          ],
+          "text": "^Nothing can be seen here by that name\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#c15608",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "swoosh deep"
+            }
+          ],
+          "text": "^I do not recognise anything called that here\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#000000",
+              "highlight_bg": "#08aabf",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "^You have recovered balance on all limbs\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#000000",
+              "highlight_bg": "#f3e981",
+              "highlight": "line",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "^You can use (\\w+) again\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#000000",
+              "highlight_bg": "#ff0000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "^You are confused as to the effects of the venom\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#000000",
+              "highlight_bg": "#9f51c1",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "^You have recovered equilibrium\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#fd3df3",
+              "highlight_bg": "#000000",
+              "highlight": "line",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "bell"
+            }
+          ],
+          "text": "You have found ",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "autogold",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__alias_autogold_s_on_off_all.js"
+            }
+          ],
+          "text": "^autogold(?:\\s+(on|off|all))?$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_a_small_pile_of_sovereigns_spills_from.js"
+            }
+          ],
+          "text": "A small pile of sovereigns spills from the corpse.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_a_tiny_pile_of_sovereigns_spills_from.js"
+            }
+          ],
+          "text": "A tiny pile of sovereigns spills from the corpse.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_a_large_pile_of_sovereigns_spills_from.js"
+            }
+          ],
+          "text": "A large pile of sovereigns spills from the corpse.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_numerous_golden_sovereigns_spill_from.js"
+            }
+          ],
+          "text": "Numerous golden sovereigns spill from the corpse.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_a_few_golden_sovereigns_spill_from_the.js"
+            }
+          ],
+          "text": "^A few golden sovereigns spill from the corpse\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#6998de",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_you_have_slain_retrieving_the_corpse_1.js"
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "thud"
+            }
+          ],
+          "text": "^You have slain (.+)\\, retrieving the corpse\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#6998de",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_w_w_has_been_slain_by_w_1.js"
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "thud"
+            }
+          ],
+          "text": "^(\\w+(?: \\w+)*) has been slain by (\\w+)\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "gags",
+      "enabled": true,
+      "items": [
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "[System]: Added",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:gags__trigger_you_exert_superior_mental_control_and.js"
+            }
+          ],
+          "text": "You exert superior mental control and your wounds clot before your eyes.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "^The flames wreathing your hands sputter and die out\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "^You may now breathe (\\w+) fire\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "^You channel your inner flame and your hands suddenly become wreathed in crackling fire\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "You are now summoning your flame.",
+          "matching": "exact",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "^The vines entangling (\\w+(?: \\w+)*) wither away\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "Wreathing yourself in flame will require at least yellow fire.",
+          "matching": "exact",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "Your gear enhances your strike with additional",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "^The acidic spittle fades away from (.*)\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "gag",
+              "enabled": true
+            }
+          ],
+          "text": "^(.*) breathes a sigh of relief as (\\w+) sensitive skin recovers\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "rage",
+      "enabled": true,
+      "items": [
+        {
+          "type": "function",
+          "name": "hl_buttons",
+          "enabled": true,
+          "code": "@file:rage__hl_buttons.js"
+        },
+        {
+          "type": "function",
+          "name": "rage_init",
+          "enabled": true,
+          "code": "@file:rage__rage_init.js"
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rage__trigger_you_can_use_another_battlerage_ability.js"
+            }
+          ],
+          "text": "^You can use another Battlerage ability again\\. Available abilities: (.+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rage__trigger_you_can_use_another_battlerage_ability_2.js"
+            }
+          ],
+          "text": "^You can use another Battlerage ability again, but none of your abilities are currently available\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rage__trigger_you_can_use_w_again.js"
+            }
+          ],
+          "text": "^You can use (\\w+) again\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rage__alias_ragedebug.js"
+            }
+          ],
+          "text": "^ragedebug$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rage__trigger_your_w_ability_could_be_used_again_but.js"
+            }
+          ],
+          "text": "^Your (\\w+) ability could be used again but you lack the necessary Rage\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    }
+  ],
+  "description": ""
+}
