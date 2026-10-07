@@ -19,7 +19,7 @@
               "script": "@file:antitheft__alias_antitheft_w.js"
             }
           ],
-          "text": "^antitheft (\\w+)$",
+          "text": "^antitheft(?:\\s+(\\w+))?$",
           "matching": "regexp",
           "whole_words": true,
           "case_sensitive": true,
