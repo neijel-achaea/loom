@@ -23,7 +23,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "var who = args[1];\nvar location = args[2];\nvar direction = args[3];\n\nif (client.hl && client.hl.city[who.toLowerCase()]) {\n    gag_current_line();\n} else {\n  if (client.hl.enemies[who.toLowerCase()]) {\n    send_command(\"pt ENEMY ALERT: \" + who + \" is \" + direction + \" of me, at \" + location);\n  }\n}"
+     "script": "var who = args[1];\nvar location = args[2];\nvar direction = args[3];\nvar key = who.toLowerCase();\n\n// The social lists may not be loaded yet; without them there is nothing to check.\nif (client.hl) {\n  if (client.hl.city && client.hl.city[key]) {\n    gag_current_line();\n  } else if (client.hl.enemies && client.hl.enemies[key]) {\n    send_command(\"pt ENEMY ALERT: \" + who + \" is \" + direction + \" of me, at \" + location);\n  }\n}\n"
     }
    ],
    "text": "^Your enhanced senses inform you that (\\w+) has entered (\\w+(?: \\w+)*), to the (\\w+)\\.$",
