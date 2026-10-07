@@ -142,6 +142,12 @@
    "items": [
     {
      "type": "function",
+     "name": "mono_init",
+     "enabled": true,
+     "code": "// mono_init -- sets defaults that are missing and clears transient state.\n// Run by onInstall and by the MONOINIT alias.\nif (get_variable(\"mono_threshold\") === null || get_variable(\"mono_threshold\") === undefined) {\n  set_variable(\"mono_threshold\", 10);\n}\nif (!get_variable(\"mono_bad\")) set_variable(\"mono_bad\", {});\nif (!get_variable(\"mono_ignore\")) set_variable(\"mono_ignore\", { \"6742\": \"?\" });\nset_variable(\"mono_queue\", []);\nset_variable(\"mono_await\", null);\ndisplay_notice(\"[eleusis] 0.4 ready. Threshold \" + get_variable(\"mono_threshold\") + \" months. MONOWATCH ON to start.\", \"cyan\");\n"
+    },
+    {
+     "type": "function",
      "name": "mono_enter",
      "enabled": true,
      "code": "// mono_enter -- called on every room change (wired from onGMCP).\n// Queues the room and probes it. No dedupe buffer: every entry is re-probed.\nvar rid = get_variable(\"currentRoomId\");\nvar rnm = get_variable(\"currentRoomName\");\nif ((rid === null || rid === undefined) && typeof currentRoomId !== \"undefined\") rid = currentRoomId;\nif ((rnm === null || rnm === undefined) && typeof currentRoomName !== \"undefined\") rnm = currentRoomName;\n\nif (get_variable(\"mono_on\") && rid !== null && rid !== undefined && rid !== \"\") {\n  var key = String(rid);\n\n  // A monolith read in the previous room is waiting for a flame line that\n  // never came -- settle it now as \"no flame\".\n  run_function(\"mono_settle\", [], \"eleusis\");\n\n  var ign = get_variable(\"mono_ignore\");\n  if (!ign) { ign = { \"6742\": \"?\" }; set_variable(\"mono_ignore\", ign); }\n\n  if (!ign[key]) {\n    var q = get_variable(\"mono_queue\") || [];\n    q.push({ id: key, name: rnm || \"?\", t: Date.now() });\n    if (q.length > 20) q = q.slice(q.length - 20);\n    set_variable(\"mono_queue\", q);\n    send_command(\"probe monolith here\");\n  }\n}\n"
@@ -346,7 +352,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "if (get_variable(\"mono_threshold\") === null || get_variable(\"mono_threshold\") === undefined) {\n  set_variable(\"mono_threshold\", 10);\n}\nif (!get_variable(\"mono_bad\")) set_variable(\"mono_bad\", {});\nif (!get_variable(\"mono_ignore\")) set_variable(\"mono_ignore\", { \"6742\": \"?\" });\nset_variable(\"mono_queue\", []);\nset_variable(\"mono_await\", null);\ndisplay_notice(\"[eleusis] 0.4 ready. Threshold \" + get_variable(\"mono_threshold\") + \" months. MONOWATCH ON to start.\", \"cyan\");\n"
+       "script": "run_function(\"mono_init\", [], \"eleusis\");\n"
       }
      ],
      "text": "^monoinit$",
@@ -400,7 +406,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed\n\nrun_function(\"mono_init\", null, \"eleusis\");"
+   "code": "// Place any code here you'd like to autorun when the package is installed\n\nrun_function(\"mono_init\", [], \"eleusis\");"
   },
   {
    "type": "function",
