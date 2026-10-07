@@ -10,8 +10,16 @@ their tab its own icon.
 
 | Package | Tab | What it does |
 |---|---|---|
+| **artificing** | — | Elemental treaties (`TF <elemental>`, pausing triggers and sipping during the communion) and `STAFFATTACK fire\|frost\|lightning` for the F1 staff cast. |
 | **coffers** | Coffers | Gold tracker: fortune (purse + bank), income and spending per session and per day, wealth ranks, records, a goal, charts. `COFFERS HELP`. |
+| **common** | — | Shared foundation: the `pauseTriggers` flag (`PAUSETRIGGERS ON/OFF`), `DEBUG ON/OFF`, room and class tracking from GMCP, class-based F-key buttons, dragon attack mode (`DRAGONMODE`), party helpers, the `QUIT`/`QQ` wrapper, `REFILLVIAL`, assorted highlights and gags. |
+| **conjuration** | — | `CONJURE <sigil>`: runs the full creation ritual for the sigils currently known. |
+| **crystalism** | — | `AUTOREFINE [n]` levels crystal shapes evenly from stored facets; pearl pickup; a sonic portal on request for city members; pauses triggers while attuning to the Master Crystal. |
+| **defences** | — | `INITDEF` raises class defences; `DEFCON 1-5` sets curing defence priorities per class; insomnia upkeep and status highlights. |
 | **dmgchart** | DmgChart | Damage dealt and taken by type per fight, as donuts with dps; exchange stats; recorded sessions. `DMGCHART`. |
+| **elementalism** | — | Illusions: `ILLUSION`, `FEEL_<environment>` (desert, forest, …), and step-by-step set pieces (`PINK_DRAGON`, `KAWHEDRAGON_F/M <target> <step>`). |
+| **eleusis** | — | Ambassador aide (`NEWBIECT`/`NEWBIECLT`/`NEWBIEBOTH`, `VEON`/`VEOFF`, lesson requests refused for enemies), monolith and flame sigil watcher (`MONOWATCH`, `MONOREPORT`, `MONOIGNORE`, …), and the Saiha `GRADUATION <name> <step>` ritual. |
+| **fishing** | — | Fishing automation: `BAIT <bait>`, `CL <direction>` to bait and cast, then tease, jerk and reel on the game's cues, with stage markers on each line. Statistics live in **fishingstats**. |
 | **fishingstats** | fishingstats, fishinglog | Live fishing session (by angler, by species, recent catches) and a log of past sessions. |
 | **huntstats** | Stats | Per-area hunting sessions: xp/hr, gold/hr, kills, Dragonhood progress, area comparison. `HUNTSTATS`. |
 | **ledger** | Ledger | IC reminders and standing items on the Achaean calendar. `LEDGER`. |
@@ -20,6 +28,15 @@ their tab its own icon.
 | **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends) and an online watchlist. Shared by other packages. |
 | **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STN HELP`. |
 | **talismans** | Talismans, TalGraph | Dragon talisman piece tracker with progress and projected finish. |
+
+### Dependencies between packages
+
+Most packages stand alone. The exceptions:
+
+- **common** feeds the others: its onGMCP sets `currentRoomId`, `currentArea`, `currentEnvironment` and `activeClass`, and calls `mono_enter` (**eleusis**) and `hv_room` (**harvesting**) on every room change; `set_buttons` calls `hl_buttons` (**hunting**).
+- **defences**, **artificing** and the button setup read `activeClass`, set by **common**.
+- **eleusis**, **crystalism** and **standings** read the lists of **social** (`client.hl`).
+- Many triggers respect the `pauseTriggers` flag from **common**.
 
 ### Installing a package
 
