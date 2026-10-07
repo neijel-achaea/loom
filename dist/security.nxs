@@ -1,0 +1,351 @@
+{
+ "type": "group",
+ "name": "security",
+ "enabled": true,
+ "items": [
+  {
+   "type": "group",
+   "name": "antitheft",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// ---- command dispatch ----\nvar arg = args[1] || \"\";\n\nif (arg === \"on\")          { set_variable(\"antitheft\", 1); display_notice(\"[security] Antitheft mode: ON\", \"cyan\"); }\nelse if (arg === \"off\")    { set_variable(\"antitheft\", 0); display_notice(\"[security] Antitheft mode: OFF\", \"cyan\"); }\nelse {\n  var state = get_variable(\"antitheft\");\n  var verboseState;\n  \n  if (state == 1) { verboseState = \"ON\"; }\n  if (state == 0) { verboseState = \"OFF\"; }\n\n  display_notice(\"[security] Antitheft mode: \" + verboseState + \". Use ANTITHEFT ON/OFF.\", \"cyan\");\n}"
+      }
+     ],
+     "text": "^antitheft (\\w+)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "",
+       "prefix_suffix": false
+      },
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var backpack = get_variable(\"backpack\");\n\nset_variable(\"antitheft\", 0);\nsend_command(\"get sovereign from \" + backpack);"
+      }
+     ],
+     "text": "^gg$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var backpack = get_variable(\"backpack\");\n\nsend_command(\"put gold in \" + backpack);\nset_variable(\"antitheft\", 1);"
+      }
+     ],
+     "text": "^pg$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var antitheft = get_variable(\"antitheft\");\nvar backpack = get_variable(\"backpack\");\n\nif (antitheft == 1) {\n  send_command(\"put sovereign in \" + backpack);\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
+      }
+     ],
+     "text": "^You get (\\d+) gold sovereigns from an embossed suede backpack\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var antitheft = get_variable(\"antitheft\");\n\nif (antitheft == 1) {\n  send_command(\"wear ring617919\");\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
+      }
+     ],
+     "text": "^You remove a silver ring set with emerald and sapphire\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var antitheft = get_variable(\"antitheft\");\nvar backpack = get_variable(\"backpack\");\n\nif (antitheft == 1) {\n  send_command(\"wear \" + backpack);\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
+      }
+     ],
+     "text": "^You remove an embossed suede backpack\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var antitheft = get_variable(\"antitheft\");\n\nif (antitheft == 1) {\n  send_command(\"wear earring429811 left ear\");\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
+      }
+     ],
+     "text": "^You remove an earring of Sinope\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#ff0000",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "alarm"
+      },
+      {
+       "type": "notify",
+       "enabled": true,
+       "notice": "[security] Potential theft attempt!",
+       "notice_fg": "#ff0000",
+       "notice_bg": "#000000"
+      }
+     ],
+     "text": "^(\\w+) snaps (\\w+) fingers in front of you\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var antitheft = get_variable(\"antitheft\");\n\nif (antitheft == 1) {\n  send_command(\"wear rucksack329295\");\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
+      }
+     ],
+     "text": "^You remove a weathered rucksack of white elk hide\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "house",
+   "enabled": true,
+   "items": [
+    {
+     "type": "alias",
+     "name": "House State In",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "t jurrien From Nature we are born",
+       "prefix_suffix": false
+      }
+     ],
+     "text": "hhousein",
+     "matching": "begins",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "House State Out",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "command",
+       "enabled": true,
+       "command": "t jurrien To Nature we return",
+       "prefix_suffix": false
+      }
+     ],
+     "text": "hhouseout",
+     "matching": "begins",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "selfishness",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "set_variable(\"my_selfishness\", 1);"
+      }
+     ],
+     "text": "^You rub your hands together greedily\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "set_variable(\"my_selfishness\", 0);"
+      }
+     ],
+     "text": "^A feeling of generosity spreads throughout you\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq give \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq give \" + wrapArgs);\n}"
+      }
+     ],
+     "text": "^give (.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq sell \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq sell \" + wrapArgs);\n}"
+      }
+     ],
+     "text": "^sell (.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq drop \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq drop \" + wrapArgs);\n}"
+      }
+     ],
+     "text": "^drop (.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq offer \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq offer \" + wrapArgs);\n}"
+      }
+     ],
+     "text": "^offer (.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "set_variable(\"my_selfishness\", 0);"
+  }
+ ],
+ "description": ""
+}

@@ -1,0 +1,351 @@
+{
+  "type": "group",
+  "name": "security",
+  "enabled": true,
+  "items": [
+    {
+      "type": "group",
+      "name": "antitheft",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__alias_antitheft_w.js"
+            }
+          ],
+          "text": "^antitheft (\\w+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "",
+              "prefix_suffix": false
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__alias_gg_1.js"
+            }
+          ],
+          "text": "^gg$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__alias_pg.js"
+            }
+          ],
+          "text": "^pg$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__trigger_you_get_d_gold_sovereigns_from_an.js"
+            }
+          ],
+          "text": "^You get (\\d+) gold sovereigns from an embossed suede backpack\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__trigger_you_remove_a_silver_ring_set_with.js"
+            }
+          ],
+          "text": "^You remove a silver ring set with emerald and sapphire\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__trigger_you_remove_an_embossed_suede_backpack.js"
+            }
+          ],
+          "text": "^You remove an embossed suede backpack\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__trigger_you_remove_an_earring_of_sinope.js"
+            }
+          ],
+          "text": "^You remove an earring of Sinope\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#ff0000",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "sound",
+              "enabled": true,
+              "sound": "alarm"
+            },
+            {
+              "type": "notify",
+              "enabled": true,
+              "notice": "[security] Potential theft attempt!",
+              "notice_fg": "#ff0000",
+              "notice_bg": "#000000"
+            }
+          ],
+          "text": "^(\\w+) snaps (\\w+) fingers in front of you\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:antitheft__trigger_you_remove_a_weathered_rucksack_of.js"
+            }
+          ],
+          "text": "^You remove a weathered rucksack of white elk hide\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "house",
+      "enabled": true,
+      "items": [
+        {
+          "type": "alias",
+          "name": "House State In",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "t jurrien From Nature we are born",
+              "prefix_suffix": false
+            }
+          ],
+          "text": "hhousein",
+          "matching": "begins",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "House State Out",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "t jurrien To Nature we return",
+              "prefix_suffix": false
+            }
+          ],
+          "text": "hhouseout",
+          "matching": "begins",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "selfishness",
+      "enabled": true,
+      "items": [
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:selfishness__trigger_you_rub_your_hands_together_greedily.js"
+            }
+          ],
+          "text": "^You rub your hands together greedily\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:selfishness__trigger_a_feeling_of_generosity_spreads.js"
+            }
+          ],
+          "text": "^A feeling of generosity spreads throughout you\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:selfishness__alias_give.js"
+            }
+          ],
+          "text": "^give (.*)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:selfishness__alias_sell.js"
+            }
+          ],
+          "text": "^sell (.*)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:selfishness__alias_drop.js"
+            }
+          ],
+          "text": "^drop (.*)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:selfishness__alias_offer.js"
+            }
+          ],
+          "text": "^offer (.*)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    }
+  ],
+  "description": ""
+}
