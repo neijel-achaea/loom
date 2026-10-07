@@ -19,7 +19,7 @@
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "run_function(\"rage_init\");"
+   "code": "run_function(\"rage_init\", [], \"hunting\");"
   },
   {
    "type": "function",
