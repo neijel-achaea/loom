@@ -1,0 +1,227 @@
+{
+ "type": "group",
+ "name": "partycomms",
+ "enabled": false,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// partycomms 0.3\nrun_function(\"party_init\", [], \"partycomms\");"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// nothing to clean up"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "if (args.gmcp_method == \"Char.Vitals\") {\n  run_function(\"party_send\", [], \"partycomms\");\n}"
+  },
+  {
+   "type": "function",
+   "name": "party_init",
+   "enabled": true,
+   "code": "// partycomms 0.3 - reset all state. Safe to run any time.\nset_variable(\"party_data\", {});\nset_variable(\"party_last_send\", 0);\nset_variable(\"party_last_sent\", {});\nset_variable(\"party_last_render\", 0);\nif (!get_variable(\"party_me\")) {\n  display_notice(\"[partycomms] No name set. Run: partyname YourName\", \"orange\");\n} else {\n  display_notice(\"[partycomms] 0.3 ready as \" + get_variable(\"party_me\"), \"cyan\");\n}\nrun_function(\"party_render\", [], \"partycomms\");"
+  },
+  {
+   "type": "function",
+   "name": "party_send",
+   "enabled": true,
+   "code": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  var me = get_variable(\"party_me\");\n  var on = get_variable(\"party_on\");\n  var hp = to_number(get_variable(\"my_hp\"));\n  var maxhp = to_number(get_variable(\"my_maxhp\"));\n  run_function(\"party_resolve\", [], \"partycomms\");\n  if (me && on != 0 && maxhp > 0) {\n    var mp = to_number(get_variable(\"my_mp\"));\n    var maxmp = to_number(get_variable(\"my_maxmp\"));\n    var ep = to_number(get_variable(\"my_ep\"));\n    var maxep = to_number(get_variable(\"my_maxep\"));\n    var wp = to_number(get_variable(\"my_wp\"));\n    var maxwp = to_number(get_variable(\"my_maxwp\"));\n    var rage = to_number(get_variable(\"my_rage\")) || 0;\n    var nl = get_variable(\"my_nl\") || 0;\n    var tid = get_variable(\"tar\") || 0;\n    var tnm = get_variable(\"tarname\");\n    if (!tnm) { tnm = \"-\"; }\n    var now = Date.now() / 1000;\n    var last = get_variable(\"party_last_send\") || 0;\n    var prev = get_variable(\"party_last_sent\") || {};\n    var hpp = Math.round(hp * 100 / maxhp);\n    var mpp = 0;\n    if (maxmp > 0) { mpp = Math.round(mp * 100 / maxmp); }\n    var moved = false;\n    if (Math.abs(hpp - (prev.hp || 0)) >= 5) { moved = true; }\n    if (Math.abs(mpp - (prev.mp || 0)) >= 5) { moved = true; }\n    if (tid != prev.tid) { moved = true; }\n    if (tnm != prev.tname) { moved = true; }\n    if (now - last >= 10) { moved = true; }\n    if (moved && now - last >= 1) {\n      var msg = \"pt [PARTYINFO] \" + me;\n      msg = msg + \" \" + hp + \"/\" + maxhp;\n      msg = msg + \" \" + mp + \"/\" + maxmp;\n      msg = msg + \" \" + ep + \"/\" + maxep;\n      msg = msg + \" \" + wp + \"/\" + maxwp;\n      msg = msg + \" \" + rage;\n      msg = msg + \" \" + nl;\n      msg = msg + \" | \" + tid + \" \" + tnm;\n      send_command(msg, 1);\n      var sent = {};\n      sent.hp = hpp;\n      sent.mp = mpp;\n      sent.tid = tid;\n      sent.tname = tnm;\n      set_variable(\"party_last_send\", now);\n      set_variable(\"party_last_sent\", sent);\n    }\n    run_function(\"party_render\", [], \"partycomms\");\n  }\n}"
+  },
+  {
+   "type": "function",
+   "name": "party_resolve",
+   "enabled": true,
+   "code": "var pause = get_variable(\"pauseTriggers\");\nvar party_on = get_variable(\"party_on\");\n\nif (pause == \"off\") {\n  var tar = get_variable(\"tar\");\n  var now = Date.now() / 1000;\n  if (!tar) {\n    set_variable(\"tarname\", \"\");\n    set_variable(\"tarname_for\", \"\");\n  } else {\n    if (party_on == \"1\") {\n      var forid = get_variable(\"tarname_for\");\n      var asked = get_variable(\"party_ih_at\") || 0;\n      if (tar != forid && now - asked >= 2) {\n        set_variable(\"party_ih\", 1);\n        set_variable(\"party_ih_at\", now);\n        send_command(\"ih\", 1);\n      }\n    }\n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+  },
+  {
+   "type": "function",
+   "name": "party_render",
+   "enabled": true,
+   "code": "// Rebuilds the Party tab. Throttled to once a second.\nvar now = Date.now() / 1000;\nvar lastr = get_variable(\"party_last_render\") || 0;\nif (now - lastr >= 1) {\n  set_variable(\"party_last_render\", now);\n  var party = get_variable(\"party_data\") || {};\n  var mytid = get_variable(\"tar\") || 0;\n  var html = \"<div style='font-family:sans-serif;font-size:12px;color:#dddddd;padding:4px'>\";\n  var count = 0;\n  for (var nm in party) {\n    var p = party[nm];\n    var age = now - p.t;\n    if (age <= 120) {\n      count = count + 1;\n      var dead = age > 12;\n      html = html + \"<div style='margin-bottom:10px;\" + (dead ? \"opacity:0.45;\" : \"\") + \"'>\";\n      html = html + \"<div><b>\" + nm + \"</b>\";\n      if (dead) {\n        html = html + \" <span style='color:#cc6666;font-size:10px'>link lost \" + Math.round(age) + \"s</span>\";\n      }\n      html = html + \"</div>\";\n      var bars = [];\n      bars.push([p.hp, p.maxhp, \"#bb3838\"]);\n      bars.push([p.mp, p.maxmp, \"#3a68b8\"]);\n      bars.push([p.ep, p.maxep, \"#d742f5\"]);\n      bars.push([p.wp, p.maxwp, \"#f5f242\"]);\n      for (var b = 0; b < bars.length; b++) {\n        var cur = bars[b][0];\n        var max = bars[b][1];\n        var col = bars[b][2];\n        var pct = 0;\n        if (max > 0) { pct = Math.round(cur * 100 / max); }\n        if (pct > 100) { pct = 100; }\n        html = html + \"<div style='background:#1c1c1c;height:13px;margin:2px 0;position:relative;border-radius:2px;overflow:hidden'>\";\n        html = html + \"<div style='background:\" + col + \";width:\" + pct + \"%;height:100%'></div>\";\n        html = html + \"<span style='position:absolute;left:5px;top:0;font-size:10px;line-height:13px;color:#f0f0f0'>\" + cur + \" / \" + max + \"</span>\";\n        html = html + \"</div>\";\n      }\n      var nlp = p.nl;\n      if (nlp > 100) { nlp = 100; }\n      if (nlp < 0) { nlp = 0; }\n      html = html + \"<div style='background:#1c1c1c;height:5px;margin:4px 0 3px 0;border-radius:2px;overflow:hidden'>\";\n      html = html + \"<div style='background:#7a5ab8;width:\" + nlp + \"%;height:100%'></div></div>\";\n      html = html + \"<div style='font-size:11px;color:#aaaaaa'>Rage \" + p.rage;\n      html = html + \" <span style='color:#888888'>&middot; NL \" + p.nl + \"%</span></div>\";\n      if (p.tid > 0) {\n        var tcol = \"#aaaaaa\";\n        if (mytid > 0 && p.tid == mytid) { tcol = \"#7ac77a\"; }\n        var tlabel = p.tname;\n        if (!tlabel || tlabel == \"-\") { tlabel = \"#\" + p.tid; }\n        html = html + \"<div style='font-size:11px;color:\" + tcol + \"'>&rarr; \" + tlabel + \"</div>\";\n      } else {\n        html = html + \"<div style='font-size:11px;color:#666666'>&rarr; no target</div>\";\n      }\n      html = html + \"</div>\";\n    }\n  }\n  if (count == 0) {\n    html = html + \"<div style='color:#888888'>No party data yet.</div>\";\n  }\n  html = html + \"</div>\";\n  set_custom_tab_html(\"Party\", html);\n}"
+  },
+  {
+   "type": "trigger",
+   "name": "receive party info",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Incoming party vitals. Stores and gags.\nvar e = {};\ne.hp = to_number(args[2]);\ne.maxhp = to_number(args[3]);\ne.mp = to_number(args[4]);\ne.maxmp = to_number(args[5]);\ne.ep = to_number(args[6]);\ne.maxep = to_number(args[7]);\ne.wp = to_number(args[8]);\ne.maxwp = to_number(args[9]);\ne.rage = to_number(args[10]);\ne.nl = to_number(args[11]);\ne.tid = to_number(args[12]);\ne.tname = args[13].replace(/[\\\"'.\\s]+$/, \"\");\ne.t = Date.now() / 1000;\nvar party = get_variable(\"party_data\") || {};\nparty[args[1]] = e;\nset_variable(\"party_data\", party);\ngag_current_line();\nset_variable(\"party_last_render\", 0);\nrun_function(\"party_render\", [], \"partycomms\");"
+    }
+   ],
+   "text": "\\[PARTYINFO\\] (\\w+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+) ([\\d.]+) \\| (\\d+) (.*)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "ih item line",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var at = get_variable(\"party_ih_at\") || 0;\nif (get_variable(\"party_ih\") == 1 && (Date.now() / 1000) - at < 3) {\n  gag_current_line();\n  var tar = \"\" + (get_variable(\"tar\") || \"\");\n  if (tar == args[1] + args[2] || tar == args[2]) {\n    set_variable(\"tarname\", args[3]);\n    set_variable(\"tarname_for\", get_variable(\"tar\"));\n  }\n}"
+    }
+   ],
+   "text": "^(\\w*?)(\\d+)\\s{2,}(.+)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "ih end",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "if (get_variable(\"party_ih\") == 1) {\n  gag_current_line();\n  set_variable(\"party_ih\", 0);\n  set_variable(\"party_ih_tail\", Date.now() / 1000);\n}"
+    }
+   ],
+   "text": "^Number of objects: \\d+$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "alias",
+   "name": "partyname",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"party_me\", args[1]);\ndisplay_notice(\"[partycomms] broadcasting as \" + args[1], \"cyan\");"
+    }
+   ],
+   "text": "^partyname (\\w+)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false
+  },
+  {
+   "type": "alias",
+   "name": "partyon",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"party_on\", 1);\ndisplay_notice(\"[partycomms] broadcast ON\", \"cyan\");"
+    }
+   ],
+   "text": "^partyon$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "alias",
+   "name": "partyoff",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"party_on\", 0);\ndisplay_notice(\"[partycomms] broadcast OFF\", \"orange\");"
+    }
+   ],
+   "text": "^partyoff$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false
+  },
+  {
+   "type": "alias",
+   "name": "partydebug",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "display_notice(\"me: \" + get_variable(\"party_me\") + \" / on: \" + get_variable(\"party_on\"), \"orange\");\ndisplay_notice(\"tar: \" + get_variable(\"tar\") + \" / tarname: \" + get_variable(\"tarname\") + \" (for \" + get_variable(\"tarname_for\") + \")\", \"orange\");\ndisplay_notice(\"ih flag: \" + get_variable(\"party_ih\"), \"orange\");\ndisplay_notice(\"hp \" + get_variable(\"my_hp\") + \"/\" + get_variable(\"my_maxhp\") + \"  mp \" + get_variable(\"my_mp\") + \"/\" + get_variable(\"my_maxmp\"), \"orange\");\ndisplay_notice(\"ep \" + get_variable(\"my_ep\") + \"/\" + get_variable(\"my_maxep\") + \"  wp \" + get_variable(\"my_wp\") + \"/\" + get_variable(\"my_maxwp\"), \"orange\");\ndisplay_notice(\"rage \" + get_variable(\"my_rage\") + \"  nl \" + get_variable(\"my_nl\"), \"orange\");\ndisplay_notice(\"lastsent: \" + JSON.stringify(get_variable(\"party_last_sent\")), \"orange\");\ndisplay_notice(\"data: \" + JSON.stringify(get_variable(\"party_data\")), \"orange\");"
+    }
+   ],
+   "text": "^partydebug$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false
+  },
+  {
+   "type": "alias",
+   "name": "partytest",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Injects two fake members so the tab can be checked solo.\nvar now = Date.now() / 1000;\nvar party = get_variable(\"party_data\") || {};\nvar a = {};\na.hp = 3200; a.maxhp = 4784; a.mp = 4646; a.maxmp = 5096;\na.ep = 18000; a.maxep = 21685; a.wp = 18870; a.maxwp = 23170;\na.rage = 24; a.nl = 28.12; a.tid = 12345; a.tname = \"a plague rat\";\na.t = now;\nvar b = {};\nb.hp = 900; b.maxhp = 4100; b.mp = 2000; b.maxmp = 4800;\nb.ep = 9000; b.maxep = 20000; b.wp = 11000; b.maxwp = 21000;\nb.rage = 41; b.nl = 92.4; b.tid = 0; b.tname = \"-\";\nb.t = now - 30;\nparty[\"Testalpha\"] = a;\nparty[\"Testbeta\"] = b;\nset_variable(\"party_data\", party);\nset_variable(\"party_last_render\", 0);\nrun_function(\"party_render\", [], \"partycomms\");\ndisplay_notice(\"[partycomms] test rows injected - check the Party tab\", \"cyan\");"
+    }
+   ],
+   "text": "^partytest$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false
+  },
+  {
+   "type": "alias",
+   "name": "partyclear",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"party_data\", {});\nset_variable(\"party_last_render\", 0);\nrun_function(\"party_render\", [], \"partycomms\");\ndisplay_notice(\"[partycomms] party data cleared\", \"orange\");"
+    }
+   ],
+   "text": "^partyclear$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "command",
+     "enabled": true,
+     "command": "partyoff",
+     "prefix_suffix": false
+    }
+   ],
+   "text": "^You are not the member of any party\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var tail = get_variable(\"party_ih_tail\") || 0;\nif ((Date.now() / 1000) - tail < 2) {\n  gag_current_line();\n  set_variable(\"party_ih_tail\", 0);\n}"
+    }
+   ],
+   "text": "^[\\d,]+ gold sovereigns?\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  }
+ ],
+ "description": "Party vitals sharing over partytell. Version 0.3."
+}

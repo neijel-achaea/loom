@@ -1,0 +1,21 @@
+// Incoming party vitals. Stores and gags.
+var e = {};
+e.hp = to_number(args[2]);
+e.maxhp = to_number(args[3]);
+e.mp = to_number(args[4]);
+e.maxmp = to_number(args[5]);
+e.ep = to_number(args[6]);
+e.maxep = to_number(args[7]);
+e.wp = to_number(args[8]);
+e.maxwp = to_number(args[9]);
+e.rage = to_number(args[10]);
+e.nl = to_number(args[11]);
+e.tid = to_number(args[12]);
+e.tname = args[13].replace(/[\"'.\s]+$/, "");
+e.t = Date.now() / 1000;
+var party = get_variable("party_data") || {};
+party[args[1]] = e;
+set_variable("party_data", party);
+gag_current_line();
+set_variable("party_last_render", 0);
+run_function("party_render", [], "partycomms");

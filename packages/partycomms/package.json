@@ -1,0 +1,227 @@
+{
+  "type": "group",
+  "name": "partycomms",
+  "enabled": false,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "party_init",
+      "enabled": true,
+      "code": "@file:party_init.js"
+    },
+    {
+      "type": "function",
+      "name": "party_send",
+      "enabled": true,
+      "code": "@file:party_send.js"
+    },
+    {
+      "type": "function",
+      "name": "party_resolve",
+      "enabled": true,
+      "code": "@file:party_resolve.js"
+    },
+    {
+      "type": "function",
+      "name": "party_render",
+      "enabled": true,
+      "code": "@file:party_render.js"
+    },
+    {
+      "type": "trigger",
+      "name": "receive party info",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_receive_party_info.js"
+        }
+      ],
+      "text": "\\[PARTYINFO\\] (\\w+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+) ([\\d.]+) \\| (\\d+) (.*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "ih item line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_ih_item_line.js"
+        }
+      ],
+      "text": "^(\\w*?)(\\d+)\\s{2,}(.+)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "ih end",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_ih_end.js"
+        }
+      ],
+      "text": "^Number of objects: \\d+$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "partyname",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_partyname.js"
+        }
+      ],
+      "text": "^partyname (\\w+)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    },
+    {
+      "type": "alias",
+      "name": "partyon",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_partyon.js"
+        }
+      ],
+      "text": "^partyon$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "partyoff",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_partyoff.js"
+        }
+      ],
+      "text": "^partyoff$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    },
+    {
+      "type": "alias",
+      "name": "partydebug",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_partydebug.js"
+        }
+      ],
+      "text": "^partydebug$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    },
+    {
+      "type": "alias",
+      "name": "partytest",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_partytest.js"
+        }
+      ],
+      "text": "^partytest$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    },
+    {
+      "type": "alias",
+      "name": "partyclear",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_partyclear.js"
+        }
+      ],
+      "text": "^partyclear$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "command",
+          "enabled": true,
+          "command": "partyoff",
+          "prefix_suffix": false
+        }
+      ],
+      "text": "^You are not the member of any party\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_d_gold_sovereigns.js"
+        }
+      ],
+      "text": "^[\\d,]+ gold sovereigns?\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Party vitals sharing over partytell. Version 0.3."
+}
