@@ -1,0 +1,1 @@
+gag_current_line();

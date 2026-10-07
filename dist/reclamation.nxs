@@ -1,0 +1,126 @@
+{
+ "type": "group",
+ "name": "reclamation",
+ "enabled": false,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is installed"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "// Prune old entries from enemyLocations\nvar maxAgeDays = 10;\nvar cutoff = Date.now() - maxAgeDays * 24 * 60 * 60 * 1000;\n\nvar enemyLocations = {};\nvar stored = get_variable(\"enemyLocations\");\nif (stored) { try { enemyLocations = JSON.parse(stored); } catch (e) { enemyLocations = {}; } }\n\nvar kept = {};\nfor (var key in enemyLocations) {\n  var rec = enemyLocations[key];\n  if (rec && rec.time >= cutoff) { kept[key] = rec; }\n  }\n\nset_variable(\"enemyLocations\", JSON.stringify(kept));"
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var arg = (args[1] || \"\").toLowerCase();\n\nif (arg === \"on\")       { set_variable(\"reportEnemies\", 1); display_notice(\"[reclamation] Report Enemies mode: ON\", \"cyan\"); }\nelse if (arg === \"off\") { set_variable(\"reportEnemies\", 0); display_notice(\"[reclamation] Report Enemies mode: OFF\", \"cyan\"); }\nelse {\n  var state = get_variable(\"reportEnemies\");\n  var verboseState = (state == 1) ? \"ON\" : \"OFF\";\n  display_notice(\"[reclamation] Report Enemies mode: \" + verboseState + \". Use REPORTENEMIES ON/OFF.\", \"cyan\");\n}"
+    }
+   ],
+   "text": "^reportenemies(?: (\\w+))?$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var target = (args[1] || \"\").toLowerCase();\n\nif (!target) {\n  display_notice(\"[reclamation] Usage: WHEREIS <name>\", \"cyan\");\n} else {\n  var enemyLocations = {};\n  var stored = get_variable(\"enemyLocations\");\n  if (stored) { try { enemyLocations = JSON.parse(stored); } catch (e) {} }\n\n  var rec = enemyLocations[target];\n  if (rec) {\n    var mins = Math.round((Date.now() - rec.time) / 60000);\n    display_notice(\"[reclamation] \" + rec.name + \" last seen at \" + rec.location + \" (\" + mins + \"m ago).\", \"cyan\");\n  } else {\n    display_notice(\"[reclamation] No Eleusis sighting recorded for \" + target + \".\", \"cyan\");\n  }\n}"
+    }
+   ],
+   "text": "^whereis(?: (\\w+))?$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var days = parseInt(args[1], 10);\nif (isNaN(days) || days < 1) { days = 1; }\n\nvar enemyLocations = {};\nvar stored = get_variable(\"enemyLocations\");\nif (stored) { try { enemyLocations = JSON.parse(stored); } catch (e) {} }\n\nvar cutoff = Date.now() - days * 24 * 60 * 60 * 1000;\nvar recent = [];\n\nfor (var key in enemyLocations) {\n  var rec = enemyLocations[key];\n  if (rec && rec.time >= cutoff) { recent.push(rec); }\n}\n\nvar windowLabel = (days === 1) ? \"24h\" : days + \" days\";\n\nif (recent.length === 0) {\n  display_notice(\"[reclamation] No Eleusis enemy sightings in the last \" + windowLabel + \".\", \"cyan\");\n} else {\n  recent.sort(function (a, b) { return b.time - a.time; });   // most recent first\n  display_notice(\"[reclamation] Eleusis sightings (last \" + windowLabel + \"):\", \"cyan\");\n  for (var i = 0; i < recent.length; i++) {\n    var r = recent[i];\n    var mins = Math.round((Date.now() - r.time) / 60000);\n    var age = mins < 60 ? mins + \"m\" : Math.round(mins / 60) + \"h\";\n    display_notice(\"  \" + r.name + \" - \" + r.location + \" (\" + age + \" ago)\", \"cyan\");\n  }\n}"
+    }
+   ],
+   "text": "^vinesreport(?: (\\d+))?$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "display_notice(\"[reclamation] You crazy!?\", \"orange\");"
+    }
+   ],
+   "text": "^reclamation wrath$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var reportEnemies = get_variable(\"reportEnemies\");\nvar vinesTarget = args[1];\nvar vinesLocation = args[2];\nvar eleusisLocations = [\n  \"A bramble fenced paddock\", \n  \"A grandiose elm surrounded by canopied walkways\",\n  \"A natural refuge in a vine-covered dell\",\n  \"A verdant clearing laden with cherry blossoms\",\n  \"A wildflower rich pasture\",\n  \"Above the fields by a granary\",\n  \"Above the fields near a bridge\",\n  \"Amid the fields\",\n  \"Amidst the canopy of Ivy's Reach\",\n  \"Amongst the fields\",\n  \"An eclectic market atop a swaying platform\",\n  \"Art of the Wilds\",\n  \"At the base of an oak\",\n  \"Atop the Eleusian Gatehouse\",\n  \"Barracks of the Eleusian Rangers\",\n  \"Base of Ivy's Reach\",\n  \"Base of the Eleusian Gatehouse\",\n  \"Before a fenced garden\",\n  \"Before the Hierophants' Complex\",\n  \"Bridge through the oaken canopy\",\n  \"Corner of a vegetable patch\",\n  \"Earthen fields\",\n  \"Eleusian Trading Post\",\n  \"Farmer's market at a mill\",\n  \"Forestal Whispers of Romance\",\n  \"Gallery on the boughs\",\n  \"Granary among the trees\",\n  \"Junction on the Oaken Way\",\n  \"Lofty Platform\",\n  \"Lush terrace\",\n  \"Overgrown glebe\",\n  \"Overlooking a stream\",\n  \"Pathway through the grasses\",\n  \"Platform overlooking the fields\",\n  \"Quiet corner of Ivy's Reach\",\n  \"Roughened pathway\",\n  \"Secluded garden\",\n  \"Sheltered vantage\",\n  \"Silver threads\",\n  \"Spectator stands in the Collosea en Duir\",\n  \"Split on the Oaken Way\",\n  \"Staging grounds for the Collosea en Duir\",\n  \"Sycamore hollow\",\n  \"Sylvan Colours\",\n  \"Tall grass near a bloomery forge\",\n  \"The Weald Club\",\n  \"Thriving vegetable patch\",\n  \"Treetop hall\",\n  \"Treetop watch post\",\n  \"Upon the Oaken Way\",\n  \"Verdant walkway\",\n  \"Verdurous gazebo\",\n  \"Woodland office\",\n  \"Ye Olde Bake Shoppe\",\n  \"A cluttered atelier\",\n  \"An elegant dining chamber\",\n  \"Approaching a tall birch tree\",\n  \"Atop Oastan Eleusia\",\n  \"Balcony above the Draoi Quarter\",\n  \"Balcony overlooking the forest\",\n  \"Blackwing Imports\",\n  \"Candlelit lodge\",\n  \"Eleusian Woodcrafts\",\n  \"Entering Draoi Quarter\",\n  \"Everything is Vine\",\n  \"Hut under the inn\",\n  \"Landing below the Eleusian Inn\",\n  \"Lazy path through the Draoi Quarter\",\n  \"Locksmith of Eleusis\",\n  \"Lower Draoi Quarter\",\n  \"Lower Western Draoi Quarter\",\n  \"Mossy Stone Outfitters & Provisions\",\n  \"Natural Tendencies\",\n  \"Needlewood Hollow\",\n  \"Northern Hierophants' Square\",\n  \"Oastan Eleusia\",\n  \"Overlooking Draoi Quarter\",\n  \"Pestle & Mortar\",\n  \"Secluded sanctuary\",\n  \"Shaded path across thick branches\",\n  \"Sloth Supplies\",\n  \"Southern Draoi Quarter\",\n  \"Sugar 'n Spice\",\n  \"The Bramble Thicket\",\n  \"The Cloud Lily\",\n  \"The Eleusian Inn\",\n  \"The Gnarl\",\n  \"The Hidden Hollow\",\n  \"The Soggy Wolf\",\n  \"The Sparrow's Song\",\n  \"The Uncivilised Gopher\",\n  \"The Whispering Ivy\",\n  \"Upon the Emerald Circle\",\n  \"Upper Draoi Quarter\",\n  \"A tranquil garden\",\n  \"At the base of a giant ash tree\",\n  \"Atrium of Remembrance\",\n  \"Bend in the path\",\n  \"By the ivory pool\",\n  \"Common room\",\n  \"Deep within the Rowan\",\n  \"Druidic library\",\n  \"Dwellings amidst the Emerald Circle\",\n  \"Entrance hall\",\n  \"Grand hall of the Druids\",\n  \"In the shade of the Hierophants' Complex\",\n  \"Junction in the Rowan\",\n  \"Landing atop a spiral staircase\",\n  \"Lofty aviary\",\n  \"Observatory above the trees\",\n  \"Pathway upon the Emerald Circle\",\n  \"Platform amidst the owls\",\n  \"Serene entrance chamber\",\n  \"Sprawling branches\",\n  \"Tangled path through the Eastern Ithmia\",\n  \"The Eleusian archives\",\n  \"The Eleusian Bank of Commerce\",\n  \"The Rowan near junction\",\n  \"The Rowan nearing homes\",\n  \"Tree shrine\",\n  \"Treetop garden\",\n  \"Verdant Courtyard\",\n  \"A peaceful alcove of tree boughs\",\n  \"A pebbly strand\",\n  \"Airy pavilion\",\n  \"Altar of the Desert\",\n  \"Altar of the Forest\",\n  \"Altar of the Mountain\",\n  \"Altar of the Ocean\",\n  \"Altar of the Tundra\",\n  \"An opulent theatre\",\n  \"Before a waterfall\",\n  \"Before a slight, overgrown gradation\",\n  \"Bend in the river\",\n  \"Emerald Circle along a bridge\",\n  \"Emerald Circle near the Rowan\",\n  \"Emerald Circle nearing a bridge\",\n  \"Entwined within the roots\",\n  \"Floating pier upon the currents\",\n  \"Flowing waters\",\n  \"Grassy river bank\",\n  \"Lush Chapel\",\n  \"Quickening currents\",\n  \"Rocky brooklet\",\n  \"Slow-moving river\",\n  \"Sylvan Overlook\",\n  \"Tears of Eleusis\",\n  \"The Chamber of Elements\",\n  \"The Chamber of Enlightenment\",\n  \"The Chamber of History\",\n  \"The Chamber of Seasons\",\n  \"The Chamber of Secrets\",\n  \"The Sylvan Library\",\n  \"Tranquil creek\",\n  \"Upon an arched bridge\",\n  \"Within a small reed shed\",\n  \"Woodland river bank\",\n  \"A gnarled dead-end wall\",\n  \"Arboreal rampart\",\n  \"Base of the Great Oak\",\n  \"Central Hall in the Great Oak\",\n  \"Chamber of Autumn\",\n  \"Chamber of Spring\",\n  \"Chamber of Summer\",\n  \"Chamber of the Day\",\n  \"Chamber of the Evening\",\n  \"Chamber of the Morning\",\n  \"Chamber of the Night\",\n  \"Chamber of Winter\",\n  \"Colonnade\",\n  \"Deep beneath the Great Oak\",\n  \"Hanging gardens\",\n  \"Heart of the Great Oak\",\n  \"Hushed garden\",\n  \"Rotted cavity\",\n  \"Southern Hierophants' Square\",\n  \"Surrounded by nocuous fungi\",\n  \"Swarm-infested waters\",\n  \"The Rotunda\",\n  \"Through a tunnel of twisted roots\",\n  \"Water garden\",\n  \"Woodland vantage\"\n]\n\nif (client.hl && !client.hl.enemies[vinesTarget.toLowerCase()]) {\n  gag_current_line();\n}\n\nif (client.hl && client.hl.enemies[vinesTarget.toLowerCase()]) {\n  if (eleusisLocations.includes(vinesLocation)) {\n\n    // record last-known location (always, even if reporting is off)\n    var enemyLocations = {};\n    var stored = get_variable(\"enemyLocations\");\n    if (stored) { try { enemyLocations = JSON.parse(stored); } catch (e) {} }\n\n    enemyLocations[vinesTarget.toLowerCase()] = {\n      name: vinesTarget,          // keep original casing for display\n      location: vinesLocation,\n      time: Date.now()\n    };\n    set_variable(\"enemyLocations\", JSON.stringify(enemyLocations));\n\n    // broadcast only if reporting is on\n    if (reportEnemies == 1) {\n      send_command(\"pt ENEMY ALERT: \" + vinesTarget + \" is in Eleusis, at \" + vinesLocation);\n    }\n  }\n}"
+    }
+   ],
+   "text": "^You detect that (\\w+) has entered (.+)\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "gag_current_line();"
+    }
+   ],
+   "text": "^You detect that (\\w+) has departed (.+)\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  }
+ ],
+ "description": ""
+}
