@@ -1,8 +1,8 @@
-run_function("lvl_ensure", [], "levelgraph");
-var lv = 0;
-var nl = 0;
-try { lv = parseFloat(String(get_variable("my_level"))); } catch (e) { lv = 0; }
-try { nl = parseFloat(String(get_variable("my_nl"))); } catch (e) { nl = 0; }
+if (!client.loom || !client.loom.levelgraph || !client.loom.levelgraph.day) run_function("levelgraph_setup", [], "levelgraph");
+var LG = client.loom.levelgraph;
+// Level and percent to next level, as the onGMCP handler last read them.
+var lv = parseFloat(LG.level);
+var nl = parseFloat(LG.nl);
 if (isNaN(lv)) { lv = 0; }
 if (isNaN(nl)) { nl = 0; }
 if (nl < 0) { nl = 0; }
@@ -11,8 +11,8 @@ if (nl > 100) { nl = 100; }
 if (lv > 0) {
   var now = Math.floor(new Date().getTime() / 1000);
   var nlr = Math.round(nl * 100) / 100;
-  var force = client.lvlForceMark ? true : false;
-  client.lvlForceMark = false;
+  var force = LG.forceMark ? true : false;
+  LG.forceMark = false;
   var wrote = false;
 
   // Absolute buckets rather than elapsed time. Sliding a point's timestamp
@@ -34,7 +34,7 @@ if (lv > 0) {
   // the pane reads as a clock over the trailing window. Idle time is a flat
   // segment rather than a gap.
   function feedMin() {
-    var arr = client.lvlMin;
+    var arr = LG.min;
     if (arr.length === 0) { arr.push([now, lv, nlr]); return true; }
     var last = arr[arr.length - 1];
     if (minKey(last[0]) !== minKey(now)) { arr.push([now, lv, nlr]); return true; }
@@ -48,7 +48,7 @@ if (lv > 0) {
   // Day buffer carries the last known value across days that were never
   // played, so a week away shows as a week of flat line rather than a jump.
   function feedDay() {
-    var arr = client.lvlDay;
+    var arr = LG.day;
     if (arr.length === 0) { arr.push([now, lv, nlr]); return true; }
     var last = arr[arr.length - 1];
     if (dayKey(last[0]) === dayKey(now)) {
@@ -60,7 +60,7 @@ if (lv > 0) {
     }
     var carryLv = last[1];
     var carryNl = last[2];
-    var cut = now - client.lvlDays * 86400;
+    var cut = now - LG.days * 86400;
     var todayStart = dayStart(now);
     // Step by calendar date rather than by 86400 so daylight saving does not
     // drift the cursor off midnight.
@@ -81,16 +81,16 @@ if (lv > 0) {
   if (feedDay()) { wrote = true; }
 
   // Trailing windows: anything older than the span simply falls off the front.
-  var minCut = now - client.lvlMins * 60;
-  while (client.lvlMin.length > 0 && client.lvlMin[0][0] < minCut) { client.lvlMin.shift(); }
-  var dayCut = now - client.lvlDays * 86400;
-  while (client.lvlDay.length > 0 && client.lvlDay[0][0] < dayCut) { client.lvlDay.shift(); }
+  var minCut = now - LG.mins * 60;
+  while (LG.min.length > 0 && LG.min[0][0] < minCut) { LG.min.shift(); }
+  var dayCut = now - LG.days * 86400;
+  while (LG.day.length > 0 && LG.day[0][0] < dayCut) { LG.day.shift(); }
 
-  var lastWrite = client.lvlLastWrite || 0;
+  var lastWrite = LG.lastWrite || 0;
   if (wrote && (force || (now - lastWrite) >= 5)) {
-    client.lvlLastWrite = now;
-    try { set_variable("lvl_min", JSON.stringify(client.lvlMin)); } catch (e) {}
-    try { set_variable("lvl_day", JSON.stringify(client.lvlDay)); } catch (e) {}
-    run_function("lvl_render", [], "levelgraph");
+    LG.lastWrite = now;
+    try { set_variable("levelgraph_min", JSON.stringify(LG.min)); } catch (e) {}
+    try { set_variable("levelgraph_day", JSON.stringify(LG.day)); } catch (e) {}
+    run_function("levelgraph_render", [], "levelgraph");
   }
 }

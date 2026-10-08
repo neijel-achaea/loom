@@ -29,7 +29,7 @@ their tab its own icon.
 | **hunting** | — | Class F-key buttons with battlerage cooldown highlights (Druid, Magi, Sylvan, Black and Blue Dragon; other classes get the generic keys), dragon attack mode, autogold, ability and critical-hit highlights, affliction markers and combat gags. One command: `HUNTING` (`DRAGONMODE`, `AUTOGOLD`, `PARTYTARGET`, `AFTERFORM`, `HELP`). Publishes `my_rage` for partycomms; reads security's `backpack`, artificing's `staffAttack` and huntstats (for the F9 key) if present. |
 | **huntstats** | Stats | Per-area hunting sessions: xp/hr, gold/hr, kills, Dragonhood progress, area comparison. `HUNTSTATS`. |
 | **ledger** | Ledger | IC reminders and standing items on the Achaean calendar. `LEDGER`. |
-| **levelgraph** | Level | Level progress graphs per minute and per day, days at the current level. |
+| **levelgraph** | Level | Level progress graphs per minute and per day, rates and time to the next level. Level and percent come from GMCP, sampled once per prompt whatever the prompt looks like. `LEVELGRAPH HELP`. Reads nothing from other packages. |
 | **loom** | — | The suite package (replaces **common**). `LOOM` lists the packages loaded with their versions; `LOOM PAUSE ON/OFF` and `LOOM DEBUG ON/OFF` set the shared flags; `LOOM ROOM` shows the current room. Also the `QUIT`/`QQ` wrapper, `REFILLVIAL`, pausing during sleep, meditation and the Mnemosyne, and assorted highlights and gags. From v0.4 it holds the integrations between packages. |
 | **numpad_movement** | — | Movement and quick commands on the number pad. |
 | **partycomms** | Party | Shares party vitals and targets over party tell, shown as bars in a Party tab. `PARTYNAME`, `PARTYON`/`PARTYOFF`. |

@@ -2,7 +2,8 @@
 // serif small-caps headings, one large figure, monospace ledger rows.
 // Nexus tabs will not run injected <script>, so charts are static inline SVG,
 // redrawn whenever a new sample lands.
-run_function("lvl_ensure", [], "levelgraph");
+if (!client.loom || !client.loom.levelgraph || !client.loom.levelgraph.day) run_function("levelgraph_setup", [], "levelgraph");
+var LG = client.loom.levelgraph;
 var MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 var ACC = "#8fbfe0";
 var ACC2 = "#c8a2d8";
@@ -109,8 +110,8 @@ var glyph = '<svg width="18" height="16" viewBox="0 0 18 16" style="vertical-ali
   '<rect x="1" y="11" width="4" height="4" fill="' + DEEP + '"/><rect x="7" y="7" width="4" height="8" fill="' + ACC + '" fill-opacity="0.7"/>' +
   '<rect x="13" y="2" width="4" height="13" fill="' + ACC + '"/><path d="M13 1.5 L15 0 L17 1.5" fill="none" stroke="' + BRIGHT + '" stroke-width="0.8"/></svg>';
 
-var mins = client.lvlMin || [];
-var days = client.lvlDay || [];
+var mins = LG.min || [];
+var days = LG.day || [];
 var cur = null;
 if (mins.length > 0) { cur = mins[mins.length - 1]; }
 else if (days.length > 0) { cur = days[days.length - 1]; }
@@ -120,7 +121,7 @@ html += '<div style="display:flex;justify-content:space-between;align-items:base
 html += '<div style="font-family:' + SERIF + ';color:' + ACC + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'LEVEL</div>';
 
 if (!cur) {
-  html += '</div><div style="color:' + MUTED + ';margin-top:8px;font-family:' + SERIF + ';font-style:italic;">No samples yet. Play a little, or use LVLMARK.</div></div>';
+  html += '</div><div style="color:' + MUTED + ';margin-top:8px;font-family:' + SERIF + ';font-style:italic;">No samples yet. Play a little, or use LEVELGRAPH MARK.</div></div>';
 } else {
   // Session figures: gain across the minute buffer, rate, and time to level.
   var sSpan = 0, sGain = 0, perHour = 0, togo = -1;
@@ -184,11 +185,11 @@ if (!cur) {
   cols += box(lb, ACC2);
   html += cols + '</div>';
 
-  if (client.lvlGraphSess) {
-    html += section("Last " + client.lvlMins + " minutes", mins.length < 2 ? quiet("Collecting. A point lands every minute that your experience moves.") : lvlChart(mins, 640, client.lvlChartH, ACC, false), ACC);
+  if (LG.graphSess) {
+    html += section("Last " + LG.mins + " minutes", mins.length < 2 ? quiet("Collecting. A point lands every minute that your experience moves.") : lvlChart(mins, 640, LG.chartH, ACC, false), ACC);
   }
-  if (client.lvlGraphLong) {
-    html += section("Last " + client.lvlDays + " days", days.length < 2 ? quiet("Collecting. One point is kept per day.") : lvlChart(days, 640, client.lvlChartH, ACC2, true), ACC2);
+  if (LG.graphLong) {
+    html += section("Last " + LG.days + " days", days.length < 2 ? quiet("Collecting. One point is kept per day.") : lvlChart(days, 640, LG.chartH, ACC2, true), ACC2);
   }
   html += '</div>';
 }

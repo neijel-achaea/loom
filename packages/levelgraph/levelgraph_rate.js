@@ -1,6 +1,7 @@
-run_function("lvl_ensure", [], "levelgraph");
-var mins = client.lvlMin || [];
-var days = client.lvlDay || [];
+if (!client.loom || !client.loom.levelgraph || !client.loom.levelgraph.day) run_function("levelgraph_setup", [], "levelgraph");
+var LG = client.loom.levelgraph;
+var mins = LG.min || [];
+var days = LG.day || [];
 var MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 function fl(sec) {
   var d = new Date(sec * 1000);
@@ -14,7 +15,7 @@ if (mins.length > 0) { cur = mins[mins.length - 1]; }
 else if (days.length > 0) { cur = days[days.length - 1]; }
 
 if (!cur) {
-  display_notice("[levelgraph] no samples recorded yet. Use LVLMARK to store the first point.", "cyan");
+  display_notice("[levelgraph] no samples recorded yet. Use LEVELGRAPH MARK to store the first point.", "cyan");
 } else {
   display_notice("[levelgraph] level " + cur[1] + ", " + cur[2].toFixed(2) + "% to next", "cyan");
 
@@ -47,5 +48,5 @@ if (!cur) {
   } else {
     display_notice("[levelgraph] long-term buffer has " + days.length + " day(s); needs two for a rate.", "orange");
   }
-  display_notice("[levelgraph] windows: " + client.lvlMins + " min session, " + client.lvlDays + " day long term", "cyan");
+  display_notice("[levelgraph] windows: " + LG.mins + " min session, " + LG.days + " day long term. LEVELGRAPH HELP for commands.", "cyan");
 }

@@ -1,1 +1,0 @@
-try { run_function("lvl_sample", [], "levelgraph"); } catch (e) {}
