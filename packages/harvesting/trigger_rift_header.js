@@ -1,4 +1,5 @@
-if (!client.hv) run_function("hv_build", [], "harvesting");
-client.hv.inRift = true;
-client.hv.dashes = 0;
-if (client.hv.quiet) gag_current_line();
+if (!client.loom || !client.loom.harvesting || !client.loom.harvesting.plants) run_function("harvesting_setup", [], "harvesting");
+var H = client.loom.harvesting;
+H.inRift = true;
+H.dashes = 0;
+if (H.quiet) gag_current_line();

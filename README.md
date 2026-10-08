@@ -25,7 +25,7 @@ their tab its own icon.
 | **fishing** | — | Fishing automation: `BAIT <bait>`, `CL <direction>` to bait and cast, then tease, jerk and reel on the game's cues, with stage markers on each line. Statistics live in **fishingstats**. |
 | **fishingstats** | fishingstats, fishinglog | Live fishing session (by angler, by species, recent catches) and a log of past sessions. |
 | **groves** | — | *Retired (druid).* Opens the grove gate for city members who send "Gate." while you are in your grove. |
-| **harvesting** | — | Stock-aware auto-harvest on room entry: harvests and stores only plants below their minimum rift stock. `HARVESTING ON/OFF/MIN/RESET`. |
+| **harvesting** | — | Stock-aware auto-harvest on room entry: harvests and stores only the plants of the room's environment that are below their minimum rift stock. `HARVESTING ON/OFF`, `MIN <n>` (default minimum), `MIN <plant> <n\|DEFAULT>`, `STOCK`, `HELP`; bare `HARVESTING` lists what is short. Reads nothing from other packages. |
 | **hunting** | — | Class F-key buttons with battlerage cooldown highlights (Druid, Magi, Sylvan, Black and Blue Dragon; other classes get the generic keys), dragon attack mode, autogold, ability and critical-hit highlights, affliction markers and combat gags. One command: `HUNTING` (`DRAGONMODE`, `AUTOGOLD`, `PARTYTARGET`, `AFTERFORM`, `HELP`). Publishes `my_rage` for partycomms; reads security's `backpack`, artificing's `staffAttack` and huntstats (for the F9 key) if present. |
 | **huntstats** | Stats | Per-area hunting sessions: xp/hr, gold/hr, kills, Dragonhood progress, area comparison. `HUNTSTATS`. |
 | **ledger** | Ledger | IC reminders and standing items on the Achaean calendar. `LEDGER`. |
