@@ -1,29 +1,21 @@
-run_function("tal_ensure", [], "talismans");
-var t = client.tal;
-var cOwn = 0;
-var rOwn = 0;
-for (var ci = 0; ci < t.colors.length; ci++) {
-  var color = t.colors[ci];
-  for (var ti = 0; ti < t.commonTypes.length; ti++) {
-    var n = t.getcount(color, t.commonTypes[ti]);
-    cOwn += (n > t.reqCommon) ? t.reqCommon : n;
-  }
-  var rn = t.getcount(color, t.colorrare[color]);
-  rOwn += (rn > t.reqRare) ? t.reqRare : rn;
-}
-client.talNowC = cOwn;
-client.talNowR = rOwn;
+if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function("talpieces_setup", [], "talpieces");
+var TP = client.loom.talpieces;
+var tpTot = TP.totals();
+var cOwn = tpTot[0];
+var rOwn = tpTot[1];
+TP.nowC = cOwn;
+TP.nowR = rOwn;
 
-var hs = client.talHist;
+var hs = TP.hist;
 var now = Math.floor(new Date().getTime() / 1000);
-var force = client.talForceMark ? true : false;
-client.talForceMark = false;
+var force = TP.forceMark ? true : false;
+TP.forceMark = false;
 
 if (hs.length === 0) {
   hs.push([now, cOwn, rOwn]);
 } else {
   var last = hs[hs.length - 1];
-  if (!force && (now - last[0]) < client.talBucket) {
+  if (!force && (now - last[0]) < TP.bucket) {
     // Same hourly bucket: overwrite in place. This is what stops a full list
     // rebuild, which syncs once per row, from drawing a fake ramp from zero.
     last[1] = cOwn;
@@ -35,7 +27,7 @@ if (hs.length === 0) {
 
 // Compaction keeps the persisted variable small: full detail for the last
 // thirty days, one point per day before that.
-if (hs.length > client.talHistSoft) {
+if (hs.length > TP.histSoft) {
   var keep = [];
   var oldCut = now - 30 * 86400;
   var lastDay = "";
@@ -51,12 +43,12 @@ if (hs.length > client.talHistSoft) {
     }
   }
   hs = keep;
-  client.talHist = hs;
+  TP.hist = hs;
 }
-if (hs.length > client.talHistCap) { hs.splice(0, hs.length - client.talHistCap); }
+if (hs.length > TP.histCap) { hs.splice(0, hs.length - TP.histCap); }
 
 // Skip the write while a list rebuild is in flight; the flush at the end of
 // the build, or the next real event, persists it.
-if (!client.talBuilding) {
-  try { set_variable("tal_hist", JSON.stringify(hs)); } catch (e) {}
+if (!TP.building) {
+  try { set_variable("talpieces_hist", JSON.stringify(hs)); } catch (e) {}
 }

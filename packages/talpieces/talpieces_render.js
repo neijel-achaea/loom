@@ -1,9 +1,10 @@
-run_function("tal_ensure", [], "talismans");
+if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function("talpieces_setup", [], "talpieces");
+var TP = client.loom.talpieces;
 // Draws the 'Talismans' tab (and the roomier 'TalGraph' tab if it exists) in
 // the house style shared with Coffers, Level, Ledger, Fishing and DmgChart:
 // ink panel, serif small-caps headings, one large figure, monospace ledger
 // rows. The tab accent is amethyst; each dragon keeps its own colour.
-var t = client.tal;
+var t = TP;
 var AME = "#b99be0";
 var DEEP = "#5f4c80";
 var TXT = "#e2ddea";
@@ -55,7 +56,7 @@ var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT +
 
 // ------------------------------------------------------------ the numbers ---
 // Owned is capped per piece type, so 100 black claws still scores 64.
-var goal = client.talGoalTotal;
+var goal = TP.goalTotal;
 var owned = 0;
 var perColour = {};
 var grandC = 0, grandR = 0, coloursDone = 0;
@@ -80,7 +81,7 @@ for (ci = 0; ci < t.colors.length; ci++) {
 var perColourGoal = t.reqCommon * t.commonTypes.length + t.reqRare;
 
 // Pace from the history, over the trailing seven days.
-var hs = client.talHist || [];
+var hs = TP.hist || [];
 var rate = 0, etaT = 0;
 if (hs.length >= 2) {
   var last = hs[hs.length - 1];
@@ -103,7 +104,7 @@ function rateTxt(r) { return r < 1 ? String(Math.round(r * 100) / 100) : String(
 function talChart(W, H, big) {
   var fs = Math.max(7, Math.min(10, Math.round(H * 0.08)));
   if (hs.length < 2) {
-    return quiet("Two or more data points are needed. One point is stored per hour in which your totals change; TALSEED backdates a starting point.");
+    return quiet("Two or more data points are needed. One point is stored per hour in which your totals change; TALPIECES SEED backdates a starting point.");
   }
   var first = hs[0];
   var lastP = hs[hs.length - 1];
@@ -238,7 +239,7 @@ grid += '</table>';
 grid += '<div style="color:' + MUTED + ';margin-top:3px;font-family:' + SERIF + ';font-style:italic;">64 of each common and 4 of each rare, per colour. Run your in-game talisman list to rebuild from the game.</div>';
 html += section("Pieces still needed", grid);
 
-if (client.talGraphOn) { html += section("Progress over time", talChart(640, client.talChartH, false)); }
+if (TP.graphOn) { html += section("Progress over time", talChart(640, TP.chartH, false)); }
 html += '</div>';
 
 try { set_custom_tab_html("Talismans", html); } catch (e) {}
@@ -248,7 +249,7 @@ try {
   var big = PANEL + header("TALISMANS", "progress toward " + thou(goal));
   big += headline();
   big += section("Progress over time", talChart(640, 300, true));
-  big += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal. Dashed: projection at the last seven days&rsquo; rate. TALRATE for figures, TALMARK to force a data point.</div>';
+  big += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal. Dashed: projection at the last seven days&rsquo; rate. TALPIECES RATE for figures, TALPIECES MARK to force a data point.</div>';
   big += '</div>';
   set_custom_tab_html("TalGraph", big);
 } catch (e) {}

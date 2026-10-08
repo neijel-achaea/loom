@@ -12,5 +12,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
   }
 }
 
-send_command("dtneed");
-send_command("talgraph on");
+run_function("talpieces_setup", [], "talpieces");
+run_function("talpieces_render", [], "talpieces");
