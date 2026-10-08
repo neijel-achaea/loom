@@ -1,0 +1,1 @@
+try { run_function("coffers_tick", [], "coffers"); } catch (e) {}
