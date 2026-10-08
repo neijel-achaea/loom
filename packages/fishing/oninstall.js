@@ -1,1 +1,2 @@
-// Place any code here you'd like to autorun when the package is installed
+run_function("fishing_setup", [], "fishing");
+display_notice("[fishing] installed. FISHING BAIT <bait>, then CL <direction>. FISHING HELP for commands.", "cyan");

@@ -1,1 +1,1 @@
-// Place any code here you'd like to autorun when the package is uninstalled
+// Nothing to tear down; the fishing_* variables are left intact.

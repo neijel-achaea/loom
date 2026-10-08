@@ -1,380 +1,425 @@
 {
-  "type": "group",
-  "name": "fishing",
-  "enabled": true,
-  "items": [
+ "type": "group",
+ "name": "fishing",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "@file:oninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "@file:onuninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "@file:onload.js"
+  },
+  {
+   "type": "group",
+   "name": "core",
+   "enabled": true,
+   "items": [
     {
-      "type": "function",
-      "name": "onInstall",
-      "enabled": true,
-      "code": "@file:oninstall.js"
+     "type": "function",
+     "name": "fishing_setup",
+     "enabled": true,
+     "code": "@file:fishing_setup.js"
     },
     {
-      "type": "function",
-      "name": "onUninstall",
-      "enabled": true,
-      "code": "@file:onuninstall.js"
+     "type": "function",
+     "name": "fishing_cast",
+     "enabled": true,
+     "code": "@file:fishing_cast.js"
     },
     {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_bait_w.js"
-        }
-      ],
-      "text": "^bait (\\w+)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
+     "type": "function",
+     "name": "fishing_help",
+     "enabled": true,
+     "code": "@file:fishing_help.js"
     },
     {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_cl_w.js"
-        }
-      ],
-      "text": "^cl (\\w+)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:alias_fishing.js"
+      }
+     ],
+     "text": "^fishing(?:\\s+(status|help|bait|cast|ding)(?:\\s+(.*?))?)?\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
     },
     {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_you_feel_a_fish_nibbling_on_your_hook.js"
-        },
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[1/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#fbff00",
-          "rewrite_bg": "#000000"
-        }
-      ],
-      "text": "^You feel a fish nibbling on your hook\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_strikes_at_your_bait.js"
-        },
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[1/4]",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#fbff00",
-          "rewrite_bg": "#000000"
-        }
-      ],
-      "text": "strikes at your bait",
-      "matching": "substring",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_you_feel_a_fish_make_a_small_strike_at.js"
-        },
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[2/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#c5ff00",
-          "rewrite_bg": "#000000"
-        }
-      ],
-      "text": "^You feel a fish make a small strike at your bait\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_you_see_the_water_ripple_as_a_fish.js"
-        },
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[2/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#c5ff00",
-          "rewrite_bg": "#000000"
-        }
-      ],
-      "text": "^You see the water ripple as a fish makes a medium strike at your bait\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_you_stagger_as_a_fish_makes_a_large.js"
-        },
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[2/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#c5ff00",
-          "rewrite_bg": "#000000"
-        }
-      ],
-      "text": "^You stagger as a fish makes a large strike at your bait\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_you_quickly_jerk_back_your_fishing_pole.js"
-        },
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[3/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#1bff00",
-          "rewrite_bg": "#000000"
-        }
-      ],
-      "text": "^You quickly jerk back your fishing pole and feel the line go taut\\.(.*)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_relaxing_the_tension_on_your_line_you.js"
-        }
-      ],
-      "text": "^Relaxing the tension on your line\\, you are able to reel again\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[4/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#00ffd7",
-          "rewrite_bg": "#000000"
-        },
-        {
-          "type": "sound",
-          "enabled": true,
-          "sound": "eagle"
-        }
-      ],
-      "text": "^With a final tug\\, you finish reeling in the line and land (.*)\\!$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[4/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#00ffd7",
-          "rewrite_bg": "#000000"
-        },
-        {
-          "type": "sound",
-          "enabled": true,
-          "sound": "eagle"
-        }
-      ],
-      "text": "^You reel in the last bit of line and your struggle is over\\.(.*)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_you_quickly_jerk_back_your_fishing_pole_2.js"
-        },
-        {
-          "type": "rewrite",
-          "enabled": true,
-          "rewrite_text_type": "value",
-          "rewrite_text": "[0/4] ",
-          "rewrite": "prefix",
-          "rewrite_backref": "",
-          "rewrite_colors": true,
-          "rewrite_fg": "#ff8f00",
-          "rewrite_bg": "#000000"
-        }
-      ],
-      "text": "^You quickly jerk back your fishing pole\\, but the hook pulls free of the fish\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fishing Record",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "highlight",
-          "enabled": true,
-          "highlight_fg": "#6998de",
-          "highlight_bg": "#000000",
-          "highlight": "match",
-          "highlight_backref": ""
-        },
-        {
-          "type": "sound",
-          "enabled": true,
-          "sound": "ding"
-        },
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fishing_record_2.js"
-        }
-      ],
-      "text": "You've just set a new record for this year for that catch!",
-      "matching": "substring",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "highlight",
-          "enabled": true,
-          "highlight_fg": "#48ff00",
-          "highlight_bg": "#000000",
-          "highlight": "match",
-          "highlight_backref": ""
-        }
-      ],
-      "text": "^The fish appear to be plentiful here\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "highlight",
-          "enabled": true,
-          "highlight_fg": "#ff6b00",
-          "highlight_bg": "#000000",
-          "highlight": "match",
-          "highlight_backref": ""
-        }
-      ],
-      "text": "^The fish appear to be fairly sparse here\\.$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:alias_cl.js"
+      }
+     ],
+     "text": "^cl\\s+(\\w+)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
     }
-  ],
-  "description": "Fishing reflexes"
+   ]
+  },
+  {
+   "type": "group",
+   "name": "line",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_nibble.js"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[1/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#fbff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You feel a fish nibbling on your hook\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_strike_other.js"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[1/4]",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#fbff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "strikes at your bait",
+     "matching": "substring",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_strike_small.js"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[2/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#c5ff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You feel a fish make a small strike at your bait\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_strike_medium.js"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[2/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#c5ff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You see the water ripple as a fish makes a medium strike at your bait\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_strike_large.js"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[2/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#c5ff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You stagger as a fish makes a large strike at your bait\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_hooked.js"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[3/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#1bff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You quickly jerk back your fishing pole and feel the line go taut\\.(.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_reel_again.js"
+      }
+     ],
+     "text": "^Relaxing the tension on your line\\, you are able to reel again\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[4/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#00ffd7",
+       "rewrite_bg": "#000000"
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "eagle"
+      }
+     ],
+     "text": "^With a final tug\\, you finish reeling in the line and land (.*)\\!$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[4/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#00ffd7",
+       "rewrite_bg": "#000000"
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "eagle"
+      }
+     ],
+     "text": "^You reel in the last bit of line and your struggle is over\\.(.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_hook_free.js"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[0/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#ff8f00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You quickly jerk back your fishing pole\\, but the hook pulls free of the fish\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#6998de",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "ding"
+      },
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_record.js"
+      }
+     ],
+     "text": "You've just set a new record for this year for that catch!",
+     "matching": "substring",
+     "whole_words": true,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "highlights",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#48ff00",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "^The fish appear to be plentiful here\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#ff6b00",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "^The fish appear to be fairly sparse here\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    }
+   ]
+  }
+ ],
+ "description": "Fishing automation: FISHING BAIT, then FISHING CAST or CL to bait and cast; teases, jerks and reels on the game's cues with stage markers. FISHING HELP for commands. Statistics live in fishingstats."
 }
