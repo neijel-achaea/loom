@@ -1,2 +1,2 @@
-client.stArgs = args[1] || "";
-run_function("st_cmd", [], "standings");
+client.loom.standings.args = args[1] || "";
+run_function("standings_cmd", [], "standings");

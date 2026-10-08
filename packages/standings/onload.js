@@ -12,5 +12,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
   }
 }
 
-run_function("st_ensure", [], "standings");
-run_function("st_render", [], "standings");
+run_function("standings_ensure", [], "standings");
+run_function("standings_render", [], "standings");

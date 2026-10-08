@@ -1,14 +1,14 @@
-// STN <words>. The alias stores the raw text in client.stArgs, since
+// STANDINGS <words>. The alias stores the raw text in client.loom.standings.args, since
 // run_function cannot pass parameters. "@tag" addresses an organisation.
-run_function("st_ensure", [], "standings");
-var F = client.stF;
-var DB = client.st.db;
-var raw = String(client.stArgs || "").replace(/^\s+|\s+$/g, "");
+run_function("standings_ensure", [], "standings");
+var F = client.loom.standings.F;
+var DB = client.loom.standings.db;
+var raw = String(client.loom.standings.args || "").replace(/^\s+|\s+$/g, "");
 var W = raw.length ? raw.split(/\s+/) : [];
 var now = Math.floor(new Date().getTime() / 1000);
 
 function say(t, c) { display_notice("[standings] " + t, c || "#c9b6e8"); }
-function render() { run_function("st_render", [], "standings"); }
+function render() { run_function("standings_render", [], "standings"); }
 function restOf(from) { return W.slice(from).join(" "); }
 // Get or create the entity for a name; organisations are keyed with "@".
 function ent(word, create) {
@@ -27,22 +27,17 @@ function record(e, step, note) {
   var b = F.band(e.s);
   if (step === 0) { say("noted for " + e.name + (ic ? " (" + F.icTxt(ic) + ")" : "") + ": " + (note || "")); }
   else { say(e.name + " " + F.steps(step) + ": " + F.signed(before) + " → " + F.signed(e.s) + " (" + b[1] + ")" + (note ? " — " + note : ""), b[2]); }
-  client.st.view = { k: kOf(e) };
+  client.loom.standings.view = { k: kOf(e) };
   render();
 }
 
 if (W.length === 0 || W[0].toLowerCase() === "home") {
-  client.st.view = null;
+  client.loom.standings.view = null;
   render();
   say("overview shown in the Standings tab.");
 }
 else if (W[0].toLowerCase() === "help") {
-  say("STN <name>: show them in the tab. STN @<tag>: an organisation.");
-  say("STN <name> + | ++ | +++ | - | -- | --- [note]: nudge, small to large.");
-  say("STN <name> note <text> | undo | tag <t> [t2..] | untag <t> | forget confirm");
-  say("STN <name> set <-10 to 10> [note]: place a standing outright, to catch up on the past.");
-  say("STN LIST [n] | TAGS | REVIEW | OK [nudge] [note] | SKIP | DEBUG | REBUILD");
-  say("Tags may be plain or typed: city:eleusis, house:sentaari, order:gaia.");
+  run_function("standings_help", [], "standings");
 }
 else if (W[0].toLowerCase() === "list") {
   var nl = Math.max(1, Math.min(100, parseInt(W[1], 10) || 15));
@@ -64,7 +59,7 @@ else if (W[0].toLowerCase() === "tags") {
   var names = [];
   for (var s2 in seen) { if (seen.hasOwnProperty(s2)) { names.push(s2); } }
   names.sort();
-  if (names.length === 0) { say("no tags yet. STN <name> TAG city:eleusis"); }
+  if (names.length === 0) { say("no tags yet. STANDINGS <name> TAG city:eleusis"); }
   for (var t3 = 0; t3 < names.length; t3++) {
     var av = F.tagAvg(names[t3]);
     display_notice("  " + names[t3] + ": " + F.signed(av.avg) + " (" + F.band(av.avg)[1] + ") over " + av.n + " people, " + av.w + " dealings", F.band(av.avg)[2]);
@@ -74,7 +69,7 @@ else if (W[0].toLowerCase() === "review" || W[0].toLowerCase() === "pending") {
   var P = DB.pending;
   if (P.length === 0) { say("nothing waiting for review."); }
   for (var p = 0; p < P.length; p++) { say((p === 0 ? "next: " : "then: ") + P[p].who + " — " + P[p].why + " (suggested " + F.steps(P[p].step) + ")"); }
-  if (P.length > 0) { say("STN OK to record the first as suggested, STN OK ++ to choose the size, STN SKIP to dismiss it."); }
+  if (P.length > 0) { say("STANDINGS OK to record the first as suggested, STANDINGS OK ++ to choose the size, STANDINGS SKIP to dismiss it."); }
 }
 else if (W[0].toLowerCase() === "ok") {
   var P1 = DB.pending;
@@ -93,9 +88,9 @@ else if (W[0].toLowerCase() === "skip") {
   else { var sk = DB.pending.shift(); F.save(); say("dismissed: " + sk.who + " — " + sk.why + "." + (DB.pending.length ? " " + DB.pending.length + " more waiting." : "")); render(); }
 }
 else if (W[0].toLowerCase() === "rebuild") {
-  client.stF = undefined;
-  run_function("st_ensure", [], "standings");
-  F = client.stF;
+  client.loom.standings.F = undefined;
+  run_function("standings_ensure", [], "standings");
+  F = client.loom.standings.F;
   // Recompute every standing with the fresh rules.
   for (var kr in DB.e) { if (DB.e.hasOwnProperty(kr)) { DB.e[kr].s = F.score(DB.e[kr].log || []); } }
   F.save();
@@ -105,8 +100,8 @@ else if (W[0].toLowerCase() === "rebuild") {
 else if (W[0].toLowerCase() === "debug") {
   var cnt = 0, orgs = 0;
   for (var k3 in DB.e) { if (DB.e.hasOwnProperty(k3)) { if (DB.e[k3].org) { orgs++; } else { cnt++; } } }
-  say(cnt + " people, " + orgs + " organisations, " + DB.pending.length + " pending; st_db is " + JSON.stringify(DB).length + " chars.");
-  say("IC day now: " + F.ic(now) + " (" + (F.icTxt(F.ic(now)) || "unknown") + "); Ledger " + (client.lg ? "loaded" : "not loaded") + "; social lists " + (client.hl ? "found" : "not found") + ".");
+  say(cnt + " people, " + orgs + " organisations, " + DB.pending.length + " pending; standings_db is " + JSON.stringify(DB).length + " chars.");
+  say("IC day now: " + F.ic(now) + " (" + (F.icTxt(F.ic(now)) || "unknown") + "); Ledger " + ((client.loom.ledger || client.lg) ? "loaded" : "not loaded") + "; social lists " + ((client.loom.social || client.hl) ? "found" : "not found") + ".");
 }
 else {
   var who = W[0];
@@ -118,7 +113,7 @@ else {
     // Catching up: place the standing at a value outright. It is logged like
     // any other entry, so UNDO takes it back and the record shows it.
     var sv = parseFloat(W[2]);
-    if (isNaN(sv) || sv < -10 || sv > 10) { say("usage: STN <name> SET <-10 to 10> [note], e.g. STN Oceana SET 5 known her for years", "orange"); }
+    if (isNaN(sv) || sv < -10 || sv > 10) { say("usage: STANDINGS <name> SET <-10 to 10> [note], e.g. STANDINGS Oceana SET 5 known her for years", "orange"); }
     else {
       var es = ent(who, true);
       var before = es.s;
@@ -128,12 +123,12 @@ else {
       F.save();
       var bs = F.band(es.s);
       say(es.name + " set: " + F.signed(before) + " → " + F.signed(es.s) + " (" + bs[1] + ")" + (restOf(3) ? " — " + restOf(3) : ""), bs[2]);
-      client.st.view = { k: kOf(es) };
+      client.loom.standings.view = { k: kOf(es) };
       render();
     }
   }
   else if (verb === "note") {
-    if (W.length < 3) { say("usage: STN <name> NOTE <text>", "orange"); }
+    if (W.length < 3) { say("usage: STANDINGS <name> NOTE <text>", "orange"); }
     else { record(ent(who, true), 0, restOf(2)); }
   }
   else if (verb === "undo") {
@@ -144,12 +139,12 @@ else {
       eu.s = F.score(eu.log);
       F.save();
       say("removed " + (gone.length > 4 ? "set " + F.signed(gone[4]) : F.steps(gone[2])) + (gone[3] ? " (" + gone[3] + ")" : "") + " from " + eu.name + "; now " + F.signed(eu.s) + ".");
-      client.st.view = { k: kOf(eu) };
+      client.loom.standings.view = { k: kOf(eu) };
       render();
     }
   }
   else if (verb === "tag" || verb === "untag") {
-    if (W.length < 3) { say("usage: STN <name> " + verb.toUpperCase() + " <tag> [more tags]", "orange"); }
+    if (W.length < 3) { say("usage: STANDINGS <name> " + verb.toUpperCase() + " <tag> [more tags]", "orange"); }
     else {
       var et = ent(who, verb === "tag");
       if (!et) { say(who + " is not on the books.", "orange"); }
@@ -164,7 +159,7 @@ else {
         }
         F.save();
         say(et.name + " tags: " + (et.tags.length ? et.tags.join(", ") : "none") + ".");
-        client.st.view = { k: kOf(et) };
+        client.loom.standings.view = { k: kOf(et) };
         render();
       }
     }
@@ -172,19 +167,19 @@ else {
   else if (verb === "forget") {
     var ef = ent(who, false);
     if (!ef) { say(who + " is not on the books.", "orange"); }
-    else if ((W[2] || "").toLowerCase() !== "confirm") { say("this erases " + ef.name + "'s whole history. STN " + who.toUpperCase() + " FORGET CONFIRM to proceed.", "orange"); }
-    else { delete DB.e[kOf(ef)]; F.save(); client.st.view = null; say(ef.name + " has been struck from the books."); render(); }
+    else if ((W[2] || "").toLowerCase() !== "confirm") { say("this erases " + ef.name + "'s whole history. STANDINGS " + who.toUpperCase() + " FORGET CONFIRM to proceed.", "orange"); }
+    else { delete DB.e[kOf(ef)]; F.save(); client.loom.standings.view = null; say(ef.name + " has been struck from the books."); render(); }
   }
   else if (verb === "") {
     var ev = ent(who, false);
     if (!ev && who.charAt(0) !== "@") { say(who + " is not on the books yet; they stand at Neutral. A first nudge or note will add them."); }
     else {
       var kv = ev ? kOf(ev) : "@" + who.slice(1).toLowerCase();
-      client.st.view = { k: kv };
+      client.loom.standings.view = { k: kv };
       render();
       if (ev && !ev.org) { var bv = F.band(ev.s); say(ev.name + ": " + F.signed(ev.s) + " (" + bv[1] + "), " + F.dealings(ev) + (F.dealings(ev) === 1 ? " dealing" : " dealings") + ". Details in the Standings tab.", bv[2]); }
       else { var tv = F.tagAvg(kv.slice(1)); say(kv + ": members average " + F.signed(tv.avg) + " over " + tv.n + " people" + (ev ? ", direct standing " + F.signed(ev.s) : "") + ". Details in the Standings tab."); }
     }
   }
-  else { say("did not understand '" + W[1] + "'. STN HELP lists the forms.", "orange"); }
+  else { say("did not understand '" + W[1] + "'. STANDINGS HELP lists the forms.", "orange"); }
 }
