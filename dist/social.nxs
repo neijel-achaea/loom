@@ -104,7 +104,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "// \"Enemies of <your city>:\" -- start replacing the enemies list with the\n// names that follow, up to \"Total: n\". Only for your own city (from GMCP).\nif (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nif (S.city && args[1].toLowerCase().indexOf(S.city) >= 0) {\n  S.loadEnemies = {};\n}\n"
+     "script": "// \"Enemies of <your city>:\" -- start replacing the enemies list with the\n// names that follow, up to \"Total: n\". Only your own city's list (city from\n// GMCP); house, order or other cities' lists are left alone.\nif (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\n// Cities whose list header doesn't carry the city's name.\nvar soHeaders = { cyrene: \"thalassan empire\" };\nvar soHead = args[1].toLowerCase();\nvar soMine = S.city && (soHead.indexOf(S.city) >= 0 || (soHeaders[S.city] && soHead.indexOf(soHeaders[S.city]) >= 0));\nif (soMine) {\n  S.loadEnemies = {};\n} else if (S.debug) {\n  display_notice(\"[social] enemies list not loaded: '\" + args[1] + \"' isn't \" + (S.city || \"your city (none known yet)\") + \".\", \"cyan\");\n}\n"
     }
    ],
    "text": "^Enemies of (.+):",
