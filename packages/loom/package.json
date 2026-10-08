@@ -668,5 +668,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Generic alias and triggers that don't fit any specific packages"
+  "description": "The Loom suite package: LOOM lists the packages loaded with their versions and sets the shared pause and debug flags. Also the QUIT wrapper, sleep and meditation pausing, and assorted highlights and gags. LOOM HELP for commands."
 }

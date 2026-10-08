@@ -1,0 +1,12 @@
+var C = "cyan";
+display_notice("[sigils] monolith and flame sigil watcher. Commands:", C);
+display_notice("  SIGILS                    status", C);
+display_notice("  SIGILS WATCH [ON|OFF]     probe the monolith in every room you enter", C);
+display_notice("  SIGILS REPORT             rooms under the threshold, with estimated cost", C);
+display_notice("  SIGILS CHECK              probe this room once", C);
+display_notice("  SIGILS IGNORE [HERE|id]   skip a room (no argument: list ignored rooms)", C);
+display_notice("  SIGILS UNIGNORE HERE|id   watch a room again", C);
+display_notice("  SIGILS THRESHOLD [n]      flag sigils with fewer than n months left", C);
+display_notice("  SIGILS COST [MONOLITH|FLAME n]   prices used in the report", C);
+display_notice("  SIGILS CLEAR              wipe the flagged list", C);
+display_notice("  SIGILS RESET / DEBUG", C);
