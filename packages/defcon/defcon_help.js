@@ -1,0 +1,10 @@
+var C = "cyan";
+display_notice("[defcon] defence readiness: one level, five tiers. Commands:", C);
+display_notice("  DEFCON                 status", C);
+display_notice("  DEFCON 1-5             keep defences of that tier and above in curing (5 = fewest, 1 = all)", C);
+display_notice("  DEFCON UP              raise your class's defences now", C);
+display_notice("  DEFCON LIST            defences per tier for your class, with curing priority", C);
+display_notice("  DEFCON AUTOUP ON|OFF   DEFCON UP when you log in", C);
+display_notice("  DEFCON ON|OFF          the game's defence upkeep (CURING DEFENCES ON/OFF)", C);
+display_notice("  DEFCON DEBUG", C);
+display_notice("  Classes set up: Druid, Magi, Sylvan, dragonform. Others get the general defences.", C);

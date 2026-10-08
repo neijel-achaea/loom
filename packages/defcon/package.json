@@ -1,6 +1,6 @@
 {
   "type": "group",
-  "name": "defences",
+  "name": "defcon",
   "enabled": true,
   "items": [
     {
@@ -23,15 +23,27 @@
     },
     {
       "type": "function",
-      "name": "defon",
+      "name": "onGMCP",
       "enabled": true,
-      "code": "@file:defon.js"
+      "code": "@file:ongmcp.js"
     },
     {
       "type": "function",
-      "name": "defoff",
+      "name": "defcon_setup",
       "enabled": true,
-      "code": "@file:defoff.js"
+      "code": "@file:defcon_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "defcon_table",
+      "enabled": true,
+      "code": "@file:defcon_table.js"
+    },
+    {
+      "type": "function",
+      "name": "defcon_up",
+      "enabled": true,
+      "code": "@file:defcon_up.js"
     },
     {
       "type": "function",
@@ -46,21 +58,16 @@
       "code": "@file:defcon_drain.js"
     },
     {
-      "type": "alias",
-      "name": "",
+      "type": "function",
+      "name": "defcon_help",
       "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_initdef.js"
-        }
-      ],
-      "text": "^initdef$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
+      "code": "@file:defcon_help.js"
+    },
+    {
+      "type": "function",
+      "name": "defcon_status",
+      "enabled": true,
+      "code": "@file:defcon_status.js"
     },
     {
       "type": "alias",
@@ -70,13 +77,13 @@
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:alias_defcon_s_1_5.js"
+          "script": "@file:alias_defcon.js"
         }
       ],
-      "text": "^defcon(?:\\s+([1-5]))?$",
+      "text": "^defcon(?:\\s+(.*))?$",
       "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
+      "whole_words": false,
+      "case_sensitive": false,
       "prefix_suffix": true
     },
     {
@@ -85,21 +92,14 @@
       "enabled": true,
       "actions": [
         {
-          "type": "command",
+          "type": "script",
           "enabled": true,
-          "command": "outr pear",
-          "prefix_suffix": false
-        },
-        {
-          "type": "command",
-          "enabled": true,
-          "command": "eat pear",
-          "prefix_suffix": false
+          "script": "@file:trigger_choke.js"
         }
       ],
       "text": "You choke as you inhale water.",
       "matching": "substring",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     },
     {
@@ -118,7 +118,7 @@
       ],
       "text": "fades from view and disappears.",
       "matching": "substring",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     },
     {
@@ -137,7 +137,7 @@
       ],
       "text": "You have writhed free of your state of transfixation.",
       "matching": "substring",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     },
     {
@@ -156,7 +156,7 @@
       ],
       "text": "You are no longer stunned.",
       "matching": "substring",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     },
     {
@@ -175,7 +175,7 @@
       ],
       "text": "You have writhed free of your entanglement by webs.",
       "matching": "substring",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     },
     {
@@ -184,15 +184,14 @@
       "enabled": true,
       "actions": [
         {
-          "type": "command",
+          "type": "script",
           "enabled": true,
-          "command": "flail staff",
-          "prefix_suffix": false
+          "script": "@file:trigger_quarterstaff.js"
         }
       ],
-      "text": "^You start to wield a wyvern-etched druidic quarterstaff in your hands\\.$",
+      "text": "^You start to wield .+ quarterstaff in your hands\\.$",
       "matching": "regexp",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     },
     {
@@ -207,7 +206,7 @@
       ],
       "text": "^You have set the '.*' defence to the \\d+ priority\\.$",
       "matching": "regexp",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     },
     {
@@ -216,15 +215,14 @@
       "enabled": true,
       "actions": [
         {
-          "type": "command",
+          "type": "script",
           "enabled": true,
-          "command": "insomnia",
-          "prefix_suffix": false
+          "script": "@file:trigger_insomnia.js"
         }
       ],
       "text": "^Your insomnia has cleared up\\.$",
       "matching": "regexp",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     }
   ],
