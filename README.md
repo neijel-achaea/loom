@@ -18,7 +18,7 @@ their tab its own icon.
 | **civic** | — | City duties for any city, one ministry at a time. Ambassador aide: `CIVIC AIDE ON/OFF`, `CIVIC GREET <name> [CT\|CLT]`, aide title and novice clan per city (pre-filled for Eleusis), lesson requests accepted except from enemies. `CIVIC HELP`. Replaces **eleusis**. |
 | **coffers** | Coffers | Gold tracker: fortune (purse + bank), income and spending per session and per day, wealth ranks, records, a goal, charts. `COFFERS HELP`. |
 | **conjuration** | — | `CONJURE <sigil>`: runs the full creation ritual for the sigils currently known. |
-| **crystalism** | — | `AUTOREFINE [n]` levels crystal shapes evenly from stored facets; pearl pickup; a sonic portal on request for city members; pauses triggers while attuning to the Master Crystal. |
+| **crystalism** | — | `CRYSTALISM REFINE [n]` levels crystal shapes evenly from stored facets; pearl pickup (`CRYSTALISM PEARLS ON/OFF`); a sonic portal for city members who ask with "Gate." (`CRYSTALISM PORTAL ON/OFF`); pauses triggers while attuning to the Master Crystal. `CRYSTALISM HELP`. Reads **social**'s city list if present. |
 | **defcon** | — | Defence readiness for any class. `DEFCON 1-5` keeps the defences of that tier and above in curing (per-class tables for Druid, Magi, Sylvan and dragonform; general defences for other classes), `DEFCON UP` raises your class defences (automatically on login, `DEFCON AUTOUP OFF` to stop), `DEFCON LIST`, `DEFCON ON/OFF` (the game's defence upkeep); insomnia upkeep, pear when choking underwater, status highlights. `DEFCON HELP`. Replaces **defences**. Reads nothing from other packages. |
 | **dmgchart** | DmgChart | Damage dealt and taken by type per fight, as donuts with dps; exchange stats; recorded sessions. `DMGCHART`. |
 | **elementalism** | — | Illusions: `ILLUSION`, `FEEL_<environment>` (desert, forest, …), and step-by-step set pieces (`PINK_DRAGON`, `KAWHEDRAGON_F/M <target> <step>`). |
@@ -50,7 +50,7 @@ The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a 
 
 - **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social**, and adds new citizens to its city list, only when it's installed.
 - **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
-- **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
+- **vision** and **standings** read the lists of **social** (`client.hl`); **crystalism** reads `client.loom.social`.
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
 - **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
