@@ -7,7 +7,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"social_setup\", [], \"social\");\ndisplay_notice(\"[social] installed. SOCIAL HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
@@ -17,9 +17,51 @@
   },
   {
    "type": "function",
-   "name": "hlinit",
+   "name": "onLoad",
    "enabled": true,
-   "code": "if (!client.hl) {\n  client.hl = {\n    groups: [\"family\", \"enemies\", \"order\", \"house\", \"city\", \"allies\", \"friends\"],   // priority order\n    color:  {\n      family:  \"#30c4ff\",\n      enemies: \"#ff5f5f\",\n      order:   \"#e0b8ff\",\n      house:   \"#b8ff29\",\n      city:    \"#27f5c5\",\n      allies:  \"#ff9f4f\",\n      friends: \"#ffd77f\"\n    },\n    vari:   {\n      family:  \"hlFamily\",\n      enemies: \"hlEnemies\",\n      order:   \"hlOrder\",\n      house:   \"hlHouse\",\n      city:    \"hlCity\",\n      allies:  \"hlAllies\",\n      friends: \"hlFriends\"\n    },\n    re: /[A-Z][a-z]+/g\n  };\n  client.hl.defColor = {};                         // <-- holds the hardcoded defaults\n  client.hl.groups.forEach(function (g) {\n    client.hl.defColor[g] = client.hl.color[g];    // <-- snapshot default before any override\n\n    client.hl[g] = {};\n    (get_variable(client.hl.vari[g]) || \"\").split(\",\").forEach(function (n) {\n      n = n.trim();\n      if (n.length) client.hl[g][n] = true;\n    });\n\n    var savedColor = get_variable(\"hlColor_\" + g);\n    if (savedColor && savedColor.length) client.hl.color[g] = savedColor;\n  });\n  client.hl.save = function (g) {\n    set_variable(client.hl.vari[g], Object.keys(client.hl[g]).join(\",\"));\n  };\n}"
+   "code": "run_function(\"social_setup\", [], \"social\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// Own name (Char.Name) for highlighting, city (Char.Status) for the enemies list.\nif (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nif (args.gmcp_method == \"Char.Name\" && args.gmcp_args.name) {\n  S.me = String(args.gmcp_args.name).toLowerCase();\n}\nif (args.gmcp_method == \"Char.Status\") {\n  if (args.gmcp_args.name) S.me = String(args.gmcp_args.name).toLowerCase();\n  if (args.gmcp_args.city !== undefined) S.city = String(args.gmcp_args.city).replace(/\\s*\\(.*\\)\\s*$/, \"\").toLowerCase();\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "social_setup",
+   "enabled": true,
+   "code": "// social_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, migration, lists, watchlist.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.social) client.loom.social = {};\nclient.loom.registry.social = { version: \"0.2.0\", keyword: \"SOCIAL\" };\nvar S = client.loom.social;\n\n// Groups in priority order: a name in two groups takes the colour of the first.\nS.groups = [\"family\", \"enemies\", \"order\", \"house\", \"city\", \"allies\", \"friends\"];\nS.defColor = { family: \"#30c4ff\", enemies: \"#ff5f5f\", order: \"#e0b8ff\", house: \"#b8ff29\", city: \"#27f5c5\", allies: \"#ff9f4f\", friends: \"#ffd77f\", self: \"#fdff4d\" };\n\n// One-time migration from the hl*/wl* variables, then cleared.\nvar soOldVar = { family: \"hlFamily\", enemies: \"hlEnemies\", order: \"hlOrder\", house: \"hlHouse\", city: \"hlCity\", allies: \"hlAllies\", friends: \"hlFriends\" };\nvar soLists = get_variable(\"social_lists\");\nvar soColors = get_variable(\"social_colors\");\nvar soMig = false;\nif (!soLists) {\n  soLists = {};\n  for (var soI = 0; soI < S.groups.length; soI++) {\n    var soG = S.groups[soI];\n    var soRaw = get_variable(soOldVar[soG]);\n    soLists[soG] = soRaw ? String(soRaw) : \"\";\n    if (soRaw !== null && soRaw !== undefined) { delete_variable(soOldVar[soG]); soMig = true; }\n  }\n  set_variable(\"social_lists\", soLists);\n}\nif (!soColors) {\n  soColors = {};\n  for (var soJ = 0; soJ < S.groups.length; soJ++) {\n    var soC = get_variable(\"hlColor_\" + S.groups[soJ]);\n    if (soC && soC != S.defColor[S.groups[soJ]]) soColors[S.groups[soJ]] = soC;\n    if (soC !== null && soC !== undefined) delete_variable(\"hlColor_\" + S.groups[soJ]);\n  }\n  set_variable(\"social_colors\", soColors);\n}\nvar soWlOld = [[\"wlEnabled\", \"social_poll\"], [\"wlDebug\", \"social_debug\"], [\"wlWatch\", \"social_watch\"]];\nfor (var soK = 0; soK < soWlOld.length; soK++) {\n  var soOv = get_variable(soWlOld[soK][0]);\n  if (soOv === null || soOv === undefined) continue;\n  var soNv = get_variable(soWlOld[soK][1]);\n  if (soNv === null || soNv === undefined) {\n    if (soWlOld[soK][0] == \"wlWatch\") set_variable(\"social_watch\", String(soOv));\n    else set_variable(soWlOld[soK][1], String(soOv) === \"1\" ? \"on\" : \"off\");\n  }\n  delete_variable(soWlOld[soK][0]);\n}\nif (!get_variable(\"social_poll\")) set_variable(\"social_poll\", \"on\");\nif (!get_variable(\"social_debug\")) set_variable(\"social_debug\", \"off\");\nif (get_variable(\"social_watch\") === null || get_variable(\"social_watch\") === undefined) set_variable(\"social_watch\", S.groups.join(\",\"));\nif (soMig) display_notice(\"[social] lists carried over from the hl* variables.\", \"cyan\");\n\n// Lists: S.lists[group] = { lowercasename: true }. Kept as the same objects\n// across re-setups so readers holding a reference stay current.\nif (!S.lists) S.lists = {};\nfor (var soL = 0; soL < S.groups.length; soL++) {\n  var soGr = S.groups[soL];\n  S.lists[soGr] = S.lists[soGr] || {};\n  for (var soKey in S.lists[soGr]) delete S.lists[soGr][soKey];\n  var soNames = String(soLists[soGr] || \"\").split(\",\");\n  for (var soN = 0; soN < soNames.length; soN++) {\n    var soNm = soNames[soN].trim().toLowerCase();\n    if (soNm.length) S.lists[soGr][soNm] = true;\n  }\n}\nS.color = {};\nfor (var soCk in S.defColor) S.color[soCk] = soColors[soCk] || S.defColor[soCk];\n\n// Watchlist (online/offline notices for listed names, from polling QW).\nS.watch = {};\nvar soW = String(get_variable(\"social_watch\") || \"\").split(\",\");\nfor (var soWi = 0; soWi < soW.length; soWi++) { if (soW[soWi].trim()) S.watch[soW[soWi].trim()] = true; }\nS.debug = get_variable(\"social_debug\") == \"on\";\nS.interval = 5000;\nif (S.prev === undefined) S.prev = null;\nS.capturing = false;\nS.buf = [];\nif (!S.lastCount) S.lastCount = 0;\nS.reNames = /^[A-Z][a-z]+(?:,\\s*[A-Z][a-z]+)*(?:,?\\s*and\\s+[A-Z][a-z]+)?\\.?$/;\nS.reFooter = /^Plus another \\d+/;\nS.reWord = /[A-Z][a-z]+/g;\nif (S.timer) clearInterval(S.timer);\nS.timer = setInterval(function () { run_function(\"social_poll\", [], \"social\"); }, S.interval);\n\n// LEGACY: packages that haven't had their v0.2 pass read client.hl\n// (client.hl.groups, client.hl.color, client.hl[group]). Same objects, so\n// changes show up there too. Removed once no package reads it.\nclient.hl = { groups: S.groups, color: S.color };\nfor (var soH = 0; soH < S.groups.length; soH++) client.hl[S.groups[soH]] = S.lists[S.groups[soH]];\n"
+  },
+  {
+   "type": "function",
+   "name": "social_save",
+   "enabled": true,
+   "code": "// social_save -- writes the lists and the non-default colours.\nvar S = client.loom.social;\nvar soOut = {};\nfor (var soI = 0; soI < S.groups.length; soI++) soOut[S.groups[soI]] = Object.keys(S.lists[S.groups[soI]]).sort().join(\",\");\nset_variable(\"social_lists\", soOut);\nvar soCol = {};\nfor (var soC in S.color) { if (S.color[soC] != S.defColor[soC]) soCol[soC] = S.color[soC]; }\nset_variable(\"social_colors\", soCol);\nvar soW = [];\nfor (var soJ = 0; soJ < S.groups.length; soJ++) { if (S.watch[S.groups[soJ]]) soW.push(S.groups[soJ]); }\nset_variable(\"social_watch\", soW.join(\",\"));\n"
+  },
+  {
+   "type": "function",
+   "name": "social_poll",
+   "enabled": true,
+   "code": "// social_poll -- every 5s: send QW and capture its lines (trigger_qw).\nvar S = client.loom.social;\nif (S && (get_variable(\"social_poll\") == \"on\" || S.reportOnce) && get_variable(\"pauseTriggers\") != \"on\") {\n  if (S.debug) display_notice(\"[social] tick -> qw\", \"cyan\");\n  S.buf = [];\n  S.capturing = true;\n  clearTimeout(S.safetyT);\n  S.safetyT = setTimeout(function () { run_function(\"social_flush\", [], \"social\"); }, 1500);\n  send_command(\"qw\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "social_flush",
+   "enabled": true,
+   "code": "// social_flush -- end of a QW capture: compare with the previous set and\n// announce watched names that came online or went offline.\nvar S = client.loom.social;\nS.capturing = false;\nclearTimeout(S.safetyT);\nclearTimeout(S.flushT);\nvar soText = S.buf.join(\" \").replace(/Plus another[\\s\\S]*$/, \"\").replace(/\\[([^\\]]+)\\]\\([^)]*\\)/g, \"$1\");\nS.buf = [];\nvar soParts = soText.split(/,|\\band\\b/);\nvar soNames = [];\nfor (var soI = 0; soI < soParts.length; soI++) {\n  var soS = soParts[soI].replace(/[^A-Za-z]/g, \"\");\n  if (/^[A-Z][a-z]+$/.test(soS)) soNames.push(soS.toLowerCase());\n}\nS.lastCount = soNames.length;\nif (!soNames.length) {\n  if (S.reportOnce) { display_notice(\"[social] poll returned no names (kept the previous set).\", \"cyan\"); S.reportOnce = false; }\n} else {\n  var soNow = {};\n  for (var soJ = 0; soJ < soNames.length; soJ++) soNow[soNames[soJ]] = true;\n  var soUp = 0, soDown = 0, soPrimed = false;\n  if (S.prev === null) {\n    soPrimed = true;\n  } else {\n    // name -> colour of its highest-priority watched group\n    var soIdx = {};\n    for (var soG = 0; soG < S.groups.length; soG++) {\n      var soGr = S.groups[soG];\n      if (!S.watch[soGr]) continue;\n      for (var soN in S.lists[soGr]) { if (!soIdx[soN]) soIdx[soN] = S.color[soGr]; }\n    }\n    for (var soA in soNow) {\n      if (!S.prev[soA]) { soUp++; if (soIdx[soA]) display_notice(\"[social] \" + soA.charAt(0).toUpperCase() + soA.slice(1) + \" has awoken.\", soIdx[soA]); }\n    }\n    for (var soB in S.prev) {\n      if (!soNow[soB]) { soDown++; if (soIdx[soB]) display_notice(\"[social] \" + soB.charAt(0).toUpperCase() + soB.slice(1) + \" has drifted into slumber.\", soIdx[soB]); }\n    }\n  }\n  S.prev = soNow;\n  if (S.reportOnce || S.debug) {\n    display_notice(soPrimed ? \"[social] primed with \" + soNames.length + \" names.\" : \"[social] poll: \" + soUp + \" new, \" + soDown + \" gone (\" + soNames.length + \" online).\", \"cyan\");\n    S.reportOnce = false;\n  }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "social_status",
+   "enabled": true,
+   "code": "if (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nvar soCounts = [];\nvar soWatch = [];\nfor (var soI = 0; soI < S.groups.length; soI++) {\n  soCounts.push(S.groups[soI] + \" \" + Object.keys(S.lists[S.groups[soI]]).length);\n  if (S.watch[S.groups[soI]]) soWatch.push(S.groups[soI]);\n}\ndisplay_notice(\"[social] lists: \" + soCounts.join(\", \") + \".\", \"cyan\");\ndisplay_notice(\"[social] polling \" + String(get_variable(\"social_poll\")).toUpperCase()\n  + (S.prev ? \" (\" + Object.keys(S.prev).length + \" online)\" : \" (not primed yet)\")\n  + \", watching \" + (soWatch.length ? soWatch.join(\", \") : \"nothing\") + \". SOCIAL HELP for commands.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "social_help",
+   "enabled": true,
+   "code": "// social_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[social] name highlighting by group, and online/offline notices for the names you watch. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"SOCIAL\", \"status: list sizes, polling, watched groups\"],\n  [\"SOCIAL ADD <group> <name>\", \"add a name to a group\"],\n  [\"SOCIAL DEL <group> <name>\", \"remove it\"],\n  [\"SOCIAL LIST [group]\", \"names in a group (no group: counts)\"],\n  [\"SOCIAL COLOR <group|self> [#rrggbb]\", \"highlight colour (no colour: back to the default)\"],\n  [\"SOCIAL WATCH [group]\", \"announce when that group's names log in or out (no group: show)\"],\n  [\"SOCIAL UNWATCH <group>\", \"stop announcing it\"],\n  [\"SOCIAL POLL ON|OFF|NOW\", \"the QW poll behind the announcements (every 5s)\"],\n  [\"SOCIAL RESET\", \"reload the lists, re-prime the watchlist\"],\n  [\"SOCIAL DEBUG [ON|OFF]\", \"internal state; ON shows each poll\"],\n  [\"Groups, highest priority first: family, enemies, order, house, city, allies, friends.\"],\n  [\"Your city's enemies list reloads itself whenever the game shows it (e.g. CITY ENEMIES).\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
   },
   {
    "type": "alias",
@@ -29,150 +71,45 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "// ---- hlsetup: build the system directly, no run_function ----\nvar groups = [\"family\",\"enemies\",\"order\",\"house\",\"city\",\"allies\",\"friends\"];\nvar defColor = { family:\"#30c4ff\", enemies:\"#ff5f5f\", order:\"#e0b8ff\", house:\"#b8ff29\", city:\"#27f5c5\", allies:\"#ff9f4f\", friends:\"#ffd77f\" };\nvar vari = { family:\"hlFamily\", enemies:\"hlEnemies\", order:\"hlOrder\", house:\"hlHouse\", city:\"hlCity\", allies:\"hlAllies\", friends:\"hlFriends\" };\n\nclient.hl = { groups: groups, color: {}, vari: vari, defColor: {}, re: /[A-Z][a-z]+/g };\ngroups.forEach(function (g) {\n  client.hl.defColor[g] = defColor[g];\n  var saved = get_variable(\"hlColor_\" + g);\n  if (!saved || !saved.length) { set_variable(\"hlColor_\" + g, defColor[g]); saved = defColor[g]; }\n  client.hl.color[g] = saved;\n  client.hl[g] = {};\n  (get_variable(vari[g]) || \"\").split(\",\").forEach(function (n) {\n    n = n.trim(); if (n.length) client.hl[g][n] = true;\n  });\n});\nclient.hl.save = function (g) { set_variable(client.hl.vari[g], Object.keys(client.hl[g]).join(\",\")); };\n\ndisplay_notice(\"[social] ready - groups: \" + groups.join(\", \"), \"cyan\");"
+     "script": "// SOCIAL [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nvar soW = String(args[1] || \"\").trim().toLowerCase().split(/\\s+/);\nvar soSub = soW[0];\nvar C = \"cyan\";\nvar soGroup = soW[1] || \"\";\nvar soIsGroup = S.lists[soGroup] !== undefined;\n\nif (soSub === \"\" || soSub === \"status\") {\n  run_function(\"social_status\", [], \"social\");\n} else if (soSub === \"help\") {\n  run_function(\"social_help\", [], \"social\");\n} else if ((soSub === \"add\" || soSub === \"del\") && soW.length == 3) {\n  if (!soIsGroup) {\n    display_notice(\"[social] no group '\" + soGroup + \"'. Groups: \" + S.groups.join(\", \") + \".\", \"orange\");\n  } else if (soSub === \"add\") {\n    S.lists[soGroup][soW[2]] = true;\n    run_function(\"social_save\", [], \"social\");\n    display_notice(\"[social] +\" + soW[2] + \" -> \" + soGroup, S.color[soGroup]);\n  } else if (S.lists[soGroup][soW[2]]) {\n    delete S.lists[soGroup][soW[2]];\n    run_function(\"social_save\", [], \"social\");\n    display_notice(\"[social] -\" + soW[2] + \" from \" + soGroup, C);\n  } else {\n    display_notice(\"[social] \" + soW[2] + \" is not in \" + soGroup + \".\", \"orange\");\n  }\n} else if (soSub === \"list\") {\n  if (soGroup === \"\") {\n    for (var soI = 0; soI < S.groups.length; soI++) display_notice(\"  \" + S.groups[soI] + \": \" + Object.keys(S.lists[S.groups[soI]]).length, S.color[S.groups[soI]]);\n  } else if (!soIsGroup) {\n    display_notice(\"[social] no group '\" + soGroup + \"'.\", \"orange\");\n  } else {\n    var soNames = Object.keys(S.lists[soGroup]).sort();\n    display_notice(\"[social] \" + soGroup + \" (\" + soNames.length + \"): \" + (soNames.length ? soNames.join(\", \") : \"empty\"), S.color[soGroup]);\n  }\n} else if (soSub === \"color\" || soSub === \"colour\") {\n  if (S.defColor[soGroup] === undefined) {\n    display_notice(\"[social] SOCIAL COLOR <group|self> [#rrggbb] (no colour: back to the default).\", \"orange\");\n  } else if (soW[2] && /^#[0-9a-f]{6}$/.test(soW[2])) {\n    S.color[soGroup] = soW[2];\n    run_function(\"social_save\", [], \"social\");\n    display_notice(\"[social] \" + soGroup + \" colour \" + soW[2] + \".\", soW[2]);\n  } else if (!soW[2]) {\n    S.color[soGroup] = S.defColor[soGroup];\n    run_function(\"social_save\", [], \"social\");\n    display_notice(\"[social] \" + soGroup + \" colour back to \" + S.defColor[soGroup] + \".\", S.defColor[soGroup]);\n  } else {\n    display_notice(\"[social] colours are #rrggbb, e.g. #ff9f4f.\", \"orange\");\n  }\n} else if (soSub === \"watch\" || soSub === \"unwatch\") {\n  if (soGroup === \"\") {\n    var soOn = [], soOff = [];\n    for (var soJ = 0; soJ < S.groups.length; soJ++) { if (S.watch[S.groups[soJ]]) soOn.push(S.groups[soJ]); else soOff.push(S.groups[soJ]); }\n    display_notice(\"[social] watching (priority order): \" + (soOn.length ? soOn.join(\", \") : \"none\") + \"; not watching: \" + (soOff.length ? soOff.join(\", \") : \"none\") + \".\", C);\n  } else if (!soIsGroup) {\n    display_notice(\"[social] no group '\" + soGroup + \"'.\", \"orange\");\n  } else {\n    S.watch[soGroup] = (soSub === \"watch\");\n    run_function(\"social_save\", [], \"social\");\n    display_notice(\"[social] \" + (S.watch[soGroup] ? \"now watching \" : \"no longer watching \") + soGroup + \".\", C);\n  }\n} else if (soSub === \"poll\") {\n  if (soGroup === \"on\" || soGroup === \"off\") {\n    set_variable(\"social_poll\", soGroup);\n    display_notice(\"[social] polling \" + soGroup.toUpperCase() + \".\", C);\n  } else if (soGroup === \"now\") {\n    S.reportOnce = true;\n    run_function(\"social_poll\", [], \"social\");\n  } else {\n    display_notice(\"[social] polling is \" + String(get_variable(\"social_poll\")).toUpperCase() + \". SOCIAL POLL ON|OFF|NOW.\", C);\n  }\n} else if (soSub === \"debug\") {\n  if (soGroup === \"on\" || soGroup === \"off\") {\n    S.debug = (soGroup === \"on\");\n    set_variable(\"social_debug\", soGroup);\n  }\n  display_notice(\"[social] debug \" + (S.debug ? \"ON\" : \"OFF\") + \" | me \" + S.me + \" | city \" + S.city + \" | primed \" + (S.prev ? Object.keys(S.prev).length : \"no\") + \" | last count \" + S.lastCount + \" | timer \" + (S.timer ? \"set\" : \"none\"), C);\n} else if (soSub === \"reset\") {\n  S.prev = null;\n  run_function(\"social_setup\", [], \"social\");\n  display_notice(\"[social] reset: lists reloaded, watchlist re-primes on the next poll.\", C);\n} else {\n  display_notice(\"[social] unknown command '\" + soSub + \"'. SOCIAL HELP for commands.\", \"orange\");\n}\n"
     }
    ],
-   "text": "^hlsetup$",
+   "text": "^social(?:\\s+(.*))?$",
    "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var g = args[1].toLowerCase(), n = args[2].toLowerCase();\nif (client.hl[g]) { client.hl[g][n] = true; client.hl.save(g); display_notice(\"[social] +\" + n + \" -> \" + g, \"cyan\"); }\nelse display_notice(\"[social] no group: \" + g, \"cyan\");"
-    }
-   ],
-   "text": "^hladd (\\w+) (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var g = args[1].toLowerCase(), n = args[2].toLowerCase();\nif (client.hl[g] && client.hl[g][n]) { delete client.hl[g][n]; client.hl.save(g); display_notice(\"[social] -\" + n + \" from \" + g, \"cyan\"); }"
-    }
-   ],
-   "text": "^hldel (\\w+) (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var g = args[1].toLowerCase();\nif (!client.hl || !client.hl[g]) { display_notice(\"[hl] no group: \" + g); }\nelse {\n  var names = Object.keys(client.hl[g]).sort();\n  display_notice(\"[hl] \" + g + \" (\" + names.length + \"): \" + (names.length ? names.join(\", \") : \"empty\"));\n}"
-    }
-   ],
-   "text": "^hllist (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "client.hl = null;\ndisplay_notice(\"[hl] cleared - will rebuild on next reflex\");"
-    }
-   ],
-   "text": "^hlreset$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var g = args[1].toLowerCase(), c = args[2];\nif (!client.hl || !client.hl.color[g]) { display_notice(\"[hl] no group: \" + g); }\nelse {\n  client.hl.color[g] = c;\n  set_variable(\"hlColor_\" + g, c);\n  display_notice(\"[hl] \" + g + \" colour set to \" + c);\n}"
-    }
-   ],
-   "text": "^hlcolor (\\w+) (#[0-9A-Fa-f]{6})$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var g = args[1].toLowerCase();\nif (!client.hl || !client.hl.color[g]) { display_notice(\"[hl] no group: \" + g); }\nelse {\n  client.hl.color[g] = client.hl.defColor[g];\n  set_variable(\"hlColor_\" + g, \"\");\n  display_notice(\"[hl] \" + g + \" colour reset to default \" + client.hl.defColor[g]);\n}"
-    }
-   ],
-   "text": "^hlcolor (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
+   "whole_words": false,
+   "case_sensitive": false,
    "prefix_suffix": true
   },
   {
    "type": "trigger",
-   "name": "",
+   "name": "line",
    "enabled": true,
    "actions": [
     {
-     "type": "highlight",
+     "type": "script",
      "enabled": true,
-     "highlight_fg": "#fdff4d",
-     "highlight_bg": "#000000",
-     "highlight": "match",
-     "highlight_backref": ""
+     "script": "// Every line: colour listed names (and your own), and collect QW output while\n// a poll is capturing.\nif (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nvar soLine = args[1];\nif (soLine) {\n  var soRe = S.reWord;\n  soRe.lastIndex = 0;\n  var soM;\n  while ((soM = soRe.exec(soLine)) !== null) {\n    var soName = soM[0].toLowerCase();\n    if (S.me && soName == S.me) {\n      colorize_current_line(soM.index, soM[0].length, S.color.self, \"\");\n      continue;\n    }\n    for (var soI = 0; soI < S.groups.length; soI++) {\n      if (S.lists[S.groups[soI]][soName]) {\n        colorize_current_line(soM.index, soM[0].length, S.color[S.groups[soI]], \"\");\n        break;\n      }\n    }\n  }\n}\nif (S.capturing) {\n  if (soLine === \"qw\") {\n    gag_current_line();\n  } else if (S.reFooter.test(soLine) || S.reNames.test(soLine)) {\n    S.buf.push(soLine);\n    clearTimeout(S.flushT);\n    S.flushT = setTimeout(function () { run_function(\"social_flush\", [], \"social\"); }, 5000);\n    gag_current_line();\n  }\n}\n"
     }
    ],
-   "text": "Neijel",
-   "matching": "substring",
+   "text": "^(.*)$",
+   "matching": "regexp",
    "whole_words": false,
    "case_sensitive": true
   },
   {
    "type": "trigger",
-   "name": "hl",
+   "name": "",
    "enabled": true,
    "actions": [
     {
      "type": "script",
      "enabled": true,
-     "script": "if (!client.hl) {\n  client.hl = {\n    groups: [\"family\", \"enemies\", \"order\", \"house\", \"city\", \"allies\", \"friends\"],\n    color:  { family: \"#30c4ff\", enemies:\"#ff5f5f\", order:\"#e0b8ff\", house:\"#b8ff29\", city:\"#27f5c5\", allies:\"#ff9f4f\", friends:\"#ffd77f\" },\n    vari:   { family:\"hlFamily\", enemies:\"hlEnemies\", order:\"hlOrder\", house:\"hlHouse\", city:\"hlCity\", allies:\"hlAllies\", friends:\"hlFriends\" },\n    re: /[A-Z][a-z]+/g\n  };\n  client.hl.groups.forEach(function (g) {\n    client.hl[g] = {};\n    (get_variable(client.hl.vari[g]) || \"\").split(\",\").forEach(function (n) {\n      n = n.trim(); if (n.length) client.hl[g][n] = true;\n    });\n  });\n  client.hl.save = function (g) {\n    set_variable(client.hl.vari[g], Object.keys(client.hl[g]).join(\",\"));\n  };\n}\n\nvar line = args[1];\nif (line) {\n  var re = client.hl.re; re.lastIndex = 0;\n  var m, name, groups = client.hl.groups, i;\n  while ((m = re.exec(line)) !== null) {\n    name = m[0].toLowerCase();\n    for (i = 0; i < groups.length; i++) {\n      if (client.hl[groups[i]][name]) {\n        colorize_current_line(m.index, m[0].length, client.hl.color[groups[i]], \"\");\n        break;\n      }\n    }\n  }\n}"
+     "script": "// \"Enemies of <your city>:\" -- start replacing the enemies list with the\n// names that follow, up to \"Total: n\". Only for your own city (from GMCP).\nif (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nif (S.city && args[1].toLowerCase().indexOf(S.city) >= 0) {\n  S.loadEnemies = {};\n}\n"
     }
    ],
-   "text": "^(.*)$",
+   "text": "^Enemies of (.+):",
    "matching": "regexp",
-   "whole_words": true,
+   "whole_words": false,
    "case_sensitive": true
   },
   {
@@ -183,28 +120,12 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "run_function(\"hlinit\", null, \"social\");\nclient.hl.enemies = {};\nclient.hl.capturing = true;"
-    }
-   ],
-   "text": "^Enemies of the Verdant Wilds of Eleusis:",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (client.hl && client.hl.capturing) {\n  var parts = args[1].split(\",\");\n  for (var i = 0; i < parts.length; i++) {\n    var nm = parts[i].trim().toLowerCase();\n    if (nm.length && nm !== \"none\") client.hl.enemies[nm] = true;\n  }\n}"
+     "script": "if (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nif (S.loadEnemies) {\n  var soParts = args[1].split(\",\");\n  for (var soI = 0; soI < soParts.length; soI++) {\n    var soNm = soParts[soI].trim().toLowerCase();\n    if (soNm.length && soNm !== \"none\") S.loadEnemies[soNm] = true;\n  }\n}\n"
     }
    ],
    "text": "^([A-Z][a-z]+(?:,\\s*[A-Z][a-z]+)*),?\\s*$",
    "matching": "regexp",
-   "whole_words": true,
+   "whole_words": false,
    "case_sensitive": true
   },
   {
@@ -215,165 +136,13 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "if (client.hl && client.hl.capturing) {\n  client.hl.capturing = false;\n  client.hl.save(\"enemies\");\n  var have = Object.keys(client.hl.enemies).length;\n  var want = parseInt(args[1], 10);\n  display_notice(\"[hl] enemies loaded \" + have + \" / \" + want);\n  if (have !== want) display_notice(\"[hl] WARNING: count mismatch\");\n}"
+     "script": "if (!client.loom || !client.loom.social || !client.loom.social.lists) run_function(\"social_setup\", [], \"social\");\nvar S = client.loom.social;\nif (S.loadEnemies) {\n  var soE = S.lists.enemies;\n  for (var soK in soE) delete soE[soK];\n  for (var soN in S.loadEnemies) soE[soN] = true;\n  S.loadEnemies = null;\n  run_function(\"social_save\", [], \"social\");\n  var soHave = Object.keys(soE).length;\n  var soWant = parseInt(args[1], 10);\n  display_notice(\"[social] city enemies loaded: \" + soHave + \" / \" + soWant + (soHave !== soWant ? \" (count mismatch)\" : \"\") + \".\", soHave === soWant ? \"cyan\" : \"orange\");\n}\n"
     }
    ],
    "text": "^Total: (\\d+)",
    "matching": "regexp",
-   "whole_words": true,
+   "whole_words": false,
    "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "wl",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (!client.wl) {\n  client.wl = {};\n  var W = client.wl;\n\n  W.interval = 5000;                       // poll cadence in ms\n  W.enabled  = (get_variable(\"wlEnabled\") !== \"0\");\n  W.debug    = (get_variable(\"wlDebug\") === \"1\");\n  W.prev = null;                            // {lowerName:true} once primed; null = unprimed\n  W.capturing = false;\n  W.reportOnce = false;\n  W.lastCount = 0;\n  W.buf = [];\n  W.reNames  = /^[A-Z][a-z]+(?:,\\s*[A-Z][a-z]+)*(?:,?\\s*and\\s+[A-Z][a-z]+)?\\.?$/;\n  W.reFooter = /^Plus another \\d+/;\n\n  var order;\n  if (client.hl && client.hl.groups) { order = client.hl.groups.slice(); }\n  else { order = [\"family\",\"enemies\",\"order\",\"house\",\"city\",\"allies\",\"friends\"]; }\n  W.order = order;\n\n  W.watch = {};\n  var wlSaved = (get_variable(\"wlWatch\") || \"\").trim();\n  if (wlSaved.length) {\n    var on = {};\n    wlSaved.split(\",\").forEach(function (s) { s = s.trim(); if (s) on[s] = true; });\n    W.order.forEach(function (g) { W.watch[g] = !!on[g]; });\n  } else {\n    W.order.forEach(function (g) { W.watch[g] = true; });   // default: watch every group\n  }\n\n  W.saveWatch = function () {\n    var arr = [];\n    W.order.forEach(function (g) { if (W.watch[g]) arr.push(g); });\n    set_variable(\"wlWatch\", arr.join(\",\"));\n  };\n\n  // name -> {group,color}, highest-priority watched group wins\n  W.index = function () {\n    var idx = {};\n    if (!client.hl) return idx;\n    var i, g, members, n;\n    for (i = 0; i < W.order.length; i++) {\n      g = W.order[i];\n      if (!W.watch[g]) continue;\n      members = client.hl[g] || {};\n      for (n in members) { if (!idx[n]) idx[n] = { group: g, color: client.hl.color[g] }; }\n    }\n    return idx;\n  };\n\n  W.notify = function (name, idx, online) {\n    var hit = idx[name];\n    if (!hit) return;\n    var disp = name.charAt(0).toUpperCase() + name.slice(1);\n    display_notice(\"[social] \" + disp + (online ? \" has awoken.\" : \" has drifted into slumber.\"), hit.color);\n  };\n\n  W.snapshot = function (names) {\n    var now = {}, i, n, up = 0, down = 0;\n    for (i = 0; i < names.length; i++) now[names[i].toLowerCase()] = true;\n    if (W.prev === null) { W.prev = now; return { primed: true, online: 0, offline: 0, total: names.length }; }\n    var idx = W.index();\n    for (n in now)    { if (!W.prev[n]) { W.notify(n, idx, true);  up++; } }\n    for (n in W.prev) { if (!now[n])  { W.notify(n, idx, false); down++; } }\n    W.prev = now;\n    return { primed: false, online: up, offline: down, total: names.length };\n  };\n\n  W.parse = function (text) {\n    text = text.replace(/Plus another[\\s\\S]*$/, \"\");\n    text = text.replace(/\\[([^\\]]+)\\]\\([^)]*\\)/g, \"$1\");\n    var out = [], parts = text.split(/,|\\band\\b/), i, s;\n    for (i = 0; i < parts.length; i++) {\n      s = parts[i].replace(/[^A-Za-z]/g, \"\");\n      if (/^[A-Z][a-z]+$/.test(s)) out.push(s);\n    }\n    return out;\n  };\n\n  W.flush = function () {\n    W.capturing = false;\n    clearTimeout(W.safetyT);\n    clearTimeout(W.flushT);\n    var names = W.parse(W.buf.join(\" \"));\n    W.buf = [];\n    W.lastCount = names.length;\n    if (!names.length) {\n      if (W.reportOnce) { display_notice(\"[social] poll returned no names (kept previous set)\"); W.reportOnce = false; }\n      return;\n    }\n    var r = W.snapshot(names);\n    if (W.reportOnce || W.debug) {\n      var msg;\n      if (r.primed) { msg = \"[social] primed with \" + r.total + \" names\"; }\n      else { msg = \"[social] poll: \" + r.online + \" new, \" + r.offline + \" gone (\" + r.total + \" online)\"; }\n      display_notice(msg, \"cyan\");\n      W.reportOnce = false;\n    }\n  };\n\n    W.poll = function () {\n      if (!W.enabled) return;\n      var pause = get_variable(\"pauseTriggers\");\n      if (pause != \"off\") return;\n\n      if (W.debug) display_notice(\"[social] tick -> qw\");\n      W.buf = [];\n      W.capturing = true;\n      clearTimeout(W.safetyT);\n      W.safetyT = setTimeout(function () { W.flush(); }, 1500);\n      send_command(\"qw\");\n    };\n\n  if (W.timer) clearInterval(W.timer);\n  W.timer = setInterval(function () { W.poll(); }, W.interval);\n}\n\n// capture phase: active only inside a poll window, only for qw-shaped lines\nif (client.wl && client.wl.capturing) {\n  var L = args[1];\n  if (L === \"qw\") { gag_current_line(); }\n  else if (client.wl.reFooter.test(L) || client.wl.reNames.test(L)) {\n    client.wl.buf.push(L);\n    clearTimeout(client.wl.flushT);\n    client.wl.flushT = setTimeout(function () { client.wl.flush(); }, 5000);\n    gag_current_line();\n  }\n}"
-    }
-   ],
-   "text": "^(.*)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var g = args[1].toLowerCase();\nif (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build\", \"cyan\"); }\nelse if (client.wl.watch[g] === undefined) { display_notice(\"[social] no such group: \" + g, \"cyan\"); }\nelse { client.wl.watch[g] = true; client.wl.saveWatch(); display_notice(\"[social] now watching \" + g, \"cyan\"); }"
-    }
-   ],
-   "text": "^wlwatch (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var g = args[1].toLowerCase();\nif (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build.\", \"cyan\"); }\nelse if (client.wl.watch[g] === undefined) { display_notice(\"[social] no such group: \" + g, \"cyan\"); }\nelse { client.wl.watch[g] = false; client.wl.saveWatch(); display_notice(\"[social] no longer watching \" + g, \"cyan\"); }"
-    }
-   ],
-   "text": "^wlunwatch (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build.\", \"cyan\"); }\nelse {\n  var on = [], off = [], i, g;\n  for (i = 0; i < client.wl.order.length; i++) {\n    g = client.wl.order[i];\n    if (client.wl.watch[g]) on.push(g); else off.push(g);\n  }\n  display_notice(\"[social] polling \" + (client.wl.enabled ? \"ON\" : \"OFF\") + \", every \" + (client.wl.interval / 1000) + \"s\", \"cyan\");\n  display_notice(\"[social] watching (priority order): \" + (on.length ? on.join(\", \") : \"none\", \"cyan\"));\n  display_notice(\"[social] ignoring: \" + (off.length ? off.join(\", \") : \"none\"), \"cyan\");\n}"
-    }
-   ],
-   "text": "^wllist$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var v = args[1].toLowerCase();\nif (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build.\", \"cyan\"); }\nelse {\n  client.wl.enabled = (v === \"on\");\n  set_variable(\"wlEnabled\", client.wl.enabled ? \"1\" : \"0\");\n  display_notice(\"[social] polling \" + (client.wl.enabled ? \"enabled\" : \"disabled\"), \"cyan\");\n}"
-    }
-   ],
-   "text": "^wlpoll (on|off)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (client.wl && client.wl.timer) clearInterval(client.wl.timer);\nclient.wl = null;\ndisplay_notice(\"[social] cleared - rebuilds on next line (run LOOK if idle)\", \"cyan\");"
-    }
-   ],
-   "text": "^wlreset$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (!client.wl) { display_notice(\"[social] not ready yet - trigger any line to build\", \"cyan\"); }\nelse {\n  client.wl.reportOnce = true;\n  client.wl.enabled = true;\n  client.wl.buf = [];\n  client.wl.capturing = true;\n  clearTimeout(client.wl.safetyT);\n  client.wl.safetyT = setTimeout(function () { client.wl.flush(); }, 1500);\n  send_command(\"qw\");\n}"
-    }
-   ],
-   "text": "^wlpollnow$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (!client.wl) { display_notice(\"[social] not built - trigger any line to build.\", \"cyan\"); }\nelse {\n  var W = client.wl;\n  var primed = W.prev ? (\"yes (\" + Object.keys(W.prev).length + \")\") : \"no\";\n  display_notice(\"[social] built | polling \" + (W.enabled ? \"ON\" : \"OFF\") + \" every \" + (W.interval / 1000) + \"s | primed \" + primed + \" | timer \" + (W.timer ? \"set\" : \"NONE\") + \" | debug \" + (W.debug ? \"ON\" : \"OFF\") + \" | lastCount \" + (W.lastCount || 0), \"cyan\");\n}"
-    }
-   ],
-   "text": "^wlstatus$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (!client.wl) { display_notice(\"[social] not built - trigger any line to build.\", \"cyan\"); }\nelse {\n  var v = args[1].toLowerCase();\n  client.wl.debug = (v === \"on\");\n  set_variable(\"wlDebug\", client.wl.debug ? \"1\" : \"0\");\n  display_notice(\"[social] debug \" + (client.wl.debug ? \"ON - heartbeat each poll\" : \"OFF\"), \"cyan\");\n}"
-    }
-   ],
-   "text": "^wldebug (on|off)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
   }
  ],
  "description": ""
