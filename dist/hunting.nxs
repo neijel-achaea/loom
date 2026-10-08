@@ -2132,22 +2132,6 @@
      "enabled": true,
      "actions": [
       {
-       "type": "script",
-       "enabled": true,
-       "script": "gag_current_line();\n\nvar c = to_number(get_variable(\"hunting_clot_count\")) || 0;\nset_variable(\"hunting_clot_count\", c + 1);\n\nif (window.clotTimer) clearTimeout(window.clotTimer);\nwindow.clotTimer = setTimeout(function () {\n    var n = to_number(get_variable(\"hunting_clot_count\")) || 0;\n    if (n > 0) {\n        var line = \"You exert superior mental control and your wounds clot before your eyes.\";\n        if (n > 1) line += \" (x\" + n + \")\";\n        display_notice(line);\n    }\n    delete_variable(\"hunting_clot_count\");\n    window.clotTimer = null;\n}, 400);"
-      }
-     ],
-     "text": "You exert superior mental control and your wounds clot before your eyes.",
-     "matching": "substring",
-     "whole_words": true,
-     "case_sensitive": true
-    },
-    {
-     "type": "trigger",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
        "type": "gag",
        "enabled": true
       }

@@ -2132,22 +2132,6 @@
           "enabled": true,
           "actions": [
             {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:gags__trigger_you_exert_superior_mental_control_and.js"
-            }
-          ],
-          "text": "You exert superior mental control and your wounds clot before your eyes.",
-          "matching": "substring",
-          "whole_words": true,
-          "case_sensitive": true
-        },
-        {
-          "type": "trigger",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
               "type": "gag",
               "enabled": true
             }
