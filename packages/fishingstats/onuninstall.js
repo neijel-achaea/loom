@@ -1,1 +1,1 @@
-// Nothing to tear down; fsh_session is left intact.
+// Nothing to tear down; the fishingstats_* variables are left intact.

@@ -11,3 +11,4 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
     document.head.appendChild(tiSt);
   }
 }
+run_function("fishingstats_setup", [], "fishingstats");

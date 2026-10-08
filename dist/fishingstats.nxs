@@ -7,547 +7,356 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "var have = false;\ntry { if (get_variable(\"fsh_session\") !== undefined) { have = true; } } catch (e) { have = false; }\nif (!have) { set_variable(\"fsh_session\", \"\"); }\ndisplay_notice(\"[fishing] installed. Create a UI tab named 'fishingstats'. Casts, hooks and landings are parsed automatically for you and for others. Run FISHING RANKINGS once to load the yearly records. Tabs: 'fishingstats' and 'fishinglog'. Commands: fpstats, fpend, fplog, fparea, fpwhere, fpyear, fpgap, fpme, fpcolour, fpdemo, fpadd, fpcsv, fplearn.\", \"cyan\");"
+   "code": "run_function(\"fishingstats_setup\", [], \"fishingstats\");\ndisplay_notice(\"[fishingstats] installed. Create UI tabs named 'fishingstats' and 'fishinglog'. Casts, hooks and catches are counted for you and everyone around you. Type RANKINGS FISHING once to load this year's records. FISHINGSTATS HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
    "name": "onUninstall",
    "enabled": true,
-   "code": "// Nothing to tear down; fsh_session is left intact."
+   "code": "// Nothing to tear down; the fishingstats_* variables are left intact.\n"
   },
   {
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "// Tab icons: pure CSS keyed on the tab button's title, so Nexus's own\n// redraws (selecting, dragging, layout resets) cannot undo them.\nvar tiTabs = [[\"fishingstats\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 16\"><path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"#7fd0c0\"/><path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"#7fd0c0\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/><path d=\"M1 13.5 Q4 12 7 13.5 T13 13.5 T19 13.5\" fill=\"none\" stroke=\"#3f7a72\" stroke-width=\"1\"/></svg>'], [\"fishinglog\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 16\"><path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"#3f7a72\"/><path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"#3f7a72\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/><path d=\"M1 12.5 H19 M1 15 H19\" stroke=\"#7fd0c0\" stroke-width=\"1\"/></svg>']];\nfor (var tiI = 0; tiI < tiTabs.length; tiI++) {\n  var tiId = \"tabicon-\" + tiTabs[tiI][0].toLowerCase();\n  if (!document.getElementById(tiId)) {\n    var tiSel = '.flexlayout__tab_button[title=\"' + tiTabs[tiI][0] + '\" i]';\n    var tiSt = document.createElement(\"style\");\n    tiSt.id = tiId;\n    tiSt.textContent = tiSel + ' > * { display: none !important; } ' + tiSel + '::before { content: \"\"; display: block; width: 20px; height: 20px; margin: auto; background: url(\"data:image/svg+xml,' + encodeURIComponent(tiTabs[tiI][1]) + '\") center / contain no-repeat; }';\n    document.head.appendChild(tiSt);\n  }\n}"
+   "code": "// Tab icons: pure CSS keyed on the tab button's title, so Nexus's own\n// redraws (selecting, dragging, layout resets) cannot undo them.\nvar tiTabs = [[\"fishingstats\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 16\"><path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"#7fd0c0\"/><path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"#7fd0c0\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/><path d=\"M1 13.5 Q4 12 7 13.5 T13 13.5 T19 13.5\" fill=\"none\" stroke=\"#3f7a72\" stroke-width=\"1\"/></svg>'], [\"fishinglog\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 16\"><path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"#3f7a72\"/><path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"#3f7a72\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/><path d=\"M1 12.5 H19 M1 15 H19\" stroke=\"#7fd0c0\" stroke-width=\"1\"/></svg>']];\nfor (var tiI = 0; tiI < tiTabs.length; tiI++) {\n  var tiId = \"tabicon-\" + tiTabs[tiI][0].toLowerCase();\n  if (!document.getElementById(tiId)) {\n    var tiSel = '.flexlayout__tab_button[title=\"' + tiTabs[tiI][0] + '\" i]';\n    var tiSt = document.createElement(\"style\");\n    tiSt.id = tiId;\n    tiSt.textContent = tiSel + ' > * { display: none !important; } ' + tiSel + '::before { content: \"\"; display: block; width: 20px; height: 20px; margin: auto; background: url(\"data:image/svg+xml,' + encodeURIComponent(tiTabs[tiI][1]) + '\") center / contain no-repeat; }';\n    document.head.appendChild(tiSt);\n  }\n}\nrun_function(\"fishingstats_setup\", [], \"fishingstats\");\n"
   },
   {
    "type": "function",
-   "name": "fsh_ensure",
+   "name": "onGMCP",
    "enabled": true,
-   "code": "// Weights are stored as whole ounces. Achaea reports pounds and ounces, so an\n// integer count avoids float drift and formats back exactly.\nfunction fshBlank() {\n  return {\n    start: Math.floor(new Date().getTime() / 1000),\n    last: Math.floor(new Date().getTime() / 1000),\n    anglers: {}, species: {}, recent: [], n: 0,\n    areas: {}, year: 0, rec: 0, castFt: 0, castN: 0\n  };\n}\nif (!client.fsh) {\n  var s = null;\n  try { s = JSON.parse(get_variable(\"fsh_session\")); } catch (e) { s = null; }\n  if (!s || typeof s !== \"object\" || !s.anglers) { s = fshBlank(); }\n  if (!s.anglers) { s.anglers = {}; }\n  if (!s.species) { s.species = {}; }\n  if (!s.recent) { s.recent = []; }\n  if (!s.areas) { s.areas = {}; }\n  if (!s.n) { s.n = 0; }\n  if (!s.rec) { s.rec = 0; }\n  if (!s.castFt) { s.castFt = 0; }\n  if (!s.castN) { s.castN = 0; }\n  if (!s.last) { s.last = s.start || Math.floor(new Date().getTime() / 1000); }\n  client.fsh = s;\n}\nif (!client.fshLog) {\n  var lg = [];\n  try { lg = JSON.parse(get_variable(\"fsh_log\")) || []; } catch (e) { lg = []; }\n  if (Object.prototype.toString.call(lg) !== \"[object Array]\") { lg = []; }\n  client.fshLog = lg;\n}\nif (!client.fshRec) {\n  var r = null;\n  try { r = JSON.parse(get_variable(\"fsh_records\")); } catch (e) { r = null; }\n  if (!r || typeof r !== \"object\") { r = { year: 0, f: {}, a: {} }; }\n  if (!r.f) { r.f = {}; }\n  if (!r.a) { r.a = {}; }\n  client.fshRec = r;\n}\nif (client.fshMe === undefined) {\n  var me = \"\";\n  try { if (get_variable(\"fsh_me\") !== undefined) { me = String(get_variable(\"fsh_me\") || \"\"); } } catch (e) { me = \"\"; }\n  if (!me) { try { me = String(get_variable(\"my_name\") || \"\"); } catch (e) { me = \"\"; } }\n  if (!me || me === \"undefined\") { me = \"You\"; }\n  client.fshMe = me;\n}\nif (!client.fshCol) {\n  var c = null;\n  try { c = JSON.parse(get_variable(\"fsh_colours\")); } catch (e) { c = null; }\n  if (!c || typeof c !== \"object\") { c = {}; }\n  client.fshCol = c;\n}\nif (client.fshAreaManual === undefined) {\n  var am = \"\";\n  try { if (get_variable(\"fsh_area\") !== undefined) { am = String(get_variable(\"fsh_area\") || \"\"); } } catch (e) { am = \"\"; }\n  if (am === \"undefined\") { am = \"\"; }\n  client.fshAreaManual = am;\n}\nif (client.fshGap === undefined) {\n  var g = 90;\n  try { if (get_variable(\"fsh_gap\") !== undefined) { g = parseInt(get_variable(\"fsh_gap\"), 10); } } catch (e) { g = 90; }\n  if (!g || isNaN(g) || g < 5) { g = 90; }\n  if (g > 1440) { g = 1440; }\n  client.fshGap = g;\n}\nif (client.fshLearn === undefined) { client.fshLearn = false; }\nclient.fshRecentCap = 10;\nclient.fshLogCap = 30;\n// Ordered so consecutive anglers differ in hue AND lightness, not hue alone.\nclient.fshPalette = [\"#7fe0b4\", \"#e8a13f\", \"#a88fe0\", \"#5fb0e0\", \"#e0708f\", \"#c8d84a\", \"#d8845f\", \"#7fd8d8\"];\n\n// Area detection, recomputed on every call since fsh_ensure runs at the head\n// of every function. Nexus exposes GMCP room data under a name that varies by\n// setup, so several are tried; a manual override always wins and FPWHERE\n// reports which source actually answered.\nclient.fshAreaNow = \"\";\nclient.fshAreaSrc = \"\";\nif (client.fshAreaManual) {\n  client.fshAreaNow = client.fshAreaManual;\n  client.fshAreaSrc = \"manual\";\n} else {\n  // currentArea is maintained by the user's own GMCP handler, so it leads.\n  // The rest are fallbacks for a setup that does not define it.\n  var cand = [\"currentArea\", \"room_area\", \"my_area\", \"area\", \"roomarea\", \"room_zone\"];\n  var ci, cv;\n  for (ci = 0; ci < cand.length; ci++) {\n    cv = undefined;\n    try { cv = get_variable(cand[ci]); } catch (e) { cv = undefined; }\n    if (cv !== undefined && cv !== null && String(cv).length > 0 && String(cv) !== \"undefined\") {\n      client.fshAreaNow = String(cv);\n      client.fshAreaSrc = cand[ci];\n      break;\n    }\n  }\n}"
+   "code": "// Room.Info gives the area fished in; Char.Name your own name, used as your\n// angler name unless FISHINGSTATS ME sets one.\nvar fsM = \"\";\nvar fsA = null;\ntry { fsM = args.gmcp_method; fsA = args.gmcp_args; } catch (e) { fsM = \"\"; }\nif ((fsM === \"Room.Info\" || fsM === \"Char.Name\") && fsA) {\n  if (typeof fsA === \"string\") { try { fsA = JSON.parse(fsA); } catch (e) { fsA = null; } }\n  if (fsA) {\n    if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\n    var FS = client.loom.fishingstats;\n    if (fsM === \"Room.Info\" && fsA.area) {\n      FS.areaGmcp = String(fsA.area);\n      if (!FS.areaManual) { FS.areaNow = FS.areaGmcp; FS.areaSrc = \"GMCP\"; }\n    }\n    if (fsM === \"Char.Name\" && fsA.name) {\n      FS.gmcpName = String(fsA.name);\n      if (!FS.meSet) FS.me = FS.gmcpName;\n    }\n  }\n}\n"
   },
   {
-   "type": "function",
-   "name": "fsh_touch",
+   "type": "group",
+   "name": "core",
    "enabled": true,
-   "code": "// Called before any catch or cast is booked. If the session has been idle\n// longer than the gap threshold, the old one is archived and a fresh one\n// started, so sessions delimit themselves without needing to be told.\nrun_function(\"fsh_ensure\", [], \"fishingstats\");\nvar s = client.fsh;\nvar now = Math.floor(new Date().getTime() / 1000);\nif (s.n > 0 && s.last && (now - s.last) > client.fshGap * 60) {\n  var mins = Math.round((now - s.last) / 60);\n  run_function(\"fsh_archive\", [], \"fishingstats\");\n  display_notice(\"[fishing] \" + mins + \" minutes idle, so the previous session was filed to the log. Starting a new one.\", \"cyan\");\n}\nclient.fsh.last = now;\nvar ar = client.fshAreaNow;\nif (ar) { client.fsh.areas[ar] = (client.fsh.areas[ar] || 0) + 1; }\nif (!client.fsh.year && client.fshRec.year) { client.fsh.year = client.fshRec.year; }"
-  },
-  {
-   "type": "function",
-   "name": "fsh_archive",
-   "enabled": true,
-   "code": "// Files the current session into the log and starts a blank one. A session\n// with nothing landed is discarded rather than logged.\nrun_function(\"fsh_ensure\", [], \"fishingstats\");\nvar s = client.fsh;\nif (s.n > 0) {\n  var ang = {};\n  var sp = {};\n  var k;\n  for (k in s.anglers) {\n    if (s.anglers.hasOwnProperty(k)) {\n      var a = s.anglers[k];\n      ang[k] = [a.n, a.oz, a.best, a.casts || 0, a.hooks || 0, a.bestSp || \"\"];\n    }\n  }\n  for (k in s.species) {\n    if (s.species.hasOwnProperty(k)) { sp[k] = [s.species[k].n, s.species[k].best, s.species[k].bestBy]; }\n  }\n  var areas = [];\n  for (k in s.areas) { if (s.areas.hasOwnProperty(k)) { areas.push(k); } }\n  client.fshLog.push({\n    s: s.start, e: s.last, ar: areas.join(\", \"), y: s.year || 0,\n    n: s.n, oz: 0, rec: s.rec || 0,\n    ft: s.castN > 0 ? Math.round(s.castFt / s.castN) : 0,\n    ang: ang, sp: sp\n  });\n  var tot = 0;\n  for (k in s.anglers) { if (s.anglers.hasOwnProperty(k)) { tot += s.anglers[k].oz; } }\n  client.fshLog[client.fshLog.length - 1].oz = tot;\n  while (client.fshLog.length > client.fshLogCap) { client.fshLog.shift(); }\n  try { set_variable(\"fsh_log\", JSON.stringify(client.fshLog)); } catch (e) {}\n}\nvar now = Math.floor(new Date().getTime() / 1000);\nclient.fsh = { start: now, last: now, anglers: {}, species: {}, recent: [], n: 0, areas: {}, year: client.fshRec.year || 0, rec: 0, castFt: 0, castN: 0 };\ntry { set_variable(\"fsh_session\", JSON.stringify(client.fsh)); } catch (e) {}\nrun_function(\"fsh_render\", [], \"fishingstats\");\nrun_function(\"fsh_log_render\", [], \"fishingstats\");"
-  },
-  {
-   "type": "function",
-   "name": "fsh_record",
-   "enabled": true,
-   "code": "// Records a landed fish. Callers set:\n//   client.fshIn = { angler: \"Oceana\", species: \"blue eel\", oz: 41 }\n// Trigger wording can change without touching the tally or the display.\nrun_function(\"fsh_ensure\", [], \"fishingstats\");\nrun_function(\"fsh_touch\", [], \"fishingstats\");\nvar inp = client.fshIn;\nclient.fshIn = null;\nif (inp && inp.angler && inp.species) {\n  var s = client.fsh;\n  var now = Math.floor(new Date().getTime() / 1000);\n  var who = String(inp.angler);\n  var sp = String(inp.species).toLowerCase();\n  var oz = parseInt(inp.oz, 10);\n  if (isNaN(oz) || oz < 0) { oz = 0; }\n\n  if (!s.anglers[who]) { s.anglers[who] = { n: 0, oz: 0, best: 0, bestSp: \"\", casts: 0, hooks: 0, sp: {} }; }\n  var a = s.anglers[who];\n  a.n += 1;\n  a.oz += oz;\n  if (oz > a.best) { a.best = oz; a.bestSp = sp; }\n  a.sp[sp] = (a.sp[sp] || 0) + 1;\n\n  if (!s.species[sp]) { s.species[sp] = { n: 0, oz: 0, best: 0, bestBy: \"\" }; }\n  var f = s.species[sp];\n  f.n += 1;\n  f.oz += oz;\n  if (oz > f.best) { f.best = oz; f.bestBy = who; }\n\n  s.n += 1;\n  s.recent.push([now, who, sp, oz]);\n  while (s.recent.length > client.fshRecentCap) { s.recent.shift(); }\n\n  // Compare against the yearly rankings if they have been read. Ranking rows\n  // truncate long species names, so a stored key that prefixes the caught\n  // name counts as the same fish.\n  var rec = client.fshRec.f;\n  var hit = null;\n  var key;\n  if (rec[sp]) { hit = rec[sp]; }\n  else {\n    for (key in rec) {\n      if (rec.hasOwnProperty(key) && key.length > 3 && sp.indexOf(key) === 0) { hit = rec[key]; break; }\n    }\n  }\n  if (hit && oz > hit[0]) {\n    s.rec = (s.rec || 0) + 1;\n    var lb1 = Math.floor(oz / 16);\n    display_notice(\"[fishing] \" + who + \"'s \" + sp + \" at \" + lb1 + \"lb \" + (oz % 16) + \"oz beats this year's ranking of \" + Math.floor(hit[0] / 16) + \"lb \" + (hit[0] % 16) + \"oz by \" + hit[1] + \".\", \"cyan\");\n  }\n\n  try { set_variable(\"fsh_session\", JSON.stringify(s)); } catch (e) {}\n  run_function(\"fsh_render\", [], \"fishingstats\");\n}"
-  },
-  {
-   "type": "function",
-   "name": "fsh_event",
-   "enabled": true,
-   "code": "// Counts casts and hooks so a landing rate can be shown.\n//   client.fshEvt = { angler: \"Oceana\", type: \"cast\" }   type: cast | hook\nrun_function(\"fsh_ensure\", [], \"fishingstats\");\nrun_function(\"fsh_touch\", [], \"fishingstats\");\nvar ev = client.fshEvt;\nclient.fshEvt = null;\nif (ev && ev.angler && ev.type) {\n  var s = client.fsh;\n  var who = String(ev.angler);\n  if (!s.anglers[who]) { s.anglers[who] = { n: 0, oz: 0, best: 0, bestSp: \"\", casts: 0, hooks: 0, sp: {} }; }\n  var a = s.anglers[who];\n  if (!a.casts) { a.casts = 0; }\n  if (!a.hooks) { a.hooks = 0; }\n  if (ev.type === \"cast\") { a.casts += 1; }\n  else { a.hooks += 1; }\n  try { set_variable(\"fsh_session\", JSON.stringify(s)); } catch (e) {}\n  run_function(\"fsh_render\", [], \"fishingstats\");\n}"
-  },
-  {
-   "type": "function",
-   "name": "fsh_rank",
-   "enabled": true,
-   "code": "// Stores one row of a fishing rankings table.\n//   client.fshRank = { species, who, lb, oz, year }\n// RANKINGS FISHING prints two tables with identical layout: the year's bests\n// and the all-time bests since the last reset. Rows are attributed by which\n// header was seen last, with the row's own year as a second check, so the\n// all-time figures cannot overwrite the yearly ones.\nrun_function(\"fsh_ensure\", [], \"fishingstats\");\nvar r = client.fshRank;\nclient.fshRank = null;\nif (r && r.species) {\n  var oz = (parseInt(r.lb, 10) || 0) * 16 + (parseInt(r.oz, 10) || 0);\n  var key = String(r.species).toLowerCase();\n  var yr = parseInt(r.year, 10) || 0;\n  var mode = client.fshRankMode || \"\";\n\n  if (mode === \"year\" && yr === client.fshRec.year) {\n    if (!client.fshRec.f[key] || oz > client.fshRec.f[key][0]) {\n      client.fshRec.f[key] = [oz, String(r.who)];\n      try { set_variable(\"fsh_records\", JSON.stringify(client.fshRec)); } catch (e) {}\n    }\n  } else if (mode === \"reset\") {\n    // Kept for later use. Nothing displays these yet.\n    if (!client.fshRec.a) { client.fshRec.a = {}; }\n    if (!client.fshRec.a[key] || oz > client.fshRec.a[key][0]) {\n      client.fshRec.a[key] = [oz, String(r.who)];\n      try { set_variable(\"fsh_records\", JSON.stringify(client.fshRec)); } catch (e) {}\n    }\n  }\n}"
-  },
-  {
-   "type": "function",
-   "name": "fsh_render",
-   "enabled": true,
-   "code": "run_function(\"fsh_ensure\", [], \"fishingstats\");\n// Draws the 'fishingstats' tab: the live session.\n// House style shared in spirit with Coffers, Level and Ledger: ink panel,\n// serif small-caps headings, one large figure, monospace ledger rows.\nvar WATER = \"#7fd0c0\";\nvar DEEP = \"#3f7a72\";\nvar CATCH = \"#e6d27a\";\nvar TXT = \"#dbe8e4\";\nvar MUTED = \"#7f8f8b\";\nvar RULE = \"#20312d\";\nvar TRACK = \"#17241f\";\nvar RECORD = \"#b8d88a\";\nvar SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\nvar MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\n\nfunction esc(t) { return String(t).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\"); }\nfunction pad2(n) { return (n < 10 ? \"0\" : \"\") + n; }\nfunction clock(t) { var d = new Date(t * 1000); return d.getHours() + \":\" + pad2(d.getMinutes()); }\nfunction dur(secs) {\n  if (secs < 60) { return secs + \"s\"; }\n  if (secs < 3600) { return Math.round(secs / 60) + \"m\"; }\n  var h = Math.floor(secs / 3600);\n  var m = Math.round((secs - h * 3600) / 60);\n  return h + \"h\" + (m > 0 ? \" \" + m + \"m\" : \"\");\n}\nfunction wt(oz) {\n  oz = Math.round(oz);\n  var lb = Math.floor(oz / 16);\n  var o = oz % 16;\n  if (lb === 0) { return o + \"oz\"; }\n  return lb + \"lb\" + (o > 0 ? \" \" + o + \"oz\" : \"\");\n}\n// House typography, shared in spirit (not in code) with Coffers, Level and Ledger.\nfunction caps(t, col) { return '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || DEEP) + ';font-size:11px;margin:0 0 3px;\">' + t + '</div>'; }\nfunction row(label, value, col) {\n  return '<div style=\"display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\"><span style=\"color:' + MUTED + ';white-space:nowrap;\">' + label + '</span><span style=\"color:' + (col || TXT) + ';white-space:nowrap;\">' + value + '</span></div>';\n}\nfunction box(inner, col) { return '<div style=\"flex:1 1 150px;min-width:150px;border-top:2px solid ' + (col || DEEP) + ';padding:3px 2px 0;\">' + inner + '</div>'; }\nfunction section(title, inner, extra) { return '<div style=\"border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;\">' + caps(title + (extra || \"\"), WATER) + inner + '</div>'; }\nfunction quiet(t) { return '<div style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">' + t + '</div>'; }\nfunction swatch(c) { return '<span style=\"display:inline-block;width:8px;height:8px;background:' + c + ';margin-right:4px;vertical-align:0;\"></span>'; }\n\n// A small leaping fish over a ripple, the fishing tabs' counterpart of the coin stack.\nvar glyph = '<svg width=\"20\" height=\"16\" viewBox=\"0 0 20 16\" style=\"vertical-align:-3px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n  '<path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"' + WATER + '\"/>' +\n  '<path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"' + WATER + '\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/>' +\n  '<path d=\"M1 13.5 Q4 12 7 13.5 T13 13.5 T19 13.5\" fill=\"none\" stroke=\"' + DEEP + '\" stroke-width=\"1\"/></svg>';\nfunction header(title, right) {\n  return '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;\">' +\n    '<div style=\"font-family:' + SERIF + ';color:' + WATER + ';font-size:14px;letter-spacing:0.22em;\">' + glyph + title + '</div>' +\n    '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + DEEP + ';font-size:11px;\">' + right + '</div></div>';\n}\nfunction hero(num, tail) {\n  return '<div style=\"margin:6px 0 2px;\"><span style=\"font-family:' + SERIF + ';font-size:26px;color:' + WATER + ';\">' + num + '</span> ' +\n    '<span style=\"font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;\">' + tail + '</span></div>';\n}\nvar PANEL = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1514;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\n\nvar s = client.fsh;\nvar pal = client.fshPalette;\nvar rec = client.fshRec.f;\n\n// Ranking rows truncate long names, so a stored key that prefixes the caught\n// species counts as the same fish.\nfunction recFor(sp) {\n  if (rec[sp]) { return rec[sp]; }\n  var k;\n  for (k in rec) {\n    if (rec.hasOwnProperty(k) && k.length > 3 && sp.indexOf(k) === 0) { return rec[k]; }\n  }\n  return null;\n}\n// One angler: name and count over a bar in their colour, details beneath.\nfunction barRow(label, right, note, value, max, colour, me) {\n  var pct = max > 0 ? Math.round((value / max) * 100) : 0;\n  if (pct < 1 && value > 0) { pct = 1; }\n  var out = '<div style=\"margin:0 0 5px;\">';\n  out += '<div style=\"display:flex;justify-content:space-between;\"><span style=\"color:' + (me ? \"#ffffff\" : TXT) + ';\">' + swatch(colour) + esc(label) + (me ? ' <span style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">(you)</span>' : '') + '</span>';\n  out += '<span style=\"color:' + TXT + ';\">' + right + '</span></div>';\n  out += '<div style=\"background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;\"><div style=\"background:' + colour + ';height:6px;width:' + pct + '%;\"></div></div>';\n  if (note) { out += '<div style=\"color:' + MUTED + ';\">' + note + '</div>'; }\n  return out + '</div>';\n}\n// Species bars are split into one segment per angler, all drawn on the same\n// scale as each other, so a segment's length is comparable across species as\n// well as within one.\nfunction stackRow(label, right, segs, notes, max) {\n  var out = '<div style=\"margin:0 0 5px;\">';\n  out += '<div style=\"display:flex;justify-content:space-between;\"><span style=\"color:' + TXT + ';\">' + esc(label) + '</span><span style=\"color:' + TXT + ';\">' + right + '</span></div>';\n  out += '<div style=\"background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;display:flex;\">';\n  var i;\n  for (i = 0; i < segs.length; i++) {\n    var w = max > 0 ? (segs[i].n / max) * 100 : 0;\n    out += '<div title=\"' + esc(segs[i].who) + ' ' + segs[i].n + '\" style=\"background:' + segs[i].colour + ';height:6px;width:' + (Math.round(w * 10) / 10) + '%;' + (i < segs.length - 1 ? 'margin-right:1px;' : '') + '\"></div>';\n  }\n  out += '</div>';\n  for (i = 0; i < notes.length; i++) { out += '<div style=\"color:' + MUTED + ';\">' + notes[i] + '</div>'; }\n  return out + '</div>';\n}\nfunction byAnglerCount(a, b) { return s.anglers[b].n - s.anglers[a].n; }\nfunction bySpeciesCount(a, b) { return s.species[b].n - s.species[a].n; }\n\nvar now = Math.floor(new Date().getTime() / 1000);\nvar elapsed = now - (s.start || now);\nif (elapsed < 1) { elapsed = 1; }\n\nvar totHook = 0, totCast = 0, totOz = 0, kk;\nvar names = [];\nfor (kk in s.anglers) {\n  if (s.anglers.hasOwnProperty(kk)) {\n    names.push(kk);\n    totHook += s.anglers[kk].hooks || 0;\n    totCast += s.anglers[kk].casts || 0;\n    totOz += s.anglers[kk].oz || 0;\n  }\n}\nvar areaList = [];\nfor (kk in s.areas) { if (s.areas.hasOwnProperty(kk)) { areaList.push(kk); } }\n\nvar html = PANEL + header(\"FISHING\", dur(elapsed) + (s.year ? ' &middot; ' + s.year + ' AF' : ''));\n\nif (s.n === 0 && names.length === 0) {\n  html += hero(\"0\", \"fish landed so far\");\n  html += quiet(\"Nothing yet this session. Cast a line, or run FPDEMO to preview the layout.\");\n} else {\n  html += hero(String(s.n), (s.n === 1 ? \"fish\" : \"fish\") + \" landed\" + (totOz > 0 ? \", \" + wt(totOz) + \" in all\" : \"\"));\n  // Where: flag a pinned area so a stale manual override is visible rather\n  // than looking like a detection failure.\n  if (areaList.length > 0) {\n    html += '<div style=\"color:' + MUTED + ';\">at <span style=\"color:' + TXT + ';font-family:' + SERIF + ';\">' + esc(areaList.join(\", \")) + '</span>' + (client.fshAreaSrc === \"manual\" ? ' <span style=\"font-style:italic;font-family:' + SERIF + ';\">(pinned)</span>' : '') + '</div>';\n  } else {\n    html += '<div style=\"color:' + MUTED + ';\">area unknown &mdash; FPAREA to set</div>';\n  }\n\n  // Two ledger columns: the pace of the session, and its prize catch.\n  var lost = totHook - s.n;\n  var cols = '<div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;\">';\n  var pb = caps(\"The session\", WATER);\n  pb += row(\"per hour\", s.n > 0 ? String(Math.round((s.n / (elapsed / 3600)) * 10) / 10) : \"&hellip;\", s.n > 0 ? WATER : MUTED);\n  pb += row(\"landed / cast\", totCast > 0 ? s.n + \"/\" + totCast + \" (\" + Math.round((s.n / totCast) * 100) + \"%)\" : \"&mdash;\");\n  pb += row(\"got away\", lost > 0 ? String(lost) : \"none\", lost > 0 ? \"#de8a72\" : MUTED);\n  pb += row(\"avg cast\", s.castN > 0 ? Math.round(s.castFt / s.castN) + \"ft\" : \"&mdash;\", s.castN > 0 ? TXT : MUTED);\n  cols += box(pb, WATER);\n\n  var bestOz = 0, bestWho = \"\", bestSp = \"\";\n  for (kk = 0; kk < names.length; kk++) {\n    var an = s.anglers[names[kk]];\n    if (an.best > bestOz) { bestOz = an.best; bestWho = names[kk]; bestSp = an.bestSp || \"\"; }\n  }\n  var spCount = 0;\n  for (kk in s.species) { if (s.species.hasOwnProperty(kk)) { spCount++; } }\n  var bb = caps(\"Prize catch\", CATCH);\n  if (bestOz > 0) {\n    bb += '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + CATCH + ';\">' + wt(bestOz) + '</div>';\n    bb += row(\"species\", esc(bestSp));\n    bb += row(\"by\", esc(bestWho), bestWho === client.fshMe ? \"#ffffff\" : TXT);\n  } else {\n    bb += quiet(\"Nothing weighed yet.\");\n  }\n  bb += row(\"species seen\", String(spCount));\n  if (s.rec > 0) { bb += row(\"rankings beaten\", String(s.rec), RECORD); }\n  cols += box(bb, CATCH);\n  html += cols + '</div>';\n\n  names.sort(byAnglerCount);\n  var maxN = 0;\n  var k;\n  for (k = 0; k < names.length; k++) { if (s.anglers[names[k]].n > maxN) { maxN = s.anglers[names[k]].n; } }\n  var colourOf = {};\n  for (k = 0; k < names.length; k++) { colourOf[names[k]] = client.fshCol[names[k]] || pal[k % pal.length]; }\n\n  var ab = \"\";\n  for (k = 0; k < names.length; k++) {\n    var a = s.anglers[names[k]];\n    var share = s.n > 0 ? Math.round((a.n / s.n) * 100) : 0;\n    var note = 'total ' + wt(a.oz);\n    if (a.best > 0) { note += ' &middot; best ' + wt(a.best) + ' ' + esc(a.bestSp); }\n    if (a.casts > 0) { note += ' &middot; ' + Math.round((a.n / a.casts) * 100) + '% of casts landed'; }\n    ab += barRow(names[k], a.n + ' <span style=\"color:' + MUTED + ';\">&middot; ' + share + '%</span>', note, a.n, maxN, colourOf[names[k]], names[k] === client.fshMe);\n  }\n  html += section(\"By angler\", ab);\n\n  var sp = [];\n  for (k in s.species) { if (s.species.hasOwnProperty(k)) { sp.push(k); } }\n  if (sp.length > 0) {\n    sp.sort(bySpeciesCount);\n    var maxS = s.species[sp[0]].n;\n    var shown = sp.length > 10 ? 10 : sp.length;\n    var sb = \"\";\n    if (names.length > 1) {\n      sb += '<div style=\"margin:0 0 5px;\">';\n      for (k = 0; k < names.length; k++) { sb += '<span style=\"margin-right:9px;white-space:nowrap;color:' + MUTED + ';\">' + swatch(colourOf[names[k]]) + esc(names[k]) + '</span>'; }\n      sb += '</div>';\n    }\n    for (k = 0; k < shown; k++) {\n      var f = s.species[sp[k]];\n      var segs = [];\n      var parts = [];\n      var q;\n      for (q = 0; q < names.length; q++) {\n        var cnt = s.anglers[names[q]].sp ? (s.anglers[names[q]].sp[sp[k]] || 0) : 0;\n        if (cnt > 0) {\n          segs.push({ who: names[q], n: cnt, colour: colourOf[names[q]] });\n          parts.push('<span style=\"color:' + colourOf[names[q]] + ';\">' + esc(names[q]) + ' ' + cnt + '</span>');\n        }\n      }\n      var notes = [];\n      if (parts.length > 1) { notes.push(parts.join(' &middot; ')); }\n      var note2 = 'avg ' + wt(f.oz / f.n) + ' &middot; best ' + wt(f.best) + ' (' + esc(f.bestBy) + ')';\n      var rr = recFor(sp[k]);\n      if (rr) { note2 += ' &middot; <span style=\"color:' + RECORD + ';\">year&rsquo;s best ' + wt(rr[0]) + ' ' + esc(rr[1]) + '</span>'; }\n      notes.push(note2);\n      sb += stackRow(sp[k], String(f.n), segs, notes, maxS);\n    }\n    html += section(\"By species\", sb, sp.length > shown ? ' <span style=\"font-variant:normal;letter-spacing:0;font-style:italic;color:' + MUTED + ';\">top ' + shown + ' of ' + sp.length + '</span>' : '');\n  }\n\n  if (s.recent.length > 0) {\n    var rb = \"\";\n    for (k = s.recent.length - 1; k >= 0; k--) {\n      var r2 = s.recent[k];\n      var isMe = (r2[1] === client.fshMe);\n      rb += '<div style=\"display:flex;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\">';\n      rb += '<span style=\"color:' + MUTED + ';min-width:3em;\">' + clock(r2[0]) + '</span>';\n      rb += '<span style=\"color:' + (colourOf[r2[1]] || TXT) + ';min-width:5.5em;' + (isMe ? 'font-weight:bold;' : '') + '\">' + esc(r2[1]) + '</span>';\n      rb += '<span style=\"flex:1 1 auto;color:' + TXT + ';\">' + esc(r2[2]) + '</span>';\n      rb += '<span style=\"color:' + CATCH + ';white-space:nowrap;\">' + wt(r2[3]) + '</span></div>';\n    }\n    html += section(\"Recent catches\", rb);\n  }\n}\nhtml += '</div>';\n\ntry { set_custom_tab_html(\"fishingstats\", html); } catch (e) {}"
-  },
-  {
-   "type": "function",
-   "name": "fsh_log_render",
-   "enabled": true,
-   "code": "run_function(\"fsh_ensure\", [], \"fishingstats\");\n// Draws the 'fishinglog' tab: filed sessions and all-time totals.\n// House style shared in spirit with Coffers, Level and Ledger: ink panel,\n// serif small-caps headings, one large figure, monospace ledger rows.\nvar WATER = \"#7fd0c0\";\nvar DEEP = \"#3f7a72\";\nvar CATCH = \"#e6d27a\";\nvar TXT = \"#dbe8e4\";\nvar MUTED = \"#7f8f8b\";\nvar RULE = \"#20312d\";\nvar TRACK = \"#17241f\";\nvar RECORD = \"#b8d88a\";\nvar SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\nvar MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\n\nfunction esc(t) { return String(t).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\"); }\nfunction pad2(n) { return (n < 10 ? \"0\" : \"\") + n; }\nfunction clock(t) { var d = new Date(t * 1000); return d.getHours() + \":\" + pad2(d.getMinutes()); }\nfunction dur(secs) {\n  if (secs < 60) { return secs + \"s\"; }\n  if (secs < 3600) { return Math.round(secs / 60) + \"m\"; }\n  var h = Math.floor(secs / 3600);\n  var m = Math.round((secs - h * 3600) / 60);\n  return h + \"h\" + (m > 0 ? \" \" + m + \"m\" : \"\");\n}\nfunction wt(oz) {\n  oz = Math.round(oz);\n  var lb = Math.floor(oz / 16);\n  var o = oz % 16;\n  if (lb === 0) { return o + \"oz\"; }\n  return lb + \"lb\" + (o > 0 ? \" \" + o + \"oz\" : \"\");\n}\n// House typography, shared in spirit (not in code) with Coffers, Level and Ledger.\nfunction caps(t, col) { return '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || DEEP) + ';font-size:11px;margin:0 0 3px;\">' + t + '</div>'; }\nfunction row(label, value, col) {\n  return '<div style=\"display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\"><span style=\"color:' + MUTED + ';white-space:nowrap;\">' + label + '</span><span style=\"color:' + (col || TXT) + ';white-space:nowrap;\">' + value + '</span></div>';\n}\nfunction box(inner, col) { return '<div style=\"flex:1 1 150px;min-width:150px;border-top:2px solid ' + (col || DEEP) + ';padding:3px 2px 0;\">' + inner + '</div>'; }\nfunction section(title, inner, extra) { return '<div style=\"border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;\">' + caps(title + (extra || \"\"), WATER) + inner + '</div>'; }\nfunction quiet(t) { return '<div style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">' + t + '</div>'; }\nfunction swatch(c) { return '<span style=\"display:inline-block;width:8px;height:8px;background:' + c + ';margin-right:4px;vertical-align:0;\"></span>'; }\n\n// A small leaping fish over a ripple, the fishing tabs' counterpart of the coin stack.\nvar glyph = '<svg width=\"20\" height=\"16\" viewBox=\"0 0 20 16\" style=\"vertical-align:-3px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n  '<path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"' + WATER + '\"/>' +\n  '<path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"' + WATER + '\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/>' +\n  '<path d=\"M1 13.5 Q4 12 7 13.5 T13 13.5 T19 13.5\" fill=\"none\" stroke=\"' + DEEP + '\" stroke-width=\"1\"/></svg>';\nfunction header(title, right) {\n  return '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;\">' +\n    '<div style=\"font-family:' + SERIF + ';color:' + WATER + ';font-size:14px;letter-spacing:0.22em;\">' + glyph + title + '</div>' +\n    '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + DEEP + ';font-size:11px;\">' + right + '</div></div>';\n}\nfunction hero(num, tail) {\n  return '<div style=\"margin:6px 0 2px;\"><span style=\"font-family:' + SERIF + ';font-size:26px;color:' + WATER + ';\">' + num + '</span> ' +\n    '<span style=\"font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;\">' + tail + '</span></div>';\n}\nvar PANEL = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1514;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\n\nvar log = client.fshLog || [];\nvar pal = client.fshPalette;\n\nfunction stamp(t) {\n  if (!t || isNaN(Number(t))) { return \"undated\"; }\n  var MN = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  var d = new Date(t * 1000);\n  return d.getDate() + \" \" + MN[d.getMonth()] + \" \" + d.getHours() + \":\" + pad2(d.getMinutes());\n}\nvar perAngler = {};\nvar curL = null;\nfunction byTotal(a, b) { return perAngler[b][0] - perAngler[a][0]; }\nfunction bySessionCount(a, b) { return curL.ang[b][0] - curL.ang[a][0]; }\n\nvar html = PANEL;\nif (log.length === 0) {\n  html += header(\"FISHING LOG\", \"0 sessions\");\n  html += quiet(\"No sessions filed yet. A session is filed automatically after \" + client.fshGap + \" minutes idle, or on demand with FPEND.\");\n} else {\n  // Aggregate across everything logged.\n  var tn = 0, toz = 0, tsec = 0, trec = 0, tnTimed = 0;\n  var bestOz = 0, bestSp = \"\", bestWho = \"\";\n  var perSpecies = {};\n  var i, k;\n  for (i = 0; i < log.length; i++) {\n    var L = log[i];\n    tn += L.n;\n    toz += L.oz || 0;\n    // Older entries can lack a start or end time; count only the sound ones.\n    var lsec = Number(L.e) - Number(L.s);\n    if (!isNaN(lsec) && lsec > 0) { tsec += lsec; tnTimed += L.n; }\n    trec += L.rec || 0;\n    for (k in L.ang) {\n      if (L.ang.hasOwnProperty(k)) {\n        if (!perAngler[k]) { perAngler[k] = [0, 0, 0, \"\"]; }\n        perAngler[k][0] += L.ang[k][0];\n        perAngler[k][1] += L.ang[k][1];\n        if (L.ang[k][2] > perAngler[k][2]) { perAngler[k][2] = L.ang[k][2]; perAngler[k][3] = L.ang[k][5] || \"\"; }\n        if (L.ang[k][2] > bestOz) { bestOz = L.ang[k][2]; bestWho = k; bestSp = L.ang[k][5] || \"\"; }\n      }\n    }\n    for (k in L.sp) { if (L.sp.hasOwnProperty(k)) { perSpecies[k] = (perSpecies[k] || 0) + L.sp[k][0]; } }\n  }\n  var spCount = 0;\n  for (k in perSpecies) { if (perSpecies.hasOwnProperty(k)) { spCount += 1; } }\n\n  html += header(\"FISHING LOG\", log.length + \" session\" + (log.length === 1 ? \"\" : \"s\"));\n  html += hero(String(tn), \"fish landed\" + (tsec > 0 ? \" over \" + dur(tsec) : \"\") + (toz > 0 ? \", \" + wt(toz) + \" in all\" : \"\"));\n\n  var cols = '<div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;\">';\n  var tb = caps(\"All sessions\", WATER);\n  tb += row(\"time fished\", dur(tsec));\n  tb += row(\"per hour\", tsec > 0 ? String(Math.round(tnTimed / (tsec / 3600) * 10) / 10) : \"&hellip;\", WATER);\n  tb += row(\"species seen\", String(spCount));\n  if (trec > 0) { tb += row(\"rankings beaten\", String(trec), RECORD); }\n  cols += box(tb, WATER);\n  var bb = caps(\"Biggest ever\", CATCH);\n  if (bestOz > 0) {\n    bb += '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + CATCH + ';\">' + wt(bestOz) + '</div>';\n    bb += row(\"species\", esc(bestSp));\n    bb += row(\"by\", esc(bestWho), bestWho === client.fshMe ? \"#ffffff\" : TXT);\n  } else {\n    bb += quiet(\"Nothing weighed yet.\");\n  }\n  cols += box(bb, CATCH);\n  html += cols + '</div>';\n\n  var an = [];\n  for (k in perAngler) { if (perAngler.hasOwnProperty(k)) { an.push(k); } }\n  an.sort(byTotal);\n  var tot = \"\";\n  var maxA = an.length > 0 ? perAngler[an[0]][0] : 0;\n  for (i = 0; i < an.length; i++) {\n    var colour = client.fshCol[an[i]] || pal[i % pal.length];\n    var pa = perAngler[an[i]];\n    var pct = maxA > 0 ? Math.round(pa[0] / maxA * 100) : 0;\n    tot += '<div style=\"display:flex;align-items:center;gap:6px;margin-top:2px;\">';\n    tot += '<span style=\"width:76px;color:' + (an[i] === client.fshMe ? \"#ffffff\" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;\">' + swatch(colour) + esc(an[i]) + '</span>';\n    tot += '<span style=\"flex:1;background:' + TRACK + ';height:6px;\"><span style=\"display:block;background:' + colour + ';height:6px;width:' + pct + '%;\"></span></span>';\n    tot += '<span style=\"width:108px;text-align:right;color:' + TXT + ';white-space:nowrap;\">' + pa[0] + ' <span style=\"color:' + MUTED + ';\">&middot; ' + wt(pa[1]) + '</span></span></div>';\n  }\n  html += section(\"Anglers, all time\", tot);\n\n  // One entry per session, newest first.\n  var sb = \"\";\n  for (i = log.length - 1; i >= 0; i--) {\n    var L2 = log[i];\n    curL = L2;\n    sb += '<div style=\"border-bottom:1px dotted ' + RULE + ';padding:2px 0 5px;margin:0 0 3px;\">';\n    sb += '<div style=\"display:flex;justify-content:space-between;align-items:baseline;\">';\n    sb += '<span style=\"font-family:' + SERIF + ';color:' + TXT + ';font-size:12px;\">' + stamp(L2.s) + '</span>';\n    sb += '<span style=\"color:' + TXT + ';\">' + L2.n + ' <span style=\"color:' + MUTED + ';\">&middot; ' + (isNaN(Number(L2.e) - Number(L2.s)) ? '?' : dur(L2.e - L2.s)) + ' &middot; ' + wt(L2.oz || 0) + '</span></span></div>';\n    var meta = [];\n    if (L2.ar) { meta.push('<span style=\"color:' + WATER + ';\">' + esc(L2.ar) + '</span>'); }\n    if (L2.y) { meta.push(L2.y + ' AF'); }\n    if (L2.ft) { meta.push('avg cast ' + L2.ft + 'ft'); }\n    if (L2.rec) { meta.push('<span style=\"color:' + RECORD + ';\">' + L2.rec + ' ranking' + (L2.rec === 1 ? \"\" : \"s\") + ' beaten</span>'); }\n    if (meta.length > 0) { sb += '<div style=\"color:' + MUTED + ';\">' + meta.join(' &middot; ') + '</div>'; }\n\n    var names = [];\n    for (k in L2.ang) { if (L2.ang.hasOwnProperty(k)) { names.push(k); } }\n    names.sort(bySessionCount);\n    var maxN = names.length > 0 ? L2.ang[names[0]][0] : 0;\n    var j;\n    for (j = 0; j < names.length; j++) {\n      var A = L2.ang[names[j]];\n      var colour2 = client.fshCol[names[j]] || pal[j % pal.length];\n      var pc = maxN > 0 ? Math.round((A[0] / maxN) * 100) : 0;\n      var lostN = (A[4] || 0) - A[0];\n      sb += '<div style=\"display:flex;align-items:center;gap:6px;margin-top:2px;\">';\n      sb += '<span style=\"width:76px;color:' + (names[j] === client.fshMe ? \"#ffffff\" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;\">' + esc(names[j]) + '</span>';\n      sb += '<span style=\"flex:1;background:' + TRACK + ';height:5px;\"><span style=\"display:block;background:' + colour2 + ';height:5px;width:' + pc + '%;\"></span></span>';\n      sb += '<span style=\"width:108px;text-align:right;color:' + MUTED + ';white-space:nowrap;\"><span style=\"color:' + TXT + ';\">' + A[0] + '</span> &middot; ' + wt(A[1]) + (lostN > 0 ? ' &middot; ' + lostN + ' lost' : '') + '</span></div>';\n    }\n    sb += '</div>';\n  }\n  html += section(\"Sessions\", sb);\n}\nhtml += '</div>';\n\ntry { set_custom_tab_html(\"fishinglog\", html); } catch (e) {}"
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Landed Self",
-   "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "script",
+     "type": "function",
+     "name": "fishingstats_setup",
      "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshIn = { angler: client.fshMe, species: args[1], oz: (parseInt(args[2], 10) || 0) * 16 + (parseInt(args[3], 10) || 0) };\nrun_function(\"fsh_record\", [], \"fishingstats\");"
+     "code": "// fishingstats_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration of the\n// fsh_* variables, then each piece built from stored variables if missing.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.fishingstats) client.loom.fishingstats = {};\nclient.loom.registry.fishingstats = { version: \"0.2.0\", keyword: \"FISHINGSTATS\" };\nvar FS = client.loom.fishingstats;\n\nfunction fsGet(name) {\n  var v;\n  try { v = get_variable(name); } catch (e) { v = undefined; }\n  return (v === null || v === \"undefined\") ? undefined : v;\n}\n\n// One-time migration: fsh_* -> fishingstats_*. A new variable that already\n// holds data wins; the old one is deleted either way.\nvar fsMoves = [\"session\", \"log\", \"records\", \"me\", \"colours\", \"area\", \"gap\"];\nfor (var fsI = 0; fsI < fsMoves.length; fsI++) {\n  var fsOld = fsGet(\"fsh_\" + fsMoves[fsI]);\n  if (fsOld !== undefined) {\n    var fsNew = fsGet(\"fishingstats_\" + fsMoves[fsI]);\n    if (fsNew === undefined || fsNew === \"\") set_variable(\"fishingstats_\" + fsMoves[fsI], fsOld);\n    delete_variable(\"fsh_\" + fsMoves[fsI]);\n  }\n}\n// The old package kept its state in 18 loose client.fsh* keys; drop them so a\n// reimport without a page reload doesn't leave two copies around. The open\n// session in memory carries over.\nvar fsOldKeys = [\"fsh\", \"fshAreaManual\", \"fshAreaNow\", \"fshAreaSrc\", \"fshBuf\", \"fshCol\", \"fshEvt\", \"fshGap\", \"fshIn\", \"fshLearn\", \"fshLog\", \"fshLogCap\", \"fshMe\", \"fshPalette\", \"fshRank\", \"fshRankMode\", \"fshRec\", \"fshRecentCap\"];\nif (client.fsh && client.fsh.anglers && !FS.session) FS.session = client.fsh;\nfor (var fsJ = 0; fsJ < fsOldKeys.length; fsJ++) {\n  if (client[fsOldKeys[fsJ]] !== undefined) delete client[fsOldKeys[fsJ]];\n}\n\n// Weights are stored as whole ounces. Achaea reports pounds and ounces, so an\n// integer count avoids float drift and formats back exactly.\nFS.blank = function () {\n  var now = Math.floor(new Date().getTime() / 1000);\n  return {\n    start: now, last: now,\n    anglers: {}, species: {}, recent: [], n: 0,\n    areas: {}, year: (client.loom.fishingstats.rec && client.loom.fishingstats.rec.year) || 0, rec: 0, castFt: 0, castN: 0\n  };\n};\nif (!FS.rec) {\n  var r = null;\n  try { r = JSON.parse(fsGet(\"fishingstats_records\")); } catch (e) { r = null; }\n  if (!r || typeof r !== \"object\") { r = { year: 0, f: {}, a: {} }; }\n  if (!r.f) { r.f = {}; }\n  if (!r.a) { r.a = {}; }\n  FS.rec = r;\n}\nif (!FS.session) {\n  var s = null;\n  try { s = JSON.parse(fsGet(\"fishingstats_session\")); } catch (e) { s = null; }\n  if (!s || typeof s !== \"object\" || !s.anglers) { s = FS.blank(); }\n  FS.session = s;\n}\nvar fsS = FS.session;\nif (!fsS.species) { fsS.species = {}; }\nif (!fsS.recent) { fsS.recent = []; }\nif (!fsS.areas) { fsS.areas = {}; }\nif (!fsS.n) { fsS.n = 0; }\nif (!fsS.rec) { fsS.rec = 0; }\nif (!fsS.castFt) { fsS.castFt = 0; }\nif (!fsS.castN) { fsS.castN = 0; }\nif (!fsS.last) { fsS.last = fsS.start || Math.floor(new Date().getTime() / 1000); }\nif (!FS.log) {\n  var lg = [];\n  try { lg = JSON.parse(fsGet(\"fishingstats_log\")) || []; } catch (e) { lg = []; }\n  if (Object.prototype.toString.call(lg) !== \"[object Array]\") { lg = []; }\n  FS.log = lg;\n}\nif (!FS.col) {\n  var c = null;\n  try { c = JSON.parse(fsGet(\"fishingstats_colours\")); } catch (e) { c = null; }\n  if (!c || typeof c !== \"object\") { c = {}; }\n  FS.col = c;\n}\n// Your angler name: FISHINGSTATS ME sets it; otherwise the name GMCP gives\n// (Char.Name), and \"You\" until that arrives.\nFS.meSet = String(fsGet(\"fishingstats_me\") || \"\");\nif (!FS.gmcpName) FS.gmcpName = \"\";\nFS.me = FS.meSet || FS.gmcpName || \"You\";\nvar fsG = parseInt(fsGet(\"fishingstats_gap\"), 10);\nif (!fsG || isNaN(fsG) || fsG < 5) { fsG = 90; }\nif (fsG > 1440) { fsG = 1440; }\nFS.gap = fsG;\nif (FS.learn === undefined) { FS.learn = false; }\nFS.recentCap = 10;\nFS.logCap = 30;\n// Ordered so consecutive anglers differ in hue AND lightness, not hue alone.\nFS.palette = [\"#7fe0b4\", \"#e8a13f\", \"#a88fe0\", \"#5fb0e0\", \"#e0708f\", \"#c8d84a\", \"#d8845f\", \"#7fd8d8\"];\n\n// Area: a manual pin (FISHINGSTATS AREA <name>) wins; otherwise the area\n// GMCP's Room.Info gave last (kept by this package's onGMCP).\nFS.areaManual = String(fsGet(\"fishingstats_area\") || \"\");\nif (!FS.areaGmcp) FS.areaGmcp = \"\";\nFS.areaNow = FS.areaManual || FS.areaGmcp;\nFS.areaSrc = FS.areaManual ? \"manual\" : (FS.areaGmcp ? \"GMCP\" : \"\");\n"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_help",
+     "enabled": true,
+     "code": "// fishingstats_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[fishingstats] catches, casts and hooks for you and everyone around you. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"FISHINGSTATS\", \"this session by angler, and the settings\"],\n  [\"FISHINGSTATS END\", \"file this session to the log and start a new one\"],\n  [\"FISHINGSTATS DISCARD [CONFIRM]\", \"throw this session away without filing it\"],\n  [\"FISHINGSTATS LOG [WIPE [CONFIRM]]\", \"redraw the fishinglog tab / clear the log\"],\n  [\"FISHINGSTATS GAP <5-1440>\", \"minutes idle before a session files itself\"],\n  [\"FISHINGSTATS AREA [<name>|AUTO|RESET]\", \"pin the area / follow the game / forget this session's\"],\n  [\"FISHINGSTATS YEAR <n>\", \"the Achaean year (normally read from RANKINGS FISHING)\"],\n  [\"FISHINGSTATS ME [<name>|AUTO]\", \"your angler name (normally your character's)\"],\n  [\"FISHINGSTATS COLOUR <name> <#rrggbb|RESET>\", \"an angler's colour in the tabs\"],\n  [\"FISHINGSTATS ADD <angler> <lb> [oz] <species>\", \"record a catch by hand\"],\n  [\"FISHINGSTATS CSV\", \"this session as CSV lines\"],\n  [\"FISHINGSTATS LEARN [ON|OFF|SHOW|CLEAR]\", \"capture raw lines to fix a missed catch message\"],\n  [\"FISHINGSTATS DEMO / DEBUG\", \"sample data in the tab / internal state\"],\n  [\"Type RANKINGS FISHING once a year so new records are flagged.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// FISHINGSTATS [subcommand ...]: the one command for this package. The\n// subcommand is case-insensitive; names, species and colours keep their case.\nif (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nvar fsSub = String(args[1] || \"\").toLowerCase();\nvar fsRest = String(args[2] || \"\").trim();\nvar fsW = fsRest === \"\" ? [] : fsRest.split(/\\s+/);\nvar fsW0 = (fsW[0] || \"\").toLowerCase();\nvar C = \"cyan\";\nfunction fsSay(t, col) { display_notice(\"[fishingstats] \" + t, col || C); }\nfunction fsSave() { try { set_variable(\"fishingstats_session\", JSON.stringify(FS.session)); } catch (e) {} }\n\nif (fsSub === \"\" || fsSub === \"status\") {\n  var s = FS.session;\n  var now = Math.floor(new Date().getTime() / 1000);\n  var el = now - (s.start || now);\n  if (el < 1) { el = 1; }\n  fsSay(s.n + \" catches over \" + Math.round(el / 60) + \" min; you are \" + FS.me + (FS.meSet ? \"\" : \" (from the game)\")\n    + \"; area \" + (FS.areaNow || \"unknown\") + (FS.areaSrc === \"manual\" ? \" (pinned)\" : \"\")\n    + \"; filed after \" + FS.gap + \" min idle; \" + FS.log.length + \" session(s) in the log. FISHINGSTATS HELP for commands.\");\n  for (var k in s.anglers) {\n    if (s.anglers.hasOwnProperty(k)) {\n      var a = s.anglers[k];\n      fsSay(k + \": \" + a.n + \" (\" + Math.round((a.n / Math.max(1, s.n)) * 100) + \"%), \" + Math.floor(a.oz / 16) + \"lb \" + (a.oz % 16) + \"oz total, best \" + Math.floor(a.best / 16) + \"lb \" + (a.best % 16) + \"oz \" + a.bestSp);\n    }\n  }\n  run_function(\"fishingstats_render\", [], \"fishingstats\");\n} else if (fsSub === \"help\") {\n  run_function(\"fishingstats_help\", [], \"fishingstats\");\n} else if (fsSub === \"end\") {\n  var had = FS.session.n;\n  run_function(\"fishingstats_archive\", [], \"fishingstats\");\n  if (had > 0) { fsSay(\"session filed to the log (\" + had + \" landed). New session started.\"); }\n  else { fsSay(\"nothing landed, so nothing was filed. Session restarted.\", \"yellow\"); }\n} else if (fsSub === \"discard\") {\n  if (fsW0 === \"confirm\") {\n    FS.session = FS.blank();\n    fsSave();\n    run_function(\"fishingstats_render\", [], \"fishingstats\");\n    fsSay(\"current session discarded, without filing it. New session started.\");\n  } else {\n    fsSay(\"this throws away the current session without filing it. FISHINGSTATS DISCARD CONFIRM to proceed.\", \"yellow\");\n  }\n} else if (fsSub === \"log\") {\n  if (fsW0 === \"wipe\") {\n    if ((fsW[1] || \"\").toLowerCase() === \"confirm\") {\n      FS.log = [];\n      try { set_variable(\"fishingstats_log\", \"[]\"); } catch (e) {}\n      run_function(\"fishingstats_log_render\", [], \"fishingstats\");\n      fsSay(\"session log cleared. The current session is untouched.\", \"red\");\n    } else {\n      fsSay(\"this clears ALL filed sessions. FISHINGSTATS LOG WIPE CONFIRM to proceed.\", \"yellow\");\n    }\n  } else {\n    run_function(\"fishingstats_log_render\", [], \"fishingstats\");\n    fsSay(FS.log.length + \" session(s) in the log; see the fishinglog tab.\");\n  }\n} else if (fsSub === \"area\") {\n  if (fsRest === \"\") {\n    fsSay(\"area now: \" + (FS.areaNow || \"unknown\") + \" (from \" + (FS.areaSrc || \"nothing yet\") + \"). FISHINGSTATS AREA <name> to pin one, AREA AUTO to follow the game again, AREA RESET to forget the areas seen this session.\");\n  } else if (fsW0 === \"auto\" || fsW0 === \"reset\") {\n    if (fsW0 === \"auto\") {\n      FS.areaManual = \"\";\n      try { set_variable(\"fishingstats_area\", \"\"); } catch (e) {}\n      FS.areaNow = FS.areaGmcp;\n      FS.areaSrc = FS.areaGmcp ? \"GMCP\" : \"\";\n    }\n    // Areas accumulate across a session, so a stale pinned entry has to be\n    // cleared out too, then reseeded from the area now in use.\n    FS.session.areas = {};\n    if (FS.areaNow) { FS.session.areas[FS.areaNow] = 1; }\n    fsSave();\n    run_function(\"fishingstats_render\", [], \"fishingstats\");\n    fsSay(\"area is now \" + (FS.areaNow || \"unknown\") + \" (from \" + (FS.areaSrc || \"nothing yet\") + \"). Earlier areas this session were forgotten.\");\n  } else {\n    FS.areaManual = fsRest;\n    FS.areaNow = fsRest;\n    FS.areaSrc = \"manual\";\n    try { set_variable(\"fishingstats_area\", fsRest); } catch (e) {}\n    FS.session.areas[fsRest] = (FS.session.areas[fsRest] || 0) + 1;\n    fsSave();\n    run_function(\"fishingstats_render\", [], \"fishingstats\");\n    fsSay(\"area pinned to \" + fsRest + \". FISHINGSTATS AREA AUTO to follow the game again.\");\n  }\n} else if (fsSub === \"year\") {\n  if (fsW0) {\n    FS.session.year = parseInt(fsW0, 10) || 0;\n    fsSave();\n    run_function(\"fishingstats_render\", [], \"fishingstats\");\n    fsSay(\"session year set to \" + FS.session.year + \" AF.\");\n  } else {\n    fsSay(\"session year is \" + (FS.session.year || \"unknown\") + \". It is picked up from the RANKINGS FISHING header, or set it with FISHINGSTATS YEAR 1014.\");\n  }\n} else if (fsSub === \"gap\") {\n  var m = fsW0 ? parseInt(fsW0, 10) : 0;\n  if (!m) { fsSay(\"sessions are filed automatically after \" + FS.gap + \" minutes idle. FISHINGSTATS GAP 5-1440 to change it.\"); }\n  else if (m < 5 || m > 1440) { fsSay(\"pick a gap between 5 and 1440 minutes.\", \"yellow\"); }\n  else {\n    FS.gap = m;\n    try { set_variable(\"fishingstats_gap\", String(m)); } catch (e) {}\n    fsSay(\"idle gap set to \" + m + \" minutes.\");\n  }\n} else if (fsSub === \"me\") {\n  if (fsW0 === \"auto\") {\n    FS.meSet = \"\";\n    try { set_variable(\"fishingstats_me\", \"\"); } catch (e) {}\n    FS.me = FS.gmcpName || \"You\";\n    run_function(\"fishingstats_render\", [], \"fishingstats\");\n    fsSay(\"your angler name follows the game again: \" + FS.me + \".\");\n  } else if (fsW[0]) {\n    FS.meSet = fsW[0];\n    FS.me = fsW[0];\n    try { set_variable(\"fishingstats_me\", fsW[0]); } catch (e) {}\n    run_function(\"fishingstats_render\", [], \"fishingstats\");\n    fsSay(\"your angler name is set to \" + fsW[0] + \"; your row is highlighted. FISHINGSTATS ME AUTO to take it from the game.\");\n  } else {\n    fsSay(\"your angler name is \" + FS.me + (FS.meSet ? \" (set with FISHINGSTATS ME)\" : \" (from the game)\") + \".\");\n  }\n} else if (fsSub === \"colour\" || fsSub === \"color\") {\n  var who = fsW[0] || \"\";\n  var hex = fsW[1] || \"\";\n  if (!who) {\n    var listed = [];\n    for (var q in FS.session.anglers) { if (FS.session.anglers.hasOwnProperty(q)) { listed.push(q + \" \" + (FS.col[q] || \"default\")); } }\n    fsSay(\"colours: \" + (listed.length ? listed.join(\", \") : \"none yet\") + \". FISHINGSTATS COLOUR <name> <#rrggbb|RESET>.\");\n  } else if (!hex) {\n    fsSay(who + \" is \" + (FS.col[who] || \"on the default palette\") + \". Give a hex value like #e8a13f, or RESET.\");\n  } else if (hex.toLowerCase() !== \"reset\" && !/^#[0-9a-fA-F]{6}$/.test(hex)) {\n    fsSay(\"'\" + hex + \"' isn't a colour like #e8a13f.\", \"orange\");\n  } else {\n    if (hex.toLowerCase() === \"reset\") { delete FS.col[who]; }\n    else { FS.col[who] = hex; }\n    try { set_variable(\"fishingstats_colours\", JSON.stringify(FS.col)); } catch (e) {}\n    run_function(\"fishingstats_render\", [], \"fishingstats\");\n    fsSay(who + \" is now \" + (hex.toLowerCase() === \"reset\" ? \"back on the default palette\" : hex) + \".\");\n  }\n} else if (fsSub === \"add\") {\n  var am = fsRest.match(/^(\\S+)\\s+(\\d+)(?:\\s+(\\d+))?\\s+(\\D.*)$/);\n  if (!am) {\n    fsSay(\"FISHINGSTATS ADD <angler> <lb> [oz] <species>, e.g. FISHINGSTATS ADD Arlen 3 4 rock bass.\", \"orange\");\n  } else {\n    var lbv = parseInt(am[2], 10) || 0;\n    var ozv = parseInt(am[3], 10) || 0;\n    FS.inp = { angler: am[1], species: am[4], oz: lbv * 16 + ozv };\n    run_function(\"fishingstats_record\", [], \"fishingstats\");\n    fsSay(\"recorded \" + am[1] + \" \" + lbv + \"lb \" + ozv + \"oz \" + am[4] + \".\");\n  }\n} else if (fsSub === \"csv\") {\n  var cs = FS.session;\n  display_notice(\"angler,landed,casts,hooks,total_oz,best_oz,best_species\", \"white\");\n  for (var ck in cs.anglers) {\n    if (cs.anglers.hasOwnProperty(ck)) {\n      var ca = cs.anglers[ck];\n      display_notice(ck + \",\" + ca.n + \",\" + (ca.casts || 0) + \",\" + (ca.hooks || 0) + \",\" + ca.oz + \",\" + ca.best + \",\" + ca.bestSp, \"white\");\n    }\n  }\n  display_notice(\"species,caught,total_oz,best_oz,best_by\", \"white\");\n  for (var cf in cs.species) {\n    if (cs.species.hasOwnProperty(cf)) {\n      var cfs = cs.species[cf];\n      display_notice(cf + \",\" + cfs.n + \",\" + cfs.oz + \",\" + cfs.best + \",\" + cfs.bestBy, \"white\");\n    }\n  }\n} else if (fsSub === \"learn\") {\n  if (fsW0 === \"show\") {\n    var buf = FS.buf || [];\n    fsSay(buf.length + \" line(s) captured:\");\n    for (var bi = 0; bi < buf.length; bi++) { display_notice(\"| \" + buf[bi], \"yellow\"); }\n  } else if (fsW0 === \"clear\") {\n    FS.buf = [];\n    fsSay(\"buffer cleared.\");\n  } else {\n    if (fsW0 === \"on\") { FS.learn = true; }\n    else if (fsW0 === \"off\") { FS.learn = false; }\n    else { FS.learn = !FS.learn; }\n    if (FS.learn) { FS.buf = []; }\n    fsSay(\"capture \" + (FS.learn ? \"ON. Catch a fish, have someone else catch one, then FISHINGSTATS LEARN OFF and LEARN SHOW.\" : \"off. FISHINGSTATS LEARN SHOW dumps what was captured.\"));\n  }\n} else if (fsSub === \"demo\") {\n  FS.session = FS.blank();\n  FS.session.start -= 4500;\n  var dWho = [\"Arlen\", \"Mirela\", \"Tobin\"];\n  var dFish = [\"pike\", \"blue eel\", \"rock bass\", \"catfish\", \"walleye\", \"trout\"];\n  for (var di = 0; di < 34; di++) {\n    var dw = dWho[di % 3 === 0 ? 0 : (di % 5 === 0 ? 2 : (di % 2))];\n    var dx = (di % 3 === 0) ? 2 : 1;\n    for (var dj = 0; dj < dx; dj++) {\n      FS.evt = { angler: dw, type: \"cast\" };\n      run_function(\"fishingstats_event\", [], \"fishingstats\");\n    }\n    FS.evt = { angler: dw, type: \"hook\" };\n    run_function(\"fishingstats_event\", [], \"fishingstats\");\n    FS.inp = { angler: dw, species: dFish[(di * 5) % dFish.length], oz: 12 + ((di * 37) % 900) + (di % 5) * 40 };\n    run_function(\"fishingstats_record\", [], \"fishingstats\");\n  }\n  fsSay(\"demo data loaded into the tab. FISHINGSTATS DISCARD CONFIRM clears it.\");\n} else if (fsSub === \"debug\") {\n  fsSay(\"me=\" + FS.me + \" meSet=\" + FS.meSet + \" gmcpName=\" + FS.gmcpName + \" area=\" + FS.areaNow + \" src=\" + FS.areaSrc + \" gmcpArea=\" + FS.areaGmcp\n    + \" gap=\" + FS.gap + \" learn=\" + FS.learn + \" log=\" + FS.log.length + \" records year=\" + FS.rec.year + \" (\" + Object.keys(FS.rec.f).length + \" species)\");\n} else {\n  fsSay(\"unknown command '\" + fsSub + \"'. FISHINGSTATS HELP for commands.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^fishingstats(?:\\s+(\\S+)(?:\\s+(.*?))?)?\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
     }
-   ],
-   "text": "^With a final tug, you finish reeling in the line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
+   ]
   },
   {
-   "type": "trigger",
-   "name": "Fish Landed Other",
+   "type": "group",
+   "name": "tally",
    "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "script",
+     "type": "function",
+     "name": "fishingstats_touch",
      "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshIn = { angler: args[1], species: args[2], oz: (parseInt(args[3], 10) || 0) * 16 + (parseInt(args[4], 10) || 0) };\nrun_function(\"fsh_record\", [], \"fishingstats\");"
+     "code": "// Called before any catch or cast is booked. If the session has been idle\n// longer than the gap threshold, the old one is archived and a fresh one\n// started, so sessions delimit themselves without needing to be told.\nif (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nvar s = FS.session;\nvar now = Math.floor(new Date().getTime() / 1000);\nif (s.n > 0 && s.last && (now - s.last) > FS.gap * 60) {\n  var mins = Math.round((now - s.last) / 60);\n  run_function(\"fishingstats_archive\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] \" + mins + \" minutes idle, so the previous session was filed to the log. Starting a new one.\", \"cyan\");\n}\nFS.session.last = now;\nvar ar = FS.areaNow;\nif (ar) { FS.session.areas[ar] = (FS.session.areas[ar] || 0) + 1; }\nif (!FS.session.year && FS.rec.year) { FS.session.year = FS.rec.year; }"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_record",
+     "enabled": true,
+     "code": "// Records a landed fish. Callers set:\n//   FS.inp = { angler: \"Arlen\", species: \"blue eel\", oz: 41 }\n// Trigger wording can change without touching the tally or the display.\nif (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nrun_function(\"fishingstats_touch\", [], \"fishingstats\");\nvar inp = FS.inp;\nFS.inp = null;\nif (inp && inp.angler && inp.species) {\n  var s = FS.session;\n  var now = Math.floor(new Date().getTime() / 1000);\n  var who = String(inp.angler);\n  var sp = String(inp.species).toLowerCase();\n  var oz = parseInt(inp.oz, 10);\n  if (isNaN(oz) || oz < 0) { oz = 0; }\n\n  if (!s.anglers[who]) { s.anglers[who] = { n: 0, oz: 0, best: 0, bestSp: \"\", casts: 0, hooks: 0, sp: {} }; }\n  var a = s.anglers[who];\n  a.n += 1;\n  a.oz += oz;\n  if (oz > a.best) { a.best = oz; a.bestSp = sp; }\n  a.sp[sp] = (a.sp[sp] || 0) + 1;\n\n  if (!s.species[sp]) { s.species[sp] = { n: 0, oz: 0, best: 0, bestBy: \"\" }; }\n  var f = s.species[sp];\n  f.n += 1;\n  f.oz += oz;\n  if (oz > f.best) { f.best = oz; f.bestBy = who; }\n\n  s.n += 1;\n  s.recent.push([now, who, sp, oz]);\n  while (s.recent.length > FS.recentCap) { s.recent.shift(); }\n\n  // Compare against the yearly rankings if they have been read. Ranking rows\n  // truncate long species names, so a stored key that prefixes the caught\n  // name counts as the same fish.\n  var rec = FS.rec.f;\n  var hit = null;\n  var key;\n  if (rec[sp]) { hit = rec[sp]; }\n  else {\n    for (key in rec) {\n      if (rec.hasOwnProperty(key) && key.length > 3 && sp.indexOf(key) === 0) { hit = rec[key]; break; }\n    }\n  }\n  if (hit && oz > hit[0]) {\n    s.rec = (s.rec || 0) + 1;\n    var lb1 = Math.floor(oz / 16);\n    display_notice(\"[fishingstats] \" + who + \"'s \" + sp + \" at \" + lb1 + \"lb \" + (oz % 16) + \"oz beats this year's ranking of \" + Math.floor(hit[0] / 16) + \"lb \" + (hit[0] % 16) + \"oz by \" + hit[1] + \".\", \"cyan\");\n  }\n\n  try { set_variable(\"fishingstats_session\", JSON.stringify(s)); } catch (e) {}\n  run_function(\"fishingstats_render\", [], \"fishingstats\");\n}"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_event",
+     "enabled": true,
+     "code": "// Counts casts and hooks so a landing rate can be shown.\n//   FS.evt = { angler: \"Arlen\", type: \"cast\" }   type: cast | hook\nif (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nrun_function(\"fishingstats_touch\", [], \"fishingstats\");\nvar ev = FS.evt;\nFS.evt = null;\nif (ev && ev.angler && ev.type) {\n  var s = FS.session;\n  var who = String(ev.angler);\n  if (!s.anglers[who]) { s.anglers[who] = { n: 0, oz: 0, best: 0, bestSp: \"\", casts: 0, hooks: 0, sp: {} }; }\n  var a = s.anglers[who];\n  if (!a.casts) { a.casts = 0; }\n  if (!a.hooks) { a.hooks = 0; }\n  if (ev.type === \"cast\") { a.casts += 1; }\n  else { a.hooks += 1; }\n  try { set_variable(\"fishingstats_session\", JSON.stringify(s)); } catch (e) {}\n  run_function(\"fishingstats_render\", [], \"fishingstats\");\n}"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_archive",
+     "enabled": true,
+     "code": "// Files the current session into the log and starts a blank one. A session\n// with nothing landed is discarded rather than logged.\nif (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nvar s = FS.session;\nif (s.n > 0) {\n  var ang = {};\n  var sp = {};\n  var k;\n  for (k in s.anglers) {\n    if (s.anglers.hasOwnProperty(k)) {\n      var a = s.anglers[k];\n      ang[k] = [a.n, a.oz, a.best, a.casts || 0, a.hooks || 0, a.bestSp || \"\"];\n    }\n  }\n  for (k in s.species) {\n    if (s.species.hasOwnProperty(k)) { sp[k] = [s.species[k].n, s.species[k].best, s.species[k].bestBy]; }\n  }\n  var areas = [];\n  for (k in s.areas) { if (s.areas.hasOwnProperty(k)) { areas.push(k); } }\n  FS.log.push({\n    s: s.start, e: s.last, ar: areas.join(\", \"), y: s.year || 0,\n    n: s.n, oz: 0, rec: s.rec || 0,\n    ft: s.castN > 0 ? Math.round(s.castFt / s.castN) : 0,\n    ang: ang, sp: sp\n  });\n  var tot = 0;\n  for (k in s.anglers) { if (s.anglers.hasOwnProperty(k)) { tot += s.anglers[k].oz; } }\n  FS.log[FS.log.length - 1].oz = tot;\n  while (FS.log.length > FS.logCap) { FS.log.shift(); }\n  try { set_variable(\"fishingstats_log\", JSON.stringify(FS.log)); } catch (e) {}\n}\nvar now = Math.floor(new Date().getTime() / 1000);\nFS.session = { start: now, last: now, anglers: {}, species: {}, recent: [], n: 0, areas: {}, year: FS.rec.year || 0, rec: 0, castFt: 0, castN: 0 };\ntry { set_variable(\"fishingstats_session\", JSON.stringify(FS.session)); } catch (e) {}\nrun_function(\"fishingstats_render\", [], \"fishingstats\");\nrun_function(\"fishingstats_log_render\", [], \"fishingstats\");"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.inp = { angler: FS.me, species: args[1], oz: (parseInt(args[2], 10) || 0) * 16 + (parseInt(args[3], 10) || 0) };\nrun_function(\"fishingstats_record\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^With a final tug, you finish reeling in the line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.inp = { angler: args[1], species: args[2], oz: (parseInt(args[3], 10) || 0) * 16 + (parseInt(args[4], 10) || 0) };\nrun_function(\"fishingstats_record\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^With a final tug, ([A-Z][a-z]+) finishes reeling in (?:his|her|their|its) fishing line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.inp = { angler: FS.me, species: args[1], oz: (parseInt(args[2], 10) || 0) * 16 + (parseInt(args[3], 10) || 0) };\nrun_function(\"fishingstats_record\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^You reel in the last bit of line and your struggle is over\\. You've landed (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.inp = { angler: args[1], species: args[2], oz: (parseInt(args[3], 10) || 0) * 16 + (parseInt(args[4], 10) || 0) };\nrun_function(\"fishingstats_record\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^([A-Z][a-z]+) reels in the last bit of (?:his|her|their|its) line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.inp = { angler: FS.me, species: args[1], oz: (parseInt(args[2], 10) || 0) * 16 + (parseInt(args[3], 10) || 0) };\nrun_function(\"fishingstats_record\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^You reel in the last bit of (?:your|the) line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.evt = { angler: FS.me, type: \"cast\" };\nrun_function(\"fishingstats_event\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^You cock back your arm and smoothly cast a line into",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nvar ft = parseInt(args[1], 10) || 0;\nif (ft > 0) {\n  FS.session.castFt = (FS.session.castFt || 0) + ft;\n  FS.session.castN = (FS.session.castN || 0) + 1;\n}"
+      }
+     ],
+     "text": "You judge the cast at about (\\d+) feet",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.evt = { angler: args[1], type: \"cast\" };\nrun_function(\"fishingstats_event\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^([A-Z][a-z]+) cocks back (?:his|her|their|its) arm and smoothly casts a line into",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.evt = { angler: FS.me, type: \"hook\" };\nrun_function(\"fishingstats_event\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^You quickly jerk back your fishing pole",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.evt = { angler: args[1], type: \"hook\" };\nrun_function(\"fishingstats_event\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^([A-Z][a-z]+) quickly jerks back (?:his|her|their|its) fishing pole",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
     }
-   ],
-   "text": "^With a final tug, ([A-Z][a-z]+) finishes reeling in (?:his|her|their|its) fishing line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
+   ]
   },
   {
-   "type": "trigger",
-   "name": "Fish Landed Self Struggle",
+   "type": "group",
+   "name": "rankings",
    "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "script",
+     "type": "function",
+     "name": "fishingstats_rank",
      "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshIn = { angler: client.fshMe, species: args[1], oz: (parseInt(args[2], 10) || 0) * 16 + (parseInt(args[3], 10) || 0) };\nrun_function(\"fsh_record\", [], \"fishingstats\");"
+     "code": "// Stores one row of a fishing rankings table.\n//   FS.rank = { species, who, lb, oz, year }\n// RANKINGS FISHING prints two tables with identical layout: the year's bests\n// and the all-time bests since the last reset. Rows are attributed by which\n// header was seen last, with the row's own year as a second check, so the\n// all-time figures cannot overwrite the yearly ones.\nif (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nvar r = FS.rank;\nFS.rank = null;\nif (r && r.species) {\n  var oz = (parseInt(r.lb, 10) || 0) * 16 + (parseInt(r.oz, 10) || 0);\n  var key = String(r.species).toLowerCase();\n  var yr = parseInt(r.year, 10) || 0;\n  var mode = FS.rankMode || \"\";\n\n  if (mode === \"year\" && yr === FS.rec.year) {\n    if (!FS.rec.f[key] || oz > FS.rec.f[key][0]) {\n      FS.rec.f[key] = [oz, String(r.who)];\n      try { set_variable(\"fishingstats_records\", JSON.stringify(FS.rec)); } catch (e) {}\n    }\n  } else if (mode === \"reset\") {\n    // Kept for later use. Nothing displays these yet.\n    if (!FS.rec.a) { FS.rec.a = {}; }\n    if (!FS.rec.a[key] || oz > FS.rec.a[key][0]) {\n      FS.rec.a[key] = [oz, String(r.who)];\n      try { set_variable(\"fishingstats_records\", JSON.stringify(FS.rec)); } catch (e) {}\n    }\n  }\n}"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nvar yr = parseInt(args[1], 10) || 0;\nFS.rankMode = \"year\";\n// The table is complete, so rebuild from scratch rather than merging into\n// whatever was there before.\nFS.rec.year = yr;\nFS.rec.f = {};\ntry { set_variable(\"fishingstats_records\", JSON.stringify(FS.rec)); } catch (e) {}"
+      }
+     ],
+     "text": "\\[ Fishing rankings for the year (\\d+) AF \\]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.rankMode = \"reset\";\nFS.rec.a = {};"
+      }
+     ],
+     "text": "\\[ Fishing rankings since last reset \\]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\nFS.rank = { species: args[1], who: args[2], lb: args[3], oz: args[4], year: args[5] };\nrun_function(\"fishingstats_rank\", [], \"fishingstats\");"
+      }
+     ],
+     "text": "^(?:A|An|The)\\s+(.+?)\\s+([A-Z][a-z]+)\\s+(\\d+)\\s+(\\d+)\\s+\\d+(?:st|nd|rd|th)\\s+of\\s+\\w+,\\s+(\\d+)\\s+AF?\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
     }
-   ],
-   "text": "^You reel in the last bit of line and your struggle is over\\. You've landed (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
+   ]
   },
   {
-   "type": "trigger",
-   "name": "Fish Landed Other Short",
+   "type": "group",
+   "name": "tabs",
    "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "script",
+     "type": "function",
+     "name": "fishingstats_render",
      "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshIn = { angler: args[1], species: args[2], oz: (parseInt(args[3], 10) || 0) * 16 + (parseInt(args[4], 10) || 0) };\nrun_function(\"fsh_record\", [], \"fishingstats\");"
+     "code": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\n// Draws the 'fishingstats' tab: the live session.\n// House style shared in spirit with Coffers, Level and Ledger: ink panel,\n// serif small-caps headings, one large figure, monospace ledger rows.\nvar WATER = \"#7fd0c0\";\nvar DEEP = \"#3f7a72\";\nvar CATCH = \"#e6d27a\";\nvar TXT = \"#dbe8e4\";\nvar MUTED = \"#7f8f8b\";\nvar RULE = \"#20312d\";\nvar TRACK = \"#17241f\";\nvar RECORD = \"#b8d88a\";\nvar SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\nvar MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\n\nfunction esc(t) { return String(t).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\"); }\nfunction pad2(n) { return (n < 10 ? \"0\" : \"\") + n; }\nfunction clock(t) { var d = new Date(t * 1000); return d.getHours() + \":\" + pad2(d.getMinutes()); }\nfunction dur(secs) {\n  if (secs < 60) { return secs + \"s\"; }\n  if (secs < 3600) { return Math.round(secs / 60) + \"m\"; }\n  var h = Math.floor(secs / 3600);\n  var m = Math.round((secs - h * 3600) / 60);\n  return h + \"h\" + (m > 0 ? \" \" + m + \"m\" : \"\");\n}\nfunction wt(oz) {\n  oz = Math.round(oz);\n  var lb = Math.floor(oz / 16);\n  var o = oz % 16;\n  if (lb === 0) { return o + \"oz\"; }\n  return lb + \"lb\" + (o > 0 ? \" \" + o + \"oz\" : \"\");\n}\n// House typography, shared in spirit (not in code) with Coffers, Level and Ledger.\nfunction caps(t, col) { return '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || DEEP) + ';font-size:11px;margin:0 0 3px;\">' + t + '</div>'; }\nfunction row(label, value, col) {\n  return '<div style=\"display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\"><span style=\"color:' + MUTED + ';white-space:nowrap;\">' + label + '</span><span style=\"color:' + (col || TXT) + ';white-space:nowrap;\">' + value + '</span></div>';\n}\nfunction box(inner, col) { return '<div style=\"flex:1 1 150px;min-width:150px;border-top:2px solid ' + (col || DEEP) + ';padding:3px 2px 0;\">' + inner + '</div>'; }\nfunction section(title, inner, extra) { return '<div style=\"border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;\">' + caps(title + (extra || \"\"), WATER) + inner + '</div>'; }\nfunction quiet(t) { return '<div style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">' + t + '</div>'; }\nfunction swatch(c) { return '<span style=\"display:inline-block;width:8px;height:8px;background:' + c + ';margin-right:4px;vertical-align:0;\"></span>'; }\n\n// A small leaping fish over a ripple, the fishing tabs' counterpart of the coin stack.\nvar glyph = '<svg width=\"20\" height=\"16\" viewBox=\"0 0 20 16\" style=\"vertical-align:-3px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n  '<path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"' + WATER + '\"/>' +\n  '<path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"' + WATER + '\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/>' +\n  '<path d=\"M1 13.5 Q4 12 7 13.5 T13 13.5 T19 13.5\" fill=\"none\" stroke=\"' + DEEP + '\" stroke-width=\"1\"/></svg>';\nfunction header(title, right) {\n  return '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;\">' +\n    '<div style=\"font-family:' + SERIF + ';color:' + WATER + ';font-size:14px;letter-spacing:0.22em;\">' + glyph + title + '</div>' +\n    '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + DEEP + ';font-size:11px;\">' + right + '</div></div>';\n}\nfunction hero(num, tail) {\n  return '<div style=\"margin:6px 0 2px;\"><span style=\"font-family:' + SERIF + ';font-size:26px;color:' + WATER + ';\">' + num + '</span> ' +\n    '<span style=\"font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;\">' + tail + '</span></div>';\n}\nvar PANEL = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1514;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\n\nvar s = FS.session;\nvar pal = FS.palette;\nvar rec = FS.rec.f;\n\n// Ranking rows truncate long names, so a stored key that prefixes the caught\n// species counts as the same fish.\nfunction recFor(sp) {\n  if (rec[sp]) { return rec[sp]; }\n  var k;\n  for (k in rec) {\n    if (rec.hasOwnProperty(k) && k.length > 3 && sp.indexOf(k) === 0) { return rec[k]; }\n  }\n  return null;\n}\n// One angler: name and count over a bar in their colour, details beneath.\nfunction barRow(label, right, note, value, max, colour, me) {\n  var pct = max > 0 ? Math.round((value / max) * 100) : 0;\n  if (pct < 1 && value > 0) { pct = 1; }\n  var out = '<div style=\"margin:0 0 5px;\">';\n  out += '<div style=\"display:flex;justify-content:space-between;\"><span style=\"color:' + (me ? \"#ffffff\" : TXT) + ';\">' + swatch(colour) + esc(label) + (me ? ' <span style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">(you)</span>' : '') + '</span>';\n  out += '<span style=\"color:' + TXT + ';\">' + right + '</span></div>';\n  out += '<div style=\"background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;\"><div style=\"background:' + colour + ';height:6px;width:' + pct + '%;\"></div></div>';\n  if (note) { out += '<div style=\"color:' + MUTED + ';\">' + note + '</div>'; }\n  return out + '</div>';\n}\n// Species bars are split into one segment per angler, all drawn on the same\n// scale as each other, so a segment's length is comparable across species as\n// well as within one.\nfunction stackRow(label, right, segs, notes, max) {\n  var out = '<div style=\"margin:0 0 5px;\">';\n  out += '<div style=\"display:flex;justify-content:space-between;\"><span style=\"color:' + TXT + ';\">' + esc(label) + '</span><span style=\"color:' + TXT + ';\">' + right + '</span></div>';\n  out += '<div style=\"background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;display:flex;\">';\n  var i;\n  for (i = 0; i < segs.length; i++) {\n    var w = max > 0 ? (segs[i].n / max) * 100 : 0;\n    out += '<div title=\"' + esc(segs[i].who) + ' ' + segs[i].n + '\" style=\"background:' + segs[i].colour + ';height:6px;width:' + (Math.round(w * 10) / 10) + '%;' + (i < segs.length - 1 ? 'margin-right:1px;' : '') + '\"></div>';\n  }\n  out += '</div>';\n  for (i = 0; i < notes.length; i++) { out += '<div style=\"color:' + MUTED + ';\">' + notes[i] + '</div>'; }\n  return out + '</div>';\n}\nfunction byAnglerCount(a, b) { return s.anglers[b].n - s.anglers[a].n; }\nfunction bySpeciesCount(a, b) { return s.species[b].n - s.species[a].n; }\n\nvar now = Math.floor(new Date().getTime() / 1000);\nvar elapsed = now - (s.start || now);\nif (elapsed < 1) { elapsed = 1; }\n\nvar totHook = 0, totCast = 0, totOz = 0, kk;\nvar names = [];\nfor (kk in s.anglers) {\n  if (s.anglers.hasOwnProperty(kk)) {\n    names.push(kk);\n    totHook += s.anglers[kk].hooks || 0;\n    totCast += s.anglers[kk].casts || 0;\n    totOz += s.anglers[kk].oz || 0;\n  }\n}\nvar areaList = [];\nfor (kk in s.areas) { if (s.areas.hasOwnProperty(kk)) { areaList.push(kk); } }\n\nvar html = PANEL + header(\"FISHING\", dur(elapsed) + (s.year ? ' &middot; ' + s.year + ' AF' : ''));\n\nif (s.n === 0 && names.length === 0) {\n  html += hero(\"0\", \"fish landed so far\");\n  html += quiet(\"Nothing yet this session. Cast a line, or run FISHINGSTATS DEMO to preview the layout.\");\n} else {\n  html += hero(String(s.n), (s.n === 1 ? \"fish\" : \"fish\") + \" landed\" + (totOz > 0 ? \", \" + wt(totOz) + \" in all\" : \"\"));\n  // Where: flag a pinned area so a stale manual override is visible rather\n  // than looking like a detection failure.\n  if (areaList.length > 0) {\n    html += '<div style=\"color:' + MUTED + ';\">at <span style=\"color:' + TXT + ';font-family:' + SERIF + ';\">' + esc(areaList.join(\", \")) + '</span>' + (FS.areaSrc === \"manual\" ? ' <span style=\"font-style:italic;font-family:' + SERIF + ';\">(pinned)</span>' : '') + '</div>';\n  } else {\n    html += '<div style=\"color:' + MUTED + ';\">area unknown &mdash; FISHINGSTATS AREA to set</div>';\n  }\n\n  // Two ledger columns: the pace of the session, and its prize catch.\n  var lost = totHook - s.n;\n  var cols = '<div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;\">';\n  var pb = caps(\"The session\", WATER);\n  pb += row(\"per hour\", s.n > 0 ? String(Math.round((s.n / (elapsed / 3600)) * 10) / 10) : \"&hellip;\", s.n > 0 ? WATER : MUTED);\n  pb += row(\"landed / cast\", totCast > 0 ? s.n + \"/\" + totCast + \" (\" + Math.round((s.n / totCast) * 100) + \"%)\" : \"&mdash;\");\n  pb += row(\"got away\", lost > 0 ? String(lost) : \"none\", lost > 0 ? \"#de8a72\" : MUTED);\n  pb += row(\"avg cast\", s.castN > 0 ? Math.round(s.castFt / s.castN) + \"ft\" : \"&mdash;\", s.castN > 0 ? TXT : MUTED);\n  cols += box(pb, WATER);\n\n  var bestOz = 0, bestWho = \"\", bestSp = \"\";\n  for (kk = 0; kk < names.length; kk++) {\n    var an = s.anglers[names[kk]];\n    if (an.best > bestOz) { bestOz = an.best; bestWho = names[kk]; bestSp = an.bestSp || \"\"; }\n  }\n  var spCount = 0;\n  for (kk in s.species) { if (s.species.hasOwnProperty(kk)) { spCount++; } }\n  var bb = caps(\"Prize catch\", CATCH);\n  if (bestOz > 0) {\n    bb += '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + CATCH + ';\">' + wt(bestOz) + '</div>';\n    bb += row(\"species\", esc(bestSp));\n    bb += row(\"by\", esc(bestWho), bestWho === FS.me ? \"#ffffff\" : TXT);\n  } else {\n    bb += quiet(\"Nothing weighed yet.\");\n  }\n  bb += row(\"species seen\", String(spCount));\n  if (s.rec > 0) { bb += row(\"rankings beaten\", String(s.rec), RECORD); }\n  cols += box(bb, CATCH);\n  html += cols + '</div>';\n\n  names.sort(byAnglerCount);\n  var maxN = 0;\n  var k;\n  for (k = 0; k < names.length; k++) { if (s.anglers[names[k]].n > maxN) { maxN = s.anglers[names[k]].n; } }\n  var colourOf = {};\n  for (k = 0; k < names.length; k++) { colourOf[names[k]] = FS.col[names[k]] || pal[k % pal.length]; }\n\n  var ab = \"\";\n  for (k = 0; k < names.length; k++) {\n    var a = s.anglers[names[k]];\n    var share = s.n > 0 ? Math.round((a.n / s.n) * 100) : 0;\n    var note = 'total ' + wt(a.oz);\n    if (a.best > 0) { note += ' &middot; best ' + wt(a.best) + ' ' + esc(a.bestSp); }\n    if (a.casts > 0) { note += ' &middot; ' + Math.round((a.n / a.casts) * 100) + '% of casts landed'; }\n    ab += barRow(names[k], a.n + ' <span style=\"color:' + MUTED + ';\">&middot; ' + share + '%</span>', note, a.n, maxN, colourOf[names[k]], names[k] === FS.me);\n  }\n  html += section(\"By angler\", ab);\n\n  var sp = [];\n  for (k in s.species) { if (s.species.hasOwnProperty(k)) { sp.push(k); } }\n  if (sp.length > 0) {\n    sp.sort(bySpeciesCount);\n    var maxS = s.species[sp[0]].n;\n    var shown = sp.length > 10 ? 10 : sp.length;\n    var sb = \"\";\n    if (names.length > 1) {\n      sb += '<div style=\"margin:0 0 5px;\">';\n      for (k = 0; k < names.length; k++) { sb += '<span style=\"margin-right:9px;white-space:nowrap;color:' + MUTED + ';\">' + swatch(colourOf[names[k]]) + esc(names[k]) + '</span>'; }\n      sb += '</div>';\n    }\n    for (k = 0; k < shown; k++) {\n      var f = s.species[sp[k]];\n      var segs = [];\n      var parts = [];\n      var q;\n      for (q = 0; q < names.length; q++) {\n        var cnt = s.anglers[names[q]].sp ? (s.anglers[names[q]].sp[sp[k]] || 0) : 0;\n        if (cnt > 0) {\n          segs.push({ who: names[q], n: cnt, colour: colourOf[names[q]] });\n          parts.push('<span style=\"color:' + colourOf[names[q]] + ';\">' + esc(names[q]) + ' ' + cnt + '</span>');\n        }\n      }\n      var notes = [];\n      if (parts.length > 1) { notes.push(parts.join(' &middot; ')); }\n      var note2 = 'avg ' + wt(f.oz / f.n) + ' &middot; best ' + wt(f.best) + ' (' + esc(f.bestBy) + ')';\n      var rr = recFor(sp[k]);\n      if (rr) { note2 += ' &middot; <span style=\"color:' + RECORD + ';\">year&rsquo;s best ' + wt(rr[0]) + ' ' + esc(rr[1]) + '</span>'; }\n      notes.push(note2);\n      sb += stackRow(sp[k], String(f.n), segs, notes, maxS);\n    }\n    html += section(\"By species\", sb, sp.length > shown ? ' <span style=\"font-variant:normal;letter-spacing:0;font-style:italic;color:' + MUTED + ';\">top ' + shown + ' of ' + sp.length + '</span>' : '');\n  }\n\n  if (s.recent.length > 0) {\n    var rb = \"\";\n    for (k = s.recent.length - 1; k >= 0; k--) {\n      var r2 = s.recent[k];\n      var isMe = (r2[1] === FS.me);\n      rb += '<div style=\"display:flex;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\">';\n      rb += '<span style=\"color:' + MUTED + ';min-width:3em;\">' + clock(r2[0]) + '</span>';\n      rb += '<span style=\"color:' + (colourOf[r2[1]] || TXT) + ';min-width:5.5em;' + (isMe ? 'font-weight:bold;' : '') + '\">' + esc(r2[1]) + '</span>';\n      rb += '<span style=\"flex:1 1 auto;color:' + TXT + ';\">' + esc(r2[2]) + '</span>';\n      rb += '<span style=\"color:' + CATCH + ';white-space:nowrap;\">' + wt(r2[3]) + '</span></div>';\n    }\n    html += section(\"Recent catches\", rb);\n  }\n}\nhtml += '</div>';\n\ntry { set_custom_tab_html(\"fishingstats\", html); } catch (e) {}"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_log_render",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function(\"fishingstats_setup\", [], \"fishingstats\");\nvar FS = client.loom.fishingstats;\n// Draws the 'fishinglog' tab: filed sessions and all-time totals.\n// House style shared in spirit with Coffers, Level and Ledger: ink panel,\n// serif small-caps headings, one large figure, monospace ledger rows.\nvar WATER = \"#7fd0c0\";\nvar DEEP = \"#3f7a72\";\nvar CATCH = \"#e6d27a\";\nvar TXT = \"#dbe8e4\";\nvar MUTED = \"#7f8f8b\";\nvar RULE = \"#20312d\";\nvar TRACK = \"#17241f\";\nvar RECORD = \"#b8d88a\";\nvar SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\nvar MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\n\nfunction esc(t) { return String(t).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\"); }\nfunction pad2(n) { return (n < 10 ? \"0\" : \"\") + n; }\nfunction clock(t) { var d = new Date(t * 1000); return d.getHours() + \":\" + pad2(d.getMinutes()); }\nfunction dur(secs) {\n  if (secs < 60) { return secs + \"s\"; }\n  if (secs < 3600) { return Math.round(secs / 60) + \"m\"; }\n  var h = Math.floor(secs / 3600);\n  var m = Math.round((secs - h * 3600) / 60);\n  return h + \"h\" + (m > 0 ? \" \" + m + \"m\" : \"\");\n}\nfunction wt(oz) {\n  oz = Math.round(oz);\n  var lb = Math.floor(oz / 16);\n  var o = oz % 16;\n  if (lb === 0) { return o + \"oz\"; }\n  return lb + \"lb\" + (o > 0 ? \" \" + o + \"oz\" : \"\");\n}\n// House typography, shared in spirit (not in code) with Coffers, Level and Ledger.\nfunction caps(t, col) { return '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || DEEP) + ';font-size:11px;margin:0 0 3px;\">' + t + '</div>'; }\nfunction row(label, value, col) {\n  return '<div style=\"display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\"><span style=\"color:' + MUTED + ';white-space:nowrap;\">' + label + '</span><span style=\"color:' + (col || TXT) + ';white-space:nowrap;\">' + value + '</span></div>';\n}\nfunction box(inner, col) { return '<div style=\"flex:1 1 150px;min-width:150px;border-top:2px solid ' + (col || DEEP) + ';padding:3px 2px 0;\">' + inner + '</div>'; }\nfunction section(title, inner, extra) { return '<div style=\"border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;\">' + caps(title + (extra || \"\"), WATER) + inner + '</div>'; }\nfunction quiet(t) { return '<div style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">' + t + '</div>'; }\nfunction swatch(c) { return '<span style=\"display:inline-block;width:8px;height:8px;background:' + c + ';margin-right:4px;vertical-align:0;\"></span>'; }\n\n// A small leaping fish over a ripple, the fishing tabs' counterpart of the coin stack.\nvar glyph = '<svg width=\"20\" height=\"16\" viewBox=\"0 0 20 16\" style=\"vertical-align:-3px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n  '<path d=\"M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z\" fill=\"' + WATER + '\"/>' +\n  '<path d=\"M15 6.3 L19 3.5 L18.2 7 L19 10 Z\" fill=\"' + WATER + '\"/><circle cx=\"6\" cy=\"7.2\" r=\"0.8\" fill=\"#0d1514\"/>' +\n  '<path d=\"M1 13.5 Q4 12 7 13.5 T13 13.5 T19 13.5\" fill=\"none\" stroke=\"' + DEEP + '\" stroke-width=\"1\"/></svg>';\nfunction header(title, right) {\n  return '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;\">' +\n    '<div style=\"font-family:' + SERIF + ';color:' + WATER + ';font-size:14px;letter-spacing:0.22em;\">' + glyph + title + '</div>' +\n    '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + DEEP + ';font-size:11px;\">' + right + '</div></div>';\n}\nfunction hero(num, tail) {\n  return '<div style=\"margin:6px 0 2px;\"><span style=\"font-family:' + SERIF + ';font-size:26px;color:' + WATER + ';\">' + num + '</span> ' +\n    '<span style=\"font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;\">' + tail + '</span></div>';\n}\nvar PANEL = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1514;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\n\nvar log = FS.log || [];\nvar pal = FS.palette;\n\nfunction stamp(t) {\n  if (!t || isNaN(Number(t))) { return \"undated\"; }\n  var MN = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n  var d = new Date(t * 1000);\n  return d.getDate() + \" \" + MN[d.getMonth()] + \" \" + d.getHours() + \":\" + pad2(d.getMinutes());\n}\nvar perAngler = {};\nvar curL = null;\nfunction byTotal(a, b) { return perAngler[b][0] - perAngler[a][0]; }\nfunction bySessionCount(a, b) { return curL.ang[b][0] - curL.ang[a][0]; }\n\nvar html = PANEL;\nif (log.length === 0) {\n  html += header(\"FISHING LOG\", \"0 sessions\");\n  html += quiet(\"No sessions filed yet. A session is filed automatically after \" + FS.gap + \" minutes idle, or on demand with FISHINGSTATS END.\");\n} else {\n  // Aggregate across everything logged.\n  var tn = 0, toz = 0, tsec = 0, trec = 0, tnTimed = 0;\n  var bestOz = 0, bestSp = \"\", bestWho = \"\";\n  var perSpecies = {};\n  var i, k;\n  for (i = 0; i < log.length; i++) {\n    var L = log[i];\n    tn += L.n;\n    toz += L.oz || 0;\n    // Older entries can lack a start or end time; count only the sound ones.\n    var lsec = Number(L.e) - Number(L.s);\n    if (!isNaN(lsec) && lsec > 0) { tsec += lsec; tnTimed += L.n; }\n    trec += L.rec || 0;\n    for (k in L.ang) {\n      if (L.ang.hasOwnProperty(k)) {\n        if (!perAngler[k]) { perAngler[k] = [0, 0, 0, \"\"]; }\n        perAngler[k][0] += L.ang[k][0];\n        perAngler[k][1] += L.ang[k][1];\n        if (L.ang[k][2] > perAngler[k][2]) { perAngler[k][2] = L.ang[k][2]; perAngler[k][3] = L.ang[k][5] || \"\"; }\n        if (L.ang[k][2] > bestOz) { bestOz = L.ang[k][2]; bestWho = k; bestSp = L.ang[k][5] || \"\"; }\n      }\n    }\n    for (k in L.sp) { if (L.sp.hasOwnProperty(k)) { perSpecies[k] = (perSpecies[k] || 0) + L.sp[k][0]; } }\n  }\n  var spCount = 0;\n  for (k in perSpecies) { if (perSpecies.hasOwnProperty(k)) { spCount += 1; } }\n\n  html += header(\"FISHING LOG\", log.length + \" session\" + (log.length === 1 ? \"\" : \"s\"));\n  html += hero(String(tn), \"fish landed\" + (tsec > 0 ? \" over \" + dur(tsec) : \"\") + (toz > 0 ? \", \" + wt(toz) + \" in all\" : \"\"));\n\n  var cols = '<div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;\">';\n  var tb = caps(\"All sessions\", WATER);\n  tb += row(\"time fished\", dur(tsec));\n  tb += row(\"per hour\", tsec > 0 ? String(Math.round(tnTimed / (tsec / 3600) * 10) / 10) : \"&hellip;\", WATER);\n  tb += row(\"species seen\", String(spCount));\n  if (trec > 0) { tb += row(\"rankings beaten\", String(trec), RECORD); }\n  cols += box(tb, WATER);\n  var bb = caps(\"Biggest ever\", CATCH);\n  if (bestOz > 0) {\n    bb += '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + CATCH + ';\">' + wt(bestOz) + '</div>';\n    bb += row(\"species\", esc(bestSp));\n    bb += row(\"by\", esc(bestWho), bestWho === FS.me ? \"#ffffff\" : TXT);\n  } else {\n    bb += quiet(\"Nothing weighed yet.\");\n  }\n  cols += box(bb, CATCH);\n  html += cols + '</div>';\n\n  var an = [];\n  for (k in perAngler) { if (perAngler.hasOwnProperty(k)) { an.push(k); } }\n  an.sort(byTotal);\n  var tot = \"\";\n  var maxA = an.length > 0 ? perAngler[an[0]][0] : 0;\n  for (i = 0; i < an.length; i++) {\n    var colour = FS.col[an[i]] || pal[i % pal.length];\n    var pa = perAngler[an[i]];\n    var pct = maxA > 0 ? Math.round(pa[0] / maxA * 100) : 0;\n    tot += '<div style=\"display:flex;align-items:center;gap:6px;margin-top:2px;\">';\n    tot += '<span style=\"width:76px;color:' + (an[i] === FS.me ? \"#ffffff\" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;\">' + swatch(colour) + esc(an[i]) + '</span>';\n    tot += '<span style=\"flex:1;background:' + TRACK + ';height:6px;\"><span style=\"display:block;background:' + colour + ';height:6px;width:' + pct + '%;\"></span></span>';\n    tot += '<span style=\"width:108px;text-align:right;color:' + TXT + ';white-space:nowrap;\">' + pa[0] + ' <span style=\"color:' + MUTED + ';\">&middot; ' + wt(pa[1]) + '</span></span></div>';\n  }\n  html += section(\"Anglers, all time\", tot);\n\n  // One entry per session, newest first.\n  var sb = \"\";\n  for (i = log.length - 1; i >= 0; i--) {\n    var L2 = log[i];\n    curL = L2;\n    sb += '<div style=\"border-bottom:1px dotted ' + RULE + ';padding:2px 0 5px;margin:0 0 3px;\">';\n    sb += '<div style=\"display:flex;justify-content:space-between;align-items:baseline;\">';\n    sb += '<span style=\"font-family:' + SERIF + ';color:' + TXT + ';font-size:12px;\">' + stamp(L2.s) + '</span>';\n    sb += '<span style=\"color:' + TXT + ';\">' + L2.n + ' <span style=\"color:' + MUTED + ';\">&middot; ' + (isNaN(Number(L2.e) - Number(L2.s)) ? '?' : dur(L2.e - L2.s)) + ' &middot; ' + wt(L2.oz || 0) + '</span></span></div>';\n    var meta = [];\n    if (L2.ar) { meta.push('<span style=\"color:' + WATER + ';\">' + esc(L2.ar) + '</span>'); }\n    if (L2.y) { meta.push(L2.y + ' AF'); }\n    if (L2.ft) { meta.push('avg cast ' + L2.ft + 'ft'); }\n    if (L2.rec) { meta.push('<span style=\"color:' + RECORD + ';\">' + L2.rec + ' ranking' + (L2.rec === 1 ? \"\" : \"s\") + ' beaten</span>'); }\n    if (meta.length > 0) { sb += '<div style=\"color:' + MUTED + ';\">' + meta.join(' &middot; ') + '</div>'; }\n\n    var names = [];\n    for (k in L2.ang) { if (L2.ang.hasOwnProperty(k)) { names.push(k); } }\n    names.sort(bySessionCount);\n    var maxN = names.length > 0 ? L2.ang[names[0]][0] : 0;\n    var j;\n    for (j = 0; j < names.length; j++) {\n      var A = L2.ang[names[j]];\n      var colour2 = FS.col[names[j]] || pal[j % pal.length];\n      var pc = maxN > 0 ? Math.round((A[0] / maxN) * 100) : 0;\n      var lostN = (A[4] || 0) - A[0];\n      sb += '<div style=\"display:flex;align-items:center;gap:6px;margin-top:2px;\">';\n      sb += '<span style=\"width:76px;color:' + (names[j] === FS.me ? \"#ffffff\" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;\">' + esc(names[j]) + '</span>';\n      sb += '<span style=\"flex:1;background:' + TRACK + ';height:5px;\"><span style=\"display:block;background:' + colour2 + ';height:5px;width:' + pc + '%;\"></span></span>';\n      sb += '<span style=\"width:108px;text-align:right;color:' + MUTED + ';white-space:nowrap;\"><span style=\"color:' + TXT + ';\">' + A[0] + '</span> &middot; ' + wt(A[1]) + (lostN > 0 ? ' &middot; ' + lostN + ' lost' : '') + '</span></div>';\n    }\n    sb += '</div>';\n  }\n  html += section(\"Sessions\", sb);\n}\nhtml += '</div>';\n\ntry { set_custom_tab_html(\"fishinglog\", html); } catch (e) {}"
     }
-   ],
-   "text": "^([A-Z][a-z]+) reels in the last bit of (?:his|her|their|its) line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
+   ]
   },
   {
-   "type": "trigger",
-   "name": "Fish Landed Self Short",
+   "type": "group",
+   "name": "learn",
    "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshIn = { angler: client.fshMe, species: args[1], oz: (parseInt(args[2], 10) || 0) * 16 + (parseInt(args[3], 10) || 0) };\nrun_function(\"fsh_record\", [], \"fishingstats\");"
+     "type": "trigger",
+     "name": "",
+     "enabled": false,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Runs on every line, so it does nothing unless LEARN is on.\nif (client.loom && client.loom.fishingstats && client.loom.fishingstats.learn) {\n  var FS = client.loom.fishingstats;\n  if (!FS.buf) { FS.buf = []; }\n  // args[0] is only the matched text, so the whole line is captured\n  // explicitly with a group rather than relying on a bare wildcard.\n  var raw = args[1] || args[0] || \"\";\n  if (raw.length > 0 && raw.length < 300) {\n    FS.buf.push(raw);\n    while (FS.buf.length > 120) { FS.buf.shift(); }\n  }\n}"
+      }
+     ],
+     "text": "^(.+)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
     }
-   ],
-   "text": "^You reel in the last bit of (?:your|the) line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Cast Self",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshEvt = { angler: client.fshMe, type: \"cast\" };\nrun_function(\"fsh_event\", [], \"fishingstats\");"
-    }
-   ],
-   "text": "^You cock back your arm and smoothly cast a line into",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Cast Distance",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar ft = parseInt(args[1], 10) || 0;\nif (ft > 0) {\n  client.fsh.castFt = (client.fsh.castFt || 0) + ft;\n  client.fsh.castN = (client.fsh.castN || 0) + 1;\n}"
-    }
-   ],
-   "text": "You judge the cast at about (\\d+) feet",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Cast Other",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshEvt = { angler: args[1], type: \"cast\" };\nrun_function(\"fsh_event\", [], \"fishingstats\");"
-    }
-   ],
-   "text": "^([A-Z][a-z]+) cocks back (?:his|her|their|its) arm and smoothly casts a line into",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Hook Self",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshEvt = { angler: client.fshMe, type: \"hook\" };\nrun_function(\"fsh_event\", [], \"fishingstats\");"
-    }
-   ],
-   "text": "^You quickly jerk back your fishing pole",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Hook Other",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshEvt = { angler: args[1], type: \"hook\" };\nrun_function(\"fsh_event\", [], \"fishingstats\");"
-    }
-   ],
-   "text": "^([A-Z][a-z]+) quickly jerks back (?:his|her|their|its) fishing pole",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Rankings Header Yearly",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar yr = parseInt(args[1], 10) || 0;\nclient.fshRankMode = \"year\";\n// The table is complete, so rebuild from scratch rather than merging into\n// whatever was there before.\nclient.fshRec.year = yr;\nclient.fshRec.f = {};\ntry { set_variable(\"fsh_records\", JSON.stringify(client.fshRec)); } catch (e) {}"
-    }
-   ],
-   "text": "\\[ Fishing rankings for the year (\\d+) AF \\]",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Rankings Header Reset",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshRankMode = \"reset\";\nclient.fshRec.a = {};"
-    }
-   ],
-   "text": "\\[ Fishing rankings since last reset \\]",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fish Rankings Row",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fshRank = { species: args[1], who: args[2], lb: args[3], oz: args[4], year: args[5] };\nrun_function(\"fsh_rank\", [], \"fishingstats\");"
-    }
-   ],
-   "text": "^(?:A|An|The)\\s+(.+?)\\s+([A-Z][a-z]+)\\s+(\\d+)\\s+(\\d+)\\s+\\d+(?:st|nd|rd|th)\\s+of\\s+\\w+,\\s+(\\d+)\\s+AF?\\s*$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fishing Learn Capture",
-   "enabled": false,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "if (client.fshLearn) {\n  if (!client.fshBuf) { client.fshBuf = []; }\n  // args[0] is only the matched text, so the whole line is captured\n  // explicitly with a group rather than relying on a bare wildcard.\n  var raw = args[1] || args[0] || \"\";\n  if (raw.length > 0 && raw.length < 300) {\n    client.fshBuf.push(raw);\n    while (client.fshBuf.length > 120) { client.fshBuf.shift(); }\n  }\n}"
-    }
-   ],
-   "text": "^(.+)$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Learn",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar a = args[1] || \"\";\nif (a === \"show\") {\n  var buf = client.fshBuf || [];\n  display_notice(\"[fishingstats] \" + buf.length + \" line(s) captured:\", \"cyan\");\n  for (var i = 0; i < buf.length; i++) { display_notice(\"| \" + buf[i], \"yellow\"); }\n} else if (a === \"clear\") {\n  client.fshBuf = [];\n  display_notice(\"[fishingstats] buffer cleared.\", \"cyan\");\n} else {\n  if (a === \"on\") { client.fshLearn = true; }\n  else if (a === \"off\") { client.fshLearn = false; }\n  else { client.fshLearn = !client.fshLearn; }\n  if (client.fshLearn) { client.fshBuf = []; }\n  display_notice(\"[fishingstats] capture \" + (client.fshLearn ? \"ON. Catch a fish, have someone else catch one, then FPLEARN OFF and FPLEARN SHOW.\" : \"off. FPLEARN SHOW dumps what was captured.\"), \"cyan\");\n}"
-    }
-   ],
-   "text": "^fplearn(?:\\s+(on|off|show|clear))?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Add",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar lbv = parseInt(args[2], 10) || 0;\nvar ozv = parseInt(args[3], 10) || 0;\nclient.fshIn = { angler: args[1], species: args[4], oz: lbv * 16 + ozv };\nrun_function(\"fsh_record\", [], \"fishingstats\");\ndisplay_notice(\"[fishingstats] recorded \" + args[1] + \" \" + lbv + \"lb \" + ozv + \"oz \" + args[4] + \".\", \"cyan\");"
-    }
-   ],
-   "text": "^fpadd\\s+(\\S+)\\s+(\\d+)(?:\\s+(\\d+))?\\s+(.+)$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Me",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nif (args[1]) {\n  client.fshMe = args[1];\n  try { set_variable(\"fsh_me\", args[1]); } catch (e) {}\n  run_function(\"fsh_render\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] your angler name is set to \" + args[1] + \"; your row is highlighted.\", \"cyan\");\n} else { display_notice(\"[fishingstats] highlighted angler is \" + (client.fshMe || \"not set\") + \". Usage: fpme Neijel.\", \"cyan\"); }"
-    }
-   ],
-   "text": "^fpme(?:\\s+(\\S+))?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Colour",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar who = args[1] || \"\";\nvar hex = args[2] || \"\";\nif (!who) {\n  var listed = [];\n  var q;\n  for (q in client.fsh.anglers) { if (client.fsh.anglers.hasOwnProperty(q)) { listed.push(q + \" \" + (client.fshCol[q] || \"default\")); } }\n  display_notice(\"[fishingstats] colours: \" + (listed.length ? listed.join(\", \") : \"none yet\") + \". Usage: fpcolour Oceana #e8a13f, or fpcolour Oceana reset.\", \"cyan\");\n} else if (!hex) {\n  display_notice(\"[fishingstats] \" + who + \" is \" + (client.fshCol[who] || \"on the default palette\") + \". Give a hex value like #e8a13f, or reset.\", \"cyan\");\n} else {\n  if (hex === \"reset\") { client.fshCol[who] = null; }\n  else { client.fshCol[who] = hex; }\n  try { set_variable(\"fsh_colours\", JSON.stringify(client.fshCol)); } catch (e) {}\n  run_function(\"fsh_render\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] \" + who + \" is now \" + (hex === \"reset\" ? \"back on the default palette\" : hex) + \".\", \"cyan\");\n}"
-    }
-   ],
-   "text": "^fpcolou?r(?:\\s+(\\S+)(?:\\s+(#[0-9a-fA-F]{6}|reset))?)?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Reset",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nif ((args[1] || \"\") === \"confirm\") {\n  client.fsh = { start: Math.floor(new Date().getTime() / 1000), anglers: {}, species: {}, recent: [], n: 0 };\n  try { set_variable(\"fsh_session\", JSON.stringify(client.fsh)); } catch (e) {}\n  run_function(\"fsh_render\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] new session started.\", \"cyan\");\n} else {\n  display_notice(\"[fishingstats] this clears the current session tally. Type 'fpreset confirm' to proceed.\", \"yellow\");\n}"
-    }
-   ],
-   "text": "^fpreset(?:\\s+(confirm))?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Stats",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar s = client.fsh;\nvar now = Math.floor(new Date().getTime() / 1000);\nvar el = now - (s.start || now);\nif (el < 1) { el = 1; }\ndisplay_notice(\"[fishing] \" + s.n + \" catches over \" + Math.round(el / 60) + \" min\", \"cyan\");\nvar k;\nfor (k in s.anglers) {\n  if (s.anglers.hasOwnProperty(k)) {\n    var a = s.anglers[k];\n    display_notice(\"[fishingstats] \" + k + \": \" + a.n + \" (\" + Math.round((a.n / s.n) * 100) + \"%), \" + Math.floor(a.oz / 16) + \"lb \" + (a.oz % 16) + \"oz total, best \" + Math.floor(a.best / 16) + \"lb \" + (a.best % 16) + \"oz \" + a.bestSp, \"cyan\");\n  }\n}\nrun_function(\"fsh_render\", [], \"fishingstats\");"
-    }
-   ],
-   "text": "^fpstats$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Demo",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nclient.fsh = { start: Math.floor(new Date().getTime() / 1000) - 4500, anglers: {}, species: {}, recent: [], n: 0, areas: {}, year: client.fshRec.year || 0, rec: 0, castFt: 0, castN: 0 };\nvar who = [\"Neijel\", \"Oceana\", \"Sarapis\"];\nvar fishes = [\"pike\", \"blue eel\", \"rock bass\", \"catfish\", \"walleye\", \"trout\"];\nvar i;\nfor (i = 0; i < 34; i++) {\n  var w = who[i % 3 === 0 ? 0 : (i % 5 === 0 ? 2 : (i % 2))];\n  var extra = (i % 3 === 0) ? 2 : 1;\n  var j;\n  for (j = 0; j < extra; j++) {\n    client.fshEvt = { angler: w, type: \"cast\" };\n    run_function(\"fsh_event\", [], \"fishingstats\");\n  }\n  client.fshEvt = { angler: w, type: \"hook\" };\n  run_function(\"fsh_event\", [], \"fishingstats\");\n  var ozv = 12 + ((i * 37) % 900) + (i % 5) * 40;\n  client.fshIn = { angler: w, species: fishes[(i * 5) % fishes.length], oz: ozv };\n  run_function(\"fsh_record\", [], \"fishingstats\");\n}\ndisplay_notice(\"[fishingstats] demo data loaded into the tab. FPRESET CONFIRM clears it.\", \"cyan\");"
-    }
-   ],
-   "text": "^fpdemo$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Area",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar v = args[1] || \"\";\nif (!v) {\n  display_notice(\"[fishing] area now: \" + (client.fshAreaNow || \"unknown\") + \" (from \" + (client.fshAreaSrc || \"nothing found\") + \")\", \"cyan\");\n  display_notice(\"[fishing] fparea <name> to override, fparea auto to go back to detection, fparea reset to forget areas seen this session.\", \"white\");\n} else if (v === \"auto\" || v === \"reset\") {\n  if (v === \"auto\") {\n    client.fshAreaManual = \"\";\n    try { set_variable(\"fsh_area\", \"\"); } catch (e) {}\n  }\n  // Areas accumulate across a session, so a stale manual entry has to be\n  // cleared out too, then reseeded from whatever detection now reports.\n  client.fsh.areas = {};\n  run_function(\"fsh_ensure\", [], \"fishingstats\");\n  if (client.fshAreaNow) { client.fsh.areas[client.fshAreaNow] = 1; }\n  try { set_variable(\"fsh_session\", JSON.stringify(client.fsh)); } catch (e) {}\n  run_function(\"fsh_render\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] area is now \" + (client.fshAreaNow || \"unknown\") + \" (from \" + (client.fshAreaSrc || \"nothing found\") + \"). Earlier areas this session were forgotten.\", \"cyan\");\n} else {\n  client.fshAreaManual = v;\n  try { set_variable(\"fsh_area\", v); } catch (e) {}\n  client.fsh.areas[v] = (client.fsh.areas[v] || 0) + 1;\n  try { set_variable(\"fsh_session\", JSON.stringify(client.fsh)); } catch (e) {}\n  run_function(\"fsh_render\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] area pinned to \" + v + \". This overrides detection until fparea auto.\", \"cyan\");\n}"
-    }
-   ],
-   "text": "^fparea(?:\\s+(.+))?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Where",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\ndisplay_notice(\"[fishingstats] detected area: \" + (client.fshAreaNow || \"nothing found\"), \"cyan\");\ndisplay_notice(\"[fishingstats] source: \" + (client.fshAreaSrc || \"no candidate variable held a value\"), \"cyan\");\nvar probes = [\"currentArea\", \"room_area\", \"my_area\", \"area\", \"roomarea\", \"room_zone\"];\nfor (var i = 0; i < probes.length; i++) {\n  var v = \"(unset)\";\n  try { if (get_variable(probes[i]) !== undefined) { v = String(get_variable(probes[i])); } } catch (e) { v = \"(error)\"; }\n  display_notice(\"  \" + probes[i] + \" = \" + v, \"cyan\");\n}"
-    }
-   ],
-   "text": "^fpwhere$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Year",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nif (args[1]) {\n  client.fsh.year = parseInt(args[1], 10);\n  run_function(\"fsh_render\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] session year set to \" + client.fsh.year + \" AF.\", \"cyan\");\n} else {\n  display_notice(\"[fishingstats] session year is \" + (client.fsh.year || \"unknown\") + \". It is picked up from the RANKINGS FISHING header, or set it with fpyear 1014.\", \"cyan\");\n}"
-    }
-   ],
-   "text": "^fpyear(?:\\s+(\\d+))?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing End",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar had = client.fsh.n;\nrun_function(\"fsh_archive\", [], \"fishingstats\");\nif (had > 0) { display_notice(\"[fishingstats] session filed to the log (\" + had + \" landed). New session started.\", \"cyan\"); }\nelse { display_notice(\"[fishingstats] nothing landed, so nothing was filed. Session restarted.\", \"yellow\"); }"
-    }
-   ],
-   "text": "^fpend$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Log",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nrun_function(\"fsh_log_render\", [], \"fishingstats\");\ndisplay_notice(\"[fishingstats] \" + client.fshLog.length + \" session(s) in the log; see the fishinglog tab.\", \"cyan\");"
-    }
-   ],
-   "text": "^fplog$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Gap",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar m = args[1] ? parseInt(args[1], 10) : 0;\nif (!m) { display_notice(\"[fishingstats] sessions are filed automatically after \" + client.fshGap + \" minutes idle. Usage: fpgap 5-1440.\", \"cyan\"); }\nelse if (m < 5 || m > 1440) { display_notice(\"[fishing] pick a gap between 5 and 1440 minutes.\", \"yellow\"); }\nelse {\n  client.fshGap = m;\n  try { set_variable(\"fsh_gap\", String(m)); } catch (e) {}\n  display_notice(\"[fishingstats] idle gap set to \" + m + \" minutes.\", \"cyan\");\n}"
-    }
-   ],
-   "text": "^fpgap(?:\\s+(\\d+))?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing Log Wipe",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nif ((args[1] || \"\") === \"confirm\") {\n  client.fshLog = [];\n  try { set_variable(\"fsh_log\", \"[]\"); } catch (e) {}\n  run_function(\"fsh_log_render\", [], \"fishingstats\");\n  display_notice(\"[fishingstats] session log cleared. The current session is untouched.\", \"red\");\n} else {\n  display_notice(\"[fishingstats] this clears ALL filed sessions. Type 'fplogwipe confirm' to proceed.\", \"yellow\");\n}"
-    }
-   ],
-   "text": "^fplogwipe(?:\\s+(confirm))?$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "Fishing CSV",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"fsh_ensure\", [], \"fishingstats\");\nvar s = client.fsh;\ndisplay_notice(\"angler,landed,casts,hooks,total_oz,best_oz,best_species\", \"white\");\nvar k;\nfor (k in s.anglers) {\n  if (s.anglers.hasOwnProperty(k)) {\n    var a = s.anglers[k];\n    display_notice(k + \",\" + a.n + \",\" + (a.casts || 0) + \",\" + (a.hooks || 0) + \",\" + a.oz + \",\" + a.best + \",\" + a.bestSp, \"white\");\n  }\n}\ndisplay_notice(\"species,caught,total_oz,best_oz,best_by\", \"white\");\nfor (k in s.species) {\n  if (s.species.hasOwnProperty(k)) {\n    var f = s.species[k];\n    display_notice(k + \",\" + f.n + \",\" + f.oz + \",\" + f.best + \",\" + f.bestBy, \"white\");\n  }\n}"
-    }
-   ],
-   "text": "^fpcsv$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true,
-   "prefix_suffix": true
+   ]
   }
  ],
- "description": "Group fishing tally for a UI tab named 'fishingstats'. Tracks catches per angler and per species with weights, drawn as horizontal bars. Catch parsing is not wired: triggers must call fsh_record with client.fshIn = {angler, species, lb}. Use FPLEARN to capture the real message wording first."
+ "description": "Fishing statistics for you and everyone around you: casts, hooks and catches per angler and per species, with weights, in a tab named 'fishingstats'; filed sessions in a tab named 'fishinglog'. Flags catches that beat this year's rankings (read from RANKINGS FISHING). State in client.loom.fishingstats. FISHINGSTATS HELP for commands."
 }

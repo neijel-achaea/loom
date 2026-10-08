@@ -1,553 +1,362 @@
 {
-  "type": "group",
-  "name": "fishingstats",
-  "enabled": true,
-  "items": [
+ "type": "group",
+ "name": "fishingstats",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "@file:oninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "@file:onuninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "@file:onload.js"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "@file:ongmcp.js"
+  },
+  {
+   "type": "group",
+   "name": "core",
+   "enabled": true,
+   "items": [
     {
-      "type": "function",
-      "name": "onInstall",
-      "enabled": true,
-      "code": "@file:oninstall.js"
+     "type": "function",
+     "name": "fishingstats_setup",
+     "enabled": true,
+     "code": "@file:fishingstats_setup.js"
     },
     {
-      "type": "function",
-      "name": "onUninstall",
-      "enabled": true,
-      "code": "@file:onuninstall.js"
+     "type": "function",
+     "name": "fishingstats_help",
+     "enabled": true,
+     "code": "@file:fishingstats_help.js"
     },
     {
-      "type": "function",
-      "name": "onLoad",
-      "enabled": true,
-      "code": "@file:onload.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_ensure",
-      "enabled": true,
-      "code": "@file:fsh_ensure.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_touch",
-      "enabled": true,
-      "code": "@file:fsh_touch.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_archive",
-      "enabled": true,
-      "code": "@file:fsh_archive.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_record",
-      "enabled": true,
-      "code": "@file:fsh_record.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_event",
-      "enabled": true,
-      "code": "@file:fsh_event.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_rank",
-      "enabled": true,
-      "code": "@file:fsh_rank.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_render",
-      "enabled": true,
-      "code": "@file:fsh_render.js"
-    },
-    {
-      "type": "function",
-      "name": "fsh_log_render",
-      "enabled": true,
-      "code": "@file:fsh_log_render.js"
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Landed Self",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_landed_self.js"
-        }
-      ],
-      "text": "^With a final tug, you finish reeling in the line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Landed Other",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_landed_other.js"
-        }
-      ],
-      "text": "^With a final tug, ([A-Z][a-z]+) finishes reeling in (?:his|her|their|its) fishing line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Landed Self Struggle",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_landed_self_struggle.js"
-        }
-      ],
-      "text": "^You reel in the last bit of line and your struggle is over\\. You've landed (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Landed Other Short",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_landed_other_short.js"
-        }
-      ],
-      "text": "^([A-Z][a-z]+) reels in the last bit of (?:his|her|their|its) line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Landed Self Short",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_landed_self_short.js"
-        }
-      ],
-      "text": "^You reel in the last bit of (?:your|the) line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Cast Self",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_cast_self.js"
-        }
-      ],
-      "text": "^You cock back your arm and smoothly cast a line into",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Cast Distance",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_cast_distance.js"
-        }
-      ],
-      "text": "You judge the cast at about (\\d+) feet",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Cast Other",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_cast_other.js"
-        }
-      ],
-      "text": "^([A-Z][a-z]+) cocks back (?:his|her|their|its) arm and smoothly casts a line into",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Hook Self",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_hook_self.js"
-        }
-      ],
-      "text": "^You quickly jerk back your fishing pole",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Hook Other",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_hook_other.js"
-        }
-      ],
-      "text": "^([A-Z][a-z]+) quickly jerks back (?:his|her|their|its) fishing pole",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Rankings Header Yearly",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_rankings_header_yearly.js"
-        }
-      ],
-      "text": "\\[ Fishing rankings for the year (\\d+) AF \\]",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Rankings Header Reset",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_rankings_header_reset.js"
-        }
-      ],
-      "text": "\\[ Fishing rankings since last reset \\]",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fish Rankings Row",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fish_rankings_row.js"
-        }
-      ],
-      "text": "^(?:A|An|The)\\s+(.+?)\\s+([A-Z][a-z]+)\\s+(\\d+)\\s+(\\d+)\\s+\\d+(?:st|nd|rd|th)\\s+of\\s+\\w+,\\s+(\\d+)\\s+AF?\\s*$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "Fishing Learn Capture",
-      "enabled": false,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_fishing_learn_capture.js"
-        }
-      ],
-      "text": "^(.+)$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Learn",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_learn.js"
-        }
-      ],
-      "text": "^fplearn(?:\\s+(on|off|show|clear))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Add",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_add.js"
-        }
-      ],
-      "text": "^fpadd\\s+(\\S+)\\s+(\\d+)(?:\\s+(\\d+))?\\s+(.+)$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Me",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_me.js"
-        }
-      ],
-      "text": "^fpme(?:\\s+(\\S+))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Colour",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_colour.js"
-        }
-      ],
-      "text": "^fpcolou?r(?:\\s+(\\S+)(?:\\s+(#[0-9a-fA-F]{6}|reset))?)?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Reset",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_reset.js"
-        }
-      ],
-      "text": "^fpreset(?:\\s+(confirm))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Stats",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_stats.js"
-        }
-      ],
-      "text": "^fpstats$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Demo",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_demo.js"
-        }
-      ],
-      "text": "^fpdemo$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Area",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_area.js"
-        }
-      ],
-      "text": "^fparea(?:\\s+(.+))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Where",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_where.js"
-        }
-      ],
-      "text": "^fpwhere$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Year",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_year.js"
-        }
-      ],
-      "text": "^fpyear(?:\\s+(\\d+))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing End",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_end.js"
-        }
-      ],
-      "text": "^fpend$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Log",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_log.js"
-        }
-      ],
-      "text": "^fplog$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Gap",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_gap.js"
-        }
-      ],
-      "text": "^fpgap(?:\\s+(\\d+))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing Log Wipe",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_log_wipe.js"
-        }
-      ],
-      "text": "^fplogwipe(?:\\s+(confirm))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "Fishing CSV",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_fishing_csv.js"
-        }
-      ],
-      "text": "^fpcsv$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": true,
-      "prefix_suffix": true
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:alias_fishingstats.js"
+      }
+     ],
+     "text": "^fishingstats(?:\\s+(\\S+)(?:\\s+(.*?))?)?\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
     }
-  ],
-  "description": "Group fishing tally for a UI tab named 'fishingstats'. Tracks catches per angler and per species with weights, drawn as horizontal bars. Catch parsing is not wired: triggers must call fsh_record with client.fshIn = {angler, species, lb}. Use FPLEARN to capture the real message wording first."
+   ]
+  },
+  {
+   "type": "group",
+   "name": "tally",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "fishingstats_touch",
+     "enabled": true,
+     "code": "@file:fishingstats_touch.js"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_record",
+     "enabled": true,
+     "code": "@file:fishingstats_record.js"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_event",
+     "enabled": true,
+     "code": "@file:fishingstats_event.js"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_archive",
+     "enabled": true,
+     "code": "@file:fishingstats_archive.js"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_landed_self.js"
+      }
+     ],
+     "text": "^With a final tug, you finish reeling in the line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_landed_other.js"
+      }
+     ],
+     "text": "^With a final tug, ([A-Z][a-z]+) finishes reeling in (?:his|her|their|its) fishing line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_landed_self_struggle.js"
+      }
+     ],
+     "text": "^You reel in the last bit of line and your struggle is over\\. You've landed (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_landed_other_short.js"
+      }
+     ],
+     "text": "^([A-Z][a-z]+) reels in the last bit of (?:his|her|their|its) line and lands (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_landed_self_short.js"
+      }
+     ],
+     "text": "^You reel in the last bit of (?:your|the) line and land (?:a|an|the) (.+?) weighing (\\d+) pounds?(?: and (\\d+) ounces?)?[.!]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_cast_self.js"
+      }
+     ],
+     "text": "^You cock back your arm and smoothly cast a line into",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_cast_distance.js"
+      }
+     ],
+     "text": "You judge the cast at about (\\d+) feet",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_cast_other.js"
+      }
+     ],
+     "text": "^([A-Z][a-z]+) cocks back (?:his|her|their|its) arm and smoothly casts a line into",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_hook_self.js"
+      }
+     ],
+     "text": "^You quickly jerk back your fishing pole",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_hook_other.js"
+      }
+     ],
+     "text": "^([A-Z][a-z]+) quickly jerks back (?:his|her|their|its) fishing pole",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "rankings",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "fishingstats_rank",
+     "enabled": true,
+     "code": "@file:fishingstats_rank.js"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_rankings_header_yearly.js"
+      }
+     ],
+     "text": "\\[ Fishing rankings for the year (\\d+) AF \\]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_rankings_header_reset.js"
+      }
+     ],
+     "text": "\\[ Fishing rankings since last reset \\]",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_rankings_row.js"
+      }
+     ],
+     "text": "^(?:A|An|The)\\s+(.+?)\\s+([A-Z][a-z]+)\\s+(\\d+)\\s+(\\d+)\\s+\\d+(?:st|nd|rd|th)\\s+of\\s+\\w+,\\s+(\\d+)\\s+AF?\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "tabs",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "fishingstats_render",
+     "enabled": true,
+     "code": "@file:fishingstats_render.js"
+    },
+    {
+     "type": "function",
+     "name": "fishingstats_log_render",
+     "enabled": true,
+     "code": "@file:fishingstats_log_render.js"
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "learn",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": false,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_learn_capture.js"
+      }
+     ],
+     "text": "^(.+)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  }
+ ],
+ "description": "Fishing statistics for you and everyone around you: casts, hooks and catches per angler and per species, with weights, in a tab named 'fishingstats'; filed sessions in a tab named 'fishinglog'. Flags catches that beat this year's rankings (read from RANKINGS FISHING). State in client.loom.fishingstats. FISHINGSTATS HELP for commands."
 }

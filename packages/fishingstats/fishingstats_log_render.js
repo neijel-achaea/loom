@@ -1,4 +1,5 @@
-run_function("fsh_ensure", [], "fishingstats");
+if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function("fishingstats_setup", [], "fishingstats");
+var FS = client.loom.fishingstats;
 // Draws the 'fishinglog' tab: filed sessions and all-time totals.
 // House style shared in spirit with Coffers, Level and Ledger: ink panel,
 // serif small-caps headings, one large figure, monospace ledger rows.
@@ -56,8 +57,8 @@ function hero(num, tail) {
 }
 var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1514;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 
-var log = client.fshLog || [];
-var pal = client.fshPalette;
+var log = FS.log || [];
+var pal = FS.palette;
 
 function stamp(t) {
   if (!t || isNaN(Number(t))) { return "undated"; }
@@ -73,7 +74,7 @@ function bySessionCount(a, b) { return curL.ang[b][0] - curL.ang[a][0]; }
 var html = PANEL;
 if (log.length === 0) {
   html += header("FISHING LOG", "0 sessions");
-  html += quiet("No sessions filed yet. A session is filed automatically after " + client.fshGap + " minutes idle, or on demand with FPEND.");
+  html += quiet("No sessions filed yet. A session is filed automatically after " + FS.gap + " minutes idle, or on demand with FISHINGSTATS END.");
 } else {
   // Aggregate across everything logged.
   var tn = 0, toz = 0, tsec = 0, trec = 0, tnTimed = 0;
@@ -116,7 +117,7 @@ if (log.length === 0) {
   if (bestOz > 0) {
     bb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + CATCH + ';">' + wt(bestOz) + '</div>';
     bb += row("species", esc(bestSp));
-    bb += row("by", esc(bestWho), bestWho === client.fshMe ? "#ffffff" : TXT);
+    bb += row("by", esc(bestWho), bestWho === FS.me ? "#ffffff" : TXT);
   } else {
     bb += quiet("Nothing weighed yet.");
   }
@@ -129,11 +130,11 @@ if (log.length === 0) {
   var tot = "";
   var maxA = an.length > 0 ? perAngler[an[0]][0] : 0;
   for (i = 0; i < an.length; i++) {
-    var colour = client.fshCol[an[i]] || pal[i % pal.length];
+    var colour = FS.col[an[i]] || pal[i % pal.length];
     var pa = perAngler[an[i]];
     var pct = maxA > 0 ? Math.round(pa[0] / maxA * 100) : 0;
     tot += '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;">';
-    tot += '<span style="width:76px;color:' + (an[i] === client.fshMe ? "#ffffff" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + swatch(colour) + esc(an[i]) + '</span>';
+    tot += '<span style="width:76px;color:' + (an[i] === FS.me ? "#ffffff" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + swatch(colour) + esc(an[i]) + '</span>';
     tot += '<span style="flex:1;background:' + TRACK + ';height:6px;"><span style="display:block;background:' + colour + ';height:6px;width:' + pct + '%;"></span></span>';
     tot += '<span style="width:108px;text-align:right;color:' + TXT + ';white-space:nowrap;">' + pa[0] + ' <span style="color:' + MUTED + ';">&middot; ' + wt(pa[1]) + '</span></span></div>';
   }
@@ -162,11 +163,11 @@ if (log.length === 0) {
     var j;
     for (j = 0; j < names.length; j++) {
       var A = L2.ang[names[j]];
-      var colour2 = client.fshCol[names[j]] || pal[j % pal.length];
+      var colour2 = FS.col[names[j]] || pal[j % pal.length];
       var pc = maxN > 0 ? Math.round((A[0] / maxN) * 100) : 0;
       var lostN = (A[4] || 0) - A[0];
       sb += '<div style="display:flex;align-items:center;gap:6px;margin-top:2px;">';
-      sb += '<span style="width:76px;color:' + (names[j] === client.fshMe ? "#ffffff" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(names[j]) + '</span>';
+      sb += '<span style="width:76px;color:' + (names[j] === FS.me ? "#ffffff" : TXT) + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(names[j]) + '</span>';
       sb += '<span style="flex:1;background:' + TRACK + ';height:5px;"><span style="display:block;background:' + colour2 + ';height:5px;width:' + pc + '%;"></span></span>';
       sb += '<span style="width:108px;text-align:right;color:' + MUTED + ';white-space:nowrap;"><span style="color:' + TXT + ';">' + A[0] + '</span> &middot; ' + wt(A[1]) + (lostN > 0 ? ' &middot; ' + lostN + ' lost' : '') + '</span></div>';
     }

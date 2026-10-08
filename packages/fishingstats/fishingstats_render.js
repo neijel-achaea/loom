@@ -1,4 +1,5 @@
-run_function("fsh_ensure", [], "fishingstats");
+if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function("fishingstats_setup", [], "fishingstats");
+var FS = client.loom.fishingstats;
 // Draws the 'fishingstats' tab: the live session.
 // House style shared in spirit with Coffers, Level and Ledger: ink panel,
 // serif small-caps headings, one large figure, monospace ledger rows.
@@ -56,9 +57,9 @@ function hero(num, tail) {
 }
 var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1514;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 
-var s = client.fsh;
-var pal = client.fshPalette;
-var rec = client.fshRec.f;
+var s = FS.session;
+var pal = FS.palette;
+var rec = FS.rec.f;
 
 // Ranking rows truncate long names, so a stored key that prefixes the caught
 // species counts as the same fish.
@@ -121,15 +122,15 @@ var html = PANEL + header("FISHING", dur(elapsed) + (s.year ? ' &middot; ' + s.y
 
 if (s.n === 0 && names.length === 0) {
   html += hero("0", "fish landed so far");
-  html += quiet("Nothing yet this session. Cast a line, or run FPDEMO to preview the layout.");
+  html += quiet("Nothing yet this session. Cast a line, or run FISHINGSTATS DEMO to preview the layout.");
 } else {
   html += hero(String(s.n), (s.n === 1 ? "fish" : "fish") + " landed" + (totOz > 0 ? ", " + wt(totOz) + " in all" : ""));
   // Where: flag a pinned area so a stale manual override is visible rather
   // than looking like a detection failure.
   if (areaList.length > 0) {
-    html += '<div style="color:' + MUTED + ';">at <span style="color:' + TXT + ';font-family:' + SERIF + ';">' + esc(areaList.join(", ")) + '</span>' + (client.fshAreaSrc === "manual" ? ' <span style="font-style:italic;font-family:' + SERIF + ';">(pinned)</span>' : '') + '</div>';
+    html += '<div style="color:' + MUTED + ';">at <span style="color:' + TXT + ';font-family:' + SERIF + ';">' + esc(areaList.join(", ")) + '</span>' + (FS.areaSrc === "manual" ? ' <span style="font-style:italic;font-family:' + SERIF + ';">(pinned)</span>' : '') + '</div>';
   } else {
-    html += '<div style="color:' + MUTED + ';">area unknown &mdash; FPAREA to set</div>';
+    html += '<div style="color:' + MUTED + ';">area unknown &mdash; FISHINGSTATS AREA to set</div>';
   }
 
   // Two ledger columns: the pace of the session, and its prize catch.
@@ -153,7 +154,7 @@ if (s.n === 0 && names.length === 0) {
   if (bestOz > 0) {
     bb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + CATCH + ';">' + wt(bestOz) + '</div>';
     bb += row("species", esc(bestSp));
-    bb += row("by", esc(bestWho), bestWho === client.fshMe ? "#ffffff" : TXT);
+    bb += row("by", esc(bestWho), bestWho === FS.me ? "#ffffff" : TXT);
   } else {
     bb += quiet("Nothing weighed yet.");
   }
@@ -167,7 +168,7 @@ if (s.n === 0 && names.length === 0) {
   var k;
   for (k = 0; k < names.length; k++) { if (s.anglers[names[k]].n > maxN) { maxN = s.anglers[names[k]].n; } }
   var colourOf = {};
-  for (k = 0; k < names.length; k++) { colourOf[names[k]] = client.fshCol[names[k]] || pal[k % pal.length]; }
+  for (k = 0; k < names.length; k++) { colourOf[names[k]] = FS.col[names[k]] || pal[k % pal.length]; }
 
   var ab = "";
   for (k = 0; k < names.length; k++) {
@@ -176,7 +177,7 @@ if (s.n === 0 && names.length === 0) {
     var note = 'total ' + wt(a.oz);
     if (a.best > 0) { note += ' &middot; best ' + wt(a.best) + ' ' + esc(a.bestSp); }
     if (a.casts > 0) { note += ' &middot; ' + Math.round((a.n / a.casts) * 100) + '% of casts landed'; }
-    ab += barRow(names[k], a.n + ' <span style="color:' + MUTED + ';">&middot; ' + share + '%</span>', note, a.n, maxN, colourOf[names[k]], names[k] === client.fshMe);
+    ab += barRow(names[k], a.n + ' <span style="color:' + MUTED + ';">&middot; ' + share + '%</span>', note, a.n, maxN, colourOf[names[k]], names[k] === FS.me);
   }
   html += section("By angler", ab);
 
@@ -219,7 +220,7 @@ if (s.n === 0 && names.length === 0) {
     var rb = "";
     for (k = s.recent.length - 1; k >= 0; k--) {
       var r2 = s.recent[k];
-      var isMe = (r2[1] === client.fshMe);
+      var isMe = (r2[1] === FS.me);
       rb += '<div style="display:flex;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">';
       rb += '<span style="color:' + MUTED + ';min-width:3em;">' + clock(r2[0]) + '</span>';
       rb += '<span style="color:' + (colourOf[r2[1]] || TXT) + ';min-width:5.5em;' + (isMe ? 'font-weight:bold;' : '') + '">' + esc(r2[1]) + '</span>';
