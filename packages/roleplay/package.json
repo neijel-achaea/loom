@@ -1869,6 +1869,23 @@
           "whole_words": true,
           "case_sensitive": true,
           "prefix_suffix": true
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:rituals__alias_graduation_w_d.js"
+            }
+          ],
+          "text": "^graduation (\\w+) (\\d+)$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
         }
       ]
     },

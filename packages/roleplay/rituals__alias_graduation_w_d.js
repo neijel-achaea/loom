@@ -13,7 +13,7 @@ switch (step) {
 
   case "3":
     textStep = "say Welcome, everyone. We gather here beneath the roots of Eleusis, amongst those who rest within these walls, to mark the moment a seed breaks the soil and turns towards the light.";
-    display_notice("[eleusis] Skip to step 6 if Lady Gaia is not present.", "cyan");
+    display_notice("[roleplay] Skip to step 6 if Lady Gaia is not present.", "cyan");
     break;
 
   case "4":
@@ -42,7 +42,7 @@ switch (step) {
 
   case "10":
     textStep = "say " + target + ", each of us is bound to some corner of Nature's vast body. Tell us, which environment calls to you?";
-    display_notice("[eleusis] Use feel_environment optional after the reply.", "cyan");
+    display_notice("[roleplay] Use feel_environment optional after the reply.", "cyan");
 
     break;   
 
@@ -64,11 +64,11 @@ switch (step) {
     
   case "15":
     textStep = "say " + target + ", you will now speak the Oath. Repeat after me, and let each word be your own.";
-    display_notice("[eleusis] Oath 1: I, " + target + ", of (environment),", "cyan");
-    display_notice("[eleusis] Oath 2: Do hereby submit to the Wildwood Queen, Lady Gaia, She Who is Nature.", "cyan");
-    display_notice("[eleusis] Oath 3: In life, I shall seek to serve Nature, to defend Her realm, and to strike back against those who would trespass upon Her until my final breath.", "cyan");
-    display_notice("[eleusis] Oath 4: In death, I shall return to Her, my infested body a feast as my flesh is reclaimed down to the bone.", "cyan");
-    display_notice("[eleusis] Oath 5: That which is borrowed from the earth shall be inevitably returned; in life, growth, death, and decay, I am one with Nature.", "cyan");
+    display_notice("[roleplay] Oath 1: I, " + target + ", of (environment),", "cyan");
+    display_notice("[roleplay] Oath 2: Do hereby submit to the Wildwood Queen, Lady Gaia, She Who is Nature.", "cyan");
+    display_notice("[roleplay] Oath 3: In life, I shall seek to serve Nature, to defend Her realm, and to strike back against those who would trespass upon Her until my final breath.", "cyan");
+    display_notice("[roleplay] Oath 4: In death, I shall return to Her, my infested body a feast as my flesh is reclaimed down to the bone.", "cyan");
+    display_notice("[roleplay] Oath 5: That which is borrowed from the earth shall be inevitably returned; in life, growth, death, and decay, I am one with Nature.", "cyan");
     break;
     
   case "16":

@@ -1,0 +1,126 @@
+{
+  "type": "group",
+  "name": "civic",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "civic_setup",
+      "enabled": true,
+      "code": "@file:civic_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "civic_status",
+      "enabled": true,
+      "code": "@file:civic_status.js"
+    },
+    {
+      "type": "function",
+      "name": "civic_help",
+      "enabled": true,
+      "code": "@file:civic_help.js"
+    },
+    {
+      "type": "function",
+      "name": "civic_aide",
+      "enabled": true,
+      "code": "@file:civic_aide.js"
+    },
+    {
+      "type": "function",
+      "name": "civic_greet",
+      "enabled": true,
+      "code": "@file:civic_greet.js"
+    },
+    {
+      "type": "alias",
+      "name": "civic",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_civic.js"
+        }
+      ],
+      "text": "^civic(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "group",
+      "name": "Ambassador Aide",
+      "enabled": true,
+      "items": [
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:aide__trigger_lesson_request.js"
+            }
+          ],
+          "text": "^(\\w+) has requested that you share some of your knowledge of (.*) with (\\w+)\\. \\'OK\\' to commence the lesson\\.$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#00ffbc",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            },
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:aide__trigger_new_citizen.js"
+            }
+          ],
+          "text": "^Your fellow citizen, (\\w+), has just escaped",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        }
+      ]
+    }
+  ],
+  "description": "City duties for any city, one ministry at a time. Ambassador aide: go on and off duty, greet new citizens, accept lesson requests (refused for enemies when the social package is installed). CIVIC HELP for commands."
+}

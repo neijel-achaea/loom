@@ -60,7 +60,7 @@ These apply to every package touched from v0.2 onwards.
 
 **Split `eleusis`** into:
 - **sigils**: monolith and flame sigil watcher, with per-city room tables and the city read from GMCP. Works in every city.
-- **civic**: ambassador aide (newbie greetings, emissary status, lesson refusals), the graduation ritual, city QoL triggers. Generic logic, with city-specific texts in a per-city table.
+- **civic**: city duties per ministry, starting with the ambassador aide (newbie greetings, on/off duty, lesson refusals). The graduation ritual moves to roleplay's rituals. Generic logic, with city-specific texts in a per-city table.
 
 ### Package pass
 
@@ -69,8 +69,8 @@ Order: foundation first, then by how much coupling each package removes. The key
 | # | Package | Keyword | Main work |
 |---|---|---|---|
 | 1 | common → **loom** | `LOOM` | Split as above; registry; `LOOM` command |
-| 2 | eleusis → **sigils** | `SIGILS` | Own `Room.Info`; per-city room tables; reads `client.hl` defensively |
-| 3 | eleusis → **civic** | `CIVIC` | Per-city text tables; enemy check for lessons reads `client.hl` defensively |
+| 2 | eleusis → **sigils** | `SIGILS` | Own `Room.Info`; city from GMCP (done in #63) |
+| 3 | eleusis → **civic** | `CIVIC` | `CIVIC AIDE ON/OFF/TITLE/CLAN`, `CIVIC GREET`; per-city defaults; enemy check reads `client.hl` defensively |
 | 4 | **hunting** | `HUNTING` ✓ | Takes buttons and `DRAGONMODE`; reads class itself; `AUTOGOLD` moves under the keyword |
 | 5 | defences → **defcon** | `DEFCON` | Reads class itself; `INITDEF` becomes `DEFCON UP`, tiers become `DEFCON 1-5` under the same alias |
 | 6 | **harvesting** | `HARVESTING` ✓ | Own `Room.Info` and environment |
