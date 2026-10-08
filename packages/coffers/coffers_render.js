@@ -90,7 +90,6 @@ function wealthChart(hs, W, H, dayScale, markT) {
   return out + '</svg>';
 }
 
-// Daily net as bars around a zero line: green days in, red days out.
 // Small typographic helpers for the ledger blocks.
 function caps(t, col) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || BRONZE) + ';font-size:11px;margin:0 0 2px;">' + t + '</div>'; }
 function row(label, value, col) {
