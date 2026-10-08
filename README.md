@@ -1,8 +1,10 @@
-# Achaea Nexus packages
+# Loom
+
+*Weaving your Achaea client together.*
 
 **Version 0.1**: everything as it runs in game today, with source and history in one place. v0.2 is under way: see [ROADMAP.md](ROADMAP.md).
 
-Reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
+Loom is a suite of reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
 package is self-contained: it can be dropped onto any character without
 bringing the others along. The tab packages share one house style (ink panel,
 serif small-caps headings, one large figure, monospace ledger rows) and give
