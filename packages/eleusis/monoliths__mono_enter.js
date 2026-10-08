@@ -1,9 +1,8 @@
-// mono_enter -- called on every room change (wired from onGMCP).
+// mono_enter -- called from this package's own onGMCP on every room change.
 // Queues the room and probes it. No dedupe buffer: every entry is re-probed.
-var rid = get_variable("currentRoomId");
-var rnm = get_variable("currentRoomName");
-if ((rid === null || rid === undefined) && typeof currentRoomId !== "undefined") rid = currentRoomId;
-if ((rnm === null || rnm === undefined) && typeof currentRoomName !== "undefined") rnm = currentRoomName;
+var here = (client.loom && client.loom.eleusis && client.loom.eleusis.room) || {};
+var rid = here.id;
+var rnm = here.name;
 
 if (get_variable("mono_on") && rid !== null && rid !== undefined && rid !== "") {
   var key = String(rid);

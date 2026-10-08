@@ -1,4 +1,4 @@
-if (get_variable("pauseTriggers") == "off") {
+if (get_variable("pauseTriggers") != "on") {
   var H = client.hv;
   if (H && H.current) {
     H.inrFor = H.current;

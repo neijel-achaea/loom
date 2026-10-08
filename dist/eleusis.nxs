@@ -150,7 +150,7 @@
      "type": "function",
      "name": "mono_enter",
      "enabled": true,
-     "code": "// mono_enter -- called on every room change (wired from onGMCP).\n// Queues the room and probes it. No dedupe buffer: every entry is re-probed.\nvar rid = get_variable(\"currentRoomId\");\nvar rnm = get_variable(\"currentRoomName\");\nif ((rid === null || rid === undefined) && typeof currentRoomId !== \"undefined\") rid = currentRoomId;\nif ((rnm === null || rnm === undefined) && typeof currentRoomName !== \"undefined\") rnm = currentRoomName;\n\nif (get_variable(\"mono_on\") && rid !== null && rid !== undefined && rid !== \"\") {\n  var key = String(rid);\n\n  // A monolith read in the previous room is waiting for a flame line that\n  // never came -- settle it now as \"no flame\".\n  run_function(\"mono_settle\", [], \"eleusis\");\n\n  var ign = get_variable(\"mono_ignore\");\n  if (!ign) { ign = { \"6742\": \"?\" }; set_variable(\"mono_ignore\", ign); }\n\n  if (!ign[key]) {\n    var q = get_variable(\"mono_queue\") || [];\n    q.push({ id: key, name: rnm || \"?\", t: Date.now() });\n    if (q.length > 20) q = q.slice(q.length - 20);\n    set_variable(\"mono_queue\", q);\n    send_command(\"probe monolith here\");\n  }\n}\n"
+     "code": "// mono_enter -- called from this package's own onGMCP on every room change.\n// Queues the room and probes it. No dedupe buffer: every entry is re-probed.\nvar here = (client.loom && client.loom.eleusis && client.loom.eleusis.room) || {};\nvar rid = here.id;\nvar rnm = here.name;\n\nif (get_variable(\"mono_on\") && rid !== null && rid !== undefined && rid !== \"\") {\n  var key = String(rid);\n\n  // A monolith read in the previous room is waiting for a flame line that\n  // never came -- settle it now as \"no flame\".\n  run_function(\"mono_settle\", [], \"eleusis\");\n\n  var ign = get_variable(\"mono_ignore\");\n  if (!ign) { ign = { \"6742\": \"?\" }; set_variable(\"mono_ignore\", ign); }\n\n  if (!ign[key]) {\n    var q = get_variable(\"mono_queue\") || [];\n    q.push({ id: key, name: rnm || \"?\", t: Date.now() });\n    if (q.length > 20) q = q.slice(q.length - 20);\n    set_variable(\"mono_queue\", q);\n    send_command(\"probe monolith here\");\n  }\n}\n"
     },
     {
      "type": "function",
@@ -413,6 +413,12 @@
    "name": "onUninstall",
    "enabled": true,
    "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// The monolith watcher follows the room itself: on every room change,\n// remember it and probe the monolith.\nif (args.gmcp_method == \"Room.Info\") {\n  if (!client.loom) client.loom = {};\n  if (!client.loom.eleusis) client.loom.eleusis = {};\n  client.loom.eleusis.room = { id: args.gmcp_args.num, name: args.gmcp_args.name };\n  run_function(\"mono_enter\", [], \"eleusis\");\n}\n"
   }
  ],
  "description": ""

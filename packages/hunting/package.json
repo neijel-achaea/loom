@@ -29,6 +29,90 @@
     },
     {
       "type": "group",
+      "name": "multiclass",
+      "enabled": true,
+      "items": [
+        {
+          "type": "function",
+          "name": "set_buttons",
+          "enabled": true,
+          "code": "@file:multiclass__set_buttons.js"
+        },
+        {
+          "type": "function",
+          "name": "best_dragon_mode",
+          "enabled": true,
+          "code": "@file:multiclass__best_dragon_mode.js"
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__alias_dragonmode.js"
+            }
+          ],
+          "text": "^dragonmode$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true,
+          "prefix_suffix": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__trigger_with_an_ear_splitting_roar_you_rear.js"
+            }
+          ],
+          "text": "^With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__trigger_your_draconic_form_melts_away_leaving.js"
+            }
+          ],
+          "text": "^Your draconic form melts away, leaving you suddenly weaker and more vulnerable\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__trigger_with_a_grimness_born_of_determination.js"
+            }
+          ],
+          "text": "^With a grimness born of determination\\, you begin to unleash the Dragon that is now so much a part of the fabric of your soul\\. A black light begins to shine through from within you\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
       "name": "afflictions",
       "enabled": true,
       "items": [

@@ -1,5 +1,7 @@
 var debug = get_variable("debug");
-var activeClass = get_variable("activeClass");
+// Class comes from hunting's own onGMCP; the shared variable is the fallback
+// until a Char.Status message has arrived this session.
+var activeClass = (client.loom && client.loom.hunting && client.loom.hunting.cls) || get_variable("activeClass");
 var dragonMode = get_variable("dragonMode");
 var dragonAttack = get_variable("dragonAttack");
 
@@ -20,5 +22,5 @@ if (activeClass == "Black Dragon" && dragonMode == "auto") {
   }
   
   set_variable("dragonAttack", dragonAttack);
-  if (debug == "on") display_notice("[debug][common][best_dragon_mode] Dragon Attack set to " + dragonAttack, "cyan");
+  if (debug == "on") display_notice("[debug][hunting][best_dragon_mode] Dragon Attack set to " + dragonAttack, "cyan");
 } 

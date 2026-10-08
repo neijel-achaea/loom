@@ -1,0 +1,672 @@
+{
+ "type": "group",
+ "name": "loom",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.0\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.0\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.loom) client.loom.loom = {};\nvar L = client.loom.loom;\n\nif (args.gmcp_method == \"Room.Info\") {\n  var g = args.gmcp_args;\n  L.room = { id: g.num, name: g.name, area: g.area, environment: g.environment };\n\n  // LEGACY shared variables. Packages that have not had their v0.2 pass still\n  // read these. Removed once none does (issue #2).\n  set_variable(\"currentRoomId\", g.num);\n  set_variable(\"currentRoomName\", g.name);\n  set_variable(\"currentArea\", g.area);\n  set_variable(\"currentEnvironment\", g.environment);\n}\n\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  var cls = args.gmcp_args.class;\n  if (cls != get_variable(\"activeClass\")) {\n    // LEGACY shared variable, same as above.\n    set_variable(\"activeClass\", cls);\n    L.cls = cls;\n    display_notice(\"[loom] class: \" + cls, \"green\");\n\n    // LEGACY: tells roleplay to reload its emotes. Goes away when roleplay\n    // follows the class itself.\n    send_command(\"aem reload\");\n  }\n}\n"
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// LOOM [LIST|HELP|PAUSE on/off|DEBUG on/off|ROOM]\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\n\nvar raw = String(args[1] || \"\").trim();\nvar parts = raw.split(/\\s+/);\nvar sub = String(parts[0] || \"\").toLowerCase();\nvar val = String(parts[1] || \"\").toLowerCase();\nvar C = \"cyan\";\n\nif (sub === \"\" || sub === \"list\") {\n  var reg = client.loom.registry;\n  var names = Object.keys(reg).sort();\n  display_notice(\"[loom] \" + names.length + \" package\" + (names.length == 1 ? \"\" : \"s\") + \" loaded\", C);\n  for (var i = 0; i < names.length; i++) {\n    var r = reg[names[i]] || {};\n    var label = (names[i] + \"                \").slice(0, 16);\n    display_notice(\"  \" + label + \"v\" + (r.version || \"?\") + \"   \" + (r.keyword || \"\"), C);\n  }\n  display_notice(\"[loom] pause \" + (get_variable(\"pauseTriggers\") || \"off\") + \", debug \" + (get_variable(\"debug\") || \"off\") + \". LOOM HELP for commands.\", C);\n} else if (sub === \"help\") {\n  display_notice(\"[loom] commands:\", C);\n  display_notice(\"  LOOM                  packages loaded, with version and command\", C);\n  display_notice(\"  LOOM PAUSE ON|OFF     stop packages sending commands (interruptible actions)\", C);\n  display_notice(\"  LOOM DEBUG ON|OFF     debug notices\", C);\n  display_notice(\"  LOOM ROOM             current room id, name, area and environment\", C);\n  display_notice(\"  Packages appear in the list once they have had their v0.2 update.\", C);\n} else if (sub === \"pause\" || sub === \"debug\") {\n  var vname = (sub === \"pause\") ? \"pauseTriggers\" : \"debug\";\n  if (val === \"on\" || val === \"off\") {\n    set_variable(vname, val);\n    display_notice(\"[loom] \" + sub + \" \" + val, C);\n  } else {\n    display_notice(\"[loom] \" + sub + \" is \" + (get_variable(vname) || \"off\") + \". Use LOOM \" + sub.toUpperCase() + \" ON or OFF.\", C);\n  }\n} else if (sub === \"room\") {\n  var rm = client.loom.loom.room;\n  if (rm) {\n    display_notice(\"[loom] room \" + rm.id + \": \" + rm.name + \" (\" + rm.area + \", \" + rm.environment + \")\", C);\n  } else {\n    display_notice(\"[loom] no room seen yet; move once and try again.\", C);\n  }\n} else {\n  display_notice(\"[loom] unknown command '\" + sub + \"'. LOOM HELP for commands.\", \"orange\");\n}\n"
+    }
+   ],
+   "text": "^loom(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "group",
+   "name": "gags",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "..o@@@@@@@@@@@@@o..",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "..@@@@@@@@@@@@@@@@@@@@@@@@@..",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": ".@@@@@@@@@@@\"'@@@@@@@@@\"'@@@@@@@@@@@.",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": ".@@@@@@@@@@@@@    @@@@@@@    @@@@@@@@@@@@@.",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@0    0@@@@@0    0@@@@@@@@@@@@@@",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@@0    0@@@@@0    0@@@@@@@@@@@@@@@",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@@@@.  .@@@@@@@.  .@@@@@@@@@@@@@@@@@",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@@@@@..@@@@@@@@@..@@@@@@@@@@@@@@@@@@",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@0",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@'^@@@@@@@@@@@@@@@@@@@@@@@@@@@@^`@@@@@@@@0",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@~  <@@@@@@@@@@@@@@@@@@@@@@@@@@@@>  ~@@@@@0",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@        `\"Y88@@@@@@@@@@@@88Y\"'        @@@00",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@.AOO@oo..                  ..oo@OO6.@@@0",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@oo..        ..oo@@@@@@@@@@@00",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "`@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@000'",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "`@@@@@@@@@@@@@@@@@@@@@@@@00^'",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "`@@@@@@@@@@@@@00^'",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Pre-quit housekeeping. Closing the huntstats session is integration work\n// and moves into the v0.4 integrations; for now it only runs if huntstats is\n// there (client.track is huntstats' session state).\nif (client.track) run_function(\"hs_finalize\", [], \"huntstats\");\n\n// Pre-quit commands\nsend_command(\"inr all\");\nsend_command(\"pg\");\n\nsend_command(\"quit\", 1);\n"
+    }
+   ],
+   "text": "^(quit|qq)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var elixir = args[1];\n\nswitch (elixir){\n  case \"health\":\n    send_command(\"fill vial133566 with health from rift\");\n    break;\n\n  case \"mana\":\n    send_command(\"fill vial125267 with mana from rift\");\n    break;\n\n  case \"mending\":\n    send_command(\"fill vial134886 with mending from rift\");\n    break;\n\n  case \"venom\":\n    send_command(\"fill vial135919 with venom from rift\");\n    break;\n\n  case \"caloric\":\n    send_command(\"fill vial138895 with caloric from rift\");\n    break;\n\n  case \"frost\":\n    send_command(\"fill vial314996 with frost from rift\");\n    break;\n\n  case \"immunity\":\n    send_command(\"fill vial321329 with immunity from rift\");\n    break;\n\n  case \"levitation\":\n    send_command(\"fill vial21165 with levitation from rift\");\n    break;\n\n  case \"mass\":\n    send_command(\"fill vial433721 with mass from rift\");\n    break;\n\n  case \"speed\":\n    send_command(\"fill vial177369 with speed from rift\");\n    break;\n\n  case \"restoration\":\n    send_command(\"fill vial32277 with restoration from rift\");\n    break;\n\n  case \"epidermal\":\n    send_command(\"fill vial81690 with epidermal from rift\");\n    break;\n\n  case \"all\":\n    send_command(\"fill vial133566 with health from rift\");\n    send_command(\"fill vial125267 with mana from rift\");\n    send_command(\"fill vial134886 with mending from rift\");\n    send_command(\"fill vial135919 with venom from rift\");\n    send_command(\"fill vial138895 with caloric from rift\");\n    send_command(\"fill vial314996 with frost from rift\");\n    send_command(\"fill vial321329 with immunity from rift\");\n    send_command(\"fill vial21165 with levitation from rift\");\n    send_command(\"fill vial433721 with mass from rift\");\n    send_command(\"fill vial177369 with speed from rift\");\n    send_command(\"fill vial32277 with restoration from rift\");\n    send_command(\"fill vial81690 with epidermal from rift\");\n    break;\n}"
+    }
+   ],
+   "text": "^refillvial (\\w+)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true,
+   "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#bcff00",
+     "highlight_bg": "#000000",
+     "highlight": "match",
+     "highlight_backref": ""
+    }
+   ],
+   "text": "Vines have overtaken this location.",
+   "matching": "substring",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#23f50a",
+     "highlight_bg": "#000000",
+     "highlight": "match",
+     "highlight_backref": ""
+    }
+   ],
+   "text": "Amberous spores drift through the atmosphere, petrifying into the perennial form of the Earthmother.",
+   "matching": "substring",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#ff8f00",
+     "highlight_bg": "#000000",
+     "highlight": "match",
+     "highlight_backref": ""
+    }
+   ],
+   "text": "a magnificent lightning eagle",
+   "matching": "substring",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "gag",
+     "enabled": true
+    }
+   ],
+   "text": "(Eleusian Techs):",
+   "matching": "substring",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"on\");"
+    }
+   ],
+   "text": "^You close your eyes\\, curl up in a bal\\l, and fall asleep\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"off\");"
+    }
+   ],
+   "text": "^You open your eyes and yawn mightily\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"off\");"
+    }
+   ],
+   "text": "^You open your eyes and stretch languidly\\, feeling deliciously well\\-rested\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"on\");"
+    }
+   ],
+   "text": "^You close your eyes\\, bow your head\\, and empty your mind of all thought\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"off\");"
+    }
+   ],
+   "text": "^You snap your head up as you break your meditation\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"off\");"
+    }
+   ],
+   "text": "^You cease your meditation having achieved full will and mana\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"on\");"
+    }
+   ],
+   "text": "^You begin to wade out into the depths of the Mnemosyne\\, Creation shivering around you as that which was and that which is begin to blur\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"off\");"
+    }
+   ],
+   "text": "^You silently slip beneath the water and the world is as it once was\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"on\");\n"
+    }
+   ],
+   "text": "^You begin to seek a path free of the Mnemosyne\\'s depths\\, the process taking all of your concentration\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "set_variable(\"pauseTriggers\", \"off\");\n"
+    }
+   ],
+   "text": "^The Mnemosyne relinquishes memory\\'s grip upon you\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#00d7ff",
+     "highlight_bg": "#000000",
+     "highlight": "line",
+     "highlight_backref": ""
+    }
+   ],
+   "text": "^With the completion of your adventure\\, you feel your renown grow to new heights\\! \\(You gain (\\d+) Renown\\.\\)$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var numberCredits = args[1];\n\nif (numberCredits <= 100) {\n  send_command(\"agree\");\n}"
+    }
+   ],
+   "text": "^You are attempting to convert (\\d+) Bound Credits into (\\d+) Lessons\\. If you are sure you would like to do this\\, type in AGREE\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "rewrite",
+     "enabled": true,
+     "rewrite_text_type": "value",
+     "rewrite_text": "[LEVEL UP!]",
+     "rewrite": "prefix",
+     "rewrite_backref": "",
+     "rewrite_colors": false,
+     "rewrite_fg": "#ffff00",
+     "rewrite_bg": "#000000"
+    },
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#8772ea",
+     "highlight_bg": "#000000",
+     "highlight": "line",
+     "highlight_backref": ""
+    }
+   ],
+   "text": "^You gasp with the realisation that (\\w+) has reached the level of (.*)\\.$",
+   "matching": "regexp",
+   "whole_words": true,
+   "case_sensitive": true
+  }
+ ],
+ "description": "Generic alias and triggers that don't fit any specific packages"
+}

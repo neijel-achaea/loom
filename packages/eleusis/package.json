@@ -413,6 +413,12 @@
       "name": "onUninstall",
       "enabled": true,
       "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
     }
   ],
   "description": ""
