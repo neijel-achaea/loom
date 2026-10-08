@@ -1,0 +1,3 @@
+# Personal packages that never go in the repository
+packages/oceana/
+dist/oceana.nxs

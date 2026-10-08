@@ -54,7 +54,8 @@ These apply to every package touched from v0.2 onwards.
 | Calls into eleusis (`mono_enter`) and harvesting (`hv_room`) on each room change | Removed: sigils and harvesting listen to `Room.Info` themselves. |
 | Class F-key buttons (`set_buttons`), `DRAGONMODE` | **hunting**, which already draws the battlerage highlights on those buttons |
 | `QUIT`/`QQ` wrapper | **loom**. Its pre-quit housekeeping (closing a huntstats session, for example) is integration work by nature. |
-| Party helpers, the Oceana group | Personal configuration: a friends table in loom, not names in triggers |
+| Party helpers | Personal configuration: a friends table in loom, not names in triggers |
+| The Oceana group | Out of the repository: a private package kept in game only (its party-command trigger could be abused through illusions) |
 | `REFILLVIAL`, highlights and gags | Topical home or loom; decided case by case during the pass |
 
 **Split `eleusis`** into:
