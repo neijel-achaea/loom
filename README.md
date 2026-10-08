@@ -19,7 +19,7 @@ their tab its own icon.
 | **defences** | — | `INITDEF` raises class defences; `DEFCON 1-5` sets curing defence priorities per class; insomnia upkeep and status highlights. |
 | **dmgchart** | DmgChart | Damage dealt and taken by type per fight, as donuts with dps; exchange stats; recorded sessions. `DMGCHART`. |
 | **elementalism** | — | Illusions: `ILLUSION`, `FEEL_<environment>` (desert, forest, …), and step-by-step set pieces (`PINK_DRAGON`, `KAWHEDRAGON_F/M <target> <step>`). |
-| **eleusis** | — | Ambassador aide (`NEWBIECT`/`NEWBIECLT`/`NEWBIEBOTH`, `VEON`/`VEOFF`, lesson requests refused for enemies), monolith and flame sigil watcher (`MONOWATCH`, `MONOREPORT`, `MONOIGNORE`, …), and the Saiha `GRADUATION <name> <step>` ritual. |
+| **eleusis** | — | Ambassador aide (`NEWBIECT`/`NEWBIECLT`/`NEWBIEBOTH`, `VEON`/`VEOFF`, lesson requests refused for enemies) and the Saiha `GRADUATION <name> <step>` ritual. Becoming **civic** in v0.2. |
 | **fishing** | — | Fishing automation: `BAIT <bait>`, `CL <direction>` to bait and cast, then tease, jerk and reel on the game's cues, with stage markers on each line. Statistics live in **fishingstats**. |
 | **fishingstats** | fishingstats, fishinglog | Live fishing session (by angler, by species, recent catches) and a log of past sessions. |
 | **groves** | — | *Retired (druid).* Opens the grove gate for city members who send "Gate." while you are in your grove. |
@@ -36,6 +36,7 @@ their tab its own icon.
 | **roleplay** | — | A large set of custom emotes, step-by-step rituals, and the ambient emote system (`AEM ON/OFF/NOW/RELOAD`). |
 | **security** | — | Antitheft (`ANTITHEFT ON/OFF`, re-wears or re-stores what gets taken), `GG`/`PG` to move gold in and out of the backpack, and give, sell, drop and offer wrappers that lift selfishness around the action. |
 | **self** | Self | Replacement for the stock character panel (see below). `SELF`. |
+| **sigils** | — | Monolith and flame sigil watcher for any city: probes the monolith in every room you enter and flags sigils running out; the report lists them with an estimated cost. `SIGILS HELP`. |
 | **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends) and an online watchlist. Shared by other packages. |
 | **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STN HELP`. |
 | **talismans** | Talismans, TalGraph | Dragon talisman piece tracker with progress and projected finish. |
@@ -45,9 +46,9 @@ their tab its own icon.
 
 The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
 
-- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **hunting**, **harvesting** and the monolith watcher in **eleusis** already follow GMCP themselves.
-- **defences**, **artificing** and **roleplay** read `activeClass`; **patrolling** and parts of **eleusis** read `currentRoomId`.
-- **eleusis**, **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
+- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **hunting**, **harvesting** and **sigils** already follow GMCP themselves.
+- **defences**, **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
+- **eleusis** (its ambassador aide), **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
 - **security** and **hunting** share the `backpack` variable.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.

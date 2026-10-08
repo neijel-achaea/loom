@@ -1,20 +1,18 @@
-// mono_flag -- inputs are read from variables, not arguments:
-//   mono_f_id, mono_f_name, mono_f_months, mono_f_flame
-//   months/flame < 0 means none / no reading
-var fid = get_variable("mono_f_id");
-var fnm = get_variable("mono_f_name");
-var fmo = get_variable("mono_f_months");
-var ffl = get_variable("mono_f_flame");
-if (fmo === null || fmo === undefined) fmo = -1;
-if (ffl === null || ffl === undefined || fmo < 0) ffl = -1;
+// sigils_flag -- records one reading from S.flag = { id, name, months, flame }.
+// months/flame < 0 means none / no reading.
+var S = client.loom.sigils;
+var f = S.flag || {};
+var fid = f.id;
+var fmo = (f.months === null || f.months === undefined) ? -1 : f.months;
+var ffl = (f.flame === null || f.flame === undefined || fmo < 0) ? -1 : f.flame;
 
 if (fid !== null && fid !== undefined && fid !== "") {
   var key = String(fid);
-  var nm = fnm ? String(fnm) : "?";
-  var thr = get_variable("mono_threshold");
+  var nm = f.name ? String(f.name) : "?";
+  var thr = get_variable("sigils_threshold");
   if (thr === null || thr === undefined) thr = 10;
-  var bad = get_variable("mono_bad") || {};
-  var ign = get_variable("mono_ignore") || {};
+  var bad = get_variable("sigils_flagged") || {};
+  var ign = get_variable("sigils_ignored") || {};
   var prev = bad[key];
 
   var monoBad = fmo < thr;
@@ -24,12 +22,12 @@ if (fid !== null && fid !== undefined && fid !== "") {
     // Healthy (or ignored): drop any earlier flag for this room.
     if (prev) {
       delete bad[key];
-      set_variable("mono_bad", bad);
-      if (!ign[key]) display_notice("[eleusis] " + nm + " (" + key + ") -- all good now.", "lime");
+      set_variable("sigils_flagged", bad);
+      if (!ign[key]) display_notice("[sigils] " + nm + " (" + key + ") -- all good now.", "lime");
     }
   } else {
     bad[key] = { id: key, name: nm, months: fmo, flame: ffl, t: Date.now() };
-    set_variable("mono_bad", bad);
+    set_variable("sigils_flagged", bad);
 
     // Only announce new flags or changed readings, not every re-probe.
     if (!prev || prev.months !== fmo || prev.flame !== ffl) {
@@ -44,7 +42,7 @@ if (fid !== null && fid !== undefined && fid !== "") {
         else if (ffl === 0) parts.push("flame under a month");
         else parts.push("flame " + ffl + (ffl === 1 ? " month" : " months"));
       }
-      display_notice("[eleusis] " + nm + " (" + key + ") -- " + parts.join(", "), "orange");
+      display_notice("[sigils] " + nm + " (" + key + ") -- " + parts.join(", "), "orange");
     }
   }
 }

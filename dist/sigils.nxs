@@ -1,0 +1,189 @@
+{
+ "type": "group",
+ "name": "sigils",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "run_function(\"sigils_setup\", [], \"sigils\");\ndisplay_notice(\"[sigils] installed. SIGILS HELP for commands, SIGILS WATCH ON to start.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled\n"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"sigils_setup\", [], \"sigils\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// Sigils follows the room and the city itself.\nif (!client.loom) client.loom = {};\nif (!client.loom.sigils) client.loom.sigils = {};\nvar S = client.loom.sigils;\n\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.city) {\n  S.city = String(args.gmcp_args.city).replace(/\\s*\\(.*\\)\\s*$/, \"\");\n}\n\nif (args.gmcp_method == \"Room.Info\") {\n  S.room = { id: args.gmcp_args.num, name: args.gmcp_args.name };\n  run_function(\"sigils_enter\", [], \"sigils\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_setup",
+   "enabled": true,
+   "code": "// sigils_setup -- run from onLoad and onInstall. Namespace, registry,\n// one-time migration from the old eleusis variables, defaults.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.sigils) client.loom.sigils = {};\nclient.loom.registry.sigils = { version: \"0.2.0\", keyword: \"SIGILS\" };\n\nvar S = client.loom.sigils;\nS.queue = [];\nS.await = null;\n\n// Migration: copy the eleusis-era mono_* variables once. The old ones are\n// left in place so an older package still finds its data.\nvar moves = [[\"mono_on\", \"sigils_on\"], [\"mono_threshold\", \"sigils_threshold\"],\n  [\"mono_bad\", \"sigils_flagged\"], [\"mono_ignore\", \"sigils_ignored\"],\n  [\"mono_cost_monolith\", \"sigils_cost_monolith\"], [\"mono_cost_flame\", \"sigils_cost_flame\"]];\nfor (var i = 0; i < moves.length; i++) {\n  var oldv = get_variable(moves[i][0]);\n  var newv = get_variable(moves[i][1]);\n  if ((newv === null || newv === undefined) && oldv !== null && oldv !== undefined) {\n    set_variable(moves[i][1], oldv);\n  }\n}\n\nif (get_variable(\"sigils_threshold\") === null || get_variable(\"sigils_threshold\") === undefined) set_variable(\"sigils_threshold\", 10);\nif (get_variable(\"sigils_cost_monolith\") === null || get_variable(\"sigils_cost_monolith\") === undefined) set_variable(\"sigils_cost_monolith\", 1500);\nif (get_variable(\"sigils_cost_flame\") === null || get_variable(\"sigils_cost_flame\") === undefined) set_variable(\"sigils_cost_flame\", 500);\nif (!get_variable(\"sigils_flagged\")) set_variable(\"sigils_flagged\", {});\nif (!get_variable(\"sigils_ignored\")) set_variable(\"sigils_ignored\", {});\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_enter",
+   "enabled": true,
+   "code": "// sigils_enter -- on every room change while watching: queue the room and\n// probe its monolith. Every entry is re-probed; nothing is sent while paused.\nvar S = client.loom.sigils;\nvar here = S.room || {};\nvar rid = here.id;\n\nif (get_variable(\"sigils_on\") && get_variable(\"pauseTriggers\") != \"on\" && rid !== null && rid !== undefined && rid !== \"\") {\n  var key = String(rid);\n\n  // A monolith read in the previous room is still waiting for a flame line\n  // that never came: settle it as \"no flame\".\n  run_function(\"sigils_settle\", [], \"sigils\");\n\n  var ign = get_variable(\"sigils_ignored\") || {};\n  if (!ign[key]) {\n    if (!S.queue) S.queue = [];\n    S.queue.push({ id: key, name: here.name || \"?\", t: Date.now() });\n    if (S.queue.length > 20) S.queue = S.queue.slice(S.queue.length - 20);\n    send_command(\"probe monolith here\");\n  }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_take",
+   "enabled": true,
+   "code": "// sigils_take -- pops the oldest queued room into S.head (or null).\n// Entries older than 15s are dropped: their reply was lost somewhere.\nvar S = client.loom.sigils;\nvar q = S.queue || [];\nvar now = Date.now();\nvar head = null;\nwhile (q.length > 0 && head === null) {\n  var e = q.shift();\n  if (now - e.t < 15000) head = e;\n}\nS.queue = q;\nS.head = head;\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_parse",
+   "enabled": true,
+   "code": "// sigils_parse -- S.parseIn (\"109 months\", \"about a month\", ...) -> S.parseOut.\n// -1 = unreadable, 0 = under a month.\nvar S = client.loom.sigils;\nvar txt = String(S.parseIn || \"\");\nvar months = -1;\nif (/^about a month$/i.test(txt)) months = 1;\nelse if (/^about a year$/i.test(txt)) months = 12;\nelse {\n  var m = /(\\d+)\\s*month/i.exec(txt);\n  var y = /(\\d+)\\s*year/i.exec(txt);\n  if (m) months = parseInt(m[1], 10);\n  else if (y) months = parseInt(y[1], 10) * 12;\n  else if (/less than/i.test(txt)) months = 0;\n}\nS.parseOut = months;\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_settle",
+   "enabled": true,
+   "code": "// sigils_settle -- finalises the monolith waiting in S.await.\n// No flame reading at this point means the flame line never showed: missing.\nvar S = client.loom.sigils;\nvar aw = S.await;\nif (aw) {\n  S.await = null;\n  var fl = (aw.flame === undefined || aw.flame === null) ? -1 : aw.flame;\n  S.flag = { id: aw.id, name: aw.name, months: aw.months, flame: fl };\n  run_function(\"sigils_flag\", [], \"sigils\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_flag",
+   "enabled": true,
+   "code": "// sigils_flag -- records one reading from S.flag = { id, name, months, flame }.\n// months/flame < 0 means none / no reading.\nvar S = client.loom.sigils;\nvar f = S.flag || {};\nvar fid = f.id;\nvar fmo = (f.months === null || f.months === undefined) ? -1 : f.months;\nvar ffl = (f.flame === null || f.flame === undefined || fmo < 0) ? -1 : f.flame;\n\nif (fid !== null && fid !== undefined && fid !== \"\") {\n  var key = String(fid);\n  var nm = f.name ? String(f.name) : \"?\";\n  var thr = get_variable(\"sigils_threshold\");\n  if (thr === null || thr === undefined) thr = 10;\n  var bad = get_variable(\"sigils_flagged\") || {};\n  var ign = get_variable(\"sigils_ignored\") || {};\n  var prev = bad[key];\n\n  var monoBad = fmo < thr;\n  var flameBad = ffl < thr;\n\n  if (ign[key] || (!monoBad && !flameBad)) {\n    // Healthy (or ignored): drop any earlier flag for this room.\n    if (prev) {\n      delete bad[key];\n      set_variable(\"sigils_flagged\", bad);\n      if (!ign[key]) display_notice(\"[sigils] \" + nm + \" (\" + key + \") -- all good now.\", \"lime\");\n    }\n  } else {\n    bad[key] = { id: key, name: nm, months: fmo, flame: ffl, t: Date.now() };\n    set_variable(\"sigils_flagged\", bad);\n\n    // Only announce new flags or changed readings, not every re-probe.\n    if (!prev || prev.months !== fmo || prev.flame !== ffl) {\n      var parts = [];\n      if (monoBad) {\n        if (fmo < 0) parts.push(\"no monolith\");\n        else if (fmo === 0) parts.push(\"monolith under a month\");\n        else parts.push(\"monolith \" + fmo + (fmo === 1 ? \" month\" : \" months\"));\n      }\n      if (flameBad && fmo >= 0) {\n        if (ffl < 0) parts.push(\"no flame sigil\");\n        else if (ffl === 0) parts.push(\"flame under a month\");\n        else parts.push(\"flame \" + ffl + (ffl === 1 ? \" month\" : \" months\"));\n      }\n      display_notice(\"[sigils] \" + nm + \" (\" + key + \") -- \" + parts.join(\", \"), \"orange\");\n    }\n  }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_status",
+   "enabled": true,
+   "code": "var S = client.loom.sigils;\nvar on = get_variable(\"sigils_on\");\nvar thr = get_variable(\"sigils_threshold\");\nvar n = Object.keys(get_variable(\"sigils_flagged\") || {}).length;\nvar ni = Object.keys(get_variable(\"sigils_ignored\") || {}).length;\ndisplay_notice(\"[sigils] watch \" + (on ? \"ON\" : \"OFF\") + \", threshold \" + thr + \" months, \"\n  + n + \" room(s) flagged, \" + ni + \" ignored. SIGILS HELP for commands.\", on ? \"lime\" : \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_help",
+   "enabled": true,
+   "code": "var C = \"cyan\";\ndisplay_notice(\"[sigils] monolith and flame sigil watcher. Commands:\", C);\ndisplay_notice(\"  SIGILS                    status\", C);\ndisplay_notice(\"  SIGILS WATCH [ON|OFF]     probe the monolith in every room you enter\", C);\ndisplay_notice(\"  SIGILS REPORT             rooms under the threshold, with estimated cost\", C);\ndisplay_notice(\"  SIGILS CHECK              probe this room once\", C);\ndisplay_notice(\"  SIGILS IGNORE [HERE|id]   skip a room (no argument: list ignored rooms)\", C);\ndisplay_notice(\"  SIGILS UNIGNORE HERE|id   watch a room again\", C);\ndisplay_notice(\"  SIGILS THRESHOLD [n]      flag sigils with fewer than n months left\", C);\ndisplay_notice(\"  SIGILS COST [MONOLITH|FLAME n]   prices used in the report\", C);\ndisplay_notice(\"  SIGILS CLEAR              wipe the flagged list\", C);\ndisplay_notice(\"  SIGILS RESET / DEBUG\", C);\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_watch",
+   "enabled": true,
+   "code": "var S = client.loom.sigils;\nvar mode = S.argv[0] || \"\";\nvar next = get_variable(\"sigils_on\") ? false : true;\nif (mode === \"on\") next = true;\nif (mode === \"off\") next = false;\nvar thr = get_variable(\"sigils_threshold\");\n\nrun_function(\"sigils_settle\", [], \"sigils\");\nset_variable(\"sigils_on\", next);\nS.queue = [];\nS.await = null;\nif (next) {\n  display_notice(\"[sigils] watch ON. Probing every room, flagging under \" + thr + \" months (monolith and flame).\", \"lime\");\n} else {\n  var n = Object.keys(get_variable(\"sigils_flagged\") || {}).length;\n  display_notice(\"[sigils] watch OFF. \" + n + \" room(s) flagged. SIGILS REPORT to see them.\", \"yellow\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_report",
+   "enabled": true,
+   "code": "var S = client.loom.sigils;\nrun_function(\"sigils_settle\", [], \"sigils\");\n\nvar bad = get_variable(\"sigils_flagged\") || {};\nvar ign = get_variable(\"sigils_ignored\") || {};\nvar thr = get_variable(\"sigils_threshold\");\nif (thr === null || thr === undefined) thr = 10;\nvar cm = get_variable(\"sigils_cost_monolith\");\nif (cm === null || cm === undefined) cm = 1500;\nvar cf = get_variable(\"sigils_cost_flame\");\nif (cf === null || cf === undefined) cf = 500;\n\nvar monoRows = [];\nvar flameRows = [];\nvar keys = Object.keys(bad);\nvar i = 0;\nfor (i = 0; i < keys.length; i++) {\n  var r = bad[keys[i]];\n  if (ign[r.id]) continue;\n  var fl = (r.flame === undefined || r.flame === null || r.months < 0) ? -1 : r.flame;\n  var idcol = (\"      \" + r.id).slice(-6);\n\n  if (r.months < thr) {\n    var ms = \"none\";\n    if (r.months === 0) ms = \"<1\";\n    if (r.months > 0) ms = String(r.months);\n    monoRows.push((\"00000\" + (r.months < 0 ? 0 : r.months + 1)).slice(-5)\n      + \"  \" + (\"      \" + ms).slice(-6) + \"  \" + idcol + \"  \" + r.name);\n  }\n  if (fl < thr) {\n    var fs = \"none\";\n    if (fl === 0) fs = \"<1\";\n    if (fl > 0) fs = String(fl);\n    flameRows.push((\"00000\" + (fl < 0 ? 0 : fl + 1)).slice(-5)\n      + \"  \" + (\"      \" + fs).slice(-6) + \"  \" + idcol + \"  \" + r.name);\n  }\n}\nmonoRows.sort();\nflameRows.sort();\n\nvar colhead = \"  Months    Room  Location\";\n\ndisplay_notice((S.city ? String(S.city).toUpperCase() + \" \" : \"\") + \"SIGIL REPORT\", \"yellow\");\ndisplay_notice(\"Rooms with less than \" + thr + \" months of usefulness left.\", \"white\");\ndisplay_notice(\" \", \"white\");\n\ndisplay_notice(\"EXPIRING MONOLITH SIGILS (\" + monoRows.length + \")\", \"yellow\");\nif (monoRows.length === 0) display_notice(\"  None.\", \"white\");\nelse {\n  display_notice(colhead, \"white\");\n  for (i = 0; i < monoRows.length; i++) display_notice(monoRows[i].slice(5), \"white\");\n}\ndisplay_notice(\" \", \"white\");\n\ndisplay_notice(\"EXPIRING FLAME SIGILS (\" + flameRows.length + \")\", \"yellow\");\nif (flameRows.length === 0) display_notice(\"  None.\", \"white\");\nelse {\n  display_notice(colhead, \"white\");\n  for (i = 0; i < flameRows.length; i++) display_notice(flameRows[i].slice(5), \"white\");\n}\ndisplay_notice(\" \", \"white\");\n\nvar tm = monoRows.length * cm;\nvar tf = flameRows.length * cf;\nvar money = [String(cm), String(cf), String(tm), String(tf), String(tm + tf)];\nfor (i = 0; i < money.length; i++) money[i] = money[i].replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");\n\ndisplay_notice(\"ESTIMATED COST (NEXT 6 MONTHS)\", \"yellow\");\ndisplay_notice(\"  Monolith sigils \" + (\"   \" + monoRows.length).slice(-3) + \" x \" + (\"     \" + money[0]).slice(-5)\n  + \" = \" + (\"       \" + money[2]).slice(-7) + \" gold\", \"white\");\ndisplay_notice(\"  Flame sigils    \" + (\"   \" + flameRows.length).slice(-3) + \" x \" + (\"     \" + money[1]).slice(-5)\n  + \" = \" + (\"       \" + money[3]).slice(-7) + \" gold\", \"white\");\ndisplay_notice(\"  Total                         \" + (\"       \" + money[4]).slice(-7) + \" gold\", \"white\");\n\ndisplay_notice(\"[sigils] SIGILS CLEAR to wipe the list.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_ignore",
+   "enabled": true,
+   "code": "var S = client.loom.sigils;\nvar ign = get_variable(\"sigils_ignored\") || {};\nvar arg = S.argv[0] || \"\";\n\nif (arg === \"\") {\n  var keys = Object.keys(ign);\n  if (keys.length === 0) display_notice(\"[sigils] no rooms ignored.\", \"cyan\");\n  else {\n    display_notice(\"[sigils] \" + keys.length + \" room(s) ignored:\", \"cyan\");\n    for (var i = 0; i < keys.length; i++) display_notice(\"  \" + (\"      \" + keys[i]).slice(-6) + \"  \" + ign[keys[i]], \"white\");\n  }\n} else if (arg !== \"here\" && !/^\\d+$/.test(arg)) {\n  display_notice(\"[sigils] use SIGILS IGNORE HERE or SIGILS IGNORE <room id>.\", \"orange\");\n} else {\n  var key = arg;\n  var nm = \"?\";\n  if (arg === \"here\") {\n    if (!S.room) { display_notice(\"[sigils] no room seen yet; move once and try again.\", \"orange\"); key = \"\"; }\n    else { key = String(S.room.id); nm = S.room.name || \"?\"; }\n  }\n  if (key !== \"\") {\n    var bad = get_variable(\"sigils_flagged\") || {};\n    if (bad[key]) {\n      if (nm === \"?\") nm = bad[key].name;\n      delete bad[key];\n      set_variable(\"sigils_flagged\", bad);\n    }\n    ign[key] = nm;\n    set_variable(\"sigils_ignored\", ign);\n    display_notice(\"[sigils] ignoring room \" + key + (nm !== \"?\" ? \" (\" + nm + \")\" : \"\") + \".\", \"cyan\");\n  }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_unignore",
+   "enabled": true,
+   "code": "var S = client.loom.sigils;\nvar ign = get_variable(\"sigils_ignored\") || {};\nvar key = S.argv[0] || \"\";\nif (key === \"here\") key = S.room ? String(S.room.id) : \"\";\nif (key === \"\") {\n  display_notice(\"[sigils] use SIGILS UNIGNORE HERE or SIGILS UNIGNORE <room id>.\", \"orange\");\n} else if (ign[key] !== undefined) {\n  delete ign[key];\n  set_variable(\"sigils_ignored\", ign);\n  display_notice(\"[sigils] room \" + key + \" is watched again.\", \"cyan\");\n} else {\n  display_notice(\"[sigils] room \" + key + \" was not on the ignore list.\", \"orange\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_threshold",
+   "enabled": true,
+   "code": "var S = client.loom.sigils;\nvar v = parseInt(S.argv[0], 10);\nif (!isNaN(v) && v > 0) set_variable(\"sigils_threshold\", v);\ndisplay_notice(\"[sigils] threshold: \" + get_variable(\"sigils_threshold\") + \" months.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "sigils_cost",
+   "enabled": true,
+   "code": "var S = client.loom.sigils;\nvar which = S.argv[0] || \"\";\nvar v = parseInt(S.argv[1], 10);\nif ((which === \"monolith\" || which === \"flame\") && !isNaN(v) && v >= 0) {\n  set_variable(\"sigils_cost_\" + which, v);\n} else if (which !== \"\") {\n  display_notice(\"[sigils] use SIGILS COST MONOLITH <gold> or SIGILS COST FLAME <gold>.\", \"orange\");\n}\ndisplay_notice(\"[sigils] costs: monolith sigil \" + get_variable(\"sigils_cost_monolith\")\n  + \" gold, flame sigil \" + get_variable(\"sigils_cost_flame\") + \" gold.\", \"cyan\");\n"
+  },
+  {
+   "type": "alias",
+   "name": "sigils",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// SIGILS [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.sigils) run_function(\"sigils_setup\", [], \"sigils\");\nvar S = client.loom.sigils;\nvar raw = String(args[1] || \"\").trim();\nvar parts = raw.split(/\\s+/);\nvar sub = String(parts[0] || \"\").toLowerCase();\nS.argv = [];\nfor (var i = 1; i < parts.length; i++) S.argv.push(String(parts[i]).toLowerCase());\n\nif (sub === \"\" || sub === \"status\") run_function(\"sigils_status\", [], \"sigils\");\nelse if (sub === \"help\") run_function(\"sigils_help\", [], \"sigils\");\nelse if (sub === \"watch\") run_function(\"sigils_watch\", [], \"sigils\");\nelse if (sub === \"report\") run_function(\"sigils_report\", [], \"sigils\");\nelse if (sub === \"ignore\") run_function(\"sigils_ignore\", [], \"sigils\");\nelse if (sub === \"unignore\") run_function(\"sigils_unignore\", [], \"sigils\");\nelse if (sub === \"threshold\") run_function(\"sigils_threshold\", [], \"sigils\");\nelse if (sub === \"cost\") run_function(\"sigils_cost\", [], \"sigils\");\nelse if (sub === \"check\") {\n  var was = get_variable(\"sigils_on\");\n  set_variable(\"sigils_on\", true);\n  run_function(\"sigils_enter\", [], \"sigils\");\n  set_variable(\"sigils_on\", was);\n}\nelse if (sub === \"clear\") {\n  set_variable(\"sigils_flagged\", {});\n  S.queue = [];\n  S.await = null;\n  display_notice(\"[sigils] list cleared.\", \"cyan\");\n}\nelse if (sub === \"reset\") {\n  run_function(\"sigils_setup\", [], \"sigils\");\n  display_notice(\"[sigils] reset: queue cleared, missing defaults restored. Flagged and ignored rooms are kept.\", \"cyan\");\n}\nelse if (sub === \"debug\") {\n  display_notice(\"[sigils] on=\" + get_variable(\"sigils_on\")\n    + \" thr=\" + get_variable(\"sigils_threshold\")\n    + \" flagged=\" + Object.keys(get_variable(\"sigils_flagged\") || {}).length\n    + \" ignored=\" + Object.keys(get_variable(\"sigils_ignored\") || {}).join(\",\")\n    + \" queue=\" + JSON.stringify(S.queue)\n    + \" await=\" + JSON.stringify(S.await)\n    + \" room=\" + JSON.stringify(S.room)\n    + \" city=\" + (S.city || \"?\"), \"cyan\");\n}\nelse display_notice(\"[sigils] unknown command '\" + sub + \"'. SIGILS HELP for commands.\", \"orange\");\n"
+    }
+   ],
+   "text": "^sigils(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "sigils_usefulness",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var S = client.loom.sigils;\nif (S && S.queue && S.queue.length > 0) {\n  run_function(\"sigils_settle\", [], \"sigils\");\n  run_function(\"sigils_take\", [], \"sigils\");\n  var head = S.head;\n  if (head) {\n    S.parseIn = args[1];\n    run_function(\"sigils_parse\", [], \"sigils\");\n    head.months = S.parseOut;\n    // Wait for a possible flame line before deciding.\n    S.await = head;\n  }\n}\n"
+    }
+   ],
+   "text": "^It has (.+?) of usefulness left\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "sigils_flame",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "highlight",
+     "enabled": true,
+     "highlight_fg": "#ff008f",
+     "highlight_bg": "#000000",
+     "highlight": "line",
+     "highlight_backref": ""
+    },
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var S = client.loom.sigils;\nif (S && S.await) {\n  S.parseIn = args[1];\n  run_function(\"sigils_parse\", [], \"sigils\");\n  S.await.flame = S.parseOut;\n  run_function(\"sigils_settle\", [], \"sigils\");\n}\n"
+    }
+   ],
+   "text": "^There is a flame-shaped sigil attached\\. \\((.+?) remaining\\)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "sigils_nothing",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "var S = client.loom.sigils;\nif (S && S.queue && S.queue.length > 0) {\n  run_function(\"sigils_settle\", [], \"sigils\");\n  run_function(\"sigils_take\", [], \"sigils\");\n  var head = S.head;\n  if (head) {\n    S.flag = { id: head.id, name: head.name, months: -1, flame: -1 };\n    run_function(\"sigils_flag\", [], \"sigils\");\n  }\n}\n"
+    }
+   ],
+   "text": "^You (?:do not|don't) see that here\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  }
+ ],
+ "description": "Monolith and flame sigil watcher for any city. With SIGILS WATCH ON it probes the monolith in every room you enter and flags rooms whose sigils have fewer months left than the threshold; SIGILS REPORT lists them with an estimated cost. SIGILS HELP for commands."
+}

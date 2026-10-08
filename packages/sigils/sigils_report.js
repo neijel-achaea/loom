@@ -1,12 +1,13 @@
-run_function("mono_settle", [], "eleusis");
+var S = client.loom.sigils;
+run_function("sigils_settle", [], "sigils");
 
-var bad = get_variable("mono_bad") || {};
-var ign = get_variable("mono_ignore") || {};
-var thr = get_variable("mono_threshold");
+var bad = get_variable("sigils_flagged") || {};
+var ign = get_variable("sigils_ignored") || {};
+var thr = get_variable("sigils_threshold");
 if (thr === null || thr === undefined) thr = 10;
-var cm = get_variable("mono_cost_monolith");
+var cm = get_variable("sigils_cost_monolith");
 if (cm === null || cm === undefined) cm = 1500;
-var cf = get_variable("mono_cost_flame");
+var cf = get_variable("sigils_cost_flame");
 if (cf === null || cf === undefined) cf = 500;
 
 var monoRows = [];
@@ -39,7 +40,7 @@ flameRows.sort();
 
 var colhead = "  Months    Room  Location";
 
-display_notice("ELEUSIS SIGIL REPORT", "yellow");
+display_notice((S.city ? String(S.city).toUpperCase() + " " : "") + "SIGIL REPORT", "yellow");
 display_notice("Rooms with less than " + thr + " months of usefulness left.", "white");
 display_notice(" ", "white");
 
@@ -71,4 +72,4 @@ display_notice("  Flame sigils    " + ("   " + flameRows.length).slice(-3) + " x
   + " = " + ("       " + money[3]).slice(-7) + " gold", "white");
 display_notice("  Total                         " + ("       " + money[4]).slice(-7) + " gold", "white");
 
-display_notice("[eleusis] MONOCLEAR to wipe the list.", "cyan");
+display_notice("[sigils] SIGILS CLEAR to wipe the list.", "cyan");
