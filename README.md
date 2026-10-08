@@ -19,7 +19,7 @@ their tab its own icon.
 | **coffers** | Coffers | Gold tracker: fortune (purse + bank), income and spending per session and per day, wealth ranks, records, a goal, charts. `COFFERS HELP`. |
 | **conjuration** | — | `CONJURE <sigil>`: runs the full creation ritual for the sigils currently known. |
 | **crystalism** | — | `AUTOREFINE [n]` levels crystal shapes evenly from stored facets; pearl pickup; a sonic portal on request for city members; pauses triggers while attuning to the Master Crystal. |
-| **defences** | — | `INITDEF` raises class defences; `DEFCON 1-5` sets curing defence priorities per class; insomnia upkeep and status highlights. |
+| **defcon** | — | Defence readiness for any class. `DEFCON 1-5` keeps the defences of that tier and above in curing (per-class tables for Druid, Magi, Sylvan and dragonform; general defences for other classes), `DEFCON UP` raises your class defences (automatically on login, `DEFCON AUTOUP OFF` to stop), `DEFCON LIST`, `DEFCON CURING ON/OFF`; insomnia upkeep, pear when choking underwater, status highlights. `DEFCON HELP`. Replaces **defences**. Reads nothing from other packages. |
 | **dmgchart** | DmgChart | Damage dealt and taken by type per fight, as donuts with dps; exchange stats; recorded sessions. `DMGCHART`. |
 | **elementalism** | — | Illusions: `ILLUSION`, `FEEL_<environment>` (desert, forest, …), and step-by-step set pieces (`PINK_DRAGON`, `KAWHEDRAGON_F/M <target> <step>`). |
 | **fishing** | — | Fishing automation: `BAIT <bait>`, `CL <direction>` to bait and cast, then tease, jerk and reel on the game's cues, with stage markers on each line. Statistics live in **fishingstats**. |
@@ -48,8 +48,8 @@ their tab its own icon.
 
 The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
 
-- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic** and **hunting** already follow GMCP themselves (hunting still borrows `activeClass` until the first class message of a session); **civic** checks the enemies list of **social** only when it's installed.
-- **defences**, **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
+- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social** only when it's installed.
+- **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
 - **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
 - **hunting** puts autogold into **security**'s `backpack` when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
