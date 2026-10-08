@@ -28,6 +28,12 @@
       "code": "@file:ongmcp.js"
     },
     {
+      "type": "function",
+      "name": "loom_help",
+      "enabled": true,
+      "code": "@file:loom_help.js"
+    },
+    {
       "type": "alias",
       "name": "",
       "enabled": true,

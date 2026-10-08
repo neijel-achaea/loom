@@ -20,12 +20,7 @@ if (sub === "" || sub === "list") {
   }
   display_notice("[loom] pause " + (get_variable("pauseTriggers") || "off") + ", debug " + (get_variable("debug") || "off") + ". LOOM HELP for commands.", C);
 } else if (sub === "help") {
-  display_notice("[loom] commands:", C);
-  display_notice("  LOOM                  packages loaded, with version and command", C);
-  display_notice("  LOOM PAUSE ON|OFF     stop packages sending commands (interruptible actions)", C);
-  display_notice("  LOOM DEBUG ON|OFF     debug notices", C);
-  display_notice("  LOOM ROOM             current room id, name, area and environment", C);
-  display_notice("  Packages appear in the list once they have had their v0.2 update.", C);
+  run_function("loom_help", [], "loom");
 } else if (sub === "pause" || sub === "debug") {
   var vname = (sub === "pause") ? "pauseTriggers" : "debug";
   if (val === "on" || val === "off") {

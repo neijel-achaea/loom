@@ -29,6 +29,7 @@ These apply to every package touched from v0.2 onwards.
 | **Persistent variables** | Prefixed with the package name: `coffers_log`, `ledger_items`. Existing variables are migrated once on load, then the old name is cleared. |
 | **Registration** | Each package's `onLoad` writes `client.loom.registry.<package> = { version, keyword }`. |
 | **Command** | One alias, `^<keyword>(?:\s+(.*))?$`, case-insensitive, with `HELP` and a bare call that shows status. |
+| **Help** | `<package>_help` prints a `[command, description]` table in a monospace block through `nexusclient.add_html_line`, falling back to `display_notice` when a client doesn't have it. Each package carries its own copy. |
 | **Version** | Semantic version per package, kept in `package.json` and shown by `LOOM`. |
 | **Shared flag** | `pauseTriggers` stays a plain variable. Packages treat "unset" as off, so they don't need the package that toggles it. |
 | **Suite package** | One package, **loom**, holds the `LOOM` command, the shared settings and all integrations. Nothing requires it. |
