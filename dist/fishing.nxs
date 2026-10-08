@@ -7,374 +7,419 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"fishing_setup\", [], \"fishing\");\ndisplay_notice(\"[fishing] installed. FISHING BAIT <bait>, then CL <direction>. FISHING HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
    "name": "onUninstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+   "code": "// Nothing to tear down; the fishing_* variables are left intact.\n"
   },
   {
-   "type": "alias",
-   "name": "",
+   "type": "function",
+   "name": "onLoad",
    "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "set_variable(\"bait\", args[1]);\ndisplay_notice(\"Bait set to \" + get_variable(\"bait\"));"
-    }
-   ],
-   "text": "^bait (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
+   "code": "run_function(\"fishing_setup\", [], \"fishing\");\n"
   },
   {
-   "type": "alias",
-   "name": "",
+   "type": "group",
+   "name": "core",
    "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "script",
+     "type": "function",
+     "name": "fishing_setup",
      "enabled": true,
-     "script": "var bait = get_variable(\"bait\");\nsend_command(\"bait hook with \" + bait);\nsend_command(\"cast line \" + args[1]);"
-    }
-   ],
-   "text": "^cl (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  setTimeout(() => send_command(\"tease line\"), 2100);\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+     "code": "// fishing_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.fishing) client.loom.fishing = {};\nclient.loom.registry.fishing = { version: \"0.2.0\", keyword: \"FISHING\" };\n\n// One-time migration: bait -> fishing_bait.\nvar fiOld = get_variable(\"bait\");\nif (fiOld !== null && fiOld !== undefined) {\n  if (!get_variable(\"fishing_bait\")) set_variable(\"fishing_bait\", fiOld);\n  delete_variable(\"bait\");\n}\nif (get_variable(\"fishing_bait\") === null || get_variable(\"fishing_bait\") === undefined) set_variable(\"fishing_bait\", \"\");\n// Tell the party \"Ding fish!\" on a new yearly record.\nif (!get_variable(\"fishing_ding\")) set_variable(\"fishing_ding\", \"on\");\n"
     },
     {
-     "type": "rewrite",
+     "type": "function",
+     "name": "fishing_cast",
      "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[1/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#fbff00",
-     "rewrite_bg": "#000000"
-    }
-   ],
-   "text": "^You feel a fish nibbling on your hook\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  setTimeout(() => send_command(\"tease line\"), 2100);\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}\n\n"
+     "code": "// fishing_cast -- bait the hook with the bait set and cast in the direction\n// left in client.loom.fishing.dir (FISHING CAST and CL).\nvar FI = client.loom.fishing;\nvar fiBait = get_variable(\"fishing_bait\");\nif (!FI.dir) {\n  display_notice(\"[fishing] cast where? FISHING CAST <direction> (or CL <direction>).\", \"orange\");\n} else if (!fiBait) {\n  display_notice(\"[fishing] no bait set. FISHING BAIT <bait> first.\", \"orange\");\n} else {\n  send_command(\"bait hook with \" + fiBait);\n  send_command(\"cast line \" + FI.dir);\n}\nFI.dir = \"\";\n"
     },
     {
-     "type": "rewrite",
+     "type": "function",
+     "name": "fishing_help",
      "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[1/4]",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#fbff00",
-     "rewrite_bg": "#000000"
-    }
-   ],
-   "text": "strikes at your bait",
-   "matching": "substring",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+     "code": "// fishing_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[fishing] baits, casts and plays the line on the game's cues. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"FISHING\", \"bait, ding and pause state\"],\n  [\"FISHING BAIT <bait>\", \"the bait to put on the hook\"],\n  [\"FISHING CAST <direction>\", \"bait the hook and cast\"],\n  [\"CL <direction>\", \"the same, shorter\"],\n  [\"FISHING DING ON|OFF\", \"tell the party \\\"Ding fish!\\\" on a new yearly record\"],\n  [\"Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
     },
     {
-     "type": "rewrite",
+     "type": "alias",
+     "name": "",
      "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[2/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#c5ff00",
-     "rewrite_bg": "#000000"
-    }
-   ],
-   "text": "^You feel a fish make a small strike at your bait\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// FISHING [subcommand ...]: the one command for this package. Only its own\n// subcommands match the alias, so FISHING RANKINGS and other game commands\n// still reach the game.\nif (!client.loom || !client.loom.fishing) run_function(\"fishing_setup\", [], \"fishing\");\nvar FI = client.loom.fishing;\nvar fiSub = String(args[1] || \"\").toLowerCase();\nvar fiArg = String(args[2] || \"\").trim();\nvar C = \"cyan\";\nif (fiSub === \"\" || fiSub === \"status\") {\n  display_notice(\"[fishing] bait \" + (get_variable(\"fishing_bait\") || \"not set\")\n    + \", ding \" + (get_variable(\"fishing_ding\") === \"off\" ? \"off\" : \"on\")\n    + (get_variable(\"pauseTriggers\") === \"on\" ? \", PAUSED (LOOM PAUSE)\" : \"\")\n    + \". FISHING HELP for commands.\", C);\n} else if (fiSub === \"help\") {\n  run_function(\"fishing_help\", [], \"fishing\");\n} else if (fiSub === \"bait\") {\n  if (fiArg !== \"\") set_variable(\"fishing_bait\", fiArg.toLowerCase());\n  display_notice(\"[fishing] bait: \" + (get_variable(\"fishing_bait\") || \"not set\") + \".\", C);\n} else if (fiSub === \"cast\") {\n  FI.dir = fiArg.toLowerCase();\n  run_function(\"fishing_cast\", [], \"fishing\");\n} else if (fiSub === \"ding\") {\n  var fiD = fiArg.toLowerCase();\n  if (fiD === \"on\" || fiD === \"off\") set_variable(\"fishing_ding\", fiD);\n  display_notice(\"[fishing] ding \" + (get_variable(\"fishing_ding\") === \"off\" ? \"OFF: new records stay quiet.\" : \"ON: a new yearly record tells the party \\\"Ding fish!\\\".\"), C);\n}\n"
+      }
+     ],
+     "text": "^fishing(?:\\s+(status|help|bait|cast|ding)(?:\\s+(.*?))?)?\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
     },
     {
-     "type": "rewrite",
+     "type": "alias",
+     "name": "",
      "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[2/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#c5ff00",
-     "rewrite_bg": "#000000"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// CL <direction>: the play-speed shortcut for FISHING CAST.\nif (!client.loom || !client.loom.fishing) run_function(\"fishing_setup\", [], \"fishing\");\nclient.loom.fishing.dir = String(args[1] || \"\").toLowerCase();\nrun_function(\"fishing_cast\", [], \"fishing\");\n"
+      }
+     ],
+     "text": "^cl\\s+(\\w+)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
     }
-   ],
-   "text": "^You see the water ripple as a fish makes a medium strike at your bait\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
+   ]
   },
   {
-   "type": "trigger",
-   "name": "",
+   "type": "group",
+   "name": "line",
    "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "script",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"tease line\" after 2.1s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"tease line\"), 2100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[1/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#fbff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You feel a fish nibbling on your hook\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     },
     {
-     "type": "rewrite",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[2/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#c5ff00",
-     "rewrite_bg": "#000000"
-    }
-   ],
-   "text": "^You stagger as a fish makes a large strike at your bait\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  send_command(\"queue add  bal reel line\");\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"tease line\" after 2.1s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"tease line\"), 2100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[1/4]",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#fbff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "strikes at your bait",
+     "matching": "substring",
+     "whole_words": true,
+     "case_sensitive": true
     },
     {
-     "type": "rewrite",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[3/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#1bff00",
-     "rewrite_bg": "#000000"
-    }
-   ],
-   "text": "^You quickly jerk back your fishing pole and feel the line go taut\\.(.*)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  setTimeout(() => send_command(\"reel line\"), 100);\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
-    }
-   ],
-   "text": "^Relaxing the tension on your line\\, you are able to reel again\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "rewrite",
-     "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[4/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#00ffd7",
-     "rewrite_bg": "#000000"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[2/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#c5ff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You feel a fish make a small strike at your bait\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     },
     {
-     "type": "sound",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "sound": "eagle"
-    }
-   ],
-   "text": "^With a final tug\\, you finish reeling in the line and land (.*)\\!$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "rewrite",
-     "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[4/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#00ffd7",
-     "rewrite_bg": "#000000"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[2/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#c5ff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You see the water ripple as a fish makes a medium strike at your bait\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     },
     {
-     "type": "sound",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "sound": "eagle"
-    }
-   ],
-   "text": "^You reel in the last bit of line and your struggle is over\\.(.*)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  setTimeout(() => send_command(\"tease line\"), 3000);\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[2/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#c5ff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You stagger as a fish makes a large strike at your bait\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     },
     {
-     "type": "rewrite",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "rewrite_text_type": "value",
-     "rewrite_text": "[0/4] ",
-     "rewrite": "prefix",
-     "rewrite_backref": "",
-     "rewrite_colors": true,
-     "rewrite_fg": "#ff8f00",
-     "rewrite_bg": "#000000"
-    }
-   ],
-   "text": "^You quickly jerk back your fishing pole\\, but the hook pulls free of the fish\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "Fishing Record",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "highlight",
-     "enabled": true,
-     "highlight_fg": "#6998de",
-     "highlight_bg": "#000000",
-     "highlight": "match",
-     "highlight_backref": ""
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"queue add bal reel line\", unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  send_command(\"queue add bal reel line\");\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending queue add bal reel line.\", \"orange\");\n}\n"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[3/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#1bff00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You quickly jerk back your fishing pole and feel the line go taut\\.(.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     },
     {
-     "type": "sound",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "sound": "ding"
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"reel line\" after 0.1s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"reel line\"), 100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending reel line.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^Relaxing the tension on your line\\, you are able to reel again\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     },
     {
-     "type": "script",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "script": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  send_command(\"partytell Ding fish!\");\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+     "actions": [
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[4/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#00ffd7",
+       "rewrite_bg": "#000000"
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "eagle"
+      }
+     ],
+     "text": "^With a final tug\\, you finish reeling in the line and land (.*)\\!$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[4/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#00ffd7",
+       "rewrite_bg": "#000000"
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "eagle"
+      }
+     ],
+     "text": "^You reel in the last bit of line and your struggle is over\\.(.*)$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Sends \"tease line\" after 3.0s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"tease line\"), 3000);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
+      },
+      {
+       "type": "rewrite",
+       "enabled": true,
+       "rewrite_text_type": "value",
+       "rewrite_text": "[0/4] ",
+       "rewrite": "prefix",
+       "rewrite_backref": "",
+       "rewrite_colors": true,
+       "rewrite_fg": "#ff8f00",
+       "rewrite_bg": "#000000"
+      }
+     ],
+     "text": "^You quickly jerk back your fishing pole\\, but the hook pulls free of the fish\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#6998de",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "ding"
+      },
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// A new yearly record: tell the party, if FISHING DING is on and Loom isn't paused.\nif (get_variable(\"fishing_ding\") !== \"off\") {\n  if (get_variable(\"pauseTriggers\") !== \"on\") {\n    send_command(\"partytell Ding fish!\");\n  } else {\n    display_notice(\"[fishing] paused (LOOM PAUSE): not telling the party.\", \"orange\");\n  }\n}\n"
+      }
+     ],
+     "text": "You've just set a new record for this year for that catch!",
+     "matching": "substring",
+     "whole_words": true,
+     "case_sensitive": true
     }
-   ],
-   "text": "You've just set a new record for this year for that catch!",
-   "matching": "substring",
-   "whole_words": true,
-   "case_sensitive": true
+   ]
   },
   {
-   "type": "trigger",
-   "name": "",
+   "type": "group",
+   "name": "highlights",
    "enabled": true,
-   "actions": [
+   "items": [
     {
-     "type": "highlight",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "highlight_fg": "#48ff00",
-     "highlight_bg": "#000000",
-     "highlight": "match",
-     "highlight_backref": ""
-    }
-   ],
-   "text": "^The fish appear to be plentiful here\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#48ff00",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "^The fish appear to be plentiful here\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
     {
-     "type": "highlight",
+     "type": "trigger",
+     "name": "",
      "enabled": true,
-     "highlight_fg": "#ff6b00",
-     "highlight_bg": "#000000",
-     "highlight": "match",
-     "highlight_backref": ""
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#ff6b00",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "^The fish appear to be fairly sparse here\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     }
-   ],
-   "text": "^The fish appear to be fairly sparse here\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
+   ]
   }
  ],
- "description": "Fishing reflexes"
+ "description": "Fishing automation: FISHING BAIT, then FISHING CAST or CL to bait and cast; teases, jerks and reels on the game's cues with stage markers. FISHING HELP for commands. Statistics live in fishingstats."
 }
