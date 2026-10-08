@@ -33,7 +33,7 @@ their tab its own icon.
 | **loom** | — | The suite package (replaces **common**). `LOOM` lists the packages loaded with their versions; `LOOM PAUSE ON/OFF` and `LOOM DEBUG ON/OFF` set the shared flags; `LOOM ROOM` shows the current room. Also the `QUIT`/`QQ` wrapper, `REFILLVIAL`, pausing during sleep, meditation and the Mnemosyne, and assorted highlights and gags. From v0.4 it holds the integrations between packages. |
 | **numpad_movement** | — | Movement and quick commands on the number pad. |
 | **partycomms** | Party | Shares party vitals and targets over party tell, shown as bars in a Party tab. `PARTYNAME`, `PARTYON`/`PARTYOFF`. |
-| **patrolling** | — | Checks each room's plants against what its environment should hold and flags shrines (`PATROLLING ON/OFF/HERE/LEARN`), suggests areas to patrol (`PATROL_SUGGEST`), storm and fire alerts, and logs replantings to the clan log. |
+| **patrolling** | — | Checks each room's plants against what its environment should hold and flags shrines and totems (`PATROLLING ON/OFF/HERE/LEARN`), suggests areas to patrol (`SUGGEST`, `STAMP`), and, with a clan set, reports fires (`FIRE`) and lightning strikes and logs replantings to the clan log. `PATROLLING CLAN`, `PATROLLING GOD`, `HELP`. Reads **ledger**'s Achaean date if present. |
 | **reclamation** | — | *Retired (druid).* Records where enemies are seen in Eleusis and can alert the party (`REPORTENEMIES ON/OFF`, `WHEREIS <name>`, `VINESREPORT [days]`). |
 | **roleplay** | — | A large set of custom emotes, step-by-step rituals (including the Saiha `GRADUATION <name> <step>` ceremony), and the ambient emote system (`AEM ON/OFF/NOW/RELOAD`). |
 | **security** | — | Antitheft (`SECURITY ANTITHEFT ON/OFF`: puts back watched worn items, the backpack and gold taken out of it), `GG`/`PG` to move gold out of and into the backpack, your backpack and watched items as settings (`SECURITY BACKPACK`, `SECURITY ITEM ADD/DEL`, `SECURITY ITEMS`), house state commands (`SECURITY HOUSE IN/OUT`), and give, sell, drop and offer wrappers that lift selfishness around the action (selfishness followed from GMCP). `SECURITY HELP`. Publishes the backpack id at `client.loom.security.backpack`. |
@@ -49,7 +49,7 @@ their tab its own icon.
 The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
 
 - **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social**, and adds new citizens to its city list, only when it's installed.
-- **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
+- **artificing** and **roleplay** read `activeClass`.
 - **crystalism**, **vision** and **standings** read the lists of **social** at `client.loom.social`.
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting, and **standings** when it dates an entry.
 - **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
