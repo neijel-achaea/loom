@@ -80,6 +80,16 @@ S.reNames = /^[A-Z][a-z]+(?:,\s*[A-Z][a-z]+)*(?:,?\s*and\s+[A-Z][a-z]+)?\.?$/;
 S.reFooter = /^Plus another \d+/;
 S.reWord = /[A-Z][a-z]+/g;
 if (S.timer) clearInterval(S.timer);
+// The pre-0.2 package kept its own 5s QW timer on client.wl. After importing
+// over it, that timer would keep polling with no trigger left to gag the
+// output, so stop it.
+if (client.wl) {
+  if (client.wl.timer) clearInterval(client.wl.timer);
+  if (client.wl.safetyT) clearTimeout(client.wl.safetyT);
+  if (client.wl.flushT) clearTimeout(client.wl.flushT);
+  client.wl.enabled = false;
+  client.wl = null;
+}
 S.timer = setInterval(function () { run_function("social_poll", [], "social"); }, S.interval);
 
 // LEGACY: packages that haven't had their v0.2 pass read client.hl
