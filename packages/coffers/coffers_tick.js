@@ -1,20 +1,17 @@
 // Runs on every prompt. Wealth is gold on hand + bank, so a deposit or a
 // withdrawal moves nothing; only money that enters or leaves the character
 // counts as income or spending.
-run_function("gc_ensure", [], "coffers");
-var F = client.gcF;
-var L = client.gcLive;
+if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
+var CO = client.loom.coffers;
+var F = CO.f;
+var L = CO.live;
 var g = L.gold;
 var b = L.bank;
 var now = Math.floor(new Date().getTime() / 1000);
 
-// Fallback in case Nexus keeps its own copies under these names.
-if (g === undefined) { try { var vg = parseInt(String(get_variable("my_gold")), 10); if (!isNaN(vg)) { g = vg; } } catch (e) {} }
-if (b === undefined) { try { var vb = parseInt(String(get_variable("my_bank")), 10); if (!isNaN(vb)) { b = vb; } } catch (e) {} }
-
 // Session buffer: one point per wall-clock minute, flat while idle.
 function feedMin() {
-  var arr = client.gcMin;
+  var arr = CO.min;
   if (arr.length === 0) { arr.push([now, g, b]); return true; }
   var last = arr[arr.length - 1];
   if (Math.floor(last[0] / 60) !== Math.floor(now / 60)) { arr.push([now, g, b]); return true; }
@@ -25,7 +22,7 @@ function feedMin() {
 // Day buffer: [t, gold, bank, in, out]. Days never played are carried
 // forward flat with no flow. When a day closes it is checked for a record.
 function feedDay() {
-  var arr = client.gcDays;
+  var arr = CO.days;
   if (arr.length === 0) { arr.push([now, g, b, 0, 0]); return true; }
   var last = arr[arr.length - 1];
   if (last[3] === undefined) { last[3] = 0; }
@@ -34,13 +31,13 @@ function feedDay() {
     if (last[1] !== g || last[2] !== b) { last[0] = now; last[1] = g; last[2] = b; return true; }
     return false;
   }
-  var R = client.gcRec;
+  var R = CO.rec;
   var closedNet = last[3] - last[4];
   if (closedNet > 0 && (!R.bestDay || closedNet > R.bestDay.net)) {
     R.bestDay = { net: closedNet, t: last[0] };
     display_notice("[coffers] yesterday's books are closed: " + F.s(closedNet) + " gold. A new best day!", "gold");
   }
-  var cut = now - client.gcDaySpan * 86400;
+  var cut = now - CO.daySpan * 86400;
   var todayStart = F.dayStart(now);
   var cur = new Date(F.dayStart(last[0]) * 1000);
   cur.setDate(cur.getDate() + 1);
@@ -57,27 +54,27 @@ function feedDay() {
 
 if (g !== undefined && b !== undefined) {
   var W = g + b;
-  var R = client.gcRec;
+  var R = CO.rec;
   var changed = false;
-  var force = client.gcForce ? true : false;
-  client.gcForce = false;
+  var force = CO.force ? true : false;
+  CO.force = false;
 
   // A silence longer than the gap closes the old session before this one opens.
-  if (client.gcSess && (now - client.gcSess.last) > client.gcGap * 60) {
-    run_function("gc_close", [], "coffers");
+  if (CO.sess && (now - CO.sess.last) > CO.gap * 60) {
+    run_function("coffers_close", [], "coffers");
   }
-  if (!client.gcSess) {
-    client.gcSess = { s: now, last: now, w0: W, w1: W, inn: 0, out: 0, peak: W, low: W, big: 0 };
+  if (!CO.sess) {
+    CO.sess = { s: now, last: now, w0: W, w1: W, inn: 0, out: 0, peak: W, low: W, big: 0 };
     changed = true;
     force = true;
     display_notice("[coffers] the books are open: " + F.n(W) + " gold (" + F.n(g) + " in the purse, " + F.n(b) + " in the bank).", "gold");
   }
-  var S = client.gcSess;
+  var S = CO.sess;
   S.last = now;
 
   if (feedMin()) { changed = true; }
   if (feedDay()) { changed = true; }
-  var T = client.gcDays[client.gcDays.length - 1];
+  var T = CO.days[CO.days.length - 1];
 
   // S.w1 is the last wealth this session accounted for. It is persisted with
   // the day row, so a reload mid-session neither loses nor double counts.
@@ -96,9 +93,9 @@ if (g !== undefined && b !== undefined) {
     if (W < S.low) { S.low = W; }
     changed = true;
     force = true;
-    if (client.gcBig > 0 && d >= client.gcBig) {
+    if (CO.big > 0 && d >= CO.big) {
       display_notice("[coffers] Ka-ching! " + F.s(d) + " gold. Session " + F.s(S.inn - S.out) + ", fortune " + F.n(W) + ".", "gold");
-    } else if (client.gcBig > 0 && -d >= client.gcBig) {
+    } else if (CO.big > 0 && -d >= CO.big) {
       display_notice("[coffers] " + F.n(-d) + " gold just left the purse. Session " + F.s(S.inn - S.out) + ".", "orange");
     }
   }
@@ -107,41 +104,41 @@ if (g !== undefined && b !== undefined) {
   // The ratchet stores the threshold reached, not the table index, so the
   // tier table can be edited without confusing it.
   var ti = F.tier(W);
-  var tAt = client.gcTiers[ti][0];
+  var tAt = CO.tiers[ti][0];
   if (R.tierAt === undefined) { R.tierAt = tAt; force = true; }
   else if (tAt > R.tierAt) {
     R.tierAt = tAt;
     force = true;
-    display_notice("[coffers] *** MILESTONE *** your fortune passes " + F.n(client.gcTiers[ti][0]) + " gold. Welcome to the " + client.gcTiers[ti][1] + ".", "gold");
+    display_notice("[coffers] *** MILESTONE *** your fortune passes " + F.n(CO.tiers[ti][0]) + " gold. Welcome to the " + CO.tiers[ti][1] + ".", "gold");
   }
 
   // Goal: take the base on the first reading after it was set, and announce
   // once when the earnings since then reach the target.
-  if (client.gcGoal > 0) {
-    if (client.gcGoalBase < 0) {
-      client.gcGoalBase = W;
-      client.gcGoalT = now;
-      try { set_variable("gc_goal_base", String(W)); set_variable("gc_goal_t", String(now)); } catch (e) {}
-    } else if (!client.gcGoalDone && W - client.gcGoalBase >= client.gcGoal) {
-      client.gcGoalDone = true;
-      try { set_variable("gc_goal_done", "1"); } catch (e) {}
-      display_notice("[coffers] *** GOAL REACHED *** " + F.s(client.gcGoal) + " gold earned since " + F.date(client.gcGoalT) + ". Set the next one with COFFERS GOAL.", "gold");
+  if (CO.goal > 0) {
+    if (CO.goalBase < 0) {
+      CO.goalBase = W;
+      CO.goalT = now;
+      try { set_variable("coffers_goal_base", String(W)); set_variable("coffers_goal_t", String(now)); } catch (e) {}
+    } else if (!CO.goalDone && W - CO.goalBase >= CO.goal) {
+      CO.goalDone = true;
+      try { set_variable("coffers_goal_done", "1"); } catch (e) {}
+      display_notice("[coffers] *** GOAL REACHED *** " + F.s(CO.goal) + " gold earned since " + F.date(CO.goalT) + ". Set the next one with COFFERS GOAL.", "gold");
     }
   }
 
   // Trailing windows: anything older than the span falls off the front.
-  var minCut = now - client.gcMins * 60;
-  while (client.gcMin.length > 0 && client.gcMin[0][0] < minCut) { client.gcMin.shift(); }
-  var dayCut = now - client.gcDaySpan * 86400;
-  while (client.gcDays.length > 1 && client.gcDays[0][0] < dayCut) { client.gcDays.shift(); }
+  var minCut = now - CO.mins * 60;
+  while (CO.min.length > 0 && CO.min[0][0] < minCut) { CO.min.shift(); }
+  var dayCut = now - CO.daySpan * 86400;
+  while (CO.days.length > 1 && CO.days[0][0] < dayCut) { CO.days.shift(); }
 
-  var lw = client.gcLastWrite || 0;
+  var lw = CO.lastWrite || 0;
   if (changed && (force || (now - lw) >= 5)) {
-    client.gcLastWrite = now;
-    try { set_variable("gc_min", JSON.stringify(client.gcMin)); } catch (e) {}
-    try { set_variable("gc_days", JSON.stringify(client.gcDays)); } catch (e) {}
-    try { set_variable("gc_sess", JSON.stringify(client.gcSess)); } catch (e) {}
-    try { set_variable("gc_rec", JSON.stringify(client.gcRec)); } catch (e) {}
+    CO.lastWrite = now;
+    try { set_variable("coffers_min", JSON.stringify(CO.min)); } catch (e) {}
+    try { set_variable("coffers_days", JSON.stringify(CO.days)); } catch (e) {}
+    try { set_variable("coffers_sess", JSON.stringify(CO.sess)); } catch (e) {}
+    try { set_variable("coffers_rec", JSON.stringify(CO.rec)); } catch (e) {}
   }
-  if (changed) { run_function("gc_render", [], "coffers"); }
+  if (changed) { run_function("coffers_render", [], "coffers"); }
 }

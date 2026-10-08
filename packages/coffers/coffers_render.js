@@ -1,7 +1,8 @@
 // Draws the Coffers tab. Nexus tabs will not run injected <script>, so every
 // chart is static inline SVG, redrawn whenever the tick changes something.
-run_function("gc_ensure", [], "coffers");
-var F = client.gcF;
+if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
+var CO = client.loom.coffers;
+var F = CO.f;
 var GOLD = "#e2bd5a";
 var BRONZE = "#9c7330";
 var TXT = "#e9dfc6";
@@ -133,9 +134,9 @@ var coins = '<svg width="20" height="17" viewBox="0 0 20 17" style="vertical-ali
   '<ellipse cx="10" cy="9" rx="8.5" ry="2.8" fill="' + BRONZE + '"/><ellipse cx="10" cy="7.5" rx="8.5" ry="2.8" fill="' + GOLD + '" stroke="' + BRONZE + '" stroke-width="0.6"/>' +
   '<ellipse cx="10" cy="4.5" rx="8.5" ry="2.8" fill="' + BRONZE + '"/><ellipse cx="10" cy="3" rx="8.5" ry="2.8" fill="#f3d781" stroke="' + BRONZE + '" stroke-width="0.6"/></svg>';
 
-var mins = client.gcMin || [];
-var days = client.gcDays || [];
-var L = client.gcLive || {};
+var mins = CO.min || [];
+var days = CO.days || [];
+var L = CO.live || {};
 var g, b;
 if (L.gold !== undefined && L.bank !== undefined) { g = L.gold; b = L.bank; }
 else if (mins.length > 0) { g = mins[mins.length - 1][1]; b = mins[mins.length - 1][2]; }
@@ -149,7 +150,7 @@ if (g === undefined) {
   html += '</div><div style="color:' + MUTED + ';margin-top:8px;font-family:' + SERIF + ';font-style:italic;">The ledger is empty. It fills itself the moment the game reports your purse; try SCORE or a quick deposit if nothing appears.</div></div>';
 } else {
   var W = g + b;
-  var T = client.gcTiers;
+  var T = CO.tiers;
   var ti = F.tier(W);
   html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + BRONZE + ';font-size:11px;">' + esc(T[ti][1]) + '</div></div>';
 
@@ -167,16 +168,16 @@ if (g === undefined) {
     html += '<div style="margin-top:6px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">next: <span style="font-family:' + SERIF + ';color:' + TXT + ';">' + esc(T[ti + 1][1]) + '</span> at ' + F.k(hi) + '</span><span style="color:' + TXT + ';">' + F.n(hi - W) + ' to go</span></div>';
     html += bar(tp, BRONZE, 3);
   }
-  if (client.gcGoal > 0 && client.gcGoalBase >= 0) {
-    var gEarn = W - client.gcGoalBase;
-    var gp = gEarn / client.gcGoal * 100;
-    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(client.gcGoal) + ' since ' + F.date(client.gcGoalT) + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
+  if (CO.goal > 0 && CO.goalBase >= 0) {
+    var gEarn = W - CO.goalBase;
+    var gp = gEarn / CO.goal * 100;
+    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(CO.goal) + ' since ' + F.date(CO.goalT) + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
     html += bar(gp, gp >= 100 ? UP : GOLD, 3);
   }
 
   // Three ledger columns: this session, today, and the all-time records.
-  var S = client.gcSess;
-  var R = client.gcRec || {};
+  var S = CO.sess;
+  var R = CO.rec || {};
   var cols = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';
   var sb = caps("This session");
   if (S) {
@@ -212,25 +213,25 @@ if (g === undefined) {
   if (R.peak) { rb += row("peak fortune", F.n(R.peak.w), GOLD); }
   rb += row("best day", R.bestDay ? "<span title='" + F.date(R.bestDay.t) + "'>" + F.s(R.bestDay.net) + "</span>" : "&mdash;", R.bestDay ? UP : MUTED);
   rb += row("best session", R.bestSess ? "<span title='" + F.date(R.bestSess.s) + ", " + F.dur(R.bestSess.dur) + "'>" + F.s(R.bestSess.net) + "</span>" : "&mdash;", R.bestSess ? UP : MUTED);
-  rb += row("sessions kept", String((client.gcSessions || []).length));
+  rb += row("sessions kept", String((CO.sessions || []).length));
   cols += box(rb);
   html += cols + '</div>';
 
-  if (client.gcGraphSess) {
+  if (CO.graphSess) {
     if (mins.length < 2) {
-      html += section("Last " + client.gcMins + " minutes", '<div style="color:' + MUTED + ';">Collecting; a point lands every minute.</div>');
+      html += section("Last " + CO.mins + " minutes", '<div style="color:' + MUTED + ';">Collecting; a point lands every minute.</div>');
     } else {
-      html += section("Last " + client.gcMins + " minutes", wealthChart(mins, 640, client.gcChartH, false, S ? S.s : 0));
+      html += section("Last " + CO.mins + " minutes", wealthChart(mins, 640, CO.chartH, false, S ? S.s : 0));
     }
   }
-  if (client.gcGraphLong) {
+  if (CO.graphLong) {
     if (days.length < 2) {
       html += section("Day by day", '<div style="color:' + MUTED + ';">Collecting; one entry per day. The bars appear from the second day.</div>');
     } else {
       var lSpan = (days[days.length - 1][0] - days[0][0]) / 86400;
       var lGain = wealth(days[days.length - 1]) - wealth(days[0]);
       var note = '<div style="color:' + MUTED + ';margin:2px 0 4px;">fortune over ' + Math.max(1, Math.round(lSpan)) + 'd: <span style="color:' + color(lGain) + ';">' + F.s(lGain) + '</span>' + (lSpan >= 1 ? ' &middot; ' + F.s(Math.round(lGain / lSpan)) + '/day' : '') + '</div>';
-      html += section("Day by day", note + wealthChart(days, 640, client.gcChartH, true, 0) + '<div style="height:4px;"></div>' + netBars(days, 640, Math.max(40, Math.round(client.gcChartH * 0.7))));
+      html += section("Day by day", note + wealthChart(days, 640, CO.chartH, true, 0) + '<div style="height:4px;"></div>' + netBars(days, 640, Math.max(40, Math.round(CO.chartH * 0.7))));
     }
   }
   html += '</div>';

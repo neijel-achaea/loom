@@ -12,5 +12,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
   }
 }
 
-run_function("gc_ensure", [], "coffers");
-run_function("gc_render", [], "coffers");
+run_function("coffers_setup", [], "coffers");
+run_function("coffers_render", [], "coffers");

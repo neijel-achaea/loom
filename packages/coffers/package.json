@@ -1,95 +1,101 @@
 {
-  "type": "group",
-  "name": "coffers",
-  "enabled": true,
-  "description": "Gold tracker for a UI tab named 'Coffers'. Wealth = gold on hand + bank, read from Char.Status over GMCP and accounted on each prompt, so deposits and withdrawals are neutral. Keeps a per-minute buffer (gc_min), a per-day ledger with income/spending (gc_days), an open session (gc_sess), closed sessions (gc_sessions) and records (gc_rec). COFFERS HELP for commands.",
-  "items": [
+ "type": "group",
+ "name": "coffers",
+ "enabled": true,
+ "description": "Gold tracker for a UI tab named 'Coffers'. Wealth = gold on hand + bank, read from Char.Status over GMCP and accounted on each prompt, so deposits and withdrawals are neutral. Keeps a per-minute buffer (coffers_min), a per-day ledger with income/spending (coffers_days), an open session (coffers_sess), closed sessions (coffers_sessions) and records (coffers_rec). State in client.loom.coffers. COFFERS HELP for commands.",
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "@file:oninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "@file:onuninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "@file:onload.js"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "@file:ongmcp.js"
+  },
+  {
+   "type": "function",
+   "name": "coffers_setup",
+   "enabled": true,
+   "code": "@file:coffers_setup.js"
+  },
+  {
+   "type": "function",
+   "name": "coffers_tick",
+   "enabled": true,
+   "code": "@file:coffers_tick.js"
+  },
+  {
+   "type": "function",
+   "name": "coffers_close",
+   "enabled": true,
+   "code": "@file:coffers_close.js"
+  },
+  {
+   "type": "function",
+   "name": "coffers_render",
+   "enabled": true,
+   "code": "@file:coffers_render.js"
+  },
+  {
+   "type": "function",
+   "name": "coffers_cmd",
+   "enabled": true,
+   "code": "@file:coffers_cmd.js"
+  },
+  {
+   "type": "function",
+   "name": "coffers_help",
+   "enabled": true,
+   "code": "@file:coffers_help.js"
+  },
+  {
+   "type": "trigger",
+   "name": "",
+   "enabled": true,
+   "actions": [
     {
-      "type": "function",
-      "name": "onInstall",
-      "enabled": true,
-      "code": "@file:oninstall.js"
-    },
-    {
-      "type": "function",
-      "name": "onUninstall",
-      "enabled": true,
-      "code": "@file:onuninstall.js"
-    },
-    {
-      "type": "function",
-      "name": "onLoad",
-      "enabled": true,
-      "code": "@file:onload.js"
-    },
-    {
-      "type": "function",
-      "name": "onGMCP",
-      "enabled": true,
-      "code": "@file:ongmcp.js"
-    },
-    {
-      "type": "function",
-      "name": "gc_ensure",
-      "enabled": true,
-      "code": "@file:gc_ensure.js"
-    },
-    {
-      "type": "function",
-      "name": "gc_tick",
-      "enabled": true,
-      "code": "@file:gc_tick.js"
-    },
-    {
-      "type": "function",
-      "name": "gc_close",
-      "enabled": true,
-      "code": "@file:gc_close.js"
-    },
-    {
-      "type": "function",
-      "name": "gc_render",
-      "enabled": true,
-      "code": "@file:gc_render.js"
-    },
-    {
-      "type": "function",
-      "name": "gc_cmd",
-      "enabled": true,
-      "code": "@file:gc_cmd.js"
-    },
-    {
-      "type": "trigger",
-      "name": "Coffers Prompt Tick",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:trigger_coffers_prompt_tick.js"
-        }
-      ],
-      "text": "^\\d+h,\\s*\\d+m,",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": false
-    },
-    {
-      "type": "alias",
-      "name": "Coffers",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_coffers.js"
-        }
-      ],
-      "text": "^coffers(?:\\s+(\\S+))?(?:\\s+(\\S+))?(?:\\s+(\\S+))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": false,
-      "prefix_suffix": true
+     "type": "script",
+     "enabled": true,
+     "script": "@file:trigger_prompt_tick.js"
     }
-  ]
+   ],
+   "text": "^\\d+h,\\s*\\d+m,",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "@file:alias_coffers.js"
+    }
+   ],
+   "text": "^coffers(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  }
+ ]
 }

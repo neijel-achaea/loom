@@ -1,1 +1,0 @@
-try { run_function("gc_tick", [], "coffers"); } catch (e) {}
