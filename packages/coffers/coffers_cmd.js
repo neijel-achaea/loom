@@ -129,7 +129,7 @@ else if (c === "graph") {
     CO.graphLong = mode === "on" ? true : (mode === "off" ? false : !CO.graphLong);
     save("coffers_graph_long", CO.graphLong ? "1" : "0");
   }
-  say("session graph " + (CO.graphSess ? "shown" : "hidden") + ", day-by-day graphs " + (CO.graphLong ? "shown" : "hidden") + ".");
+  say("session graph " + (CO.graphSess ? "shown" : "hidden") + ", day-by-day graph " + (CO.graphLong ? "shown" : "hidden") + ".");
   render();
 }
 else if (c === "size") {

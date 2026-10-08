@@ -28,7 +28,6 @@ function axisLbl(v, step) {
   return F.n(v);
 }
 function wealth(p) { return p[1] + p[2]; }
-function dayNet(p) { return (p[3] || 0) - (p[4] || 0); }
 function color(v) { return v > 0 ? UP : (v < 0 ? DOWN : MUTED); }
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/'/g, "&#39;"); }
 
@@ -92,31 +91,6 @@ function wealthChart(hs, W, H, dayScale, markT) {
 }
 
 // Daily net as bars around a zero line: green days in, red days out.
-function netBars(days, W, H) {
-  var vmin = 0, vmax = 0, i, v;
-  for (i = 0; i < days.length; i++) { v = dayNet(days[i]); if (v < vmin) { vmin = v; } if (v > vmax) { vmax = v; } }
-  if (vmax === vmin) { vmax = 10; }
-  var span = vmax - vmin;
-  if (vmax > 0) { vmax += span * 0.1; }
-  if (vmin < 0) { vmin -= span * 0.1; }
-  var fr = frame(W, H, vmin, vmax, niceStep(vmax - vmin), 0, 1);
-  var slot = (fr.x1 - fr.x0) / days.length;
-  var bw = Math.max(1, slot * 0.72);
-  var zy = sy(fr, 0);
-  var out = svgOpen(W, H) + grid(fr);
-  for (i = 0; i < days.length; i++) {
-    v = dayNet(days[i]);
-    if (v === 0) { continue; }
-    var y = sy(fr, v);
-    var top = Math.min(y, zy);
-    var h = Math.max(0.8, Math.abs(zy - y));
-    var isToday = (i === days.length - 1);
-    out += '<rect x="' + n1(fr.x0 + i * slot + (slot - bw) / 2) + '" y="' + n1(top) + '" width="' + n1(bw) + '" height="' + n1(h) + '" fill="' + color(v) + '" fill-opacity="' + (isToday ? 1 : 0.7) + '"/>';
-  }
-  out += xLabels(fr, F.date(days[0][0]), F.date(days[days.length - 1][0]));
-  return out + '</svg>';
-}
-
 // Small typographic helpers for the ledger blocks.
 function caps(t, col) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || BRONZE) + ';font-size:11px;margin:0 0 2px;">' + t + '</div>'; }
 function row(label, value, col) {
@@ -226,12 +200,12 @@ if (g === undefined) {
   }
   if (CO.graphLong) {
     if (days.length < 2) {
-      html += section("Day by day", '<div style="color:' + MUTED + ';">Collecting; one entry per day. The bars appear from the second day.</div>');
+      html += section("Day by day", '<div style="color:' + MUTED + ';">Collecting; one entry per day. The graph appears from the second day.</div>');
     } else {
       var lSpan = (days[days.length - 1][0] - days[0][0]) / 86400;
       var lGain = wealth(days[days.length - 1]) - wealth(days[0]);
       var note = '<div style="color:' + MUTED + ';margin:2px 0 4px;">fortune over ' + Math.max(1, Math.round(lSpan)) + 'd: <span style="color:' + color(lGain) + ';">' + F.s(lGain) + '</span>' + (lSpan >= 1 ? ' &middot; ' + F.s(Math.round(lGain / lSpan)) + '/day' : '') + '</div>';
-      html += section("Day by day", note + wealthChart(days, 640, CO.chartH, true, 0) + '<div style="height:4px;"></div>' + netBars(days, 640, Math.max(40, Math.round(CO.chartH * 0.7))));
+      html += section("Day by day", note + wealthChart(days, 640, CO.chartH, true, 0));
     }
   }
   html += '</div>';

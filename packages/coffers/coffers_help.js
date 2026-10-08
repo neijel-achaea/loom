@@ -13,7 +13,7 @@ var hlRows = [
   ["COFFERS GRAPH [SESSION|LONG] [ON|OFF]", "show or hide the graphs"],
   ["COFFERS SIZE <40-400>", "graph height (default 105)"],
   ["COFFERS SPAN SESSION <15-720>", "minutes the session graph covers"],
-  ["COFFERS SPAN LONG <7-365>", "days the day-by-day graphs cover"],
+  ["COFFERS SPAN LONG <7-365>", "days the day-by-day graph covers"],
   ["COFFERS CSV [DAYS|SESSION|SESSIONS]", "the books as CSV lines"],
   ["COFFERS WIPE CONFIRM", "burn the whole ledger"],
   ["COFFERS REBUILD / DEBUG", "rebuild helpers and rank table / internal state"]
