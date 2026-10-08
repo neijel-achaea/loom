@@ -11,3 +11,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
     document.head.appendChild(tiSt);
   }
 }
+run_function("levelgraph_setup", [], "levelgraph");
+run_function("levelgraph_render", [], "levelgraph");
