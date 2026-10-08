@@ -73,8 +73,8 @@ var C = S.score || {};
 // Readings by exact wording: the best in green, the worst in red, a few in
 // between in yellow, anything unlisted in plain white. Add phrases as they turn up.
 var READ = {
-  rest: { green: ["fully rested"], yellow: [], red: ["badly in need of sleep"] },
-  hunger: { green: ["utterly satiated"], yellow: [], red: ["weak from hunger"] }
+  rest: { green: ["fully rested"], yellow: ["slightly tired", "feeling fairly tired"], red: ["feeling quite tired", "badly in need of sleep"] },
+  hunger: { green: ["utterly satiated"], yellow: ["feeling a bit peckish"], red: ["weak from hunger"] }
 };
 function readCol(kind, v) {
   var t = READ[kind], k = String(v || "").toLowerCase();
