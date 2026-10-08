@@ -31,7 +31,7 @@
    "type": "function",
    "name": "civic_setup",
    "enabled": true,
-   "code": "// civic_setup -- run from onLoad and onInstall: namespace, registry and the\n// per-city defaults. Each ministry keeps its settings in civic_<ministry>_*.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.civic) client.loom.civic = {};\nclient.loom.registry.civic = { version: \"0.2.0\", keyword: \"CIVIC\" };\n\n// Known values per city. Players fill in their own city with CIVIC AIDE\n// TITLE / CLAN; send yours back so it can be added here.\nclient.loom.civic.cities = {\n  eleusis: { aide_title: \"Verdant Emissary\", aide_clan: \"saiha\" }\n};\n"
+   "code": "// civic_setup -- run from onLoad and onInstall: namespace, registry and the\n// per-city defaults. Each ministry keeps its settings in civic_<ministry>_*.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.civic) client.loom.civic = {};\nclient.loom.registry.civic = { version: \"0.2.1\", keyword: \"CIVIC\" };\n\n// Known values per city. Players fill in their own city with CIVIC AIDE\n// TITLE / CLAN; send yours back so it can be added here.\nclient.loom.civic.cities = {\n  eleusis: { aide_title: \"Verdant Emissary\", aide_clan: \"saiha\" }\n};\n"
   },
   {
    "type": "function",
@@ -111,7 +111,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var newbie = args[1];\n\n// Add them to the city highlight group, if the social package is installed.\nif (client.hl) send_command(\"hladd city \" + newbie);\ndisplay_notice(\"[civic] new citizen: \" + newbie + \". Welcome them with CIVIC GREET \" + newbie + \".\", \"cyan\");\n"
+       "script": "var newbie = args[1];\n\n// Add them to the city highlight group, if the social package is installed.\nif (client.loom && client.loom.registry && client.loom.registry.social) send_command(\"social add city \" + newbie);\ndisplay_notice(\"[civic] new citizen: \" + newbie + \". Welcome them with CIVIC GREET \" + newbie + \".\", \"cyan\");\n"
       }
      ],
      "text": "^Your fellow citizen, (\\w+), has just escaped",

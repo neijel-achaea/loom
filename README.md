@@ -39,7 +39,7 @@ their tab its own icon.
 | **security** | — | Antitheft (`SECURITY ANTITHEFT ON/OFF`: puts back watched worn items, the backpack and gold taken out of it), `GG`/`PG` to move gold out of and into the backpack, your backpack and watched items as settings (`SECURITY BACKPACK`, `SECURITY ITEM ADD/DEL`, `SECURITY ITEMS`), house state commands (`SECURITY HOUSE IN/OUT`), and give, sell, drop and offer wrappers that lift selfishness around the action (selfishness followed from GMCP). `SECURITY HELP`. Publishes the backpack id at `client.loom.security.backpack`. |
 | **self** | Self | Replacement for the stock character panel (see below). `SELF`. |
 | **sigils** | — | Monolith and flame sigil watcher for any city: probes the monolith in every room you enter and flags sigils running out; the report lists them with an estimated cost. `SIGILS HELP`. |
-| **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends) and an online watchlist. Shared by other packages. |
+| **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends, and your own name), and online/offline notices for the groups you watch. `SOCIAL ADD/DEL <group> <name>`, `LIST`, `COLOR`, `WATCH/UNWATCH`, `POLL ON/OFF/NOW`, `HELP`; your city's enemies list reloads itself from the game's list. Publishes the lists at `client.loom.social` (`groups`, `lists[group]`, `color[group]`), and still at `client.hl` for packages not yet updated. |
 | **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STN HELP`. |
 | **talismans** | Talismans, TalGraph | Dragon talisman piece tracker with progress and projected finish. |
 | **vision** | — | Alertness: hides reports about city members and alerts the party when an enemy comes near. |
@@ -48,7 +48,7 @@ their tab its own icon.
 
 The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
 
-- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social** only when it's installed.
+- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social**, and adds new citizens to its city list, only when it's installed.
 - **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
 - **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
