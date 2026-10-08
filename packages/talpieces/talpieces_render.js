@@ -1,9 +1,8 @@
 if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function("talpieces_setup", [], "talpieces");
 var TP = client.loom.talpieces;
-// Draws the 'Talismans' tab (and the roomier 'TalGraph' tab if it exists) in
-// the house style shared with Coffers, Level, Ledger, Fishing and DmgChart:
-// ink panel, serif small-caps headings, one large figure, monospace ledger
-// rows. The tab accent is amethyst; each dragon keeps its own colour.
+// Draws the 'Talismans' tab in the house style shared with Coffers, Level,
+// Ledger, Fishing and DmgChart: ink panel, serif small-caps headings, one
+// large figure, monospace ledger rows. The tab accent is amethyst; each dragon keeps its own colour.
 var t = TP;
 var AME = "#b99be0";
 var DEEP = "#5f4c80";
@@ -101,7 +100,7 @@ function rateTxt(r) { return r < 1 ? String(Math.round(r * 100) / 100) : String(
 // ---------------------------------------------------------------- chart ---
 // Nexus tabs take raw HTML but will not execute injected <script>, so the
 // graph is drawn as static inline SVG and rebuilt on every sync.
-function talChart(W, H, big) {
+function talChart(W, H) {
   var fs = Math.max(7, Math.min(10, Math.round(H * 0.08)));
   if (hs.length < 2) {
     return quiet("Two or more data points are needed. One point is stored per hour in which your totals change; TALPIECES SEED backdates a starting point.");
@@ -109,7 +108,7 @@ function talChart(W, H, big) {
   var first = hs[0];
   var lastP = hs[hs.length - 1];
   var lastT = lastP[1] + lastP[2];
-  var x0 = Math.round(fs * 3.4), x1 = W - (big ? 10 : 6), y0 = Math.round(fs * 0.9), y1 = H - Math.round(fs * 1.9);
+  var x0 = Math.round(fs * 3.4), x1 = W - 6, y0 = Math.round(fs * 0.9), y1 = H - Math.round(fs * 1.9);
 
   // Give the projection at most 60% of the width, so a distant finish does
   // not squash the real data into the corner. Past that it leaves the frame
@@ -153,7 +152,7 @@ function talChart(W, H, big) {
     svg += '<path d="M' + n1(sx(lastP[0])) + ',' + n1(sy(lastT)) + 'L' + n1(sx(pEndT)) + ',' + n1(sy(pEndV)) + '" fill="none" stroke="' + DEEP + '" stroke-width="1.1" stroke-dasharray="3,3"/>';
   }
   svg += '<path d="' + line + '" fill="none" stroke="' + AME + '" stroke-width="1.5" stroke-linejoin="round"/>';
-  svg += '<circle cx="' + n1(sx(lastP[0])) + '" cy="' + n1(sy(lastT)) + '" r="' + (big ? 2.8 : 2.4) + '" fill="#f1e8ff"/>';
+  svg += '<circle cx="' + n1(sx(lastP[0])) + '" cy="' + n1(sy(lastT)) + '" r="' + 2.4 + '" fill="#f1e8ff"/>';
   // X labels: start on the left, projected finish on the right, latest in the
   // middle only when there is room for it without collisions.
   var lblGap = fs * 5;
@@ -239,17 +238,10 @@ grid += '</table>';
 grid += '<div style="color:' + MUTED + ';margin-top:3px;font-family:' + SERIF + ';font-style:italic;">64 of each common and 4 of each rare, per colour. Run your in-game talisman list to rebuild from the game.</div>';
 html += section("Pieces still needed", grid);
 
-if (TP.graphOn) { html += section("Progress over time", talChart(640, TP.chartH, false)); }
+if (TP.graphOn) {
+  html += section("Progress over time", talChart(640, TP.chartH));
+  html += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal. Dashed: projection at the last seven days&rsquo; rate. TALPIECES RATE for figures, TALPIECES MARK to force a data point.</div>';
+}
 html += '</div>';
 
 try { set_custom_tab_html("Talismans", html); } catch (e) {}
-
-// Optional roomier view. Ignored if no tab named TalGraph exists.
-try {
-  var big = PANEL + header("TALISMANS", "progress toward " + thou(goal));
-  big += headline();
-  big += section("Progress over time", talChart(640, 300, true));
-  big += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal. Dashed: projection at the last seven days&rsquo; rate. TALPIECES RATE for figures, TALPIECES MARK to force a data point.</div>';
-  big += '</div>';
-  set_custom_tab_html("TalGraph", big);
-} catch (e) {}
