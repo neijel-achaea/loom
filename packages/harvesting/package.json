@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
       "name": "hv_build",
       "enabled": true,
       "code": "@file:hv_build.js"

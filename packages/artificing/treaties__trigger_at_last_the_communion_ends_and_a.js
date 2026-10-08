@@ -1,2 +1,2 @@
-send_command("pausetriggers off");
+set_variable("pauseTriggers", "off");
 send_command("curing sipping on");

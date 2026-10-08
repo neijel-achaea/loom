@@ -8,9 +8,11 @@ for (let i = 0; i < 12; i++) {
 }
 
 // Sets buttons depending on class
-var activeClass = get_variable("activeClass");
+// Class comes from hunting's own onGMCP; the shared variable is the fallback
+// until a Char.Status message has arrived this session.
+var activeClass = (client.loom && client.loom.hunting && client.loom.hunting.cls) || get_variable("activeClass");
 var slots = {};
-if (debug == "on") display_notice("[debug][common][set_buttons] activeClass: " + activeClass, "cyan");
+if (debug == "on") display_notice("[debug][hunting][set_buttons] activeClass: " + activeClass, "cyan");
 
 switch (activeClass) {
   case "Druid":
@@ -315,4 +317,4 @@ switch (activeClass) {
 
 // at the end:
 set_variable("rage_slots", slots);
-run_function("hl_buttons", null, "hunting");
+run_function("hl_buttons", [], "hunting");

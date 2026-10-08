@@ -16,7 +16,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var elemental = args[1];\n\nif (elemental != \"waterweird\" && elemental != \"djinn\" && elemental != \"sandling\" && elemental != \"efreeti\" && elemental != \"stoneback\" && elemental != \"breath\" && elemental != \"mistfiend\" && elemental != \"ashbeast\") {\n  display_notice(\"[artificing] You can only form treaties with these elementals: WATERWEIRD, DJINN, SANDLING, EFREETI, STONEBACK, BREATH, MISTFIEND, ASHBEAST\", \"cyan\");\n} else {\n    send_command(\"pausetriggers on\");\n    send_command(\"curing sipping off\");\n    send_command(\"treaty form \" + elemental);\n}"
+       "script": "var elemental = args[1];\n\nif (elemental != \"waterweird\" && elemental != \"djinn\" && elemental != \"sandling\" && elemental != \"efreeti\" && elemental != \"stoneback\" && elemental != \"breath\" && elemental != \"mistfiend\" && elemental != \"ashbeast\") {\n  display_notice(\"[artificing] You can only form treaties with these elementals: WATERWEIRD, DJINN, SANDLING, EFREETI, STONEBACK, BREATH, MISTFIEND, ASHBEAST\", \"cyan\");\n} else {\n    set_variable(\"pauseTriggers\", \"on\");\n    send_command(\"curing sipping off\");\n    send_command(\"treaty form \" + elemental);\n}"
       }
      ],
      "text": "^tf (\\w+)$",
@@ -33,7 +33,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "send_command(\"pausetriggers off\");\nsend_command(\"curing sipping on\");"
+       "script": "set_variable(\"pauseTriggers\", \"off\");\nsend_command(\"curing sipping on\");"
       }
      ],
      "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
@@ -49,7 +49,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "send_command(\"pausetriggers off\");\nsend_command(\"curing sipping on\");"
+       "script": "set_variable(\"pauseTriggers\", \"off\");\nsend_command(\"curing sipping on\");"
       }
      ],
      "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",

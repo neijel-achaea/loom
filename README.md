@@ -1,6 +1,6 @@
 # Achaea Nexus packages
 
-**Version 0.1**: everything as it runs in game today, with source and history in one place. Tidying the dependencies between packages comes next.
+**Version 0.1**: everything as it runs in game today, with source and history in one place. v0.2 is under way: see [ROADMAP.md](ROADMAP.md).
 
 Reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
 package is self-contained: it can be dropped onto any character without
@@ -14,7 +14,6 @@ their tab its own icon.
 |---|---|---|
 | **artificing** | — | Elemental treaties (`TF <elemental>`, pausing triggers and sipping during the communion) and `STAFFATTACK fire\|frost\|lightning` for the F1 staff cast. |
 | **coffers** | Coffers | Gold tracker: fortune (purse + bank), income and spending per session and per day, wealth ranks, records, a goal, charts. `COFFERS HELP`. |
-| **common** | — | Shared foundation: the `pauseTriggers` flag (`PAUSETRIGGERS ON/OFF`), `DEBUG ON/OFF`, room and class tracking from GMCP, class-based F-key buttons, dragon attack mode (`DRAGONMODE`), party helpers, the `QUIT`/`QQ` wrapper, `REFILLVIAL`, assorted highlights and gags. |
 | **conjuration** | — | `CONJURE <sigil>`: runs the full creation ritual for the sigils currently known. |
 | **crystalism** | — | `AUTOREFINE [n]` levels crystal shapes evenly from stored facets; pearl pickup; a sonic portal on request for city members; pauses triggers while attuning to the Master Crystal. |
 | **defences** | — | `INITDEF` raises class defences; `DEFCON 1-5` sets curing defence priorities per class; insomnia upkeep and status highlights. |
@@ -25,10 +24,11 @@ their tab its own icon.
 | **fishingstats** | fishingstats, fishinglog | Live fishing session (by angler, by species, recent catches) and a log of past sessions. |
 | **groves** | — | *Retired (druid).* Opens the grove gate for city members who send "Gate." while you are in your grove. |
 | **harvesting** | — | Stock-aware auto-harvest on room entry: harvests and stores only plants below their minimum rift stock. `HARVESTING ON/OFF/MIN/RESET`. |
-| **hunting** | — | Battlerage cooldown tracking with highlighted F-key buttons, ability highlights per class, affliction markers, critical-hit and status highlights, `AUTOGOLD ON/OFF/ALL`, and combat gags. |
+| **hunting** | — | Class-based F-key buttons and dragon attack mode (`DRAGONMODE`), battlerage cooldown tracking with highlighted F-key buttons, ability highlights per class, affliction markers, critical-hit and status highlights, `AUTOGOLD ON/OFF/ALL`, and combat gags. |
 | **huntstats** | Stats | Per-area hunting sessions: xp/hr, gold/hr, kills, Dragonhood progress, area comparison. `HUNTSTATS`. |
 | **ledger** | Ledger | IC reminders and standing items on the Achaean calendar. `LEDGER`. |
 | **levelgraph** | Level | Level progress graphs per minute and per day, days at the current level. |
+| **loom** | — | The suite package (replaces **common**). `LOOM` lists the packages loaded with their versions; `LOOM PAUSE ON/OFF` and `LOOM DEBUG ON/OFF` set the shared flags; `LOOM ROOM` shows the current room. Also the `QUIT`/`QQ` wrapper, `REFILLVIAL`, pausing during sleep, meditation and the Mnemosyne, and assorted highlights and gags. From v0.4 it holds the integrations between packages. |
 | **numpad_movement** | — | Movement and quick commands on the number pad. |
 | **partycomms** | Party | Shares party vitals and targets over party tell, shown as bars in a Party tab. `PARTYNAME`, `PARTYON`/`PARTYOFF`. |
 | **patrolling** | — | Checks each room's plants against what its environment should hold and flags shrines (`PATROLLING ON/OFF/HERE/LEARN`), suggests areas to patrol (`PATROL_SUGGEST`), storm and fire alerts, and logs replantings to the clan log. |
@@ -43,16 +43,15 @@ their tab its own icon.
 
 ### Dependencies between packages
 
-Most packages stand alone. The exceptions:
+The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
 
-- **common** feeds the others: its onGMCP sets `currentRoomId`, `currentArea`, `currentEnvironment` and `activeClass`, and calls `mono_enter` (**eleusis**) and `hv_room` (**harvesting**) on every room change; `set_buttons` calls `hl_buttons` (**hunting**).
-- **defences**, **artificing** and the button setup read `activeClass`, set by **common**.
+- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **hunting**, **harvesting** and the monolith watcher in **eleusis** already follow GMCP themselves.
+- **defences**, **artificing** and **roleplay** read `activeClass`; **patrolling** and parts of **eleusis** read `currentRoomId`.
 - **eleusis**, **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
-- **hunting** draws the battlerage highlights on the buttons that **common** lays out.
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
 - **security** and **hunting** share the `backpack` variable.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
-- Many triggers respect the `pauseTriggers` flag from **common**.
+- Many triggers respect the `pauseTriggers` flag, which **loom** toggles. Packages treat an unset flag as off.
 
 ### Installing a package
 

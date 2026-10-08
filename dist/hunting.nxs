@@ -25,7 +25,91 @@
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "if (args.gmcp_method == \"Char.Vitals\") {\n  var stats = args.gmcp_args.charstats;\n  var rage = null;\n  if (stats) {\n    for (var i = 0; i < stats.length; i++) {\n      var m = stats[i].match(/^Rage:\\s*(\\d+)/);\n      if (m) { rage = parseInt(m[1], 10); }\n    }\n  }\n  if (rage !== null) {\n    set_variable(\"my_rage\", rage);\n    run_function(\"hl_buttons\", [], \"hunting\");\n  }\n}"
+   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.hunting) client.loom.hunting = {};\nvar HU = client.loom.hunting;\n\n// Class: hunting follows it itself and lays out the F-key buttons on change.\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  if (args.gmcp_args.class != HU.cls) {\n    HU.cls = args.gmcp_args.class;\n    run_function(\"set_buttons\", [], \"hunting\");\n  }\n}\n\nif (args.gmcp_method == \"Char.Vitals\") {\n  // Dragonform in auto mode: pick gut or incantation from endurance vs willpower.\n  if (get_variable(\"dragonMode\") == \"auto\") {\n    run_function(\"best_dragon_mode\", [], \"hunting\");\n    run_function(\"set_buttons\", [], \"hunting\");\n  }\n\n  var stats = args.gmcp_args.charstats;\n  var rage = null;\n  if (stats) {\n    for (var i = 0; i < stats.length; i++) {\n      var m = stats[i].match(/^Rage:\\s*(\\d+)/);\n      if (m) { rage = parseInt(m[1], 10); }\n    }\n  }\n  if (rage !== null) {\n    set_variable(\"my_rage\", rage);\n    run_function(\"hl_buttons\", [], \"hunting\");\n  }\n}\n"
+  },
+  {
+   "type": "group",
+   "name": "multiclass",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "set_buttons",
+     "enabled": true,
+     "code": "var debug = get_variable(\"debug\");\nvar dragonMode = \"\";\nvar dragonAttack = \"\";\n\n// Reset highlights\nfor (let i = 0; i < 12; i++) {\n  buttons_set_highlight(i, 0);  \n}\n\n// Sets buttons depending on class\n// Class comes from hunting's own onGMCP; the shared variable is the fallback\n// until a Char.Status message has arrived this session.\nvar activeClass = (client.loom && client.loom.hunting && client.loom.hunting.cls) || get_variable(\"activeClass\");\nvar slots = {};\nif (debug == \"on\") display_notice(\"[debug][hunting][set_buttons] activeClass: \" + activeClass, \"cyan\");\n\nswitch (activeClass) {\n  case \"Druid\":\n    // F1\n    buttons_set_label(1, \"Maul\");\n    buttons_set_commands(1, \"queue add b!wu!t!p wreathe | queue add b!wu!t!p maul @tar\");\n    \n    // F2\n    buttons_set_label(2, \"Strangle\");\n    buttons_set_commands(2, \"queue add !wu!t!p strangle @tar\");\n    slots[\"Strangle\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Ravage\");\n    buttons_set_commands(3, \"queue add !wu!t!p ravage @tar\");\n    slots[\"Ravage\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Vinecrack\");\n    buttons_set_commands(4, \"queue add !wu!t!p vinecrack @tar\");\n    slots[\"Vinecrack\"] = 4;\n\n    // F5\n    buttons_set_label(5, \"Glare\");\n    buttons_set_commands(5, \"queue add !wu!t!p quarterstaff glare @tar\");\n    slots[\"Glare\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Sting\");\n    buttons_set_commands(6, \"queue add b!wu!t sting @tar\");\n\n    // F7\n    buttons_set_label(7, \"Remedy\");\n    buttons_set_commands(7, \"evoke remedy oceana\");\n\n    // F8\n    buttons_set_label(8, \"Douse\");\n    buttons_set_commands(8, \"freeze ground\");\n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Barrier\");\n    buttons_set_commands(11, \"evoke barrier\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Magi\":\n    var staffAttack = get_variable(\"staffAttack\");\n    // F1\n    buttons_set_label(1, \"Staff\");\n    buttons_set_commands(1, \"queue add e!wu!t!p staff cast \" + staffAttack + \" at @tar\");\n    \n    // F2\n    buttons_set_label(2, \"Windlash\");\n    buttons_set_commands(2, \"queue add !wu!t!p cast windlash at @tar\");\n    slots[\"Windlash\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Squeeze\");\n    buttons_set_commands(3, \"queue add !wu!t!p cast squeeze @tar\");\n    slots[\"Squeeze\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Disintegrate\");\n    buttons_set_commands(4, \"queue add !wu!t!p cast disintegrate at @tar\");\n    slots[\"Disintegrate\"] = 4;\n\n    // F5\n    buttons_set_label(5, \"Firefall\");\n    buttons_set_commands(5, \"queue add !wu!t!p cast firefall at @tar\");\n    slots[\"Firefall\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Stormbolt\");\n    buttons_set_commands(6, \"queue add !wu!t!p cast stormbolt at @tar\");\n    slots[\"Stormbolt\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"Dilation\");\n    buttons_set_commands(7, \"queue add !wu!t!p cast dilation at @tar\");\n    slots[\"Dilation\"] = 7;\n\n    // F8\n    buttons_set_label(8, \"Flood\");\n    buttons_set_commands(8, \"queue add e cast flood\");\n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Reflection\");\n    buttons_set_commands(11, \"queue add e!wu!t!p cast reflection at me\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Sylvan\":\n    // F1\n    buttons_set_label(1, \"Thornrend\");\n    buttons_set_commands(1, \"queue add e!wu!t!p thornrend @tar\");\n    \n    // F2\n    buttons_set_label(2, \"Torrent\");\n    buttons_set_commands(2, \"queue add !wu!t!p cast torrent at @tar\");\n    slots[\"Torrent\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Sandstorm\");\n    buttons_set_commands(3, \"queue add !wu!t!p cast sandstorm at @tar\");\n    slots[\"Sandstorm\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Thornpierce\");\n    buttons_set_commands(4, \"queue add !wu!t!p thornpierce @tar\");\n    slots[\"Thornpierce\"] = 4;\n\n    // F5\n    buttons_set_label(5, \"Stonevine\");\n    buttons_set_commands(5, \"queue add !wu!t!p stonevine @tar\");\n    slots[\"Stonevine\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Leechroot\");\n    buttons_set_commands(6, \"queue add !wu!t!p leechroot @tar\");\n    slots[\"Leechroot\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"Rockshot\");\n    buttons_set_commands(7, \"queue add !wu!t!p cast rockshot at @tar\");\n    slots[\"Rockshot\"] = 7;\n\n    // F8\n    buttons_set_label(8, \"Flood\");\n    buttons_set_commands(8, \"queue add e cast flood\");\n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Reflection\");\n    buttons_set_commands(11, \"queue add e!wu!t!p cast reflection at me\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Black Dragon\":\n    dragonMode = get_variable(\"dragonMode\");\n    // F1\n    dragonAttack = get_variable(\"dragonAttack\");\n\n    if(dragonAttack == \"gut\") {\n      buttons_set_label(1, \"Gut\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p gut @tar\");      \n    } else {\n      buttons_set_label(1, \"Incantation\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p incantation @tar\");\n    }\n    // F2\n    buttons_set_label(2, \"Dragonspit\");\n    buttons_set_commands(2, \"queue add !wu!t!p dragonspit @tar\");\n    slots[\"Dragonspit\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Override\");\n    buttons_set_commands(3, \"queue add !wu!t!p override @tar\");\n    slots[\"Override\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Blast\");\n    buttons_set_commands(4, \"queue add eb!wu!t!p blast @tar\");\n\n    // F5\n    buttons_set_label(5, \"Corrode\");\n    buttons_set_commands(5, \"queue add !wu!t!p corrode @tar\");\n    slots[\"Corrode\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Dragonsting\");\n    buttons_set_commands(6, \"queue add !wu!t!p dragonsting @tar\");\n    slots[\"Dragonsting\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"Dragonfear\");\n    buttons_set_commands(7, \"queue add !wu!t!p dragonfear @tar\");\n    slots[\"Dragonfear\"] = 7;\n\n    // F8\n    if (dragonMode == \"physical\") buttons_set_label(8, \"PHY\");\n    if (dragonMode == \"magical\") buttons_set_label(8, \"MAG\");\n    if (dragonMode == \"auto\") buttons_set_label(8, \"AUT\");\n      buttons_set_commands(8, \"dragonmode\");  \n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Dragonheal\");\n    buttons_set_commands(11, \"queue add eq!wu!t!p dragonheal\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Blue Dragon\":\n    dragonMode = get_variable(\"dragonMode\");\n    // F1\n    dragonAttack = get_variable(\"dragonAttack\");\n\n    if(dragonAttack == \"gut\") {\n      buttons_set_label(1, \"Gut\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p gut @tar\");      \n    } else {\n      buttons_set_label(1, \"Incantation\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p incantation @tar\");\n    }\n    // F2\n    buttons_set_label(2, \"Dragonchill\");\n    buttons_set_commands(2, \"queue add !wu!t!p dragonchill @tar\");\n    slots[\"Dragonchill\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Override\");\n    buttons_set_commands(3, \"queue add !wu!t!p override @tar\");\n    slots[\"Override\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Blast\");\n    buttons_set_commands(4, \"queue add eb!wu!t!p blast @tar\");\n\n    // F5\n    buttons_set_label(5, \"Frostwave\");\n    buttons_set_commands(5, \"queue add !wu!t!p frostwave @tar\");\n    slots[\"Frostwave\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Ague\");\n    buttons_set_commands(6, \"queue add !wu!t!p ague @tar\");\n    slots[\"Ague\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"\");\n    buttons_set_commands(7, \"\");\n\n    // F8\n    if (dragonMode == \"physical\") buttons_set_label(8, \"PHY\");\n    if (dragonMode == \"magical\") buttons_set_label(8, \"MAG\");\n    if (dragonMode == \"auto\") buttons_set_label(8, \"AUT\");\n      buttons_set_commands(8, \"dragonmode\");  \n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"\");\n    buttons_set_commands(11, \"\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n}\n\n// at the end:\nset_variable(\"rage_slots\", slots);\nrun_function(\"hl_buttons\", [], \"hunting\");\n"
+    },
+    {
+     "type": "function",
+     "name": "best_dragon_mode",
+     "enabled": true,
+     "code": "var debug = get_variable(\"debug\");\n// Class comes from hunting's own onGMCP; the shared variable is the fallback\n// until a Char.Status message has arrived this session.\nvar activeClass = (client.loom && client.loom.hunting && client.loom.hunting.cls) || get_variable(\"activeClass\");\nvar dragonMode = get_variable(\"dragonMode\");\nvar dragonAttack = get_variable(\"dragonAttack\");\n\nvar my_ep = get_variable(\"my_ep\");\nvar my_wp = get_variable(\"my_wp\");\nvar my_maxep = get_variable(\"my_maxep\");\nvar my_maxwp = get_variable(\"my_maxwp\");\n\nif (activeClass == \"Black Dragon\" && dragonMode == \"auto\") {\n  \n  var pctEP = my_ep / my_maxep;\n  var pctWP = my_wp / my_maxwp;\n\n  if (pctEP > pctWP) { \n    dragonAttack = \"gut\";\n  } else {\n    dragonAttack = \"incantation\";\n  }\n  \n  set_variable(\"dragonAttack\", dragonAttack);\n  if (debug == \"on\") display_notice(\"[debug][hunting][best_dragon_mode] Dragon Attack set to \" + dragonAttack, \"cyan\");\n} "
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var debug = get_variable(\"debug\");\nvar currentDragonMode = get_variable(\"dragonMode\");\nvar newDragonMode = \"auto\"; // in case dragonMode is empty\nvar dragonAttack = get_variable(\"dragonAttack\");\n\nif (currentDragonMode == \"physical\") { \n  newDragonMode = \"magical\"; \n  dragonAttack = \"incantation\";\n  set_variable(\"dragonAttack\", dragonAttack);\n  set_variable(\"dragonMode\", newDragonMode);\n  if (debug == \"on\") display_notice(\"[debug][hunting][dragonmode] dragonAttack set to \" + dragonAttack + \"; dragonMode set to \" + newDragonMode, \"cyan\")\n}\n\nif (currentDragonMode == \"magical\") { \n  newDragonMode = \"auto\"; \n  set_variable(\"dragonMode\", newDragonMode);\n  run_function(\"best_dragon_mode\", [], \"hunting\");\n  if (debug == \"on\") display_notice(\"[debug][hunting][dragonmode] dragonMode set to \" + newDragonMode, \"cyan\")\n\n}\n\nif (currentDragonMode == \"auto\") { \n  newDragonMode = \"physical\"; \n  dragonAttack = \"gut\";\n  set_variable(\"dragonAttack\", dragonAttack);\n  set_variable(\"dragonMode\", newDragonMode);\n  if (debug == \"on\") display_notice(\"[debug][hunting][dragonmode] dragonAttack set to \" + dragonAttack + \"; dragonMode set to \" + newDragonMode, \"cyan\")\n}\n\nrun_function(\"set_buttons\", [], \"hunting\");"
+      }
+     ],
+     "text": "^dragonmode$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true,
+     "prefix_suffix": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"initdef\");\nset_variable(\"rage_cd\", {});\nset_variable(\"pauseTriggers\", \"off\");"
+      }
+     ],
+     "text": "^With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "send_command(\"initdef\");\nset_variable(\"rage_cd\", {});\n"
+      }
+     ],
+     "text": "^Your draconic form melts away, leaving you suddenly weaker and more vulnerable\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "set_variable(\"pauseTriggers\", \"on\");"
+      }
+     ],
+     "text": "^With a grimness born of determination\\, you begin to unleash the Dragon that is now so much a part of the fabric of your soul\\. A black light begins to shine through from within you\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    }
+   ]
   },
   {
    "type": "group",
