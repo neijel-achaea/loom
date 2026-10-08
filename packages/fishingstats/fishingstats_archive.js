@@ -1,7 +1,8 @@
 // Files the current session into the log and starts a blank one. A session
 // with nothing landed is discarded rather than logged.
-run_function("fsh_ensure", [], "fishingstats");
-var s = client.fsh;
+if (!client.loom || !client.loom.fishingstats || !client.loom.fishingstats.session) run_function("fishingstats_setup", [], "fishingstats");
+var FS = client.loom.fishingstats;
+var s = FS.session;
 if (s.n > 0) {
   var ang = {};
   var sp = {};
@@ -17,7 +18,7 @@ if (s.n > 0) {
   }
   var areas = [];
   for (k in s.areas) { if (s.areas.hasOwnProperty(k)) { areas.push(k); } }
-  client.fshLog.push({
+  FS.log.push({
     s: s.start, e: s.last, ar: areas.join(", "), y: s.year || 0,
     n: s.n, oz: 0, rec: s.rec || 0,
     ft: s.castN > 0 ? Math.round(s.castFt / s.castN) : 0,
@@ -25,12 +26,12 @@ if (s.n > 0) {
   });
   var tot = 0;
   for (k in s.anglers) { if (s.anglers.hasOwnProperty(k)) { tot += s.anglers[k].oz; } }
-  client.fshLog[client.fshLog.length - 1].oz = tot;
-  while (client.fshLog.length > client.fshLogCap) { client.fshLog.shift(); }
-  try { set_variable("fsh_log", JSON.stringify(client.fshLog)); } catch (e) {}
+  FS.log[FS.log.length - 1].oz = tot;
+  while (FS.log.length > FS.logCap) { FS.log.shift(); }
+  try { set_variable("fishingstats_log", JSON.stringify(FS.log)); } catch (e) {}
 }
 var now = Math.floor(new Date().getTime() / 1000);
-client.fsh = { start: now, last: now, anglers: {}, species: {}, recent: [], n: 0, areas: {}, year: client.fshRec.year || 0, rec: 0, castFt: 0, castN: 0 };
-try { set_variable("fsh_session", JSON.stringify(client.fsh)); } catch (e) {}
-run_function("fsh_render", [], "fishingstats");
-run_function("fsh_log_render", [], "fishingstats");
+FS.session = { start: now, last: now, anglers: {}, species: {}, recent: [], n: 0, areas: {}, year: FS.rec.year || 0, rec: 0, castFt: 0, castN: 0 };
+try { set_variable("fishingstats_session", JSON.stringify(FS.session)); } catch (e) {}
+run_function("fishingstats_render", [], "fishingstats");
+run_function("fishingstats_log_render", [], "fishingstats");
