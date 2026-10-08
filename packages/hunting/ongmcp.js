@@ -1,20 +1,26 @@
-if (!client.loom) client.loom = {};
-if (!client.loom.hunting) client.loom.hunting = {};
+if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;
 
 // Class: hunting follows it itself and lays out the F-key buttons on change.
 if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
   if (args.gmcp_args.class != HU.cls) {
     HU.cls = args.gmcp_args.class;
-    run_function("set_buttons", [], "hunting");
+    run_function("hunting_buttons", [], "hunting");
   }
 }
 
 if (args.gmcp_method == "Char.Vitals") {
+  var v = args.gmcp_args;
+  HU.bal = String(v.bal) == "1";
+  HU.eq = String(v.eq) == "1";
+  HU.ep = to_number(v.ep); HU.maxep = to_number(v.maxep);
+  HU.wp = to_number(v.wp); HU.maxwp = to_number(v.maxwp);
+
   // Dragonform in auto mode: pick gut or incantation from endurance vs willpower.
-  if (get_variable("dragonMode") == "auto") {
-    run_function("best_dragon_mode", [], "hunting");
-    run_function("set_buttons", [], "hunting");
+  if (get_variable("hunting_dragon_mode") == "auto") {
+    var huBefore = get_variable("hunting_dragon_attack");
+    run_function("hunting_dragon_best", [], "hunting");
+    if (get_variable("hunting_dragon_attack") != huBefore) run_function("hunting_buttons", [], "hunting");
   }
 
   var stats = args.gmcp_args.charstats;
@@ -26,7 +32,11 @@ if (args.gmcp_method == "Char.Vitals") {
     }
   }
   if (rage !== null) {
+    HU.rage = rage;
+    // LEGACY publish: partycomms reads my_rage until its own v0.2 pass.
     set_variable("my_rage", rage);
-    run_function("hl_buttons", [], "hunting");
   }
+  // Balance and equilibrium arrive on every vitals message, so refresh the
+  // highlights each time (the main attack lights on bal + eq).
+  run_function("hunting_highlight", [], "hunting");
 }

@@ -26,7 +26,7 @@ their tab its own icon.
 | **fishingstats** | fishingstats, fishinglog | Live fishing session (by angler, by species, recent catches) and a log of past sessions. |
 | **groves** | — | *Retired (druid).* Opens the grove gate for city members who send "Gate." while you are in your grove. |
 | **harvesting** | — | Stock-aware auto-harvest on room entry: harvests and stores only plants below their minimum rift stock. `HARVESTING ON/OFF/MIN/RESET`. |
-| **hunting** | — | Class-based F-key buttons and dragon attack mode (`DRAGONMODE`), battlerage cooldown tracking with highlighted F-key buttons, ability highlights per class, affliction markers, critical-hit and status highlights, `AUTOGOLD ON/OFF/ALL`, and combat gags. |
+| **hunting** | — | Class F-key buttons with battlerage cooldown highlights (Druid, Magi, Sylvan, Black and Blue Dragon; other classes get the generic keys), dragon attack mode, autogold, ability and critical-hit highlights, affliction markers and combat gags. One command: `HUNTING` (`DRAGONMODE`, `AUTOGOLD`, `PARTYTARGET`, `AFTERFORM`, `HELP`). Publishes `my_rage` for partycomms; reads security's `backpack`, artificing's `staffAttack` and huntstats (for the F9 key) if present. |
 | **huntstats** | Stats | Per-area hunting sessions: xp/hr, gold/hr, kills, Dragonhood progress, area comparison. `HUNTSTATS`. |
 | **ledger** | Ledger | IC reminders and standing items on the Achaean calendar. `LEDGER`. |
 | **levelgraph** | Level | Level progress graphs per minute and per day, days at the current level. |
@@ -48,11 +48,11 @@ their tab its own icon.
 
 The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
 
-- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **hunting**, **harvesting**, **sigils** and **civic** already follow GMCP themselves; **civic** checks the enemies list of **social** only when it's installed.
+- **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic** and **hunting** already follow GMCP themselves (hunting still borrows `activeClass` until the first class message of a session); **civic** checks the enemies list of **social** only when it's installed.
 - **defences**, **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
 - **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
-- **security** and **hunting** share the `backpack` variable.
+- **hunting** puts autogold into **security**'s `backpack` when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
 - Many triggers respect the `pauseTriggers` flag, which **loom** toggles. Packages treat an unset flag as off.
 

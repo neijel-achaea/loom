@@ -1,0 +1,10 @@
+var C = "cyan";
+display_notice("[hunting] class F-keys, battlerage highlights, dragon attacks and autogold. Commands:", C);
+display_notice("  HUNTING                        status", C);
+display_notice("  HUNTING DRAGONMODE [PHY|MAG|AUTO]   gut, incantation, or whichever pool is fuller (no argument: next mode)", C);
+display_notice("  HUNTING AUTOGOLD [ON|ALL|OFF]  pick up gold from your kills, from any corpse, or not at all", C);
+display_notice("  HUNTING PARTYTARGET [name|OFF] who party-aimed keys act on (the druid's Remedy key)", C);
+display_notice("  HUNTING AFTERFORM [cmd|OFF]    command sent when dragonform rises or falls, e.g. INITDEF", C);
+display_notice("  HUNTING BUTTONS                lay out the F-keys again", C);
+display_notice("  HUNTING RAGE / RESET / DEBUG", C);
+display_notice("  F-keys are configured for Druid, Magi, Sylvan, Black Dragon and Blue Dragon; other classes get Diag, Shield and Stats for now.", C);
