@@ -1,9 +1,7 @@
-var costs = get_variable("rage_costs") || {};
-var cd    = get_variable("rage_cd") || {};
-var rage  = get_variable("my_rage") || 0;
-for (var name in costs) {
-  if (rage >= costs[name]) { cd[name] = false; }
+if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function("hunting_setup", [], "hunting");
+var HU = client.loom.hunting;
+for (var huName in HU.costs) {
+  if (HU.rage >= HU.costs[huName]) { HU.cd[huName] = false; }
 }
-set_variable("rage_cd", cd);
-set_variable("rage_global", true);
-run_function("hl_buttons", [], "hunting");
+HU.glob = true;
+run_function("hunting_highlight", [], "hunting");

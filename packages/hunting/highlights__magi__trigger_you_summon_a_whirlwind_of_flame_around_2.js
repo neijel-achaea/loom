@@ -1,6 +1,4 @@
-var cd = get_variable("rage_cd") || {};
-cd["Disintegrate"] = false;
-
-set_variable("rage_cd", cd);
-//set_variable("rage_global", false);
-run_function("hl_buttons", [], "hunting");
+if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function("hunting_setup", [], "hunting");
+var HU = client.loom.hunting;
+HU.cd["Disintegrate"] = false;
+run_function("hunting_highlight", [], "hunting");

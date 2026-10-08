@@ -29,20 +29,26 @@
     },
     {
       "type": "group",
-      "name": "multiclass",
+      "name": "core",
       "enabled": true,
       "items": [
         {
           "type": "function",
-          "name": "set_buttons",
+          "name": "hunting_setup",
           "enabled": true,
-          "code": "@file:multiclass__set_buttons.js"
+          "code": "@file:hunting_setup.js"
         },
         {
           "type": "function",
-          "name": "best_dragon_mode",
+          "name": "hunting_help",
           "enabled": true,
-          "code": "@file:multiclass__best_dragon_mode.js"
+          "code": "@file:hunting_help.js"
+        },
+        {
+          "type": "function",
+          "name": "hunting_status",
+          "enabled": true,
+          "code": "@file:hunting_status.js"
         },
         {
           "type": "alias",
@@ -52,14 +58,33 @@
             {
               "type": "script",
               "enabled": true,
-              "script": "@file:multiclass__alias_dragonmode.js"
+              "script": "@file:alias_hunting.js"
             }
           ],
-          "text": "^dragonmode$",
+          "text": "^hunting(?:\\s+(.*))?$",
           "matching": "regexp",
-          "whole_words": true,
-          "case_sensitive": true,
+          "whole_words": false,
+          "case_sensitive": false,
           "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "buttons",
+      "enabled": true,
+      "items": [
+        {
+          "type": "function",
+          "name": "hunting_buttons",
+          "enabled": true,
+          "code": "@file:hunting_buttons.js"
+        },
+        {
+          "type": "function",
+          "name": "hunting_dragon_best",
+          "enabled": true,
+          "code": "@file:hunting_dragon_best.js"
         },
         {
           "type": "trigger",
@@ -1936,21 +1961,10 @@
       "enabled": true,
       "items": [
         {
-          "type": "alias",
-          "name": "",
+          "type": "function",
+          "name": "hunting_gold",
           "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:autogold__alias_autogold_s_on_off_all.js"
-            }
-          ],
-          "text": "^autogold(?:\\s+(on|off|all))?$",
-          "matching": "regexp",
-          "whole_words": true,
-          "case_sensitive": true,
-          "prefix_suffix": true
+          "code": "@file:hunting_gold.js"
         },
         {
           "type": "trigger",
@@ -2272,15 +2286,9 @@
       "items": [
         {
           "type": "function",
-          "name": "hl_buttons",
+          "name": "hunting_highlight",
           "enabled": true,
-          "code": "@file:rage__hl_buttons.js"
-        },
-        {
-          "type": "function",
-          "name": "rage_init",
-          "enabled": true,
-          "code": "@file:rage__rage_init.js"
+          "code": "@file:hunting_highlight.js"
         },
         {
           "type": "trigger",
@@ -2329,23 +2337,6 @@
           "matching": "regexp",
           "whole_words": true,
           "case_sensitive": true
-        },
-        {
-          "type": "alias",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:rage__alias_ragedebug.js"
-            }
-          ],
-          "text": "^ragedebug$",
-          "matching": "regexp",
-          "whole_words": true,
-          "case_sensitive": true,
-          "prefix_suffix": true
         },
         {
           "type": "trigger",

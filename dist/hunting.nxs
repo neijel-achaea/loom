@@ -7,7 +7,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"hunting_setup\", [], \"hunting\");\nrun_function(\"hunting_buttons\", [], \"hunting\");\ndisplay_notice(\"[hunting] installed. HUNTING HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
@@ -19,30 +19,36 @@
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "run_function(\"rage_init\", [], \"hunting\");"
+   "code": "run_function(\"hunting_setup\", [], \"hunting\");\nrun_function(\"hunting_buttons\", [], \"hunting\");\n"
   },
   {
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.hunting) client.loom.hunting = {};\nvar HU = client.loom.hunting;\n\n// Class: hunting follows it itself and lays out the F-key buttons on change.\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  if (args.gmcp_args.class != HU.cls) {\n    HU.cls = args.gmcp_args.class;\n    run_function(\"set_buttons\", [], \"hunting\");\n  }\n}\n\nif (args.gmcp_method == \"Char.Vitals\") {\n  // Dragonform in auto mode: pick gut or incantation from endurance vs willpower.\n  if (get_variable(\"dragonMode\") == \"auto\") {\n    run_function(\"best_dragon_mode\", [], \"hunting\");\n    run_function(\"set_buttons\", [], \"hunting\");\n  }\n\n  var stats = args.gmcp_args.charstats;\n  var rage = null;\n  if (stats) {\n    for (var i = 0; i < stats.length; i++) {\n      var m = stats[i].match(/^Rage:\\s*(\\d+)/);\n      if (m) { rage = parseInt(m[1], 10); }\n    }\n  }\n  if (rage !== null) {\n    set_variable(\"my_rage\", rage);\n    run_function(\"hl_buttons\", [], \"hunting\");\n  }\n}\n"
+   "code": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\n\n// Class: hunting follows it itself and lays out the F-key buttons on change.\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  if (args.gmcp_args.class != HU.cls) {\n    HU.cls = args.gmcp_args.class;\n    run_function(\"hunting_buttons\", [], \"hunting\");\n  }\n}\n\nif (args.gmcp_method == \"Char.Vitals\") {\n  var v = args.gmcp_args;\n  HU.bal = String(v.bal) == \"1\";\n  HU.eq = String(v.eq) == \"1\";\n  HU.ep = to_number(v.ep); HU.maxep = to_number(v.maxep);\n  HU.wp = to_number(v.wp); HU.maxwp = to_number(v.maxwp);\n\n  // Dragonform in auto mode: pick gut or incantation from endurance vs willpower.\n  if (get_variable(\"hunting_dragon_mode\") == \"auto\") {\n    var huBefore = get_variable(\"hunting_dragon_attack\");\n    run_function(\"hunting_dragon_best\", [], \"hunting\");\n    if (get_variable(\"hunting_dragon_attack\") != huBefore) run_function(\"hunting_buttons\", [], \"hunting\");\n  }\n\n  var stats = args.gmcp_args.charstats;\n  var rage = null;\n  if (stats) {\n    for (var i = 0; i < stats.length; i++) {\n      var m = stats[i].match(/^Rage:\\s*(\\d+)/);\n      if (m) { rage = parseInt(m[1], 10); }\n    }\n  }\n  if (rage !== null) {\n    HU.rage = rage;\n    // LEGACY publish: partycomms reads my_rage until its own v0.2 pass.\n    set_variable(\"my_rage\", rage);\n  }\n  // Balance and equilibrium arrive on every vitals message, so refresh the\n  // highlights each time (the main attack lights on bal + eq).\n  run_function(\"hunting_highlight\", [], \"hunting\");\n}\n"
   },
   {
    "type": "group",
-   "name": "multiclass",
+   "name": "core",
    "enabled": true,
    "items": [
     {
      "type": "function",
-     "name": "set_buttons",
+     "name": "hunting_setup",
      "enabled": true,
-     "code": "var debug = get_variable(\"debug\");\nvar dragonMode = \"\";\nvar dragonAttack = \"\";\n\n// Reset highlights\nfor (let i = 0; i < 12; i++) {\n  buttons_set_highlight(i, 0);  \n}\n\n// Sets buttons depending on class\n// Class comes from hunting's own onGMCP; the shared variable is the fallback\n// until a Char.Status message has arrived this session.\nvar activeClass = (client.loom && client.loom.hunting && client.loom.hunting.cls) || get_variable(\"activeClass\");\nvar slots = {};\nif (debug == \"on\") display_notice(\"[debug][hunting][set_buttons] activeClass: \" + activeClass, \"cyan\");\n\nswitch (activeClass) {\n  case \"Druid\":\n    // F1\n    buttons_set_label(1, \"Maul\");\n    buttons_set_commands(1, \"queue add b!wu!t!p wreathe | queue add b!wu!t!p maul @tar\");\n    \n    // F2\n    buttons_set_label(2, \"Strangle\");\n    buttons_set_commands(2, \"queue add !wu!t!p strangle @tar\");\n    slots[\"Strangle\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Ravage\");\n    buttons_set_commands(3, \"queue add !wu!t!p ravage @tar\");\n    slots[\"Ravage\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Vinecrack\");\n    buttons_set_commands(4, \"queue add !wu!t!p vinecrack @tar\");\n    slots[\"Vinecrack\"] = 4;\n\n    // F5\n    buttons_set_label(5, \"Glare\");\n    buttons_set_commands(5, \"queue add !wu!t!p quarterstaff glare @tar\");\n    slots[\"Glare\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Sting\");\n    buttons_set_commands(6, \"queue add b!wu!t sting @tar\");\n\n    // F7\n    buttons_set_label(7, \"Remedy\");\n    buttons_set_commands(7, \"evoke remedy oceana\");\n\n    // F8\n    buttons_set_label(8, \"Douse\");\n    buttons_set_commands(8, \"freeze ground\");\n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Barrier\");\n    buttons_set_commands(11, \"evoke barrier\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Magi\":\n    var staffAttack = get_variable(\"staffAttack\");\n    // F1\n    buttons_set_label(1, \"Staff\");\n    buttons_set_commands(1, \"queue add e!wu!t!p staff cast \" + staffAttack + \" at @tar\");\n    \n    // F2\n    buttons_set_label(2, \"Windlash\");\n    buttons_set_commands(2, \"queue add !wu!t!p cast windlash at @tar\");\n    slots[\"Windlash\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Squeeze\");\n    buttons_set_commands(3, \"queue add !wu!t!p cast squeeze @tar\");\n    slots[\"Squeeze\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Disintegrate\");\n    buttons_set_commands(4, \"queue add !wu!t!p cast disintegrate at @tar\");\n    slots[\"Disintegrate\"] = 4;\n\n    // F5\n    buttons_set_label(5, \"Firefall\");\n    buttons_set_commands(5, \"queue add !wu!t!p cast firefall at @tar\");\n    slots[\"Firefall\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Stormbolt\");\n    buttons_set_commands(6, \"queue add !wu!t!p cast stormbolt at @tar\");\n    slots[\"Stormbolt\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"Dilation\");\n    buttons_set_commands(7, \"queue add !wu!t!p cast dilation at @tar\");\n    slots[\"Dilation\"] = 7;\n\n    // F8\n    buttons_set_label(8, \"Flood\");\n    buttons_set_commands(8, \"queue add e cast flood\");\n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Reflection\");\n    buttons_set_commands(11, \"queue add e!wu!t!p cast reflection at me\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Sylvan\":\n    // F1\n    buttons_set_label(1, \"Thornrend\");\n    buttons_set_commands(1, \"queue add e!wu!t!p thornrend @tar\");\n    \n    // F2\n    buttons_set_label(2, \"Torrent\");\n    buttons_set_commands(2, \"queue add !wu!t!p cast torrent at @tar\");\n    slots[\"Torrent\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Sandstorm\");\n    buttons_set_commands(3, \"queue add !wu!t!p cast sandstorm at @tar\");\n    slots[\"Sandstorm\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Thornpierce\");\n    buttons_set_commands(4, \"queue add !wu!t!p thornpierce @tar\");\n    slots[\"Thornpierce\"] = 4;\n\n    // F5\n    buttons_set_label(5, \"Stonevine\");\n    buttons_set_commands(5, \"queue add !wu!t!p stonevine @tar\");\n    slots[\"Stonevine\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Leechroot\");\n    buttons_set_commands(6, \"queue add !wu!t!p leechroot @tar\");\n    slots[\"Leechroot\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"Rockshot\");\n    buttons_set_commands(7, \"queue add !wu!t!p cast rockshot at @tar\");\n    slots[\"Rockshot\"] = 7;\n\n    // F8\n    buttons_set_label(8, \"Flood\");\n    buttons_set_commands(8, \"queue add e cast flood\");\n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Reflection\");\n    buttons_set_commands(11, \"queue add e!wu!t!p cast reflection at me\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Black Dragon\":\n    dragonMode = get_variable(\"dragonMode\");\n    // F1\n    dragonAttack = get_variable(\"dragonAttack\");\n\n    if(dragonAttack == \"gut\") {\n      buttons_set_label(1, \"Gut\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p gut @tar\");      \n    } else {\n      buttons_set_label(1, \"Incantation\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p incantation @tar\");\n    }\n    // F2\n    buttons_set_label(2, \"Dragonspit\");\n    buttons_set_commands(2, \"queue add !wu!t!p dragonspit @tar\");\n    slots[\"Dragonspit\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Override\");\n    buttons_set_commands(3, \"queue add !wu!t!p override @tar\");\n    slots[\"Override\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Blast\");\n    buttons_set_commands(4, \"queue add eb!wu!t!p blast @tar\");\n\n    // F5\n    buttons_set_label(5, \"Corrode\");\n    buttons_set_commands(5, \"queue add !wu!t!p corrode @tar\");\n    slots[\"Corrode\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Dragonsting\");\n    buttons_set_commands(6, \"queue add !wu!t!p dragonsting @tar\");\n    slots[\"Dragonsting\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"Dragonfear\");\n    buttons_set_commands(7, \"queue add !wu!t!p dragonfear @tar\");\n    slots[\"Dragonfear\"] = 7;\n\n    // F8\n    if (dragonMode == \"physical\") buttons_set_label(8, \"PHY\");\n    if (dragonMode == \"magical\") buttons_set_label(8, \"MAG\");\n    if (dragonMode == \"auto\") buttons_set_label(8, \"AUT\");\n      buttons_set_commands(8, \"dragonmode\");  \n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"Dragonheal\");\n    buttons_set_commands(11, \"queue add eq!wu!t!p dragonheal\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n\n  case \"Blue Dragon\":\n    dragonMode = get_variable(\"dragonMode\");\n    // F1\n    dragonAttack = get_variable(\"dragonAttack\");\n\n    if(dragonAttack == \"gut\") {\n      buttons_set_label(1, \"Gut\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p gut @tar\");      \n    } else {\n      buttons_set_label(1, \"Incantation\");\n      buttons_set_commands(1, \"queue add eb!wu!t!p incantation @tar\");\n    }\n    // F2\n    buttons_set_label(2, \"Dragonchill\");\n    buttons_set_commands(2, \"queue add !wu!t!p dragonchill @tar\");\n    slots[\"Dragonchill\"] = 2;\n\n    // F3\n    buttons_set_label(3, \"Override\");\n    buttons_set_commands(3, \"queue add !wu!t!p override @tar\");\n    slots[\"Override\"] = 3;\n\n    // F4\n    buttons_set_label(4, \"Blast\");\n    buttons_set_commands(4, \"queue add eb!wu!t!p blast @tar\");\n\n    // F5\n    buttons_set_label(5, \"Frostwave\");\n    buttons_set_commands(5, \"queue add !wu!t!p frostwave @tar\");\n    slots[\"Frostwave\"] = 5;\n\n    // F6\n    buttons_set_label(6, \"Ague\");\n    buttons_set_commands(6, \"queue add !wu!t!p ague @tar\");\n    slots[\"Ague\"] = 6;\n\n    // F7\n    buttons_set_label(7, \"\");\n    buttons_set_commands(7, \"\");\n\n    // F8\n    if (dragonMode == \"physical\") buttons_set_label(8, \"PHY\");\n    if (dragonMode == \"magical\") buttons_set_label(8, \"MAG\");\n    if (dragonMode == \"auto\") buttons_set_label(8, \"AUT\");\n      buttons_set_commands(8, \"dragonmode\");  \n\n    // F9\n    buttons_set_label(9, \"Stats\");\n    buttons_set_commands(9, \"huntstats\");\n\n    // F10\n    buttons_set_label(10, \"Diag\");\n    buttons_set_commands(10, \"diagnose\");\n\n    // F11\n    buttons_set_label(11, \"\");\n    buttons_set_commands(11, \"\");\n\n    // F12\n    buttons_set_label(12, \"Shield\");\n    buttons_set_commands(12, \"touch shield\");\n\n    break;\n}\n\n// at the end:\nset_variable(\"rage_slots\", slots);\nrun_function(\"hl_buttons\", [], \"hunting\");\n"
+     "code": "// hunting_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, one-time migration, defaults.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.hunting) client.loom.hunting = {};\nclient.loom.registry.hunting = { version: \"0.2.0\", keyword: \"HUNTING\" };\n\nvar HU = client.loom.hunting;\n\n// Battlerage costs for every class configured so far. Session data, not a\n// variable: rebuilt here on every load.\nHU.costs = {\n  // Druid\n  Strangle: 14, Redeem: 22, Vinecrack: 17, Ravage: 36, Sear: 25, Glare: 14,\n  // Magi\n  Windlash: 14, Dilation: 35, Disintegrate: 17, Squeeze: 36, Firefall: 25, Stormbolt: 25,\n  // Sylvan\n  Torrent: 14, Sandstorm: 29, Thornpierce: 17, Stonevine: 36, Leechroot: 25, Rockshot: 28,\n  // Black Dragon\n  Dragonspit: 14, Dragonsting: 25, Dissolve: 17, Override: 36, Corrode: 25, Dragonfear: 29, Provoke: 32,\n  // Blue Dragon\n  Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14\n};\n// Rage state: cooldowns per ability, F-key slot per ability, the global\n// battlerage cooldown, current rage.\nif (!HU.cd) HU.cd = {};\nif (!HU.slots) HU.slots = {};\nif (HU.glob === undefined) HU.glob = true;\nif (HU.rage === undefined) HU.rage = 0;\n\n// Class: followed from GMCP in onGMCP. Until the first Char.Status of the\n// session arrives, borrow the legacy shared variable if a package still sets it.\nif (!HU.cls && get_variable(\"activeClass\")) HU.cls = get_variable(\"activeClass\");\n\n// One-time migration from the pre-0.2 names: copy when the new one is unset,\n// then clear the old one.\nvar huOld = [\"dragonMode\", \"dragonAttack\", \"autogold\"];\nvar huNew = [\"hunting_dragon_mode\", \"hunting_dragon_attack\", \"hunting_autogold\"];\nvar huLegacy = false;\nfor (var huI = 0; huI < huOld.length; huI++) {\n  var huOv = get_variable(huOld[huI]);\n  if (huOv === null || huOv === undefined || huOv === \"\") continue;\n  huLegacy = true;\n  var huNv = get_variable(huNew[huI]);\n  if (huNv === null || huNv === undefined || huNv === \"\") set_variable(huNew[huI], huOv);\n  delete_variable(huOld[huI]);\n}\nvar huGone = [\"rage_costs\", \"rage_slots\", \"rage_cd\", \"rage_global\"];\nfor (var huJ = 0; huJ < huGone.length; huJ++) {\n  var huGv = get_variable(huGone[huJ]);\n  if (huGv !== null && huGv !== undefined) { huLegacy = true; delete_variable(huGone[huJ]); }\n}\n\n// Command sent when dragonform rises or falls. A profile that used hunting\n// before 0.2 always sent INITDEF there, so it keeps doing so; a fresh profile\n// sends nothing until HUNTING AFTERFORM sets one.\nvar huAf = get_variable(\"hunting_after_form\");\nif (huAf === null || huAf === undefined) set_variable(\"hunting_after_form\", huLegacy ? \"initdef\" : \"\");\n\nif (!get_variable(\"hunting_dragon_mode\")) set_variable(\"hunting_dragon_mode\", \"auto\");\nif (!get_variable(\"hunting_dragon_attack\")) set_variable(\"hunting_dragon_attack\", \"gut\");\nif (!get_variable(\"hunting_autogold\")) set_variable(\"hunting_autogold\", \"off\");\nvar huPt = get_variable(\"hunting_party_target\");\nif (huPt === null || huPt === undefined) set_variable(\"hunting_party_target\", \"\");\n"
     },
     {
      "type": "function",
-     "name": "best_dragon_mode",
+     "name": "hunting_help",
      "enabled": true,
-     "code": "var debug = get_variable(\"debug\");\n// Class comes from hunting's own onGMCP; the shared variable is the fallback\n// until a Char.Status message has arrived this session.\nvar activeClass = (client.loom && client.loom.hunting && client.loom.hunting.cls) || get_variable(\"activeClass\");\nvar dragonMode = get_variable(\"dragonMode\");\nvar dragonAttack = get_variable(\"dragonAttack\");\n\nvar my_ep = get_variable(\"my_ep\");\nvar my_wp = get_variable(\"my_wp\");\nvar my_maxep = get_variable(\"my_maxep\");\nvar my_maxwp = get_variable(\"my_maxwp\");\n\nif (activeClass == \"Black Dragon\" && dragonMode == \"auto\") {\n  \n  var pctEP = my_ep / my_maxep;\n  var pctWP = my_wp / my_maxwp;\n\n  if (pctEP > pctWP) { \n    dragonAttack = \"gut\";\n  } else {\n    dragonAttack = \"incantation\";\n  }\n  \n  set_variable(\"dragonAttack\", dragonAttack);\n  if (debug == \"on\") display_notice(\"[debug][hunting][best_dragon_mode] Dragon Attack set to \" + dragonAttack, \"cyan\");\n} "
+     "code": "var C = \"cyan\";\ndisplay_notice(\"[hunting] class F-keys, battlerage highlights, dragon attacks and autogold. Commands:\", C);\ndisplay_notice(\"  HUNTING                        status\", C);\ndisplay_notice(\"  HUNTING DRAGONMODE [PHY|MAG|AUTO]   gut, incantation, or whichever pool is fuller (no argument: next mode)\", C);\ndisplay_notice(\"  HUNTING AUTOGOLD [ON|ALL|OFF]  pick up gold from your kills, from any corpse, or not at all\", C);\ndisplay_notice(\"  HUNTING PARTYTARGET [name|OFF] who party-aimed keys act on (the druid's Remedy key)\", C);\ndisplay_notice(\"  HUNTING AFTERFORM [cmd|OFF]    command sent when dragonform rises or falls, e.g. INITDEF\", C);\ndisplay_notice(\"  HUNTING BUTTONS                lay out the F-keys again\", C);\ndisplay_notice(\"  HUNTING RAGE / RESET / DEBUG\", C);\ndisplay_notice(\"  F-keys are configured for Druid, Magi, Sylvan, Black Dragon and Blue Dragon; other classes get Diag, Shield and Stats for now.\", C);\n"
+    },
+    {
+     "type": "function",
+     "name": "hunting_status",
+     "enabled": true,
+     "code": "var HU = client.loom.hunting;\nvar huPt = get_variable(\"hunting_party_target\");\nvar huAf = get_variable(\"hunting_after_form\");\ndisplay_notice(\"[hunting] class \" + (HU.cls || \"unknown\") + \", dragon mode \" + String(get_variable(\"hunting_dragon_mode\")).toUpperCase()\n  + \" (\" + get_variable(\"hunting_dragon_attack\") + \"), autogold \" + String(get_variable(\"hunting_autogold\")).toUpperCase()\n  + \", party target \" + (huPt ? huPt : \"none\") + \", after form \" + (huAf ? huAf.toUpperCase() : \"nothing\")\n  + \". HUNTING HELP for commands.\", \"cyan\");\n"
     },
     {
      "type": "alias",
@@ -52,14 +58,33 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var debug = get_variable(\"debug\");\nvar currentDragonMode = get_variable(\"dragonMode\");\nvar newDragonMode = \"auto\"; // in case dragonMode is empty\nvar dragonAttack = get_variable(\"dragonAttack\");\n\nif (currentDragonMode == \"physical\") { \n  newDragonMode = \"magical\"; \n  dragonAttack = \"incantation\";\n  set_variable(\"dragonAttack\", dragonAttack);\n  set_variable(\"dragonMode\", newDragonMode);\n  if (debug == \"on\") display_notice(\"[debug][hunting][dragonmode] dragonAttack set to \" + dragonAttack + \"; dragonMode set to \" + newDragonMode, \"cyan\")\n}\n\nif (currentDragonMode == \"magical\") { \n  newDragonMode = \"auto\"; \n  set_variable(\"dragonMode\", newDragonMode);\n  run_function(\"best_dragon_mode\", [], \"hunting\");\n  if (debug == \"on\") display_notice(\"[debug][hunting][dragonmode] dragonMode set to \" + newDragonMode, \"cyan\")\n\n}\n\nif (currentDragonMode == \"auto\") { \n  newDragonMode = \"physical\"; \n  dragonAttack = \"gut\";\n  set_variable(\"dragonAttack\", dragonAttack);\n  set_variable(\"dragonMode\", newDragonMode);\n  if (debug == \"on\") display_notice(\"[debug][hunting][dragonmode] dragonAttack set to \" + dragonAttack + \"; dragonMode set to \" + newDragonMode, \"cyan\")\n}\n\nrun_function(\"set_buttons\", [], \"hunting\");"
+       "script": "// HUNTING [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nvar huRaw = String(args[1] || \"\").trim();\nvar huSub = huRaw.split(/\\s+/)[0].toLowerCase();\nvar huRest = huRaw.substring(huSub.length).trim();\nvar huVal = huRest.toLowerCase();\nvar C = \"cyan\";\n\nif (huSub === \"\" || huSub === \"status\") {\n  run_function(\"hunting_status\", [], \"hunting\");\n}\nelse if (huSub === \"help\") {\n  run_function(\"hunting_help\", [], \"hunting\");\n}\nelse if (huSub === \"dragonmode\") {\n  var huCur = get_variable(\"hunting_dragon_mode\");\n  var huNext = huVal;\n  if (huNext === \"\") huNext = (huCur == \"auto\") ? \"physical\" : (huCur == \"physical\") ? \"magical\" : \"auto\";\n  if (huNext === \"phy\") huNext = \"physical\";\n  if (huNext === \"mag\") huNext = \"magical\";\n  if (huNext === \"aut\") huNext = \"auto\";\n  if (huNext !== \"physical\" && huNext !== \"magical\" && huNext !== \"auto\") {\n    display_notice(\"[hunting] dragon mode is PHYSICAL, MAGICAL or AUTO.\", \"orange\");\n  } else {\n    set_variable(\"hunting_dragon_mode\", huNext);\n    if (huNext === \"physical\") set_variable(\"hunting_dragon_attack\", \"gut\");\n    if (huNext === \"magical\") set_variable(\"hunting_dragon_attack\", \"incantation\");\n    if (huNext === \"auto\") run_function(\"hunting_dragon_best\", [], \"hunting\");\n    display_notice(\"[hunting] dragon mode \" + huNext.toUpperCase() + \": attacking with \" + get_variable(\"hunting_dragon_attack\") + \".\", C);\n    run_function(\"hunting_buttons\", [], \"hunting\");\n  }\n}\nelse if (huSub === \"autogold\") {\n  if (huVal === \"on\" || huVal === \"off\" || huVal === \"all\") {\n    set_variable(\"hunting_autogold\", huVal);\n    display_notice(\"[hunting] autogold \" + huVal.toUpperCase() + \".\", C);\n  } else if (huVal === \"\") {\n    display_notice(\"[hunting] autogold is \" + String(get_variable(\"hunting_autogold\")).toUpperCase() + \". HUNTING AUTOGOLD ON (your kills), ALL (any gold) or OFF.\", C);\n  } else {\n    display_notice(\"[hunting] autogold is ON, ALL or OFF.\", \"orange\");\n  }\n}\nelse if (huSub === \"partytarget\") {\n  if (huVal === \"\") {\n    var huPt = get_variable(\"hunting_party_target\");\n    display_notice(\"[hunting] party target: \" + (huPt ? huPt : \"none\") + \". HUNTING PARTYTARGET <name> or OFF.\", C);\n  } else {\n    set_variable(\"hunting_party_target\", huVal === \"off\" ? \"\" : huVal);\n    display_notice(\"[hunting] party target \" + (huVal === \"off\" ? \"cleared\" : \"set to \" + huVal) + \".\", C);\n    run_function(\"hunting_buttons\", [], \"hunting\");\n  }\n}\nelse if (huSub === \"afterform\") {\n  if (huVal === \"\") {\n    var huAf = get_variable(\"hunting_after_form\");\n    display_notice(\"[hunting] after dragonform rises or falls: \" + (huAf ? huAf.toUpperCase() : \"nothing\") + \". HUNTING AFTERFORM <command> or OFF.\", C);\n  } else {\n    set_variable(\"hunting_after_form\", huVal === \"off\" ? \"\" : huRest);\n    display_notice(\"[hunting] after dragonform rises or falls: \" + (huVal === \"off\" ? \"nothing\" : huRest.toUpperCase()) + \".\", C);\n  }\n}\nelse if (huSub === \"buttons\") {\n  run_function(\"hunting_buttons\", [], \"hunting\");\n  display_notice(\"[hunting] F-keys laid out for \" + (HU.cls || \"no class yet\") + \".\", C);\n}\nelse if (huSub === \"rage\") {\n  display_notice(\"[hunting] rage \" + HU.rage + \", global cooldown \" + (HU.glob ? \"clear\" : \"running\"), C);\n  display_notice(\"  slots: \" + JSON.stringify(HU.slots), C);\n  display_notice(\"  cooldowns: \" + JSON.stringify(HU.cd), C);\n}\nelse if (huSub === \"reset\") {\n  HU.cd = {};\n  HU.glob = true;\n  run_function(\"hunting_setup\", [], \"hunting\");\n  run_function(\"hunting_buttons\", [], \"hunting\");\n  display_notice(\"[hunting] reset: rage cooldowns cleared, F-keys laid out again. Settings are kept.\", C);\n}\nelse if (huSub === \"debug\") {\n  display_notice(\"[hunting] cls=\" + HU.cls + \" bal=\" + HU.bal + \" eq=\" + HU.eq\n    + \" ep=\" + HU.ep + \"/\" + HU.maxep + \" wp=\" + HU.wp + \"/\" + HU.maxwp\n    + \" main=\" + JSON.stringify(HU.main) + \" kill=\" + HU.kill, C);\n}\nelse {\n  display_notice(\"[hunting] unknown command '\" + huSub + \"'. HUNTING HELP for commands.\", \"orange\");\n}\n"
       }
      ],
-     "text": "^dragonmode$",
+     "text": "^hunting(?:\\s+(.*))?$",
      "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
+     "whole_words": false,
+     "case_sensitive": false,
      "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "buttons",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "hunting_buttons",
+     "enabled": true,
+     "code": "// hunting_buttons -- lays out the F-key buttons for the current class.\n// One row per key: [label, command, main]. \"main\" lights the key whenever you\n// have balance and equilibrium. A key whose label has a battlerage cost in\n// HU.costs is tracked for rage highlighting automatically.\n// Placeholders filled in below: {dragon}/{DRAGON} gut or incantation,\n// {MODE} the dragon mode, {staff} the staff attack (artificing's STAFFATTACK),\n// {target} the party target (HUNTING PARTYTARGET).\nvar HU = client.loom.hunting;\nvar huQ = \"queue add !wu!t!p \";\n\nvar huLayouts = {\n  \"Druid\": [\n    [\"Maul\", \"queue add b!wu!t!p wreathe | queue add b!wu!t!p maul @tar\", false],\n    [\"Strangle\", huQ + \"strangle @tar\", false],\n    [\"Ravage\", huQ + \"ravage @tar\", false],\n    [\"Vinecrack\", huQ + \"vinecrack @tar\", false],\n    [\"Glare\", huQ + \"quarterstaff glare @tar\", false],\n    [\"Sting\", \"queue add b!wu!t sting @tar\", false],\n    [\"Remedy\", \"evoke remedy {target}\", false],\n    [\"Douse\", \"freeze ground\", false],\n    [\"{stats}\", \"\", false],\n    [\"Diag\", \"diagnose\", false],\n    [\"Barrier\", \"evoke barrier\", false],\n    [\"Shield\", \"touch shield\", false]\n  ],\n  \"Magi\": [\n    [\"Staff\", \"queue add e!wu!t!p staff cast {staff} at @tar\", true],\n    [\"Windlash\", huQ + \"cast windlash at @tar\", false],\n    [\"Squeeze\", huQ + \"cast squeeze @tar\", false],\n    [\"Disintegrate\", huQ + \"cast disintegrate at @tar\", false],\n    [\"Firefall\", huQ + \"cast firefall at @tar\", false],\n    [\"Stormbolt\", huQ + \"cast stormbolt at @tar\", false],\n    [\"Dilation\", huQ + \"cast dilation at @tar\", false],\n    [\"Flood\", \"queue add e cast flood\", false],\n    [\"{stats}\", \"\", false],\n    [\"Diag\", \"diagnose\", false],\n    [\"Reflection\", \"queue add e!wu!t!p cast reflection at me\", false],\n    [\"Shield\", \"touch shield\", false]\n  ],\n  \"Sylvan\": [\n    [\"Thornrend\", \"queue add e!wu!t!p thornrend @tar\", true],\n    [\"Torrent\", huQ + \"cast torrent at @tar\", false],\n    [\"Sandstorm\", huQ + \"cast sandstorm at @tar\", false],\n    [\"Thornpierce\", huQ + \"thornpierce @tar\", false],\n    [\"Stonevine\", huQ + \"stonevine @tar\", false],\n    [\"Leechroot\", huQ + \"leechroot @tar\", false],\n    [\"Rockshot\", huQ + \"cast rockshot at @tar\", false],\n    [\"Flood\", \"queue add e cast flood\", false],\n    [\"{stats}\", \"\", false],\n    [\"Diag\", \"diagnose\", false],\n    [\"Reflection\", \"queue add e!wu!t!p cast reflection at me\", false],\n    [\"Shield\", \"touch shield\", false]\n  ],\n  \"Black Dragon\": [\n    [\"{DRAGON}\", \"queue add eb!wu!t!p {dragon} @tar\", true],\n    [\"Dragonspit\", huQ + \"dragonspit @tar\", false],\n    [\"Override\", huQ + \"override @tar\", false],\n    [\"Blast\", \"queue add eb!wu!t!p blast @tar\", true],\n    [\"Corrode\", huQ + \"corrode @tar\", false],\n    [\"Dragonsting\", huQ + \"dragonsting @tar\", false],\n    [\"Dragonfear\", huQ + \"dragonfear @tar\", false],\n    [\"{MODE}\", \"hunting dragonmode\", false],\n    [\"{stats}\", \"\", false],\n    [\"Diag\", \"diagnose\", false],\n    [\"Dragonheal\", \"queue add eq!wu!t!p dragonheal\", true],\n    [\"Shield\", \"touch shield\", false]\n  ],\n  \"Blue Dragon\": [\n    [\"{DRAGON}\", \"queue add eb!wu!t!p {dragon} @tar\", true],\n    [\"Dragonchill\", huQ + \"dragonchill @tar\", false],\n    [\"Override\", huQ + \"override @tar\", false],\n    [\"Blast\", \"queue add eb!wu!t!p blast @tar\", true],\n    [\"Frostwave\", huQ + \"frostwave @tar\", false],\n    [\"Ague\", huQ + \"ague @tar\", false],\n    [\"\", \"\", false],\n    [\"{MODE}\", \"hunting dragonmode\", false],\n    [\"{stats}\", \"\", false],\n    [\"Diag\", \"diagnose\", false],\n    [\"\", \"\", false],\n    [\"Shield\", \"touch shield\", false]\n  ]\n};\n\nvar huDragon = get_variable(\"hunting_dragon_attack\") || \"gut\";\nvar huModes = { physical: \"PHY\", magical: \"MAG\", auto: \"AUT\" };\nvar huMode = huModes[get_variable(\"hunting_dragon_mode\")] || \"AUT\";\nvar huStaff = get_variable(\"staffAttack\") || \"scintilla\";\nvar huTarget = get_variable(\"hunting_party_target\") || \"\";\n// F9 opens huntstats when that package is around; otherwise the key stays empty.\nvar huStats = (client.loom.registry && client.loom.registry.huntstats) || client.track || get_variable(\"hs_log\");\n\n// A class with no layout yet gets the generic keys only.\nvar huGeneric = [[\"\", \"\", false], [\"\", \"\", false], [\"\", \"\", false], [\"\", \"\", false], [\"\", \"\", false], [\"\", \"\", false], [\"\", \"\", false], [\"\", \"\", false], [\"{stats}\", \"\", false], [\"Diag\", \"diagnose\", false], [\"\", \"\", false], [\"Shield\", \"touch shield\", false]];\nvar huRows = huLayouts[HU.cls] || huGeneric;\nHU.slots = {};\nHU.main = [];\n\nfor (var huK = 1; huK <= 12; huK++) {\n  buttons_set_highlight(huK, 0);\n  var huRow = huRows[huK - 1] || [\"\", \"\", false];\n  var huLabel = huRow[0];\n  var huCmd = huRow[1];\n  if (huLabel == \"{stats}\") {\n    huLabel = huStats ? \"Stats\" : \"\";\n    huCmd = huStats ? \"huntstats\" : \"\";\n  }\n  huLabel = huLabel.replace(\"{DRAGON}\", huDragon == \"gut\" ? \"Gut\" : \"Incantation\").replace(\"{MODE}\", huMode);\n  huCmd = huCmd.replace(\"{dragon}\", huDragon).replace(\"{staff}\", huStaff).replace(\"{target}\", huTarget).replace(/\\s+$/, \"\");\n  buttons_set_label(huK, huLabel);\n  buttons_set_commands(huK, huCmd);\n  if (HU.costs[huLabel] !== undefined) HU.slots[huLabel] = huK;\n  if (huRow[2]) HU.main.push(huK);\n}\n\nif (get_variable(\"debug\") == \"on\") display_notice(\"[debug][hunting] buttons for \" + (HU.cls || \"no class\") + (huLayouts[HU.cls] ? \"\" : \" (not configured: generic keys)\"), \"cyan\");\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
+    },
+    {
+     "type": "function",
+     "name": "hunting_dragon_best",
+     "enabled": true,
+     "code": "// hunting_dragon_best -- in AUTO dragon mode, attack with GUT while endurance is\n// the fuller pool and with INCANTATION while willpower is. Vitals come from\n// hunting's own onGMCP.\nvar HU = client.loom.hunting;\nvar huDragon = HU.cls == \"Black Dragon\" || HU.cls == \"Blue Dragon\";\nif (huDragon && get_variable(\"hunting_dragon_mode\") == \"auto\" && HU.maxep && HU.maxwp) {\n  var huAttack = (HU.ep / HU.maxep > HU.wp / HU.maxwp) ? \"gut\" : \"incantation\";\n  if (huAttack != get_variable(\"hunting_dragon_attack\")) {\n    set_variable(\"hunting_dragon_attack\", huAttack);\n    if (get_variable(\"debug\") == \"on\") display_notice(\"[debug][hunting] dragon attack: \" + huAttack, \"cyan\");\n  }\n}\n"
     },
     {
      "type": "trigger",
@@ -69,7 +94,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "send_command(\"initdef\");\nset_variable(\"rage_cd\", {});\nset_variable(\"pauseTriggers\", \"off\");"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\n// Dragonform is up: fresh rage cooldowns, resume packages, after-form command.\nHU.cd = {};\nset_variable(\"pauseTriggers\", \"off\");\nvar huAf = get_variable(\"hunting_after_form\");\nif (huAf) send_command(huAf);\n"
       }
      ],
      "text": "^With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.$",
@@ -85,7 +110,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "send_command(\"initdef\");\nset_variable(\"rage_cd\", {});\n"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\n// Back to lesserform: fresh rage cooldowns, after-form command.\nHU.cd = {};\nvar huAf = get_variable(\"hunting_after_form\");\nif (huAf) send_command(huAf);\n"
       }
      ],
      "text": "^Your draconic form melts away, leaving you suddenly weaker and more vulnerable\\.$",
@@ -101,7 +126,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "set_variable(\"pauseTriggers\", \"on\");"
+       "script": "// Dragonform is starting: it is interrupted by anything sent to the game, so\n// pause every package that respects pauseTriggers until the roar.\nset_variable(\"pauseTriggers\", \"on\");\n"
       }
      ],
      "text": "^With a grimness born of determination\\, you begin to unleash the Dragon that is now so much a part of the fabric of your soul\\. A black light begins to shine through from within you\\.$",
@@ -442,7 +467,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Dragonspit\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Dragonspit\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You spit a stream of acidic venom at (.*) who writhes in agony as the spittle seeps into (\\w+) skin\\.$",
@@ -507,7 +532,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Corrode\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Corrode\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You open your gigantic maw and spew acid on (.*). (\\w+) dodges to the side and is only partially covered by the corrosive slime\\.$",
@@ -542,7 +567,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Corrode\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Corrode\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You open your gigantic maw and spew acid on (.*)\\. (\\w+) is too clumsy to dodge the deluge and is coated in the corrosive slime\\.$",
@@ -577,7 +602,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Dissolve\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Dissolve\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You bathe (.*)\\'s translucent shield in your noxious breath\\, dissolving it\\.$",
@@ -612,7 +637,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Dragonsting\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Dragonsting\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You swing your mighty tail around\\, stabbing (.+) with an acid\\-covered spine\\.$",
@@ -677,7 +702,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Override\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Override\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You barrel into (.*) and knock (\\w+) to the ground before stomping over (\\w+) prone form\\.$",
@@ -779,7 +804,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Windlash\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Windlash\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You draw upon the power of air to summon sharp gusts of wind which begin to whip across (.*)\\'s exposed flesh\\.$",
@@ -814,7 +839,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Squeeze\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Squeeze\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You raise a clenched fist and in obedience the earth rises in turn\\, a great hand of stone unfurling to clamp about (.*) in a vice-like squeeze\\.$",
@@ -849,7 +874,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Firefall\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Firefall\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You raise your hands dramatically and summon a mighty flaming rock from the sky down at (.*)\\, but (\\w+) dodges aside and is only dealt a glancing blow\\.$",
@@ -884,7 +909,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Disintegrate\"] = false;\n\nset_variable(\"rage_cd\", cd);\n//set_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Disintegrate\"] = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You summon a whirlwind of flame around (.*) which consumes (\\w+) translucent shield\\.$",
@@ -919,7 +944,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Stormbolt\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Stormbolt\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^A bolt of lightning roars out from your hands as you cast a powerful spell at (.*)\\, inciting sensitive nerves across (\\w+) skin\\.$",
@@ -954,7 +979,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Firefall\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Firefall\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You raise your hands dramatically and summon a mighty flaming rock from the sky that slams into the clumsy form of (.*)\\.$",
@@ -1056,7 +1081,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Torrent\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Torrent\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^(.*) coughs and splutters as you channel a gout of water at (\\w+) face\\.$",
@@ -1091,7 +1116,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Sandstorm\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Sandstorm\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^(.*) stumbles about in fear and flails at (\\w+) head as you summon a small sandstorm around it\\.$",
@@ -1126,7 +1151,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Thornpierce\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Thornpierce\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^A thorny vine reaches out from you and pierces through (.*)\\'s translucent shield\\, causing it to fade\\.$",
@@ -1161,7 +1186,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Stonevine\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Stonevine\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You summon a great vine to wrap itself around (.*)\\, then channel the element of earth into it, causing it to become rock hard and shatter as it constricts around (\\w+)\\.$",
@@ -1196,7 +1221,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Leechroot\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Leechroot\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^A deadly root flies from your hand and burrows into (.*)\\'s flesh\\, but is unable to find sufficient sustenance\\.$",
@@ -1231,7 +1256,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Rockshot\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Rockshot\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You form a small pebble\\, then channel air to fling it violently at (.*)\\'s head\\, causing (\\w+) to look dazed\\.$",
@@ -1273,7 +1298,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Dragonchill\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Dragonchill\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You form small chunks of ice in your enormous maw\\, then spit them at (.*) in a barrage\\.$",
@@ -1308,7 +1333,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Frostwave\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Frostwave\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You breathe a wave of icy air at (.*)\\.$",
@@ -1343,7 +1368,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Ague\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Ague\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You let loose a steady stream of cold air around (.*)\\, who begins to shiver uncontrollably\\.$",
@@ -1378,7 +1403,7 @@
         {
          "type": "script",
          "enabled": true,
-         "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[\"Glaciate\"] = false;\n\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", false);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+         "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[\"Glaciate\"] = false;\nHU.glob = false;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
         }
        ],
        "text": "^You breathe a column of icy air at (.*)'s head, stunning (\\w+)\\.$",
@@ -1936,21 +1961,10 @@
    "enabled": true,
    "items": [
     {
-     "type": "alias",
-     "name": "",
+     "type": "function",
+     "name": "hunting_gold",
      "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "// ---- command dispatch ----\nvar arg = args[1] || \"\";\n\nif (arg === \"on\")          { set_variable(\"autogold\", \"on\"); display_notice(\"[hunting] Autogold mode: ON\", \"cyan\"); }\nelse if (arg === \"off\")    { set_variable(\"autogold\", \"off\"); display_notice(\"[hunting] Autogold mode: OFF\", \"cyan\");}\nelse if (arg === \"all\")    { set_variable(\"autogold\", \"all\"); display_notice(\"[hunting] Autogold mode: ALL\", \"cyan\"); }\nelse {\n  var state = get_variable(\"autogold\");\n  display_notice(\"[hunting] Autogold mode: \" + state + \". Use AUTOGOLD ON/OFF/ALL.\", \"cyan\");\n}"
-      }
-     ],
-     "text": "^autogold(?:\\s+(on|off|all))?$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
+     "code": "// hunting_gold -- gold spilled from a corpse. AUTOGOLD ON picks it up when the\n// kill was yours (or announced) in the last 5 seconds, ALL picks up any gold,\n// OFF leaves it. Into the backpack when security's backpack variable is set.\nif (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nvar huMode = get_variable(\"hunting_autogold\");\nvar huMine = HU.kill && (new Date().getTime() - HU.kill < 5000);\nif (huMode == \"all\" || (huMode == \"on\" && huMine)) {\n  if (get_variable(\"pauseTriggers\") == \"on\") {\n    display_notice(\"[hunting] gold left on the ground: triggers are paused.\", \"orange\");\n  } else {\n    HU.kill = 0;\n    send_command(\"queue add be get gold\", 1);\n    var huPack = get_variable(\"backpack\");\n    if (huPack) send_command(\"queue add be put gold in \" + huPack, 1);\n  }\n}\n"
     },
     {
      "type": "trigger",
@@ -1960,7 +1974,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var pause = get_variable(\"pauseTriggers\");\nvar autogold = get_variable(\"autogold\");\nvar backpack = get_variable(\"backpack\");\n\nif (pause == \"off\") {\n  if (autogold == \"all\")\n  {\n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n    \n  if (autogold == \"on\" && client.mykill && Date.now() - client.mykill < 5000) { \n    client.mykill = 0; \n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+       "script": "run_function(\"hunting_gold\", [], \"hunting\");\n"
       }
      ],
      "text": "A small pile of sovereigns spills from the corpse.",
@@ -1976,7 +1990,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var pause = get_variable(\"pauseTriggers\");\nvar autogold = get_variable(\"autogold\");\nvar backpack = get_variable(\"backpack\");\n\nif (pause == \"off\") {\n  if (autogold == \"all\")\n  {\n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n    \n  if (autogold == \"on\" && client.mykill && Date.now() - client.mykill < 5000) { \n    client.mykill = 0; \n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+       "script": "run_function(\"hunting_gold\", [], \"hunting\");\n"
       }
      ],
      "text": "A tiny pile of sovereigns spills from the corpse.",
@@ -1992,7 +2006,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var pause = get_variable(\"pauseTriggers\");\nvar autogold = get_variable(\"autogold\");\nvar backpack = get_variable(\"backpack\");\n\nif (pause == \"off\") {\n  if (autogold == \"all\")\n  {\n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n    \n  if (autogold == \"on\" && client.mykill && Date.now() - client.mykill < 5000) { \n    client.mykill = 0; \n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+       "script": "run_function(\"hunting_gold\", [], \"hunting\");\n"
       }
      ],
      "text": "A large pile of sovereigns spills from the corpse.",
@@ -2008,7 +2022,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var pause = get_variable(\"pauseTriggers\");\nvar autogold = get_variable(\"autogold\");\nvar backpack = get_variable(\"backpack\");\n\nif (pause == \"off\") {\n  if (autogold == \"all\")\n  {\n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n    \n  if (autogold == \"on\" && client.mykill && Date.now() - client.mykill < 5000) { \n    client.mykill = 0; \n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+       "script": "run_function(\"hunting_gold\", [], \"hunting\");\n"
       }
      ],
      "text": "Numerous golden sovereigns spill from the corpse.",
@@ -2024,7 +2038,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var pause = get_variable(\"pauseTriggers\");\nvar autogold = get_variable(\"autogold\");\nvar backpack = get_variable(\"backpack\");\n\nif (pause == \"off\") {\n  if (autogold == \"all\")\n  {\n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n    \n  if (autogold == \"on\" && client.mykill && Date.now() - client.mykill < 5000) { \n    client.mykill = 0; \n    send_command(\"queue add be get gold\", 1); \n    send_command(\"queue add be put gold in \" + backpack, 1); \n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+       "script": "run_function(\"hunting_gold\", [], \"hunting\");\n"
       }
      ],
      "text": "^A few golden sovereigns spill from the corpse\\.$",
@@ -2048,7 +2062,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "client.mykill = Date.now();"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.kill = new Date().getTime();\n"
       },
       {
        "type": "sound",
@@ -2077,7 +2091,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "client.mykill = Date.now();"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.kill = new Date().getTime();\n"
       },
       {
        "type": "sound",
@@ -2120,7 +2134,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "gag_current_line();\n\nvar c = to_number(get_variable(\"clot_count\")) || 0;\nset_variable(\"clot_count\", c + 1);\n\nif (window.clotTimer) clearTimeout(window.clotTimer);\nwindow.clotTimer = setTimeout(function () {\n    var n = to_number(get_variable(\"clot_count\")) || 0;\n    if (n > 0) {\n        var line = \"You exert superior mental control and your wounds clot before your eyes.\";\n        if (n > 1) line += \" (x\" + n + \")\";\n        display_notice(line);\n    }\n    delete_variable(\"clot_count\");\n    window.clotTimer = null;\n}, 400);"
+       "script": "gag_current_line();\n\nvar c = to_number(get_variable(\"hunting_clot_count\")) || 0;\nset_variable(\"hunting_clot_count\", c + 1);\n\nif (window.clotTimer) clearTimeout(window.clotTimer);\nwindow.clotTimer = setTimeout(function () {\n    var n = to_number(get_variable(\"hunting_clot_count\")) || 0;\n    if (n > 0) {\n        var line = \"You exert superior mental control and your wounds clot before your eyes.\";\n        if (n > 1) line += \" (x\" + n + \")\";\n        display_notice(line);\n    }\n    delete_variable(\"hunting_clot_count\");\n    window.clotTimer = null;\n}, 400);"
       }
      ],
      "text": "You exert superior mental control and your wounds clot before your eyes.",
@@ -2272,15 +2286,9 @@
    "items": [
     {
      "type": "function",
-     "name": "hl_buttons",
+     "name": "hunting_highlight",
      "enabled": true,
-     "code": "var activeClass = get_variable(\"activeClass\");\nvar slots = get_variable(\"rage_slots\") || {};\nvar costs = get_variable(\"rage_costs\") || {};\nvar cd    = get_variable(\"rage_cd\") || {};\nvar rage  = get_variable(\"my_rage\") || 0;\nvar glob  = get_variable(\"rage_global\");\n\nfor (var name in slots) {\n  if (costs[name] === undefined) { continue; }\n  var lit = glob && (cd[name] !== false) && rage >= costs[name];\n  buttons_set_highlight(slots[name], lit ? 1 : 0);\n}\n\n// Highlight main attack\nvar mybal = get_variable(\"my_bal\");\nvar myeq = get_variable(\"my_eq\");\n\nif (activeClass == \"Black Dragon\") {\n  if (mybal == \"1\" && myeq == \"1\") {\n    buttons_set_highlight(1, 1);\n    buttons_set_highlight(4, 1);\n    buttons_set_highlight(11, 1);\n  } else {\n    buttons_set_highlight(1, 0);\n    buttons_set_highlight(4, 0);\n    buttons_set_highlight(11, 0);\n  } \n}\n\nif (activeClass == \"Blue Dragon\") {\n  if (mybal == \"1\" && myeq == \"1\") {\n    buttons_set_highlight(1, 1);\n    buttons_set_highlight(4, 1);\n  } else {\n    buttons_set_highlight(1, 0);\n    buttons_set_highlight(4, 0);\n  } \n}\n\nif (activeClass == \"Magi\") {\n  if (mybal == \"1\" && myeq == \"1\") {\n    buttons_set_highlight(1, 1);\n  } else {\n    buttons_set_highlight(1, 0);\n  } \n}\n\nif (activeClass == \"Sylvan\") {\n  if (mybal == \"1\" && myeq == \"1\") {\n    buttons_set_highlight(1, 1);\n  } else {\n    buttons_set_highlight(1, 0);\n  } \n}"
-    },
-    {
-     "type": "function",
-     "name": "rage_init",
-     "enabled": true,
-     "code": "// Stores rage cost for all rage abilities across classes\nset_variable(\"rage_global\", \"true\");\n\nset_variable(\"rage_costs\", {\n  // Druid\n  Strangle: 14, Redeem: 22, Vinecrack: 17, Ravage: 36, Sear: 25, Glare: 14,\n\n  // Magi\n  Windlash: 14, Dilation: 35, Disintegrate: 17, Squeeze: 36, Firefall: 25, \n  Stormbolt: 25,\n\n  // Sylvan\n  Torrent: 14, Sandstorm: 29, Thornpierce: 17, Stonevine: 36, Leechroot: 25, \n  Rockshot: 28,\n\n  // Black Dragon\n  Dragonspit: 14, Dragonsting: 25, Dissolve: 17, Override: 36, Corrode: 25, \n  Dragonfear: 29, Provoke: 32,\n\n  // Blue Dragon\n  Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14,\n  \n  // Silver Dragon\n});\n\ndisplay_notice(\"[hunting] Rage abilities updated.\");"
+     "code": "// hunting_highlight -- lights the F-keys: a battlerage ability when it is off\n// cooldown, the global battlerage cooldown is clear and you have the rage for\n// it; the main attack keys (set by hunting_buttons) on balance + equilibrium.\nvar HU = client.loom.hunting;\nvar huSlots = HU.slots || {};\n\nfor (var huName in huSlots) {\n  if (HU.costs[huName] === undefined) continue;\n  var huLit = HU.glob && (HU.cd[huName] !== false) && HU.rage >= HU.costs[huName];\n  buttons_set_highlight(huSlots[huName], huLit ? 1 : 0);\n}\n\nvar huMain = HU.main || [];\nvar huReady = HU.bal && HU.eq;\nfor (var huI = 0; huI < huMain.length; huI++) {\n  buttons_set_highlight(huMain[huI], huReady ? 1 : 0);\n}\n"
     },
     {
      "type": "trigger",
@@ -2290,7 +2298,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var costs = get_variable(\"rage_costs\") || {};\nvar cd    = get_variable(\"rage_cd\") || {};\nvar rage  = get_variable(\"my_rage\") || 0;\nvar avail = {};\nvar list  = args[1].replace(/\\.\\s*$/, \"\").split(/,\\s*/);\nfor (var i = 0; i < list.length; i++) { avail[list[i]] = true; }\nfor (var name in costs) {\n  if (avail[name]) {\n    cd[name] = true;\n  } else if (rage >= costs[name]) {\n    cd[name] = false;\n  }\n}\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", true);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\n// The list means \"off cooldown AND affordable\": an ability missing from it\n// is only known to be on cooldown if you could have afforded it.\nvar huAvail = {};\nvar huList = args[1].replace(/\\.\\s*$/, \"\").split(/,\\s*/);\nfor (var huI = 0; huI < huList.length; huI++) { huAvail[huList[huI]] = true; }\nfor (var huName in HU.costs) {\n  if (huAvail[huName]) {\n    HU.cd[huName] = true;\n  } else if (HU.rage >= HU.costs[huName]) {\n    HU.cd[huName] = false;\n  }\n}\nHU.glob = true;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
       }
      ],
      "text": "^You can use another Battlerage ability again\\. Available abilities: (.+)$",
@@ -2306,7 +2314,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var costs = get_variable(\"rage_costs\") || {};\nvar cd    = get_variable(\"rage_cd\") || {};\nvar rage  = get_variable(\"my_rage\") || 0;\nfor (var name in costs) {\n  if (rage >= costs[name]) { cd[name] = false; }\n}\nset_variable(\"rage_cd\", cd);\nset_variable(\"rage_global\", true);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nfor (var huName in HU.costs) {\n  if (HU.rage >= HU.costs[huName]) { HU.cd[huName] = false; }\n}\nHU.glob = true;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
       }
      ],
      "text": "^You can use another Battlerage ability again, but none of your abilities are currently available\\.$",
@@ -2322,30 +2330,13 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[args[1]] = true;\n\nset_variable(\"rage_cd\", cd);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[args[1]] = true;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
       }
      ],
      "text": "^You can use (\\w+) again\\.$",
      "matching": "regexp",
      "whole_words": true,
      "case_sensitive": true
-    },
-    {
-     "type": "alias",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "// alias: ragedebug\nvar slots = get_variable(\"rage_slots\");\nvar costs = get_variable(\"rage_costs\");\nvar cd    = get_variable(\"rage_cd\");\n\ndisplay_notice(\"rage: \"   + get_variable(\"my_rage\"), \"orange\");\ndisplay_notice(\"global: \" + get_variable(\"rage_global\"), \"orange\");\ndisplay_notice(\"slots: \"  + JSON.stringify(slots), \"orange\");\ndisplay_notice(\"costs: \"  + JSON.stringify(costs), \"orange\");\ndisplay_notice(\"cd: \"     + JSON.stringify(cd), \"orange\");"
-      }
-     ],
-     "text": "^ragedebug$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
     },
     {
      "type": "trigger",
@@ -2355,7 +2346,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var cd = get_variable(\"rage_cd\") || {};\ncd[args[1]] = true;\nset_variable(\"rage_cd\", cd);\nrun_function(\"hl_buttons\", [], \"hunting\");"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\nHU.cd[args[1]] = true;\nrun_function(\"hunting_highlight\", [], \"hunting\");\n"
       }
      ],
      "text": "^Your (\\w+) ability could be used again but you lack the necessary Rage\\.$",

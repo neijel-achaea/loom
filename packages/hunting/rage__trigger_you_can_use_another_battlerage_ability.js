@@ -1,16 +1,16 @@
-var costs = get_variable("rage_costs") || {};
-var cd    = get_variable("rage_cd") || {};
-var rage  = get_variable("my_rage") || 0;
-var avail = {};
-var list  = args[1].replace(/\.\s*$/, "").split(/,\s*/);
-for (var i = 0; i < list.length; i++) { avail[list[i]] = true; }
-for (var name in costs) {
-  if (avail[name]) {
-    cd[name] = true;
-  } else if (rage >= costs[name]) {
-    cd[name] = false;
+if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function("hunting_setup", [], "hunting");
+var HU = client.loom.hunting;
+// The list means "off cooldown AND affordable": an ability missing from it
+// is only known to be on cooldown if you could have afforded it.
+var huAvail = {};
+var huList = args[1].replace(/\.\s*$/, "").split(/,\s*/);
+for (var huI = 0; huI < huList.length; huI++) { huAvail[huList[huI]] = true; }
+for (var huName in HU.costs) {
+  if (huAvail[huName]) {
+    HU.cd[huName] = true;
+  } else if (HU.rage >= HU.costs[huName]) {
+    HU.cd[huName] = false;
   }
 }
-set_variable("rage_cd", cd);
-set_variable("rage_global", true);
-run_function("hl_buttons", [], "hunting");
+HU.glob = true;
+run_function("hunting_highlight", [], "hunting");
