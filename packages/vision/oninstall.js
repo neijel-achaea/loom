@@ -1,1 +1,2 @@
-// Place any code here you'd like to autorun when the package is installed
+run_function("vision_setup", [], "vision");
+display_notice("[vision] installed. VISION HELP for commands.", "cyan");

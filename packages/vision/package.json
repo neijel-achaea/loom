@@ -16,6 +16,47 @@
       "code": "@file:onuninstall.js"
     },
     {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "vision_setup",
+      "enabled": true,
+      "code": "@file:vision_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "vision_status",
+      "enabled": true,
+      "code": "@file:vision_status.js"
+    },
+    {
+      "type": "function",
+      "name": "vision_help",
+      "enabled": true,
+      "code": "@file:vision_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_vision.js"
+        }
+      ],
+      "text": "^vision(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
       "type": "trigger",
       "name": "Alertness",
       "enabled": true,
@@ -28,7 +69,7 @@
       ],
       "text": "^Your enhanced senses inform you that (\\w+) has entered (\\w+(?: \\w+)*), to the (\\w+)\\.$",
       "matching": "regexp",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": true
     }
   ],

@@ -42,7 +42,7 @@ their tab its own icon.
 | **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends, and your own name), and online/offline notices for the groups you watch. `SOCIAL ADD/DEL <group> <name>`, `LIST`, `COLOR`, `WATCH/UNWATCH`, `POLL ON/OFF/NOW`, `HELP`; your city's enemies list reloads itself from the game's list. Publishes the lists at `client.loom.social` (`groups`, `lists[group]`, `color[group]`), and still at `client.hl` for packages not yet updated. |
 | **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STN HELP`. |
 | **talismans** | Talismans, TalGraph | Dragon talisman piece tracker with progress and projected finish. |
-| **vision** | — | Alertness: hides reports about city members and alerts the party when an enemy comes near. |
+| **vision** | — | Alertness filter: hides reports about city members and, for enemies, colours the line and alerts the party. `VISION ON/OFF`, `HIDE ON/OFF`, `ALERT ON/OFF`, `CHANNEL <channel>`, `HELP`. Reads **social**'s city and enemies lists if present. |
 
 ### Dependencies between packages
 
@@ -50,7 +50,7 @@ The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a 
 
 - **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social**, and adds new citizens to its city list, only when it's installed.
 - **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
-- **vision** and **standings** read the lists of **social** (`client.hl`); **crystalism** reads `client.loom.social`.
+- **standings** reads the lists of **social** (`client.hl`); **crystalism** and **vision** read `client.loom.social`.
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
 - **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
