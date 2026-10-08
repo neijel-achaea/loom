@@ -7,13 +7,54 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"vision_setup\", [], \"vision\");\ndisplay_notice(\"[vision] installed. VISION HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
    "name": "onUninstall",
    "enabled": true,
    "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"vision_setup\", [], \"vision\");\n"
+  },
+  {
+   "type": "function",
+   "name": "vision_setup",
+   "enabled": true,
+   "code": "// vision_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, defaults.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.vision) client.loom.vision = {};\nclient.loom.registry.vision = { version: \"0.2.0\", keyword: \"VISION\" };\nif (!get_variable(\"vision_on\")) set_variable(\"vision_on\", \"on\");\nif (!get_variable(\"vision_hide\")) set_variable(\"vision_hide\", \"on\");\nif (!get_variable(\"vision_alert\")) set_variable(\"vision_alert\", \"on\");\n// Where enemy alerts go: any channel command that takes text (pt, clt3, ...).\nif (!get_variable(\"vision_channel\")) set_variable(\"vision_channel\", \"pt\");\n"
+  },
+  {
+   "type": "function",
+   "name": "vision_status",
+   "enabled": true,
+   "code": "var viSoc = client.loom.social || client.hl;\ndisplay_notice(\"[vision] \" + String(get_variable(\"vision_on\")).toUpperCase()\n  + \": hide city members \" + String(get_variable(\"vision_hide\")).toUpperCase()\n  + \", enemy alerts \" + String(get_variable(\"vision_alert\")).toUpperCase() + \" on \" + String(get_variable(\"vision_channel\")).toUpperCase()\n  + (viSoc ? \"\" : \" (social isn't installed: nobody is recognised)\") + \". VISION HELP for commands.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "vision_help",
+   "enabled": true,
+   "code": "// vision_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[vision] what your alertness reports, filtered through social's lists. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"VISION\", \"status\"],\n  [\"VISION ON|OFF\", \"the whole package\"],\n  [\"VISION HIDE ON|OFF\", \"hide reports about your city's members\"],\n  [\"VISION ALERT ON|OFF\", \"tell the party when an enemy comes near\"],\n  [\"VISION CHANNEL <channel>\", \"where alerts go: pt (default), clt3, ...\"],\n  [\"Recognises people through social's city and enemies lists; without social, every report shows as usual.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// VISION [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.vision) run_function(\"vision_setup\", [], \"vision\");\nvar viW = String(args[1] || \"\").trim().toLowerCase().split(/\\s+/);\nvar viSub = viW[0];\nvar viVal = viW[1] || \"\";\nvar viNames = { on: \"vision_on\", off: \"vision_on\", hide: \"vision_hide\", alert: \"vision_alert\" };\nif (viSub === \"\" || viSub === \"status\") {\n  run_function(\"vision_status\", [], \"vision\");\n} else if (viSub === \"help\") {\n  run_function(\"vision_help\", [], \"vision\");\n} else if (viSub === \"on\" || viSub === \"off\") {\n  set_variable(\"vision_on\", viSub);\n  display_notice(\"[vision] \" + viSub.toUpperCase() + \".\", \"cyan\");\n} else if ((viSub === \"hide\" || viSub === \"alert\") && (viVal === \"on\" || viVal === \"off\")) {\n  set_variable(viNames[viSub], viVal);\n  display_notice(\"[vision] \" + (viSub === \"hide\" ? \"hide city members \" : \"enemy alerts \") + viVal.toUpperCase() + \".\", \"cyan\");\n} else if (viSub === \"channel\" && /^[a-z0-9]+$/.test(viVal)) {\n  set_variable(\"vision_channel\", viVal);\n  display_notice(\"[vision] enemy alerts go to \" + viVal.toUpperCase() + \".\", \"cyan\");\n} else {\n  display_notice(\"[vision] unknown command '\" + viW.join(\" \") + \"'. VISION HELP for commands.\", \"orange\");\n}\n"
+    }
+   ],
+   "text": "^vision(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
   },
   {
    "type": "trigger",
@@ -23,12 +64,12 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "var who = args[1];\nvar location = args[2];\nvar direction = args[3];\nvar key = who.toLowerCase();\n\n// The social lists may not be loaded yet; without them there is nothing to check.\nif (client.hl) {\n  if (client.hl.city && client.hl.city[key]) {\n    gag_current_line();\n  } else if (client.hl.enemies && client.hl.enemies[key]) {\n    send_command(\"pt ENEMY ALERT: \" + who + \" is \" + direction + \" of me, at \" + location);\n  }\n}\n"
+     "script": "// \"Your enhanced senses inform you that X has entered <place>, to the <dir>.\"\n// City members: hide the line. Enemies: colour it and alert the party.\n// Uses social's lists when social is installed; otherwise lets the line be.\nif (!client.loom || !client.loom.vision) run_function(\"vision_setup\", [], \"vision\");\nif (get_variable(\"vision_on\") == \"on\") {\n  var viWho = args[1];\n  var viKey = viWho.toLowerCase();\n  var viSoc = client.loom.social;\n  var viCity = (viSoc && viSoc.lists && viSoc.lists.city) || (client.hl && client.hl.city) || null;\n  var viEnem = (viSoc && viSoc.lists && viSoc.lists.enemies) || (client.hl && client.hl.enemies) || null;\n  if (viCity && viCity[viKey]) {\n    if (get_variable(\"vision_hide\") == \"on\") gag_current_line();\n  } else if (viEnem && viEnem[viKey]) {\n    colorize_current_line(0, args[0].length, (viSoc && viSoc.color && viSoc.color.enemies) || \"#ff5f5f\", \"\");\n    if (get_variable(\"vision_alert\") == \"on\" && get_variable(\"pauseTriggers\") != \"on\") {\n      send_command(get_variable(\"vision_channel\") + \" ENEMY ALERT: \" + viWho + \" is \" + args[3] + \" of me, at \" + args[2]);\n    }\n  }\n}\n"
     }
    ],
    "text": "^Your enhanced senses inform you that (\\w+) has entered (\\w+(?: \\w+)*), to the (\\w+)\\.$",
    "matching": "regexp",
-   "whole_words": true,
+   "whole_words": false,
    "case_sensitive": true
   }
  ],
