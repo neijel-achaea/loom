@@ -36,6 +36,7 @@ These apply to every package touched from v0.2 onwards.
 ### Exceptions to the one-keyword rule
 
 - **Wrappers around game commands** keep the game's word: `QUIT`/`QQ`, and `GIVE`/`SELL`/`DROP`/`OFFER` in security. Their whole point is to replace the game command.
+- **Everyday shortcuts** stay short: `GG` and `PG` in security (gold out of / into the backpack) are typed too often to live under `SECURITY`.
 - **Emote and illusion content** (roleplay's ~110 emote aliases, elementalism's set pieces) is content, not commands, and stays as it is for now. Revisit later if it becomes a problem for other players.
 
 ## v0.2 — Standalone

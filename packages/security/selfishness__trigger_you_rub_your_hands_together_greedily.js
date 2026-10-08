@@ -1,1 +1,0 @@
-set_variable("my_selfishness", 1);

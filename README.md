@@ -36,7 +36,7 @@ their tab its own icon.
 | **patrolling** | — | Checks each room's plants against what its environment should hold and flags shrines (`PATROLLING ON/OFF/HERE/LEARN`), suggests areas to patrol (`PATROL_SUGGEST`), storm and fire alerts, and logs replantings to the clan log. |
 | **reclamation** | — | *Retired (druid).* Records where enemies are seen in Eleusis and can alert the party (`REPORTENEMIES ON/OFF`, `WHEREIS <name>`, `VINESREPORT [days]`). |
 | **roleplay** | — | A large set of custom emotes, step-by-step rituals (including the Saiha `GRADUATION <name> <step>` ceremony), and the ambient emote system (`AEM ON/OFF/NOW/RELOAD`). |
-| **security** | — | Antitheft (`ANTITHEFT ON/OFF`, re-wears or re-stores what gets taken), `GG`/`PG` to move gold in and out of the backpack, and give, sell, drop and offer wrappers that lift selfishness around the action. |
+| **security** | — | Antitheft (`SECURITY ANTITHEFT ON/OFF`: puts back watched worn items, the backpack and gold taken out of it), `GG`/`PG` to move gold out of and into the backpack, your backpack and watched items as settings (`SECURITY BACKPACK`, `SECURITY ITEM ADD/DEL`, `SECURITY ITEMS`), house state commands (`SECURITY HOUSE IN/OUT`), and give, sell, drop and offer wrappers that lift selfishness around the action (selfishness followed from GMCP). `SECURITY HELP`. Publishes the backpack id at `client.loom.security.backpack`. |
 | **self** | Self | Replacement for the stock character panel (see below). `SELF`. |
 | **sigils** | — | Monolith and flame sigil watcher for any city: probes the monolith in every room you enter and flags sigils running out; the report lists them with an estimated cost. `SIGILS HELP`. |
 | **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends) and an online watchlist. Shared by other packages. |
@@ -52,7 +52,7 @@ The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a 
 - **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
 - **crystalism**, **vision** and **standings** read the lists of **social** (`client.hl`).
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
-- **hunting** puts autogold into **security**'s `backpack` when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
+- **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
 - Many triggers respect the `pauseTriggers` flag, which **loom** toggles. Packages treat an unset flag as off.
 

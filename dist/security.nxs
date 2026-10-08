@@ -4,6 +4,72 @@
  "enabled": true,
  "items": [
   {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "run_function(\"security_setup\", [], \"security\");\ndisplay_notice(\"[security] installed. SECURITY HELP for commands; set your backpack with SECURITY BACKPACK <id> = <description>.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"security_setup\", [], \"security\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// Selfishness is followed from the defence list as well as from its messages.\nif (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nvar seM = args.gmcp_method;\nvar seA = args.gmcp_args;\nif (seM == \"Char.Defences.List\") {\n  SE.selfish = false;\n  for (var seI = 0; seI < seA.length; seI++) { if (seA[seI].name == \"selfishness\") SE.selfish = true; }\n} else if (seM == \"Char.Defences.Add\" && seA.name == \"selfishness\") {\n  SE.selfish = true;\n} else if (seM == \"Char.Defences.Remove\") {\n  for (var seJ = 0; seJ < seA.length; seJ++) { if (seA[seJ] == \"selfishness\") SE.selfish = false; }\n}\n"
+  },
+  {
+   "type": "group",
+   "name": "core",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "security_setup",
+     "enabled": true,
+     "code": "// security_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, migration, configuration.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.security) client.loom.security = {};\nclient.loom.registry.security = { version: \"0.2.0\", keyword: \"SECURITY\" };\nvar SE = client.loom.security;\n\n// One-time migration from the pre-0.2 names, then cleared.\nvar seAt = get_variable(\"antitheft\");\nif (seAt !== null && seAt !== undefined) {\n  if (!get_variable(\"security_antitheft\")) set_variable(\"security_antitheft\", (seAt == 1 || seAt == \"1\") ? \"on\" : \"off\");\n  delete_variable(\"antitheft\");\n}\nvar seBp = get_variable(\"backpack\");\nif (seBp) {\n  if (!get_variable(\"security_backpack\")) set_variable(\"security_backpack\", seBp);\n  delete_variable(\"backpack\");\n}\nvar seSelf = get_variable(\"my_selfishness\");\nif (seSelf !== null && seSelf !== undefined) {\n  if (SE.selfish === undefined || SE.selfish === null) SE.selfish = (seSelf == 1 || seSelf == \"1\");\n  delete_variable(\"my_selfishness\");\n}\n\nif (!get_variable(\"security_antitheft\")) set_variable(\"security_antitheft\", \"off\");\nif (get_variable(\"security_backpack\") === null || get_variable(\"security_backpack\") === undefined) set_variable(\"security_backpack\", \"\");\nif (get_variable(\"security_backpack_desc\") === null || get_variable(\"security_backpack_desc\") === undefined) set_variable(\"security_backpack_desc\", \"\");\n// Worn items antitheft puts back on: [{ desc: \"a silver ring ...\", wear: \"wear ring123\" }].\n// desc is the text after \"You remove \" in the game's line.\nif (!get_variable(\"security_items\")) set_variable(\"security_items\", []);\n// House state commands (SECURITY HOUSE IN/OUT).\nif (!get_variable(\"security_house\")) set_variable(\"security_house\", { \"in\": \"\", \"out\": \"\" });\n\nSE.items = get_variable(\"security_items\");\n// Published for other packages (hunting puts autogold into it).\nSE.backpack = get_variable(\"security_backpack\");\n// Selfishness: followed from GMCP defences (onGMCP) and its two messages. The\n// defence list only arrives at login or on DEF, so after a mid-session import\n// borrow self's defence list if that package is installed; otherwise unknown\n// (null) until the next list, treated as \"down\" by the wrappers.\nif (SE.selfish === undefined || SE.selfish === null) {\n  SE.selfish = null;\n  if (client.self && client.self.defs) SE.selfish = !!client.self.defs.selfishness;\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "security_help",
+     "enabled": true,
+     "code": "// security_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[security] antitheft, gold in the backpack, and give/sell/drop/offer without selfishness getting in the way. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"SECURITY\", \"status\"],\n  [\"SECURITY ANTITHEFT ON|OFF\", \"put back worn items and gold that get taken\"],\n  [\"GG / PG\", \"get gold out of / put gold into the backpack (antitheft off / on)\"],\n  [\"SECURITY BACKPACK <id> = <desc>\", \"your backpack: its id, and how it reads in \\\"You remove ...\\\"\"],\n  [\"SECURITY ITEMS\", \"worn items antitheft watches\"],\n  [\"SECURITY ITEM ADD <wear> = <desc>\", \"watch an item, e.g. wear ring123 = a silver ring\"],\n  [\"SECURITY ITEM DEL <n>\", \"stop watching item n\"],\n  [\"SECURITY HOUSE IN|OUT\", \"send your house state command\"],\n  [\"SECURITY HOUSE SET IN|OUT <cmd>\", \"set it\"],\n  [\"GIVE / SELL / DROP / OFFER\", \"lift selfishness around the action when it is up\"],\n  [\"SECURITY DEBUG\", \"internal state\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "security_status",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nvar seHouse = get_variable(\"security_house\") || {};\ndisplay_notice(\"[security] antitheft \" + String(get_variable(\"security_antitheft\")).toUpperCase()\n  + \", backpack \" + (SE.backpack ? SE.backpack + (get_variable(\"security_backpack_desc\") ? \" (\" + get_variable(\"security_backpack_desc\") + \")\" : \" (no description: removal not watched)\") : \"not set\")\n  + \", \" + SE.items.length + \" item(s) watched, house \" + (seHouse[\"in\"] ? \"set\" : \"not set\")\n  + \", selfishness \" + (SE.selfish === null ? \"unknown (DEF to check)\" : SE.selfish ? \"up\" : \"down\") + \". SECURITY HELP for commands.\", \"cyan\");\n"
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// SECURITY [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nvar seRaw = String(args[1] || \"\").trim();\nvar seWords = seRaw.split(/\\s+/);\nvar seSub = seWords[0].toLowerCase();\nvar seVal = (seWords[1] || \"\").toLowerCase();\nvar C = \"cyan\";\n\nif (seSub === \"\" || seSub === \"status\") {\n  run_function(\"security_status\", [], \"security\");\n}\nelse if (seSub === \"help\") {\n  run_function(\"security_help\", [], \"security\");\n}\nelse if (seSub === \"antitheft\") {\n  if (seVal === \"on\" || seVal === \"off\") {\n    set_variable(\"security_antitheft\", seVal);\n    display_notice(\"[security] antitheft \" + seVal.toUpperCase() + \".\", C);\n  } else {\n    display_notice(\"[security] antitheft is \" + String(get_variable(\"security_antitheft\")).toUpperCase() + \". SECURITY ANTITHEFT ON or OFF.\", C);\n  }\n}\nelse if (seSub === \"backpack\") {\n  var seBpRest = seRaw.substring(seWords[0].length).trim();\n  if (seBpRest === \"\") {\n    display_notice(\"[security] backpack: \" + (SE.backpack || \"not set\") + (get_variable(\"security_backpack_desc\") ? \" = \" + get_variable(\"security_backpack_desc\") : \"\") + \". SECURITY BACKPACK <id> = <description>.\", C);\n  } else {\n    var seBpParts = seBpRest.split(\"=\");\n    SE.backpack = seBpParts[0].trim();\n    set_variable(\"security_backpack\", SE.backpack);\n    if (seBpParts.length > 1) set_variable(\"security_backpack_desc\", seBpParts[1].trim());\n    display_notice(\"[security] backpack \" + SE.backpack + (seBpParts.length > 1 ? \" = \" + seBpParts[1].trim() : \"\") + \".\", C);\n  }\n}\nelse if (seSub === \"items\") {\n  if (SE.items.length === 0) display_notice(\"[security] no items watched. SECURITY ITEM ADD <wear command> = <description>.\", C);\n  for (var seI = 0; seI < SE.items.length; seI++) display_notice(\"  \" + (seI + 1) + \". \" + SE.items[seI].desc + \"  ->  \" + SE.items[seI].wear, C);\n}\nelse if (seSub === \"item\" && seVal === \"add\") {\n  var seAdd = seRaw.replace(/^\\S+\\s+\\S+\\s*/, \"\").split(\"=\");\n  if (seAdd.length < 2 || !seAdd[0].trim() || !seAdd[1].trim()) {\n    display_notice(\"[security] SECURITY ITEM ADD <wear command> = <description>, e.g. wear ring123 = a silver ring set with emerald\", \"orange\");\n  } else {\n    var seNewDesc = seAdd[1].trim().replace(/\\.$/, \"\");\n    SE.items.push({ desc: seNewDesc, wear: seAdd[0].trim() });\n    set_variable(\"security_items\", SE.items);\n    display_notice(\"[security] watching \" + seNewDesc + \".\", C);\n  }\n}\nelse if (seSub === \"item\" && seVal === \"del\") {\n  var seN = parseInt(seWords[2], 10);\n  if (seN >= 1 && seN <= SE.items.length) {\n    var seGone = SE.items.splice(seN - 1, 1)[0];\n    set_variable(\"security_items\", SE.items);\n    display_notice(\"[security] no longer watching \" + seGone.desc + \".\", C);\n  } else {\n    display_notice(\"[security] SECURITY ITEM DEL <n>, with n from SECURITY ITEMS.\", \"orange\");\n  }\n}\nelse if (seSub === \"house\") {\n  var seHouse = get_variable(\"security_house\") || { \"in\": \"\", \"out\": \"\" };\n  if ((seVal === \"in\" || seVal === \"out\") && seWords.length == 2) {\n    if (seHouse[seVal]) send_command(seHouse[seVal]);\n    else display_notice(\"[security] no house \" + seVal + \" command. SECURITY HOUSE SET \" + seVal.toUpperCase() + \" <command>.\", \"orange\");\n  } else if (seVal === \"set\" && (String(seWords[2]).toLowerCase() === \"in\" || String(seWords[2]).toLowerCase() === \"out\")) {\n    var seWhich = String(seWords[2]).toLowerCase();\n    seHouse[seWhich] = seRaw.replace(/^\\S+\\s+\\S+\\s+\\S+\\s*/, \"\");\n    set_variable(\"security_house\", seHouse);\n    display_notice(\"[security] house \" + seWhich + \": \" + (seHouse[seWhich] || \"cleared\") + \".\", C);\n  } else {\n    display_notice(\"[security] SECURITY HOUSE IN|OUT, or SECURITY HOUSE SET IN|OUT <command>.\", \"orange\");\n  }\n}\nelse if (seSub === \"debug\") {\n  display_notice(\"[security] selfish=\" + SE.selfish + \" backpack=\" + SE.backpack + \" items=\" + JSON.stringify(SE.items) + \" house=\" + JSON.stringify(get_variable(\"security_house\")), C);\n}\nelse {\n  display_notice(\"[security] unknown command '\" + seSub + \"'. SECURITY HELP for commands.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^security(?:\\s+(.*))?$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
    "type": "group",
    "name": "antitheft",
    "enabled": true,
@@ -16,36 +82,13 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// ---- command dispatch ----\nvar arg = (args[1] || \"\").toLowerCase();\n\nif (arg === \"on\")          { set_variable(\"antitheft\", 1); display_notice(\"[security] Antitheft mode: ON\", \"cyan\"); }\nelse if (arg === \"off\")    { set_variable(\"antitheft\", 0); display_notice(\"[security] Antitheft mode: OFF\", \"cyan\"); }\nelse {\n  var state = get_variable(\"antitheft\");\n  var verboseState = (state == 1) ? \"ON\" : \"OFF\";\n\n  display_notice(\"[security] Antitheft mode: \" + verboseState + \". Use ANTITHEFT ON/OFF.\", \"cyan\");\n}"
-      }
-     ],
-     "text": "^antitheft(?:\\s+(\\w+))?$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
-    },
-    {
-     "type": "alias",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "command",
-       "enabled": true,
-       "command": "",
-       "prefix_suffix": false
-      },
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "var backpack = get_variable(\"backpack\");\n\nset_variable(\"antitheft\", 0);\nsend_command(\"get sovereign from \" + backpack);"
+       "script": "// GG: take gold out of the backpack (antitheft off so it isn't put straight back).\nif (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nif (!SE.backpack) {\n  display_notice(\"[security] no backpack set. SECURITY BACKPACK <id> = <description>.\", \"orange\");\n} else {\n  set_variable(\"security_antitheft\", \"off\");\n  send_command(\"get sovereign from \" + SE.backpack);\n}\n"
       }
      ],
      "text": "^gg$",
      "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
+     "whole_words": false,
+     "case_sensitive": false,
      "prefix_suffix": true
     },
     {
@@ -56,13 +99,13 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var backpack = get_variable(\"backpack\");\n\nsend_command(\"put gold in \" + backpack);\nset_variable(\"antitheft\", 1);"
+       "script": "// PG: put gold back in the backpack and turn antitheft on.\nif (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nif (!SE.backpack) {\n  display_notice(\"[security] no backpack set. SECURITY BACKPACK <id> = <description>.\", \"orange\");\n} else {\n  send_command(\"put gold in \" + SE.backpack);\n  set_variable(\"security_antitheft\", \"on\");\n}\n"
       }
      ],
      "text": "^pg$",
      "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
+     "whole_words": false,
+     "case_sensitive": false,
      "prefix_suffix": true
     },
     {
@@ -73,12 +116,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var antitheft = get_variable(\"antitheft\");\nvar backpack = get_variable(\"backpack\");\n\nif (antitheft == 1) {\n  send_command(\"put sovereign in \" + backpack);\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
+       "script": "// \"You remove X.\" -- put X back on if antitheft is on and X is watched.\nif (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nif (get_variable(\"security_antitheft\") == \"on\" && get_variable(\"pauseTriggers\") != \"on\") {\n  var seDesc = args[1];\n  var seWear = \"\";\n  if (SE.backpack && seDesc == get_variable(\"security_backpack_desc\")) seWear = \"wear \" + SE.backpack;\n  for (var seI = 0; seI < SE.items.length; seI++) {\n    if (SE.items[seI].desc == seDesc) seWear = SE.items[seI].wear;\n  }\n  if (seWear) {\n    send_command(seWear);\n    display_notice(\"[security] WARNING: potential theft (\" + seDesc + \").\", \"red\");\n  }\n}\n"
       }
      ],
-     "text": "^You get (\\d+) gold sovereigns from an embossed suede backpack\\.$",
+     "text": "^You remove (.+)\\.$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -89,44 +132,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var antitheft = get_variable(\"antitheft\");\n\nif (antitheft == 1) {\n  send_command(\"wear ring617919\");\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
+       "script": "// \"You get N gold sovereigns from <backpack>.\" while antitheft is on: put it back.\nif (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nif (get_variable(\"security_antitheft\") == \"on\" && SE.backpack && args[2] == get_variable(\"security_backpack_desc\")) {\n  send_command(\"put sovereign in \" + SE.backpack);\n  display_notice(\"[security] WARNING: potential theft (gold out of the backpack).\", \"red\");\n}\n"
       }
      ],
-     "text": "^You remove a silver ring set with emerald and sapphire\\.$",
+     "text": "^You get (\\d+) gold sovereigns from (.+)\\.$",
      "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true
-    },
-    {
-     "type": "trigger",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "var antitheft = get_variable(\"antitheft\");\nvar backpack = get_variable(\"backpack\");\n\nif (antitheft == 1) {\n  send_command(\"wear \" + backpack);\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
-      }
-     ],
-     "text": "^You remove an embossed suede backpack\\.$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true
-    },
-    {
-     "type": "trigger",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "var antitheft = get_variable(\"antitheft\");\n\nif (antitheft == 1) {\n  send_command(\"wear earring429811 left ear\");\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
-      }
-     ],
-     "text": "^You remove an earring of Sinope\\.$",
-     "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -157,67 +168,8 @@
      ],
      "text": "^(\\w+) snaps (\\w+) fingers in front of you\\.$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
-    },
-    {
-     "type": "trigger",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "var antitheft = get_variable(\"antitheft\");\n\nif (antitheft == 1) {\n  send_command(\"wear rucksack329295\");\n  display_notice(\"[security] WARNING: Potential theft\", \"red\");\n}"
-      }
-     ],
-     "text": "^You remove a weathered rucksack of white elk hide\\.$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true
-    }
-   ]
-  },
-  {
-   "type": "group",
-   "name": "house",
-   "enabled": true,
-   "items": [
-    {
-     "type": "alias",
-     "name": "House State In",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "command",
-       "enabled": true,
-       "command": "t jurrien From Nature we are born",
-       "prefix_suffix": false
-      }
-     ],
-     "text": "hhousein",
-     "matching": "begins",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
-    },
-    {
-     "type": "alias",
-     "name": "House State Out",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "command",
-       "enabled": true,
-       "command": "t jurrien To Nature we return",
-       "prefix_suffix": false
-      }
-     ],
-     "text": "hhouseout",
-     "matching": "begins",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
     }
    ]
   },
@@ -227,6 +179,12 @@
    "enabled": true,
    "items": [
     {
+     "type": "function",
+     "name": "security_wrap",
+     "enabled": true,
+     "code": "// security_wrap -- sends SE.wrap (give/sell/drop/offer ...), lifting\n// selfishness around it when it is up.\nvar SE = client.loom.security;\nif (SE.selfish) {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq \" + SE.wrap);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq \" + SE.wrap);\n}\n"
+    },
+    {
      "type": "trigger",
      "name": "",
      "enabled": true,
@@ -234,12 +192,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "set_variable(\"my_selfishness\", 1);"
+       "script": "if (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nSE.selfish = true;\n"
       }
      ],
      "text": "^You rub your hands together greedily\\.$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -250,12 +208,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "set_variable(\"my_selfishness\", 0);"
+       "script": "if (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nSE.selfish = false;\n"
       }
      ],
      "text": "^A feeling of generosity spreads throughout you\\.$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -266,12 +224,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq give \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq give \" + wrapArgs);\n}"
+       "script": "if (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nSE.wrap = \"give \" + args[1];\nrun_function(\"security_wrap\", [], \"security\");\n"
       }
      ],
      "text": "^give (.*)$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true,
      "prefix_suffix": true
     },
@@ -283,12 +241,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq sell \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq sell \" + wrapArgs);\n}"
+       "script": "if (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nSE.wrap = \"sell \" + args[1];\nrun_function(\"security_wrap\", [], \"security\");\n"
       }
      ],
      "text": "^sell (.*)$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true,
      "prefix_suffix": true
     },
@@ -300,12 +258,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq drop \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq drop \" + wrapArgs);\n}"
+       "script": "if (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nSE.wrap = \"drop \" + args[1];\nrun_function(\"security_wrap\", [], \"security\");\n"
       }
      ],
      "text": "^drop (.*)$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true,
      "prefix_suffix": true
     },
@@ -317,34 +275,16 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var mySelfishness = get_variable(\"my_selfishness\");\nvar wrapArgs = args[1];\n\nif (mySelfishness == \"1\") {\n  send_command(\"queue add eq generosity\");\n  send_command(\"queue add eq offer \" + wrapArgs);\n  send_command(\"queue add eq selfishness\");\n} else {\n  send_command(\"queue add eq offer \" + wrapArgs);\n}"
+       "script": "if (!client.loom || !client.loom.security || !client.loom.security.items) run_function(\"security_setup\", [], \"security\");\nvar SE = client.loom.security;\nSE.wrap = \"offer \" + args[1];\nrun_function(\"security_wrap\", [], \"security\");\n"
       }
      ],
      "text": "^offer (.*)$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true,
      "prefix_suffix": true
     }
    ]
-  },
-  {
-   "type": "function",
-   "name": "onInstall",
-   "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
-  },
-  {
-   "type": "function",
-   "name": "onUninstall",
-   "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
-  },
-  {
-   "type": "function",
-   "name": "onLoad",
-   "enabled": true,
-   "code": "set_variable(\"my_selfishness\", 0);"
   }
  ],
  "description": ""

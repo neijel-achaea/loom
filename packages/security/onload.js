@@ -1,1 +1,1 @@
-set_variable("my_selfishness", 0);
+run_function("security_setup", [], "security");
