@@ -1,2 +1,1 @@
-send_command("harvesting on");
-if (!client.hv) run_function("hv_build", [], "harvesting");
+run_function("harvesting_setup", [], "harvesting");

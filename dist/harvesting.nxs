@@ -7,7 +7,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"harvesting_setup\", [], \"harvesting\");\ndisplay_notice(\"[harvesting] installed. HARVESTING ON to start, HARVESTING HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
@@ -19,43 +19,49 @@
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "send_command(\"harvesting on\");\nif (!client.hv) run_function(\"hv_build\", [], \"harvesting\");"
+   "code": "run_function(\"harvesting_setup\", [], \"harvesting\");\n"
   },
   {
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "// Harvesting follows the room itself: on every room change, remember the\n// environment and check what needs harvesting here.\nif (args.gmcp_method == \"Room.Info\") {\n  if (!client.loom) client.loom = {};\n  if (!client.loom.harvesting) client.loom.harvesting = {};\n  client.loom.harvesting.env = String(args.gmcp_args.environment || \"\");\n  run_function(\"hv_room\", [], \"harvesting\");\n}\n"
+   "code": "if (!client.loom || !client.loom.harvesting || !client.loom.harvesting.plants) run_function(\"harvesting_setup\", [], \"harvesting\");\nvar H = client.loom.harvesting;\n// Harvesting follows the room itself: remember the environment and check what\n// needs harvesting here.\nif (args.gmcp_method == \"Room.Info\") {\n  H.here = String(args.gmcp_args.environment || \"\").toLowerCase();\n  // First room of the session with harvesting on: read the rift first. The\n  // room is checked again once the listing ends (trigger_rift_rule).\n  if (!H.started) {\n    H.started = true;\n    if (get_variable(\"harvesting_on\") == \"on\" && get_variable(\"pauseTriggers\") != \"on\") {\n      H.quiet = true;\n      send_command(\"ir herbs\");\n    }\n  }\n  // While a quiet rift listing is on its way, the room is checked when it ends.\n  if (!H.quiet) run_function(\"harvesting_room\", [], \"harvesting\");\n}\n"
   },
   {
    "type": "function",
-   "name": "hv_build",
+   "name": "harvesting_setup",
    "enabled": true,
-   "code": "// harvesting 2.0 - builds client.hv from saved variables.\nvar minRaw = get_variable(\"hv_min\");\nvar mapRaw = get_variable(\"hv_map\");\nvar stockRaw = get_variable(\"hv_stock\");\nclient.hv = {\n  env: {\n    forest:                [\"ginseng\", \"echinacea\", \"ginger\", \"burdock\", \"myrrh\", \"lobelia\", \"elm\"],\n    swamp:                 [\"ash\", \"bellwort\", \"cohosh\"],\n    \"natural underground\": [\"bloodroot\", \"irid\"],\n    hills:                 [\"hawthorn\", \"bayberry\"],\n    jungle:                [\"kuzu\", \"skullcap\", \"kola\"],\n    grasslands:            [\"slipper\", \"goldenseal\"],\n    mountain:              [\"valerian\"],\n    mountains:             [\"valerian\"],\n    desert:                [\"pear\", \"weed\"],\n    valley:                [\"sileris\"],\n    freshwater:            [\"kelp\"],\n    river:                 [\"kelp\"]\n  },\n  defMin: 2000,\n  min:   typeof minRaw == \"string\" ? JSON.parse(minRaw) : (minRaw || {}),\n  map:   typeof mapRaw == \"string\" ? JSON.parse(mapRaw) : (mapRaw || { myrrh: \"myrrh gum\" }),\n  stock: typeof stockRaw == \"string\" ? JSON.parse(stockRaw) : (stockRaw || {}),\n  queue: [],\n  current: null,\n  waitBal: false,\n  inrFor: null,\n  inRift: false,\n  quiet: false,\n  dashes: 0\n};"
+   "code": "// harvesting_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, migration, saved state.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.harvesting) client.loom.harvesting = {};\nclient.loom.registry.harvesting = { version: \"0.2.0\", keyword: \"HARVESTING\" };\nvar H = client.loom.harvesting;\n\n// Plants that grow in each environment (GMCP Room.Info environment, lower case).\nH.plants = {\n  forest:                [\"ginseng\", \"echinacea\", \"ginger\", \"burdock\", \"myrrh\", \"lobelia\", \"elm\"],\n  swamp:                 [\"ash\", \"bellwort\", \"cohosh\"],\n  \"natural underground\": [\"bloodroot\", \"irid\"],\n  hills:                 [\"hawthorn\", \"bayberry\"],\n  jungle:                [\"kuzu\", \"skullcap\", \"kola\"],\n  grasslands:            [\"slipper\", \"goldenseal\"],\n  mountain:              [\"valerian\"],\n  mountains:             [\"valerian\"],\n  desert:                [\"pear\", \"weed\"],\n  valley:                [\"sileris\"],\n  freshwater:            [\"kelp\"],\n  river:                 [\"kelp\"]\n};\n\n// One-time migration from the hv_* variables of harvesting 2.0, then cleared.\nvar hvOld = [\"hv_on\", \"hv_min\", \"hv_map\", \"hv_stock\"];\nvar hvNew = [\"harvesting_on\", \"harvesting_min\", \"harvesting_map\", \"harvesting_stock\"];\nfor (var hvI = 0; hvI < hvOld.length; hvI++) {\n  var hvOv = get_variable(hvOld[hvI]);\n  if (hvOv === null || hvOv === undefined) continue;\n  var hvNv = get_variable(hvNew[hvI]);\n  if (hvNv === null || hvNv === undefined) set_variable(hvNew[hvI], hvOv);\n  delete_variable(hvOld[hvI]);\n}\n\n// Saved state. Older saves hold JSON strings; newer ones objects.\nvar hvMin = get_variable(\"harvesting_min\");\nvar hvMap = get_variable(\"harvesting_map\");\nvar hvStock = get_variable(\"harvesting_stock\");\nH.min = (typeof hvMin == \"string\" ? JSON.parse(hvMin) : hvMin) || {};\n// Plant name -> name in the rift, where they differ. Learnt from INR lines too.\nH.map = (typeof hvMap == \"string\" ? JSON.parse(hvMap) : hvMap) || { myrrh: \"myrrh gum\" };\nH.stock = (typeof hvStock == \"string\" ? JSON.parse(hvStock) : hvStock) || {};\n\nif (!get_variable(\"harvesting_on\")) set_variable(\"harvesting_on\", \"off\");\nif (!to_number(get_variable(\"harvesting_default_min\"))) set_variable(\"harvesting_default_min\", 2000);\nH.defMin = to_number(get_variable(\"harvesting_default_min\"));\n\nif (!H.queue) H.queue = [];\nif (H.current === undefined) H.current = null;\nif (H.here === undefined) H.here = \"\";\nH.waitBal = false;\nH.inrFor = null;\nH.inRift = false;\nH.dashes = 0;\nif (H.quiet === undefined) H.quiet = false;\n"
   },
   {
    "type": "function",
-   "name": "hv_save",
+   "name": "harvesting_save",
    "enabled": true,
-   "code": "set_variable(\"hv_min\", JSON.stringify(client.hv.min));\nset_variable(\"hv_map\", JSON.stringify(client.hv.map));\nset_variable(\"hv_stock\", JSON.stringify(client.hv.stock));"
+   "code": "var H = client.loom.harvesting;\nset_variable(\"harvesting_min\", H.min);\nset_variable(\"harvesting_map\", H.map);\nset_variable(\"harvesting_stock\", H.stock);\n"
   },
   {
    "type": "function",
-   "name": "hv_room",
+   "name": "harvesting_room",
    "enabled": true,
-   "code": "// Called from harvesting's own onGMCP on every room change.\nif (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nH.queue = [];\nH.current = null;\nH.waitBal = false;\nif (get_variable(\"hv_on\") == \"on\" && get_variable(\"pauseTriggers\") != \"on\") {\n  var env = String((client.loom && client.loom.harvesting && client.loom.harvesting.env) || \"\").toLowerCase();\n  var list = H.env[env] || [];\n  for (var i = 0; i < list.length; i++) {\n    var p = list[i];\n    var have = H.stock[H.map[p] || p] || 0;\n    var min = (H.min[p] != null) ? H.min[p] : H.defMin;\n    if (have < min) H.queue.push(p);\n  }\n  if (H.queue.length) run_function(\"hv_next\", [], \"harvesting\");\n}"
+   "code": "// harvesting_room -- on entering a room: queue the plants of this environment\n// that are below their minimum stock and start harvesting.\nif (!client.loom || !client.loom.harvesting || !client.loom.harvesting.plants) run_function(\"harvesting_setup\", [], \"harvesting\");\nvar H = client.loom.harvesting;\nH.queue = [];\nH.current = null;\nH.waitBal = false;\nif (get_variable(\"harvesting_on\") == \"on\" && get_variable(\"pauseTriggers\") != \"on\") {\n  var hvList = H.plants[H.here] || [];\n  for (var hvI = 0; hvI < hvList.length; hvI++) {\n    var hvP = hvList[hvI];\n    var hvHave = H.stock[H.map[hvP] || hvP] || 0;\n    var hvMin = (H.min[hvP] != null) ? H.min[hvP] : H.defMin;\n    if (hvHave < hvMin) H.queue.push(hvP);\n  }\n  if (H.queue.length) run_function(\"harvesting_next\", [], \"harvesting\");\n}\n"
   },
   {
    "type": "function",
-   "name": "hv_next",
+   "name": "harvesting_next",
    "enabled": true,
-   "code": "var H = client.hv;\nH.waitBal = false;\nif (H.queue.length == 0) {\n  H.current = null;\n} else {\n  H.current = H.queue.shift();\n  send_command(\"harvest \" + H.current);\n}"
+   "code": "var H = client.loom.harvesting;\nH.waitBal = false;\nif (H.queue.length == 0) {\n  H.current = null;\n} else {\n  H.current = H.queue.shift();\n  send_command(\"harvest \" + H.current);\n}\n"
   },
   {
    "type": "function",
-   "name": "hv_status",
+   "name": "harvesting_status",
    "enabled": true,
-   "code": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nvar out = [];\nfor (var env in H.env) {\n  var list = H.env[env];\n  for (var i = 0; i < list.length; i++) {\n    var p = list[i];\n    var have = H.stock[H.map[p] || p];\n    var min = (H.min[p] != null) ? H.min[p] : H.defMin;\n    if (have == null || have < min) out.push(p + \" \" + (have == null ? \"?\" : have) + \"/\" + min);\n  }\n}\ndisplay_notice(\"[harvesting] Harvesting \" + (get_variable(\"hv_on\") == \"on\" ? \"ON\" : \"OFF\") + \" | environment: \" + ((client.loom && client.loom.harvesting && client.loom.harvesting.env) || \"?\"), \"cyan\");\ndisplay_notice(out.length ? \"[harvesting] Below minimum: \" + out.join(\", \") : \"Everything at or above minimum.\", \"cyan\");"
+   "code": "if (!client.loom || !client.loom.harvesting || !client.loom.harvesting.plants) run_function(\"harvesting_setup\", [], \"harvesting\");\nvar H = client.loom.harvesting;\nvar hvOut = [];\nvar hvSeen = {};\nfor (var hvEnv in H.plants) {\n  var hvList = H.plants[hvEnv];\n  for (var hvI = 0; hvI < hvList.length; hvI++) {\n    var hvP = hvList[hvI];\n    if (hvSeen[hvP]) continue;\n    hvSeen[hvP] = true;\n    var hvHave = H.stock[H.map[hvP] || hvP];\n    var hvMin = (H.min[hvP] != null) ? H.min[hvP] : H.defMin;\n    if (hvHave == null || hvHave < hvMin) hvOut.push(hvP + \" \" + (hvHave == null ? \"?\" : hvHave) + \"/\" + hvMin);\n  }\n}\ndisplay_notice(\"[harvesting] \" + (get_variable(\"harvesting_on\") == \"on\" ? \"ON\" : \"OFF\") + \", default minimum \" + H.defMin + \", environment here: \" + (H.here || \"?\") + \". HARVESTING HELP for commands.\", \"cyan\");\ndisplay_notice(hvOut.length ? \"[harvesting] below minimum: \" + hvOut.join(\", \") : \"[harvesting] everything at or above its minimum.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "harvesting_help",
+   "enabled": true,
+   "code": "var C = \"cyan\";\ndisplay_notice(\"[harvesting] harvests and stores plants below their minimum rift stock as you walk. Commands:\", C);\ndisplay_notice(\"  HARVESTING                      status: what is below its minimum\", C);\ndisplay_notice(\"  HARVESTING ON|OFF               ON also re-reads your rift (IR HERBS)\", C);\ndisplay_notice(\"  HARVESTING MIN <n>              default minimum for every plant\", C);\ndisplay_notice(\"  HARVESTING MIN <plant> <n>      minimum for one plant (DEFAULT to go back to the default)\", C);\ndisplay_notice(\"  HARVESTING STOCK                re-read your rift now\", C);\ndisplay_notice(\"  HARVESTING RESET / DEBUG\", C);\n"
   },
   {
    "type": "alias",
@@ -65,10 +71,10 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nvar a = (args[1] || \"status\").toLowerCase().trim().split(/\\s+/);\nif (a[0] == \"on\") {\n  set_variable(\"hv_on\", \"on\");\n  H.quiet = true;\n  send_command(\"ir herbs\");\n  display_notice(\"[harvesting] Harvesting ON - refreshing rift stock.\", \"cyan\");\n} else if (a[0] == \"off\") {\n  set_variable(\"hv_on\", \"off\");\n  H.queue = [];\n  H.current = null;\n  H.waitBal = false;\n  display_notice(\"[harvesting] Harvesting OFF.\", \"cyan\");\n} else if (a[0] == \"min\" && a.length == 3) {\n  if (a[2] == \"default\") delete H.min[a[1]];\n  else H.min[a[1]] = parseInt(a[2], 10);\n  run_function(\"hv_save\", [], \"harvesting\");\n  display_notice(\"[harvesting] Minimum for \" + a[1] + \": \" + (H.min[a[1]] != null ? H.min[a[1]] : H.defMin + \" (default)\"), \"cyan\");\n} else if (a[0] == \"reset\") {\n  delete client.hv;\n  run_function(\"hv_build\", [], \"harvesting\");\n  display_notice(\"[harvesting] Harvesting state rebuilt from saved variables.\", \"cyan\");\n} else {\n  run_function(\"hv_status\", [], \"harvesting\");\n}"
+     "script": "// HARVESTING [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.harvesting || !client.loom.harvesting.plants) run_function(\"harvesting_setup\", [], \"harvesting\");\nvar H = client.loom.harvesting;\nvar hvA = String(args[1] || \"\").toLowerCase().trim().split(/\\s+/);\nvar C = \"cyan\";\nif (hvA[0] === \"\" || hvA[0] === \"status\") {\n  run_function(\"harvesting_status\", [], \"harvesting\");\n} else if (hvA[0] === \"help\") {\n  run_function(\"harvesting_help\", [], \"harvesting\");\n} else if (hvA[0] === \"on\") {\n  set_variable(\"harvesting_on\", \"on\");\n  H.quiet = true;\n  send_command(\"ir herbs\");\n  display_notice(\"[harvesting] ON: reading your rift stock.\", C);\n} else if (hvA[0] === \"off\") {\n  set_variable(\"harvesting_on\", \"off\");\n  H.queue = [];\n  H.current = null;\n  H.waitBal = false;\n  display_notice(\"[harvesting] OFF.\", C);\n} else if (hvA[0] === \"stock\") {\n  send_command(\"ir herbs\");\n} else if (hvA[0] === \"min\" && hvA.length == 2 && /^\\d+$/.test(hvA[1])) {\n  H.defMin = parseInt(hvA[1], 10);\n  set_variable(\"harvesting_default_min\", H.defMin);\n  display_notice(\"[harvesting] default minimum: \" + H.defMin + \".\", C);\n} else if (hvA[0] === \"min\" && hvA.length == 3 && (hvA[2] === \"default\" || /^\\d+$/.test(hvA[2]))) {\n  if (hvA[2] === \"default\") delete H.min[hvA[1]];\n  else H.min[hvA[1]] = parseInt(hvA[2], 10);\n  run_function(\"harvesting_save\", [], \"harvesting\");\n  display_notice(\"[harvesting] minimum for \" + hvA[1] + \": \" + (H.min[hvA[1]] != null ? H.min[hvA[1]] : H.defMin + \" (default)\") + \".\", C);\n} else if (hvA[0] === \"min\") {\n  display_notice(\"[harvesting] HARVESTING MIN <n>, or HARVESTING MIN <plant> <n|default>.\", \"orange\");\n} else if (hvA[0] === \"reset\") {\n  H.queue = [];\n  H.current = null;\n  H.quiet = false;\n  run_function(\"harvesting_setup\", [], \"harvesting\");\n  display_notice(\"[harvesting] reset: queue cleared, state reloaded from saved variables.\", C);\n} else if (hvA[0] === \"debug\") {\n  display_notice(\"[harvesting] here=\" + H.here + \" queue=\" + JSON.stringify(H.queue) + \" current=\" + H.current + \" waitBal=\" + H.waitBal + \" inRift=\" + H.inRift + \" quiet=\" + H.quiet + \" map=\" + JSON.stringify(H.map), C);\n} else {\n  display_notice(\"[harvesting] unknown command '\" + hvA[0] + \"'. HARVESTING HELP for commands.\", \"orange\");\n}\n"
     }
    ],
-   "text": "^harvesting(?:\\s+(.+))?$",
+   "text": "^harvesting(?:\\s+(.*))?$",
    "matching": "regexp",
    "whole_words": false,
    "case_sensitive": false,
@@ -90,7 +96,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "if (get_variable(\"pauseTriggers\") != \"on\") {\n  var H = client.hv;\n  if (H && H.current) {\n    H.inrFor = H.current;\n    H.waitBal = true;\n    send_command(\"queue add be inr \" + H.current);\n  }\n}"
+     "script": "if (get_variable(\"pauseTriggers\") != \"on\" && client.loom && client.loom.harvesting) {\n  var H = client.loom.harvesting;\n  if (H.current) {\n    H.inrFor = H.current;\n    H.waitBal = true;\n    send_command(\"queue add be inr \" + H.current);\n  }\n}\n"
     }
    ],
    "text": "^You reach out and carefully harvest (.*)\\.$",
@@ -114,7 +120,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "if (get_variable(\"pauseTriggers\") != \"on\") {\n  var H = client.hv;\n  if (H && H.current && !H.waitBal) run_function(\"hv_next\", [], \"harvesting\");\n}"
+     "script": "if (get_variable(\"pauseTriggers\") != \"on\" && client.loom && client.loom.harvesting) {\n  var H = client.loom.harvesting;\n  if (H.current && !H.waitBal) run_function(\"harvesting_next\", [], \"harvesting\");\n}\n"
     }
    ],
    "text": "^(?:What do you wish to harvest\\?|That plant has been fully harvested\\.)$",
@@ -130,7 +136,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "if (get_variable(\"pauseTriggers\") != \"on\") {\n  var H = client.hv;\n  if (H && H.waitBal) run_function(\"hv_next\", [], \"harvesting\");\n  else if (H && H.current) send_command(\"harvest \" + H.current);\n}"
+     "script": "if (get_variable(\"pauseTriggers\") != \"on\" && client.loom && client.loom.harvesting) {\n  var H = client.loom.harvesting;\n  if (H.waitBal) run_function(\"harvesting_next\", [], \"harvesting\");\n  else if (H.current) send_command(\"harvest \" + H.current);\n}\n"
     }
    ],
    "text": "^You have recovered balance on all limbs\\.$",
@@ -146,7 +152,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nvar H = client.hv;\nH.stock[args[2]] = parseInt(args[3].replace(/,/g, \"\"), 10);\nif (H.inrFor) {\n  H.map[H.inrFor] = args[2];\n  H.inrFor = null;\n}\nrun_function(\"hv_save\", [], \"harvesting\");"
+     "script": "if (!client.loom || !client.loom.harvesting || !client.loom.harvesting.plants) run_function(\"harvesting_setup\", [], \"harvesting\");\nvar H = client.loom.harvesting;\nH.stock[args[2]] = parseInt(args[3].replace(/,/g, \"\"), 10);\nif (H.inrFor) {\n  H.map[H.inrFor] = args[2];\n  H.inrFor = null;\n}\nrun_function(\"harvesting_save\", [], \"harvesting\");\n"
     }
    ],
    "text": "^You store ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
@@ -162,7 +168,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "if (!client.hv) run_function(\"hv_build\", [], \"harvesting\");\nclient.hv.inRift = true;\nclient.hv.dashes = 0;\nif (client.hv.quiet) gag_current_line();"
+     "script": "if (!client.loom || !client.loom.harvesting || !client.loom.harvesting.plants) run_function(\"harvesting_setup\", [], \"harvesting\");\nvar H = client.loom.harvesting;\nH.inRift = true;\nH.dashes = 0;\nif (H.quiet) gag_current_line();\n"
     }
    ],
    "text": "^Glancing into your rift, you see:$",
@@ -178,7 +184,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "var H = client.hv;\nif (H && H.inRift) {\n  if (H.quiet) gag_current_line();\n  H.dashes++;\n  if (H.dashes >= 2) {\n    H.inRift = false;\n    if (H.quiet) {\n      H.quiet = false;\n      run_function(\"hv_room\", [], \"harvesting\");\n    }\n  }\n}"
+     "script": "if (client.loom && client.loom.harvesting && client.loom.harvesting.inRift) {\n  var H = client.loom.harvesting;\n  if (H.quiet) gag_current_line();\n  H.dashes++;\n  if (H.dashes >= 2) {\n    H.inRift = false;\n    if (H.quiet) {\n      H.quiet = false;\n      run_function(\"harvesting_room\", [], \"harvesting\");\n    }\n  }\n}\n"
     }
    ],
    "text": "^-{20,}$",
@@ -194,7 +200,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "var H = client.hv;\nif (H && H.inRift) {\n  if (H.quiet) gag_current_line();\n  var re = /\\[\\s*([\\d,]+)\\]\\s+(.+?)(?=\\s+\\[|\\s*$)/g;\n  var m;\n  while ((m = re.exec(args[0])) !== null) {\n    H.stock[m[2]] = parseInt(m[1].replace(/,/g, \"\"), 10);\n  }\n  run_function(\"hv_save\", [], \"harvesting\");\n}"
+     "script": "if (client.loom && client.loom.harvesting && client.loom.harvesting.inRift) {\n  var H = client.loom.harvesting;\n  if (H.quiet) gag_current_line();\n  var hvRe = /\\[\\s*([\\d,]+)\\]\\s+(.+?)(?=\\s+\\[|\\s*$)/g;\n  var hvM;\n  while ((hvM = hvRe.exec(args[0])) !== null) {\n    H.stock[hvM[2]] = parseInt(hvM[1].replace(/,/g, \"\"), 10);\n  }\n  run_function(\"harvesting_save\", [], \"harvesting\");\n}\n"
     }
    ],
    "text": "^\\s*\\[\\s*[\\d,]+\\]\\s.*$",

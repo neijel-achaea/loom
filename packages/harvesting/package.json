@@ -29,33 +29,39 @@
     },
     {
       "type": "function",
-      "name": "hv_build",
+      "name": "harvesting_setup",
       "enabled": true,
-      "code": "@file:hv_build.js"
+      "code": "@file:harvesting_setup.js"
     },
     {
       "type": "function",
-      "name": "hv_save",
+      "name": "harvesting_save",
       "enabled": true,
-      "code": "@file:hv_save.js"
+      "code": "@file:harvesting_save.js"
     },
     {
       "type": "function",
-      "name": "hv_room",
+      "name": "harvesting_room",
       "enabled": true,
-      "code": "@file:hv_room.js"
+      "code": "@file:harvesting_room.js"
     },
     {
       "type": "function",
-      "name": "hv_next",
+      "name": "harvesting_next",
       "enabled": true,
-      "code": "@file:hv_next.js"
+      "code": "@file:harvesting_next.js"
     },
     {
       "type": "function",
-      "name": "hv_status",
+      "name": "harvesting_status",
       "enabled": true,
-      "code": "@file:hv_status.js"
+      "code": "@file:harvesting_status.js"
+    },
+    {
+      "type": "function",
+      "name": "harvesting_help",
+      "enabled": true,
+      "code": "@file:harvesting_help.js"
     },
     {
       "type": "alias",
@@ -65,10 +71,10 @@
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:alias_harvesting_control.js"
+          "script": "@file:alias_harvesting.js"
         }
       ],
-      "text": "^harvesting(?:\\s+(.+))?$",
+      "text": "^harvesting(?:\\s+(.*))?$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": false,

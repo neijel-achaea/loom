@@ -1,4 +1,4 @@
-var H = client.hv;
+var H = client.loom.harvesting;
 H.waitBal = false;
 if (H.queue.length == 0) {
   H.current = null;
