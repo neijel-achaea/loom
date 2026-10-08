@@ -2,10 +2,10 @@
 // Ledger and the rest: ink panel, serif small-caps headings, one large
 // figure, monospace ledger rows. The accent is a cool steel; the bands carry
 // their own colours, red through grey to blue, as in EVE.
-run_function("st_ensure", [], "standings");
-var F = client.stF;
-var DB = client.st.db;
-var view = client.st.view;
+run_function("standings_ensure", [], "standings");
+var F = client.loom.standings.F;
+var DB = client.loom.standings.db;
+var view = client.loom.standings.view;
 var STEEL = "#b8c4d6";
 var DEEP = "#5a6478";
 var TXT = "#e2e5ea";
@@ -112,7 +112,7 @@ function pendingRows(filterKey) {
       (filterKey ? '' : '<span style="font-family:' + SERIF + ';font-size:11px;min-width:5.5em;">' + esc(p.who) + '</span>') +
       '<span style="flex:1 1 auto;">' + esc(p.why) + '</span><span>' + stepTxt(p.step) + '?</span></div>';
   }
-  if (out) { out += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">STN OK records the first as suggested, STN SKIP dismisses it.</div>'; }
+  if (out) { out += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">STANDINGS OK records the first as suggested, STANDINGS SKIP dismisses it.</div>'; }
   return out;
 }
 
@@ -195,7 +195,7 @@ else if (vk && vk.charAt(0) === "@") {
   mem.sort(byStanding);
   var mr = "";
   for (var m2 = 0; m2 < mem.length; m2++) { mr += personRow(mem[m2]); }
-  html += section("Members", mr || quiet("No one carries this tag yet. STN &lt;name&gt; TAG " + esc(tag)));
+  html += section("Members", mr || quiet("No one carries this tag yet. STANDINGS &lt;name&gt; TAG " + esc(tag)));
   if (E && E.log.length) {
     var ol = "";
     var osub = [];
@@ -210,7 +210,7 @@ else {
   html += '<div style="margin:6px 0 2px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + STEEL + ';">' + people.length + '</span> <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">' + (people.length === 1 ? 'adventurer' : 'adventurers') + ' on the books' + (orgsN ? ', ' + orgsN + ' organisation' + (orgsN === 1 ? '' : 's') : '') + '</span></div>';
   if (vk && !E) { html += '<div style="color:' + MUTED + ';">' + esc(vk) + ' is not on the books.</div>'; }
   if (people.length === 0) {
-    html += quiet("No one yet. Everyone starts Neutral; STN &lt;name&gt; ++ shared tea in the grove adds the first entry.");
+    html += quiet("No one yet. Everyone starts Neutral; STANDINGS &lt;name&gt; ++ shared tea in the grove adds the first entry.");
   } else {
     var pa = pendingRows(null);
     if (pa) { html += section("Awaiting review", pa); }
@@ -242,6 +242,6 @@ else {
     if (tr) { html += section("By tag", tr); }
   }
 }
-html += '<div style="color:' + MUTED + ';margin-top:6px;font-family:' + SERIF + ';font-style:italic;">STN HELP lists the commands. STN alone returns here.</div>';
+html += '<div style="color:' + MUTED + ';margin-top:6px;font-family:' + SERIF + ';font-style:italic;">STANDINGS HELP lists the commands. STANDINGS alone returns here.</div>';
 html += '</div>';
 try { set_custom_tab_html("Standings", html); } catch (e) {}

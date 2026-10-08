@@ -12,27 +12,39 @@
     },
     {
       "type": "function",
-      "name": "st_ensure",
+      "name": "onInstall",
       "enabled": true,
-      "code": "@file:st_ensure.js"
+      "code": "@file:oninstall.js"
     },
     {
       "type": "function",
-      "name": "st_cmd",
+      "name": "standings_ensure",
       "enabled": true,
-      "code": "@file:st_cmd.js"
+      "code": "@file:standings_ensure.js"
     },
     {
       "type": "function",
-      "name": "st_render",
+      "name": "standings_cmd",
       "enabled": true,
-      "code": "@file:st_render.js"
+      "code": "@file:standings_cmd.js"
     },
     {
       "type": "function",
-      "name": "st_suggest",
+      "name": "standings_render",
       "enabled": true,
-      "code": "@file:st_suggest.js"
+      "code": "@file:standings_render.js"
+    },
+    {
+      "type": "function",
+      "name": "standings_suggest",
+      "enabled": true,
+      "code": "@file:standings_suggest.js"
+    },
+    {
+      "type": "function",
+      "name": "standings_help",
+      "enabled": true,
+      "code": "@file:standings_help.js"
     },
     {
       "type": "alias",
@@ -45,7 +57,7 @@
           "script": "@file:alias_standings.js"
         }
       ],
-      "text": "^stn(?:\\s+(.*))?$",
+      "text": "^standings(?:\\s+(.*))?$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": false,

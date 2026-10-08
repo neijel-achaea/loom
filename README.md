@@ -40,7 +40,7 @@ their tab its own icon.
 | **self** | Self | Replacement for the stock character panel (see below). `SELF`. |
 | **sigils** | — | Monolith and flame sigil watcher for any city: probes the monolith in every room you enter and flags sigils running out; the report lists them with an estimated cost. `SIGILS HELP`. |
 | **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends, and your own name), and online/offline notices for the groups you watch. `SOCIAL ADD/DEL <group> <name>`, `LIST`, `COLOR`, `WATCH/UNWATCH`, `POLL ON/OFF/NOW`, `HELP`; your city's enemies list reloads itself from the game's list. Publishes the lists at `client.loom.social` (`groups`, `lists[group]`, `color[group]`), and still at `client.hl` for packages not yet updated. |
-| **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STN HELP`. |
+| **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STANDINGS HELP`. Reads **social**'s lists (chips on a person) and **ledger**'s Achaean date if present. Other packages can suggest a dealing for review through `client.loom.standings.sug` + `standings_suggest`. |
 | **talismans** | Talismans, TalGraph | Dragon talisman piece tracker with progress and projected finish. |
 | **vision** | — | Alertness filter: hides reports about city members and, for enemies, colours the line and alerts the party. `VISION ON/OFF`, `HIDE ON/OFF`, `ALERT ON/OFF`, `CHANNEL <channel>`, `HELP`. Reads **social**'s city and enemies lists if present. |
 
@@ -50,8 +50,8 @@ The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a 
 
 - **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social**, and adds new citizens to its city list, only when it's installed.
 - **artificing** and **roleplay** read `activeClass`; **patrolling** reads `currentRoomId`.
-- **standings** reads the lists of **social** (`client.hl`); **crystalism** and **vision** read `client.loom.social`.
-- **patrolling** reads the Achaean date from **ledger** when it logs a replanting.
+- **crystalism**, **vision** and **standings** read the lists of **social** at `client.loom.social`.
+- **patrolling** reads the Achaean date from **ledger** when it logs a replanting, and **standings** when it dates an entry.
 - **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed. **partycomms** reads the `my_rage` that hunting publishes.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
 - Many triggers respect the `pauseTriggers` flag, which **loom** toggles. Packages treat an unset flag as off.

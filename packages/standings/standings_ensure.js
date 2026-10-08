@@ -1,6 +1,6 @@
-// Builds client.st (the book) and client.stF (helpers) from stored variables,
-// once. Each character keeps its own book, since Nexus stores variables per
-// character. STN REBUILD drops the helpers so edits to them take effect.
+// Builds client.loom.standings: the book (db, view, cal) and the helpers (F)
+// from stored variables, once. Each character keeps its own book, since Nexus stores variables per
+// character. STANDINGS REBUILD drops the helpers so edits to them take effect.
 function stLoad(name, def) {
   var raw;
   try { raw = get_variable(name); } catch (e) { raw = undefined; }
@@ -50,12 +50,13 @@ function stSteps(st) {
 // Ledger when it is loaded; otherwise extrapolated from the last reading,
 // since one Achaean day is one real hour. 0 means unknown.
 function stIc(t) {
-  var lg = client.lg;
-  var cal = client.st.cal;
+  // Ledger's day, wherever this version of ledger keeps it.
+  var lg = (client.loom && client.loom.ledger && client.loom.ledger.day > 0) ? client.loom.ledger : client.lg;
+  var cal = client.loom.standings.cal;
   if (lg && lg.day > 0) {
     if (!cal || cal.d !== lg.day) {
-      client.st.cal = { d: lg.day, t: Math.floor(new Date().getTime() / 1000) };
-      try { set_variable("st_cal", JSON.stringify(client.st.cal)); } catch (e) {}
+      client.loom.standings.cal = { d: lg.day, t: Math.floor(new Date().getTime() / 1000) };
+      try { set_variable("standings_cal", JSON.stringify(client.loom.standings.cal)); } catch (e) {}
     }
     return lg.day;
   }
@@ -93,7 +94,7 @@ function stHasTag(ent, q) {
 // Weighted average over the people carrying a tag: each person counts by how
 // many dealings they have had, at least one.
 function stTagAvg(q) {
-  var db = client.st.db.e;
+  var db = client.loom.standings.db.e;
   var sum = 0, w = 0, n = 0;
   for (var k in db) {
     if (db.hasOwnProperty(k) && !db[k].org && stHasTag(db[k], q)) {
@@ -106,31 +107,56 @@ function stTagAvg(q) {
   return { avg: w > 0 ? Math.round(sum / w * 100) / 100 : 0, n: n, w: w };
 }
 // Social package lists, in the social package's own priority order:
-// client.hl.groups names the lists, client.hl[group] holds lowercase names as
-// keys, and client.hl.color[group] is the list's highlight colour. Optional:
+// groups names the lists, lists[group] holds lowercase names as keys, and
+// color[group] is the list's highlight colour (client.loom.social, or the
+// legacy client.hl view of the same lists). Optional:
 // with no social package loaded there are simply no chips.
 function stLists(name) {
   var out = [];
-  var hl = client.hl;
-  if (!hl || !hl.groups || !hl.groups.length) { return out; }
+  var so = client.loom.social;
+  var groups = (so && so.groups) || (client.hl && client.hl.groups);
+  if (!groups || !groups.length) { return out; }
+  var lists = (so && so.lists) || client.hl;
+  var colors = (so && so.color) || (client.hl && client.hl.color) || {};
   var key = stKey(name);
-  for (var i = 0; i < hl.groups.length; i++) {
-    var g = hl.groups[i];
-    if (hl[g] && hl[g][key]) { out.push([g, (hl.color && hl.color[g]) || "#9a9aa3"]); }
+  for (var i = 0; i < groups.length; i++) {
+    var g = groups[i];
+    if (lists[g] && lists[g][key]) { out.push([g, colors[g] || "#9a9aa3"]); }
   }
   return out;
 }
-function stSave() { try { set_variable("st_db", JSON.stringify(client.st.db)); } catch (e) {} }
+function stSave() { try { set_variable("standings_db", JSON.stringify(client.loom.standings.db)); } catch (e) {} }
 
-if (!client.stF) {
-  client.stF = { SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
+if (!client.loom) { client.loom = {}; }
+if (!client.loom.registry) { client.loom.registry = {}; }
+if (!client.loom.standings) { client.loom.standings = {}; }
+client.loom.registry.standings = { version: "0.2.0", keyword: "STANDINGS" };
+var ST = client.loom.standings;
+
+// One-time migration from the pre-0.2 names: st_db/st_cal become
+// standings_db/standings_cal, and the old session objects are dropped.
+var stMoves = [["st_db", "standings_db"], ["st_cal", "standings_cal"]];
+for (var stM = 0; stM < stMoves.length; stM++) {
+  var stOld = get_variable(stMoves[stM][0]);
+  if (stOld === null || stOld === undefined) { continue; }
+  var stNew = get_variable(stMoves[stM][1]);
+  if (stNew === null || stNew === undefined || stNew === "") { set_variable(stMoves[stM][1], stOld); }
+  delete_variable(stMoves[stM][0]);
 }
-if (!client.st) {
-  var stDb = stLoad("st_db", null);
+if (client.st) { client.st = undefined; }
+if (client.stF) { client.stF = undefined; }
+
+if (!ST.F) {
+  ST.F = { SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
+}
+if (!ST.db) {
+  var stDb = stLoad("standings_db", null);
   if (!stDb || typeof stDb !== "object" || !stDb.e) { stDb = { e: {}, pending: [] }; }
   if (!stDb.pending) { stDb.pending = []; }
   // Stored standings are a cache: recompute them from the logs with the
   // current rules, so a change to the scoring heals old entries on load.
   for (var stK in stDb.e) { if (stDb.e.hasOwnProperty(stK)) { stDb.e[stK].s = stScore(stDb.e[stK].log || []); } }
-  client.st = { db: stDb, view: null, cal: stLoad("st_cal", null) };
+  ST.db = stDb;
+  ST.view = null;
+  ST.cal = stLoad("standings_cal", null);
 }
