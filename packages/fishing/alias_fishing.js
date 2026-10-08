@@ -1,6 +1,5 @@
 // FISHING [subcommand ...]: the one command for this package. Only its own
-// subcommands match the alias, so FISHING RANKINGS and other game commands
-// still reach the game.
+// subcommands match the alias; any other word after FISHING goes to the game.
 if (!client.loom || !client.loom.fishing) run_function("fishing_setup", [], "fishing");
 var FI = client.loom.fishing;
 var fiSub = String(args[1] || "").toLowerCase();
