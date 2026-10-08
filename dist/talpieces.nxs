@@ -1,0 +1,274 @@
+{
+ "type": "group",
+ "name": "talpieces",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "run_function(\"talpieces_setup\", [], \"talpieces\");\ndisplay_notice(\"[talpieces] installed. Tab: 'Talismans'. TALPIECES HELP for commands.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Nothing to tear down; the talpieces_* variables are left intact so a\n// reinstall picks up where it left off.\n"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "// Tab icons: pure CSS keyed on the tab button's title, so Nexus's own\n// redraws (selecting, dragging, layout resets) cannot undo them.\nvar tiTabs = [[\"Talismans\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 14\"><path d=\"M1 7 Q10 -1 19 7 Q10 15 1 7 Z\" fill=\"#5f4c80\" stroke=\"#b99be0\" stroke-width=\"0.9\"/><ellipse cx=\"10\" cy=\"7\" rx=\"3.4\" ry=\"4.6\" fill=\"#d9b45a\"/><ellipse cx=\"10\" cy=\"7\" rx=\"0.9\" ry=\"4\" fill=\"#15121b\"/></svg>']];\nfor (var tiI = 0; tiI < tiTabs.length; tiI++) {\n  var tiId = \"tabicon-\" + tiTabs[tiI][0].toLowerCase();\n  if (!document.getElementById(tiId)) {\n    var tiSel = '.flexlayout__tab_button[title=\"' + tiTabs[tiI][0] + '\" i]';\n    var tiSt = document.createElement(\"style\");\n    tiSt.id = tiId;\n    tiSt.textContent = tiSel + ' > * { display: none !important; } ' + tiSel + '::before { content: \"\"; display: block; width: 20px; height: 20px; margin: auto; background: url(\"data:image/svg+xml,' + encodeURIComponent(tiTabs[tiI][1]) + '\") center / contain no-repeat; }';\n    document.head.appendChild(tiSt);\n  }\n}\n\nrun_function(\"talpieces_setup\", [], \"talpieces\");\nrun_function(\"talpieces_render\", [], \"talpieces\");"
+  },
+  {
+   "type": "group",
+   "name": "core",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "talpieces_setup",
+     "enabled": true,
+     "code": "// talpieces_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration from\n// the talismans package, and the piece book. Safe to run again: the pieces and\n// history already in memory are kept unless TP.pieces has been cleared (RESET).\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.talpieces) client.loom.talpieces = {};\nclient.loom.registry.talpieces = { version: \"0.2.0\", keyword: \"TALPIECES\" };\nvar TP = client.loom.talpieces;\n\nfunction tpHas(name) {\n  var v;\n  try { v = get_variable(name); } catch (e) { v = undefined; }\n  return v !== null && v !== undefined && v !== \"\";\n}\n\n// One-time migration: tal_* variables -> talpieces_*. A new variable that\n// already holds data wins; the old one is deleted either way.\nvar tpMoves = [[\"tal_pieces\", \"talpieces_pieces\"], [\"tal_hist\", \"talpieces_hist\"], [\"tal_graph_h\", \"talpieces_graph_h\"]];\nfor (var tpI = 0; tpI < tpMoves.length; tpI++) {\n  if (tpHas(tpMoves[tpI][0])) {\n    if (!tpHas(tpMoves[tpI][1])) set_variable(tpMoves[tpI][1], get_variable(tpMoves[tpI][0]));\n    delete_variable(tpMoves[tpI][0]);\n  }\n}\n// tal_graph_on held \"1\"/\"0\"; talpieces_graph holds \"on\"/\"off\".\nif (tpHas(\"tal_graph_on\")) {\n  if (!tpHas(\"talpieces_graph\")) set_variable(\"talpieces_graph\", String(get_variable(\"tal_graph_on\")) === \"0\" ? \"off\" : \"on\");\n  delete_variable(\"tal_graph_on\");\n}\n// The old package kept its state in sixteen loose client.tal* keys; drop them\n// so a reimport without a page reload doesn't leave two copies around.\nvar tpOld = [\"tal\", \"talHist\", \"talGraphOn\", \"talChartH\", \"talNowC\", \"talNowR\", \"talBuilding\", \"talBuildTimer\", \"talForceMark\", \"talSeed\", \"talGoalCommon\", \"talGoalRare\", \"talGoalTotal\", \"talBucket\", \"talHistSoft\", \"talHistCap\"];\nfor (var tpJ = 0; tpJ < tpOld.length; tpJ++) {\n  if (client[tpOld[tpJ]] !== undefined) {\n    if (tpOld[tpJ] === \"talBuildTimer\") { try { clearTimeout(client.talBuildTimer); } catch (e) {} }\n    delete client[tpOld[tpJ]];\n  }\n}\n\nif (!tpHas(\"talpieces_pieces\")) set_variable(\"talpieces_pieces\", \"{}\");\nif (!tpHas(\"talpieces_hist\")) set_variable(\"talpieces_hist\", \"[]\");\nif (!tpHas(\"talpieces_graph\")) set_variable(\"talpieces_graph\", \"on\");\nif (!tpHas(\"talpieces_graph_h\")) set_variable(\"talpieces_graph_h\", \"110\");\n// Queue TALISMAN COMBINE for each piece row of a listing (as the old package\n// always did); OFF leaves combining to you.\nif (!tpHas(\"talpieces_combine\")) set_variable(\"talpieces_combine\", \"on\");\n\n// --- the piece book -------------------------------------------------------\n// pieces[colour][type][level] = how many pieces of that level you hold.\n// A level-n piece counts as 2^(n-1) level-1 pieces toward the goal.\nif (!TP.pieces) {\n  var tpP = {};\n  try { tpP = JSON.parse(get_variable(\"talpieces_pieces\")) || {}; } catch (e) { tpP = {}; }\n  TP.pieces = tpP;\n}\nTP.reqCommon = 64;\nTP.reqRare = 4;\nTP.colors = [\"black\", \"blue\", \"gold\", \"green\", \"red\", \"silver\"];\nTP.commonTypes = [\"bone\", \"claw\", \"eye\", \"heart\", \"leather\", \"scale\", \"tooth\"];\nTP.colorrare = { black: \"sac\", blue: \"lung\", gold: \"stem\", green: \"sac\", red: \"belly\", silver: \"larynx\" };\nTP.exceptions = { \"brain stem\": \"stem\", \"acid sac\": \"sac\", \"poison sac\": \"sac\" };\nTP.real = function (type) { return this.exceptions[type] || type; };\nTP.getcount = function (color, type) {\n  var rt = this.real(type);\n  var c = this.pieces[color];\n  if (!c || !c[rt]) { return 0; }\n  var total = 0, lv = c[rt];\n  for (var k in lv) {\n    if (lv.hasOwnProperty(k)) {\n      var y = Number(lv[k]) || 0;\n      if (y > 0) { total += Math.pow(2, Number(k) - 1) * y; }\n    }\n  }\n  return total;\n};\nTP.add = function (color, type, level, count) {\n  color = String(color).toLowerCase();\n  var rt = this.real(String(type).toLowerCase());\n  if (!this.pieces[color]) { this.pieces[color] = {}; }\n  if (!this.pieces[color][rt]) { this.pieces[color][rt] = {}; }\n  var key = String(level);\n  this.pieces[color][rt][key] = (Number(this.pieces[color][rt][key]) || 0) + (Number(count) || 0);\n};\nTP.remove = function (color, type, level, count) {\n  color = String(color).toLowerCase();\n  var rt = this.real(String(type).toLowerCase());\n  if (!this.pieces[color] || !this.pieces[color][rt]) { return; }\n  var key = String(level);\n  var n = (Number(this.pieces[color][rt][key]) || 0) - (Number(count) || 0);\n  this.pieces[color][rt][key] = n > 0 ? n : 0;\n};\n// Pieces counted toward the goal, capped per type: [common, rare].\nTP.totals = function () {\n  var c = 0, r = 0;\n  for (var ci = 0; ci < this.colors.length; ci++) {\n    var color = this.colors[ci];\n    for (var ti = 0; ti < this.commonTypes.length; ti++) {\n      var n = this.getcount(color, this.commonTypes[ti]);\n      c += (n > this.reqCommon) ? this.reqCommon : n;\n    }\n    var rn = this.getcount(color, this.colorrare[color]);\n    r += (rn > this.reqRare) ? this.reqRare : rn;\n  }\n  return [c, r];\n};\nTP.reset = function () { this.pieces = {}; };\n\n// --- history --------------------------------------------------------------\n// Each entry is a compact array [unixSeconds, cappedCommonOwned, cappedRareOwned].\n// Capped means counted toward the goal, so 100 black claws still scores 64.\nif (!TP.hist) {\n  var tpH = [];\n  try { tpH = JSON.parse(get_variable(\"talpieces_hist\")) || []; } catch (e) { tpH = []; }\n  if (Object.prototype.toString.call(tpH) !== \"[object Array]\") { tpH = []; }\n  TP.hist = tpH;\n}\nTP.graphOn = String(get_variable(\"talpieces_graph\")) !== \"off\";\nvar tpCh = parseInt(get_variable(\"talpieces_graph_h\"), 10);\nif (!tpCh || isNaN(tpCh) || tpCh < 40) { tpCh = 110; }\nif (tpCh > 400) { tpCh = 400; }\nTP.chartH = tpCh;\n// Goal: 6 colours x 7 common types x 64, plus 6 x 4 rare.\nTP.goalCommon = 2688;\nTP.goalRare = 24;\nTP.goalTotal = 2712;\nTP.bucket = 3600;\nTP.histSoft = 700;\nTP.histCap = 1500;\nif (TP.building === undefined) TP.building = false;\nif (TP.forceMark === undefined) TP.forceMark = false;\n"
+    },
+    {
+     "type": "function",
+     "name": "talpieces_status",
+     "enabled": true,
+     "code": "// talpieces_status -- what bare TALPIECES prints.\nif (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar tsTot = TP.totals();\nvar tsHave = tsTot[0] + tsTot[1];\nvar tsPct = Math.round((tsHave / TP.goalTotal) * 1000) / 10;\nvar tsMN = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\nvar tsSince = \"no history yet\";\nif (TP.hist && TP.hist.length) {\n  var tsD = new Date(TP.hist[0][0] * 1000);\n  tsSince = TP.hist.length + \" history point\" + (TP.hist.length === 1 ? \"\" : \"s\") + \" since \" + tsD.getDate() + \" \" + tsMN[tsD.getMonth()] + \" \" + tsD.getFullYear();\n}\ndisplay_notice(\"[talpieces] \" + tsHave + \" / \" + TP.goalTotal + \" pieces (\" + tsPct + \"%), \"\n  + tsTot[0] + \" common + \" + tsTot[1] + \" rare; \" + tsSince\n  + \"; graph \" + (TP.graphOn ? \"on\" : \"off\") + \" (\" + TP.chartH + \"px), combine \" + (get_variable(\"talpieces_combine\") === \"off\" ? \"off\" : \"on\")\n  + \". TALPIECES HELP for commands.\", \"cyan\");\n"
+    },
+    {
+     "type": "function",
+     "name": "talpieces_help",
+     "enabled": true,
+     "code": "// talpieces_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[talpieces] dragon talisman pieces toward the Elder Dragon set. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"TALPIECES\", \"progress, history and settings\"],\n  [\"TALPIECES NEED\", \"pieces still needed, per colour and type\"],\n  [\"TALPIECES RATE\", \"pieces per day and a projected finish\"],\n  [\"TALPIECES MARK\", \"store a history point now\"],\n  [\"TALPIECES GRAPH [ON|OFF]\", \"show or hide the graph in the Talismans tab\"],\n  [\"TALPIECES GRAPH <40-400>\", \"graph height (default 110, lower is flatter)\"],\n  [\"TALPIECES SEED <YYYY-MM-DD> [c] [r]\", \"backdate a starting point: common and rare held then\"],\n  [\"TALPIECES CSV\", \"history as CSV lines (most recent 300)\"],\n  [\"TALPIECES COMBINE ON|OFF\", \"queue TALISMAN COMBINE for each row when you list\"],\n  [\"TALPIECES WIPE PIECES|HISTORY\", \"clear the tracked pieces / the graph history\"],\n  [\"TALPIECES RESET / DEBUG\", \"reload from saved variables / internal state\"],\n  [\"Pieces are counted as you find, trade and list them; list yours in game to rebuild the count.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// TALPIECES [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar tpRaw = String(args[1] || \"\").trim();\nvar tpW = tpRaw.toLowerCase().split(/\\s+/);\nvar tpSub = tpW[0];\nvar tpArg = tpW[1] || \"\";\nvar C = \"cyan\";\nif (tpSub === \"\" || tpSub === \"status\") {\n  run_function(\"talpieces_status\", [], \"talpieces\");\n} else if (tpSub === \"help\") {\n  run_function(\"talpieces_help\", [], \"talpieces\");\n} else if (tpSub === \"need\") {\n  run_function(\"talpieces_sync\", [], \"talpieces\");\n  run_function(\"talpieces_need\", [], \"talpieces\");\n} else if (tpSub === \"rate\") {\n  run_function(\"talpieces_rate\", [], \"talpieces\");\n} else if (tpSub === \"mark\") {\n  TP.forceMark = true;\n  run_function(\"talpieces_sync\", [], \"talpieces\");\n  display_notice(\"[talpieces] history point recorded (\" + (TP.nowC + TP.nowR) + \" pieces).\", C);\n} else if (tpSub === \"graph\") {\n  if (tpArg === \"on\" || tpArg === \"off\") {\n    TP.graphOn = (tpArg === \"on\");\n  } else if (/^\\d+$/.test(tpArg)) {\n    var tpV = parseInt(tpArg, 10);\n    if (tpV < 40 || tpV > 400) {\n      display_notice(\"[talpieces] pick a graph height between 40 and 400 (default 110, lower is flatter).\", \"yellow\");\n      tpV = 0;\n    }\n    if (tpV) { TP.chartH = tpV; set_variable(\"talpieces_graph_h\", String(tpV)); }\n  } else if (tpArg === \"\") {\n    TP.graphOn = !TP.graphOn;\n  } else {\n    display_notice(\"[talpieces] TALPIECES GRAPH [ON|OFF|<height 40-400>].\", \"orange\");\n  }\n  set_variable(\"talpieces_graph\", TP.graphOn ? \"on\" : \"off\");\n  run_function(\"talpieces_render\", [], \"talpieces\");\n  display_notice(\"[talpieces] panel graph \" + (TP.graphOn ? \"shown\" : \"hidden\") + \", \" + TP.chartH + \"px high.\", C);\n} else if (tpSub === \"seed\") {\n  var tpM = tpRaw.match(/^\\S+\\s+(\\d{4})-(\\d{1,2})-(\\d{1,2})(?:\\s+(\\d+))?(?:\\s+(\\d+))?\\s*$/);\n  if (!tpM) {\n    display_notice(\"[talpieces] TALPIECES SEED YYYY-MM-DD [common] [rare]: backdates a starting point for the graph.\", \"orange\");\n  } else {\n    TP.seed = { y: parseInt(tpM[1], 10), m: parseInt(tpM[2], 10), d: parseInt(tpM[3], 10), c: tpM[4] ? parseInt(tpM[4], 10) : 0, r: tpM[5] ? parseInt(tpM[5], 10) : 0 };\n    run_function(\"talpieces_seed\", [], \"talpieces\");\n  }\n} else if (tpSub === \"csv\") {\n  var hs = TP.hist || [];\n  var tpStart = hs.length > 300 ? hs.length - 300 : 0;\n  if (tpStart > 0) display_notice(\"[talpieces] showing the most recent 300 of \" + hs.length + \" points.\", \"yellow\");\n  display_notice(\"date,unix,common,rare,total\", \"white\");\n  for (var tpI = tpStart; tpI < hs.length; tpI++) {\n    var tpD = new Date(hs[tpI][0] * 1000);\n    var tpMm = tpD.getMonth() + 1;\n    var tpDd = tpD.getDate();\n    var tpIso = tpD.getFullYear() + \"-\" + (tpMm < 10 ? \"0\" : \"\") + tpMm + \"-\" + (tpDd < 10 ? \"0\" : \"\") + tpDd;\n    display_notice(tpIso + \",\" + hs[tpI][0] + \",\" + hs[tpI][1] + \",\" + hs[tpI][2] + \",\" + (hs[tpI][1] + hs[tpI][2]), \"white\");\n  }\n} else if (tpSub === \"combine\") {\n  if (tpArg === \"on\" || tpArg === \"off\") set_variable(\"talpieces_combine\", tpArg);\n  display_notice(\"[talpieces] combine \" + String(get_variable(\"talpieces_combine\")).toUpperCase() + \": \"\n    + (get_variable(\"talpieces_combine\") === \"off\" ? \"listing your pieces leaves them as they are.\" : \"listing your pieces queues TALISMAN COMBINE for each row.\"), C);\n} else if (tpSub === \"wipe\") {\n  var tpConfirm = (tpW[2] === \"confirm\");\n  if (tpArg === \"pieces\") {\n    if (tpConfirm) {\n      TP.reset();\n      run_function(\"talpieces_sync\", [], \"talpieces\");\n      display_notice(\"[talpieces] all tracked pieces wiped. List your pieces in game to rebuild them.\", \"red\");\n    } else {\n      display_notice(\"[talpieces] this clears ALL tracked pieces. TALPIECES WIPE PIECES CONFIRM to proceed.\", \"yellow\");\n    }\n  } else if (tpArg === \"history\") {\n    if (tpConfirm) {\n      TP.hist = [];\n      set_variable(\"talpieces_hist\", \"[]\");\n      run_function(\"talpieces_render\", [], \"talpieces\");\n      display_notice(\"[talpieces] progress history cleared. Piece counts are untouched.\", \"red\");\n    } else {\n      display_notice(\"[talpieces] this clears the progress GRAPH history only, not your pieces. TALPIECES WIPE HISTORY CONFIRM to proceed.\", \"yellow\");\n    }\n  } else {\n    display_notice(\"[talpieces] TALPIECES WIPE PIECES|HISTORY [CONFIRM].\", \"orange\");\n  }\n} else if (tpSub === \"reset\") {\n  TP.pieces = null;\n  TP.hist = null;\n  run_function(\"talpieces_setup\", [], \"talpieces\");\n  run_function(\"talpieces_render\", [], \"talpieces\");\n  display_notice(\"[talpieces] reloaded from saved variables.\", C);\n} else if (tpSub === \"debug\") {\n  display_notice(\"[talpieces] building=\" + TP.building + \" graphOn=\" + TP.graphOn + \" chartH=\" + TP.chartH + \" hist=\" + (TP.hist ? TP.hist.length : 0)\n    + \" combine=\" + get_variable(\"talpieces_combine\") + \" pieces=\" + JSON.stringify(TP.pieces), C);\n} else {\n  display_notice(\"[talpieces] unknown command '\" + tpSub + \"'. TALPIECES HELP for commands.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^talpieces(?:\\s+(.*))?$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "tracking",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "talpieces_sync",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\ntry { set_variable(\"talpieces_pieces\", JSON.stringify(TP.pieces)); } catch (e) {}\nrun_function(\"talpieces_record\", [], \"talpieces\");\nrun_function(\"talpieces_render\", [], \"talpieces\");"
+    },
+    {
+     "type": "function",
+     "name": "talpieces_record",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar tpTot = TP.totals();\nvar cOwn = tpTot[0];\nvar rOwn = tpTot[1];\nTP.nowC = cOwn;\nTP.nowR = rOwn;\n\nvar hs = TP.hist;\nvar now = Math.floor(new Date().getTime() / 1000);\nvar force = TP.forceMark ? true : false;\nTP.forceMark = false;\n\nif (hs.length === 0) {\n  hs.push([now, cOwn, rOwn]);\n} else {\n  var last = hs[hs.length - 1];\n  if (!force && (now - last[0]) < TP.bucket) {\n    // Same hourly bucket: overwrite in place. This is what stops a full list\n    // rebuild, which syncs once per row, from drawing a fake ramp from zero.\n    last[1] = cOwn;\n    last[2] = rOwn;\n  } else if (force || last[1] !== cOwn || last[2] !== rOwn) {\n    hs.push([now, cOwn, rOwn]);\n  }\n}\n\n// Compaction keeps the persisted variable small: full detail for the last\n// thirty days, one point per day before that.\nif (hs.length > TP.histSoft) {\n  var keep = [];\n  var oldCut = now - 30 * 86400;\n  var lastDay = \"\";\n  var idx;\n  for (idx = 0; idx < hs.length; idx++) {\n    if (hs[idx][0] >= oldCut) {\n      keep.push(hs[idx]);\n    } else {\n      var dd = new Date(hs[idx][0] * 1000);\n      var key = dd.getFullYear() + \"/\" + dd.getMonth() + \"/\" + dd.getDate();\n      if (key === lastDay && keep.length > 0) { keep[keep.length - 1] = hs[idx]; }\n      else { keep.push(hs[idx]); lastDay = key; }\n    }\n  }\n  hs = keep;\n  TP.hist = hs;\n}\nif (hs.length > TP.histCap) { hs.splice(0, hs.length - TP.histCap); }\n\n// Skip the write while a list rebuild is in flight; the flush at the end of\n// the build, or the next real event, persists it.\nif (!TP.building) {\n  try { set_variable(\"talpieces_hist\", JSON.stringify(hs)); } catch (e) {}\n}"
+    },
+    {
+     "type": "function",
+     "name": "talpieces_flush",
+     "enabled": true,
+     "code": "// Called once a list rebuild has settled, so the final totals reach both\n// persistent variables and the panel. Safe to fail: the next real event\n// will do the same work.\nif (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\ntry { set_variable(\"talpieces_pieces\", JSON.stringify(TP.pieces)); } catch (e) {}\nrun_function(\"talpieces_record\", [], \"talpieces\");\nrun_function(\"talpieces_render\", [], \"talpieces\");"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\n// Reset only when a NEW list starts, so a header repeated on later pages\n// (or the debounce not yet fired) does not wipe rows already captured.\nif (!TP.building) {\n  TP.reset();\n  TP.building = true;\n  run_function(\"talpieces_sync\", [], \"talpieces\");\n}\ntry {\n  if (TP.buildTimer) { clearTimeout(TP.buildTimer); }\n  TP.buildTimer = setTimeout(function () { client.loom.talpieces.building = false; try { run_function(\"talpieces_flush\", [], \"talpieces\"); } catch (e) {} }, 5000);\n} catch (e) {}"
+      }
+     ],
+     "text": "^\\s*Num\\b.*\\bLevel\\b.*\\bKeyword\\b",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nif (TP.building) {\n  // Real list row (paged, with a Set column):\n  //   \" B 1  a Black Dragon's claw   6   Dragon   blackdragonclaw\"\n  // also tolerates the parens/no-Set variant: \" B (1) a Red Dragon's scale 2 reddragonscale\"\n  //   args[1] = count, args[3] = level, args[4] = colour, args[5] = piece type.\n  var count = args[1] ? parseInt(args[1], 10) : 1;\n  var level = parseInt(args[3], 10);\n  var color = String(args[4]).toLowerCase();\n  var type  = String(args[5]).toLowerCase();\n  if (type !== \"pieces\" && !isNaN(count) && !isNaN(level)) {\n    TP.add(color, type, level, count);\n    run_function(\"talpieces_sync\", [], \"talpieces\");\n  }\n  // Debounced end-of-list: 5s after the last row/MORE, stop capturing.\n  // The callback names client.loom.talpieces in full: TP may mean something\n  // else by the time it runs.\n  try {\n    if (TP.buildTimer) { clearTimeout(TP.buildTimer); }\n    TP.buildTimer = setTimeout(function () { client.loom.talpieces.building = false; try { run_function(\"talpieces_flush\", [], \"talpieces\"); } catch (e) {} }, 5000);\n  } catch (e) { TP.building = false; }\n}"
+      }
+     ],
+     "text": "^\\s*(?:[A-Za-z]\\s+)?\\(?(\\d+)\\)?\\s+(.+?)\\s+(\\d+)\\s+(?:Dragon\\s+)?(\\w+)dragon(\\w+)\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nif (TP.building) {\n  send_command(\"MORE\");\n  try {\n    if (TP.buildTimer) { clearTimeout(TP.buildTimer); }\n    TP.buildTimer = setTimeout(function () { client.loom.talpieces.building = false; try { run_function(\"talpieces_flush\", [], \"talpieces\"); } catch (e) {} }, 5000);\n  } catch (e) {}\n}"
+      }
+     ],
+     "text": "Type MORE if you wish to continue",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar color = String(args[1]).toLowerCase();\nvar type  = String(args[2]).toLowerCase();\nvar level = parseInt(args[3], 10);\nif (!isNaN(level)) {\n  TP.add(color, type, level, 1);\n  run_function(\"talpieces_sync\", [], \"talpieces\");\n  display_notice(\"[talpieces] +\" + color + \" \" + type + \" (lvl \" + level + \") - now have \" + TP.getcount(color, type), \"cyan\");\n}"
+      }
+     ],
+     "text": "^You have found(?: a)? (\\w+) Dragon(?:'s)? (.+) \\(level (\\d+)\\) talisman piece!$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar level = parseInt(args[2], 10);\nvar color = String(args[3]).toLowerCase();\nvar type  = String(args[4]).toLowerCase();\nif (!isNaN(level)) {\n  TP.add(color, type, level, 1);\n  run_function(\"talpieces_sync\", [], \"talpieces\");\n  display_notice(\"[talpieces] traded IN \" + color + \" \" + type + \" (lvl \" + level + \")\", \"cyan\");\n}"
+      }
+     ],
+     "text": "^(\\w+) has traded the level (\\d+) piece '(?:a )?(\\w+) Dragon(?:'s)? (.+)' to you\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Unlike the Mudlet system (which relied on the TTRADE alias to pre-decrement),\n// this passive port removes the piece here so trading away stays accurate.\nif (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar level = parseInt(args[1], 10);\nvar color = String(args[2]).toLowerCase();\nvar type  = String(args[3]).toLowerCase();\nif (!isNaN(level)) {\n  TP.remove(color, type, level, 1);\n  run_function(\"talpieces_sync\", [], \"talpieces\");\n  display_notice(\"[talpieces] traded OUT \" + color + \" \" + type + \" (lvl \" + level + \")\", \"cyan\");\n}"
+      }
+     ],
+     "text": "^You trade the level (\\d+) piece (?:a )?(\\w+) Dragon(?:'s)? (.+) to (\\w+)\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "reports",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "talpieces_render",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\n// Draws the 'Talismans' tab in the house style shared with Coffers, Level,\n// Ledger, Fishing and DmgChart: ink panel, serif small-caps headings, one\n// large figure, monospace ledger rows. The tab accent is amethyst; each dragon keeps its own colour.\nvar t = TP;\nvar AME = \"#b99be0\";\nvar DEEP = \"#5f4c80\";\nvar TXT = \"#e2ddea\";\nvar MUTED = \"#8a8496\";\nvar RULE = \"#2c2638\";\nvar TRACK = \"#1d1926\";\nvar DONE = \"#7fdca0\";\nvar SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\nvar MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\n// Black is drawn as a dark swatch with a pale rim so it stays visible on ink.\nvar nameCol = { black: \"#a9a6b4\", blue: \"#7aa7e0\", gold: \"#d9b45a\", green: \"#6ec38a\", red: \"#e08a8a\", silver: \"#c3cbd5\" };\nvar swCol = { black: \"#18161c\", blue: \"#7aa7e0\", gold: \"#d9b45a\", green: \"#6ec38a\", red: \"#e08a8a\", silver: \"#c3cbd5\" };\nvar heads = [\"Bone\", \"Claw\", \"Eye\", \"Heart\", \"Leather\", \"Scale\", \"Tooth\"];\nvar MN = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n\nfunction esc(s) { return String(s).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\"); }\nfunction n1(v) { return Math.round(v * 10) / 10; }\nfunction fmtShort(sec) { var d = new Date(sec * 1000); return d.getDate() + \" \" + MN[d.getMonth()]; }\nfunction fmtLong(sec) { var d = new Date(sec * 1000); return d.getDate() + \" \" + MN[d.getMonth()] + \" \" + d.getFullYear(); }\nfunction thou(n) { var s = String(Math.round(n)); var o = \"\"; while (s.length > 3) { o = \",\" + s.slice(-3) + o; s = s.slice(0, -3); } return s + o; }\n// Heat for \"still needed\": green when nearly there, warming to red when far.\nfunction col(need, max) {\n  if (need <= 0) { return DONE; }\n  var r = need / max;\n  if (r <= 0.25) { return DONE; }\n  if (r <= 0.5) { return \"#e6d27a\"; }\n  if (r <= 0.75) { return \"#e0a76a\"; }\n  return \"#e08a8a\";\n}\nfunction swatch(c) { return '<span style=\"display:inline-block;width:8px;height:8px;background:' + swCol[c] + ';border:1px solid ' + (c === \"black\" ? \"#6d6878\" : swCol[c]) + ';margin-right:4px;vertical-align:-1px;\"></span>'; }\nfunction caps(tx, c) { return '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (c || DEEP) + ';font-size:11px;margin:0 0 3px;\">' + tx + '</div>'; }\nfunction row(label, value, c) {\n  return '<div style=\"display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;\"><span style=\"color:' + MUTED + ';white-space:nowrap;\">' + label + '</span><span style=\"color:' + (c || TXT) + ';white-space:nowrap;\">' + value + '</span></div>';\n}\nfunction box(inner, c) { return '<div style=\"flex:1 1 150px;min-width:150px;border-top:2px solid ' + (c || DEEP) + ';padding:3px 2px 0;\">' + inner + '</div>'; }\nfunction section(title, inner) { return '<div style=\"border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;\">' + caps(title, AME) + inner + '</div>'; }\nfunction quiet(tx) { return '<div style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">' + tx + '</div>'; }\n\n// A dragon's slit eye for the title, the talisman tab's counterpart of the coin stack.\nvar glyph = '<svg width=\"20\" height=\"14\" viewBox=\"0 0 20 14\" style=\"vertical-align:-2px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n  '<path d=\"M1 7 Q10 -1 19 7 Q10 15 1 7 Z\" fill=\"' + DEEP + '\" stroke=\"' + AME + '\" stroke-width=\"0.9\"/>' +\n  '<ellipse cx=\"10\" cy=\"7\" rx=\"3.4\" ry=\"4.6\" fill=\"#d9b45a\"/><ellipse cx=\"10\" cy=\"7\" rx=\"0.9\" ry=\"4\" fill=\"#15121b\"/></svg>';\nfunction header(title, right) {\n  return '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;\">' +\n    '<div style=\"font-family:' + SERIF + ';color:' + AME + ';font-size:14px;letter-spacing:0.22em;\">' + glyph + title + '</div>' +\n    '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;\">' + right + '</div></div>';\n}\nvar PANEL = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#121018;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\n\n// ------------------------------------------------------------ the numbers ---\n// Owned is capped per piece type, so 100 black claws still scores 64.\nvar goal = TP.goalTotal;\nvar owned = 0;\nvar perColour = {};\nvar grandC = 0, grandR = 0, coloursDone = 0;\nvar ci, ti;\nfor (ci = 0; ci < t.colors.length; ci++) {\n  var cc = t.colors[ci];\n  var own = 0, needC = 0;\n  for (ti = 0; ti < t.commonTypes.length; ti++) {\n    var gotC = t.getcount(cc, t.commonTypes[ti]);\n    own += gotC > t.reqCommon ? t.reqCommon : gotC;\n    needC += Math.max(0, t.reqCommon - gotC);\n  }\n  var gotR = t.getcount(cc, t.colorrare[cc]);\n  own += gotR > t.reqRare ? t.reqRare : gotR;\n  var needR = Math.max(0, t.reqRare - gotR);\n  perColour[cc] = { own: own, needC: needC, needR: needR };\n  owned += own;\n  grandC += needC;\n  grandR += needR;\n  if (needC === 0 && needR === 0) { coloursDone++; }\n}\nvar perColourGoal = t.reqCommon * t.commonTypes.length + t.reqRare;\n\n// Pace from the history, over the trailing seven days.\nvar hs = TP.hist || [];\nvar rate = 0, etaT = 0;\nif (hs.length >= 2) {\n  var last = hs[hs.length - 1];\n  var lastTot = last[1] + last[2];\n  var cutoff = last[0] - 7 * 86400;\n  var ref = hs[0];\n  for (var hi = hs.length - 1; hi >= 0; hi--) { if (hs[hi][0] <= cutoff) { ref = hs[hi]; break; } }\n  var spanD = (last[0] - ref[0]) / 86400;\n  rate = spanD > 0 ? ((lastTot - (ref[1] + ref[2])) / spanD) : 0;\n  if (rate > 0 && lastTot < goal) {\n    var daysLeft = (goal - lastTot) / rate;\n    if (daysLeft < 3650) { etaT = last[0] + Math.round(daysLeft * 86400); }\n  }\n}\nfunction rateTxt(r) { return r < 1 ? String(Math.round(r * 100) / 100) : String(Math.round(r * 10) / 10); }\n\n// ---------------------------------------------------------------- chart ---\n// Nexus tabs take raw HTML but will not execute injected <script>, so the\n// graph is drawn as static inline SVG and rebuilt on every sync.\nfunction talChart(W, H) {\n  var fs = Math.max(7, Math.min(10, Math.round(H * 0.08)));\n  if (hs.length < 2) {\n    return quiet(\"Two or more data points are needed. One point is stored per hour in which your totals change; TALPIECES SEED backdates a starting point.\");\n  }\n  var first = hs[0];\n  var lastP = hs[hs.length - 1];\n  var lastT = lastP[1] + lastP[2];\n  var x0 = Math.round(fs * 3.4), x1 = W - 6, y0 = Math.round(fs * 0.9), y1 = H - Math.round(fs * 1.9);\n\n  // Give the projection at most 60% of the width, so a distant finish does\n  // not squash the real data into the corner. Past that it leaves the frame\n  // and the right-hand label carries the date instead.\n  var tmin = first[0];\n  var dataSpan = lastP[0] - tmin;\n  if (dataSpan <= 0) { dataSpan = 3600; }\n  var tmax = lastP[0];\n  var clipped = false;\n  if (etaT > lastP[0]) {\n    var maxProj = dataSpan * 1.5;\n    if ((etaT - lastP[0]) > maxProj) { tmax = lastP[0] + maxProj; clipped = true; }\n    else { tmax = etaT; }\n  }\n  if (tmax <= tmin) { tmax = tmin + 3600; }\n  function sx(v) { return x0 + ((v - tmin) / (tmax - tmin)) * (x1 - x0); }\n  function sy(v) { return y1 - (v / goal) * (y1 - y0); }\n\n  // Thin the series so a long history stays cheap to draw.\n  var step = Math.ceil(hs.length / 300);\n  var line = \"\";\n  var k = 0, j;\n  for (j = 0; j < hs.length; j += step) { line += (k === 0 ? \"M\" : \"L\") + n1(sx(hs[j][0])) + \",\" + n1(sy(hs[j][1] + hs[j][2])); k++; }\n  line += \"L\" + n1(sx(lastP[0])) + \",\" + n1(sy(lastT));\n  var area = line + \"L\" + n1(sx(lastP[0])) + \",\" + y1 + \"L\" + n1(sx(first[0])) + \",\" + y1 + \"Z\";\n\n  var svg = '<svg viewBox=\"0 0 ' + W + ' ' + H + '\" width=\"100%\" style=\"display:block;height:auto;overflow:visible;\" xmlns=\"http://www.w3.org/2000/svg\">';\n  // Gridlines at each quarter of the goal; the goal itself is dashed.\n  for (var q = 0; q <= 4; q++) {\n    var gv = goal * q / 4;\n    var gy = n1(sy(gv));\n    svg += '<line x1=\"' + x0 + '\" y1=\"' + gy + '\" x2=\"' + x1 + '\" y2=\"' + gy + '\" stroke=\"' + (q === 4 ? DEEP : RULE) + '\" stroke-width=\"' + (q === 4 ? 0.9 : 0.6) + '\"' + (q === 4 ? ' stroke-dasharray=\"3,2\"' : \"\") + '/>';\n    if (q === 0 || q === 2 || q === 4) {\n      svg += '<text x=\"' + (x0 - 3) + '\" y=\"' + n1(gy + fs * 0.35) + '\" text-anchor=\"end\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + MUTED + '\">' + thou(gv) + '</text>';\n    }\n  }\n  svg += '<path d=\"' + area + '\" fill=\"' + AME + '\" fill-opacity=\"0.13\" stroke=\"none\"/>';\n  if (etaT > 0) {\n    var pEndT = clipped ? tmax : etaT;\n    var pEndV = clipped ? (lastT + rate * ((tmax - lastP[0]) / 86400)) : goal;\n    svg += '<path d=\"M' + n1(sx(lastP[0])) + ',' + n1(sy(lastT)) + 'L' + n1(sx(pEndT)) + ',' + n1(sy(pEndV)) + '\" fill=\"none\" stroke=\"' + DEEP + '\" stroke-width=\"1.1\" stroke-dasharray=\"3,3\"/>';\n  }\n  svg += '<path d=\"' + line + '\" fill=\"none\" stroke=\"' + AME + '\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/>';\n  svg += '<circle cx=\"' + n1(sx(lastP[0])) + '\" cy=\"' + n1(sy(lastT)) + '\" r=\"' + 2.4 + '\" fill=\"#f1e8ff\"/>';\n  // X labels: start on the left, projected finish on the right, latest in the\n  // middle only when there is room for it without collisions.\n  var lblGap = fs * 5;\n  var ly = H - 3;\n  svg += '<text x=\"' + x0 + '\" y=\"' + ly + '\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + MUTED + '\">' + fmtShort(first[0]) + '</text>';\n  if (etaT > 0) {\n    svg += '<text x=\"' + x1 + '\" y=\"' + ly + '\" text-anchor=\"end\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + AME + '\">' + (clipped ? \"&#8594; \" : \"\") + fmtShort(etaT) + '</text>';\n    var mx = sx(lastP[0]);\n    if ((mx - x0) > lblGap && (x1 - mx) > lblGap) {\n      svg += '<text x=\"' + n1(mx) + '\" y=\"' + ly + '\" text-anchor=\"middle\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + MUTED + '\">' + fmtShort(lastP[0]) + '</text>';\n    }\n  } else {\n    svg += '<text x=\"' + x1 + '\" y=\"' + ly + '\" text-anchor=\"end\" font-family=\"' + MONO + '\" font-size=\"' + fs + '\" fill=\"' + MUTED + '\">' + fmtShort(lastP[0]) + '</text>';\n  }\n  return svg + '</svg>';\n}\n\n// -------------------------------------------------------- headline block ---\nvar pct = goal > 0 ? Math.round(owned / goal * 1000) / 10 : 0;\nfunction headline() {\n  var out = '<div style=\"margin:6px 0 2px;\"><span style=\"font-family:' + SERIF + ';font-size:26px;color:' + AME + ';\">' + pct + '%</span> ';\n  out += '<span style=\"font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;\">of the way &mdash; ' + thou(owned) + ' of ' + thou(goal) + ' pieces</span></div>';\n  // One bar in six equal parts, each filled in its dragon's colour.\n  out += '<div style=\"display:flex;gap:2px;height:7px;margin:2px 0 1px;\">';\n  for (var b = 0; b < t.colors.length; b++) {\n    var c = t.colors[b];\n    var fp = Math.min(100, perColour[c].own / perColourGoal * 100);\n    out += '<div title=\"' + c + ' ' + Math.floor(fp) + '%\" style=\"flex:1 1 0;background:' + TRACK + ';' + (c === \"black\" ? 'outline:1px solid #3a3446;' : '') + '\"><div style=\"height:7px;width:' + n1(fp) + '%;background:' + swCol[c] + ';' + (c === \"black\" ? 'background:#4a4556;' : '') + '\"></div></div>';\n  }\n  out += '</div>';\n  out += '<div style=\"display:flex;gap:2px;color:' + MUTED + ';\">';\n  for (var b2 = 0; b2 < t.colors.length; b2++) {\n    var c2 = t.colors[b2];\n    var fp2 = Math.floor(Math.min(100, perColour[c2].own / perColourGoal * 100));\n    out += '<span style=\"flex:1 1 0;text-align:center;' + (fp2 >= 100 ? 'color:' + DONE + ';' : '') + '\">' + (fp2 >= 100 ? '&#10003;' : fp2 + '%') + '</span>';\n  }\n  return out + '</div>';\n}\n\n// -------------------------------------------------------------- the tab ---\nvar html = PANEL + header(\"TALISMANS\", coloursDone + ' of ' + t.colors.length + ' colours done');\nhtml += headline();\n\nvar cols = '<div style=\"display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;\">';\nvar nb = caps(\"Still needed\", AME);\nnb += '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + (grandC + grandR > 0 ? TXT : DONE) + ';\">' + (grandC + grandR > 0 ? thou(grandC + grandR) + ' pieces' : 'nothing!') + '</div>';\nnb += row(\"common\", thou(grandC), grandC > 0 ? TXT : DONE);\nnb += row(\"rare\", String(grandR), grandR > 0 ? TXT : DONE);\ncols += box(nb, AME);\nvar pb = caps(\"Pace, last 7 days\", AME);\nif (owned >= goal) {\n  pb += '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + DONE + ';\">complete</div>';\n} else if (rate > 0) {\n  pb += '<div style=\"font-family:' + SERIF + ';font-size:16px;color:' + TXT + ';\">' + rateTxt(rate) + ' / day</div>';\n  pb += row(\"finish\", etaT > 0 ? '~' + fmtLong(etaT) : 'beyond ten years', etaT > 0 ? AME : MUTED);\n} else {\n  pb += quiet(hs.length < 2 ? \"Not enough history yet.\" : \"No gain in the last 7 days.\");\n}\ncols += box(pb, DEEP);\nhtml += cols + '</div>';\n\n// The grid: pieces still needed, by colour and type.\nvar cell = 'text-align:right;padding:1px 0 1px 4px;';\nvar grid = '<table style=\"width:100%;border-collapse:collapse;font-family:' + MONO + ';font-size:10px;color:' + TXT + ';\">';\ngrid += '<tr style=\"color:' + MUTED + ';font-family:' + SERIF + ';font-size:11px;font-variant:small-caps;letter-spacing:0.06em;border-bottom:1px solid ' + RULE + ';\"><td style=\"padding:0 0 2px;\">colour</td>';\nfor (var h2 = 0; h2 < heads.length; h2++) { grid += '<td style=\"' + cell + '\" title=\"' + heads[h2] + '\">' + heads[h2].substr(0, 2).toLowerCase() + '</td>'; }\ngrid += '<td style=\"' + cell + '\">rare</td><td style=\"' + cell + '\">need</td></tr>';\nfor (ci = 0; ci < t.colors.length; ci++) {\n  var color = t.colors[ci];\n  var P = perColour[color];\n  var cells = '';\n  for (ti = 0; ti < t.commonTypes.length; ti++) {\n    var n = Math.max(0, t.reqCommon - t.getcount(color, t.commonTypes[ti]));\n    cells += '<td style=\"' + cell + 'color:' + col(n, t.reqCommon) + ';\">' + (n <= 0 ? '&#10003;' : String(n)) + '</td>';\n  }\n  var rare = t.colorrare[color];\n  var rareCell = '<td style=\"' + cell + 'color:' + col(P.needR, t.reqRare) + ';white-space:nowrap;\"><span style=\"color:' + MUTED + ';\">' + esc(rare).substr(0, 4) + '</span> ' + (P.needR <= 0 ? '&#10003;' : String(P.needR)) + '</td>';\n  var done = (P.needC === 0 && P.needR === 0);\n  var totalCell = done ? '<td style=\"' + cell + 'color:' + DONE + ';font-family:' + SERIF + ';font-size:11px;font-variant:small-caps;letter-spacing:0.08em;\">done</td>' : '<td style=\"' + cell + 'color:' + col(P.needC, t.reqCommon * 7) + ';\">' + P.needC + '</td>';\n  grid += '<tr style=\"border-bottom:1px dotted ' + RULE + ';\"><td style=\"padding:1px 0;color:' + nameCol[color] + ';white-space:nowrap;\">' + swatch(color) + color + '</td>' + cells + rareCell + totalCell + '</tr>';\n}\ngrid += '</table>';\ngrid += '<div style=\"color:' + MUTED + ';margin-top:3px;font-family:' + SERIF + ';font-style:italic;\">64 of each common and 4 of each rare, per colour. Run your in-game talisman list to rebuild from the game.</div>';\nhtml += section(\"Pieces still needed\", grid);\n\nif (TP.graphOn) {\n  html += section(\"Progress over time\", talChart(640, TP.chartH));\n  html += '<div style=\"color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;\">Solid line: pieces counted toward the goal. Dashed: projection at the last seven days&rsquo; rate. TALPIECES RATE for figures, TALPIECES MARK to force a data point.</div>';\n}\nhtml += '</div>';\n\ntry { set_custom_tab_html(\"Talismans\", html); } catch (e) {}\n"
+    },
+    {
+     "type": "function",
+     "name": "talpieces_need",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar t = TP;\ndisplay_notice(\"[talpieces] still needed (of 64 common / 4 rare per colour):\", \"white\");\nvar gc = 0, gr = 0;\nfor (var ci = 0; ci < t.colors.length; ci++) {\n  var color = t.colors[ci], parts = [], need = 0;\n  for (var ti = 0; ti < t.commonTypes.length; ti++) {\n    var ty = t.commonTypes[ti];\n    var n = Math.max(0, t.reqCommon - t.getcount(color, ty));\n    need += n;\n    parts.push(ty.substr(0, 2) + \":\" + n);\n  }\n  var rare = t.colorrare[color];\n  var rn = Math.max(0, t.reqRare - t.getcount(color, rare));\n  gc += need; gr += rn;\n  var line = color + \"  \" + parts.join(\" \") + \"  \" + rare.substr(0, 4) + \":\" + rn + \"   = \" + need + (rn > 0 ? (\" +\" + rn + \"r\") : \"\");\n  display_notice(\"[talpieces] \" + line, (need === 0 && rn === 0) ? \"green\" : \"cyan\");\n}\ndisplay_notice(\"[talpieces] TOTAL: \" + gc + \" common + \" + gr + \" rare still needed\", \"cyan\");"
+    },
+    {
+     "type": "function",
+     "name": "talpieces_rate",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar hs = TP.hist || [];\nvar goal = TP.goalTotal;\nvar MN = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\nfunction fl(sec) {\n  var d = new Date(sec * 1000);\n  return d.getDate() + \" \" + MN[d.getMonth()] + \" \" + d.getFullYear();\n}\nfunction rateOver(days) {\n  if (hs.length < 2) { return null; }\n  var last = hs[hs.length - 1];\n  var cutoff = last[0] - days * 86400;\n  var ref = hs[0];\n  for (var i = hs.length - 1; i >= 0; i--) { if (hs[i][0] <= cutoff) { ref = hs[i]; break; } }\n  var span = (last[0] - ref[0]) / 86400;\n  if (span <= 0) { return null; }\n  return { gain: (last[1] + last[2]) - (ref[1] + ref[2]), days: span, per: ((last[1] + last[2]) - (ref[1] + ref[2])) / span, whole: (ref[0] === hs[0][0]) };\n}\nif (hs.length === 0) {\n  display_notice(\"[talpieces] no history recorded yet. Find or list a piece, or use TALPIECES MARK to store the first point.\", \"cyan\");\n} else {\n  var last2 = hs[hs.length - 1];\n  var tot = last2[1] + last2[2];\n  var pct = Math.round((tot / goal) * 1000) / 10;\n  display_notice(\"[talpieces] progress: \" + tot + \" / \" + goal + \" pieces (\" + pct + \"%), \" + (goal - tot) + \" to go\", \"cyan\");\n  display_notice(\"[talpieces] tracking since \" + fl(hs[0][0]) + \" across \" + hs.length + \" data point\" + (hs.length === 1 ? \"\" : \"s\") + \", latest \" + fl(last2[0]), \"white\");\n  var windows = [7, 30];\n  for (var w = 0; w < windows.length; w++) {\n    var r = rateOver(windows[w]);\n    // Skip a window that reaches all the way back: the all-time line says it.\n    if (r && !r.whole) {\n      display_notice(\"[talpieces] last \" + windows[w] + \"d: \" + (r.gain >= 0 ? \"+\" : \"\") + r.gain + \" pieces = \" + (Math.round(r.per * 10) / 10) + \"/day\", \"white\");\n    }\n  }\n  var all = rateOver(100000);\n  if (all) {\n    display_notice(\"[talpieces] all time: \" + (all.gain >= 0 ? \"+\" : \"\") + all.gain + \" pieces over \" + (Math.round(all.days * 10) / 10) + \"d = \" + (Math.round(all.per * 10) / 10) + \"/day\", \"white\");\n  }\n  var seven = rateOver(7);\n  if (tot >= goal) {\n    display_notice(\"[talpieces] the set is complete.\", \"green\");\n  } else if (seven && seven.per > 0) {\n    var dl = (goal - tot) / seven.per;\n    display_notice(\"[talpieces] at the \" + (seven.whole ? \"all-time\" : \"7-day\") + \" rate: about \" + Math.ceil(dl) + \" days left, finishing near \" + fl(last2[0] + Math.round(dl * 86400)), \"cyan\");\n  } else if (all && all.per > 0) {\n    var dl2 = (goal - tot) / all.per;\n    display_notice(\"[talpieces] no gain in the last 7 days. At the all-time rate: about \" + Math.ceil(dl2) + \" days left.\", \"yellow\");\n  } else {\n    display_notice(\"[talpieces] not enough movement yet to project a finish.\", \"yellow\");\n  }\n}"
+    },
+    {
+     "type": "function",
+     "name": "talpieces_seed",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.talpieces || !client.loom.talpieces.pieces) run_function(\"talpieces_setup\", [], \"talpieces\");\nvar TP = client.loom.talpieces;\nvar s = TP.seed;\nif (!s) {\n  display_notice(\"[talpieces] nothing to seed.\", \"yellow\");\n} else {\n  var d = new Date(s.y, s.m - 1, s.d, 12, 0, 0);\n  var ts = Math.floor(d.getTime() / 1000);\n  var hs = TP.hist;\n  var out = [];\n  var i;\n  // Drop any existing point within twelve hours of the seed, then insert in order.\n  for (i = 0; i < hs.length; i++) {\n    if (Math.abs(hs[i][0] - ts) > 43200) { out.push(hs[i]); }\n  }\n  out.push([ts, s.c, s.r]);\n  out.sort(function (a, b) { return a[0] - b[0]; });\n  TP.hist = out;\n  try { set_variable(\"talpieces_hist\", JSON.stringify(out)); } catch (e) {}\n  TP.seed = null;\n  display_notice(\"[talpieces] seeded \" + (s.c + s.r) + \" pieces at \" + s.d + \"/\" + s.m + \"/\" + s.y + \". History now holds \" + out.length + \" point\" + (out.length === 1 ? \"\" : \"s\") + \".\", \"cyan\");\n  run_function(\"talpieces_render\", [], \"talpieces\");\n}"
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "combine",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// A level 1-6 piece row of your listing: queue TALISMAN COMBINE for it\n// (args[1] = level, args[2] = keyword), unless COMBINE is off or Loom is paused.\nif (get_variable(\"talpieces_combine\") !== \"off\" && get_variable(\"pauseTriggers\") !== \"on\") {\n  send_command(\"queue add eqbal talisman combine \" + args[2] + \" \" + args[1]);\n}\n"
+      }
+     ],
+     "text": "([1-6])     Dragon     (\\w+)",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "highlights",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#a100ff",
+       "highlight_bg": "#000000",
+       "highlight": "line",
+       "highlight_backref": ""
+      },
+      {
+       "type": "sound",
+       "enabled": true,
+       "sound": "bell"
+      }
+     ],
+     "text": "talisman piece!",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  }
+ ],
+ "description": "Dragon talisman piece tracker with progress history. Live panel in a UI tab named 'Talismans'. TALPIECES HELP for commands. State in client.loom.talpieces; history in the talpieces_hist variable as [unixSeconds, cappedCommon, cappedRare], one point per hour in which totals change."
+}
