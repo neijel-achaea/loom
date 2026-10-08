@@ -12,4 +12,7 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
   }
 }
 
+send_command("score");
+send_command("def");
+
 run_function("self_render", [], "self");
