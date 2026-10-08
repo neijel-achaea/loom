@@ -1,0 +1,12 @@
+var C = "cyan";
+display_notice("[security] antitheft, gold in the backpack, and give/sell/drop/offer without selfishness getting in the way. Commands:", C);
+display_notice("  SECURITY                         status", C);
+display_notice("  SECURITY ANTITHEFT ON|OFF        put back worn items and gold that get taken", C);
+display_notice("  GG / PG                          get gold out of / put gold into the backpack (antitheft off / on)", C);
+display_notice("  SECURITY BACKPACK <id> | <desc>  your backpack: its id, and how it reads in \"You remove ...\"", C);
+display_notice("  SECURITY ITEMS                   worn items antitheft watches", C);
+display_notice("  SECURITY ITEM ADD <wear command> | <desc>   e.g. wear ring123 | a silver ring set with emerald", C);
+display_notice("  SECURITY ITEM DEL <n>", C);
+display_notice("  SECURITY HOUSE IN|OUT            send your house state command", C);
+display_notice("  SECURITY HOUSE SET IN|OUT <command>", C);
+display_notice("  GIVE / SELL / DROP / OFFER       drop selfishness around the action when it is up", C);
