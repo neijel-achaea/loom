@@ -1,8 +1,10 @@
+// Patrolling follows the room itself, and checks each new room when ON.
+if (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function("patrolling_setup", [], "patrolling");
+var P = client.loom.patrolling;
 if (args.gmcp_method == "Room.Info") {
-  var p = client.patrol;
-  if (p) {
-    p.env = (args.gmcp_args && args.gmcp_args.environment) || "";
-    p.active = false; p.phase = null;               // clear any half-finished check
-    if (p.on) run_function("patrol_check", null, "patrolling");
-  }
+  var paG = args.gmcp_args || {};
+  P.room = { id: paG.num, name: paG.name || "", area: paG.area || "", env: paG.environment || "" };
+  P.active = false;
+  P.gag = false;
+  if (get_variable("patrolling_on") == "on") run_function("patrolling_check", [], "patrolling");
 }

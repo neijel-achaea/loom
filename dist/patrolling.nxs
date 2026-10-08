@@ -7,7 +7,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"patrolling_setup\", [], \"patrolling\");\ndisplay_notice(\"[patrolling] installed. PATROLLING HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
@@ -19,13 +19,196 @@
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "client.patrol = client.patrol || {};\nvar p = client.patrol;\nif (p.on === undefined)       p.on = false;\nif (p.flagGaia === undefined) p.flagGaia = false;   // false = don't alert on your own Gaia shrines\np.active = false; p.phase = null; p.present = []; p.shrines = []; p.env = p.env || \"\";\np.expected = {\n  \"Deep Ocean\": [],\n  \"Reef\": [],\n  \"Shadowscape\": [],\n  \"Wastelands\": [],\n  \"Water\": [],\n  \"Ocean\": [\"kelp\"],\n  \"Trees\": [],\n  \"Ruins\": [],\n  \"Road\": [],\n  \"Constructed underground\": [],\n  \"Blighted\": [],\n  \"Hills\": [\"hawthorn\",\"bayberry\"],\n  \"Desert\": [\"pear\",\"weed\"],\n  \"Jungle\": [\"kola\",\"skullcap\",\"kuzu\",\"fruit\",\"cacao\"],\n  \"Valley\": [\"sileris\",\"olive\"],\n  \"Mountains\": [\"valerian\"],\n  \"Beach\": [],\n  \"Path\": [],\n  \"Urban\": [],\n  \"Natural underground\": [\"moss\",\"lumic\",\"bloodroot\"],\n  \"Garden\": [\"echinacea\",\"ginger\",\"lobelia\",\"myrrh\",\"ginseng\",\"elm\",\"fruit\",\"vegetable\"],\n  \"River\": [\"kelp\"],\n  \"Swamp\": [\"cohosh\",\"bellwort\",\"ash\"],\n  \"Freshwater\": [\"kelp\"],\n  \"Grasslands\": [\"slipper\",\"sugarcane\",\"grain\",\"goldenseal\"],\n  \"Forest\": [\"burdock\",\"ginseng\",\"ginger\",\"myrrh\",\"echinacea\",\"lobelia\",\"elm\",\"nut\"]\n};\n\np.area = p.area || \"\";\np.areas = {\n  \"Aalen\": 10,\n  \"Actar Valley\": 3,\n  \"Adryn's Keep\": 3,\n  \"Aerinewild\": 10,\n  \"Ageiro\": 3,\n  \"Annwyn\": 1,\n  \"Aran'riod\": 1,\n  \"Arcadia\": 1,\n  \"Asterian Peninsula\": 1,\n  \"Aster Keep\": 1,\n  \"Atrousian Jungle\": 1,\n  \"Aureliana\": 10,\n  \"Aurick Manor\": 3,\n  \"Azdun\": 3,\n  \"Bagwar's Copse\": 3,\n  \"Bataoac\": 1,\n  \"Battlesite of Mourning Pass\": 1,\n  \"Belladona's Keep\": 3,\n  \"Bitterfork\": 3,\n  \"Black Forest\": 10,\n  \"Blackrock\": 3,\n  \"Bog\": 3,\n  \"Boldarihm\": 3,\n  \"Bopalopia\": 1,\n  \"Brass Lantern Inn\": 3,\n  \"Chaghut Encampment\": 1,\n  \"Chapel of All Gods\": 3,\n  \"Clockwork Isle\": 3,\n  \"Colchis\": 3,\n  \"Cormorant Rock\": 3,\n  \"Creville Asylum\": 3,\n  \"Crystal Leaf Inn\": 3,\n  \"Dakhota Hills\": 3,\n  \"Daoric Plains\": 1,\n  \"Dardanic Plains\": 3,\n  \"Darkenwood\": 10,\n  \"Delos\": 3,\n  \"Digsite of Blood\": 3,\n  \"Digsite of Discord\": 1,\n  \"Digsite of Equilibrium\": 3,\n  \"Digsite of Husks\": 3,\n  \"Digsite of Luck\": 3,\n  \"Digsite of Pain\": 3,\n  \"Digsite of Rage\": 3,\n  \"Digsite of the Mind\": 3,\n  \"Digsite of the Soul\": 1,\n  \"Digsite of War\": 3,\n  \"Digsite of Waves\": 3,\n  \"Digsite of Wealth\": 3,\n  \"Dreamspear\": 1,\n  \"Dryad Gardens\": 10,\n  \"Dun\": 3,\n  \"Dwarven Camp\": 3,\n  \"Eastern Ithmia\": 10,\n  \"Eastern Reaches\": 3,\n  \"Eastern Road\": 3,\n  \"Eastern Shore\": 3,\n  \"Eirenwaar\": 3,\n  \"Enverren Marsh\": 3,\n  \"Erymanthus\": 1,\n  \"Fissure of Echoes\": 1,\n  \"Fluvadha River\": 1,\n  \"Forest Watch\": 3,\n  \"Frozen Tundra\": 1,\n  \"Genji\": 3,\n  \"Ghezavat Commune\": 3,\n  \"Goblin Village\": 3,\n  \"Granite Hills\": 3,\n  \"Great Rock\": 3,\n  \"Green Lake\": 3,\n  \"Grukai Swamp\": 1,\n  \"Gulf of Nilakantha\": 1,\n  \"Hriddan\": 1,\n  \"Hthrak\": 1,\n  \"Ilyrean Tundra\": 3,\n  \"Inbhir Ness\": 1,\n  \"Isaia\": 1,\n  \"Ishana Steppes\": 1,\n  \"Isle of Harae\": 3,\n  \"Isolation\": 1,\n  \"Istar Jungle\": 1,\n  \"Istarion\": 1,\n  \"Jaru\": 3,\n  \"Judgement Mountain\": 1,\n  \"Ka'doloki\": 3,\n  \"Kamleikan\": 1,\n  \"Karbaz\": 3,\n  \"Lake Dakhota\": 3,\n  \"Lake Narcisse\": 3,\n  \"Lake Vundamere\": 3,\n  \"Lake Xulighae\": 1,\n  \"Luman Village\": 1,\n  \"Mannaseh Swamp\": 3,\n  \"Manticore Caves\": 3,\n  \"Manusha\": 3,\n  \"Mesmerium\": 3,\n  \"Mhaldor Isle\": 3,\n  \"Mhojave\": 3,\n  \"Mines of Iskadar\": 1,\n  \"Minos\": 3,\n  \"Mirror Caves\": 1,\n  \"Mnemosyne Delta\": 1,\n  \"Mnemosyne River\": 1,\n  \"Morindar\": 1,\n  \"Mount Piraeus\": 3,\n  \"Muurn Jungle/Lake\": 3,\n  \"Mysia\": 3,\n  \"New Hope\": 3,\n  \"New Thera\": 3,\n  \"Nilakantha\": 1,\n  \"Nimick\": 3,\n  \"Northern Ithmia\": 10,\n  \"Northern Plains\": 3,\n  \"Northern Scrublands\": 1,\n  \"Northern Vashnars\": 3,\n  \"Northreach\": 10,\n  \"Northreach Barrows\": 3,\n  \"Orcish Outpost\": 3,\n  \"Pachacacha\": 3,\n  \"Pash Valley\": 3,\n  \"Peshwar Delta\": 3,\n  \"Petra\": 3,\n  \"Pherklos Ruins\": 3,\n  \"Polyargos\": 3,\n  \"Prin\": 0,\n  \"Prison\": 1,\n  \"Quartz Peak\": 3,\n  \"Qurnok\": 3,\n  \"Rheodad\": 1,\n  \"Rhodestrian\": 3,\n  \"Riagath\": 1,\n  \"Riparium\": 3,\n  \"Saiha'balan Grotto\": 3,\n  \"Salt mines of Ulsyndar\": 1,\n  \"Saoghal Valley\": 1,\n  \"Sangre Plains\": 3,\n  \"Sarave Foothills\": 1,\n  \"Savannah\": 3,\n  \"Scorpion Pit\": 3,\n  \"Sea Lion Cove\": 3,\n  \"Seat of Vastar\": 1,\n  \"Shala-Khulia\": 3,\n  \"Shala'jen-Past\": 1,\n  \"Shala'jen-Present\": 3,\n  \"Shamtota Hills\": 3,\n  \"Shipwrecks Isle\": 3,\n  \"Silverveil River\": 3,\n  \"Siroccian Mountains\": 3,\n  \"Sirocco Fortress\": 1,\n  \"Southern Vashnars\": 3,\n  \"Squall Cleft\": 1,\n  \"Suliel\": 3,\n  \"Sunderlands\": 0, // Nothing to patrol there\n  \"Tapoa\": 3,\n  \"Tasur'ke\": 3,\n  \"Temple of the Sky\": 0,\n  \"Thraasi Foothills\": 3,\n  \"Tir Murann\": 3,\n  \"Tomacula Village\": 3,\n  \"Tower of Falaq'tor\": 1,\n  \"Tuar\": 3,\n  \"Ulangi\": 3,\n  \"Umbrin\": 3,\n  \"Urubamba\": 3,\n  \"Valho Coast\": 1,\n  \"Vashnars\": 3,\n  \"Vasnari Mountains\": 1,\n  \"Wevaga Valley\": 1,\n  \"Western Ithmia\": 10,\n  \"Western Vashnars\": 3,\n  \"Xhaiden Dale\": 3,\n  \"Zanzibaar\": 3,\n  \"Zaphar Isle\": 3,\n  \"Zaphar River\": 3,\n}"
+   "code": "run_function(\"patrolling_setup\", [], \"patrolling\");\n"
   },
   {
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "if (args.gmcp_method == \"Room.Info\") {\n  var p = client.patrol;\n  if (p) {\n    p.env = (args.gmcp_args && args.gmcp_args.environment) || \"\";\n    p.active = false; p.phase = null;               // clear any half-finished check\n    if (p.on) run_function(\"patrol_check\", null, \"patrolling\");\n  }\n}"
+   "code": "// Patrolling follows the room itself, and checks each new room when ON.\nif (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nif (args.gmcp_method == \"Room.Info\") {\n  var paG = args.gmcp_args || {};\n  P.room = { id: paG.num, name: paG.name || \"\", area: paG.area || \"\", env: paG.environment || \"\" };\n  P.active = false;\n  P.gag = false;\n  if (get_variable(\"patrolling_on\") == \"on\") run_function(\"patrolling_check\", [], \"patrolling\");\n}\n"
+  },
+  {
+   "type": "group",
+   "name": "core",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "patrolling_setup",
+     "enabled": true,
+     "code": "// patrolling_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, migration, tables.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.patrolling) client.loom.patrolling = {};\nclient.loom.registry.patrolling = { version: \"0.2.0\", keyword: \"PATROLLING\" };\nvar P = client.loom.patrolling;\n\n// One-time migration: patrol_last -> patrolling_last; the old session object\n// on client.patrol is dropped (its ON state carries over).\nvar paOld = get_variable(\"patrol_last\");\nif (paOld !== null && paOld !== undefined) {\n  if (!get_variable(\"patrolling_last\")) set_variable(\"patrolling_last\", paOld);\n  delete_variable(\"patrol_last\");\n}\nif (client.patrol) {\n  if (client.patrol.on && !get_variable(\"patrolling_on\")) set_variable(\"patrolling_on\", \"on\");\n  client.patrol = null;\n}\nif (!get_variable(\"patrolling_on\")) set_variable(\"patrolling_on\", \"off\");\n// Clan for fire alerts, lightning reports and replanting logs; empty = none.\nif (get_variable(\"patrolling_clan\") === null || get_variable(\"patrolling_clan\") === undefined) set_variable(\"patrolling_clan\", \"\");\n// Your god: shrines and totems of your god aren't flagged; empty = flag all.\nif (get_variable(\"patrolling_god\") === null || get_variable(\"patrolling_god\") === undefined) set_variable(\"patrolling_god\", \"\");\nif (!get_variable(\"patrolling_last\")) set_variable(\"patrolling_last\", {});\n\nP.active = false;\nP.gag = false;\nP.present = [];\nP.shrines = [];\nif (!P.room) P.room = { id: \"\", name: \"\", area: \"\", env: \"\" };\nP.months = [\"Sarapin\", \"Daedalan\", \"Aeguary\", \"Miraman\", \"Scarlatan\", \"Ero\", \"Valnuary\", \"Lupar\", \"Phaestian\", \"Chronos\", \"Glacian\", \"Mayan\"];\n\n// Plants each environment should hold (GMCP environment name).\nP.expected = {\n  \"Deep Ocean\": [],\n  \"Reef\": [],\n  \"Shadowscape\": [],\n  \"Wastelands\": [],\n  \"Water\": [],\n  \"Ocean\": [\"kelp\"],\n  \"Trees\": [],\n  \"Ruins\": [],\n  \"Road\": [],\n  \"Constructed underground\": [],\n  \"Blighted\": [],\n  \"Hills\": [\"hawthorn\",\"bayberry\"],\n  \"Desert\": [\"pear\",\"weed\"],\n  \"Jungle\": [\"kola\",\"skullcap\",\"kuzu\",\"fruit\",\"cacao\"],\n  \"Valley\": [\"sileris\",\"olive\"],\n  \"Mountains\": [\"valerian\"],\n  \"Beach\": [],\n  \"Path\": [],\n  \"Urban\": [],\n  \"Natural underground\": [\"moss\",\"lumic\",\"bloodroot\"],\n  \"Garden\": [\"echinacea\",\"ginger\",\"lobelia\",\"myrrh\",\"ginseng\",\"elm\",\"fruit\",\"vegetable\"],\n  \"River\": [\"kelp\"],\n  \"Swamp\": [\"cohosh\",\"bellwort\",\"ash\"],\n  \"Freshwater\": [\"kelp\"],\n  \"Grasslands\": [\"slipper\",\"sugarcane\",\"grain\",\"goldenseal\"],\n  \"Forest\": [\"burdock\",\"ginseng\",\"ginger\",\"myrrh\",\"echinacea\",\"lobelia\",\"elm\",\"nut\"]\n};\n\n// How much each area is worth patrolling (PATROLLING SUGGEST weighs by this\n// and by hours since the last patrol); 0 = never suggest.\nP.areas = {\n  \"Aalen\": 10,\n  \"Actar Valley\": 3,\n  \"Adryn's Keep\": 3,\n  \"Aerinewild\": 10,\n  \"Ageiro\": 3,\n  \"Annwyn\": 1,\n  \"Aran'riod\": 1,\n  \"Arcadia\": 1,\n  \"Asterian Peninsula\": 1,\n  \"Aster Keep\": 1,\n  \"Atrousian Jungle\": 1,\n  \"Aureliana\": 10,\n  \"Aurick Manor\": 3,\n  \"Azdun\": 3,\n  \"Bagwar's Copse\": 3,\n  \"Bataoac\": 1,\n  \"Battlesite of Mourning Pass\": 1,\n  \"Belladona's Keep\": 3,\n  \"Bitterfork\": 3,\n  \"Black Forest\": 10,\n  \"Blackrock\": 3,\n  \"Bog\": 3,\n  \"Boldarihm\": 3,\n  \"Bopalopia\": 1,\n  \"Brass Lantern Inn\": 3,\n  \"Chaghut Encampment\": 1,\n  \"Chapel of All Gods\": 3,\n  \"Clockwork Isle\": 3,\n  \"Colchis\": 3,\n  \"Cormorant Rock\": 3,\n  \"Creville Asylum\": 3,\n  \"Crystal Leaf Inn\": 3,\n  \"Dakhota Hills\": 3,\n  \"Daoric Plains\": 1,\n  \"Dardanic Plains\": 3,\n  \"Darkenwood\": 10,\n  \"Delos\": 3,\n  \"Digsite of Blood\": 3,\n  \"Digsite of Discord\": 1,\n  \"Digsite of Equilibrium\": 3,\n  \"Digsite of Husks\": 3,\n  \"Digsite of Luck\": 3,\n  \"Digsite of Pain\": 3,\n  \"Digsite of Rage\": 3,\n  \"Digsite of the Mind\": 3,\n  \"Digsite of the Soul\": 1,\n  \"Digsite of War\": 3,\n  \"Digsite of Waves\": 3,\n  \"Digsite of Wealth\": 3,\n  \"Dreamspear\": 1,\n  \"Dryad Gardens\": 10,\n  \"Dun\": 3,\n  \"Dwarven Camp\": 3,\n  \"Eastern Ithmia\": 10,\n  \"Eastern Reaches\": 3,\n  \"Eastern Road\": 3,\n  \"Eastern Shore\": 3,\n  \"Eirenwaar\": 3,\n  \"Enverren Marsh\": 3,\n  \"Erymanthus\": 1,\n  \"Fissure of Echoes\": 1,\n  \"Fluvadha River\": 1,\n  \"Forest Watch\": 3,\n  \"Frozen Tundra\": 1,\n  \"Genji\": 3,\n  \"Ghezavat Commune\": 3,\n  \"Goblin Village\": 3,\n  \"Granite Hills\": 3,\n  \"Great Rock\": 3,\n  \"Green Lake\": 3,\n  \"Grukai Swamp\": 1,\n  \"Gulf of Nilakantha\": 1,\n  \"Hriddan\": 1,\n  \"Hthrak\": 1,\n  \"Ilyrean Tundra\": 3,\n  \"Inbhir Ness\": 1,\n  \"Isaia\": 1,\n  \"Ishana Steppes\": 1,\n  \"Isle of Harae\": 3,\n  \"Isolation\": 1,\n  \"Istar Jungle\": 1,\n  \"Istarion\": 1,\n  \"Jaru\": 3,\n  \"Judgement Mountain\": 1,\n  \"Ka'doloki\": 3,\n  \"Kamleikan\": 1,\n  \"Karbaz\": 3,\n  \"Lake Dakhota\": 3,\n  \"Lake Narcisse\": 3,\n  \"Lake Vundamere\": 3,\n  \"Lake Xulighae\": 1,\n  \"Luman Village\": 1,\n  \"Mannaseh Swamp\": 3,\n  \"Manticore Caves\": 3,\n  \"Manusha\": 3,\n  \"Mesmerium\": 3,\n  \"Mhaldor Isle\": 3,\n  \"Mhojave\": 3,\n  \"Mines of Iskadar\": 1,\n  \"Minos\": 3,\n  \"Mirror Caves\": 1,\n  \"Mnemosyne Delta\": 1,\n  \"Mnemosyne River\": 1,\n  \"Morindar\": 1,\n  \"Mount Piraeus\": 3,\n  \"Muurn Jungle/Lake\": 3,\n  \"Mysia\": 3,\n  \"New Hope\": 3,\n  \"New Thera\": 3,\n  \"Nilakantha\": 1,\n  \"Nimick\": 3,\n  \"Northern Ithmia\": 10,\n  \"Northern Plains\": 3,\n  \"Northern Scrublands\": 1,\n  \"Northern Vashnars\": 3,\n  \"Northreach\": 10,\n  \"Northreach Barrows\": 3,\n  \"Orcish Outpost\": 3,\n  \"Pachacacha\": 3,\n  \"Pash Valley\": 3,\n  \"Peshwar Delta\": 3,\n  \"Petra\": 3,\n  \"Pherklos Ruins\": 3,\n  \"Polyargos\": 3,\n  \"Prin\": 0,\n  \"Prison\": 1,\n  \"Quartz Peak\": 3,\n  \"Qurnok\": 3,\n  \"Rheodad\": 1,\n  \"Rhodestrian\": 3,\n  \"Riagath\": 1,\n  \"Riparium\": 3,\n  \"Saiha'balan Grotto\": 3,\n  \"Salt mines of Ulsyndar\": 1,\n  \"Saoghal Valley\": 1,\n  \"Sangre Plains\": 3,\n  \"Sarave Foothills\": 1,\n  \"Savannah\": 3,\n  \"Scorpion Pit\": 3,\n  \"Sea Lion Cove\": 3,\n  \"Seat of Vastar\": 1,\n  \"Shala-Khulia\": 3,\n  \"Shala'jen-Past\": 1,\n  \"Shala'jen-Present\": 3,\n  \"Shamtota Hills\": 3,\n  \"Shipwrecks Isle\": 3,\n  \"Silverveil River\": 3,\n  \"Siroccian Mountains\": 3,\n  \"Sirocco Fortress\": 1,\n  \"Southern Vashnars\": 3,\n  \"Squall Cleft\": 1,\n  \"Suliel\": 3,\n  \"Sunderlands\": 0, // Nothing to patrol there\n  \"Tapoa\": 3,\n  \"Tasur'ke\": 3,\n  \"Temple of the Sky\": 0,\n  \"Thraasi Foothills\": 3,\n  \"Tir Murann\": 3,\n  \"Tomacula Village\": 3,\n  \"Tower of Falaq'tor\": 1,\n  \"Tuar\": 3,\n  \"Ulangi\": 3,\n  \"Umbrin\": 3,\n  \"Urubamba\": 3,\n  \"Valho Coast\": 1,\n  \"Vashnars\": 3,\n  \"Vasnari Mountains\": 1,\n  \"Wevaga Valley\": 1,\n  \"Western Ithmia\": 10,\n  \"Western Vashnars\": 3,\n  \"Xhaiden Dale\": 3,\n  \"Zanzibaar\": 3,\n  \"Zaphar Isle\": 3,\n  \"Zaphar River\": 3,\n};\n"
+    },
+    {
+     "type": "function",
+     "name": "patrolling_status",
+     "enabled": true,
+     "code": "var P = client.loom.patrolling;\ndisplay_notice(\"[patrolling] \" + String(get_variable(\"patrolling_on\")).toUpperCase()\n  + \", clan \" + (get_variable(\"patrolling_clan\") || \"none\")\n  + \", god \" + (get_variable(\"patrolling_god\") || \"none (every shrine flagged)\")\n  + \", here: \" + (P.room.area || \"?\") + \" / \" + (P.room.env || \"?\") + \". PATROLLING HELP for commands.\", \"cyan\");\n"
+    },
+    {
+     "type": "function",
+     "name": "patrolling_help",
+     "enabled": true,
+     "code": "// patrolling_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[patrolling] room-by-room plant and shrine checks for patrols. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"PATROLLING\", \"status\"],\n  [\"PATROLLING ON|OFF\", \"check every room you enter\"],\n  [\"PATROLLING HERE\", \"check this room once\"],\n  [\"PATROLLING LEARN\", \"print this room's plants as a table entry\"],\n  [\"PATROLLING SUGGEST\", \"an area to patrol, weighed by worth and time since last\"],\n  [\"PATROLLING STAMP [area]\", \"mark an area as patrolled (no area: the one you're in)\"],\n  [\"PATROLLING FIRE\", \"tell your clan there's a fire here\"],\n  [\"PATROLLING CLAN <clan|OFF>\", \"clan for fire alerts, lightning reports and replanting logs\"],\n  [\"PATROLLING GOD <god|OFF>\", \"don't flag shrines and totems of your god\"],\n  [\"PATROLLING RESET / DEBUG\", \"reload the tables / internal state\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// PATROLLING [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nvar paRaw = String(args[1] || \"\").trim();\nvar paW = paRaw.toLowerCase().split(/\\s+/);\nvar paSub = paW[0];\nvar paRest = paRaw.substring(paW[0].length).trim();\nvar C = \"cyan\";\nif (paSub === \"\" || paSub === \"status\") {\n  run_function(\"patrolling_status\", [], \"patrolling\");\n} else if (paSub === \"help\") {\n  run_function(\"patrolling_help\", [], \"patrolling\");\n} else if (paSub === \"on\" || paSub === \"off\") {\n  set_variable(\"patrolling_on\", paSub);\n  if (paSub === \"off\") { P.active = false; P.gag = false; }\n  display_notice(\"[patrolling] \" + paSub.toUpperCase() + \".\", C);\n  if (paSub === \"on\") run_function(\"patrolling_check\", [], \"patrolling\");\n} else if (paSub === \"here\") {\n  run_function(\"patrolling_check\", [], \"patrolling\");\n} else if (paSub === \"learn\") {\n  P.learn = true;\n  run_function(\"patrolling_check\", [], \"patrolling\");\n} else if (paSub === \"suggest\") {\n  run_function(\"patrolling_suggest\", [], \"patrolling\");\n} else if (paSub === \"stamp\") {\n  var paIn = (paRest || P.room.area || \"\").toLowerCase();\n  var paMatch = \"\";\n  for (var paA in P.areas) { if (paA.toLowerCase() == paIn) paMatch = paA; }\n  if (paMatch) {\n    var paLast = get_variable(\"patrolling_last\") || {};\n    paLast[paMatch] = new Date().getTime();\n    set_variable(\"patrolling_last\", paLast);\n    display_notice(\"[patrolling] \" + paMatch + \" stamped as patrolled.\", C);\n  } else {\n    display_notice(\"[patrolling] area '\" + (paRest || P.room.area || \"?\") + \"' isn't in the table.\", \"orange\");\n  }\n} else if (paSub === \"fire\") {\n  var paClan = get_variable(\"patrolling_clan\");\n  if (!paClan) display_notice(\"[patrolling] no clan set. PATROLLING CLAN <clan>.\", \"orange\");\n  else { send_command(\"clan switch \" + paClan); send_command(\"clt Fire at me! \" + P.room.name + \" (\" + P.room.id + \") at \" + P.room.area); }\n} else if (paSub === \"clan\" || paSub === \"god\") {\n  if (paRest === \"\") {\n    display_notice(\"[patrolling] \" + paSub + \": \" + (get_variable(\"patrolling_\" + paSub) || \"none\") + \".\", C);\n  } else {\n    var paV = (paRest.toLowerCase() === \"off\") ? \"\" : paRest.toLowerCase();\n    set_variable(\"patrolling_\" + paSub, paV);\n    display_notice(\"[patrolling] \" + paSub + \": \" + (paV || \"none\") + \".\", C);\n  }\n} else if (paSub === \"reset\") {\n  run_function(\"patrolling_setup\", [], \"patrolling\");\n  display_notice(\"[patrolling] tables reloaded.\", C);\n} else if (paSub === \"debug\") {\n  display_notice(\"[patrolling] room=\" + JSON.stringify(P.room) + \" active=\" + P.active + \" present=\" + JSON.stringify(P.present) + \" shrines=\" + JSON.stringify(P.shrines), C);\n} else {\n  display_notice(\"[patrolling] unknown command '\" + paSub + \"'. PATROLLING HELP for commands.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^patrolling(?:\\s+(.*))?$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "check",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "patrolling_check",
+     "enabled": true,
+     "code": "// patrolling_check -- PLANTS and INFO HERE, captured by the triggers below.\nvar P = client.loom.patrolling;\nif (get_variable(\"pauseTriggers\") != \"on\") {\n  P.present = [];\n  P.shrines = [];\n  P.active = true;\n  P.gag = false;\n  send_command(\"PLANTS\", 1);\n  send_command(\"INFO HERE\", 1);\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "patrolling_report",
+     "enabled": true,
+     "code": "var P = client.loom.patrolling;\nvar paEnv = P.room.env || \"unknown\";\nif (P.learn) {\n  P.learn = false;\n  display_notice('[patrolling] table entry ->  \"' + paEnv + '\": ' + JSON.stringify(P.present) + ',', \"cyan\");\n} else {\n  var paExp = P.expected[paEnv];\n  var paOut = [];\n  var paCol = \"#55ff55\";\n  if (!paExp) {\n    paOut.push(\"no expected list for '\" + paEnv + \"' (PATROLLING LEARN prints one)\");\n    paCol = \"#ffcc55\";\n  } else {\n    var paMiss = [];\n    for (var paI = 0; paI < paExp.length; paI++) { if (P.present.indexOf(paExp[paI]) < 0) paMiss.push(paExp[paI]); }\n    if (paMiss.length) { paOut.push(\"missing \" + paMiss.join(\", \")); paCol = \"#ff5555\"; }\n    else paOut.push(\"all present\");\n  }\n  if (P.shrines.length) { paOut.push(\"SHRINE/TOTEM: \" + P.shrines.join(\" ; \")); paCol = \"#ff5555\"; }\n  display_notice(\"[patrolling] \" + paEnv + \": \" + paOut.join(\"  |  \"), paCol);\n}\n"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nif (P.active) { P.gag = true; gag_current_line(); }\n"
+      }
+     ],
+     "text": "growing in this room",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nif (P.active) { P.present.push(args[1]); gag_current_line(); }\n"
+      }
+     ],
+     "text": "\\(([a-z]+)\\)\\s+[A-Z][a-z]+\\s*$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nif (P.active && P.gag && !/Number of objects/i.test(current_text())) {\n  gag_current_line();\n  var paGod = String(get_variable(\"patrolling_god\") || \"\");\n  if (!paGod || !new RegExp(\"of\\\\s+\" + paGod + \"\\\\b\", \"i\").test(current_text())) P.shrines.push(current_text().trim());\n}\n"
+      }
+     ],
+     "text": "\\b(?:shrine|totem)\\b",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nif (P.active && P.gag && !/Number of objects/i.test(current_text())) gag_current_line();\n"
+      }
+     ],
+     "text": "^\\S+\\s+\\S",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nif (P.active) { gag_current_line(); P.active = false; P.gag = false; run_function(\"patrolling_report\", [], \"patrolling\"); }\n"
+      }
+     ],
+     "text": "Number of objects:",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "suggest",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "patrolling_suggest",
+     "enabled": true,
+     "code": "// patrolling_suggest -- a weighted random area: weight x hours since patrolled\n// (never patrolled counts as a week).\nvar P = client.loom.patrolling;\nvar paLast = get_variable(\"patrolling_last\") || {};\nvar paNow = new Date().getTime();\nvar paNames = Object.keys(P.areas);\nvar paScores = [];\nvar paTotal = 0;\nfor (var paI = 0; paI < paNames.length; paI++) {\n  var paH = paLast[paNames[paI]] ? (paNow - paLast[paNames[paI]]) / 3600000 : 168;\n  var paS = P.areas[paNames[paI]] * paH;\n  paScores.push(paS);\n  paTotal += paS;\n}\nif (paTotal <= 0) {\n  display_notice(\"[patrolling] no areas with a weight above 0.\", \"#ffcc55\");\n} else {\n  var paR = Math.random() * paTotal;\n  var paK = 0;\n  while (paK < paNames.length - 1 && paR >= paScores[paK]) { paR -= paScores[paK]; paK++; }\n  var paPick = paNames[paK];\n  var paAgo = paLast[paPick] ? Math.round((paNow - paLast[paPick]) / 3600000) + \"h ago\" : \"never\";\n  display_notice(\"[patrolling] suggest: \" + paPick + \" (weight \" + P.areas[paPick] + \", last patrolled \" + paAgo + \").\", \"cyan\");\n}\n"
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "clan",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "patrolling_date",
+     "enabled": true,
+     "code": "// patrolling_date -- today's Achaean date into P.dateTxt, from ledger when it\n// is loaded (client.loom.ledger, or the pre-0.2 client.lg); \"\" otherwise.\nvar P = client.loom.patrolling;\nvar paLg = (client.loom.ledger && client.loom.ledger.day > 0) ? client.loom.ledger : client.lg;\nvar paDay = (paLg && paLg.day > 0) ? paLg.day : 0;\nP.dateTxt = \"\";\nif (paDay > 0) {\n  var paN = paDay - 1;\n  var paY = Math.floor(paN / 300);\n  var paRem = paN - paY * 300;\n  P.dateTxt = ((paRem % 25) + 1) + \" \" + P.months[Math.floor(paRem / 25)] + \", \" + paY + \" AF\";\n}\n"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Replanting: write it to the clan log, dated when ledger knows the date.\nif (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nvar paClan = get_variable(\"patrolling_clan\");\nif (paClan && get_variable(\"pauseTriggers\") != \"on\") {\n  run_function(\"patrolling_date\", [], \"patrolling\");\n  send_command(\"writelog \" + paClan + \" \" + (P.dateTxt || \"date not known\") + \" - Replanted \" + args[1] + \" at \" + P.room.name + \" (\" + P.room.id + \") in \" + P.room.area);\n}\n"
+      }
+     ],
+     "text": "^You reach down and dig a small hole for (.*)\\. Putting it in the hole\\, you then cover it",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
   },
   {
    "type": "group",
@@ -64,7 +247,7 @@
      ],
      "text": "^The loud sound of thunder rolls through the skies\\, shaking the air around you\\.$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -83,7 +266,7 @@
      ],
      "text": "Dark clouds churn through storm-tossed skies\\, light dwindling beneath the echoing roar of the heavens\\.",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -102,7 +285,7 @@
      ],
      "text": "The feeble rays of the waning sun glimmer with hollow promise before the storm\\-filled clouds consuming the skies\\.",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -126,12 +309,12 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var currentArea = get_variable(\"currentArea\");\n\nsend_command(\"clan switch wildwalkers\");\nsend_command(\"clt Lightning strike at \" + currentArea);"
+       "script": "// Lightning strike: tell the clan where, when a clan is set.\nif (!client.loom || !client.loom.patrolling || !client.loom.patrolling.expected) run_function(\"patrolling_setup\", [], \"patrolling\");\nvar P = client.loom.patrolling;\nvar paClan = get_variable(\"patrolling_clan\");\nif (paClan && get_variable(\"pauseTriggers\") != \"on\") {\n  send_command(\"clan switch \" + paClan);\n  send_command(\"clt Lightning strike at \" + (P.room.area || \"an unknown area\"));\n}\n"
       }
      ],
      "text": "^A lightning bolt streaks down from the skies\\, full of fury and anger\\.$",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -150,7 +333,7 @@
      ],
      "text": "Utter blackness descends\\, the starlit heavens utterly concealed behind roiling clouds marked by thunderous portent\\.",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -169,7 +352,7 @@
      ],
      "text": "The rising sun provides little relief to the fulminous roar of the heavens above as the Skylord\\'s presence is felt within storm\\-grey skies\\.",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -188,7 +371,7 @@
      ],
      "text": "Rain pours down from dark thunderclouds\\, only the merest hints of sunset breaking through\\.",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     },
     {
@@ -207,210 +390,10 @@
      ],
      "text": "Lightning crackles against the darkening sky\\, giving brief glimpses of rotating clouds\\.",
      "matching": "regexp",
-     "whole_words": true,
+     "whole_words": false,
      "case_sensitive": true
     }
    ]
-  },
-  {
-   "type": "group",
-   "name": "suggest",
-   "enabled": true,
-   "items": [
-    {
-     "type": "alias",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "var input = (args[1] || \"\").trim().toLowerCase();\nvar p = client.patrol;\nvar names = Object.keys((p && p.areas) || {});\nvar match = \"\";\nfor (var i = 0; i < names.length; i++) { if (names[i].toLowerCase() == input) match = names[i]; }\nif (match) {\n  var last = get_variable(\"patrol_last\") || {};\n  last[match] = Date.now();\n  set_variable(\"patrol_last\", last);\n  display_notice(\"[patrolling] Stamped \" + match + \" as patrolled.\", \"cyan\");\n} else {\n  display_notice(\"[patrolling] Area '\" + args[1] + \"' not found.\", \"orange\");\n}"
-      }
-     ],
-     "text": "^patrol_stamp (.*)$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
-    },
-    {
-     "type": "alias",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "var p = client.patrol;\nvar last = get_variable(\"patrol_last\") || {};\nvar now = Date.now();\nvar names = Object.keys((p && p.areas) || {});\nvar scores = [];\nvar total = 0;\nfor (var i = 0; i < names.length; i++) {\n  var h = last[names[i]] ? (now - last[names[i]]) / 3600000 : 168;   // never patrolled = treat as a week stale\n  var s = p.areas[names[i]] * h;\n  scores.push(s);\n  total += s;\n}\nif (total <= 0) {\n  display_notice(\"[patrolling] No areas configured - add some to p.areas in onLoad.\", \"#ffcc55\");\n} else {\n  var r = Math.random() * total;\n  var k = 0;\n  while (k < names.length - 1 && r >= scores[k]) { r -= scores[k]; k++; }\n  var pick = names[k];\n  var ago = last[pick] ? Math.round((now - last[pick]) / 3600000) + \"h ago\" : \"never\";\n  display_notice(\"[patrolling] Suggest: \" + pick + \" (weight \" + p.areas[pick] + \", last patrolled \" + ago + \")\", \"cyan\");\n}"
-      }
-     ],
-     "text": "^patrol_suggest$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
-    }
-   ]
-  },
-  {
-   "type": "function",
-   "name": "patrol_check",
-   "enabled": true,
-   "code": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  var p = client.patrol;\n  if (p) {\n    p.present = []; p.shrines = []; p.active = true; p.gag = false;\n    send_command(\"PLANTS\", 1);\n    send_command(\"INFO HERE\", 1);\n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
-  },
-  {
-   "type": "alias",
-   "name": "patrolling",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "//Enter the script herevar p = client.patrol; if (!p) { client.patrol = {}; p = client.patrol; }\nif (!client.patrol) client.patrol = { on:false, flagGaia:false, active:false, phase:null, env:\"\", present:[], shrines:[], expected:{} };\nif ((args[1]||\"\").toLowerCase()==\"on\")   { client.patrol.on=true;  display_notice(\"[patrolling] Patrol: ON\", \"cyan\");\nrun_function(\"patrol_check\", null, \"patrolling\"); }\nif ((args[1]||\"\").toLowerCase()==\"off\")  { client.patrol.on=false; client.patrol.active=false; client.patrol.phase=null; display_notice(\"[patrolling] Patrol: OFF\", \"cyan\"); }\nif ((args[1]||\"\").toLowerCase()==\"here\")  { run_function(\"patrol_check\", [], \"patrolling\"); }\nif ((args[1]||\"\").toLowerCase()==\"learn\") { client.patrol.learn=true; run_function(\"patrol_check\", null, \"patrolling\"); }"
-    }
-   ],
-   "text": "^patrolling\\s+(\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "trigger",
-   "name": "patrol_plants_header",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active) { client.patrol.gag = true; gag_current_line(); }"
-    }
-   ],
-   "text": "growing in this room",
-   "matching": "substring",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "patrol_plant_line",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active) { client.patrol.present.push(args[1]); gag_current_line(); }"
-    }
-   ],
-   "text": "\\(([a-z]+)\\)\\s+[A-Z][a-z]+\\s*$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "patrol_info_shrine",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active && client.patrol.gag && !/Number of objects/i.test(current_text())) { gag_current_line(); if (client.patrol.flagGaia || !/of\\s+Gaia\\b/i.test(current_text())) client.patrol.shrines.push(current_text().trim()); }"
-    }
-   ],
-   "text": "\\b(?:shrine|totem)\\b",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "patrol_info_gag",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active && client.patrol.gag && !/Number of objects/i.test(current_text())) gag_current_line();"
-    }
-   ],
-   "text": "^\\S+\\s+\\S",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "patrol_info_end",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "//Enter the script here\n\nif (client.patrol && client.patrol.active) { gag_current_line(); client.patrol.active=false; client.patrol.gag=false; run_function(\"patrol_report\", null, \"patrolling\"); }"
-    }
-   ],
-   "text": "Number of objects:",
-   "matching": "substring",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "function",
-   "name": "patrol_report",
-   "enabled": true,
-   "code": "var p = client.patrol;\nif (p) {\n  if (p.learn) {\n    p.learn = false;\n    display_notice('[patrolling] onLoad entry ->  \"' + (p.env || \"unknown\") + '\": ' + JSON.stringify(p.present) + ',');\n  } else {\n    var env = p.env || \"unknown\";\n    var exp = p.expected[env];\n    var out = [];\n    var color = \"#55ff55\";                 // green = all good\n    if (!exp) {\n      out.push(\"no expected list for '\" + env + \"' — add one in onLoad\");\n      color = \"#ffcc55\";                   // amber = environment not in your table yet\n    } else {\n      var missing = exp.filter(function (x) { return p.present.indexOf(x) < 0; });\n      if (missing.length) { out.push(\"missing \" + missing.join(\", \")); color = \"#ff5555\"; }  // red\n      else out.push(\"all present\");\n    }\n    if (p.shrines.length) { out.push(\"SHRINE/TOTEM: \" + p.shrines.join(\" ; \")); color = \"#ff5555\"; }\n    display_notice(\"[patrolling] Patrol [\" + env + \"]: \" + out.join(\"  |  \"), color);\n  }\n}"
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var currentArea = get_variable(\"currentArea\");\nvar currentRoomName = get_variable(\"currentRoomName\");\nvar currentRoomId = get_variable(\"currentRoomId\");\n\nsend_command(\"clan switch wildwalkers\");\nsend_command(\"clt Fire at me! \" + currentRoomName + \" (\" + currentRoomId + \") at \" + currentArea);\n"
-    }
-   ],
-   "text": "^fireatme$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "run_function(\"onLoad\", [], \"patrolling\");\ndisplay_notice(\"[patrolling] Environments reloaded.\", \"cyan\");"
-    }
-   ],
-   "text": "^patrol_reload$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var plant = args[1];\nvar currentArea = get_variable(\"currentArea\");\nvar currentRoomName = get_variable(\"currentRoomName\");\nvar currentRoomId = get_variable(\"currentRoomId\");\nvar today = client.lg.day;\n\nvar n = today - 1;\nvar yy = Math.floor(n / 300);\nvar rem = n - yy * 300;\nvar mi = Math.floor(rem / 25);\nvar dd = (rem % 25) + 1;\nvar stamp = today > 0 ? (dd + \" \" + client.lg.months[mi] + \", \" + yy + \" AF\") : \"date not yet known\";\n\nsend_command(\"writelog wildwalkers \" + stamp + \" - Replanted \" + plant + \" at \" + currentRoomName + \" (\" + currentRoomId + \") in \" + currentArea);"
-    }
-   ],
-   "text": "^You reach down and dig a small hole for (.*)\\. Putting it in the hole\\, you then cover it with dirt and chant a prayer to the spirits of Nature\\. Soon after you finish the prayer\\, (.*) quickly grows into a small seedling\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
   }
  ],
  "description": ""

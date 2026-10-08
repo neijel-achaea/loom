@@ -1,1 +1,2 @@
-// Place any code here you'd like to autorun when the package is installed
+run_function("patrolling_setup", [], "patrolling");
+display_notice("[patrolling] installed. PATROLLING HELP for commands.", "cyan");
