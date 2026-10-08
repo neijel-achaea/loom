@@ -1,0 +1,126 @@
+{
+ "type": "group",
+ "name": "civic",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "run_function(\"civic_setup\", [], \"civic\");\ndisplay_notice(\"[civic] installed. CIVIC HELP for commands.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Place any code here you'd like to autorun when the package is uninstalled\n"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"civic_setup\", [], \"civic\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// Civic follows the city itself and fills in that city's known defaults for\n// any setting not chosen yet.\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.city) {\n  if (!client.loom) client.loom = {};\n  if (!client.loom.civic) run_function(\"civic_setup\", [], \"civic\");\n  var C = client.loom.civic;\n  C.city = String(args.gmcp_args.city).replace(/\\s*\\(.*\\)\\s*$/, \"\");\n  var known = (C.cities || {})[C.city.toLowerCase()];\n  if (known) {\n    var keys = Object.keys(known);\n    for (var i = 0; i < keys.length; i++) {\n      var v = get_variable(\"civic_\" + keys[i]);\n      if (v === null || v === undefined || v === \"\") set_variable(\"civic_\" + keys[i], known[keys[i]]);\n    }\n  }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "civic_setup",
+   "enabled": true,
+   "code": "// civic_setup -- run from onLoad and onInstall: namespace, registry and the\n// per-city defaults. Each ministry keeps its settings in civic_<ministry>_*.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.civic) client.loom.civic = {};\nclient.loom.registry.civic = { version: \"0.2.0\", keyword: \"CIVIC\" };\n\n// Known values per city. Players fill in their own city with CIVIC AIDE\n// TITLE / CLAN; send yours back so it can be added here.\nclient.loom.civic.cities = {\n  eleusis: { aide_title: \"Verdant Emissary\", aide_clan: \"saiha\" }\n};\n"
+  },
+  {
+   "type": "function",
+   "name": "civic_status",
+   "enabled": true,
+   "code": "var C = client.loom.civic;\nvar title = get_variable(\"civic_aide_title\");\nvar clan = get_variable(\"civic_aide_clan\");\ndisplay_notice(\"[civic] city: \" + (C.city || \"not seen yet\"), \"cyan\");\ndisplay_notice(\"  aide: \" + (get_variable(\"civic_aide_on\") == \"on\" ? \"ON duty\" : \"off duty\")\n  + \", title \" + (title ? \"'\" + title + \"'\" : \"not set\")\n  + \", novice clan \" + (clan ? clan : \"not set\"), \"cyan\");\ndisplay_notice(\"  CIVIC HELP for commands.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "civic_help",
+   "enabled": true,
+   "code": "var K = \"cyan\";\ndisplay_notice(\"[civic] city duties. Commands:\", K);\ndisplay_notice(\"  CIVIC                       status\", K);\ndisplay_notice(\"  Ambassador aide:\", K);\ndisplay_notice(\"  CIVIC AIDE ON | OFF         go on or off duty (city guide, newbie channel, novice clan)\", K);\ndisplay_notice(\"  CIVIC AIDE TITLE <title>    your aide title, e.g. Verdant Emissary\", K);\ndisplay_notice(\"  CIVIC AIDE CLAN <clan>      the novice clan you help in, e.g. saiha\", K);\ndisplay_notice(\"  CIVIC GREET <name> [CT|CLT] welcome a new citizen (both channels by default)\", K);\n"
+  },
+  {
+   "type": "function",
+   "name": "civic_aide",
+   "enabled": true,
+   "code": "// CIVIC AIDE ON | OFF | TITLE <title> | CLAN <clan>\nvar C = client.loom.civic;\nvar what = String(C.argv[0] || \"\").toLowerCase();\nvar rest = C.argv.slice(1).join(\" \");\nvar title = get_variable(\"civic_aide_title\");\nvar clan = get_variable(\"civic_aide_clan\");\n\nif (what === \"title\") {\n  if (rest) { set_variable(\"civic_aide_title\", rest); title = rest; }\n  display_notice(\"[civic] aide title: \" + (title || \"not set\"), \"cyan\");\n} else if (what === \"clan\") {\n  if (rest) { set_variable(\"civic_aide_clan\", rest.toLowerCase()); clan = rest.toLowerCase(); }\n  display_notice(\"[civic] novice clan: \" + (clan || \"not set\"), \"cyan\");\n} else if (what === \"on\" || what === \"off\") {\n  if (!clan) {\n    display_notice(\"[civic] set your novice clan first: CIVIC AIDE CLAN <clan>.\", \"orange\");\n  } else if (get_variable(\"pauseTriggers\") == \"on\") {\n    display_notice(\"[civic] triggers are paused; try again when LOOM PAUSE is off.\", \"orange\");\n  } else {\n    var on = (what === \"on\");\n    var label = title || \"Aide\";\n    send_command(\"city guide \" + (on ? \"available\" : \"unavailable\"));\n    send_command(\"clan switch \" + clan);\n    send_command(on ? \"newbieon\" : \"newbieoff\");\n    if (on) send_command(\"clt \" + label + \" on duty. If you have any questions or need anything, don't hesitate to ask!\");\n    else send_command(\"clt \" + label + \" off duty. If you have any questions or need anything, still don't hesitate to ask!\");\n    set_variable(\"civic_aide_on\", what);\n    display_notice(\"[civic] aide \" + (on ? \"ON\" : \"OFF\") + \" duty.\", on ? \"lime\" : \"cyan\");\n  }\n} else {\n  display_notice(\"[civic] use CIVIC AIDE ON, OFF, TITLE <title> or CLAN <clan>.\", \"orange\");\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "civic_greet",
+   "enabled": true,
+   "code": "// CIVIC GREET <name> [CT|CLT] -- both channels by default.\nvar C = client.loom.civic;\nvar who = String(C.argv[0] || \"\");\nvar where = String(C.argv[1] || \"both\").toLowerCase();\nvar clan = get_variable(\"civic_aide_clan\");\n\nif (!who) {\n  display_notice(\"[civic] use CIVIC GREET <name> [CT|CLT].\", \"orange\");\n} else if (where !== \"both\" && where !== \"ct\" && where !== \"clt\") {\n  display_notice(\"[civic] greet on CT, CLT, or leave it out for both.\", \"orange\");\n} else if (where !== \"ct\" && !clan) {\n  display_notice(\"[civic] set your novice clan first: CIVIC AIDE CLAN <clan>.\", \"orange\");\n} else {\n  who = who.charAt(0).toUpperCase() + who.slice(1).toLowerCase();\n  if (where === \"ct\" || where === \"both\") {\n    send_command(\"ct Welcome, \" + who + \"! You can talk here with CT message. Please have a look at CHELP WELCOME when you have some time.\");\n  }\n  if (where === \"clt\") {\n    send_command(\"clan switch \" + clan);\n    send_command(\"clt Welcome, \" + who + \"! You can talk here with CLT message. Please have a look at CLHELP WELCOME to learn how to progress through your novicehood. Don't hesitate to ask any questions here.\");\n  }\n  if (where === \"both\") {\n    send_command(\"clan switch \" + clan);\n    send_command(\"clt And welcome here too! You can talk with CLT message. Please have a look at CLHELP WELCOME to learn how to progress through your novicehood. Don't hesitate to ask any questions here.\");\n  }\n}\n"
+  },
+  {
+   "type": "alias",
+   "name": "civic",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// CIVIC [ministry or command ...]: the one command for this package.\nif (!client.loom || !client.loom.civic) run_function(\"civic_setup\", [], \"civic\");\nvar C = client.loom.civic;\nvar raw = String(args[1] || \"\").trim();\nvar parts = raw.split(/\\s+/);\nvar sub = String(parts[0] || \"\").toLowerCase();\n// Keep the original words too: titles and names keep their capitals.\nC.argv = parts.slice(1);\n\nif (sub === \"\" || sub === \"status\") run_function(\"civic_status\", [], \"civic\");\nelse if (sub === \"help\") run_function(\"civic_help\", [], \"civic\");\nelse if (sub === \"aide\") run_function(\"civic_aide\", [], \"civic\");\nelse if (sub === \"greet\") run_function(\"civic_greet\", [], \"civic\");\nelse display_notice(\"[civic] unknown command '\" + sub + \"'. CIVIC HELP for commands.\", \"orange\");\n"
+    }
+   ],
+   "text": "^civic(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  },
+  {
+   "type": "group",
+   "name": "Ambassador Aide",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// A lesson request: accept it, unless the asker is on your enemies list\n// (only checked when the social package is installed).\nvar who = args[1];\nvar skill = args[2];\n\nif (get_variable(\"pauseTriggers\") != \"on\") {\n  var hl = client.hl;\n  if (hl && hl.enemies && hl.enemies[String(who).toLowerCase()]) {\n    display_notice(\"[civic] \" + who + \" is an enemy: not teaching.\", \"orange\");\n  } else {\n    send_command(\"ok\");\n    display_notice(\"[civic] teaching \" + skill + \" to \" + who, \"cyan\");\n  }\n} else {\n  display_notice(\"[civic] triggers are paused: lesson request from \" + who + \" not answered.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^(\\w+) has requested that you share some of your knowledge of (.*) with (\\w+)\\. \\'OK\\' to commence the lesson\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#00ffbc",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      },
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "var newbie = args[1];\n\n// Add them to the city highlight group, if the social package is installed.\nif (client.hl) send_command(\"hladd city \" + newbie);\ndisplay_notice(\"[civic] new citizen: \" + newbie + \". Welcome them with CIVIC GREET \" + newbie + \".\", \"cyan\");\n"
+      }
+     ],
+     "text": "^Your fellow citizen, (\\w+), has just escaped",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  }
+ ],
+ "description": "City duties for any city, one ministry at a time. Ambassador aide: go on and off duty, greet new citizens, accept lesson requests (refused for enemies when the social package is installed). CIVIC HELP for commands."
+}
