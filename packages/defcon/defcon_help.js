@@ -5,6 +5,6 @@ display_notice("  DEFCON 1-5             keep defences of that tier and above in
 display_notice("  DEFCON UP              raise your class's defences now", C);
 display_notice("  DEFCON LIST            defences per tier for your class, with curing priority", C);
 display_notice("  DEFCON AUTOUP ON|OFF   DEFCON UP when you log in", C);
-display_notice("  DEFCON CURING ON|OFF   the game's defence upkeep (CURING DEFENCES)", C);
+display_notice("  DEFCON ON|OFF          the game's defence upkeep (CURING DEFENCES ON/OFF)", C);
 display_notice("  DEFCON DEBUG", C);
 display_notice("  Classes set up: Druid, Magi, Sylvan, dragonform. Others get the general defences.", C);

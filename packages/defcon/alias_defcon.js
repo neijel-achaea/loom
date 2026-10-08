@@ -23,12 +23,9 @@ else if (/^\d+$/.test(dcSub)) {
 else if (dcSub === "up") {
   run_function("defcon_up", [], "defcon");
 }
-else if (dcSub === "curing") {
-  if (dcVal === "on" || dcVal === "off") {
-    send_command("curing defences " + dcVal);
-  } else {
-    display_notice("[defcon] DEFCON CURING ON or OFF switches the game's defence upkeep.", "orange");
-  }
+else if (dcSub === "on" || dcSub === "off") {
+  send_command("curing defences " + dcSub);
+  display_notice("[defcon] defence upkeep " + dcSub.toUpperCase() + ".", C);
 }
 else if (dcSub === "autoup") {
   if (dcVal === "on" || dcVal === "off") {
