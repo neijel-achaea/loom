@@ -17,7 +17,11 @@ if (seBp) {
   if (!get_variable("security_backpack")) set_variable("security_backpack", seBp);
   delete_variable("backpack");
 }
-if (get_variable("my_selfishness") !== null && get_variable("my_selfishness") !== undefined) delete_variable("my_selfishness");
+var seSelf = get_variable("my_selfishness");
+if (seSelf !== null && seSelf !== undefined) {
+  if (SE.selfish === undefined || SE.selfish === null) SE.selfish = (seSelf == 1 || seSelf == "1");
+  delete_variable("my_selfishness");
+}
 
 if (!get_variable("security_antitheft")) set_variable("security_antitheft", "off");
 if (get_variable("security_backpack") === null || get_variable("security_backpack") === undefined) set_variable("security_backpack", "");
@@ -31,4 +35,11 @@ if (!get_variable("security_house")) set_variable("security_house", { "in": "", 
 SE.items = get_variable("security_items");
 // Published for other packages (hunting puts autogold into it).
 SE.backpack = get_variable("security_backpack");
-if (SE.selfish === undefined) SE.selfish = false;
+// Selfishness: followed from GMCP defences (onGMCP) and its two messages. The
+// defence list only arrives at login or on DEF, so after a mid-session import
+// borrow self's defence list if that package is installed; otherwise unknown
+// (null) until the next list, treated as "down" by the wrappers.
+if (SE.selfish === undefined || SE.selfish === null) {
+  SE.selfish = null;
+  if (client.self && client.self.defs) SE.selfish = !!client.self.defs.selfishness;
+}
