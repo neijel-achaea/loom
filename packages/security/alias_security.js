@@ -24,23 +24,23 @@ else if (seSub === "antitheft") {
 else if (seSub === "backpack") {
   var seBpRest = seRaw.substring(seWords[0].length).trim();
   if (seBpRest === "") {
-    display_notice("[security] backpack: " + (SE.backpack || "not set") + (get_variable("security_backpack_desc") ? " | " + get_variable("security_backpack_desc") : "") + ". SECURITY BACKPACK <id> | <description>.", C);
+    display_notice("[security] backpack: " + (SE.backpack || "not set") + (get_variable("security_backpack_desc") ? " = " + get_variable("security_backpack_desc") : "") + ". SECURITY BACKPACK <id> = <description>.", C);
   } else {
-    var seBpParts = seBpRest.split("|");
+    var seBpParts = seBpRest.split("=");
     SE.backpack = seBpParts[0].trim();
     set_variable("security_backpack", SE.backpack);
     if (seBpParts.length > 1) set_variable("security_backpack_desc", seBpParts[1].trim());
-    display_notice("[security] backpack " + SE.backpack + (seBpParts.length > 1 ? " | " + seBpParts[1].trim() : "") + ".", C);
+    display_notice("[security] backpack " + SE.backpack + (seBpParts.length > 1 ? " = " + seBpParts[1].trim() : "") + ".", C);
   }
 }
 else if (seSub === "items") {
-  if (SE.items.length === 0) display_notice("[security] no items watched. SECURITY ITEM ADD <wear command> | <description>.", C);
+  if (SE.items.length === 0) display_notice("[security] no items watched. SECURITY ITEM ADD <wear command> = <description>.", C);
   for (var seI = 0; seI < SE.items.length; seI++) display_notice("  " + (seI + 1) + ". " + SE.items[seI].desc + "  ->  " + SE.items[seI].wear, C);
 }
 else if (seSub === "item" && seVal === "add") {
-  var seAdd = seRaw.replace(/^\S+\s+\S+\s*/, "").split("|");
+  var seAdd = seRaw.replace(/^\S+\s+\S+\s*/, "").split("=");
   if (seAdd.length < 2 || !seAdd[0].trim() || !seAdd[1].trim()) {
-    display_notice("[security] SECURITY ITEM ADD <wear command> | <description>, e.g. wear ring123 | a silver ring set with emerald", "orange");
+    display_notice("[security] SECURITY ITEM ADD <wear command> = <description>, e.g. wear ring123 = a silver ring set with emerald", "orange");
   } else {
     var seNewDesc = seAdd[1].trim().replace(/\.$/, "");
     SE.items.push({ desc: seNewDesc, wear: seAdd[0].trim() });
