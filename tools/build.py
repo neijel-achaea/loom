@@ -7,7 +7,7 @@ the "{{description}}" placeholder in its registry line.
     python tools/build.py            -> every package into dist/
     python tools/build.py self coffers
 """
-import json, os, sys
+import glob, json, os, sys
 
 def resolve(node, folder):
     if isinstance(node, dict):
@@ -16,6 +16,17 @@ def resolve(node, folder):
         return [resolve(v, folder) for v in node]
     if isinstance(node, str) and node.startswith("@file:"):
         return open(os.path.join(folder, node[6:]), encoding="utf-8").read()
+    if isinstance(node, str) and node.startswith("@cat:"):
+        # "@cat:head.js classes/*.js": the files joined in the order given,
+        # each pattern's matches sorted by name. Used for data split one file
+        # per class, which Nexus still receives as one function.
+        parts = []
+        for pattern in node[5:].split():
+            matches = sorted(glob.glob(os.path.join(folder, pattern)))
+            if not matches:
+                sys.exit("%s: %s matches no file" % (folder, pattern))
+            parts += [open(m, encoding="utf-8").read() for m in matches]
+        return "\n".join(parts)
     return node
 
 MAX_DESCRIPTION = 80
