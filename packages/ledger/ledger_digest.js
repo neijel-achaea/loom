@@ -1,15 +1,15 @@
-// On-demand / login summary printed to the main window.
-run_function("lg_build", [], "ledger");
+// ledger_digest -- on-demand / login summary printed to the main window.
+if (!client.loom || !client.loom.ledger || !client.loom.ledger.months) run_function("ledger_setup", [], "ledger");
 var items = [];
-try { items = JSON.parse(get_variable("lg_items")) || []; } catch (e) { items = []; }
-var today = client.lg.day;
+try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
+var today = client.loom.ledger.day;
 
 var n = today - 1;
 var yy = Math.floor(n / 300);
 var rem = n - yy * 300;
 var mi = Math.floor(rem / 25);
 var dd = (rem % 25) + 1;
-var stamp = today > 0 ? (dd + " " + client.lg.months[mi] + " " + yy) : "date unknown";
+var stamp = today > 0 ? (dd + " " + client.loom.ledger.months[mi] + " " + yy) : "date unknown";
 display_notice("[ledger] " + stamp, "cyan");
 
 var dated = [];

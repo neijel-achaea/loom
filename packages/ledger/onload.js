@@ -12,7 +12,8 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
   }
 }
 
-// Ledger: self-contained startup. Seeds the Achaean date and queues the digest.
-run_function("lg_build", [], "ledger");
-client.lg.pendingDigest = true;
-run_function("lg_sync", [], "ledger");
+// Set up, then ask the game for the date; the digest prints once it answers.
+run_function("ledger_setup", [], "ledger");
+client.loom.ledger.pendingDigest = true;
+run_function("ledger_render", [], "ledger");
+run_function("ledger_sync", [], "ledger");
