@@ -12,10 +12,11 @@ if (huLines && huLines.length) {
     var huRow = huLines[huI];
     if (!huRow[0].test(huText)) continue;
     var huTag = "[" + huRow[1] + "] ";
-    // Tag first, then colour the whole line, tag included, as the old
-    // per-class triggers did.
-    replace_current_line(0, 0, huTag);
-    colorize_current_line(0, huTag.length + huText.length, HU.lineFg, HU.lineBg);
+    // Colour the line, then insert the tag in the same colours, as the old
+    // per-class triggers did. Both take (start, length, ...); a length of 0
+    // inserts.
+    colorize_current_line(0, huText.length, HU.lineFg, HU.lineBg);
+    replace_current_line(0, 0, huTag, HU.lineFg, HU.lineBg);
     if (huRow[2]) {
       HU.cd[huRow[2]] = false;
       HU.glob = false;
