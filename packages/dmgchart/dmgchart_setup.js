@@ -1,12 +1,11 @@
-// dmgchart_setup -- run from onLoad and onInstall, by DMGCHART REBUILD, and by
-// any reflex that finds the namespace missing. Namespace, registry, one-time
-// migration of the dc_* variables and the old client.dc, then the state, each
-// part built if missing. With args[0] === "rebuild" the in-memory state is
-// thrown away and rebuilt from the saved variables.
+// dmgchart_setup -- run from onLoad and onInstall, by DMGCHART REBUILD (which
+// empties the namespace first, as run_function cannot pass parameters), and
+// by any reflex that finds the namespace missing. Namespace, registry,
+// one-time migration of the dc_* variables and the old client.dc, then the
+// state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "0.4.0", keyword: "DMGCHART" };
-if (args && args[0] === "rebuild") client.loom.dmgchart = {};
+client.loom.registry.dmgchart = { version: "0.4.1", keyword: "DMGCHART" };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};
 var DC = client.loom.dmgchart;
 
