@@ -133,8 +133,8 @@ if (!src) {
   }
   html += '</div>';
 
-  // The exchange: how the blows compare. Hit counts arrived in dmgchart 0.3,
-  // so older saved sessions show only the ratio.
+  // The exchange: how the blows compare. Hit counts were added after the
+  // first sessions were saved, so those show only the ratio.
   var H = src.hits || null;
   var ex = "";
   if (H) {
