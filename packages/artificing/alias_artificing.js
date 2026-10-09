@@ -25,8 +25,8 @@ if (arSub === "" || arSub === "status") {
   } else {
     AR.staff = AR.staffs[arP1];
     set_variable("artificing_staff", AR.staff);
-    // hunting's staff key takes it at its next redraw.
-    arSay("staff attack: " + arP1 + " (" + AR.staff + ")." + (client.loom.registry.hunting ? " HUNTING BUTTONS puts it on the staff key." : ""));
+    // hunting, when installed, puts it on its staff key with the next prompt.
+    arSay("staff attack: " + arP1 + " (" + AR.staff + ").");
   }
 } else if (arSub === "treaty" || arSub === "tf") {
   if (AR.elementals.indexOf(arP1) < 0) {
