@@ -33,12 +33,12 @@ if (lgSub === "" || lgSub === "status") {
   var rep = null;
   var bad = "";
   if (!txt.length) {
-    bad = "no text given. LEDGER ADD <text> [@ 15 Miraman 1015 | @ +4 months] [repeat]";
+    bad = "no text given. LEDGER ADD <text> [@ 15th Miraman 1015 | @ +4 months] [repeat]";
   } else if (tail.length && today === 0) {
     bad = "date not known yet - run LEDGER DATE first";
   } else if (tail.length) {
     var mRel = tail.match(/^\+(\d+)\s+(day|days|month|months)(\s+repeat)?$/);
-    var mFix = tail.match(/^(\d+)\s+([a-z]+)\s+(\d+)(\s+repeat)?$/);
+    var mFix = tail.match(/^(\d+)(?:st|nd|rd|th)?\s+([a-z]+)\s+(\d+)(\s+repeat)?$/);
     if (mRel) {
       var nn = parseInt(mRel[1], 10);
       var step = (mRel[2].charAt(0) == "m") ? nn * 25 : nn;
@@ -56,7 +56,7 @@ if (lgSub === "" || lgSub === "status") {
         if (mFix[4]) rep = { t: "a", m: fi, d: fd };
       }
     } else {
-      bad = "cannot read '" + tail + "' - use '15 Miraman 1015' or '+4 months', optionally + ' repeat'";
+      bad = "cannot read '" + tail + "' - use '15th Miraman 1015' or '+4 months', optionally + ' repeat'";
     }
     if (!bad.length && due < today) bad = "that date is already behind you - nothing added";
   }

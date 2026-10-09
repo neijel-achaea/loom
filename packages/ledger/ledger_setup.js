@@ -47,6 +47,12 @@ if (LG.day === undefined) {
   try { lgStored = get_variable("ledger_day"); } catch (e) { lgStored = undefined; }
   if (lgStored && ("" + lgStored).length) LG.day = parseInt(lgStored, 10) || 0;
 }
+// ord(12) -> "12th": days are shown the way the game writes them.
+LG.ord = function (n) {
+  var t = n % 100;
+  if (t >= 11 && t <= 13) return n + "th";
+  return n + (["th", "st", "nd", "rd"][n % 10] || "th");
+};
 if (LG.armed === undefined) LG.armed = false;
 if (LG.inBlock === undefined) LG.inBlock = false;
 if (LG.pendingDigest === undefined) LG.pendingDigest = false;

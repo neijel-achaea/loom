@@ -9,7 +9,7 @@ var yy = Math.floor(n / 300);
 var rem = n - yy * 300;
 var mi = Math.floor(rem / 25);
 var dd = (rem % 25) + 1;
-var stamp = today > 0 ? (dd + " " + client.loom.ledger.months[mi] + " " + yy) : "date unknown";
+var stamp = today > 0 ? (client.loom.ledger.ord(dd) + " " + client.loom.ledger.months[mi] + " " + yy) : "date unknown";
 display_notice("[ledger] " + stamp, "cyan");
 
 var dated = [];

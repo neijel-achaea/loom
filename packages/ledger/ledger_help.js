@@ -6,7 +6,7 @@ var hlTitle = "[ledger] reminders and standing items on the Achaean calendar. Co
 var hlRows = [
   ["LEDGER", "today's date, what is due or overdue, the oldest standing item"],
   ["LEDGER ADD <text>", "a standing item, with no date"],
-  ["LEDGER ADD <text> @ 15 Miraman 1015", "due on that Achaean date"],
+  ["LEDGER ADD <text> @ 15th Miraman 1015", "due on that Achaean date (15 works too)"],
   ["LEDGER ADD <text> @ +4 months", "due in that many days or months"],
   ["  ... [repeat]", "add REPEAT to either date to make it recur"],
   ["LEDGER DONE <#>", "done: removed, or moved to its next date if it repeats"],

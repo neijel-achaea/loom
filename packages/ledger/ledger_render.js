@@ -31,7 +31,7 @@ function dayName(d) {
   var n = d - 1;
   var y = Math.floor(n / 300);
   var rem = n - y * 300;
-  return ((rem % 25) + 1) + " " + client.loom.ledger.months[Math.floor(rem / 25)];
+  return client.loom.ledger.ord((rem % 25) + 1) + " " + client.loom.ledger.months[Math.floor(rem / 25)];
 }
 function caps(t, col) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || SEPIA) + ';font-size:11px;margin:0 0 2px;">' + t + '</div>'; }
 function section(title, inner, col) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title, col) + inner + '</div>'; }
@@ -87,7 +87,7 @@ if (today > 0) {
   var rem = n - yy * 300;
   var mi = Math.floor(rem / 25);
   var dd = (rem % 25) + 1;
-  html += '<div style="margin:6px 0 2px;"><span style="font-family:' + SERIF + ';font-size:24px;color:' + PARCH + ';">' + dd + ' ' + client.loom.ledger.months[mi] + '</span>';
+  html += '<div style="margin:6px 0 2px;"><span style="font-family:' + SERIF + ';font-size:24px;color:' + PARCH + ';">' + client.loom.ledger.ord(dd) + ' ' + client.loom.ledger.months[mi] + '</span>';
   html += ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">the year ' + yy + ' AF</span></div>';
 
   // The month as a strip of 25 days: past days faded, today lit, and a wax
@@ -107,7 +107,7 @@ if (today > 0) {
   }
   strip += '</div>';
   html += strip;
-  html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>1 ' + client.loom.ledger.months[mi] + '</span><span>' + (25 - dd) + ' day' + (25 - dd === 1 ? '' : 's') + ' left in the month</span><span>25</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>1st ' + client.loom.ledger.months[mi] + '</span><span>' + (25 - dd) + ' day' + (25 - dd === 1 ? '' : 's') + ' left in the month</span><span>25</span></div>';
 } else {
   html += '<div style="margin:6px 0 2px;font-family:' + SERIF + ';font-size:18px;color:' + MUTED + ';font-style:italic;">date not yet known</div>';
   html += '<div style="color:' + MUTED + ';">LEDGER DATE asks the game.</div>';
