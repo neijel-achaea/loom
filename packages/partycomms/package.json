@@ -29,6 +29,12 @@
     },
     {
       "type": "function",
+      "name": "partycomms_icon",
+      "enabled": true,
+      "code": "@file:partycomms_icon.js"
+    },
+    {
+      "type": "function",
       "name": "partycomms_setup",
       "enabled": true,
       "code": "@file:partycomms_setup.js"
