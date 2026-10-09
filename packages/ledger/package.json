@@ -23,43 +23,49 @@
     },
     {
       "type": "function",
-      "name": "lg_build",
+      "name": "ledger_setup",
       "enabled": true,
-      "code": "@file:lg_build.js"
+      "code": "@file:ledger_setup.js"
     },
     {
       "type": "function",
-      "name": "lg_sync",
+      "name": "ledger_sync",
       "enabled": true,
-      "code": "@file:lg_sync.js"
+      "code": "@file:ledger_sync.js"
     },
     {
       "type": "function",
-      "name": "lg_check",
+      "name": "ledger_check",
       "enabled": true,
-      "code": "@file:lg_check.js"
+      "code": "@file:ledger_check.js"
     },
     {
       "type": "function",
-      "name": "lg_digest",
+      "name": "ledger_digest",
       "enabled": true,
-      "code": "@file:lg_digest.js"
+      "code": "@file:ledger_digest.js"
     },
     {
       "type": "function",
-      "name": "lg_render",
+      "name": "ledger_render",
       "enabled": true,
-      "code": "@file:lg_render.js"
+      "code": "@file:ledger_render.js"
+    },
+    {
+      "type": "function",
+      "name": "ledger_help",
+      "enabled": true,
+      "code": "@file:ledger_help.js"
     },
     {
       "type": "trigger",
-      "name": "lg_date",
+      "name": "ledger date line",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_lg_date.js"
+          "script": "@file:trigger_date_line.js"
         }
       ],
       "text": "^(?:It is now|Today is) the (\\d+)(?:st|nd|rd|th) of (\\w+), (\\d+) years after",
@@ -69,13 +75,13 @@
     },
     {
       "type": "trigger",
-      "name": "",
+      "name": "ledger date echo",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_date.js"
+          "script": "@file:trigger_date_echo.js"
         }
       ],
       "text": "^date$",
@@ -85,7 +91,7 @@
     },
     {
       "type": "trigger",
-      "name": "",
+      "name": "ledger date block",
       "enabled": true,
       "actions": [
         {
@@ -101,7 +107,7 @@
     },
     {
       "type": "trigger",
-      "name": "",
+      "name": "ledger date block end",
       "enabled": true,
       "actions": [
         {
@@ -117,7 +123,7 @@
     },
     {
       "type": "alias",
-      "name": "",
+      "name": "ledger",
       "enabled": true,
       "actions": [
         {
@@ -126,148 +132,12 @@
           "script": "@file:alias_ledger.js"
         }
       ],
-      "text": "^ledger$",
+      "text": "^ledger(?:\\s+(.*))?$",
       "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledger_add.js"
-        }
-      ],
-      "text": "^ledger add (.+)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledger_done_d.js"
-        }
-      ],
-      "text": "^ledger done (\\d+)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledger_drop_d.js"
-        }
-      ],
-      "text": "^ledger drop (\\d+)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledger_touch_d.js"
-        }
-      ],
-      "text": "^ledger touch (\\d+)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledger_date.js"
-        }
-      ],
-      "text": "^ledger date$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledgerstatus.js"
-        }
-      ],
-      "text": "^ledgerstatus$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledgerdebug_on_off.js"
-        }
-      ],
-      "text": "^ledgerdebug (on|off)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_ledgerreset.js"
-        }
-      ],
-      "text": "^ledgerreset$",
-      "matching": "regexp",
-      "whole_words": true,
+      "whole_words": false,
       "case_sensitive": false,
       "prefix_suffix": true
     }
   ],
-  "description": "Ledger 0.1 - IC reminders and standing items on the Achaean calendar."
+  "description": "IC reminders and standing items on the Achaean calendar, in a UI tab named 'Ledger'. The date comes from the game's hourly rollover line and a gagged DATE on login. State in client.loom.ledger (publishes day, the Achaean day number); items in ledger_items. LEDGER HELP for commands."
 }

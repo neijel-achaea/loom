@@ -1,1 +1,1 @@
-// Nothing to tear down; persistent variables are left intact.
+// Nothing to tear down; the ledger_* variables are left intact.
