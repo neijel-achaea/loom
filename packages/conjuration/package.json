@@ -16,22 +16,40 @@
       "code": "@file:onuninstall.js"
     },
     {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "conjuration_setup",
+      "enabled": true,
+      "code": "@file:conjuration_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "conjuration_help",
+      "enabled": true,
+      "code": "@file:conjuration_help.js"
+    },
+    {
       "type": "alias",
-      "name": "",
+      "name": "conjuration",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:alias_conjure_w.js"
+          "script": "@file:alias_conjuration.js"
         }
       ],
-      "text": "^conjure (\\w+)$",
+      "text": "^conjuration(?:\\s+(.*))?$",
       "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
+      "whole_words": false,
+      "case_sensitive": false,
       "prefix_suffix": true
     }
   ],
-  "description": ""
+  "description": "Runs the creation ritual for the sigils you have a recipe for, in the ouroboros you set. State in client.loom.conjuration; conjuration_ouroboros. CONJURATION HELP for commands."
 }
