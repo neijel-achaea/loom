@@ -13,8 +13,17 @@ if (viSub === "" || viSub === "list") {
   var viK = viKeys();
   if (!viK.length) viSay("no vials set yet. VIALS SET <elixir> <vial number> [<elixir> <vial number> ...].", "orange");
   else {
+    // A monospace block through nexusclient.add_html_line when this Nexus has
+    // it, so the columns line up; otherwise plain notices.
     viSay(viK.length + " vial" + (viK.length === 1 ? "" : "s") + ":");
-    for (var viI = 0; viI < viK.length; viI++) display_notice("  " + (viK[viI] + "              ").slice(0, 13) + "vial" + VI.map[viK[viI]], "cyan");
+    var viHtml = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
+    var viRows = [];
+    for (var viI = 0; viI < viK.length; viI++) {
+      var viName = (viK[viI] + "              ").slice(0, 13);
+      if (viHtml) viRows.push('  <span style="color:#00ffff">' + viName + '</span><span style="color:#9fc9c9">vial' + VI.map[viK[viI]] + '</span>');
+      else display_notice("  " + viName + "vial" + VI.map[viK[viI]], "cyan");
+    }
+    if (viHtml) nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + viRows.join("\n") + '</span>');
   }
 } else if (viSub === "help") {
   run_function("vials_help", [], "vials");
