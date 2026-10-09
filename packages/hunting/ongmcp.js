@@ -12,6 +12,14 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
   }
 }
 
+// Your own name, so autogold only treats "X has been slain by <you>." as your kill.
+if ((args.gmcp_method == "Char.Name" || args.gmcp_method == "Char.Status") && args.gmcp_args.name) {
+  if (String(args.gmcp_args.name) !== HU.name) {
+    HU.name = String(args.gmcp_args.name);
+    set_variable("hunting_name", HU.name);
+  }
+}
+
 if (args.gmcp_method == "Char.Vitals") {
   // A staff attack changed in artificing since the keys were drawn: redraw,
   // so the staff key casts the new one. Read only, never called into.
