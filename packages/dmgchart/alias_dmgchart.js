@@ -108,7 +108,10 @@ if (sub == "gap") {
     }
   }
 } else if (sub == "rebuild") {
-  run_function("dmgchart_setup", ["rebuild"], "dmgchart");
+  // Empty the namespace, keeping only the health reading, then build it again
+  // from the saved variables.
+  client.loom.dmgchart = { hp: d.hp };
+  run_function("dmgchart_setup", [], "dmgchart");
   d = client.loom.dmgchart;
   display_notice("[dmgchart] rebuilt from the saved variables (gap " + d.gap + "s" + (d.sess ? ", recording '" + d.sess.name + "' resumed from its last checkpoint" : "") + ")", "cyan");
 } else if (sub == "debug") {
