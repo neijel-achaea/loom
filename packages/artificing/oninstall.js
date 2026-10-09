@@ -1,1 +1,2 @@
-// Place any code here you'd like to autorun when the package is installed
+run_function("artificing_setup", [], "artificing");
+display_notice("[artificing] installed. ARTIFICING HELP for commands.", "cyan");

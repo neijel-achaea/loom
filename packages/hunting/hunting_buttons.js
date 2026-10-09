@@ -3,7 +3,7 @@
 // have balance and equilibrium. A key whose label has a battlerage cost in
 // HU.costs is tracked for rage highlighting automatically.
 // Placeholders filled in below: {dragon}/{DRAGON} gut or incantation,
-// {MODE} the dragon mode, {staff} the staff attack (artificing's STAFFATTACK),
+// {MODE} the dragon mode, {staff} the staff attack (artificing's ARTIFICING STAFF),
 // {target} the party target (HUNTING PARTYTARGET).
 var HU = client.loom.hunting;
 var huQ = "queue add !wu!t!p ";
@@ -84,7 +84,8 @@ var huLayouts = {
 var huDragon = get_variable("hunting_dragon_attack") || "gut";
 var huModes = { physical: "PHY", magical: "MAG", auto: "AUT" };
 var huMode = huModes[get_variable("hunting_dragon_mode")] || "AUT";
-var huStaff = get_variable("staffAttack") || "scintilla";
+// The staff attack is artificing's setting when it's installed.
+var huStaff = (client.loom.artificing && client.loom.artificing.staff) || get_variable("artificing_staff") || get_variable("staffAttack") || "scintilla";
 var huTarget = get_variable("hunting_party_target") || "";
 // F9 opens huntstats when that package is around; otherwise the key stays empty.
 // Its saved records count too, as huntstats may load after hunting.
