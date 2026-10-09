@@ -41,12 +41,23 @@ for (var huK = 1; huK <= 12; huK++) {
     huLabel = huStats ? "Stats" : "";
     huCmd = huStats ? "huntstats" : "";
   }
+  // {toggle:name}: a class toggle; the label shows its state, the key runs
+  // HUNTING TOGGLE and is lit while the toggle is on.
+  var huTog = huLabel.match(/^\{toggle:(\w+)\}$/);
+  var huTogOn = false;
+  if (huTog) {
+    var huTogDef = (huEntry && huEntry.toggles && huEntry.toggles[huTog[1]]) || {};
+    huTogOn = HU.toggles[huTog[1]] === "on";
+    huLabel = (huTogDef.label || huTog[1]) + (huTogOn ? " ON" : " OFF");
+    huCmd = "hunting toggle " + huTog[1];
+  }
   huLabel = huLabel.replace("{DRAGON}", huDragon == "gut" ? "Gut" : "Incantation").replace("{MODE}", huMode);
   huCmd = huCmd.replace("{dragon}", huDragon).replace("{staff}", huStaff).replace("{target}", huTarget).replace(/\s+$/, "");
   buttons_set_label(huK, huLabel);
   buttons_set_commands(huK, huCmd);
   if (HU.costs[huLabel] !== undefined) HU.slots[huLabel] = huK;
   if (huRow[2] == "main") HU.main.push(huK);
+  if (huTogOn) buttons_set_highlight(huK, 1);
 }
 
 if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.cls || "no class") + (HU.spec ? ", spec " + HU.spec : "") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");

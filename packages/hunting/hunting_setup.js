@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.3.2", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "0.3.3", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -20,6 +20,12 @@ HU.lineBg = "#000000";
 if (!HU.cd) HU.cd = {};
 if (!HU.slots) HU.slots = {};
 if (HU.glob === undefined) HU.glob = true;
+// Class toggles' state (sneak, weave...): { name: "on" | "off" }, kept so a
+// reload remembers it.
+if (!HU.toggles) {
+  HU.toggles = {};
+  try { HU.toggles = JSON.parse(get_variable("hunting_toggles") || "{}") || {}; } catch (e) { HU.toggles = {}; }
+}
 if (HU.rage === undefined) HU.rage = 0;
 
 // Class: followed from GMCP in onGMCP, and kept in hunting_class because the

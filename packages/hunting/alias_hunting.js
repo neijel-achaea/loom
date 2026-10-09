@@ -60,6 +60,31 @@ else if (huSub === "afterform") {
     display_notice("[hunting] after dragonform rises or falls: " + (huVal === "off" ? "nothing" : huRest.toUpperCase()) + ".", C);
   }
 }
+else if (huSub === "toggle") {
+  // Class toggles (classes/*.js "toggles"): flip, or set ON/OFF, and send
+  // that state's commands.
+  var huTp = huVal.split(/\s+/);
+  var huTn = huTp[0] || "";
+  var huTset = huTp[1] || "";
+  var huTcls = HU.classes[HU.cls];
+  var huTdef = huTcls && huTcls.toggles ? huTcls.toggles[huTn] : null;
+  if (!huTdef) {
+    var huTnames = [];
+    for (var huTk in ((huTcls && huTcls.toggles) || {})) huTnames.push(huTk.toUpperCase());
+    display_notice("[hunting] " + (huTnames.length ? "toggles for " + HU.cls + ": " + huTnames.join(", ") + "." : "no toggles for " + (HU.cls || "this class") + "."), huTn ? "orange" : C);
+  } else if (huTset !== "" && huTset !== "on" && huTset !== "off") {
+    display_notice("[hunting] HUNTING TOGGLE " + huTn.toUpperCase() + " [ON|OFF].", "orange");
+  } else {
+    var huTnow = HU.toggles[huTn] === "on" ? "on" : "off";
+    var huTnext = huTset || (huTnow === "on" ? "off" : "on");
+    var huTcmds = huTdef[huTnext] || [];
+    for (var huTi = 0; huTi < huTcmds.length; huTi++) send_command(huTcmds[huTi]);
+    HU.toggles[huTn] = huTnext;
+    set_variable("hunting_toggles", JSON.stringify(HU.toggles));
+    run_function("hunting_buttons", [], "hunting");
+    display_notice("[hunting] " + (huTdef.label || huTn) + " " + huTnext.toUpperCase() + ".", C);
+  }
+}
 else if (huSub === "buttons") {
   run_function("hunting_buttons", [], "hunting");
   display_notice("[hunting] F-keys laid out for " + (HU.cls || "no class yet") + ".", C);
@@ -79,7 +104,7 @@ else if (huSub === "reset") {
 else if (huSub === "debug") {
   display_notice("[hunting] cls=" + HU.cls + " bal=" + HU.bal + " eq=" + HU.eq
     + " ep=" + HU.ep + "/" + HU.maxep + " wp=" + HU.wp + "/" + HU.maxwp
-    + " main=" + JSON.stringify(HU.main) + " kill=" + HU.kill, C);
+    + " main=" + JSON.stringify(HU.main) + " spec=" + HU.spec + " toggles=" + JSON.stringify(HU.toggles) + " kill=" + HU.kill, C);
 }
 else {
   display_notice("[hunting] unknown command '" + huSub + "'. HUNTING HELP for commands.", "orange");

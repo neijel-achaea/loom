@@ -28,6 +28,21 @@ key that lights whenever you have balance and equilibrium (your basic attack).
   `{DRAGON}` gut or incantation, `{MODE}` the dragon mode.
 - `["", ""]` leaves a key empty.
 
+## toggles (optional)
+
+Things a key switches on and off, such as the Serpent's sneaking:
+
+```js
+toggles: {
+  sneak: { label: "Sneak", on: ["hide", "conjure cloak"], off: ["emerge", "dispel self"],
+           renew: [/^Your shroud dissipates/, "conjure cloak"] }
+}
+```
+
+Put `["{toggle:sneak}", ""]` in `keys`: the key reads "Sneak ON" or "Sneak
+OFF", is lit while on, and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
+while the toggle is on, seeing that line sends the command again.
+
 ## specKeys (optional)
 
 For classes whose attacks depend on the specialisation in `charstats`
