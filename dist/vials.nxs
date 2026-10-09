@@ -31,7 +31,7 @@
    "type": "function",
    "name": "vials_setup",
    "enabled": true,
-   "code": "// vials_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, and your vials: which vial\n// holds which elixir (vials_map, a JSON object of elixir -> vial number).\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.vials) client.loom.vials = {};\nclient.loom.registry.vials = { version: \"0.2.0\", keyword: \"VIALS\" };\nvar VI = client.loom.vials;\nif (!VI.map) {\n  var viRaw;\n  try { viRaw = get_variable(\"vials_map\"); } catch (e) { viRaw = undefined; }\n  try { VI.map = JSON.parse(viRaw) || {}; } catch (e) { VI.map = {}; }\n  if (Object.prototype.toString.call(VI.map) !== \"[object Object]\") VI.map = {};\n}\n"
+   "code": "// vials_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, and your vials: which vial\n// holds which elixir (vials_map, a JSON object of elixir -> vial number).\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.vials) client.loom.vials = {};\nclient.loom.registry.vials = { version: \"0.2.1\", keyword: \"VIALS\", desc: \"Refill your vials from the rift by elixir\" };\nvar VI = client.loom.vials;\nif (!VI.map) {\n  var viRaw;\n  try { viRaw = get_variable(\"vials_map\"); } catch (e) { viRaw = undefined; }\n  try { VI.map = JSON.parse(viRaw) || {}; } catch (e) { VI.map = {}; }\n  if (Object.prototype.toString.call(VI.map) !== \"[object Object]\") VI.map = {};\n}\n"
   },
   {
    "type": "function",
@@ -57,5 +57,5 @@
    "prefix_suffix": true
   }
  ],
- "description": "Refill your vials from the rift: VIALS REFILL <elixir|ALL>, with the vial for each elixir set once (VIALS SET). State in client.loom.vials; vials_map. VIALS HELP for commands."
+ "description": "Refill your vials from the rift by elixir"
 }

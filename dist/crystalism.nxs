@@ -30,7 +30,7 @@
      "type": "function",
      "name": "crystalism_setup",
      "enabled": true,
-     "code": "// crystalism_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, defaults.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.crystalism) client.loom.crystalism = {};\nclient.loom.registry.crystalism = { version: \"0.2.0\", keyword: \"CRYSTALISM\" };\nvar CR = client.loom.crystalism;\n\nCR.shapes = [\"cube\", \"cylinder\", \"diamond\", \"disc\", \"egg\", \"pentagon\", \"polyhedron\", \"pyramid\", \"sphere\", \"spiral\", \"torus\"];\nCR.hardCap = 200;         // most crystals refined in one run\nCR.maxPerCommand = 10;    // REFINE takes at most this many at once\nCR.facetsPerCrystal = 1;\nif (!CR.state) CR.state = \"idle\";\nif (!CR.queue) CR.queue = [];\nif (!CR.rift) CR.rift = {};\n\n// The pre-0.2 autorefine kept its state on window.nj.ar.\nif (window.nj && window.nj.ar) window.nj.ar = null;\n\nif (!get_variable(\"crystalism_pearls\")) set_variable(\"crystalism_pearls\", \"on\");\nif (!get_variable(\"crystalism_portal\")) set_variable(\"crystalism_portal\", \"off\");\n"
+     "code": "// crystalism_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, defaults.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.crystalism) client.loom.crystalism = {};\nclient.loom.registry.crystalism = { version: \"0.2.1\", keyword: \"CRYSTALISM\", desc: \"Even crystal refining, pearl pickup, and sonic portals for the city\" };\nvar CR = client.loom.crystalism;\n\nCR.shapes = [\"cube\", \"cylinder\", \"diamond\", \"disc\", \"egg\", \"pentagon\", \"polyhedron\", \"pyramid\", \"sphere\", \"spiral\", \"torus\"];\nCR.hardCap = 200;         // most crystals refined in one run\nCR.maxPerCommand = 10;    // REFINE takes at most this many at once\nCR.facetsPerCrystal = 1;\nif (!CR.state) CR.state = \"idle\";\nif (!CR.queue) CR.queue = [];\nif (!CR.rift) CR.rift = {};\n\n// The pre-0.2 autorefine kept its state on window.nj.ar.\nif (window.nj && window.nj.ar) window.nj.ar = null;\n\nif (!get_variable(\"crystalism_pearls\")) set_variable(\"crystalism_pearls\", \"on\");\nif (!get_variable(\"crystalism_portal\")) set_variable(\"crystalism_portal\", \"off\");\n"
     },
     {
      "type": "function",
@@ -203,5 +203,5 @@
    "case_sensitive": true
   }
  ],
- "description": ""
+ "description": "Even crystal refining, pearl pickup, and sonic portals for the city"
 }

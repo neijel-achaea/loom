@@ -2,7 +2,7 @@
   "type": "group",
   "name": "self",
   "enabled": true,
-  "description": "A 'Self' tab replacing the stock character panel: afflictions grouped by cure, character stats, defences with a per-class watch list (missing ones in red, losses announced) and recently lost defences. Live from GMCP Char.Afflictions / Char.Defences / Char.Vitals / Char.Status / Char.Name, plus SCORE lines. State in client.loom.self; self_want_<class>, self_keep, self_name. SELF HELP for commands.",
+  "description": "Character panel: afflictions, defences you watch, and SCORE details",
   "items": [
     {
       "type": "function",

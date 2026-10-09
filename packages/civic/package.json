@@ -137,5 +137,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "City duties for any city, one ministry at a time. Ambassador aide: go on and off duty, greet new citizens, accept lesson requests (refused for enemies when the social package is installed). CIVIC HELP for commands."
+  "description": "City duties by ministry: the ambassador aide, greetings, new citizens"
 }

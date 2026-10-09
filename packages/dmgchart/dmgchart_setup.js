@@ -5,7 +5,7 @@
 // state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "0.2.1", keyword: "DMGCHART" };
+client.loom.registry.dmgchart = { version: "0.2.2", keyword: "DMGCHART", desc: "{{description}}" };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};
 var DC = client.loom.dmgchart;
 

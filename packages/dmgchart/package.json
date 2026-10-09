@@ -117,5 +117,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Damage dealt and taken by type in a UI tab named 'DmgChart': donuts with dps for the live fight (a new one after a quiet gap), exchange stats, and sessions you record with START/END. Health for 'health lasts' comes from GMCP. State in client.loom.dmgchart; dmgchart_sessions, dmgchart_open, dmgchart_gap. DMGCHART HELP for commands."
+  "description": "Damage dealt and taken by type per fight, healing, recorded sessions"
 }

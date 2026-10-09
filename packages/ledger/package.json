@@ -139,5 +139,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "IC reminders and standing items on the Achaean calendar, in a UI tab named 'Ledger'. The date comes from the game's hourly rollover line and a gagged DATE on login. State in client.loom.ledger (publishes day, the Achaean day number); items in ledger_items. LEDGER HELP for commands."
+  "description": "Reminders and standing items on the Achaean calendar"
 }

@@ -139,5 +139,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Per-area hunting records in a UI tab named 'Stats': xp, gold and kills an hour, Dragonhood progress and ETA, who hunted with you, area comparison. A hunt is filed when you leave its area and survives a refresh or disconnect. Area, players and level come from GMCP. State in client.loom.huntstats; records in huntstats_areas and huntstats_log. HUNTSTATS HELP for commands."
+  "description": "Per-area hunting records: xp, gold and kills an hour, Dragonhood"
 }

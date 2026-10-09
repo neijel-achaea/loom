@@ -185,5 +185,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Monolith and flame sigil watcher for any city. With SIGILS WATCH ON it probes the monolith in every room you enter and flags rooms whose sigils have fewer months left than the threshold; SIGILS REPORT lists them with an estimated cost. SIGILS HELP for commands."
+  "description": "Monolith and flame sigil watcher, with the cost of what's running out"
 }

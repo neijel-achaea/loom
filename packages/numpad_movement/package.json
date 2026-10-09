@@ -283,5 +283,5 @@
       "key_shift": false
     }
   ],
-  "description": "Move around with the number pad: 1-9 the eight directions with 5 for up, 0 down, + in, - out; . looks, / shows your score and * your inventory."
+  "description": "Move with the number pad; look, score and inventory keys"
 }

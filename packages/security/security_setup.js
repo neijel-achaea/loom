@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.security) client.loom.security = {};
-client.loom.registry.security = { version: "0.2.0", keyword: "SECURITY" };
+client.loom.registry.security = { version: "0.2.1", keyword: "SECURITY", desc: "{{description}}" };
 var SE = client.loom.security;
 
 // One-time migration from the pre-0.2 names, then cleared.

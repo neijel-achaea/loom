@@ -623,5 +623,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "The Loom suite package: LOOM lists the packages loaded with their versions and sets the shared pause and debug flags. Also the QUIT wrapper, sleep and meditation pausing, and assorted highlights and gags. LOOM HELP for commands."
+  "description": "The suite: package list, shared pause and debug flags, quit wrapper"
 }

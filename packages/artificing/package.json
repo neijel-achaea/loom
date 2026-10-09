@@ -89,5 +89,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Artificing helpers: the staff attack STAFF CAST uses, and elemental treaties formed with triggers paused and sipping off until the treaty is written. State in client.loom.artificing; artificing_staff (read by hunting). ARTIFICING HELP for commands."
+  "description": "Staff attack for STAFF CAST, and elemental treaties formed safely"
 }

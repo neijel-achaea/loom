@@ -57,5 +57,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Refill your vials from the rift: VIALS REFILL <elixir|ALL>, with the vial for each elixir set once (VIALS SET). State in client.loom.vials; vials_map. VIALS HELP for commands."
+  "description": "Refill your vials from the rift by elixir"
 }

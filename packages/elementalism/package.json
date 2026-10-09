@@ -389,5 +389,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Elementalism illusions (ILLUSION, FEEL_<environment>) and set pieces (PINK_DRAGON, KAWHEDRAGON_F/M), with the flooded-room highlight. PINK_DRAGON uses your name (from GMCP, remembered) and the pronouns you set. State in client.loom.elementalism; elementalism_name, elementalism_pronouns. ELEMENTALISM HELP for commands."
+  "description": "Illusions and set pieces, with your name and pronouns"
 }

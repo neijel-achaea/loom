@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Build Nexus packages (.nxs) from packages/<name>/.
 
+Each package's "description" (at most 80 characters) is checked, and fills
+the "{{description}}" placeholder in its registry line.
+
     python tools/build.py            -> every package into dist/
     python tools/build.py self coffers
 """
@@ -15,9 +18,29 @@ def resolve(node, folder):
         return open(os.path.join(folder, node[6:]), encoding="utf-8").read()
     return node
 
+MAX_DESCRIPTION = 80
+PLACEHOLDER = '"{{description}}"'
+
+def fill(node, value):
+    """Put the package's description, as a JS string, where the code has the
+    "{{description}}" placeholder (the registry line), so it is written once."""
+    if isinstance(node, dict):
+        return {k: fill(v, value) for k, v in node.items()}
+    if isinstance(node, list):
+        return [fill(v, value) for v in node]
+    if isinstance(node, str):
+        return node.replace(PLACEHOLDER, value)
+    return node
+
 def build(name, root="packages", dist="dist"):
     folder = os.path.join(root, name)
     d = resolve(json.load(open(os.path.join(folder, "package.json"), encoding="utf-8")), folder)
+    # The description is what Nexus shows on its packages page and what LOOM
+    # shows under the package: required, one line, at most 80 characters.
+    desc = d.get("description", "")
+    if not desc or "\n" in desc or len(desc) > MAX_DESCRIPTION:
+        sys.exit("%s: the description must be one line of 1-%d characters (it is %d)" % (name, MAX_DESCRIPTION, len(desc)))
+    d = fill(d, json.dumps(desc, ensure_ascii=False))
     os.makedirs(dist, exist_ok=True)
     path = os.path.join(dist, name + ".nxs")
     json.dump(d, open(path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)

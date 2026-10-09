@@ -209,5 +209,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Harvesting 2.0 - stock-aware auto-harvest on room entry. HARVESTING ON/OFF/MIN/RESET."
+  "description": "Harvests the plants your rift is short of as you walk the rooms"
 }

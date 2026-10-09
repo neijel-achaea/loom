@@ -2,4 +2,4 @@
 // directly: the package is named "numpad movement", with a space.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.numpad_movement = { version: "0.2.0", keyword: "" };
+client.loom.registry.numpad_movement = { version: "0.2.1", keyword: "", desc: "{{description}}" };

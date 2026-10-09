@@ -23,8 +23,17 @@ if (sub === "" || sub === "list") {
     var r = reg[names[i]] || {};
     var label = (names[i] + "                ").slice(0, 16);
     var ver = ("v" + (r.version || "?") + "          ").slice(0, 10);
-    if (html) rows.push('  <span style="color:#00ffff">' + esc(label) + '</span><span style="color:#9fc9c9">' + esc(ver) + '</span><span style="color:#00ffff">' + esc(r.keyword || "") + '</span>');
-    else display_notice("  " + label + ver + (r.keyword || ""), C);
+    // The description, when the package has one, on its own dimmer line.
+    // (An unbuilt package would still hold the placeholder, "{{" then
+    // "description"; tested with a pattern so the build doesn't fill it in.)
+    var desc = (r.desc && !/^\{\{/.test(r.desc)) ? r.desc : "";
+    if (html) {
+      rows.push('  <span style="color:#00ffff">' + esc(label) + '</span><span style="color:#9fc9c9">' + esc(ver) + '</span><span style="color:#00ffff">' + esc(r.keyword || "") + '</span>');
+      if (desc) rows.push('    <span style="color:#6f8f8f">' + esc(desc) + '</span>');
+    } else {
+      display_notice("  " + label + ver + (r.keyword || ""), C);
+      if (desc) display_notice("    " + desc, "#6f8f8f");
+    }
   }
   if (html && rows.length) nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + rows.join("\n") + '</span>');
   display_notice("[loom] pause " + (get_variable("pauseTriggers") || "off") + ", debug " + (get_variable("debug") || "off") + ". LOOM HELP for commands.", C);

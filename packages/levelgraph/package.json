@@ -75,5 +75,5 @@
    "prefix_suffix": true
   }
  ],
- "description": "Level progress tracker with two graphs in a UI tab named 'Level': a session pane (one point per minute, trailing window) and a long-term pane (one point per day). Level and percent to next come from GMCP, sampled once per prompt. State in client.loom.levelgraph; buffers levelgraph_min and levelgraph_day, each [unixSeconds, level, nl]. LEVELGRAPH HELP for commands."
+ "description": "Level progress graphs per minute and per day, time to next level"
 }

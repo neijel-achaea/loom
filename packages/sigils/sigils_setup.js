@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.sigils) client.loom.sigils = {};
-client.loom.registry.sigils = { version: "0.2.0", keyword: "SIGILS" };
+client.loom.registry.sigils = { version: "0.2.1", keyword: "SIGILS", desc: "{{description}}" };
 
 var S = client.loom.sigils;
 S.queue = [];

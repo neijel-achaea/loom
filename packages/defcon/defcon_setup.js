@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.defcon) client.loom.defcon = {};
-client.loom.registry.defcon = { version: "0.2.1", keyword: "DEFCON" };
+client.loom.registry.defcon = { version: "0.2.2", keyword: "DEFCON", desc: "{{description}}" };
 
 var D = client.loom.defcon;
 

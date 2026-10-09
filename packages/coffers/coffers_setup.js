@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "0.2.0", keyword: "COFFERS" };
+client.loom.registry.coffers = { version: "0.2.1", keyword: "COFFERS", desc: "{{description}}" };
 var CO = client.loom.coffers;
 
 // One-time migration: gc_* -> coffers_*. A new variable that already holds

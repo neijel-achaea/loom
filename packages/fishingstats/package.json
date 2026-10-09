@@ -358,5 +358,5 @@
    ]
   }
  ],
- "description": "Fishing statistics for you and everyone around you: casts, hooks and catches per angler and per species, with weights, in a tab named 'fishingstats'; filed sessions in a tab named 'fishinglog'. Flags catches that beat this year's rankings (read from RANKINGS FISHING). State in client.loom.fishingstats. FISHINGSTATS HELP for commands."
+ "description": "Casts, catches and weights per angler and species, with a fishing log"
 }
