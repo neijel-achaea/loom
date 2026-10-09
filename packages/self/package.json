@@ -2,13 +2,19 @@
   "type": "group",
   "name": "self",
   "enabled": true,
-  "description": "Self 0.4 - a 'Self' tab replacing the stock character panel: afflictions grouped by cure, character stats, defences with a watch list (missing ones in red, losses announced) and recently lost defences. Live from GMCP Char.Afflictions / Char.Defences / Char.Vitals / Char.Status.",
+  "description": "A 'Self' tab replacing the stock character panel: afflictions grouped by cure, character stats, defences with a per-class watch list (missing ones in red, losses announced) and recently lost defences. Live from GMCP Char.Afflictions / Char.Defences / Char.Vitals / Char.Status / Char.Name, plus SCORE lines. State in client.loom.self; self_want_<class>, self_keep, self_name. SELF HELP for commands.",
   "items": [
     {
       "type": "function",
       "name": "onInstall",
       "enabled": true,
       "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
     },
     {
       "type": "function",
@@ -24,9 +30,9 @@
     },
     {
       "type": "function",
-      "name": "self_init",
+      "name": "self_setup",
       "enabled": true,
-      "code": "@file:self_init.js"
+      "code": "@file:self_setup.js"
     },
     {
       "type": "function",
@@ -39,6 +45,12 @@
       "name": "self_cmd",
       "enabled": true,
       "code": "@file:self_cmd.js"
+    },
+    {
+      "type": "function",
+      "name": "self_help",
+      "enabled": true,
+      "code": "@file:self_help.js"
     },
     {
       "type": "alias",
@@ -200,23 +212,6 @@
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true
-    },
-    {
-      "type": "alias",
-      "name": "Self setname",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_self_setname.js"
-        }
-      ],
-      "text": "^setname (\\w+)$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": false,
-      "prefix_suffix": true
     }
   ]
 }
