@@ -36,9 +36,10 @@ function section(title, inner) { return '<div style="border-top:1px solid ' + RU
 function quiet(t) { return '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">' + t + '</div>'; }
 function byTime(x, y) { return y.ms - x.ms; }
 
-// Dragonhood, when the level is known this connection.
+// Dragonhood, when the level is known this connection and you aren't a dragon yet.
 var dh = null;
 try { dh = client.loom.huntstats.dragon(); } catch (e) { dh = null; }
+if (dh !== null && dh >= 100) dh = null;
 
 // An arrowhead over a sprig, the hunting tab's counterpart of the coin stack.
 var glyph = '<svg width="18" height="17" viewBox="0 0 18 17" style="vertical-align:-3px;margin-right:6px;" xmlns="http://www.w3.org/2000/svg">' +
@@ -77,7 +78,7 @@ if (log.length === 0) {
   lb += row("experience", thou(L.xp));
   lb += row("gold", thou(L.gold) + ' <span style="color:' + MUTED + ';">(' + thou(L.goldHr) + '/hr)</span>', GOLD);
   lb += row("kills", String(L.kills) + (L.ms > 0 ? ' <span style="color:' + MUTED + ';">(' + Math.round(L.kills / (L.ms / 3600000)) + '/hr)</span>' : ''));
-  if (L.dGain !== null && L.dGain !== undefined) { lb += row("dragonhood", '+' + L.dGain.toFixed(3) + '%', DRAGON); }
+  if (L.dGain !== null && L.dGain !== undefined && L.dGain !== 0) { lb += row("dragonhood", '+' + L.dGain.toFixed(3) + '%', DRAGON); }
   cols += box(lb, MOSS);
   var hb = caps("Lifetime", MOSS);
   var lh = lt.ms / 3600000;
@@ -97,7 +98,7 @@ if (log.length === 0) {
     rs += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';color:' + TXT + ';font-size:11px;">' + esc(s.area) + '</span>';
     rs += '<span style="color:' + MUTED + ';white-space:nowrap;">' + fmtDur(s.ms) + (s.at ? ' &middot; ' + ago(s.at) : '') + '</span></div>';
     rs += '<div style="color:' + MUTED + ';"><span style="color:' + MOSS + ';">' + thou(s.xpHr) + '</span> xp/hr &middot; <span style="color:' + GOLD + ';">' + thou(s.gold) + '</span> gold &middot; ' + s.kills + ' kills';
-    if (s.dGain !== null && s.dGain !== undefined) { rs += ' &middot; <span style="color:' + DRAGON + ';">+' + s.dGain.toFixed(3) + '%</span>'; }
+    if (s.dGain !== null && s.dGain !== undefined && s.dGain !== 0) { rs += ' &middot; <span style="color:' + DRAGON + ';">+' + s.dGain.toFixed(3) + '%</span>'; }
     rs += '</div>';
     if (s.players && s.players.length) { rs += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">with ' + esc(s.players.join(", ")) + '</div>'; }
     rs += '</div>';
