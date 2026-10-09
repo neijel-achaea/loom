@@ -1,5 +1,9 @@
 Source: Mhaldor CLHELP (in-game city help), pasted by Ricardo 2026-10-09.
 Reference for #30 (hunting attacks) and defcon tables (defensive abilities). Covers Mhaldor's classes only; ends mid-Shaman.
+Take with a grain of salt (Ricardo): the Two-Handed Slaughter/Carve split is
+out of date, and the "defensive abilities" mix in skills you use rather than
+keep up (e.g. Jester's Priestess, a tarot card), so they aren't defcon
+defences as listed.
 
 -----Alchemist-----
 Hunting Ability: Iron, Wrack*

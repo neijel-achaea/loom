@@ -6,7 +6,7 @@
 // Class conditions (charstats, for self): Shin, Stance.
 HU.classes["Blademaster"] = {
   keys: [
-    ["Drawslash", "queue add b!wu!t!p drawslash @tar", "main"],
+    ["Drawslash", "queue add b!wu!t!p drawslash @tar sternum", "main"],
     ["Leapstrike", huQ + "leapstrike @tar"],
     ["Spinslash", huQ + "spinslash @tar"],
     ["Shatter", huQ + "shin shatter @tar"],
@@ -20,7 +20,7 @@ HU.classes["Blademaster"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Leapstrike: 14, Spinslash: 36, Shatter: 17, Headstrike: 25, Daze: 26, Nerveslash: 22, Provoke: 32 },
-  // To capture (#31): Drawslash; Leapstrike; Spinslash; Shatter (on a
+  // To capture (#31): Drawslash (check that STERNUM works); Leapstrike; Spinslash; Shatter (on a
   // shielded target); Headstrike, plain and HEADSTRIKE++ (target reckless or
   // afraid); Daze; Nerveslash; Provoke. Also check the name the game uses in
   // "You can use ... again" for Headstrike (typed as STRIKE HEAD).
