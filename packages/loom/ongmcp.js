@@ -21,10 +21,5 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
     set_variable("activeClass", cls);
     L.cls = cls;
     display_notice("[loom] class: " + cls, "green");
-
-    // LEGACY: tells roleplay to reload its emotes, only when roleplay's
-    // engine exists (otherwise AEM RELOAD would reach the game). Goes away
-    // when roleplay follows the class itself.
-    if (window.AEM) send_command("aem reload");
   }
 }

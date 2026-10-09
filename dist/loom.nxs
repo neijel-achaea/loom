@@ -7,7 +7,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.2\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
+   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.3\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
   },
   {
    "type": "function",
@@ -19,13 +19,13 @@
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.2\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
+   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.3\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
   },
   {
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.loom) client.loom.loom = {};\nvar L = client.loom.loom;\n\nif (args.gmcp_method == \"Room.Info\") {\n  var g = args.gmcp_args;\n  L.room = { id: g.num, name: g.name, area: g.area, environment: g.environment };\n\n  // LEGACY shared variables. Packages that have not had their v0.2 pass still\n  // read these. Removed once none does (issue #2).\n  set_variable(\"currentRoomId\", g.num);\n  set_variable(\"currentRoomName\", g.name);\n  set_variable(\"currentArea\", g.area);\n  set_variable(\"currentEnvironment\", g.environment);\n}\n\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  var cls = args.gmcp_args.class;\n  if (cls != get_variable(\"activeClass\")) {\n    // LEGACY shared variable, same as above.\n    set_variable(\"activeClass\", cls);\n    L.cls = cls;\n    display_notice(\"[loom] class: \" + cls, \"green\");\n\n    // LEGACY: tells roleplay to reload its emotes, only when roleplay's\n    // engine exists (otherwise AEM RELOAD would reach the game). Goes away\n    // when roleplay follows the class itself.\n    if (window.AEM) send_command(\"aem reload\");\n  }\n}\n"
+   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.loom) client.loom.loom = {};\nvar L = client.loom.loom;\n\nif (args.gmcp_method == \"Room.Info\") {\n  var g = args.gmcp_args;\n  L.room = { id: g.num, name: g.name, area: g.area, environment: g.environment };\n\n  // LEGACY shared variables. Packages that have not had their v0.2 pass still\n  // read these. Removed once none does (issue #2).\n  set_variable(\"currentRoomId\", g.num);\n  set_variable(\"currentRoomName\", g.name);\n  set_variable(\"currentArea\", g.area);\n  set_variable(\"currentEnvironment\", g.environment);\n}\n\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  var cls = args.gmcp_args.class;\n  if (cls != get_variable(\"activeClass\")) {\n    // LEGACY shared variable, same as above.\n    set_variable(\"activeClass\", cls);\n    L.cls = cls;\n    display_notice(\"[loom] class: \" + cls, \"green\");\n  }\n}\n"
   },
   {
    "type": "function",
