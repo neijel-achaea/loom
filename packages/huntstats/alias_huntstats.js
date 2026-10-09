@@ -38,7 +38,7 @@ if (hsSub === "" || hsSub === "status") {
     for (var i = 0; i < log.length; i++) {
       var s = log[i];
       var pl = (s.players && s.players.length) ? ("  party: " + s.players.join(", ")) : "";
-      var dg = (s.dGain !== null && s.dGain !== undefined) ? ("  " + (s.dGain < 0 ? "" : "+") + s.dGain.toFixed(3) + "% dragon") : "";
+      var dg = (s.dGain !== null && s.dGain !== undefined && s.dGain !== 0) ? ("  " + (s.dGain < 0 ? "" : "+") + s.dGain.toFixed(3) + "% dragon") : "";
       display_notice("  " + s.area + " - " + HS.dur(s.ms) + ", " + s.xp.toLocaleString() + " xp (" + s.xpHr.toLocaleString() + "/hr), " + s.gold.toLocaleString() + " gold, " + s.kills + " kills" + dg + pl);
     }
   }
