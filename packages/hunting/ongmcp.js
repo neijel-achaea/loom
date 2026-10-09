@@ -33,8 +33,6 @@ if (args.gmcp_method == "Char.Vitals") {
   }
   if (rage !== null) {
     HU.rage = rage;
-    // LEGACY publish: partycomms reads my_rage until its own v0.2 pass.
-    set_variable("my_rage", rage);
   }
   // Balance and equilibrium arrive on every vitals message, so refresh the
   // highlights each time (the main attack lights on bal + eq).

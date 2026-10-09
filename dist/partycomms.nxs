@@ -1,75 +1,81 @@
 {
  "type": "group",
  "name": "partycomms",
- "enabled": false,
+ "enabled": true,
  "items": [
   {
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// partycomms 0.3\nrun_function(\"party_init\", [], \"partycomms\");"
+   "code": "run_function(\"partycomms_setup\", [], \"partycomms\");\nrun_function(\"partycomms_render\", [], \"partycomms\");\ndisplay_notice(\"[partycomms] installed. Create a UI tab named 'Party' for the chips. PARTYCOMMS HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
    "name": "onUninstall",
    "enabled": true,
-   "code": "// nothing to clean up"
+   "code": "// Nothing to tear down; partycomms_on is left intact.\n"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "// Tab icon: pure CSS keyed on the tab button's title, so Nexus's own\n// redraws (selecting, dragging, layout resets) cannot undo it.\nvar tiTabs = [[\"Party\", '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 18 15\"><circle cx=\"4\" cy=\"5\" r=\"2.2\" fill=\"#3f6b60\"/><path d=\"M0.5 14 C1 10 2.5 8.8 4 8.8 C5.5 8.8 7 10 7.5 14 Z\" fill=\"#3f6b60\"/><circle cx=\"14\" cy=\"5\" r=\"2.2\" fill=\"#3f6b60\"/><path d=\"M10.5 14 C11 10 12.5 8.8 14 8.8 C15.5 8.8 17 10 17.5 14 Z\" fill=\"#3f6b60\"/><circle cx=\"9\" cy=\"3.6\" r=\"2.6\" fill=\"#7cc4b0\"/><path d=\"M4.8 14 C5.3 9.4 7.2 7.9 9 7.9 C10.8 7.9 12.7 9.4 13.2 14 Z\" fill=\"#7cc4b0\"/></svg>']];\nfor (var tiI = 0; tiI < tiTabs.length; tiI++) {\n  var tiId = \"tabicon-\" + tiTabs[tiI][0].toLowerCase();\n  if (!document.getElementById(tiId)) {\n    var tiSel = '.flexlayout__tab_button[title=\"' + tiTabs[tiI][0] + '\" i]';\n    var tiSt = document.createElement(\"style\");\n    tiSt.id = tiId;\n    tiSt.textContent = tiSel + ' > * { display: none !important; } ' + tiSel + '::before { content: \"\"; display: block; width: 20px; height: 20px; margin: auto; background: url(\"data:image/svg+xml,' + encodeURIComponent(tiTabs[tiI][1]) + '\") center / contain no-repeat; }';\n    document.head.appendChild(tiSt);\n  }\n}\nrun_function(\"partycomms_setup\", [], \"partycomms\");\nrun_function(\"partycomms_render\", [], \"partycomms\");\n"
   },
   {
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "if (args.gmcp_method == \"Char.Vitals\") {\n  run_function(\"party_send\", [], \"partycomms\");\n}"
+   "code": "// Everything partycomms broadcasts comes from GMCP: Char.Status for your\n// name and class, Char.Vitals for health, mana, endurance, willpower, rage\n// (its charstats line) and level progress, IRE.Target.Info for your target.\n// Each Char.Vitals is also the moment to broadcast.\nvar pcM = \"\";\nvar pcA = null;\ntry { pcM = args.gmcp_method; pcA = args.gmcp_args; } catch (e) { pcM = \"\"; }\nif (typeof pcA === \"string\") { try { pcA = JSON.parse(pcA); } catch (e) { pcA = null; } }\nif (pcA && (pcM === \"Char.Vitals\" || pcM === \"Char.Status\" || pcM === \"Char.Name\" || pcM === \"IRE.Target.Info\")) {\n  if (!client.loom || !client.loom.partycomms || !client.loom.partycomms.members) run_function(\"partycomms_setup\", [], \"partycomms\");\n  var PC = client.loom.partycomms;\n  var ME = PC.me;\n  if (pcM === \"Char.Status\" || pcM === \"Char.Name\") {\n    if (pcA.name) ME.name = String(pcA.name);\n    if (pcA[\"class\"]) ME.cls = String(pcA[\"class\"]);\n  } else if (pcM === \"IRE.Target.Info\") {\n    PC.tInfo = { id: String(pcA.id || \"\"), name: String(pcA.short_desc || \"\"), hp: String(pcA.hpperc || \"\").replace(\"%\", \"\") };\n  } else {\n    var pcF = [\"hp\", \"maxhp\", \"mp\", \"maxmp\", \"ep\", \"maxep\", \"wp\", \"maxwp\"];\n    for (var pcI = 0; pcI < pcF.length; pcI++) {\n      if (pcA[pcF[pcI]] !== undefined) { var pcN = parseInt(pcA[pcF[pcI]], 10); if (!isNaN(pcN)) ME[pcF[pcI]] = pcN; }\n    }\n    if (pcA.nl !== undefined) { var pcL = parseFloat(pcA.nl); if (!isNaN(pcL)) ME.nl = pcL; }\n    if (pcA.charstats) {\n      for (var pcJ = 0; pcJ < pcA.charstats.length; pcJ++) {\n        var pcR = String(pcA.charstats[pcJ]).match(/^Rage:\\s*(\\d+)/);\n        if (pcR) ME.rage = parseInt(pcR[1], 10);\n        var pcP = String(pcA.charstats[pcJ]).match(/Level:\\s*\\d+\\s*\\(([\\d.]+)%\\)/);\n        if (pcP) ME.nl = parseFloat(pcP[1]);\n      }\n    }\n    run_function(\"partycomms_send\", [], \"partycomms\");\n  }\n}\n"
   },
   {
    "type": "function",
-   "name": "party_init",
+   "name": "partycomms_setup",
    "enabled": true,
-   "code": "// partycomms 0.3 - reset all state. Safe to run any time.\nset_variable(\"party_data\", {});\nset_variable(\"party_last_send\", 0);\nset_variable(\"party_last_sent\", {});\nset_variable(\"party_last_render\", 0);\nif (!get_variable(\"party_me\")) {\n  display_notice(\"[partycomms] No name set. Run: partyname YourName\", \"orange\");\n} else {\n  display_notice(\"[partycomms] 0.3 ready as \" + get_variable(\"party_me\"), \"cyan\");\n}\nrun_function(\"party_render\", [], \"partycomms\");"
+   "code": "// partycomms_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration of the\n// party_* variables, then the state, each part built if missing.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.partycomms) client.loom.partycomms = {};\nclient.loom.registry.partycomms = { version: \"0.2.0\", keyword: \"PARTYCOMMS\" };\nvar PC = client.loom.partycomms;\n\n// One-time migration. party_on becomes partycomms_on; the rest were working\n// state kept in variables (now in memory) or the broadcast name (now the\n// game's), so they are deleted.\nvar pcOn;\ntry { pcOn = get_variable(\"party_on\"); } catch (e) { pcOn = undefined; }\nif (pcOn !== undefined && pcOn !== null) {\n  var pcHave;\n  try { pcHave = get_variable(\"partycomms_on\"); } catch (e) { pcHave = undefined; }\n  if (pcHave === undefined || pcHave === null || (\"\" + pcHave) === \"\") set_variable(\"partycomms_on\", (\"\" + pcOn) === \"0\" ? \"0\" : \"1\");\n}\nvar pcGone = [\"party_on\", \"party_me\", \"party_data\", \"party_last_send\", \"party_last_sent\", \"party_last_render\", \"party_ih\", \"party_ih_at\", \"party_ih_tail\", \"tarname\", \"tarname_for\"];\nfor (var pcI = 0; pcI < pcGone.length; pcI++) {\n  var pcV;\n  try { pcV = get_variable(pcGone[pcI]); } catch (e) { pcV = undefined; }\n  if (pcV !== undefined && pcV !== null) delete_variable(pcGone[pcI]);\n}\n\n// Broadcasting is on unless switched off.\nif (PC.on === undefined) {\n  var pcSaved;\n  try { pcSaved = get_variable(\"partycomms_on\"); } catch (e) { pcSaved = undefined; }\n  PC.on = !((\"\" + pcSaved) === \"0\");\n}\n// Who you are and how you're doing, from GMCP.\nif (!PC.me) PC.me = { name: \"\", cls: \"\", hp: 0, maxhp: 0, mp: 0, maxmp: 0, ep: 0, maxep: 0, wp: 0, maxwp: 0, rage: 0, nl: 0 };\n// The target: IRE.Target.Info when the game sends it, the tar variable and\n// an IH lookup otherwise.\nif (!PC.tInfo) PC.tInfo = { id: \"\", name: \"\", hp: \"\" };\nif (!PC.tName) PC.tName = { id: \"\", name: \"\" };\nif (!PC.ih) PC.ih = { on: false, at: 0, tail: 0 };\n// Party members heard from, by name: their last report and when it came.\nif (!PC.members) PC.members = {};\nif (!PC.sent) PC.sent = { at: 0, hp: -1, mp: -1, tid: \"\", tname: \"\", thp: \"\" };\nif (PC.lastRender === undefined) PC.lastRender = 0;\n"
   },
   {
    "type": "function",
-   "name": "party_send",
+   "name": "partycomms_send",
    "enabled": true,
-   "code": "var pause = get_variable(\"pauseTriggers\");\n\nif (pause == \"off\") {\n  var me = get_variable(\"party_me\");\n  var on = get_variable(\"party_on\");\n  var hp = to_number(get_variable(\"my_hp\"));\n  var maxhp = to_number(get_variable(\"my_maxhp\"));\n  run_function(\"party_resolve\", [], \"partycomms\");\n  if (me && on != 0 && maxhp > 0) {\n    var mp = to_number(get_variable(\"my_mp\"));\n    var maxmp = to_number(get_variable(\"my_maxmp\"));\n    var ep = to_number(get_variable(\"my_ep\"));\n    var maxep = to_number(get_variable(\"my_maxep\"));\n    var wp = to_number(get_variable(\"my_wp\"));\n    var maxwp = to_number(get_variable(\"my_maxwp\"));\n    var rage = to_number(get_variable(\"my_rage\")) || 0;\n    var nl = get_variable(\"my_nl\") || 0;\n    var tid = get_variable(\"tar\") || 0;\n    var tnm = get_variable(\"tarname\");\n    if (!tnm) { tnm = \"-\"; }\n    var now = Date.now() / 1000;\n    var last = get_variable(\"party_last_send\") || 0;\n    var prev = get_variable(\"party_last_sent\") || {};\n    var hpp = Math.round(hp * 100 / maxhp);\n    var mpp = 0;\n    if (maxmp > 0) { mpp = Math.round(mp * 100 / maxmp); }\n    var moved = false;\n    if (Math.abs(hpp - (prev.hp || 0)) >= 5) { moved = true; }\n    if (Math.abs(mpp - (prev.mp || 0)) >= 5) { moved = true; }\n    if (tid != prev.tid) { moved = true; }\n    if (tnm != prev.tname) { moved = true; }\n    if (now - last >= 10) { moved = true; }\n    if (moved && now - last >= 1) {\n      var msg = \"pt [PARTYINFO] \" + me;\n      msg = msg + \" \" + hp + \"/\" + maxhp;\n      msg = msg + \" \" + mp + \"/\" + maxmp;\n      msg = msg + \" \" + ep + \"/\" + maxep;\n      msg = msg + \" \" + wp + \"/\" + maxwp;\n      msg = msg + \" \" + rage;\n      msg = msg + \" \" + nl;\n      msg = msg + \" | \" + tid + \" \" + tnm;\n      send_command(msg, 1);\n      var sent = {};\n      sent.hp = hpp;\n      sent.mp = mpp;\n      sent.tid = tid;\n      sent.tname = tnm;\n      set_variable(\"party_last_send\", now);\n      set_variable(\"party_last_sent\", sent);\n    }\n    run_function(\"party_render\", [], \"partycomms\");\n  }\n}"
+   "code": "// partycomms_send -- run on each Char.Vitals: works out your target, then\n// broadcasts over party tell when something moved, at most once a second\n// and at least every ten. Nothing goes to the game while triggers are paused\n// (an unset pauseTriggers counts as off) or with broadcasting off.\n//\n// The message, one line, fields separated by spaces; \"~\" splits the vitals\n// from the target (\"|\" would split the command in Nexus, \"@\" can expand as\n// a variable). A class with spaces is sent with underscores.\n//   [PARTY] Name Class hp/maxhp mp/maxmp ep/maxep wp/maxwp rage nl ~ tid thp target name\n// tid is 0 and thp and the name are \"-\" when unknown.\nvar PC = client.loom.partycomms;\nvar ME = PC.me;\nvar pcNow = Date.now() / 1000;\nvar pcPaused = (get_variable(\"pauseTriggers\") === \"on\");\n\n// --- the target ---\nvar pcTar = String(get_variable(\"tar\") || \"\").replace(/^\\s+|\\s+$/g, \"\");\nvar pcDig = pcTar.match(/(\\d+)/);\nvar pcTid = pcDig ? pcDig[1] : \"\";\nvar pcTname = \"\";\nvar pcThp = \"\";\nvar TI = PC.tInfo;\nif (TI.id && (pcTid === \"\" || TI.id === pcTid)) {\n  pcTid = TI.id;\n  pcTname = TI.name;\n  pcThp = TI.hp;\n} else if (pcTid !== \"\") {\n  if (PC.tName.id === pcTid) {\n    pcTname = PC.tName.name;\n  } else if (PC.on && !pcPaused && pcNow - PC.ih.at >= 2) {\n    // Not named yet: look it up with IH, whose lines are hidden as they come.\n    PC.ih.on = true;\n    PC.ih.at = pcNow;\n    send_command(\"ih\", 1);\n  }\n} else if (pcTar !== \"\") {\n  pcTname = pcTar;\n}\nPC.target = { id: pcTid, name: pcTname, hp: pcThp };\n\n// --- the broadcast ---\nif (PC.on && !pcPaused && ME.name && ME.maxhp > 0) {\n  var pcHpp = Math.round(ME.hp * 100 / ME.maxhp);\n  var pcMpp = ME.maxmp > 0 ? Math.round(ME.mp * 100 / ME.maxmp) : 0;\n  var S0 = PC.sent;\n  var pcThpN = parseInt(pcThp, 10);\n  var pcMoved = Math.abs(pcHpp - S0.hp) >= 5 || Math.abs(pcMpp - S0.mp) >= 5 ||\n    pcTid !== S0.tid || pcTname !== S0.tname ||\n    (!isNaN(pcThpN) && (S0.thp === \"\" || Math.abs(pcThpN - parseInt(S0.thp, 10)) >= 10)) ||\n    pcNow - S0.at >= 10;\n  if (pcMoved && pcNow - S0.at >= 1) {\n    var pcCls = (ME.cls || \"-\").replace(/\\s+/g, \"_\");\n    var pcMsg = \"pt [PARTY] \" + ME.name + \" \" + pcCls +\n      \" \" + ME.hp + \"/\" + ME.maxhp + \" \" + ME.mp + \"/\" + ME.maxmp +\n      \" \" + ME.ep + \"/\" + ME.maxep + \" \" + ME.wp + \"/\" + ME.maxwp +\n      \" \" + (ME.rage || 0) + \" \" + (ME.nl || 0) +\n      \" ~ \" + (pcTid || \"0\") + \" \" + (pcThp !== \"\" ? pcThp : \"-\") + \" \" + (pcTname || \"-\");\n    send_command(pcMsg, 1);\n    PC.sent = { at: pcNow, hp: pcHpp, mp: pcMpp, tid: pcTid, tname: pcTname, thp: pcThp };\n  }\n}\nrun_function(\"partycomms_render\", [], \"partycomms\");\n"
   },
   {
    "type": "function",
-   "name": "party_resolve",
+   "name": "partycomms_render",
    "enabled": true,
-   "code": "var pause = get_variable(\"pauseTriggers\");\nvar party_on = get_variable(\"party_on\");\n\nif (pause == \"off\") {\n  var tar = get_variable(\"tar\");\n  var now = Date.now() / 1000;\n  if (!tar) {\n    set_variable(\"tarname\", \"\");\n    set_variable(\"tarname_for\", \"\");\n  } else {\n    if (party_on == \"1\") {\n      var forid = get_variable(\"tarname_for\");\n      var asked = get_variable(\"party_ih_at\") || 0;\n      if (tar != forid && now - asked >= 2) {\n        set_variable(\"party_ih\", 1);\n        set_variable(\"party_ih_at\", now);\n        send_command(\"ih\", 1);\n      }\n    }\n  }\n} else {\n  display_notice(\"[common] Triggers are currently paused.\", \"orange\");\n}"
+   "code": "// partycomms_render -- draws the 'Party' tab in the house style shared with\n// Coffers, Level, Ledger and the rest: ink panel, serif small-caps heading,\n// monospace figures. Each party member is a chip: name and class, four slim\n// vitals bars, rage, and their target (green when it is yours too). Redrawn\n// at most once a second; a report older than 12 seconds fades as a lost\n// link, and one older than two minutes is dropped.\nvar PC = client.loom.partycomms;\nvar now = Date.now() / 1000;\nif (now - PC.lastRender >= 1) {\n  PC.lastRender = now;\n  var SEA = \"#7cc4b0\";\n  var DEEP = \"#3f6b60\";\n  var TXT = \"#dfe8e5\";\n  var MUTED = \"#82918d\";\n  var RULE = \"#1f2b2a\";\n  var TRACK = \"#1c2423\";\n  var CHIP = \"#111817\";\n  var WARN = \"#e6c25a\";\n  var OK = \"#8fd0a0\";\n  var LOW = \"#e0605a\";\n  var VITALS = [[\"hp\", \"health\", \"#d06a5e\"], [\"mp\", \"mana\", \"#6a96d6\"], [\"ep\", \"endurance\", \"#d2a64e\"], [\"wp\", \"willpower\", \"#a58ad8\"]];\n  var SERIF = \"Georgia,'Palatino Linotype','Book Antiqua',serif\";\n  var MONO = \"Consolas,'DejaVu Sans Mono',monospace\";\n\n  function esc(t) { return String(t).replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\"/g, \"&quot;\"); }\n  function pct(c, m) { if (!(m > 0)) return 0; var p = Math.round(c * 100 / m); return p < 0 ? 0 : (p > 100 ? 100 : p); }\n  function thou(n) { var s = String(Math.round(n || 0)); var o = \"\"; while (s.length > 3) { o = \",\" + s.slice(-3) + o; s = s.slice(0, -3); } return s + o; }\n  // One vitals row: a letter, the bar, the percentage; the figures on hover.\n  function bar(label, title, col, c, m) {\n    var p = pct(c, m);\n    return '<div style=\"display:flex;align-items:center;gap:4px;margin:1px 0;\" title=\"' + esc(title + \": \" + thou(c) + \" / \" + thou(m)) + '\">' +\n      '<span style=\"color:' + MUTED + ';width:1.4em;\">' + label + '</span>' +\n      '<div style=\"flex:1 1 auto;background:' + TRACK + ';height:6px;\"><div style=\"background:' + col + ';height:6px;width:' + p + '%;\"></div></div>' +\n      '<span style=\"min-width:2.6em;text-align:right;color:' + (label === \"hp\" && p < 30 ? LOW : TXT) + ';\">' + p + '%</span></div>';\n  }\n\n  // Members heard from, freshest reports only; you first, then by name.\n  var names = [];\n  for (var nm in PC.members) {\n    if (PC.members.hasOwnProperty(nm)) {\n      if (now - PC.members[nm].t > 120) delete PC.members[nm];\n      else names.push(nm);\n    }\n  }\n  var me = PC.me.name;\n  function byMember(a, b) { if (a === me) return -1; if (b === me) return 1; return a < b ? -1 : (a > b ? 1 : 0); }\n  names.sort(byMember);\n\n  // Three figures side by side, the party tab's counterpart of the coin stack.\n  var glyph = '<svg width=\"18\" height=\"15\" viewBox=\"0 0 18 15\" style=\"vertical-align:-3px;margin-right:6px;\" xmlns=\"http://www.w3.org/2000/svg\">' +\n    '<circle cx=\"4\" cy=\"5\" r=\"2.2\" fill=\"' + DEEP + '\"/><path d=\"M0.5 14 C1 10 2.5 8.8 4 8.8 C5.5 8.8 7 10 7.5 14 Z\" fill=\"' + DEEP + '\"/>' +\n    '<circle cx=\"14\" cy=\"5\" r=\"2.2\" fill=\"' + DEEP + '\"/><path d=\"M10.5 14 C11 10 12.5 8.8 14 8.8 C15.5 8.8 17 10 17.5 14 Z\" fill=\"' + DEEP + '\"/>' +\n    '<circle cx=\"9\" cy=\"3.6\" r=\"2.6\" fill=\"' + SEA + '\"/><path d=\"M4.8 14 C5.3 9.4 7.2 7.9 9 7.9 C10.8 7.9 12.7 9.4 13.2 14 Z\" fill=\"' + SEA + '\"/></svg>';\n\n  var html = '<div style=\"font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1211;border:1px solid ' + RULE + ';padding:7px 8px 8px;\">';\n  html += '<div style=\"display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;\">';\n  html += '<div style=\"font-family:' + SERIF + ';color:' + SEA + ';font-size:14px;letter-spacing:0.22em;\">' + glyph + 'PARTY</div>';\n  var right = names.length + ' member' + (names.length === 1 ? '' : 's');\n  right += ' &middot; ' + (PC.on ? (me ? 'sharing as ' + esc(me) : 'sharing') : '<span style=\"color:' + WARN + ';\">not sharing</span>');\n  html += '<div style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;\">' + right + '</div></div>';\n\n  if (names.length === 0) {\n    html += '<div style=\"margin-top:8px;color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;\">No reports yet. In a party with partycomms on, members appear here as their reports arrive. PARTYCOMMS TEST shows two sample chips.</div>';\n  } else {\n    var myT = (PC.target && PC.target.id) ? PC.target.id : \"\";\n    html += '<div style=\"display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;\">';\n    for (var i = 0; i < names.length; i++) {\n      var p = PC.members[names[i]];\n      var age = now - p.t;\n      var lost = age > 12;\n      var hpP = pct(p.hp, p.maxhp);\n      var top = (hpP < 30) ? LOW : (names[i] === me ? SEA : DEEP);\n      var c = '<div style=\"flex:1 1 150px;min-width:150px;max-width:280px;background:' + CHIP + ';border:1px solid ' + RULE + ';border-top:2px solid ' + top + ';padding:3px 5px 4px;' + (lost ? 'opacity:0.45;' : '') + '\">';\n      c += '<div style=\"display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:2px;\">';\n      c += '<span style=\"font-family:' + SERIF + ';font-size:12px;color:' + (names[i] === me ? SEA : TXT) + ';white-space:nowrap;\">' + esc(names[i]) + '</span>';\n      c += '<span style=\"font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.08em;color:' + MUTED + ';font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\">' + (lost ? '<span style=\"color:' + LOW + ';\">link lost ' + Math.round(age) + 's</span>' : esc(p.cls || \"\")) + '</span></div>';\n      for (var v = 0; v < VITALS.length; v++) {\n        var k = VITALS[v][0];\n        if (p[\"max\" + k] > 0) c += bar(k, VITALS[v][1], VITALS[v][2], p[k], p[\"max\" + k]);\n      }\n      var rg = p.rage || 0;\n      var rcol = rg >= 36 ? OK : (rg >= 14 ? WARN : MUTED);\n      c += '<div style=\"display:flex;justify-content:space-between;gap:6px;margin-top:2px;border-top:1px dotted ' + RULE + ';padding-top:2px;\">';\n      c += '<span style=\"color:' + MUTED + ';\">rage <span style=\"color:' + rcol + ';\">' + rg + '</span></span>';\n      if (p.tid || p.tname) {\n        var same = myT && p.tid && p.tid === myT;\n        var tl = p.tname || (\"#\" + p.tid);\n        c += '<span style=\"color:' + (same ? OK : TXT) + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;\" title=\"' + esc(tl + (p.tid ? \" #\" + p.tid : \"\") + (same ? \", your target too\" : \"\")) + '\">&rarr; ' + esc(tl) + (p.thp !== \"\" && p.thp !== undefined ? ' <span style=\"color:' + MUTED + ';\">' + esc(p.thp) + '%</span>' : '') + '</span>';\n      } else {\n        c += '<span style=\"color:' + MUTED + ';font-style:italic;font-family:' + SERIF + ';\">no target</span>';\n      }\n      c += '</div></div>';\n      html += c;\n    }\n    html += '</div>';\n  }\n  html += '</div>';\n  try { set_custom_tab_html(\"Party\", html); } catch (e) {}\n}\n"
   },
   {
    "type": "function",
-   "name": "party_render",
+   "name": "partycomms_help",
    "enabled": true,
-   "code": "// Rebuilds the Party tab. Throttled to once a second.\nvar now = Date.now() / 1000;\nvar lastr = get_variable(\"party_last_render\") || 0;\nif (now - lastr >= 1) {\n  set_variable(\"party_last_render\", now);\n  var party = get_variable(\"party_data\") || {};\n  var mytid = get_variable(\"tar\") || 0;\n  var html = \"<div style='font-family:sans-serif;font-size:12px;color:#dddddd;padding:4px'>\";\n  var count = 0;\n  for (var nm in party) {\n    var p = party[nm];\n    var age = now - p.t;\n    if (age <= 120) {\n      count = count + 1;\n      var dead = age > 12;\n      html = html + \"<div style='margin-bottom:10px;\" + (dead ? \"opacity:0.45;\" : \"\") + \"'>\";\n      html = html + \"<div><b>\" + nm + \"</b>\";\n      if (dead) {\n        html = html + \" <span style='color:#cc6666;font-size:10px'>link lost \" + Math.round(age) + \"s</span>\";\n      }\n      html = html + \"</div>\";\n      var bars = [];\n      bars.push([p.hp, p.maxhp, \"#bb3838\"]);\n      bars.push([p.mp, p.maxmp, \"#3a68b8\"]);\n      bars.push([p.ep, p.maxep, \"#d742f5\"]);\n      bars.push([p.wp, p.maxwp, \"#f5f242\"]);\n      for (var b = 0; b < bars.length; b++) {\n        var cur = bars[b][0];\n        var max = bars[b][1];\n        var col = bars[b][2];\n        var pct = 0;\n        if (max > 0) { pct = Math.round(cur * 100 / max); }\n        if (pct > 100) { pct = 100; }\n        html = html + \"<div style='background:#1c1c1c;height:13px;margin:2px 0;position:relative;border-radius:2px;overflow:hidden'>\";\n        html = html + \"<div style='background:\" + col + \";width:\" + pct + \"%;height:100%'></div>\";\n        html = html + \"<span style='position:absolute;left:5px;top:0;font-size:10px;line-height:13px;color:#f0f0f0'>\" + cur + \" / \" + max + \"</span>\";\n        html = html + \"</div>\";\n      }\n      var nlp = p.nl;\n      if (nlp > 100) { nlp = 100; }\n      if (nlp < 0) { nlp = 0; }\n      html = html + \"<div style='background:#1c1c1c;height:5px;margin:4px 0 3px 0;border-radius:2px;overflow:hidden'>\";\n      html = html + \"<div style='background:#7a5ab8;width:\" + nlp + \"%;height:100%'></div></div>\";\n      html = html + \"<div style='font-size:11px;color:#aaaaaa'>Rage \" + p.rage;\n      html = html + \" <span style='color:#888888'>&middot; NL \" + p.nl + \"%</span></div>\";\n      if (p.tid > 0) {\n        var tcol = \"#aaaaaa\";\n        if (mytid > 0 && p.tid == mytid) { tcol = \"#7ac77a\"; }\n        var tlabel = p.tname;\n        if (!tlabel || tlabel == \"-\") { tlabel = \"#\" + p.tid; }\n        html = html + \"<div style='font-size:11px;color:\" + tcol + \"'>&rarr; \" + tlabel + \"</div>\";\n      } else {\n        html = html + \"<div style='font-size:11px;color:#666666'>&rarr; no target</div>\";\n      }\n      html = html + \"</div>\";\n    }\n  }\n  if (count == 0) {\n    html = html + \"<div style='color:#888888'>No party data yet.</div>\";\n  }\n  html = html + \"</div>\";\n  set_custom_tab_html(\"Party\", html);\n}"
+   "code": "// partycomms_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[partycomms] shares your vitals, rage and target over party tell, and shows the party's in the Party tab. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"PARTYCOMMS\", \"sharing on or off, your target, and who you've heard from\"],\n  [\"PARTYCOMMS ON / OFF\", \"start or stop sharing\"],\n  [\"PARTYCOMMS CLEAR\", \"forget the party's reports\"],\n  [\"PARTYCOMMS TEST\", \"two sample members, to check the tab solo\"],\n  [\"PARTYCOMMS DEBUG\", \"internal state\"],\n  [\"Sharing switches itself off when you're not in a party; PARTYCOMMS ON after joining one.\"],\n  [\"Everyone in the party needs this version: older reports are ignored.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
   },
   {
    "type": "trigger",
-   "name": "receive party info",
+   "name": "partycomms report",
    "enabled": true,
    "actions": [
     {
      "type": "script",
      "enabled": true,
-     "script": "// Incoming party vitals. Stores and gags.\nvar e = {};\ne.hp = to_number(args[2]);\ne.maxhp = to_number(args[3]);\ne.mp = to_number(args[4]);\ne.maxmp = to_number(args[5]);\ne.ep = to_number(args[6]);\ne.maxep = to_number(args[7]);\ne.wp = to_number(args[8]);\ne.maxwp = to_number(args[9]);\ne.rage = to_number(args[10]);\ne.nl = to_number(args[11]);\ne.tid = to_number(args[12]);\ne.tname = args[13].replace(/[\\\"'.\\s]+$/, \"\");\ne.t = Date.now() / 1000;\nvar party = get_variable(\"party_data\") || {};\nparty[args[1]] = e;\nset_variable(\"party_data\", party);\ngag_current_line();\nset_variable(\"party_last_render\", 0);\nrun_function(\"party_render\", [], \"partycomms\");"
+     "script": "// A party member's report (yours included, as the game echoes it): stored\n// by name and hidden. See partycomms_send for the format.\nif (!client.loom || !client.loom.partycomms || !client.loom.partycomms.members) run_function(\"partycomms_setup\", [], \"partycomms\");\nvar PC = client.loom.partycomms;\nvar pcE = {\n  cls: String(args[2]).replace(/_/g, \" \"),\n  hp: parseInt(args[3], 10), maxhp: parseInt(args[4], 10),\n  mp: parseInt(args[5], 10), maxmp: parseInt(args[6], 10),\n  ep: parseInt(args[7], 10), maxep: parseInt(args[8], 10),\n  wp: parseInt(args[9], 10), maxwp: parseInt(args[10], 10),\n  rage: parseInt(args[11], 10), nl: parseFloat(args[12]),\n  tid: args[13] === \"0\" ? \"\" : args[13],\n  thp: args[14] === \"-\" ? \"\" : args[14],\n  tname: String(args[15]).replace(/[\"'.\\s]+$/, \"\"),\n  t: Date.now() / 1000\n};\nif (pcE.cls === \"-\") pcE.cls = \"\";\nif (pcE.tname === \"-\") pcE.tname = \"\";\nPC.members[args[1]] = pcE;\ngag_current_line();\nPC.lastRender = 0;\nrun_function(\"partycomms_render\", [], \"partycomms\");\n"
     }
    ],
-   "text": "\\[PARTYINFO\\] (\\w+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+) ([\\d.]+) \\| (\\d+) (.*)$",
+   "text": "\\[PARTY\\] (\\w+) (\\S+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+)/(\\d+) (\\d+) ([\\d.]+) ~ (\\d+) (\\S+) (.*)$",
    "matching": "regexp",
    "whole_words": false,
    "case_sensitive": true
   },
   {
    "type": "trigger",
-   "name": "ih item line",
+   "name": "partycomms ih item",
    "enabled": true,
    "actions": [
     {
      "type": "script",
      "enabled": true,
-     "script": "var at = get_variable(\"party_ih_at\") || 0;\nif (get_variable(\"party_ih\") == 1 && (Date.now() / 1000) - at < 3) {\n  gag_current_line();\n  var tar = \"\" + (get_variable(\"tar\") || \"\");\n  if (tar == args[1] + args[2] || tar == args[2]) {\n    set_variable(\"tarname\", args[3]);\n    set_variable(\"tarname_for\", get_variable(\"tar\"));\n  }\n}"
+     "script": "// An IH line while partycomms is looking up your target: hidden, and the\n// target's name kept when the number matches.\nvar PC = client.loom && client.loom.partycomms;\nif (PC && PC.ih.on && (Date.now() / 1000) - PC.ih.at < 3) {\n  gag_current_line();\n  var pcTar = String(get_variable(\"tar\") || \"\");\n  if (pcTar === args[1] + args[2] || pcTar === args[2] || (pcTar.match(/\\d+/) || [\"\"])[0] === args[2]) {\n    PC.tName = { id: args[2], name: args[3] };\n  }\n}\n"
     }
    ],
    "text": "^(\\w*?)(\\d+)\\s{2,}(.+)$",
@@ -79,13 +85,13 @@
   },
   {
    "type": "trigger",
-   "name": "ih end",
+   "name": "partycomms ih end",
    "enabled": true,
    "actions": [
     {
      "type": "script",
      "enabled": true,
-     "script": "if (get_variable(\"party_ih\") == 1) {\n  gag_current_line();\n  set_variable(\"party_ih\", 0);\n  set_variable(\"party_ih_tail\", Date.now() / 1000);\n}"
+     "script": "// The last line of an IH lookup: hidden, and the lookup closed. The gold\n// line that can follow it is hidden too (trigger_ih_gold).\nvar PC = client.loom && client.loom.partycomms;\nif (PC && PC.ih.on) {\n  gag_current_line();\n  PC.ih.on = false;\n  PC.ih.tail = Date.now() / 1000;\n}\n"
     }
    ],
    "text": "^Number of objects: \\d+$",
@@ -94,134 +100,54 @@
    "case_sensitive": true
   },
   {
-   "type": "alias",
-   "name": "partyname",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "set_variable(\"party_me\", args[1]);\ndisplay_notice(\"[partycomms] broadcasting as \" + args[1], \"cyan\");"
-    }
-   ],
-   "text": "^partyname (\\w+)$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": false
-  },
-  {
-   "type": "alias",
-   "name": "partyon",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "set_variable(\"party_on\", 1);\ndisplay_notice(\"[partycomms] broadcast ON\", \"cyan\");"
-    }
-   ],
-   "text": "^partyon$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "alias",
-   "name": "partyoff",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "set_variable(\"party_on\", 0);\ndisplay_notice(\"[partycomms] broadcast OFF\", \"orange\");"
-    }
-   ],
-   "text": "^partyoff$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": false
-  },
-  {
-   "type": "alias",
-   "name": "partydebug",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "display_notice(\"me: \" + get_variable(\"party_me\") + \" / on: \" + get_variable(\"party_on\"), \"orange\");\ndisplay_notice(\"tar: \" + get_variable(\"tar\") + \" / tarname: \" + get_variable(\"tarname\") + \" (for \" + get_variable(\"tarname_for\") + \")\", \"orange\");\ndisplay_notice(\"ih flag: \" + get_variable(\"party_ih\"), \"orange\");\ndisplay_notice(\"hp \" + get_variable(\"my_hp\") + \"/\" + get_variable(\"my_maxhp\") + \"  mp \" + get_variable(\"my_mp\") + \"/\" + get_variable(\"my_maxmp\"), \"orange\");\ndisplay_notice(\"ep \" + get_variable(\"my_ep\") + \"/\" + get_variable(\"my_maxep\") + \"  wp \" + get_variable(\"my_wp\") + \"/\" + get_variable(\"my_maxwp\"), \"orange\");\ndisplay_notice(\"rage \" + get_variable(\"my_rage\") + \"  nl \" + get_variable(\"my_nl\"), \"orange\");\ndisplay_notice(\"lastsent: \" + JSON.stringify(get_variable(\"party_last_sent\")), \"orange\");\ndisplay_notice(\"data: \" + JSON.stringify(get_variable(\"party_data\")), \"orange\");"
-    }
-   ],
-   "text": "^partydebug$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": false
-  },
-  {
-   "type": "alias",
-   "name": "partytest",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "// Injects two fake members so the tab can be checked solo.\nvar now = Date.now() / 1000;\nvar party = get_variable(\"party_data\") || {};\nvar a = {};\na.hp = 3200; a.maxhp = 4784; a.mp = 4646; a.maxmp = 5096;\na.ep = 18000; a.maxep = 21685; a.wp = 18870; a.maxwp = 23170;\na.rage = 24; a.nl = 28.12; a.tid = 12345; a.tname = \"a plague rat\";\na.t = now;\nvar b = {};\nb.hp = 900; b.maxhp = 4100; b.mp = 2000; b.maxmp = 4800;\nb.ep = 9000; b.maxep = 20000; b.wp = 11000; b.maxwp = 21000;\nb.rage = 41; b.nl = 92.4; b.tid = 0; b.tname = \"-\";\nb.t = now - 30;\nparty[\"Testalpha\"] = a;\nparty[\"Testbeta\"] = b;\nset_variable(\"party_data\", party);\nset_variable(\"party_last_render\", 0);\nrun_function(\"party_render\", [], \"partycomms\");\ndisplay_notice(\"[partycomms] test rows injected - check the Party tab\", \"cyan\");"
-    }
-   ],
-   "text": "^partytest$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": false
-  },
-  {
-   "type": "alias",
-   "name": "partyclear",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "set_variable(\"party_data\", {});\nset_variable(\"party_last_render\", 0);\nrun_function(\"party_render\", [], \"partycomms\");\ndisplay_notice(\"[partycomms] party data cleared\", \"orange\");"
-    }
-   ],
-   "text": "^partyclear$",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": false
-  },
-  {
    "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "command",
-     "enabled": true,
-     "command": "partyoff",
-     "prefix_suffix": false
-    }
-   ],
-   "text": "^You are not the member of any party\\.$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
+   "name": "partycomms ih gold",
    "enabled": true,
    "actions": [
     {
      "type": "script",
      "enabled": true,
-     "script": "var tail = get_variable(\"party_ih_tail\") || 0;\nif ((Date.now() / 1000) - tail < 2) {\n  gag_current_line();\n  set_variable(\"party_ih_tail\", 0);\n}"
+     "script": "// The gold line right after an IH lookup.\nvar PC = client.loom && client.loom.partycomms;\nif (PC && PC.ih.tail && (Date.now() / 1000) - PC.ih.tail < 2) {\n  gag_current_line();\n  PC.ih.tail = 0;\n}\n"
     }
    ],
    "text": "^[\\d,]+ gold sovereigns?\\.$",
    "matching": "regexp",
-   "whole_words": true,
+   "whole_words": false,
    "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "partycomms no party",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// \"You are not the member of any party.\" -- usually the answer to our own\n// broadcast, so broadcasting stops until PARTYCOMMS ON.\nif (!client.loom || !client.loom.partycomms || !client.loom.partycomms.members) run_function(\"partycomms_setup\", [], \"partycomms\");\nvar PC = client.loom.partycomms;\nif (PC.on) {\n  PC.on = false;\n  set_variable(\"partycomms_on\", \"0\");\n  display_notice(\"[partycomms] not in a party, so broadcasting is off. PARTYCOMMS ON once you join one.\", \"orange\");\n}\n"
+    }
+   ],
+   "text": "^You are not the member of any party\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "alias",
+   "name": "partycomms",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// PARTYCOMMS [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.partycomms || !client.loom.partycomms.members) run_function(\"partycomms_setup\", [], \"partycomms\");\nvar PC = client.loom.partycomms;\nvar pcW = String(args[1] || \"\").trim().toLowerCase().split(/\\s+/);\nvar pcSub = pcW[0];\nfunction pcSay(t, c) { display_notice(\"[partycomms] \" + t, c || \"cyan\"); }\nfunction pcRedraw() { PC.lastRender = 0; run_function(\"partycomms_render\", [], \"partycomms\"); }\n\nif (pcSub === \"\" || pcSub === \"status\") {\n  var ME = PC.me;\n  pcSay((PC.on ? \"sharing your vitals and target over party tell\" : \"not sharing (PARTYCOMMS ON to start)\") + (ME.name ? \", as \" + ME.name + (ME.cls ? \" (\" + ME.cls + \")\" : \"\") : \", once the game sends your name\") + \".\");\n  var T = PC.target || {};\n  pcSay(\"your target: \" + (T.id || T.name ? (T.name || \"?\") + (T.id ? \" #\" + T.id : \"\") + (T.hp ? \" \" + T.hp + \"%\" : \"\") : \"none\") + \".\");\n  var now = Date.now() / 1000;\n  var heard = [];\n  for (var nm in PC.members) {\n    if (PC.members.hasOwnProperty(nm)) {\n      var p = PC.members[nm];\n      var hpp = p.maxhp > 0 ? Math.round(p.hp * 100 / p.maxhp) : 0;\n      heard.push(nm + \" \" + hpp + \"%\" + (p.tname ? \" -> \" + p.tname : \"\") + (now - p.t > 12 ? \" (link lost \" + Math.round(now - p.t) + \"s)\" : \"\"));\n    }\n  }\n  pcSay(heard.length ? \"heard from: \" + heard.join(\"; \") + \".\" : \"no reports from the party yet.\");\n} else if (pcSub === \"help\") {\n  run_function(\"partycomms_help\", [], \"partycomms\");\n} else if (pcSub === \"on\" || pcSub === \"off\") {\n  PC.on = (pcSub === \"on\");\n  set_variable(\"partycomms_on\", PC.on ? \"1\" : \"0\");\n  PC.sent.at = 0;\n  pcSay(PC.on ? \"sharing on; your first report goes out with the next prompt.\" : \"sharing off.\", PC.on ? \"cyan\" : \"orange\");\n  pcRedraw();\n} else if (pcSub === \"clear\") {\n  PC.members = {};\n  pcSay(\"party reports cleared.\", \"orange\");\n  pcRedraw();\n} else if (pcSub === \"test\") {\n  // Two sample members, so the tab can be checked solo.\n  var tNow = Date.now() / 1000;\n  PC.members[\"Testalpha\"] = { cls: \"Druid\", hp: 3200, maxhp: 4784, mp: 4646, maxmp: 5096, ep: 18000, maxep: 21685, wp: 18870, maxwp: 23170, rage: 24, nl: 28.12, tid: (PC.target && PC.target.id) || \"12345\", thp: \"62\", tname: \"a plague rat\", t: tNow };\n  PC.members[\"Testbeta\"] = { cls: \"Black Dragon\", hp: 900, maxhp: 4100, mp: 2000, maxmp: 4800, ep: 9000, maxep: 20000, wp: 11000, maxwp: 21000, rage: 41, nl: 92.4, tid: \"\", thp: \"\", tname: \"\", t: tNow - 30 };\n  pcSay(\"two sample members added; PARTYCOMMS CLEAR removes them.\");\n  pcRedraw();\n} else if (pcSub === \"debug\") {\n  pcSay(\"on=\" + PC.on + \" pause=\" + (get_variable(\"pauseTriggers\") || \"unset\") + \" me=\" + JSON.stringify(PC.me), \"orange\");\n  pcSay(\"tar=\" + get_variable(\"tar\") + \" target=\" + JSON.stringify(PC.target) + \" tInfo=\" + JSON.stringify(PC.tInfo) + \" tName=\" + JSON.stringify(PC.tName) + \" ih=\" + JSON.stringify(PC.ih), \"orange\");\n  pcSay(\"sent=\" + JSON.stringify(PC.sent) + \" members=\" + Object.keys(PC.members).join(\",\"), \"orange\");\n} else {\n  pcSay(\"unknown command '\" + pcSub + \"'. PARTYCOMMS HELP for commands.\", \"orange\");\n}\n"
+    }
+   ],
+   "text": "^partycomms(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
   }
  ],
- "description": "Party vitals sharing over partytell. Version 0.3."
+ "description": "Shares your vitals, rage and target over party tell and shows the party as chips in a UI tab named 'Party'. Name, class, vitals, rage and target come from GMCP (the tar variable and an IH lookup when the game sends no target info). State in client.loom.partycomms; partycomms_on. PARTYCOMMS HELP for commands."
 }
