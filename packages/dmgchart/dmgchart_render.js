@@ -79,13 +79,9 @@ if (!src) {
   if (d.sess) { html += '<div style="color:' + MUTED + ';margin-top:3px;">' + REC + ' recording &ldquo;' + esc(d.sess.name) + '&rdquo;</div>'; }
 } else {
   var dur = src.dur;
-  // The two rates are the headline: dealt in ember, taken in crimson.
-  html += '<div style="margin:6px 0 1px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">';
-  html += '<span style="font-family:' + SERIF + ';font-size:26px;color:' + EMBER + ';">' + Math.round(src.outTotal / dur) + '</span>';
-  html += '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">dealt</span>';
-  html += '<span style="font-family:' + SERIF + ';font-size:26px;color:' + CRIMSON + ';margin-left:8px;">' + Math.round(src.incTotal / dur) + '</span>';
-  html += '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">taken, per second</span></div>';
-  html += '<div style="color:' + MUTED + ';">' + sub + '</div>';
+  // The dealt and taken rates sit inside the donuts; above them, only what
+  // the tab is showing.
+  html += '<div style="color:' + MUTED + ';margin-top:5px;">' + sub + '</div>';
 
   html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">';
   var dirs = ["out", "inc"];
@@ -155,13 +151,22 @@ if (!src) {
     ex += xline("trading", "untouched so far", EMBER);
   }
   // Staying power, for the live fight only: current health (from Char.Vitals)
-  // over incoming dps.
+  // over incoming dps less healing. Healing is every rise in health during
+  // the fight (elixirs, regeneration, anything), as dmgchart_heal counts it.
   if (!d.view && src.incTotal > 0) {
     var hpNow = d.hp;
     var inDps = src.incTotal / dur;
+    var heal = src.heal || 0;
+    var healDps = heal / dur;
+    if (heal > 0) ex += xline("healed", heal + " (" + Math.round(healDps) + "/s)", "#7fbf7f");
     if (typeof hpNow === "number" && !isNaN(hpNow) && hpNow > 0 && inDps > 0) {
-      var last = hpNow / inDps;
-      ex += xline("health lasts", "~" + secs(last) + " at this rate", last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
+      var netDps = inDps - healDps;
+      if (netDps <= 0) {
+        ex += xline("health lasts", "healing keeps up", "#7fbf7f");
+      } else {
+        var last = hpNow / netDps;
+        ex += xline("health lasts", "~" + secs(last) + " at this rate" + (heal > 0 ? ", after healing" : ""), last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
+      }
     }
   }
   if (ex) { html += section("The exchange", ex); }

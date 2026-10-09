@@ -11,7 +11,7 @@ var hlRows = [
   ["DMGCHART LIVE", "back to the live fight"],
   ["DMGCHART LIST", "the saved sessions"],
   ["DMGCHART DEL <#>", "delete saved session #"],
-  ["DMGCHART GAP <seconds>", "quiet time that ends a fight (default 8)"],
+  ["DMGCHART GAP <seconds>", "quiet time that ends a fight (default 6)"],
   ["DMGCHART RESET", "clear the live fight"],
   ["DMGCHART WIPE CONFIRM", "delete all saved sessions"],
   ["DMGCHART REBUILD", "rebuild from the saved variables (a recording resumes from its last checkpoint)"],

@@ -36,7 +36,7 @@ if (client.dc) {
 
 if (DC.gap === undefined) {
   DC.gap = parseFloat(get_variable("dmgchart_gap"));
-  if (isNaN(DC.gap) || DC.gap <= 0) DC.gap = 8;
+  if (isNaN(DC.gap) || DC.gap <= 0) DC.gap = 6;
 }
 DC.tab = "DmgChart";
 if (!DC.colors) DC.colors = { "cutting": "#d9534f", "blunt": "#b08968", "magical": "#9b6bd6", "unblockable": "#d8d8d8", "poison": "#6abf4b", "fire": "#f0883e", "cold": "#5bc0de", "electricity": "#f2d43d", "asphyxiation": "#7f8fa6", "psychic": "#e36bb8", "raw": "#8c8c8c", "bleed": "#8b1e2d" };

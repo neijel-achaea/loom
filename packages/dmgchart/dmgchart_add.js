@@ -7,7 +7,7 @@ if (e && !isNaN(e.amt)) {
   var gapMs = d.gap * 1000;
   var f = d.fight;
   if (!f || now - f.last > gapMs) {
-    f = { start: now, last: now, inc: {}, out: {}, incTotal: 0, outTotal: 0 };
+    f = { start: now, last: now, inc: {}, out: {}, incTotal: 0, outTotal: 0, heal: 0 };
     d.fight = f;
     d.lastInc = null;
   }
@@ -29,6 +29,7 @@ if (e && !isNaN(e.amt)) {
     if (e.amt > ss.hits[e.dir].max) { ss.hits[e.dir].max = e.amt; }
     if (now - d.sessSaved > 5000) { set_variable("dmgchart_open", JSON.stringify(ss)); d.sessSaved = now; }
   }
+  if (e.dir == "inc") d.incSince = (d.incSince || 0) + e.amt;
   if (e.dir == "inc") { d.lastInc = { type: e.type, amt: e.amt, t: now, inSess: !!ss }; }
   run_function("dmgchart_render", [], "dmgchart");
 }
