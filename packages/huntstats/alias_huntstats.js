@@ -49,23 +49,6 @@ if (hsSub === "" || hsSub === "status") {
   if (hsLong) hsSay("hunt filed", "green");
   else if (hsHad) hsSay("under a minute of experience, so nothing was filed; counters reset.", "yellow");
   else hsSay("no hunt under way.", "yellow");
-} else if (hsSub === "button") {
-  if (hsP1 === "") {
-    hsSay(HS.button > 0 ? "Dragonhood % shows on F" + HS.button + ". HUNTSTATS BUTTON <1-12|OFF>." : "Dragonhood % is not shown on a key. HUNTSTATS BUTTON <1-12> to show it.");
-  } else if (hsP1 === "off" || hsP1 === "0") {
-    HS.button = 0;
-    set_variable("huntstats_button", "0");
-    hsSay("Dragonhood % no longer shown on a key. The key keeps its last label until something else sets it.");
-  } else {
-    var hsN = parseInt(hsP1.replace(/^f/, ""), 10);
-    if (isNaN(hsN) || hsN < 1 || hsN > 12) { hsSay("pick a key from 1 to 12, or OFF.", "yellow"); }
-    else {
-      HS.button = hsN;
-      HS.btnLabel = "";
-      set_variable("huntstats_button", String(hsN));
-      hsSay("Dragonhood % now shows on F" + hsN + ", from the next prompt.");
-    }
-  }
 } else if (hsSub === "wipe") {
   if (hsP1 === "confirm") {
     set_variable("huntstats_areas", "{}");
@@ -77,7 +60,7 @@ if (hsSub === "" || hsSub === "status") {
   }
 } else if (hsSub === "debug") {
   var T = HS.cur || {};
-  hsSay("level=" + HS.level + " nl=" + HS.nl + " dragon=" + (HS.dragon() === null ? "?" : HS.dragon().toFixed(3)) + " button=" + HS.button + " resumed=" + !!HS.resumed);
+  hsSay("level=" + HS.level + " nl=" + HS.nl + " dragon=" + (HS.dragon() === null ? "?" : HS.dragon().toFixed(3)) + " resumed=" + !!HS.resumed);
   hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(","));
 } else {
   hsSay("unknown command '" + hsSub + "'. HUNTSTATS HELP for commands.", "orange");

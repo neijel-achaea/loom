@@ -57,21 +57,6 @@ if (hsM === "Char.Vitals" && hsA) {
     var hsN = parseFloat(hsA.nl);
     if (!isNaN(hsN) && (HS.nl === undefined || Math.floor(HS.nl) !== hsN)) HS.nl = hsN;
   }
-
-  // Dragonhood % on the chosen F-key. Set when it changes, and again every
-  // half minute in case another package redrew the keys in between.
-  if (HS.button > 0) {
-    var hsD = HS.dragon();
-    if (hsD !== null) {
-      var hsLabel = "DH " + hsD.toFixed(2) + "%";
-      var hsNow = Date.now();
-      if (hsLabel !== HS.btnLabel || !HS.btnAt || hsNow - HS.btnAt > 30000) {
-        HS.btnLabel = hsLabel;
-        HS.btnAt = hsNow;
-        try { buttons_set_label(HS.button, hsLabel); } catch (e) {}
-      }
-    }
-  }
 }
 
 if (hsM === "Room.Info" && hsA && hsA.area) {

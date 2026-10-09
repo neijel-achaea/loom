@@ -8,7 +8,6 @@ var hlRows = [
   ["HUNTSTATS AREAS", "every area hunted, by total time, with its rates"],
   ["HUNTSTATS LOG", "the last five hunts"],
   ["HUNTSTATS FLUSH", "file the hunt under way now"],
-  ["HUNTSTATS BUTTON <1-12|OFF>", "F-key that shows Dragonhood % (default 9)"],
   ["HUNTSTATS WIPE CONFIRM", "clear all area records and the log"],
   ["HUNTSTATS DEBUG", "internal state"],
   ["A hunt is filed when you leave its area, and needs a minute or more of experience."]

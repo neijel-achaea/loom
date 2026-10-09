@@ -106,11 +106,5 @@ HS.save = function (force) {
   try { set_variable("huntstats_open", JSON.stringify(HS.cur)); } catch (e) {}
 };
 
-// Settings.
-// The F-key that shows Dragonhood %: 1-12, or 0 for none. Default 9.
-if (HS.button === undefined) {
-  var hsB;
-  try { hsB = get_variable("huntstats_button"); } catch (e) { hsB = undefined; }
-  hsB = (hsB === undefined || hsB === null || hsB === "") ? 9 : parseInt(hsB, 10);
-  HS.button = (isNaN(hsB) || hsB < 0 || hsB > 12) ? 9 : hsB;
-}
+// The Dragonhood F-key setting existed briefly before release; drop it.
+try { if (get_variable("huntstats_button") !== undefined && get_variable("huntstats_button") !== null) delete_variable("huntstats_button"); } catch (e) {}
