@@ -162,11 +162,6 @@
               "rewrite_colors": true,
               "rewrite_fg": "#007dff",
               "rewrite_bg": "#060606"
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "spell 4"
             }
           ],
           "text": "^(\\w+) lets loose a steady stream of cold air around (.*)\\, who begins to shiver uncontrollably\\.$",
@@ -201,11 +196,6 @@
           "name": "",
           "enabled": true,
           "actions": [
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "spell 4"
-            },
             {
               "type": "rewrite",
               "enabled": true,
@@ -250,11 +240,6 @@
           "name": "",
           "enabled": true,
           "actions": [
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "spell 4"
-            },
             {
               "type": "rewrite",
               "enabled": true,
@@ -440,11 +425,6 @@
               "highlight_bg": "#000000",
               "highlight": "line",
               "highlight_backref": ""
-            },
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:highlights__trigger_health_lost_d_1.js"
             }
           ],
           "text": "^Health lost: (\\d+) \\((.*)\\)\\.$",
@@ -597,11 +577,6 @@
               "highlight_bg": "#000000",
               "highlight": "match",
               "highlight_backref": ""
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "swoosh deep"
             }
           ],
           "text": "^You detect nothing here by that name\\.$",
@@ -621,11 +596,6 @@
               "highlight_bg": "#000000",
               "highlight": "match",
               "highlight_backref": ""
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "swoosh deep"
             }
           ],
           "text": "^You cannot see that being here\\.$",
@@ -645,11 +615,6 @@
               "highlight_bg": "#000000",
               "highlight": "match",
               "highlight_backref": ""
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "swoosh deep"
             }
           ],
           "text": "^Ahh, I am truly sorry, but I do not see anyone by that name here\\.$",
@@ -669,11 +634,6 @@
               "highlight_bg": "#000000",
               "highlight": "match",
               "highlight_backref": ""
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "swoosh deep"
             }
           ],
           "text": "^Nothing can be seen here by that name\\.$",
@@ -693,11 +653,6 @@
               "highlight_bg": "#000000",
               "highlight": "match",
               "highlight_backref": ""
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "swoosh deep"
             }
           ],
           "text": "^I do not recognise anything called that here\\.$",
@@ -793,11 +748,6 @@
               "highlight_bg": "#000000",
               "highlight": "line",
               "highlight_backref": ""
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "bell"
             }
           ],
           "text": "You have found ",
@@ -915,11 +865,6 @@
               "type": "script",
               "enabled": true,
               "script": "@file:autogold__trigger_you_have_slain_retrieving_the_corpse_1.js"
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "thud"
             }
           ],
           "text": "^You have slain (.+)\\, retrieving the corpse\\.$",
@@ -944,11 +889,6 @@
               "type": "script",
               "enabled": true,
               "script": "@file:autogold__trigger_w_w_has_been_slain_by_w_1.js"
-            },
-            {
-              "type": "sound",
-              "enabled": true,
-              "sound": "thud"
             }
           ],
           "text": "^(\\w+(?: \\w+)*) has been slain by (\\w+)\\.$",

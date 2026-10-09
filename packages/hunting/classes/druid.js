@@ -19,7 +19,7 @@ HU.classes["Druid"] = {
   rage: { Strangle: 14, Redeem: 22, Vinecrack: 17, Ravage: 36, Sear: 25, Glare: 14 },
   lines: [
     [/You roar in rage and spring upon/, "RAVAGE", "Ravage"],
-    [/^You spring forwards onto /, "MAUL", null, "knifes"],
+    [/^You spring forwards onto /, "MAUL"],
     [/Rising in response to your incantation, vines burst forth from the very earth/, "STRANGLE", "Strangle"],
     [/You cause the tip of your quarterstaff to glow brightly before thrusting it at the face of/, "GLARE", "Glare"]
   ]

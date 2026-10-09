@@ -37,12 +37,11 @@ with different costs.
 ## lines
 
 One row per message you see when you hit with an attack:
-`[/pattern/, "TAG", "Ability", "sound"]`. The last two are optional.
+`[/pattern/, "TAG", "Ability"]`. The ability is optional.
 
 - The line is highlighted and gets `[TAG] ` in front of it.
 - `"Ability"` names a battlerage ability: seeing the line starts its cooldown
-  and the global battlerage cooldown. Use `null` when you only need the sound.
-- `"sound"` is a Nexus sound name, played when the line shows.
+  and the global battlerage cooldown.
 - Patterns are ordinary JavaScript regular expressions: `(.*)` for the
   target, `\.` for a full stop, `^` and `$` to anchor the whole line.
 

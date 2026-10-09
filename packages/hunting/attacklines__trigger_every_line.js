@@ -1,7 +1,7 @@
 // Attack lines: a trigger on every line. Checks the
 // line against the current class's attack patterns only (classes/*.js):
-// on a match, tags and highlights it, starts the ability's battlerage
-// cooldown and plays its sound. The first matching pattern wins.
+// on a match, tags and highlights it and starts the ability's battlerage
+// cooldown. The first matching pattern wins.
 if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;
 var huCls = HU.classes && HU.classes[HU.cls];
@@ -22,7 +22,6 @@ if (huLines && huLines.length) {
       HU.glob = false;
       run_function("hunting_highlight", [], "hunting");
     }
-    if (huRow[3] && typeof play_sound == "function") play_sound(huRow[3]);
     break;
   }
 }
