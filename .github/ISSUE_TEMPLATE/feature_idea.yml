@@ -1,0 +1,27 @@
+name: Feature idea
+description: Suggest something new for a package, or a new package
+labels: ["idea", "from-users"]
+body:
+  - type: input
+    id: package
+    attributes:
+      label: Package
+      description: Which package this is about, or "new" for a new one.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you'd like
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What you're trying to do in game, and how you do it today.
+  - type: input
+    id: class
+    attributes:
+      label: Class
+      description: If the idea is class-specific.

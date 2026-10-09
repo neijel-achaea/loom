@@ -1,0 +1,51 @@
+name: Bug report
+description: Something in a Loom package doesn't work as it should
+labels: ["bug", "from-users"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. The more of this you can fill in, the faster it gets fixed.
+  - type: input
+    id: package
+    attributes:
+      label: Package and version
+      description: Type `LOOM` in game to see installed packages and their versions.
+      placeholder: "hunting 0.3.2"
+    validations:
+      required: true
+  - type: input
+    id: class
+    attributes:
+      label: Class
+      description: Your class when it happened (and dragonform, if relevant).
+      placeholder: "Magi"
+  - type: dropdown
+    id: client
+    attributes:
+      label: Client
+      options:
+        - Nexus (browser)
+        - Nexus (desktop app)
+        - Other
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: textarea
+    id: text
+    attributes:
+      label: Game text around it
+      description: Paste the lines from the game just before and after. Remove anything private.
+      render: text
+  - type: textarea
+    id: other
+    attributes:
+      label: Other Loom packages installed
+      description: Integrations can change behaviour, so the full `LOOM` list helps.

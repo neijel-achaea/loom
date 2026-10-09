@@ -1,6 +1,6 @@
 # Loom — Roadmap
 
-**Status:** agreed · 2026-10-08
+**Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
 **Current release:** v0.1 (every package as it runs in game, collected in one repository)
 
 See the README for what each package does today.
@@ -11,7 +11,7 @@ Any Loom package can be dropped onto any character, of any class, in any city. I
 
 ## Principles
 
-1. **Standalone guaranteed, together better.** Every package works fully on its own. Integrations only *add* behaviour when another package is present; nothing ever *requires* another package.
+1. **Standalone guaranteed, together better.** Every package works fully on its own. Integrations only *add* behaviour when another package is present; nothing ever *requires* another package. **One exception:** the autobasher (v0.6) requires hunting. It reads hunting's class data, rage state and target, and never writes to them, so hunting behaves the same with or without it. Without hunting, the basher says so on load and sends nothing.
 2. **Read what you need yourself.** Each package gets its own room, class, city and environment data from GMCP in its own `onGMCP`. No package calls into another for data.
 3. **Check before you touch.** Anything shared (`pauseTriggers`, another package's state) is read defensively: used when present, skipped silently when not.
 4. **One keyword per package**, normally the package name, with `HELP` as a subcommand. Old aliases are retired, not kept as shims.
@@ -156,6 +156,44 @@ The integration code itself lives in the **loom** package, so neither side knows
 | **dmgchart** | — | — | — | Feeds huntstats an area-danger figure |
 | **standings** | — | — | — | Highlight colour by band; vision warns on hostile standing |
 
+## v0.5 — Enhancements
+
+**Goal:** the feature and enhancement ideas raised during v0.2 and v0.3, kept out of those milestones so they could stay focused on fixing and tidying. Handled after v0.4.
+
+## v0.6 — Autobasher
+
+**Goal:** effective, attended bashing. A new package that reacts to what happens in the current room.
+
+- **Attended by design.** No auto-walking, ever. It pauses when another player enters or sends a tell, and resumes only on the player's command.
+- **Requires hunting** (see Principle 1). The attack command, raze command and rage priorities live in hunting's class-data files from v0.3.
+- **Safety from day one.** Kill switch, pause below a health threshold, stop when the target dies or leaves. Full wimpy comes later in the milestone.
+
+Steps, in order: package and core attack loop on balance/equilibrium → shield detection, presence checks, curing check → rage abilities → wimpy and the enemy-list integration → per-area target priorities, then learning them from huntstats → raze or swap → attacking the party leader's target → (maybe) defensive abilities in parties.
+
+## v0.7 — Docs & Feedback
+
+**Goal:** other players can install Loom, understand it, and tell us what's wrong.
+
+- **Player docs**: getting started, one page per package, integrations, classes, troubleshooting.
+- **Contributor docs**: repo layout and build, conventions, Nexus scripting gotchas, adding a class, the PR test-checklist rule.
+- **Public beta release**, with issue templates for bugs and ideas (labelled `from-users`).
+- **A feedback window**, time-boxed: every report gets a decision (this milestone, a later one, or wontfix), and bugs in what exists outrank new features.
+
+## v0.8 — Hardening
+
+**Goal:** make what players actually use solid. Comes after feedback, so it hardens the right things.
+
+- Fresh-install test of every package, alone and all together, on clean profiles.
+- Upgrades keep settings: a one-time migration for every renamed or reshaped variable.
+- Fail quietly on missing GMCP data, partial integrations, changed game text, corrupt variables.
+- Performance of everything that runs per prompt or per GMCP message.
+- Consistency sweep (colours, HELP, tabs, wording) and a docs accuracy pass.
+- One end-to-end regression run, built from every PR's in-game checklist, kept for future releases.
+
+## v1.0
+
+**Commands and settings are stable.** Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered.
+
 ## Out of scope
 
 - **groves** and **reclamation** stay frozen as retired druid-era packages: kept in the repo, not reworked.
@@ -163,4 +201,4 @@ The integration code itself lives in the **loom** package, so neither side knows
 
 ## Tracking
 
-GitHub issues grouped into v0.2 / v0.3 / v0.4 milestones: one issue per package in v0.2, one per integration in v0.4.
+GitHub issues grouped into milestones v0.2 to v0.8: one issue per package in v0.2, one per integration in v0.4, one per step in v0.6. Player reports carry the `from-users` label.
