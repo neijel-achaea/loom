@@ -3,6 +3,16 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
-client.loom.registry.loom = { version: "0.2.3", keyword: "LOOM" };
+client.loom.registry.loom = { version: "0.2.4", keyword: "LOOM" };
+
+// The legacy room variables loom used to set have no readers left: delete
+// them once. activeClass is left for hunting, defcon and roleplay to seed
+// their own class from, and no longer updated.
+var lmOld = ["currentRoomId", "currentRoomName", "currentArea", "currentEnvironment"];
+for (var lmI = 0; lmI < lmOld.length; lmI++) {
+  var lmV;
+  try { lmV = get_variable(lmOld[lmI]); } catch (e) { lmV = undefined; }
+  if (lmV !== undefined && lmV !== null) delete_variable(lmOld[lmI]);
+}
 
 set_variable("pauseTriggers", "off");

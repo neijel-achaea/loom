@@ -394,6 +394,25 @@
           "case_sensitive": true
         }
       ]
+    },
+    {
+      "type": "trigger",
+      "name": "patrolling vines highlight",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#bcff00",
+          "highlight_bg": "#000000",
+          "highlight": "match",
+          "highlight_backref": ""
+        }
+      ],
+      "text": "Vines have overtaken this location.",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": ""

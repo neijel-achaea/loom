@@ -120,6 +120,21 @@
           "case_sensitive": true
         }
       ]
+    },
+    {
+      "type": "trigger",
+      "name": "civic Eleusian Techs gag",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "gag",
+          "enabled": true
+        }
+      ],
+      "text": "(Eleusian Techs):",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": "City duties for any city, one ministry at a time. Ambassador aide: go on and off duty, greet new citizens, accept lesson requests (refused for enemies when the social package is installed). CIVIC HELP for commands."

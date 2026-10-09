@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.civic) client.loom.civic = {};
-client.loom.registry.civic = { version: "0.2.1", keyword: "CIVIC" };
+client.loom.registry.civic = { version: "0.2.2", keyword: "CIVIC" };
 
 // Known values per city. Players fill in their own city with CIVIC AIDE
 // TITLE / CLAN; send yours back so it can be added here.

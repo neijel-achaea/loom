@@ -360,42 +360,6 @@
       "prefix_suffix": true
     },
     {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_refillvial_w.js"
-        }
-      ],
-      "text": "^refillvial (\\w+)$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "highlight",
-          "enabled": true,
-          "highlight_fg": "#bcff00",
-          "highlight_bg": "#000000",
-          "highlight": "match",
-          "highlight_backref": ""
-        }
-      ],
-      "text": "Vines have overtaken this location.",
-      "matching": "substring",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
       "type": "trigger",
       "name": "",
       "enabled": true,
@@ -429,21 +393,6 @@
         }
       ],
       "text": "a magnificent lightning eagle",
-      "matching": "substring",
-      "whole_words": false,
-      "case_sensitive": true
-    },
-    {
-      "type": "trigger",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "gag",
-          "enabled": true
-        }
-      ],
-      "text": "(Eleusian Techs):",
       "matching": "substring",
       "whole_words": false,
       "case_sensitive": true

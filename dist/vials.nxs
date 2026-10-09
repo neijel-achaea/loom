@@ -1,0 +1,61 @@
+{
+ "type": "group",
+ "name": "vials",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "run_function(\"vials_setup\", [], \"vials\");\ndisplay_notice(\"[vials] installed. VIALS SET <elixir> <vial number> for each vial, then VIALS REFILL <elixir|ALL>. VIALS HELP for commands.\", \"cyan\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Nothing to tear down; vials_map is left intact.\n"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"vials_setup\", [], \"vials\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// Sets the package up on the first GMCP message after an import (Nexus\n// doesn't run onInstall when importing over an existing package).\nif (!client.loom || !client.loom.vials || !client.loom.vials.map) run_function(\"vials_setup\", [], \"vials\");\n"
+  },
+  {
+   "type": "function",
+   "name": "vials_setup",
+   "enabled": true,
+   "code": "// vials_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, and your vials: which vial\n// holds which elixir (vials_map, a JSON object of elixir -> vial number).\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.vials) client.loom.vials = {};\nclient.loom.registry.vials = { version: \"0.2.0\", keyword: \"VIALS\" };\nvar VI = client.loom.vials;\nif (!VI.map) {\n  var viRaw;\n  try { viRaw = get_variable(\"vials_map\"); } catch (e) { viRaw = undefined; }\n  try { VI.map = JSON.parse(viRaw) || {}; } catch (e) { VI.map = {}; }\n  if (Object.prototype.toString.call(VI.map) !== \"[object Object]\") VI.map = {};\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "vials_help",
+   "enabled": true,
+   "code": "// vials_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[vials] refill your vials from the rift. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"VIALS\", \"which vial holds which elixir\"],\n  [\"VIALS REFILL <elixir>\", \"fill that elixir's vial from the rift\"],\n  [\"VIALS REFILL ALL\", \"fill every vial set\"],\n  [\"VIALS SET <elixir> <vial> [...]\", \"which vial holds an elixir; several pairs on one line\"],\n  [\"VIALS FORGET <elixir>\", \"stop tracking that vial\"],\n  [\"VIALS DEBUG\", \"internal state\"],\n  [\"Vial numbers come from ELIXLIST or II VIAL. Nothing is sent while triggers are paused.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+  },
+  {
+   "type": "alias",
+   "name": "vials",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// VIALS [subcommand ...]: refill vials from the rift, and which vial holds\n// which elixir.\nif (!client.loom || !client.loom.vials || !client.loom.vials.map) run_function(\"vials_setup\", [], \"vials\");\nvar VI = client.loom.vials;\nvar viW = String(args[1] || \"\").trim().toLowerCase().split(/\\s+/);\nvar viSub = viW[0];\nfunction viSay(t, c) { display_notice(\"[vials] \" + t, c || \"cyan\"); }\nfunction viKeys() { var a = []; for (var k in VI.map) { if (VI.map.hasOwnProperty(k)) a.push(k); } a.sort(); return a; }\nfunction viSave() { set_variable(\"vials_map\", JSON.stringify(VI.map)); }\nfunction viFill(el) { send_command(\"fill vial\" + VI.map[el] + \" with \" + el + \" from rift\"); }\n\nif (viSub === \"\" || viSub === \"list\") {\n  var viK = viKeys();\n  if (!viK.length) viSay(\"no vials set yet. VIALS SET <elixir> <vial number> [<elixir> <vial number> ...].\", \"orange\");\n  else {\n    viSay(viK.length + \" vial\" + (viK.length === 1 ? \"\" : \"s\") + \":\");\n    for (var viI = 0; viI < viK.length; viI++) display_notice(\"  \" + (viK[viI] + \"              \").slice(0, 13) + \"vial\" + VI.map[viK[viI]], \"cyan\");\n  }\n} else if (viSub === \"help\") {\n  run_function(\"vials_help\", [], \"vials\");\n} else if (viSub === \"set\") {\n  // Pairs: elixir vial [elixir vial ...]; \"vial123\" or \"123\" both work.\n  var viP = viW.slice(1);\n  if (viP.length < 2 || viP.length % 2) {\n    viSay(\"VIALS SET <elixir> <vial number>, as many pairs as you like on one line.\", \"orange\");\n  } else {\n    var viSet = [], viBad = [];\n    for (var viJ = 0; viJ < viP.length; viJ += 2) {\n      var viN = viP[viJ + 1].replace(/^vial/, \"\");\n      if (/^\\d+$/.test(viN) && /^[a-z]+$/.test(viP[viJ])) { VI.map[viP[viJ]] = viN; viSet.push(viP[viJ] + \" vial\" + viN); }\n      else viBad.push(viP[viJ] + \" \" + viP[viJ + 1]);\n    }\n    viSave();\n    if (viSet.length) viSay(\"set: \" + viSet.join(\", \") + \".\");\n    if (viBad.length) viSay(\"not understood: \" + viBad.join(\", \") + \".\", \"orange\");\n  }\n} else if (viSub === \"forget\") {\n  var viF = viW[1] || \"\";\n  if (!VI.map[viF]) viSay(\"no vial set for '\" + viF + \"'.\", \"orange\");\n  else { delete VI.map[viF]; viSave(); viSay(viF + \" forgotten.\"); }\n} else if (viSub === \"refill\") {\n  var viE = viW[1] || \"\";\n  if (get_variable(\"pauseTriggers\") === \"on\") {\n    viSay(\"triggers are paused, so nothing was sent.\", \"orange\");\n  } else if (viE === \"all\") {\n    var viA = viKeys();\n    if (!viA.length) viSay(\"no vials set yet. VIALS SET <elixir> <vial number>.\", \"orange\");\n    for (var viL = 0; viL < viA.length; viL++) viFill(viA[viL]);\n  } else if (VI.map[viE]) {\n    viFill(viE);\n  } else {\n    viSay(viE ? \"no vial set for '\" + viE + \"'. VIALS lists yours.\" : \"VIALS REFILL <elixir> or VIALS REFILL ALL.\", \"orange\");\n  }\n} else if (viSub === \"debug\") {\n  viSay(\"map=\" + JSON.stringify(VI.map) + \" saved=\" + get_variable(\"vials_map\") + \" pause=\" + (get_variable(\"pauseTriggers\") || \"unset\"), \"orange\");\n} else {\n  viSay(\"unknown command '\" + viSub + \"'. VIALS HELP for commands.\", \"orange\");\n}\n"
+    }
+   ],
+   "text": "^vials(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  }
+ ],
+ "description": "Refill your vials from the rift: VIALS REFILL <elixir|ALL>, with the vial for each elixir set once (VIALS SET). State in client.loom.vials; vials_map. VIALS HELP for commands."
+}

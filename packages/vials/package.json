@@ -1,0 +1,61 @@
+{
+  "type": "group",
+  "name": "vials",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "vials_setup",
+      "enabled": true,
+      "code": "@file:vials_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "vials_help",
+      "enabled": true,
+      "code": "@file:vials_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "vials",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_vials.js"
+        }
+      ],
+      "text": "^vials(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ],
+  "description": "Refill your vials from the rift: VIALS REFILL <elixir|ALL>, with the vial for each elixir set once (VIALS SET). State in client.loom.vials; vials_map. VIALS HELP for commands."
+}

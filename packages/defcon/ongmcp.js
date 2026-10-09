@@ -2,6 +2,7 @@ if (!client.loom || !client.loom.defcon || !client.loom.defcon.classes) run_func
 var D = client.loom.defcon;
 if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
   D.cls = args.gmcp_args.class;
+  if (get_variable("defcon_class") !== D.cls) set_variable("defcon_class", D.cls);
   // First class message of the session: raise defences if DEFCON AUTOUP is on.
   if (!D.upDone) {
     D.upDone = true;

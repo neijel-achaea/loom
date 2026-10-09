@@ -7,7 +7,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.3\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
+   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.4\", keyword: \"LOOM\" };\n\n// The legacy room variables loom used to set have no readers left: delete\n// them once. activeClass is left for hunting, defcon and roleplay to seed\n// their own class from, and no longer updated.\nvar lmOld = [\"currentRoomId\", \"currentRoomName\", \"currentArea\", \"currentEnvironment\"];\nfor (var lmI = 0; lmI < lmOld.length; lmI++) {\n  var lmV;\n  try { lmV = get_variable(lmOld[lmI]); } catch (e) { lmV = undefined; }\n  if (lmV !== undefined && lmV !== null) delete_variable(lmOld[lmI]);\n}\n\nset_variable(\"pauseTriggers\", \"off\");\n"
   },
   {
    "type": "function",
@@ -19,13 +19,13 @@
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.3\", keyword: \"LOOM\" };\n\nset_variable(\"pauseTriggers\", \"off\");\n"
+   "code": "// loom: the suite package. Holds the LOOM command, the shared settings and,\n// from v0.4, the integrations between packages. No package requires it.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.loom) client.loom.loom = {};\nclient.loom.registry.loom = { version: \"0.2.4\", keyword: \"LOOM\" };\n\n// The legacy room variables loom used to set have no readers left: delete\n// them once. activeClass is left for hunting, defcon and roleplay to seed\n// their own class from, and no longer updated.\nvar lmOld = [\"currentRoomId\", \"currentRoomName\", \"currentArea\", \"currentEnvironment\"];\nfor (var lmI = 0; lmI < lmOld.length; lmI++) {\n  var lmV;\n  try { lmV = get_variable(lmOld[lmI]); } catch (e) { lmV = undefined; }\n  if (lmV !== undefined && lmV !== null) delete_variable(lmOld[lmI]);\n}\n\nset_variable(\"pauseTriggers\", \"off\");\n"
   },
   {
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.loom) client.loom.loom = {};\nvar L = client.loom.loom;\n\nif (args.gmcp_method == \"Room.Info\") {\n  var g = args.gmcp_args;\n  L.room = { id: g.num, name: g.name, area: g.area, environment: g.environment };\n\n  // LEGACY shared variables. Packages that have not had their v0.2 pass still\n  // read these. Removed once none does (issue #2).\n  set_variable(\"currentRoomId\", g.num);\n  set_variable(\"currentRoomName\", g.name);\n  set_variable(\"currentArea\", g.area);\n  set_variable(\"currentEnvironment\", g.environment);\n}\n\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  var cls = args.gmcp_args.class;\n  if (cls != get_variable(\"activeClass\")) {\n    // LEGACY shared variable, same as above.\n    set_variable(\"activeClass\", cls);\n    L.cls = cls;\n    display_notice(\"[loom] class: \" + cls, \"green\");\n  }\n}\n"
+   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.loom) client.loom.loom = {};\nvar L = client.loom.loom;\n\nif (args.gmcp_method == \"Room.Info\") {\n  var g = args.gmcp_args;\n  L.room = { id: g.num, name: g.name, area: g.area, environment: g.environment };\n}\n\nif (args.gmcp_method == \"Char.Status\" && args.gmcp_args.class) {\n  var cls = args.gmcp_args.class;\n  if (cls != L.cls) {\n    L.cls = cls;\n    display_notice(\"[loom] class: \" + cls, \"green\");\n  }\n}\n"
   },
   {
    "type": "function",
@@ -360,42 +360,6 @@
    "prefix_suffix": true
   },
   {
-   "type": "alias",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var elixir = args[1];\n\nswitch (elixir){\n  case \"health\":\n    send_command(\"fill vial133566 with health from rift\");\n    break;\n\n  case \"mana\":\n    send_command(\"fill vial125267 with mana from rift\");\n    break;\n\n  case \"mending\":\n    send_command(\"fill vial134886 with mending from rift\");\n    break;\n\n  case \"venom\":\n    send_command(\"fill vial135919 with venom from rift\");\n    break;\n\n  case \"caloric\":\n    send_command(\"fill vial138895 with caloric from rift\");\n    break;\n\n  case \"frost\":\n    send_command(\"fill vial314996 with frost from rift\");\n    break;\n\n  case \"immunity\":\n    send_command(\"fill vial321329 with immunity from rift\");\n    break;\n\n  case \"levitation\":\n    send_command(\"fill vial21165 with levitation from rift\");\n    break;\n\n  case \"mass\":\n    send_command(\"fill vial433721 with mass from rift\");\n    break;\n\n  case \"speed\":\n    send_command(\"fill vial177369 with speed from rift\");\n    break;\n\n  case \"restoration\":\n    send_command(\"fill vial32277 with restoration from rift\");\n    break;\n\n  case \"epidermal\":\n    send_command(\"fill vial81690 with epidermal from rift\");\n    break;\n\n  case \"all\":\n    send_command(\"fill vial133566 with health from rift\");\n    send_command(\"fill vial125267 with mana from rift\");\n    send_command(\"fill vial134886 with mending from rift\");\n    send_command(\"fill vial135919 with venom from rift\");\n    send_command(\"fill vial138895 with caloric from rift\");\n    send_command(\"fill vial314996 with frost from rift\");\n    send_command(\"fill vial321329 with immunity from rift\");\n    send_command(\"fill vial21165 with levitation from rift\");\n    send_command(\"fill vial433721 with mass from rift\");\n    send_command(\"fill vial177369 with speed from rift\");\n    send_command(\"fill vial32277 with restoration from rift\");\n    send_command(\"fill vial81690 with epidermal from rift\");\n    break;\n}"
-    }
-   ],
-   "text": "^refillvial (\\w+)$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "highlight",
-     "enabled": true,
-     "highlight_fg": "#bcff00",
-     "highlight_bg": "#000000",
-     "highlight": "match",
-     "highlight_backref": ""
-    }
-   ],
-   "text": "Vines have overtaken this location.",
-   "matching": "substring",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
    "type": "trigger",
    "name": "",
    "enabled": true,
@@ -429,21 +393,6 @@
     }
    ],
    "text": "a magnificent lightning eagle",
-   "matching": "substring",
-   "whole_words": false,
-   "case_sensitive": true
-  },
-  {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "gag",
-     "enabled": true
-    }
-   ],
-   "text": "(Eleusian Techs):",
    "matching": "substring",
    "whole_words": false,
    "case_sensitive": true
