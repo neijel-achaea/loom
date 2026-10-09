@@ -16,8 +16,20 @@
       "code": "@file:onuninstall.js"
     },
     {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "numpad_movement_setup",
+      "enabled": true,
+      "code": "@file:numpad_movement_setup.js"
+    },
+    {
       "type": "keybind",
-      "name": "sw",
+      "name": "1 southwest",
       "enabled": true,
       "actions": [
         {
@@ -34,7 +46,7 @@
     },
     {
       "type": "keybind",
-      "name": "s",
+      "name": "2 south",
       "enabled": true,
       "actions": [
         {
@@ -51,7 +63,7 @@
     },
     {
       "type": "keybind",
-      "name": "se",
+      "name": "3 southeast",
       "enabled": true,
       "actions": [
         {
@@ -68,7 +80,7 @@
     },
     {
       "type": "keybind",
-      "name": "w",
+      "name": "4 west",
       "enabled": true,
       "actions": [
         {
@@ -85,7 +97,7 @@
     },
     {
       "type": "keybind",
-      "name": "look",
+      "name": "5 up",
       "enabled": true,
       "actions": [
         {
@@ -102,7 +114,7 @@
     },
     {
       "type": "keybind",
-      "name": "e",
+      "name": "6 east",
       "enabled": true,
       "actions": [
         {
@@ -119,7 +131,7 @@
     },
     {
       "type": "keybind",
-      "name": "nw",
+      "name": "7 northwest",
       "enabled": true,
       "actions": [
         {
@@ -136,7 +148,7 @@
     },
     {
       "type": "keybind",
-      "name": "n",
+      "name": "8 north",
       "enabled": true,
       "actions": [
         {
@@ -153,7 +165,7 @@
     },
     {
       "type": "keybind",
-      "name": "ne",
+      "name": "9 northeast",
       "enabled": true,
       "actions": [
         {
@@ -170,7 +182,7 @@
     },
     {
       "type": "keybind",
-      "name": "out",
+      "name": "- out",
       "enabled": true,
       "actions": [
         {
@@ -187,7 +199,7 @@
     },
     {
       "type": "keybind",
-      "name": "down",
+      "name": "0 down",
       "enabled": true,
       "actions": [
         {
@@ -204,7 +216,7 @@
     },
     {
       "type": "keybind",
-      "name": "in",
+      "name": "+ in",
       "enabled": true,
       "actions": [
         {
@@ -221,7 +233,7 @@
     },
     {
       "type": "keybind",
-      "name": "",
+      "name": "/ score",
       "enabled": true,
       "actions": [
         {
@@ -238,7 +250,7 @@
     },
     {
       "type": "keybind",
-      "name": "",
+      "name": "* inventory",
       "enabled": true,
       "actions": [
         {
@@ -255,7 +267,7 @@
     },
     {
       "type": "keybind",
-      "name": "",
+      "name": ". look",
       "enabled": true,
       "actions": [
         {
@@ -271,5 +283,5 @@
       "key_shift": false
     }
   ],
-  "description": "Move around the world with your keyboard's number pad. 8=north, 9=northeast, etc. Use '/' for in, '*' for out, '-' for up and '+' for down. The 5 key will look at the room you're in."
+  "description": "Move around with the number pad: 1-9 the eight directions with 5 for up, 0 down, + in, - out; . looks, / shows your score and * your inventory."
 }
