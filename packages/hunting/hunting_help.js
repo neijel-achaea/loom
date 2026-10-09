@@ -6,8 +6,8 @@ var hlTitle = "[hunting] class F-keys, battlerage highlights, dragon attacks and
 var hlHU = client.loom.hunting || {};
 var hlKnown = [];
 for (var hlK in (hlHU.classes || {})) hlKnown.push(hlK);
-var hlClassNote = (hlHU.cls ? (hlHU.classes && hlHU.classes[hlHU.cls] ? hlHU.cls + " is configured." : hlHU.cls + " isn't configured yet: you get the generic keys (Stats, Diag, Shield) and no attack highlights.") : "No class seen yet.")
-  + " Configured: " + hlKnown.join(", ") + ".";
+var hlClassNote = "Classes set up: " + hlKnown.join(", ") + "."
+  + (hlHU.cls && !(hlHU.classes && hlHU.classes[hlHU.cls]) ? " " + hlHU.cls + " isn't one yet: you get the generic keys (Stats, Diag, Shield) and no attack highlights." : "");
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["HUNTING", "status"],

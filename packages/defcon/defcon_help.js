@@ -7,8 +7,8 @@ var dcD = client.loom.defcon || {};
 var dcKnown = [];
 for (var dcK in (dcD.classes || {})) dcKnown.push(dcK);
 var dcName = dcD.cls ? ((dcD.alias && dcD.alias[dcD.cls]) || dcD.cls) : "";
-var dcClassNote = (dcName ? (dcD.classes && dcD.classes[dcName] ? dcD.cls + " is configured." : dcD.cls + " isn't configured yet: you get the general defences.") : "No class seen yet.")
-  + " Configured: " + dcKnown.join(", ") + ".";
+var dcClassNote = "Classes set up: " + dcKnown.join(", ") + "."
+  + (dcName && !(dcD.classes && dcD.classes[dcName]) ? " " + dcD.cls + " isn't one yet: you get the general defences." : "");
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["DEFCON", "status"],
