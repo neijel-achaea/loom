@@ -87,7 +87,8 @@ var huMode = huModes[get_variable("hunting_dragon_mode")] || "AUT";
 var huStaff = get_variable("staffAttack") || "scintilla";
 var huTarget = get_variable("hunting_party_target") || "";
 // F9 opens huntstats when that package is around; otherwise the key stays empty.
-var huStats = (client.loom.registry && client.loom.registry.huntstats) || client.track || get_variable("hs_log");
+// Its saved records count too, as huntstats may load after hunting.
+var huStats = (client.loom.registry && client.loom.registry.huntstats) || get_variable("huntstats_log") || client.track || get_variable("hs_log");
 
 // A class with no layout yet gets the generic keys only.
 var huGeneric = [["", "", false], ["", "", false], ["", "", false], ["", "", false], ["", "", false], ["", "", false], ["", "", false], ["", "", false], ["{stats}", "", false], ["Diag", "diagnose", false], ["", "", false], ["Shield", "touch shield", false]];

@@ -1,11 +1,11 @@
-// Rebuild the 'Stats' custom tab from the persistent log + area aggregates,
+// huntstats_render -- rebuild the 'Stats' custom tab from the persistent log + area aggregates,
 // in the house style shared with Coffers, Level, Ledger, Fishing, DmgChart and
 // Talismans: ink panel, serif small-caps headings, one large figure, monospace
 // ledger rows. The accent is a hunter's moss green.
 var log = [];
-try { log = JSON.parse(get_variable("hs_log")) || []; } catch (e) { log = []; }
+try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }
 var areas = {};
-try { areas = JSON.parse(get_variable("hs_areas")) || {}; } catch (e) { areas = {}; }
+try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
 
 var MOSS = "#a9c46c";
 var DEEP = "#56693a";
@@ -38,15 +38,7 @@ function byTime(x, y) { return y.ms - x.ms; }
 
 // Dragonhood, when the level is known this connection.
 var dh = null;
-try {
-  run_function("hs_ensureTable", [], "huntstats");
-  var tr = client.track;
-  if (tr && tr.level !== undefined && tr.nl !== undefined && client.dragonXP[Math.floor(tr.level)] !== undefined) {
-    var lv = Math.floor(tr.level);
-    if (lv >= 99) { dh = 100; }
-    else { var b0 = client.dragonXP[lv], b1 = client.dragonXP[lv + 1]; dh = ((b0 + (tr.nl / 100) * (b1 - b0)) / client.dragonXP[99]) * 100; }
-  }
-} catch (e) { dh = null; }
+try { dh = client.loom.huntstats.dragon(); } catch (e) { dh = null; }
 
 // An arrowhead over a sprig, the hunting tab's counterpart of the coin stack.
 var glyph = '<svg width="18" height="17" viewBox="0 0 18 17" style="vertical-align:-3px;margin-right:6px;" xmlns="http://www.w3.org/2000/svg">' +
@@ -71,7 +63,7 @@ html += '<div style="font-family:' + SERIF + ';color:' + MOSS + ';font-size:14px
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + (dh !== null ? 'dragonhood <span style="color:' + DRAGON + ';">' + dh.toFixed(2) + '%</span>' : arr.length + ' area' + (arr.length === 1 ? '' : 's')) + '</div></div>';
 
 if (log.length === 0) {
-  html += '<div style="margin-top:8px;">' + quiet("No hunts logged yet. A hunt is filed when you leave the area, or with HUNTFLUSH; it needs a minute or more of experience to count.") + '</div>';
+  html += '<div style="margin-top:8px;">' + quiet("No hunts logged yet. A hunt is filed when you leave the area, or with HUNTSTATS FLUSH; it needs a minute or more of experience to count.") + '</div>';
 } else {
   // The headline is the most recent hunt's experience rate.
   var L = log[0];
