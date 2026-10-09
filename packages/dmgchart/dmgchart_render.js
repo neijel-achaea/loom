@@ -1,28 +1,9 @@
-if (!client.dc) {
-  client.dc = {};
-  client.dc.gap = parseFloat(get_variable("dc_gap"));
-  if (isNaN(client.dc.gap) || client.dc.gap <= 0) { client.dc.gap = 8; }
-  client.dc.tab = "DmgChart";
-  client.dc.colors = { "cutting": "#d9534f", "blunt": "#b08968", "magical": "#9b6bd6", "unblockable": "#d8d8d8", "poison": "#6abf4b", "fire": "#f0883e", "cold": "#5bc0de", "electricity": "#f2d43d", "asphyxiation": "#7f8fa6", "psychic": "#e36bb8", "raw": "#8c8c8c", "bleed": "#8b1e2d" };
-  client.dc.spare = ["#4fb0a5", "#c9a0dc", "#a3c45a", "#e0b070", "#6f8fd8", "#d97a9a"];
-  client.dc.spareIdx = 0;
-  client.dc.fight = null;
-  client.dc.lastInc = null;
-  client.dc.ev = null;
-  client.dc.view = "";
-  client.dc.saved = [];
-  try { var dcRaw = get_variable("dc_sessions"); if (dcRaw && String(dcRaw).length) { client.dc.saved = JSON.parse(dcRaw) || []; } } catch (dcErr1) { client.dc.saved = []; }
-  client.dc.nextId = 1;
-  for (var dcI = 0; dcI < client.dc.saved.length; dcI++) { if (client.dc.saved[dcI].id >= client.dc.nextId) { client.dc.nextId = client.dc.saved[dcI].id + 1; } }
-  client.dc.sess = null;
-  client.dc.sessSaved = 0;
-  try { var dcOpen = get_variable("dc_open"); if (dcOpen && String(dcOpen).length) { client.dc.sess = JSON.parse(dcOpen); } } catch (dcErr2) { client.dc.sess = null; }
-}
-// Paints the DmgChart tab in the house style shared with Coffers, Level,
+if (!client.loom || !client.loom.dmgchart || !client.loom.dmgchart.saved) run_function("dmgchart_setup", [], "dmgchart");
+// dmgchart_render -- paints the DmgChart tab in the house style shared with Coffers, Level,
 // Ledger and Fishing: ink panel, serif small-caps headings, the two dps
 // figures set large, donuts for the chosen source, then the session list.
 // Accents are ember for damage dealt and crimson for damage taken.
-var d = client.dc;
+var d = client.loom.dmgchart;
 var EMBER = "#eaa25c";
 var CRIMSON = "#e0605a";
 var DEEP = "#7a3f30";
@@ -173,12 +154,12 @@ if (!src) {
   } else if (src.outTotal > 0) {
     ex += xline("trading", "untouched so far", EMBER);
   }
-  // Staying power, for the live fight only: current health over incoming dps.
+  // Staying power, for the live fight only: current health (from Char.Vitals)
+  // over incoming dps.
   if (!d.view && src.incTotal > 0) {
-    var hpNow = NaN;
-    try { hpNow = parseInt(String(get_variable("my_hp")), 10); } catch (e) { hpNow = NaN; }
+    var hpNow = d.hp;
     var inDps = src.incTotal / dur;
-    if (!isNaN(hpNow) && hpNow > 0 && inDps > 0) {
+    if (typeof hpNow === "number" && !isNaN(hpNow) && hpNow > 0 && inDps > 0) {
       var last = hpNow / inDps;
       ex += xline("health lasts", "~" + secs(last) + " at this rate", last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
     }
