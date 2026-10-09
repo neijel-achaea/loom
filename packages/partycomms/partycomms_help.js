@@ -6,6 +6,7 @@ var hlTitle = "[partycomms] shares your vitals, rage and target over party tell,
 var hlRows = [
   ["PARTYCOMMS", "sharing on or off, your target, and who you've heard from"],
   ["PARTYCOMMS ON / OFF", "start or stop sharing"],
+  ["PARTYCOMMS NAME [<name>]", "your name, if the game hasn't sent it since you imported"],
   ["PARTYCOMMS CLEAR", "forget the party's reports"],
   ["PARTYCOMMS TEST", "two sample members, to check the tab solo"],
   ["PARTYCOMMS DEBUG", "internal state"],

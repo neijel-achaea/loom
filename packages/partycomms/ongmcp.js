@@ -11,10 +11,15 @@ if (pcA && (pcM === "Char.Vitals" || pcM === "Char.Status" || pcM === "Char.Name
   var PC = client.loom.partycomms;
   var ME = PC.me;
   if (pcM === "Char.Status" || pcM === "Char.Name") {
-    if (pcA.name) ME.name = String(pcA.name);
-    if (pcA["class"]) ME.cls = String(pcA["class"]);
+    if (pcA.name && String(pcA.name) !== ME.name) { ME.name = String(pcA.name); set_variable("partycomms_name", ME.name); }
+    if (pcA["class"] && String(pcA["class"]) !== ME.cls) { ME.cls = String(pcA["class"]); set_variable("partycomms_class", ME.cls); }
   } else if (pcM === "IRE.Target.Info") {
-    PC.tInfo = { id: String(pcA.id || ""), name: String(pcA.short_desc || ""), hp: String(pcA.hpperc || "").replace("%", "") };
+    // Later updates for the same target can carry only its health, so a name
+    // already known for that id is kept.
+    var pcTi = String(pcA.id || "");
+    var pcTn = String(pcA.short_desc || "");
+    if (!pcTn && pcTi && pcTi === PC.tInfo.id) pcTn = PC.tInfo.name;
+    PC.tInfo = { id: pcTi, name: pcTn, hp: String(pcA.hpperc || "").replace("%", "") };
   } else {
     var pcF = ["hp", "maxhp", "mp", "maxmp", "ep", "maxep", "wp", "maxwp"];
     for (var pcI = 0; pcI < pcF.length; pcI++) {

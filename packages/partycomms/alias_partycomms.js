@@ -9,6 +9,7 @@ function pcRedraw() { PC.lastRender = 0; run_function("partycomms_render", [], "
 if (pcSub === "" || pcSub === "status") {
   var ME = PC.me;
   pcSay((PC.on ? "sharing your vitals and target over party tell" : "not sharing (PARTYCOMMS ON to start)") + (ME.name ? ", as " + ME.name + (ME.cls ? " (" + ME.cls + ")" : "") : ", once the game sends your name") + ".");
+  if (PC.why) pcSay("nothing is going out: " + PC.why + ".", "orange");
   var T = PC.target || {};
   pcSay("your target: " + (T.id || T.name ? (T.name || "?") + (T.id ? " #" + T.id : "") + (T.hp ? " " + T.hp + "%" : "") : "none") + ".");
   var now = Date.now() / 1000;
@@ -29,6 +30,17 @@ if (pcSub === "" || pcSub === "status") {
   PC.sent.at = 0;
   pcSay(PC.on ? "sharing on; your first report goes out with the next prompt." : "sharing off.", PC.on ? "cyan" : "orange");
   pcRedraw();
+} else if (pcSub === "name") {
+  var pcNm = pcW[1] || "";
+  if (!pcNm) {
+    pcSay(PC.me.name ? "sharing as " + PC.me.name + "." : "no name yet. PARTYCOMMS NAME <your name>, or log out and back in once.");
+  } else {
+    // Capitalised as the game writes names; the game's own replaces it at login.
+    PC.me.name = pcNm.charAt(0).toUpperCase() + pcNm.slice(1);
+    set_variable("partycomms_name", PC.me.name);
+    PC.sent.at = 0;
+    pcSay("sharing as " + PC.me.name + ".");
+  }
 } else if (pcSub === "clear") {
   PC.members = {};
   pcSay("party reports cleared.", "orange");

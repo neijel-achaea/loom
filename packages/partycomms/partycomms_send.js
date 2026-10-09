@@ -24,22 +24,30 @@ if (TI.id && (pcTid === "" || TI.id === pcTid)) {
   pcTid = TI.id;
   pcTname = TI.name;
   pcThp = TI.hp;
-} else if (pcTid !== "") {
+}
+if (pcTid !== "" && pcTname === "") {
   if (PC.tName.id === pcTid) {
     pcTname = PC.tName.name;
-  } else if (PC.on && !pcPaused && pcNow - PC.ih.at >= 2) {
-    // Not named yet: look it up with IH, whose lines are hidden as they come.
+  } else if (PC.on && !pcPaused && PC.ih.id !== pcTid && pcNow - PC.ih.at >= 2) {
+    // Not named yet: look it up with IH (once per target), whose lines are
+    // hidden as they come.
     PC.ih.on = true;
     PC.ih.at = pcNow;
+    PC.ih.id = pcTid;
     send_command("ih", 1);
   }
-} else if (pcTar !== "") {
+} else if (pcTid === "" && pcTar !== "") {
   pcTname = pcTar;
 }
 PC.target = { id: pcTid, name: pcTname, hp: pcThp };
 
 // --- the broadcast ---
-if (PC.on && !pcPaused && ME.name && ME.maxhp > 0) {
+// PC.why says what's holding it back, for PARTYCOMMS.
+PC.why = !PC.on ? "sharing is off (PARTYCOMMS ON)" :
+  (pcPaused ? "triggers are paused (LOOM PAUSE OFF)" :
+  (!ME.name ? "the game hasn't sent your name yet: log out and back in once, or PARTYCOMMS NAME <your name>" :
+  (!(ME.maxhp > 0) ? "no vitals from the game yet" : "")));
+if (!PC.why) {
   var pcHpp = Math.round(ME.hp * 100 / ME.maxhp);
   var pcMpp = ME.maxmp > 0 ? Math.round(ME.mp * 100 / ME.maxmp) : 0;
   var S0 = PC.sent;
