@@ -23,6 +23,12 @@
   },
   {
    "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// Registers the package on the first GMCP message after an import, as the\n// packages with commands do; Nexus doesn't run onInstall when importing over\n// an existing package, and this one has nothing else that runs.\nif (!client.loom || !client.loom.registry || !client.loom.registry.numpad_movement) run_function(\"numpad_movement_setup\", [], \"numpad_movement\");\n"
+  },
+  {
+   "type": "function",
    "name": "numpad_movement_setup",
    "enabled": true,
    "code": "// numpad_movement_setup -- run from onLoad and onInstall. The package is only\n// keybindings, so this just registers it (it has no command of its own).\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nclient.loom.registry.numpad_movement = { version: \"0.2.0\", keyword: \"\" };\nif (!client.loom.numpad_movement) client.loom.numpad_movement = {};\n"
