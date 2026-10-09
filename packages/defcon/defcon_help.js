@@ -12,12 +12,13 @@ var dcClassNote = "Classes set up: " + dcKnown.join(", ") + "."
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["DEFCON", "status"],
-  ["DEFCON 1-5", "keep defences of that tier and above in curing (5 = fewest, 1 = all)"],
+  ["DEFCON 1-5", "keep defences of that tier and above in curing (5 = fewest, 1 = all), for your current class"],
   ["DEFCON UP", "raise your class's defences now"],
   ["DEFCON LIST", "defences per tier for your class, with curing priority"],
   ["DEFCON AUTOUP ON|OFF", "DEFCON UP when you log in"],
   ["DEFCON ON|OFF", "the game's defence upkeep (CURING DEFENCES ON/OFF)"],
   ["DEFCON DEBUG", "internal state"],
+  ["Each class keeps its own level, as the game keeps its own curing list (dragonform counts as one class)."],
   [dcClassNote]
 ];
 var hlW = 0;
