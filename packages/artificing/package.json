@@ -4,62 +4,6 @@
   "enabled": true,
   "items": [
     {
-      "type": "group",
-      "name": "treaties",
-      "enabled": true,
-      "items": [
-        {
-          "type": "alias",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:treaties__alias_tf_w.js"
-            }
-          ],
-          "text": "^tf (\\w+)$",
-          "matching": "regexp",
-          "whole_words": true,
-          "case_sensitive": true,
-          "prefix_suffix": true
-        },
-        {
-          "type": "trigger",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:treaties__trigger_at_last_the_communion_ends_and_a.js"
-            }
-          ],
-          "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
-          "matching": "regexp",
-          "whole_words": true,
-          "case_sensitive": true
-        },
-        {
-          "type": "trigger",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:treaties__trigger_at_last_you_are_let_go_and_a_delighted.js"
-            }
-          ],
-          "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
-          "matching": "regexp",
-          "whole_words": true,
-          "case_sensitive": true
-        }
-      ]
-    },
-    {
       "type": "function",
       "name": "onInstall",
       "enabled": true,
@@ -72,22 +16,78 @@
       "code": "@file:onuninstall.js"
     },
     {
-      "type": "alias",
-      "name": "",
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "artificing_setup",
+      "enabled": true,
+      "code": "@file:artificing_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "artificing_resume",
+      "enabled": true,
+      "code": "@file:artificing_resume.js"
+    },
+    {
+      "type": "function",
+      "name": "artificing_help",
+      "enabled": true,
+      "code": "@file:artificing_help.js"
+    },
+    {
+      "type": "trigger",
+      "name": "artificing treaty done (calm)",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:alias_staffattack_w.js"
+          "script": "@file:trigger_treaty_done_calm.js"
         }
       ],
-      "text": "^staffattack (\\w+)$",
+      "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
       "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "artificing treaty done (glad)",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_treaty_done_glad.js"
+        }
+      ],
+      "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "artificing",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_artificing.js"
+        }
+      ],
+      "text": "^artificing(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
       "prefix_suffix": true
     }
   ],
-  "description": ""
+  "description": "Artificing helpers: the staff attack STAFF CAST uses, and elemental treaties formed with triggers paused and sipping off until the treaty is written. State in client.loom.artificing; artificing_staff (read by hunting). ARTIFICING HELP for commands."
 }

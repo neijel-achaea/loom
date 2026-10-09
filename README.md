@@ -14,7 +14,7 @@ their tab its own icon.
 
 | Package | Tab | What it does |
 |---|---|---|
-| **artificing** | — | Elemental treaties (`TF <elemental>`, pausing triggers and sipping during the communion) and `STAFFATTACK fire\|frost\|lightning` for the F1 staff cast. |
+| **artificing** | — | `ARTIFICING STAFF FIRE\|FROST\|LIGHTNING` sets the attack STAFF CAST uses; `ARTIFICING TREATY <elemental>` (or `TF`) forms an elemental treaty with triggers paused and sipping off until it's written, and `ARTIFICING RESUME` undoes that if it was interrupted. `ARTIFICING HELP`. Publishes the staff attack (`client.loom.artificing.staff`, `artificing_staff`) for **hunting**'s staff key. Reads nothing from other packages. |
 | **civic** | — | City duties for any city, one ministry at a time. Ambassador aide: `CIVIC AIDE ON/OFF`, `CIVIC GREET <name> [CT\|CLT]`, aide title and novice clan per city (pre-filled for Eleusis), lesson requests accepted except from enemies. `CIVIC HELP`. Replaces **eleusis**. |
 | **coffers** | Coffers | Gold tracker: fortune (purse + bank), income and spending per session and per day, wealth ranks, records, a goal, charts. Gold and bank come from GMCP; the books are kept on each prompt (one that starts `<n>h, <n>m,`). `COFFERS HELP`. Reads nothing from other packages. |
 | **conjuration** | — | `CONJURE <sigil>`: runs the full creation ritual for the sigils currently known. |
@@ -26,7 +26,7 @@ their tab its own icon.
 | **fishingstats** | fishingstats, fishinglog | Casts, hooks and catches for you and everyone around you, per angler and per species with weights; sessions file themselves after an idle gap into a log. Flags catches that beat this year's rankings (type `RANKINGS FISHING` to load them). Area and your name come from GMCP. `FISHINGSTATS HELP`. Reads nothing from other packages. |
 | **groves** | — | *Retired (druid).* Opens the grove gate for city members who send "Gate." while you are in your grove. |
 | **harvesting** | — | Stock-aware auto-harvest on room entry: harvests and stores only the plants of the room's environment that are below their minimum rift stock. `HARVESTING ON/OFF`, `MIN <n>` (default minimum), `MIN <plant> <n\|DEFAULT>`, `STOCK`, `HELP`; bare `HARVESTING` lists what is short. Reads nothing from other packages. |
-| **hunting** | — | Class F-key buttons with battlerage cooldown highlights (Druid, Magi, Sylvan, Black and Blue Dragon; other classes get the generic keys), dragon attack mode, autogold, ability and critical-hit highlights, affliction markers and combat gags. One command: `HUNTING` (`DRAGONMODE`, `AUTOGOLD`, `PARTYTARGET`, `AFTERFORM`, `HELP`). Reads security's `backpack`, artificing's `staffAttack` and huntstats (for the F9 key) if present. |
+| **hunting** | — | Class F-key buttons with battlerage cooldown highlights (Druid, Magi, Sylvan, Black and Blue Dragon; other classes get the generic keys), dragon attack mode, autogold, ability and critical-hit highlights, affliction markers and combat gags. One command: `HUNTING` (`DRAGONMODE`, `AUTOGOLD`, `PARTYTARGET`, `AFTERFORM`, `HELP`). Reads security's `backpack`, artificing's staff attack and huntstats (for the F9 key) if present. |
 | **huntstats** | Stats | Per-area hunting records: xp, gold and kills an hour, Dragonhood progress and ETA, who hunted with you, area comparison. A hunt is filed when you leave its area, and survives a refresh or disconnect. Area, players and level come from GMCP. `HUNTSTATS HELP`. Reads nothing from other packages; **loom**'s `QUIT` files the hunt under way when huntstats is installed. |
 | **ledger** | Ledger | IC reminders and standing items on the Achaean calendar: `LEDGER ADD <text> [@ 15th Miraman 1015 \| @ +4 months] [repeat]`, `DONE`, `DROP`, `TOUCH <#>`; bare `LEDGER` prints the digest. The date comes from the game's daily rollover line and a DATE asked (and hidden) on login. `LEDGER HELP`. Publishes the Achaean day number at `client.loom.ledger.day` for **patrolling** and **standings**. Reads nothing from other packages. |
 | **levelgraph** | Level | Level progress graphs per minute and per day, rates and time to the next level. Level and percent come from GMCP, sampled once per prompt whatever the prompt looks like. `LEVELGRAPH HELP`. Reads nothing from other packages. |
@@ -49,10 +49,10 @@ their tab its own icon.
 The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
 
 - **loom** still sets the legacy variables `currentRoomId`, `currentRoomName`, `currentArea`, `currentEnvironment` and `activeClass` for packages that haven't had their v0.2 pass. **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social**, and adds new citizens to its city list, only when it's installed.
-- **artificing** and **roleplay** read `activeClass`.
+- **roleplay** reads `activeClass`.
 - **crystalism**, **vision** and **standings** read the lists of **social** at `client.loom.social`.
 - **patrolling** reads the Achaean date from **ledger** when it logs a replanting, and **standings** when it dates an entry.
-- **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s `staffAttack` for the magi staff key, and shows a Stats key only when **huntstats** is installed.
+- **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s staff attack for the magi staff key, and shows a Stats key only when **huntstats** is installed.
 - **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
 - Many triggers respect the `pauseTriggers` flag, which **loom** toggles. Packages treat an unset flag as off.
 

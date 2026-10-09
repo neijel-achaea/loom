@@ -10,6 +10,11 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
 }
 
 if (args.gmcp_method == "Char.Vitals") {
+  // A staff attack changed in artificing since the keys were drawn: redraw,
+  // so the staff key casts the new one. Read only, never called into.
+  var huStaffNow = client.loom.artificing && client.loom.artificing.staff;
+  if (huStaffNow && HU.staffDrawn && huStaffNow !== HU.staffDrawn) run_function("hunting_buttons", [], "hunting");
+
   var v = args.gmcp_args;
   HU.bal = String(v.bal) == "1";
   HU.eq = String(v.eq) == "1";

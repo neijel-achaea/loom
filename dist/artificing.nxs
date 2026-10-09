@@ -4,90 +4,90 @@
  "enabled": true,
  "items": [
   {
-   "type": "group",
-   "name": "treaties",
-   "enabled": true,
-   "items": [
-    {
-     "type": "alias",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "var elemental = args[1];\n\nif (elemental != \"waterweird\" && elemental != \"djinn\" && elemental != \"sandling\" && elemental != \"efreeti\" && elemental != \"stoneback\" && elemental != \"breath\" && elemental != \"mistfiend\" && elemental != \"ashbeast\") {\n  display_notice(\"[artificing] You can only form treaties with these elementals: WATERWEIRD, DJINN, SANDLING, EFREETI, STONEBACK, BREATH, MISTFIEND, ASHBEAST\", \"cyan\");\n} else {\n    set_variable(\"pauseTriggers\", \"on\");\n    send_command(\"curing sipping off\");\n    send_command(\"treaty form \" + elemental);\n}"
-      }
-     ],
-     "text": "^tf (\\w+)$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true,
-     "prefix_suffix": true
-    },
-    {
-     "type": "trigger",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "set_variable(\"pauseTriggers\", \"off\");\nsend_command(\"curing sipping on\");"
-      }
-     ],
-     "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true
-    },
-    {
-     "type": "trigger",
-     "name": "",
-     "enabled": true,
-     "actions": [
-      {
-       "type": "script",
-       "enabled": true,
-       "script": "set_variable(\"pauseTriggers\", \"off\");\nsend_command(\"curing sipping on\");"
-      }
-     ],
-     "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
-     "matching": "regexp",
-     "whole_words": true,
-     "case_sensitive": true
-    }
-   ]
-  },
-  {
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"artificing_setup\", [], \"artificing\");\ndisplay_notice(\"[artificing] installed. ARTIFICING HELP for commands.\", \"cyan\");\n"
   },
   {
    "type": "function",
    "name": "onUninstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+   "code": "// Nothing to tear down; artificing_staff is left intact.\n"
   },
   {
-   "type": "alias",
-   "name": "",
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"artificing_setup\", [], \"artificing\");\n"
+  },
+  {
+   "type": "function",
+   "name": "artificing_setup",
+   "enabled": true,
+   "code": "// artificing_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration of\n// staffAttack, then the settings.\n//\n// Publishes the staff attack (the ability STAFF CAST uses: scintilla,\n// horripilation or lightning) at client.loom.artificing.staff and in the\n// artificing_staff variable; hunting reads it for the magi staff key.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.artificing) client.loom.artificing = {};\nclient.loom.registry.artificing = { version: \"0.2.0\", keyword: \"ARTIFICING\" };\nvar AR = client.loom.artificing;\n\n// One-time migration: staffAttack -> artificing_staff.\nvar arOld;\ntry { arOld = get_variable(\"staffAttack\"); } catch (e) { arOld = undefined; }\nif (arOld !== undefined && arOld !== null) {\n  var arHave;\n  try { arHave = get_variable(\"artificing_staff\"); } catch (e) { arHave = undefined; }\n  if (!arHave && (\"\" + arOld) !== \"\") set_variable(\"artificing_staff\", \"\" + arOld);\n  delete_variable(\"staffAttack\");\n}\n\n// Staff attacks by element, and the elementals a treaty can be formed with.\nAR.staffs = { fire: \"scintilla\", frost: \"horripilation\", lightning: \"lightning\" };\nAR.elementals = [\"waterweird\", \"djinn\", \"sandling\", \"efreeti\", \"stoneback\", \"breath\", \"mistfiend\", \"ashbeast\"];\nif (AR.staff === undefined) {\n  var arS;\n  try { arS = get_variable(\"artificing_staff\"); } catch (e) { arS = undefined; }\n  AR.staff = (arS && (\"\" + arS) !== \"undefined\") ? \"\" + arS : \"scintilla\";\n}\n// The treaty being formed, if any: { elemental, at }.\nif (AR.treaty === undefined) AR.treaty = null;\n"
+  },
+  {
+   "type": "function",
+   "name": "artificing_resume",
+   "enabled": true,
+   "code": "// artificing_resume -- after a treaty: triggers unpaused and sipping back on.\n// Run by the treaty's closing lines and by ARTIFICING RESUME.\nif (!client.loom || !client.loom.artificing || !client.loom.artificing.staffs) run_function(\"artificing_setup\", [], \"artificing\");\nclient.loom.artificing.treaty = null;\nset_variable(\"pauseTriggers\", \"off\");\nsend_command(\"curing sipping on\");\n"
+  },
+  {
+   "type": "function",
+   "name": "artificing_help",
+   "enabled": true,
+   "code": "// artificing_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[artificing] the staff attack and elemental treaties. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"ARTIFICING\", \"the staff attack, and any treaty under way\"],\n  [\"ARTIFICING STAFF FIRE|FROST|LIGHTNING\", \"the attack STAFF CAST uses (scintilla, horripilation, lightning)\"],\n  [\"ARTIFICING TREATY <elemental>\", \"form a treaty (also ARTIFICING TF): pauses triggers and sipping until it's written\"],\n  [\"ARTIFICING RESUME\", \"unpause triggers and turn sipping back on, if a treaty was interrupted\"],\n  [\"ARTIFICING DEBUG\", \"internal state\"],\n  [\"Elementals: waterweird, djinn, sandling, efreeti, stoneback, breath, mistfiend, ashbeast.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+  },
+  {
+   "type": "trigger",
+   "name": "artificing treaty done (calm)",
    "enabled": true,
    "actions": [
     {
      "type": "script",
      "enabled": true,
-     "script": "var staffAttack = args[1];\n\nif (staffAttack == \"fire\") {\n  set_variable(\"staffAttack\", \"scintilla\");\n  display_notice(\"[artificing] New staff attack: fire\", \"cyan\")  \n} else if (staffAttack == \"frost\") {\n  set_variable(\"staffAttack\", \"horripilation\");\n  display_notice(\"[artificing] New staff attack: frost\", \"cyan\")   \n} else if (staffAttack == \"lightning\") {\n  set_variable(\"staffAttack\", \"lightning\");\n  display_notice(\"[artificing] New staff attack: lightning\", \"cyan\")   \n} else {\n  display_notice(\"[artificing] Wrong staff attack. Select fire, frost or lightning\", \"orange\");\n}"
+     "script": "// \"At last, the communion ends, ... Thus is our treaty written.\"\nrun_function(\"artificing_resume\", [], \"artificing\");\n"
     }
    ],
-   "text": "^staffattack (\\w+)$",
+   "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
    "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "artificing treaty done (glad)",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// \"At last you are let go, ... Thus is our treaty written!\"\nrun_function(\"artificing_resume\", [], \"artificing\");\n"
+    }
+   ],
+   "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "alias",
+   "name": "artificing",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// ARTIFICING [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.artificing || !client.loom.artificing.staffs) run_function(\"artificing_setup\", [], \"artificing\");\nvar AR = client.loom.artificing;\nvar arW = String(args[1] || \"\").trim().toLowerCase().split(/\\s+/);\nvar arSub = arW[0];\nvar arP1 = arW[1] || \"\";\nfunction arSay(t, c) { display_notice(\"[artificing] \" + t, c || \"cyan\"); }\nfunction arElement(ab) { for (var k in AR.staffs) { if (AR.staffs.hasOwnProperty(k) && AR.staffs[k] === ab) return k; } return ab; }\n\nif (arSub === \"\" || arSub === \"status\") {\n  arSay(\"staff attack: \" + arElement(AR.staff) + \" (\" + AR.staff + \").\");\n  if (AR.treaty) {\n    arSay(\"forming a treaty with the \" + AR.treaty.elemental + \" since \" + Math.round((Date.now() - AR.treaty.at) / 1000) + \"s ago: triggers paused, sipping off. ARTIFICING RESUME if it was interrupted.\", \"orange\");\n  } else if (get_variable(\"pauseTriggers\") === \"on\") {\n    arSay(\"triggers are paused. ARTIFICING RESUME unpauses them and turns sipping back on.\", \"orange\");\n  }\n  arSay(\"ARTIFICING HELP for commands.\");\n} else if (arSub === \"help\") {\n  run_function(\"artificing_help\", [], \"artificing\");\n} else if (arSub === \"staff\") {\n  if (!arP1) {\n    arSay(\"staff attack: \" + arElement(AR.staff) + \" (\" + AR.staff + \"). ARTIFICING STAFF FIRE, FROST or LIGHTNING.\");\n  } else if (!AR.staffs[arP1]) {\n    arSay(\"pick FIRE, FROST or LIGHTNING.\", \"orange\");\n  } else {\n    AR.staff = AR.staffs[arP1];\n    set_variable(\"artificing_staff\", AR.staff);\n    // hunting, when installed, puts it on its staff key with the next prompt.\n    arSay(\"staff attack: \" + arP1 + \" (\" + AR.staff + \").\");\n  }\n} else if (arSub === \"treaty\" || arSub === \"tf\") {\n  if (AR.elementals.indexOf(arP1) < 0) {\n    arSay(\"a treaty can be formed with: \" + AR.elementals.join(\", \").toUpperCase() + \". ARTIFICING TREATY <elemental>.\", \"orange\");\n  } else {\n    // The communion breaks if anything else is sent, so everything that\n    // follows pauseTriggers holds back, and curing stops sipping.\n    AR.treaty = { elemental: arP1, at: Date.now() };\n    set_variable(\"pauseTriggers\", \"on\");\n    send_command(\"curing sipping off\");\n    send_command(\"treaty form \" + arP1);\n  }\n} else if (arSub === \"resume\") {\n  run_function(\"artificing_resume\", [], \"artificing\");\n  arSay(\"triggers unpaused and sipping on.\");\n} else if (arSub === \"debug\") {\n  arSay(\"staff=\" + AR.staff + \" treaty=\" + JSON.stringify(AR.treaty) + \" pause=\" + (get_variable(\"pauseTriggers\") || \"unset\") + \" saved=\" + get_variable(\"artificing_staff\"), \"orange\");\n} else {\n  arSay(\"unknown command '\" + arSub + \"'. ARTIFICING HELP for commands.\", \"orange\");\n}\n"
+    }
+   ],
+   "text": "^artificing(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
    "prefix_suffix": true
   }
  ],
- "description": ""
+ "description": "Artificing helpers: the staff attack STAFF CAST uses, and elemental treaties formed with triggers paused and sipping off until the treaty is written. State in client.loom.artificing; artificing_staff (read by hunting). ARTIFICING HELP for commands."
 }
