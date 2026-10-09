@@ -95,6 +95,21 @@ python tools/extract.py Export.nxs --name self   # bring an in-game export back 
 
 After changing a package in Nexus, export it, run `extract.py` over it and commit: the diff shows exactly what changed. After changing source files, run `build.py` and import the result.
 
+### Versioning
+
+Two kinds of version live in this repository.
+
+- **Loom releases** follow the milestones: Loom 0.3 is milestone *Loom 0.3 · Multiclass*, released on GitHub with the tag `loom-v0.3.0`. The release notes list every package's version at that point.
+- **Packages** each keep their own [semantic version](https://semver.org), set in the registry line of their setup code and shown by `LOOM`. They move independently of each other and of the milestones:
+  - a fix bumps the last number: 0.2.1 → 0.2.2
+  - new behaviour bumps the middle one: 0.2.2 → 0.3.0
+  - before 1.0, a change that breaks existing use (a renamed command, a changed variable) also bumps the middle one
+
+  So during Loom 0.3 a package that only got fixes can stay at 0.2.x, while one that gained features moves to 0.3.0 or beyond.
+- **The loom package is the exception:** it carries the suite's version. Between releases it takes patch bumps like any other package; when Loom X.Y is released it becomes X.Y.0.
+
+Every PR that changes a package bumps that package's version once.
+
 ### Nexus scripting rules these packages follow
 
 - No anonymous `function () {}` expressions, no top-level `return`, no `setTimeout`.

@@ -1,7 +1,7 @@
 # Loom — Roadmap
 
 **Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
-**Current release:** v0.1 (every package as it runs in game, collected in one repository)
+**Current release:** Loom 0.2 (Standalone)
 
 See the README for what each package does today.
 
@@ -30,7 +30,7 @@ These apply to every package touched from v0.2 onwards.
 | **Registration** | Each package's `onLoad` writes `client.loom.registry.<package> = { version, keyword }`. |
 | **Command** | One alias, `^<keyword>(?:\s+(.*))?$`, case-insensitive, with `HELP` and a bare call that shows status. |
 | **Help** | `<package>_help` prints a `[command, description]` table in a monospace block through `nexusclient.add_html_line`, falling back to `display_notice` when a client doesn't have it. Each package carries its own copy. |
-| **Version** | Semantic version per package, kept in `package.json` and shown by `LOOM`. |
+| **Version** | Semantic version per package, set in its registry line and shown by `LOOM`. Packages move independently; only **loom** follows the suite releases. See *Versioning* in the README. |
 | **Shared flag** | `pauseTriggers` stays a plain variable. Packages treat "unset" as off, so they don't need the package that toggles it. |
 | **Suite package** | One package, **loom**, holds the `LOOM` command, the shared settings and all integrations. Nothing requires it. |
 
@@ -40,7 +40,7 @@ These apply to every package touched from v0.2 onwards.
 - **Everyday shortcuts** stay short: `GG` and `PG` in security (gold out of / into the backpack) are typed too often to live under `SECURITY`.
 - **Emote and illusion content** (roleplay's ~110 emote aliases, elementalism's set pieces) is content, not commands, and stays as it is for now. Revisit later if it becomes a problem for other players.
 
-## v0.2 — Standalone
+## Loom 0.2 — Standalone
 
 **Goal:** every package installs cleanly on a fresh profile and works without any other package.
 
@@ -103,7 +103,7 @@ Order: foundation first, then by how much coupling each package removes. The key
 
 `LOOM`, `SIGILS`, `CIVIC`, `TALPIECES`, `DEFCON`
 
-## v0.3 — Multiclass
+## Loom 0.3 — Multiclass
 
 **Goal:** hunting, defcon and self behave correctly for any class, and fail gracefully for classes not yet configured.
 
@@ -114,7 +114,7 @@ Order: foundation first, then by how much coupling each package removes. The key
 
 **Done when:** every class has an entry, even if marked "generic only"; your own classes (Druid, Magi, Serpent, Infernal, dragonform) are fully configured; adding a class touches only tables.
 
-## v0.4 — Integrations
+## Loom 0.4 — Integrations
 
 **Goal:** packages installed together feed each other.
 
@@ -156,11 +156,11 @@ The integration code itself lives in the **loom** package, so neither side knows
 | **dmgchart** | — | — | — | Feeds huntstats an area-danger figure |
 | **standings** | — | — | — | Highlight colour by band; vision warns on hostile standing |
 
-## v0.5 — Enhancements
+## Loom 0.5 — Enhancements
 
 **Goal:** the feature and enhancement ideas raised during v0.2 and v0.3, kept out of those milestones so they could stay focused on fixing and tidying. Handled after v0.4.
 
-## v0.6 — Autobasher
+## Loom 0.6 — Autobasher
 
 **Goal:** effective, attended bashing. A new package that reacts to what happens in the current room.
 
@@ -170,7 +170,7 @@ The integration code itself lives in the **loom** package, so neither side knows
 
 Steps, in order: package and core attack loop on balance/equilibrium → shield detection, presence checks, curing check → rage abilities → wimpy and the enemy-list integration → per-area target priorities, then learning them from huntstats → raze or swap → attacking the party leader's target → (maybe) defensive abilities in parties.
 
-## v0.7 — Docs & Feedback
+## Loom 0.7 — Docs & Feedback
 
 **Goal:** other players can install Loom, understand it, and tell us what's wrong.
 
@@ -179,7 +179,7 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 - **Public beta release**, with issue templates for bugs and ideas (labelled `from-users`).
 - **A feedback window**, time-boxed: every report gets a decision (this milestone, a later one, or wontfix), and bugs in what exists outrank new features.
 
-## v0.8 — Hardening
+## Loom 0.8 — Hardening
 
 **Goal:** make what players actually use solid. Comes after feedback, so it hardens the right things.
 
@@ -190,7 +190,7 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 - Consistency sweep (colours, HELP, tabs, wording) and a docs accuracy pass.
 - One end-to-end regression run, built from every PR's in-game checklist, kept for future releases.
 
-## v1.0
+## Loom 1.0
 
 **Commands and settings are stable.** Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered.
 
@@ -201,4 +201,4 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 ## Tracking
 
-GitHub issues grouped into milestones v0.2 to v0.8: one issue per package in v0.2, one per integration in v0.4, one per step in v0.6. Player reports carry the `from-users` label.
+GitHub issues grouped into milestones Loom 0.2 to Loom 0.8: one issue per package in v0.2, one per integration in v0.4, one per step in v0.6. Player reports carry the `from-users` label.
