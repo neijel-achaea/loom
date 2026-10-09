@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: What each package does
+    url: https://github.com/rlopgr-ux/loom#readme
+    about: Read the README before asking how something works.
