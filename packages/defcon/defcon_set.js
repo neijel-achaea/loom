@@ -1,12 +1,12 @@
 // defcon_set -- applies DEFCON D.want (1-5): curing priorities for every
 // defence of a tier >= the level, reset (and relax) for the rest. Setting the
-// level you are already at resends everything (a resync).
+// level you are already at resends everything (a resync), as does the first
+// level set in a class. The level is remembered for the current class only.
 var D = client.loom.defcon;
 run_function("defcon_table", [], "defcon");
 var dcDefs = D.tbl.defs;
-var dcStored = get_variable("defcon_level");
-var dcFirst = (dcStored === null || dcStored === undefined);
-var dcOld = dcFirst ? 5 : to_number(dcStored);
+var dcFirst = (D.level === undefined || D.level === null);
+var dcOld = dcFirst ? 5 : D.level;
 var dcLevel = D.want;
 var dcResync = (dcLevel === dcOld) || dcFirst;
 var dcQueue = [];
@@ -24,7 +24,9 @@ for (var dcI = 0; dcI < dcDefs.length; dcI++) {
   }
 }
 
-set_variable("defcon_level", dcLevel);
+D.levels[D.tbl.name] = dcLevel;
+D.level = dcLevel;
+set_variable("defcon_levels", JSON.stringify(D.levels));
 if (D.timer) { clearTimeout(D.timer); D.timer = null; }
 D.queue = dcQueue;
 
