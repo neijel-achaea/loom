@@ -1,1 +1,1 @@
-// Place any code here you'd like to autorun when the package is uninstalled
+// Nothing to tear down; conjuration_ouroboros is left intact.

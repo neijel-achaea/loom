@@ -16,22 +16,80 @@
       "code": "@file:onuninstall.js"
     },
     {
-      "type": "alias",
-      "name": "",
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "conjuration_setup",
+      "enabled": true,
+      "code": "@file:conjuration_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "conjuration_help",
+      "enabled": true,
+      "code": "@file:conjuration_help.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "conjuration_step",
+      "enabled": true,
+      "code": "@file:conjuration_step.js"
+    },
+    {
+      "type": "function",
+      "name": "conjuration_next",
+      "enabled": true,
+      "code": "@file:conjuration_next.js"
+    },
+    {
+      "type": "function",
+      "name": "conjuration_fail",
+      "enabled": true,
+      "code": "@file:conjuration_fail.js"
+    },
+    {
+      "type": "trigger",
+      "name": "conjuration ritual",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:alias_conjure_w.js"
+          "script": "@file:trigger_ritual.js"
         }
       ],
-      "text": "^conjure (\\w+)$",
+      "text": "^(?:A somehow toneless yet beautiful sound is heard in the distance, indicating that you may begin\\.|You chant, \".*|A pure, clear tone fills the air as you ring a small silver bell\\.|The ouroboros flashes .*|You take .* sigil from .*|You must regain balance first\\.|You must wait a short while to use a say-like command again\\.|You have recovered balance on all limbs\\.)$",
       "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "conjuration",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_conjuration.js"
+        }
+      ],
+      "text": "^conjuration(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
       "prefix_suffix": true
     }
   ],
-  "description": ""
+  "description": "Runs the creation ritual for the sigils you have a recipe for, one step at a time as the game is ready for each (balance, and the reply to the previous step), in the ouroboros you set. State in client.loom.conjuration; conjuration_ouroboros, conjuration_sigil_from. CONJURATION HELP for commands."
 }
