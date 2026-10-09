@@ -179,7 +179,7 @@
           "script": "@file:trigger_nothing.js"
         }
       ],
-      "text": "^You (?:do not|don't) see that here\\.$",
+      "text": "^(?:What do you wish to examine\\?|You (?:do not|don't) see that here\\.)$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true
