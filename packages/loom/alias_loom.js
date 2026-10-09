@@ -22,16 +22,18 @@ if (sub === "" || sub === "list") {
   for (var i = 0; i < names.length; i++) {
     var r = reg[names[i]] || {};
     var label = (names[i] + "                ").slice(0, 16);
-    var ver = ("v" + (r.version || "?") + "          ").slice(0, 10);
+    var ver = "v" + (r.version || "?");
     // The description, when the package has one, on its own dimmer line.
     // (An unbuilt package would still hold the placeholder, "{{" then
     // "description"; tested with a pattern so the build doesn't fill it in.)
     var desc = (r.desc && !/^\{\{/.test(r.desc)) ? r.desc : "";
+    // Name and version, the description below. Indented with non-breaking
+    // spaces: Nexus trims ordinary spaces at the start of an HTML line.
     if (html) {
-      rows.push('  <span style="color:#00ffff">' + esc(label) + '</span><span style="color:#9fc9c9">' + esc(ver) + '</span><span style="color:#00ffff">' + esc(r.keyword || "") + '</span>');
-      if (desc) rows.push('    <span style="color:#6f8f8f">' + esc(desc) + '</span>');
+      rows.push('&nbsp;&nbsp;<span style="color:#00ffff">' + esc(label) + '</span><span style="color:#9fc9c9">' + esc(ver) + '</span>');
+      if (desc) rows.push('&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6f8f8f">' + esc(desc) + '</span>');
     } else {
-      display_notice("  " + label + ver + (r.keyword || ""), C);
+      display_notice("  " + label + ver, C);
       if (desc) display_notice("    " + desc, "#6f8f8f");
     }
   }
