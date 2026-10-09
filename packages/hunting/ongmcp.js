@@ -1,10 +1,12 @@
-if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function("hunting_setup", [], "hunting");
+if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;
 
-// Class: hunting follows it itself and lays out the F-key buttons on change.
+// Class: hunting follows it itself. On a change: that class's keys and costs,
+// and fresh cooldowns, since ability names can repeat across classes.
 if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
   if (args.gmcp_args.class != HU.cls) {
     HU.cls = args.gmcp_args.class;
+    HU.cd = {};
     set_variable("hunting_class", HU.cls);
     run_function("hunting_buttons", [], "hunting");
   }

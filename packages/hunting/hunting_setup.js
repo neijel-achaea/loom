@@ -3,26 +3,20 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.2.6", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "0.3.0", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
-// Battlerage costs for every class configured so far. Session data, not a
-// variable: rebuilt here on every load.
-HU.costs = {
-  // Druid
-  Strangle: 14, Redeem: 22, Vinecrack: 17, Ravage: 36, Sear: 25, Glare: 14,
-  // Magi
-  Windlash: 14, Dilation: 35, Disintegrate: 17, Squeeze: 36, Firefall: 25, Stormbolt: 25,
-  // Sylvan
-  Torrent: 14, Sandstorm: 29, Thornpierce: 17, Stonevine: 36, Leechroot: 25, Rockshot: 28,
-  // Black Dragon
-  Dragonspit: 14, Dragonsting: 25, Dissolve: 17, Override: 36, Corrode: 25, Dragonfear: 29, Provoke: 32,
-  // Blue Dragon
-  Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14
-};
-// Rage state: cooldowns per ability, F-key slot per ability, the global
-// battlerage cooldown, current rage.
+// Per-class tables (classes/*.js): F-keys, battlerage costs, attack lines.
+// Session data, rebuilt on every load. HU.costs is the current class's costs,
+// set below and by hunting_buttons on each class change.
+run_function("hunting_classes", [], "hunting");
+// Colour of tagged attack lines.
+HU.lineFg = "#d8f37e";
+HU.lineBg = "#000000";
+// Rage state: cooldowns per ability (current class only: cleared on every
+// class change), F-key slot per ability, the global battlerage cooldown,
+// current rage.
 if (!HU.cd) HU.cd = {};
 if (!HU.slots) HU.slots = {};
 if (HU.glob === undefined) HU.glob = true;
@@ -33,6 +27,7 @@ if (HU.rage === undefined) HU.rage = 0;
 // loom's old activeClass seeds it (read only).
 if (!HU.cls) HU.cls = get_variable("hunting_class") || get_variable("activeClass") || "";
 if (HU.cls && !get_variable("hunting_class")) set_variable("hunting_class", HU.cls);
+HU.costs = (HU.classes[HU.cls] && HU.classes[HU.cls].rage) || {};
 
 // One-time migration from the pre-0.2 names: copy when the new one is unset,
 // then clear the old one.

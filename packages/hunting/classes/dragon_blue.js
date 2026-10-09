@@ -1,0 +1,27 @@
+// Blue Dragon: F-keys, battlerage costs and attack lines for hunting.
+// See classes/README.md for the format. Only this file changes when the
+// game rewords an attack or a key needs moving.
+HU.classes["Blue Dragon"] = {
+  keys: [
+    ["{DRAGON}", "queue add eb!wu!t!p {dragon} @tar", "main"],
+    ["Dragonchill", huQ + "dragonchill @tar"],
+    ["Override", huQ + "override @tar"],
+    ["Blast", "queue add eb!wu!t!p blast @tar", "main"],
+    ["Frostwave", huQ + "frostwave @tar"],
+    ["Ague", huQ + "ague @tar"],
+    ["", ""],
+    ["{MODE}", "hunting dragonmode"],
+    ["{stats}", ""],
+    ["Diag", "diagnose"],
+    ["", ""],
+    ["Shield", "touch shield"]
+  ],
+  rage: { Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14, Override: 36 },
+  lines: [
+    [/^You form small chunks of ice in your enormous maw, then spit them at (.*) in a barrage\.$/, "DRAGONCHILL", "Dragonchill"],
+    [/^You breathe a wave of icy air at (.*)\.$/, "FROSTWAVE", "Frostwave"],
+    [/^You let loose a steady stream of cold air around (.*), who begins to shiver uncontrollably\.$/, "AGUE", "Ague"],
+    [/^You breathe a column of icy air at (.*)'s head, stunning (\w+)\.$/, "GLACIATE", "Glaciate"],
+    [/^Opening your massive maw, you throw your head forward and blast wave after wave of deadly, all-consuming cold at (.*)\.$/, "BLAST"]
+  ]
+};

@@ -1,5 +1,5 @@
 // HUNTING [subcommand ...]: the one command for this package.
-if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function("hunting_setup", [], "hunting");
+if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;
 var huRaw = String(args[1] || "").trim();
 var huSub = huRaw.split(/\s+/)[0].toLowerCase();

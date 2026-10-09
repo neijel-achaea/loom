@@ -2,6 +2,12 @@
 // nexusclient.add_html_line when this Nexus has it, so the columns line up;
 // otherwise as plain notices.
 var hlTitle = "[hunting] class F-keys, battlerage highlights, dragon attacks and autogold. Commands:";
+// Whether the current class has a file in classes/, and which classes do.
+var hlHU = client.loom.hunting || {};
+var hlKnown = [];
+for (var hlK in (hlHU.classes || {})) hlKnown.push(hlK);
+var hlClassNote = (hlHU.cls ? (hlHU.classes && hlHU.classes[hlHU.cls] ? hlHU.cls + " is configured." : hlHU.cls + " isn't configured yet: you get the generic keys (Stats, Diag, Shield) and no attack highlights.") : "No class seen yet.")
+  + " Configured: " + hlKnown.join(", ") + ".";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["HUNTING", "status"],
@@ -13,7 +19,7 @@ var hlRows = [
   ["HUNTING RAGE", "rage, cooldowns and tracked keys"],
   ["HUNTING RESET", "clear rage cooldowns, lay out the F-keys again"],
   ["HUNTING DEBUG", "internal state"],
-  ["F-keys are set up for Druid, Magi, Sylvan, Black and Blue Dragon; other classes get Diag, Shield and Stats."]
+  [hlClassNote]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

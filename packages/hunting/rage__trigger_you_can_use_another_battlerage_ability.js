@@ -1,4 +1,4 @@
-if (!client.loom || !client.loom.hunting || !client.loom.hunting.costs) run_function("hunting_setup", [], "hunting");
+if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;
 // The list means "off cooldown AND affordable": an ability missing from it
 // is only known to be on cooldown if you could have afforded it.

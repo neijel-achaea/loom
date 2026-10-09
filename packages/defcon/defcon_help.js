@@ -2,6 +2,13 @@
 // nexusclient.add_html_line when this Nexus has it, so the columns line up;
 // otherwise as plain notices.
 var hlTitle = "[defcon] defence readiness: one level, five tiers. Commands:";
+// Whether the current class has its own table, and which classes do.
+var dcD = client.loom.defcon || {};
+var dcKnown = [];
+for (var dcK in (dcD.classes || {})) dcKnown.push(dcK);
+var dcName = dcD.cls ? ((dcD.alias && dcD.alias[dcD.cls]) || dcD.cls) : "";
+var dcClassNote = (dcName ? (dcD.classes && dcD.classes[dcName] ? dcD.cls + " is configured." : dcD.cls + " isn't configured yet: you get the general defences.") : "No class seen yet.")
+  + " Configured: " + dcKnown.join(", ") + ".";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["DEFCON", "status"],
@@ -11,7 +18,7 @@ var hlRows = [
   ["DEFCON AUTOUP ON|OFF", "DEFCON UP when you log in"],
   ["DEFCON ON|OFF", "the game's defence upkeep (CURING DEFENCES ON/OFF)"],
   ["DEFCON DEBUG", "internal state"],
-  ["Classes set up: Druid, Magi, Sylvan, dragonform. Others get the general defences."]
+  [dcClassNote]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {
