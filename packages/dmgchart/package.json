@@ -5,31 +5,61 @@
   "items": [
     {
       "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
       "name": "onLoad",
       "enabled": true,
       "code": "@file:onload.js"
     },
     {
       "type": "function",
-      "name": "dc_add",
+      "name": "onGMCP",
       "enabled": true,
-      "code": "@file:dc_add.js"
+      "code": "@file:ongmcp.js"
     },
     {
       "type": "function",
-      "name": "dc_render",
+      "name": "dmgchart_setup",
       "enabled": true,
-      "code": "@file:dc_render.js"
+      "code": "@file:dmgchart_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "dmgchart_add",
+      "enabled": true,
+      "code": "@file:dmgchart_add.js"
+    },
+    {
+      "type": "function",
+      "name": "dmgchart_render",
+      "enabled": true,
+      "code": "@file:dmgchart_render.js"
+    },
+    {
+      "type": "function",
+      "name": "dmgchart_help",
+      "enabled": true,
+      "code": "@file:dmgchart_help.js"
     },
     {
       "type": "trigger",
-      "name": "dc outgoing",
+      "name": "dmgchart outgoing",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_dc_outgoing.js"
+          "script": "@file:trigger_outgoing.js"
         }
       ],
       "text": "^Damage dealt: (\\d+) \\(([^)]+)\\)\\.$",
@@ -39,13 +69,13 @@
     },
     {
       "type": "trigger",
-      "name": "dc incoming",
+      "name": "dmgchart incoming",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_dc_incoming.js"
+          "script": "@file:trigger_incoming.js"
         }
       ],
       "text": "^Health lost: (\\d+) \\(([^)]+)\\)\\.$",
@@ -55,13 +85,13 @@
     },
     {
       "type": "trigger",
-      "name": "dc bleed",
+      "name": "dmgchart bleed",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_dc_bleed.js"
+          "script": "@file:trigger_bleed.js"
         }
       ],
       "text": "^You bleed (\\d+) health\\.$",
@@ -71,38 +101,21 @@
     },
     {
       "type": "alias",
-      "name": "dc main",
+      "name": "dmgchart",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:alias_dc_main.js"
+          "script": "@file:alias_dmgchart.js"
         }
       ],
-      "text": "^dmgchart(?:\\s+(\\w+))?(?:\\s+(.+))?$",
-      "matching": "regexp",
-      "whole_words": false,
-      "case_sensitive": false,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "dc rebuild",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_dc_rebuild.js"
-        }
-      ],
-      "text": "^dcreset$",
+      "text": "^dmgchart(?:\\s+(.*))?$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": false,
       "prefix_suffix": true
     }
   ],
-  "description": "dmgchart 0.2 - live incoming/outgoing damage-by-type donuts in a 'DmgChart' tab, plus manual START/END sessions saved to a list."
+  "description": "Damage dealt and taken by type in a UI tab named 'DmgChart': donuts with dps for the live fight (a new one after a quiet gap), exchange stats, and sessions you record with START/END. Health for 'health lasts' comes from GMCP. State in client.loom.dmgchart; dmgchart_sessions, dmgchart_open, dmgchart_gap. DMGCHART HELP for commands."
 }
