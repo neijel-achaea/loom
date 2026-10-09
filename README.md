@@ -2,7 +2,7 @@
 
 *Weaving your Achaea client together.*
 
-**Version 0.1**: everything as it runs in game today, with source and history in one place. v0.2 is under way: see [ROADMAP.md](ROADMAP.md).
+**Version 0.2**: every package standalone, with one command, HELP and a status view each, its own `<pkg>_` variables and a short description under LOOM. v0.3 (multiclass) is next: see [ROADMAP.md](ROADMAP.md).
 
 Loom is a suite of reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
 package is self-contained: it can be dropped onto any character without
