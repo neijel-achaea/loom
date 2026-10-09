@@ -6,7 +6,7 @@ var hlTitle = "[conjuration] the creation rituals for the sigils you know. Comma
 var hlRows = [
   ["CONJURATION", "your ouroboros and the recipes known"],
   ["CONJURATION <sigil>", "run its creation ritual (also CONJURATION MAKE <sigil>)"],
-  ["CONJURATION OUROBOROS <number>", "the ouroboros the ritual uses"],
+  ["CONJURATION OUROBOROS <number> [<number>]", "the ouroboros the reagents go into, and the one the sigil is taken from if it's another"],
   ["CONJURATION LIST", "every sigil, and which have a recipe"],
   ["CONJURATION DEBUG", "internal state"],
   ["Reagents come out of the rift. Nothing is sent while triggers are paused."]

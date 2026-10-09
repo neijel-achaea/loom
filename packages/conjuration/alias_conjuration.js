@@ -6,25 +6,33 @@ var cjSub = cjW[0];
 var cjP1 = cjW[1] || "";
 function cjSay(t, c) { display_notice("[conjuration] " + t, c || "cyan"); }
 function cjKnown() { var a = []; for (var k in CJ.sigils) { if (CJ.sigils.hasOwnProperty(k) && CJ.sigils[k].chant) a.push(k); } return a; }
+function cjWhere() {
+  if (!CJ.ouroboros) return "no ouroboros set: CONJURATION OUROBOROS <number> [<number the sigil is taken from>].";
+  return "reagents go into ouroboros " + CJ.ouroboros + "; the sigil is taken from " + (CJ.sigilFrom ? "ouroboros " + CJ.sigilFrom : "the same one") + ".";
+}
 function cjAll() { var a = []; for (var k in CJ.sigils) { if (CJ.sigils.hasOwnProperty(k)) a.push(k); } return a; }
 // MAKE is optional: CONJURATION FLAME and CONJURATION MAKE FLAME do the same.
 if (cjSub === "make") { cjSub = cjP1; cjP1 = ""; }
 
 if (cjSub === "" || cjSub === "status") {
-  cjSay(CJ.ouroboros ? "ouroboros: " + CJ.ouroboros + "." : "no ouroboros set: CONJURATION OUROBOROS <number> (its number from II or INFO HERE).", CJ.ouroboros ? "cyan" : "orange");
+  cjSay(cjWhere(), CJ.ouroboros ? "cyan" : "orange");
   cjSay("recipes known: " + cjKnown().join(", ") + ". CONJURATION <sigil> to make one; CONJURATION HELP for commands.");
 } else if (cjSub === "help") {
   run_function("conjuration_help", [], "conjuration");
 } else if (cjSub === "ouroboros") {
   var cjN = cjP1.replace(/^ouroboros/, "");
+  var cjM = (cjW[2] || "").replace(/^ouroboros/, "");
   if (!cjN) {
-    cjSay(CJ.ouroboros ? "ouroboros: " + CJ.ouroboros + "." : "no ouroboros set. CONJURATION OUROBOROS <number>.");
-  } else if (!/^\d+$/.test(cjN)) {
-    cjSay("give the ouroboros's number, e.g. CONJURATION OUROBOROS 263287.", "orange");
+    cjSay(cjWhere());
+  } else if (!/^\d+$/.test(cjN) || (cjM && !/^\d+$/.test(cjM))) {
+    cjSay("give the ouroboros numbers, e.g. CONJURATION OUROBOROS 263287, or 263287 275085 if the sigil appears in a second one.", "orange");
   } else {
     CJ.ouroboros = cjN;
+    CJ.sigilFrom = (cjM && cjM !== cjN) ? cjM : "";
     set_variable("conjuration_ouroboros", cjN);
-    cjSay("ouroboros set to " + cjN + ".");
+    if (CJ.sigilFrom) set_variable("conjuration_sigil_from", CJ.sigilFrom);
+    else { try { delete_variable("conjuration_sigil_from"); } catch (e) {} }
+    cjSay(cjWhere());
   }
 } else if (cjSub === "list") {
   var cjL = cjAll();
@@ -33,7 +41,7 @@ if (cjSub === "" || cjSub === "status") {
     display_notice("  " + (cjL[cjI] + "              ").slice(0, 14) + cjS.name + (cjS.chant ? "" : "  (no recipe yet)"), cjS.chant ? "cyan" : "#889999");
   }
 } else if (cjSub === "debug") {
-  cjSay("ouroboros=" + CJ.ouroboros + " saved=" + get_variable("conjuration_ouroboros") + " pause=" + (get_variable("pauseTriggers") || "unset") + " known=" + cjKnown().join(","), "orange");
+  cjSay("ouroboros=" + CJ.ouroboros + " sigilFrom=" + CJ.sigilFrom + " saved=" + get_variable("conjuration_ouroboros") + "/" + get_variable("conjuration_sigil_from") + " pause=" + (get_variable("pauseTriggers") || "unset") + " known=" + cjKnown().join(","), "orange");
 } else if (CJ.sigils[cjSub]) {
   var S = CJ.sigils[cjSub];
   if (!S.chant) {
@@ -54,7 +62,7 @@ if (cjSub === "" || cjSub === "status") {
     for (var cjC = 0; cjC < 3; cjC++) send_command("chant " + S.chant);
     send_command("ring bell");
     send_command("end ritual");
-    send_command("get sigil from " + cjO);
+    send_command("get sigil from ouroboros" + (CJ.sigilFrom || CJ.ouroboros));
   }
 } else {
   cjSay("unknown sigil or command '" + cjSub + "'. Sigils: " + cjAll().join(", ") + ". CONJURATION HELP for commands.", "orange");

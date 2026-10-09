@@ -31,9 +31,13 @@ CJ.sigils = {
   whirlwind: { name: "a whirlwind of Vastar" }
 };
 
-// The ouroboros the ritual is performed in, by its number (conjuration_ouroboros).
+// The ouroboros the reagents go into (conjuration_ouroboros), and the one
+// the finished sigil is taken from (conjuration_sigil_from), by number. With
+// no second number, the sigil is taken from the first.
 if (CJ.ouroboros === undefined) {
-  var cjO;
+  var cjO, cjF;
   try { cjO = get_variable("conjuration_ouroboros"); } catch (e) { cjO = undefined; }
+  try { cjF = get_variable("conjuration_sigil_from"); } catch (e) { cjF = undefined; }
   CJ.ouroboros = (cjO && ("" + cjO) !== "undefined") ? ("" + cjO) : "";
+  CJ.sigilFrom = (cjF && ("" + cjF) !== "undefined") ? ("" + cjF) : "";
 }
