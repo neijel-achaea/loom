@@ -270,5 +270,5 @@
    ]
   }
  ],
- "description": "Dragon talisman piece tracker with progress history. Live panel in a UI tab named 'Talismans'. TALPIECES HELP for commands. State in client.loom.talpieces; history in the talpieces_hist variable as [unixSeconds, cappedCommon, cappedRare], one point per hour in which totals change."
+ "description": "Dragon talisman piece tracker with history and a projected finish"
 }

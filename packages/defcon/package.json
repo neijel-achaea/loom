@@ -226,5 +226,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Defence upkeep, defence configuration, initdef"
+  "description": "Defence readiness for any class: five tiers, raised on login"
 }

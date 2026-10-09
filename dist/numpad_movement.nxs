@@ -7,7 +7,7 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nclient.loom.registry.numpad_movement = { version: \"0.2.0\", keyword: \"\" };\ndisplay_notice(\"[numpad_movement] installed. Number pad: 1-9 the eight directions (5 is up), 0 down, + in, - out, . look, / score, * inventory.\", \"cyan\");\n"
+   "code": "if (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nclient.loom.registry.numpad_movement = { version: \"0.2.1\", keyword: \"\", desc: \"Move with the number pad; look, score and inventory keys\" };\ndisplay_notice(\"[numpad_movement] installed. Number pad: 1-9 the eight directions (5 is up), 0 down, + in, - out, . look, / score, * inventory.\", \"cyan\");\n"
   },
   {
    "type": "function",
@@ -19,13 +19,13 @@
    "type": "function",
    "name": "onLoad",
    "enabled": true,
-   "code": "// Register with loom (the package has no command of its own). Done here\n// directly: the package is named \"numpad movement\", with a space.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nclient.loom.registry.numpad_movement = { version: \"0.2.0\", keyword: \"\" };\n"
+   "code": "// Register with loom (the package has no command of its own). Done here\n// directly: the package is named \"numpad movement\", with a space.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nclient.loom.registry.numpad_movement = { version: \"0.2.1\", keyword: \"\", desc: \"Move with the number pad; look, score and inventory keys\" };\n"
   },
   {
    "type": "function",
    "name": "onGMCP",
    "enabled": true,
-   "code": "// Registers the package on the first GMCP message after an import; Nexus\n// doesn't run onInstall when importing over an existing package.\nif (!client.loom || !client.loom.registry || !client.loom.registry.numpad_movement) {\n  if (!client.loom) client.loom = {};\n  if (!client.loom.registry) client.loom.registry = {};\n  client.loom.registry.numpad_movement = { version: \"0.2.0\", keyword: \"\" };\n}\n"
+   "code": "// Registers the package on the first GMCP message after an import; Nexus\n// doesn't run onInstall when importing over an existing package.\nif (!client.loom || !client.loom.registry || !client.loom.registry.numpad_movement) {\n  if (!client.loom) client.loom = {};\n  if (!client.loom.registry) client.loom.registry = {};\n  client.loom.registry.numpad_movement = { version: \"0.2.1\", keyword: \"\", desc: \"Move with the number pad; look, score and inventory keys\" };\n}\n"
   },
   {
    "type": "keybind",
@@ -283,5 +283,5 @@
    "key_shift": false
   }
  ],
- "description": "Move around with the number pad: 1-9 the eight directions with 5 for up, 0 down, + in, - out; . looks, / shows your score and * your inventory."
+ "description": "Move with the number pad; look, score and inventory keys"
 }

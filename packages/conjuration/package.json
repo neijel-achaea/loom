@@ -91,5 +91,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Runs the creation ritual for the sigils you have a recipe for, one step at a time as the game is ready for each (balance, and the reply to the previous step), in the ouroboros you set. State in client.loom.conjuration; conjuration_ouroboros, conjuration_sigil_from. CONJURATION HELP for commands."
+  "description": "Sigil creation rituals, one step at a time as the game is ready"
 }

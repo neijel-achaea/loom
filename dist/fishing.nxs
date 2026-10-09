@@ -30,7 +30,7 @@
      "type": "function",
      "name": "fishing_setup",
      "enabled": true,
-     "code": "// fishing_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.fishing) client.loom.fishing = {};\nclient.loom.registry.fishing = { version: \"0.2.0\", keyword: \"FISHING\" };\n\n// One-time migration: bait -> fishing_bait.\nvar fiOld = get_variable(\"bait\");\nif (fiOld !== null && fiOld !== undefined) {\n  if (!get_variable(\"fishing_bait\")) set_variable(\"fishing_bait\", fiOld);\n  delete_variable(\"bait\");\n}\nif (get_variable(\"fishing_bait\") === null || get_variable(\"fishing_bait\") === undefined) set_variable(\"fishing_bait\", \"\");\n// Tell the party \"Ding fish!\" on a new yearly record.\nif (!get_variable(\"fishing_ding\")) set_variable(\"fishing_ding\", \"on\");\n"
+     "code": "// fishing_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.fishing) client.loom.fishing = {};\nclient.loom.registry.fishing = { version: \"0.2.1\", keyword: \"FISHING\", desc: \"Bait, cast, tease and reel on the game's cues; yearly record calls\" };\n\n// One-time migration: bait -> fishing_bait.\nvar fiOld = get_variable(\"bait\");\nif (fiOld !== null && fiOld !== undefined) {\n  if (!get_variable(\"fishing_bait\")) set_variable(\"fishing_bait\", fiOld);\n  delete_variable(\"bait\");\n}\nif (get_variable(\"fishing_bait\") === null || get_variable(\"fishing_bait\") === undefined) set_variable(\"fishing_bait\", \"\");\n// Tell the party \"Ding fish!\" on a new yearly record.\nif (!get_variable(\"fishing_ding\")) set_variable(\"fishing_ding\", \"on\");\n"
     },
     {
      "type": "function",
@@ -421,5 +421,5 @@
    ]
   }
  ],
- "description": "Fishing automation: FISHING BAIT, then FISHING CAST or CL to bait and cast; teases, jerks and reels on the game's cues with stage markers. FISHING HELP for commands. Statistics live in fishingstats."
+ "description": "Bait, cast, tease and reel on the game's cues; yearly record calls"
 }

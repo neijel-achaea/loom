@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.talpieces) client.loom.talpieces = {};
-client.loom.registry.talpieces = { version: "0.2.0", keyword: "TALPIECES" };
+client.loom.registry.talpieces = { version: "0.2.1", keyword: "TALPIECES", desc: "{{description}}" };
 var TP = client.loom.talpieces;
 
 function tpHas(name) {

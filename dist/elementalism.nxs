@@ -31,7 +31,7 @@
    "type": "function",
    "name": "elementalism_setup",
    "enabled": true,
-   "code": "// elementalism_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, and the name and\n// pronouns the set pieces use.\n//\n// PINK_DRAGON's lines are built from EL.name and EL.pronouns[EL.pron] by the\n// script actions between its waits.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.elementalism) client.loom.elementalism = {};\nclient.loom.registry.elementalism = { version: \"0.2.0\", keyword: \"ELEMENTALISM\" };\nvar EL = client.loom.elementalism;\n\n// [object, possessive], as the set pieces use them.\nEL.pronouns = { he: [\"him\", \"his\"], she: [\"her\", \"her\"], they: [\"them\", \"their\"] };\nfunction elGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || (\"\" + v) === \"undefined\") ? \"\" : \"\" + v; }\n// Your name, as the game sent it (Char.Name/Char.Status) or as set with\n// ELEMENTALISM NAME; the game sends it only at login, so it's kept.\nEL.name = elGet(\"elementalism_name\");\nEL.pron = elGet(\"elementalism_pronouns\");\nif (!EL.pronouns[EL.pron]) { EL.pron = \"he\"; set_variable(\"elementalism_pronouns\", \"he\"); }\n"
+   "code": "// elementalism_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, and the name and\n// pronouns the set pieces use.\n//\n// PINK_DRAGON's lines are built from EL.name and EL.pronouns[EL.pron] by the\n// script actions between its waits.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.elementalism) client.loom.elementalism = {};\nclient.loom.registry.elementalism = { version: \"0.2.1\", keyword: \"ELEMENTALISM\", desc: \"Illusions and set pieces, with your name and pronouns\" };\nvar EL = client.loom.elementalism;\n\n// [object, possessive], as the set pieces use them.\nEL.pronouns = { he: [\"him\", \"his\"], she: [\"her\", \"her\"], they: [\"them\", \"their\"] };\nfunction elGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || (\"\" + v) === \"undefined\") ? \"\" : \"\" + v; }\n// Your name, as the game sent it (Char.Name/Char.Status) or as set with\n// ELEMENTALISM NAME; the game sends it only at login, so it's kept.\nEL.name = elGet(\"elementalism_name\");\nEL.pron = elGet(\"elementalism_pronouns\");\nif (!EL.pronouns[EL.pron]) { EL.pron = \"he\"; set_variable(\"elementalism_pronouns\", \"he\"); }\n"
   },
   {
    "type": "function",
@@ -389,5 +389,5 @@
    "prefix_suffix": true
   }
  ],
- "description": "Elementalism illusions (ILLUSION, FEEL_<environment>) and set pieces (PINK_DRAGON, KAWHEDRAGON_F/M), with the flooded-room highlight. PINK_DRAGON uses your name (from GMCP, remembered) and the pronouns you set. State in client.loom.elementalism; elementalism_name, elementalism_pronouns. ELEMENTALISM HELP for commands."
+ "description": "Illusions and set pieces, with your name and pronouns"
 }

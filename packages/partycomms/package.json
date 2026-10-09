@@ -155,5 +155,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Shares your vitals, rage and target over party tell and shows the party as chips in a UI tab named 'Party'. Name, class, vitals, rage and target come from GMCP (the tar variable and an IH lookup when the game sends no target info). State in client.loom.partycomms; partycomms_on. PARTYCOMMS HELP for commands."
+  "description": "Share vitals, rage and target with your party; party chips tab"
 }

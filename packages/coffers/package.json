@@ -2,7 +2,7 @@
  "type": "group",
  "name": "coffers",
  "enabled": true,
- "description": "Gold tracker for a UI tab named 'Coffers'. Wealth = gold on hand + bank, read from Char.Status over GMCP and accounted on each prompt, so deposits and withdrawals are neutral. Keeps a per-minute buffer (coffers_min), a per-day ledger with income/spending (coffers_days), an open session (coffers_sess), closed sessions (coffers_sessions) and records (coffers_rec). State in client.loom.coffers. COFFERS HELP for commands.",
+ "description": "Gold tracker: fortune, income and spending by session and day, goals",
  "items": [
   {
    "type": "function",

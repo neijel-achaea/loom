@@ -8,7 +8,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.artificing) client.loom.artificing = {};
-client.loom.registry.artificing = { version: "0.2.0", keyword: "ARTIFICING" };
+client.loom.registry.artificing = { version: "0.2.1", keyword: "ARTIFICING", desc: "{{description}}" };
 var AR = client.loom.artificing;
 
 // One-time migration: staffAttack -> artificing_staff.

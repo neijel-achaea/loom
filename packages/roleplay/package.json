@@ -2009,5 +2009,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Custom emotes worded per class, step-by-step rituals (massages, washing hair, the Saiha graduation), the cairn verses, and ambient emotes (ROLEPLAY AEM). The class comes from GMCP. State in client.loom.roleplay; roleplay_class, roleplay_aem_on. ROLEPLAY HELP for commands."
+  "description": "Class-aware emotes, rituals, cairn verses and ambient emotes"
 }

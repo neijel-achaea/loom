@@ -2,7 +2,7 @@
   "type": "group",
   "name": "standings",
   "enabled": true,
-  "description": "Standings 0.2 - EVE-style standings with adventurers and organisations, kept per character. Nudges (+ to +++, - to ---) with notes and IC dates; diminishing returns on a -10..+10 scale; tags with weighted averages; a review queue for trigger suggestions; 'Standings' tab. STN HELP for commands.",
+  "description": "Standings with adventurers and organisations, kept per character",
   "items": [
     {
       "type": "function",

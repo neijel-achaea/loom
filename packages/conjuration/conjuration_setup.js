@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.conjuration) client.loom.conjuration = {};
-client.loom.registry.conjuration = { version: "0.2.1", keyword: "CONJURATION" };
+client.loom.registry.conjuration = { version: "0.2.2", keyword: "CONJURATION", desc: "{{description}}" };
 var CJ = client.loom.conjuration;
 
 // Every sigil and conjured item, by the word typed. Those with a recipe can

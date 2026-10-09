@@ -415,5 +415,5 @@
       "case_sensitive": true
     }
   ],
-  "description": ""
+  "description": "Checks each room's plants and shrines, and suggests areas to patrol"
 }

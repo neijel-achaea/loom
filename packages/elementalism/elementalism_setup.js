@@ -7,7 +7,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.elementalism) client.loom.elementalism = {};
-client.loom.registry.elementalism = { version: "0.2.0", keyword: "ELEMENTALISM" };
+client.loom.registry.elementalism = { version: "0.2.1", keyword: "ELEMENTALISM", desc: "{{description}}" };
 var EL = client.loom.elementalism;
 
 // [object, possessive], as the set pieces use them.
