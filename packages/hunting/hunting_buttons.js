@@ -23,6 +23,12 @@ var huStats = (client.loom.registry && client.loom.registry.huntstats) || get_va
 // A class with no layout yet gets the generic keys only.
 var huGeneric = [["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["{stats}", ""], ["Diag", "diagnose"], ["", ""], ["Shield", "touch shield"]];
 var huRows = (huEntry && huEntry.keys) || huGeneric;
+// Keys that depend on your specialisation: specKeys["<Spec>"] = { <F-key>: row }.
+var huSpecRows = huEntry && huEntry.specKeys && HU.spec ? huEntry.specKeys[HU.spec] : null;
+if (huSpecRows) {
+  huRows = huRows.slice();
+  for (var huF in huSpecRows) huRows[to_number(huF) - 1] = huSpecRows[huF];
+}
 HU.slots = {};
 HU.main = [];
 
@@ -43,5 +49,5 @@ for (var huK = 1; huK <= 12; huK++) {
   if (huRow[2] == "main") HU.main.push(huK);
 }
 
-if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.cls || "no class") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");
+if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.cls || "no class") + (HU.spec ? ", spec " + HU.spec : "") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");
 run_function("hunting_highlight", [], "hunting");

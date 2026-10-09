@@ -42,6 +42,19 @@ if (args.gmcp_method == "Char.Vitals") {
   if (rage !== null) {
     HU.rage = rage;
   }
+  // Specialisation (Infernal, Paladin, Runewarden): some keys depend on it,
+  // so a change lays the keys out again.
+  var huSpec = null;
+  if (stats) {
+    for (var huS = 0; huS < stats.length; huS++) {
+      var huSm = String(stats[huS]).match(/^Spec:\s*(.+)$/);
+      if (huSm) huSpec = huSm[1];
+    }
+  }
+  if (huSpec !== null && huSpec !== HU.spec) {
+    HU.spec = huSpec;
+    run_function("hunting_buttons", [], "hunting");
+  }
   // Balance and equilibrium arrive on every vitals message, so refresh the
   // highlights each time (the main attack lights on bal + eq).
   run_function("hunting_highlight", [], "hunting");

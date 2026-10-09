@@ -28,6 +28,20 @@ key that lights whenever you have balance and equilibrium (your basic attack).
   `{DRAGON}` gut or incantation, `{MODE}` the dragon mode.
 - `["", ""]` leaves a key empty.
 
+## specKeys (optional)
+
+For classes whose attacks depend on the specialisation in `charstats`
+(`Spec: Two Handed`): keys that replace the defaults for that spec, by F-key.
+
+```js
+specKeys: {
+  "Two Handed": { 1: ["Slaughter", "queue add b!wu!t!p slaughter @tar", "main"] }
+}
+```
+
+Hunting redraws the keys when the spec changes. Lines don't need this: put
+every spec's attack lines in `lines`, only the one you use will ever show.
+
 ## rage
 
 `{ Ability: cost }`, named as the game names it in "You can use Windlash
