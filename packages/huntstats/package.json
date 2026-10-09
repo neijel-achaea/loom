@@ -23,27 +23,39 @@
     },
     {
       "type": "function",
-      "name": "hs_ensureTable",
-      "enabled": true,
-      "code": "@file:hs_ensuretable.js"
-    },
-    {
-      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"
     },
     {
       "type": "function",
-      "name": "hs_finalize",
+      "name": "huntstats_setup",
       "enabled": true,
-      "code": "@file:hs_finalize.js"
+      "code": "@file:huntstats_setup.js"
     },
     {
       "type": "function",
-      "name": "hs_render",
+      "name": "huntstats_finalize",
       "enabled": true,
-      "code": "@file:hs_render.js"
+      "code": "@file:huntstats_finalize.js"
+    },
+    {
+      "type": "function",
+      "name": "huntstats_render",
+      "enabled": true,
+      "code": "@file:huntstats_render.js"
+    },
+    {
+      "type": "function",
+      "name": "huntstats_status",
+      "enabled": true,
+      "code": "@file:huntstats_status.js"
+    },
+    {
+      "type": "function",
+      "name": "huntstats_help",
+      "enabled": true,
+      "code": "@file:huntstats_help.js"
     },
     {
       "type": "alias",
@@ -56,78 +68,10 @@
           "script": "@file:alias_huntstats.js"
         }
       ],
-      "text": "^huntstats$",
+      "text": "^huntstats(?:\\s+(.*))?$",
       "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_huntareas.js"
-        }
-      ],
-      "text": "^huntareas$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_huntlog.js"
-        }
-      ],
-      "text": "^huntlog$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_huntflush.js"
-        }
-      ],
-      "text": "^huntflush$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
-      "name": "",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_huntwipe_s_confirm.js"
-        }
-      ],
-      "text": "^huntwipe(?:\\s+(confirm))?$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
+      "whole_words": false,
+      "case_sensitive": false,
       "prefix_suffix": true
     },
     {
@@ -138,7 +82,7 @@
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_you_have_gained_d_experience.js"
+          "script": "@file:trigger_experience.js"
         }
       ],
       "text": "^You have gained (\\d+) experience\\.",
@@ -154,7 +98,7 @@
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_you_pick_up_d_gold_sovereigns.js"
+          "script": "@file:trigger_gold.js"
         }
       ],
       "text": "^You pick up ([\\d,]+) gold sovereigns\\.",
@@ -170,7 +114,7 @@
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_you_have_slain.js"
+          "script": "@file:trigger_slain.js"
         }
       ],
       "text": "^You have slain ",
@@ -186,7 +130,7 @@
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:trigger_level_s_s_d_s_d.js"
+          "script": "@file:trigger_level.js"
         }
       ],
       "text": "Level\\s*:\\s*(\\d+)\\s*\\(([\\d.]+)%\\)",
@@ -195,5 +139,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Automatic per-area hunting sessions with persistent stats, kill counts, group co-presence, Dragonhood progress, crash-safe checkpointing, a quit wrapper, and a 'Stats' UI tab."
+  "description": "Per-area hunting records in a UI tab named 'Stats': xp, gold and kills an hour, Dragonhood progress and ETA, who hunted with you, area comparison. A hunt is filed when you leave its area and survives a refresh or disconnect. Area, players and level come from GMCP. State in client.loom.huntstats; records in huntstats_areas and huntstats_log. HUNTSTATS HELP for commands."
 }

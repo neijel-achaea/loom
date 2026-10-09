@@ -1,1 +1,1 @@
-// Nothing to tear down; persistent variables are left intact.
+// Nothing to tear down; the huntstats_* variables are left intact.
