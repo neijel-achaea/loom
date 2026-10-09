@@ -28,12 +28,6 @@
       "code": "@file:ongmcp.js"
     },
     {
-      "type": "function",
-      "name": "numpad_movement_setup",
-      "enabled": true,
-      "code": "@file:numpad_movement_setup.js"
-    },
-    {
       "type": "keybind",
       "name": "1 southwest",
       "enabled": true,
