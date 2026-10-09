@@ -16,6 +16,30 @@
       "code": "@file:onuninstall.js"
     },
     {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "elementalism_setup",
+      "enabled": true,
+      "code": "@file:elementalism_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "elementalism_help",
+      "enabled": true,
+      "code": "@file:elementalism_help.js"
+    },
+    {
       "type": "group",
       "name": "Illusions",
       "enabled": true,
@@ -60,10 +84,9 @@
           "enabled": true,
           "actions": [
             {
-              "type": "command",
+              "type": "script",
               "enabled": true,
-              "command": "cast illusion A pink light suddenly emanates from within Neijel as he wills forth the Dragon within him.",
-              "prefix_suffix": false
+              "script": "@file:pink_dragon_1.js"
             },
             {
               "type": "wait",
@@ -72,10 +95,9 @@
               "milliseconds": 0
             },
             {
-              "type": "command",
+              "type": "script",
               "enabled": true,
-              "command": "cast illusion The Pink light grows to blinding intensity as Neijel's body quickly changes into that of a powerful and massive Dragon.",
-              "prefix_suffix": false
+              "script": "@file:pink_dragon_2.js"
             },
             {
               "type": "wait",
@@ -84,10 +106,9 @@
               "milliseconds": 0
             },
             {
-              "type": "command",
+              "type": "script",
               "enabled": true,
-              "command": "cast illusion Reveling in his power, Neijel beats his mighty wings, throws his massive head back, and roars a challenge as if to the world itself.",
-              "prefix_suffix": false
+              "script": "@file:pink_dragon_3.js"
             },
             {
               "type": "wait",
@@ -96,10 +117,9 @@
               "milliseconds": 0
             },
             {
-              "type": "command",
+              "type": "script",
               "enabled": true,
-              "command": "cast illusion The saucer-sized eyes of Neijel close briefly in ominous concentration.",
-              "prefix_suffix": false
+              "script": "@file:pink_dragon_4.js"
             },
             {
               "type": "wait",
@@ -108,10 +128,9 @@
               "milliseconds": 0
             },
             {
-              "type": "command",
+              "type": "script",
               "enabled": true,
-              "command": "cast illusion With a low rumbling from deep within his belly, Neijel utters a guttural chant. His skin ripples as a web of magical confetti dances like fire across its surface, settling to solidify into a flexible, delicious shell.",
-              "prefix_suffix": false
+              "script": "@file:pink_dragon_5.js"
             }
           ],
           "text": "^pink_dragon$",
@@ -351,7 +370,24 @@
       "matching": "substring",
       "whole_words": false,
       "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "elementalism",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_elementalism.js"
+        }
+      ],
+      "text": "^elementalism(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
     }
   ],
-  "description": ""
+  "description": "Elementalism illusions (ILLUSION, FEEL_<environment>) and set pieces (PINK_DRAGON, KAWHEDRAGON_F/M), with the flooded-room highlight. PINK_DRAGON uses your name (from GMCP, remembered) and the pronouns you set. State in client.loom.elementalism; elementalism_name, elementalism_pronouns. ELEMENTALISM HELP for commands."
 }
