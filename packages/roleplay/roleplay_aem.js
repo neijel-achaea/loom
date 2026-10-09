@@ -1,10 +1,14 @@
-var activeClass = get_variable("activeClass");
+// roleplay_aem -- builds the ambient emote engine for the current class at
+// client.loom.roleplay.aem: a weighted pool of emotes, one sent every 15-19
+// minutes while it's on (roleplay_aem_on). Run by ROLEPLAY AEM, on load when
+// it was on, and again when the class changes (the pool is per class).
+// Nothing is sent while triggers are paused.
+if (!client.loom || !client.loom.roleplay || client.loom.roleplay.cls === undefined) run_function("roleplay_setup", [], "roleplay");
+var RP = client.loom.roleplay;
+if (RP.aem) { try { clearTimeout(RP.aem.timer); } catch (e) {} }
+var AEM = { cls: RP.cls, emotes: null };
 
-// ---- bootstrap the engine once per session ----
-if (!window.AEM) {
-  var AEM = {};
-
-  switch (activeClass) {
+  switch (RP.cls) {
     case "Magi":
       AEM.emotes = [
   // Nostalgic: the old sleeper, now with new tools in his hands
@@ -43,51 +47,30 @@ AEM.emotes = [{ weight: 2, text: "emote goes still, his great head lifting sligh
   AEM.minMinutes = 15;
   AEM.maxMinutes = 19;
 
-  AEM.pick = function () {
-    var total = AEM.emotes.reduce(function (s, e) { return s + e.weight; }, 0);
-    var r = Math.random() * total;
-    for (var i = 0; i < AEM.emotes.length; i++) {
-      r -= AEM.emotes[i].weight;
-      if (r <= 0) return AEM.emotes[i].text;
-    }
-    return AEM.emotes[AEM.emotes.length - 1].text;
-  };
-
-  AEM.schedule = function () {
-    clearTimeout(AEM.timer);
-    var span = (AEM.maxMinutes - AEM.minMinutes) * 60000;
-    var delay = AEM.minMinutes * 60000 + Math.random() * span;
-    AEM.timer = setTimeout(AEM.fire, delay);
-  };
-
-  AEM.fire = function () {
-    if (get_variable("aem_on") === "1") send_command(AEM.pick());
-    AEM.schedule();
-  };
-
-  AEM.start = function () {
-    set_variable("aem_on", "1");
-    AEM.schedule();
-    display_notice("[roleplay] Ambient emotes: ON", "cyan");
-  };
-
-  AEM.stop = function () {
-    set_variable("aem_on", "0");
-    clearTimeout(AEM.timer);
-    display_notice("[roleplay] Ambient emotes: OFF", "cyan");
-  };
-
-  window.AEM = AEM;
+function aemPick() {
+  var total = 0;
+  for (var t = 0; t < AEM.emotes.length; t++) total += AEM.emotes[t].weight;
+  var r = Math.random() * total;
+  for (var i = 0; i < AEM.emotes.length; i++) {
+    r -= AEM.emotes[i].weight;
+    if (r <= 0) return AEM.emotes[i].text;
+  }
+  return AEM.emotes[AEM.emotes.length - 1].text;
 }
-
-// ---- command dispatch ----
-var arg = args[1] || "";
-
-if (arg === "on")          { window.AEM.start(); }
-else if (arg === "off")    { window.AEM.stop(); }
-else if (arg === "now")    { send_command(window.AEM.pick()); window.AEM.schedule(); }
-else if (arg === "reload") { if (window.AEM) window.AEM.stop(); window.AEM = null; display_notice("[roleplay] Engine cleared — run AEM ON to rebuild.", "cyan"); }
-else {
-  var state = get_variable("aem_on") === "1" ? "ON" : "OFF";
-  display_notice("[roleplay] Ambient emotes are currently " + state + ". Use AEM ON / OFF / NOW / RELOAD.", "cyan");
+function aemSchedule() {
+  clearTimeout(AEM.timer);
+  var span = (AEM.maxMinutes - AEM.minMinutes) * 60000;
+  AEM.timer = setTimeout(aemFire, AEM.minMinutes * 60000 + Math.random() * span);
 }
+function aemFire() {
+  // The engine in use may have been replaced (a class change): only the
+  // current one sends.
+  if (client.loom.roleplay.aem !== AEM) return;
+  if (get_variable("roleplay_aem_on") === "1" && get_variable("pauseTriggers") !== "on") send_command(aemPick());
+  aemSchedule();
+}
+AEM.pick = aemPick;
+AEM.schedule = aemSchedule;
+AEM.has = !!(AEM.emotes && AEM.emotes.length);
+RP.aem = AEM;
+if (AEM.has && get_variable("roleplay_aem_on") === "1") aemSchedule();

@@ -16,6 +16,36 @@
       "code": "@file:onuninstall.js"
     },
     {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "roleplay_setup",
+      "enabled": true,
+      "code": "@file:roleplay_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "roleplay_aem",
+      "enabled": true,
+      "code": "@file:roleplay_aem.js"
+    },
+    {
+      "type": "function",
+      "name": "roleplay_help",
+      "enabled": true,
+      "code": "@file:roleplay_help.js"
+    },
+    {
       "type": "group",
       "name": "Emotes",
       "enabled": true,
@@ -1891,23 +1921,6 @@
     },
     {
       "type": "alias",
-      "name": "AEM ON/OFF/NOW/RELOAD",
-      "enabled": true,
-      "actions": [
-        {
-          "type": "script",
-          "enabled": true,
-          "script": "@file:alias_aem_on_off_now_reload.js"
-        }
-      ],
-      "text": "^aem(?:\\s+(on|off|now|reload))?$",
-      "matching": "regexp",
-      "whole_words": true,
-      "case_sensitive": true,
-      "prefix_suffix": true
-    },
-    {
-      "type": "alias",
       "name": "",
       "enabled": true,
       "actions": [
@@ -1977,7 +1990,24 @@
       "whole_words": true,
       "case_sensitive": true,
       "prefix_suffix": true
+    },
+    {
+      "type": "alias",
+      "name": "roleplay",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_roleplay.js"
+        }
+      ],
+      "text": "^roleplay(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
     }
   ],
-  "description": ""
+  "description": "Custom emotes worded per class, step-by-step rituals (massages, washing hair, the Saiha graduation), the cairn verses, and ambient emotes (ROLEPLAY AEM). The class comes from GMCP. State in client.loom.roleplay; roleplay_class, roleplay_aem_on. ROLEPLAY HELP for commands."
 }

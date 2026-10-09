@@ -7,13 +7,43 @@
    "type": "function",
    "name": "onInstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is installed"
+   "code": "run_function(\"roleplay_setup\", [], \"roleplay\");\ndisplay_notice(\"[roleplay] installed. ROLEPLAY HELP for the emotes, rituals and ambient emotes.\", \"cyan\");\n"
   },
   {
    "type": "function",
    "name": "onUninstall",
    "enabled": true,
-   "code": "// Place any code here you'd like to autorun when the package is uninstalled"
+   "code": "// Stop the ambient emotes; the roleplay_* variables are left intact.\nif (client.loom && client.loom.roleplay && client.loom.roleplay.aem) { try { clearTimeout(client.loom.roleplay.aem.timer); } catch (e) {} client.loom.roleplay.aem = null; }\n"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"roleplay_setup\", [], \"roleplay\");\n// Ambient emotes that were on keep running after a reload.\nif (get_variable(\"roleplay_aem_on\") === \"1\") run_function(\"roleplay_aem\", [], \"roleplay\");\n"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "// The class the emotes and ambient emotes follow, from Char.Status. On a\n// change (dragonform included) it's kept, and a built ambient emote engine\n// is rebuilt with that class's pool.\nvar rpM = \"\";\nvar rpA = null;\ntry { rpM = args.gmcp_method; rpA = args.gmcp_args; } catch (e) { rpM = \"\"; }\nif (rpM === \"Char.Status\" && rpA) {\n  if (typeof rpA === \"string\") { try { rpA = JSON.parse(rpA); } catch (e) { rpA = null; } }\n  if (rpA && rpA[\"class\"]) {\n    if (!client.loom || !client.loom.roleplay || client.loom.roleplay.cls === undefined) run_function(\"roleplay_setup\", [], \"roleplay\");\n    var RP = client.loom.roleplay;\n    if (String(rpA[\"class\"]) !== RP.cls) {\n      RP.cls = String(rpA[\"class\"]);\n      set_variable(\"roleplay_class\", RP.cls);\n      if (RP.aem) run_function(\"roleplay_aem\", [], \"roleplay\");\n    }\n  }\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "roleplay_setup",
+   "enabled": true,
+   "code": "// roleplay_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration of\n// aem_on, and the class the emotes follow.\n//\n// The emotes choose their wording by class (a dragon's are different), from\n// client.loom.roleplay.cls: Char.Status's class, kept in roleplay_class\n// because the game sends it only at login and when it changes.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.roleplay) client.loom.roleplay = {};\nclient.loom.registry.roleplay = { version: \"0.2.0\", keyword: \"ROLEPLAY\" };\nvar RP = client.loom.roleplay;\nfunction rpGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || (\"\" + v) === \"undefined\") ? \"\" : \"\" + v; }\n\n// One-time migration: aem_on -> roleplay_aem_on.\nvar rpOld = rpGet(\"aem_on\");\nif (rpOld !== \"\") {\n  if (rpGet(\"roleplay_aem_on\") === \"\") set_variable(\"roleplay_aem_on\", rpOld);\n  delete_variable(\"aem_on\");\n}\n// The class: the one kept, or loom's activeClass the first time (read only).\nif (RP.cls === undefined) {\n  RP.cls = rpGet(\"roleplay_class\") || rpGet(\"activeClass\");\n  if (RP.cls) set_variable(\"roleplay_class\", RP.cls);\n}\n// The old engine lived at window.AEM; stop it so it doesn't keep emoting\n// alongside the new one after a reimport.\nif (typeof window !== \"undefined\" && window.AEM) {\n  try { clearTimeout(window.AEM.timer); } catch (e) {}\n  window.AEM = null;\n}\n"
+  },
+  {
+   "type": "function",
+   "name": "roleplay_aem",
+   "enabled": true,
+   "code": "// roleplay_aem -- builds the ambient emote engine for the current class at\n// client.loom.roleplay.aem: a weighted pool of emotes, one sent every 15-19\n// minutes while it's on (roleplay_aem_on). Run by ROLEPLAY AEM, on load when\n// it was on, and again when the class changes (the pool is per class).\n// Nothing is sent while triggers are paused.\nif (!client.loom || !client.loom.roleplay || client.loom.roleplay.cls === undefined) run_function(\"roleplay_setup\", [], \"roleplay\");\nvar RP = client.loom.roleplay;\nif (RP.aem) { try { clearTimeout(RP.aem.timer); } catch (e) {} }\nvar AEM = { cls: RP.cls, emotes: null };\n\n  switch (RP.cls) {\n    case \"Magi\":\n      AEM.emotes = [\n  // Nostalgic: the old sleeper, now with new tools in his hands\n  { weight: 3, text: \"emote runs his thumb along his staff, a small private smile surfacing and fading.\" },\n  { weight: 5, text: \"emote turns a small crystal over in his fingers, watching the light fold within it.\" },\n  { weight: 1, text: \"emote goes still, one hand lifted, like a man who has just remembered someone long gone.\" },\n  { weight: 2, text: \"emote pauses, head canted, as though listening for a resonance he has not heard in centuries.\" },\n\n  // Attuned: nature is now read through the elements\n  { weight: 3, text: \"emote draws a slow breath, and the air about him cools a shade before warming again.\" },\n  { weight: 3, text: \"emote turns his palm upward as though testing for rain, and a single bead of water gathers there before he lets it fall.\" },\n  { weight: 3, text: \"emote lets a thread of static crawl between two fingertips before closing his hand gently upon it.\" },\n  { weight: 1, text: \"emote follows the path of some small creature with quiet, unhurried attention.\" },\n  { weight: 1, text: \"emote calls forth a shimmering treaty with a murmured word, runs his eyes down its binding clauses, and dismisses it with a small satisfied nod.\" },\n\n  // Contemplative: the scholar-artificer's idle habits\n  { weight: 2, text: \"emote rolls a glittering pearl between finger and thumb, holds it to the light, and tucks it away unsatisfied.\" },\n  { weight: 5, text: \"emote sets a small crystal spinning in the air before him without looking at it, catches it, and sets it spinning again.\" },\n  { weight: 3, text: \"emote breathes on one of the gems set in his staff and polishes it on his sleeve, turning it to the light to judge the result.\" },\n  { weight: 5, text: \"emote rolls a fragment of dried leaf between finger and thumb until it crumbles away.\" },\n  { weight: 3, text: \"emote settles his weight against his staff and simply observes, patient as old stone.\" },\n  { weight: 2, text: \"emote lets his eyes rest on nothing at all, lips moving on some silent calculation.\" },\n  { weight: 1, text: \"emote arches a brow at something no one else can see, one corner of his mouth twitching.\" }\n];\n      break;\n    case \"Druid\":\n  AEM.emotes = [{ weight: 2, text: \"emote pauses mid-step, his gaze drifting to some middle distance, as though a memory had briefly overtaken the present.\" }, { weight: 5, text: \"emote runs his thumb along the grain of his staff, a small private smile surfacing and fading.\" }, { weight: 1, text: \"emote goes still, one hand half-raised, like a man who has just remembered someone long gone.\" }, { weight: 2, text: \"emote turns his head toward some sound only he seems to have caught, holding still until it passes.\" }, { weight: 2, text: \"emote lets his gaze travel unhurriedly around the room, marking each way out without seeming to.\" }, { weight: 2, text: \"emote glances over his shoulder, then eases, as if reassuring himself the quiet held nothing.\" }, { weight: 2, text: \"emote narrows his eyes at a flicker of movement at the edge of his vision, watching until it resolves into nothing.\" }, { weight: 1, text: \"emote tilts his head, going briefly motionless, as though the air had carried him something.\" }, { weight: 1, text: \"emote draws a slow breath through his nose, reading the air the way another might read a page.\" }, { weight: 1, text: \"emote lowers a hand toward the ground, fingers spread, and holds it there a moment as if listening through his skin.\" }, { weight: 5, text: \"emote follows the path of some small creature with quiet, unhurried attention.\" }, { weight: 10, text: \"emote brushes something unseen from his palm and watches it fall.\" }, { weight: 5, text: \"emote settles his weight against his staff and simply observes, patient as old stone.\" }, { weight: 10, text: \"emote rolls a fragment of dried leaf between finger and thumb until it crumbles away.\" }, { weight: 1, text: \"emote lets his eyes rest on nothing at all, his thoughts plainly elsewhere.\" }, { weight: 2, text: \"emote arches a brow at something no one else can see, one corner of his mouth twitching.\" }];\n      break;\n\n    case \"Black Dragon\":\nAEM.emotes = [{ weight: 2, text: \"emote goes still, his great head lifting slightly, eyes fixed on some middle distance as though a memory had surfaced from a long way down.\" }, { weight: 10, text: \"emote (A single dark drop gathers at the edge of)'s jaw and falls, hissing into a thread of smoke that is gone before it lands.\" }, { weight: 1, text: \"emote holds one vast clawed forelimb half-raised, motionless, like something recalling a shape it has not held in a very long time.\" }, { weight: 2, text: \"emote turns his flattened snout toward a sound no one else has caught, the long neck still, until whatever it was has passed.\" }, { weight: 2, text: \"emote lets his gaze travel the room without haste, the dark eyes marking each way out and giving no sign of having done so.\" }, { weight: 10, text: \"emote (A slow breath leaves)'s snout, and for a moment the air before it shimmers with a heat that smells of scorched stone.\" }, { weight: 2, text: \"emote narrows his eyes at a flicker at the edge of sight, the whole immense form utterly still until it resolves into nothing.\" }, { weight: 5, text: \"emote drags the tip of one claw a slow inch across the ground, leaving a thin dark line that smokes faintly and fades.\" }, { weight: 1, text: \"emote tilts the great head, going briefly motionless, as though the air had carried him something worth keeping.\" }, { weight: 1, text: \"emote draws a long breath through his nostrils, reading the air the way another might read a page.\" }, { weight: 1, text: \"emote settles the massive dark weight of himself and simply watches, patiently.\" }, { weight: 5, text: \"emote follows the path of some small creature across the floor with quiet, unhurried attention, making no move toward it.\" }, { weight: 10, text: \"emote (A bead of something dark wells at the tip of) 's talon, drips, and sizzles into a thread of smoke before it reaches the ground.\" }, { weight: 1, text: \"emote lets the saucer eyes rest on nothing at all, the vast head lowered, his thoughts plainly a long way off.\" }, { weight: 2, text: \"emote lowers his head near the ground and holds it there, nostrils wide, as if listening to the earth through the heat of his own breath.\" }, { weight: 2, text: \"emote curls one corner of his lip from a razor-edged tooth at something no one else can see, the nearest thing to a private smile.\" }, { weight: 10, text: \"emote shifts his weight, and the ground notices.\" }\n];      \n      break;\n  }\n\n  AEM.minMinutes = 15;\n  AEM.maxMinutes = 19;\n\nfunction aemPick() {\n  var total = 0;\n  for (var t = 0; t < AEM.emotes.length; t++) total += AEM.emotes[t].weight;\n  var r = Math.random() * total;\n  for (var i = 0; i < AEM.emotes.length; i++) {\n    r -= AEM.emotes[i].weight;\n    if (r <= 0) return AEM.emotes[i].text;\n  }\n  return AEM.emotes[AEM.emotes.length - 1].text;\n}\nfunction aemSchedule() {\n  clearTimeout(AEM.timer);\n  var span = (AEM.maxMinutes - AEM.minMinutes) * 60000;\n  AEM.timer = setTimeout(aemFire, AEM.minMinutes * 60000 + Math.random() * span);\n}\nfunction aemFire() {\n  // The engine in use may have been replaced (a class change): only the\n  // current one sends.\n  if (client.loom.roleplay.aem !== AEM) return;\n  if (get_variable(\"roleplay_aem_on\") === \"1\" && get_variable(\"pauseTriggers\") !== \"on\") send_command(aemPick());\n  aemSchedule();\n}\nAEM.pick = aemPick;\nAEM.schedule = aemSchedule;\nAEM.has = !!(AEM.emotes && AEM.emotes.length);\nRP.aem = AEM;\nif (AEM.has && get_variable(\"roleplay_aem_on\") === \"1\") aemSchedule();\n"
+  },
+  {
+   "type": "function",
+   "name": "roleplay_help",
+   "enabled": true,
+   "code": "// roleplay_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[roleplay] emotes, rituals and ambient emotes. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"ROLEPLAY\", \"the class the emotes follow, and the ambient emotes\"],\n  [\"ROLEPLAY AEM ON / OFF\", \"an ambient emote every 15-19 minutes, or none\"],\n  [\"ROLEPLAY AEM NOW\", \"one ambient emote now\"],\n  [\"ROLEPLAY AEM RELOAD\", \"rebuild the ambient emotes (after editing them)\"],\n  [\"ROLEPLAY DEBUG\", \"internal state\"],\n  [\"custom_emotes\", \"the emotes, each worded for your class (a dragon's differ)\"],\n  [\"shoulder_massage, foot_massage, wash_hair <name> <step>\", \"rituals, one step at a time\"],\n  [\"graduation <name> <step>\", \"the Saiha graduation ceremony\"],\n  [\"cairnearth, cairnfire, cairnair, cairnwater\", \"the cairn verses\"],\n  [\"The emotes, rituals and verses are typed in lowercase.\"],\n  [\"Ambient emotes send nothing while triggers are paused.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
   },
   {
    "type": "group",
@@ -45,7 +75,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote x\");\n} else {\n  send_command(\"y\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote x\");\n} else {\n  send_command(\"y\", 1);\n}"
       }
      ],
      "text": "^_emote$",
@@ -62,7 +92,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote x\");\n} else {\n  send_command(\"y \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote x\");\n} else {\n  send_command(\"y \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^_emote (\\w+)$",
@@ -79,7 +109,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote beats his wings once, slow and deliberate, in approval.\");\n} else {\n  send_command(\"applaud\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote beats his wings once, slow and deliberate, in approval.\");\n} else {\n  send_command(\"applaud\", 1);\n}"
       }
      ],
      "text": "^applaud$",
@@ -96,7 +126,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lets out a low, warm rumble deep in his chest.\");\n} else {\n  send_command(\"aww\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lets out a low, warm rumble deep in his chest.\");\n} else {\n  send_command(\"aww\", 1);\n}"
       }
      ],
      "text": "^aww$",
@@ -113,7 +143,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his great head toward $\" + targetEmote + \" and rumbles, low and warm.\");\n} else {\n  send_command(\"aww \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his great head toward $\" + targetEmote + \" and rumbles, low and warm.\");\n} else {\n  send_command(\"aww \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^aww (\\w+)$",
@@ -130,7 +160,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote crosses to $\" + targetEmote + \" in two great strides and folds a wing around $\" + targetEmote + \"_him.\");\n} else {\n  send_command(\"bearhug \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote crosses to $\" + targetEmote + \" in two great strides and folds a wing around $\" + targetEmote + \"_him.\");\n} else {\n  send_command(\"bearhug \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^bearhug (\\w+)$",
@@ -147,7 +177,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote blinks, thin membranes sliding once across his eyes.\");\n} else {\n  send_command(\"blink\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote blinks, thin membranes sliding once across his eyes.\");\n} else {\n  send_command(\"blink\", 1);\n}"
       }
      ],
      "text": "^blink$",
@@ -164,7 +194,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote (Vapour hissing thin between his teeth,) draws his wings in tight and turns his head away.\");\n} else {\n  send_command(\"blush\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote (Vapour hissing thin between his teeth,) draws his wings in tight and turns his head away.\");\n} else {\n  send_command(\"blush\", 1);\n}"
       }
      ],
      "text": "^blush$",
@@ -181,7 +211,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote snaps his jaws shut with a crack and rumbles in delight.\");\n} else {\n  send_command(\"boo\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote snaps his jaws shut with a crack and rumbles in delight.\");\n} else {\n  send_command(\"boo\", 1);\n}"
       }
      ],
      "text": "^boo$",
@@ -198,7 +228,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote looms suddenly over $\" + targetEmote + \", then rumbles loudly with delight.\");\n} else {\n  send_command(\"boo \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote looms suddenly over $\" + targetEmote + \", then rumbles loudly with delight.\");\n} else {\n  send_command(\"boo \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^boo (\\w+)$",
@@ -215,7 +245,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote sweeps one wing wide and lowers his forequarters to the ground.\");\n} else {\n  send_command(\"bow\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote sweeps one wing wide and lowers his forequarters to the ground.\");\n} else {\n  send_command(\"bow\", 1);\n}"
       }
      ],
      "text": "^bow$",
@@ -232,7 +262,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote bows low before $\" + targetEmote + \", wings folded and head held down a moment.\");\n} else {\n  send_command(\"bow \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote bows low before $\" + targetEmote + \", wings folded and head held down a moment.\");\n} else {\n  send_command(\"bow \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^bow (\\w+)$",
@@ -249,7 +279,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote dips his head in brief apology and turns away.\");\n} else {\n  send_command(\"emote raises a hand in brief apology and steps away.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote dips his head in brief apology and turns away.\");\n} else {\n  send_command(\"emote raises a hand in brief apology and steps away.\", 1);\n}"
       }
      ],
      "text": "^brb$",
@@ -266,7 +296,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lifts a wing in farewell and holds it there a moment.\");\n} else {\n  send_command(\"emote raises a hand in farewell and holds it a moment.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lifts a wing in farewell and holds it there a moment.\");\n} else {\n  send_command(\"emote raises a hand in farewell and holds it a moment.\");\n}"
       }
      ],
      "text": "^bye$",
@@ -283,7 +313,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote cackles ominously, spoiling it entirely with a grin.\");\n} else {\n  send_command(\"emote attempts a sinister cackle, and does not entirely succeed.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote cackles ominously, spoiling it entirely with a grin.\");\n} else {\n  send_command(\"emote attempts a sinister cackle, and does not entirely succeed.\");\n}"
       }
      ],
      "text": "^cackle$",
@@ -300,7 +330,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws the back of one talon along $\" + targetEmote + \"'s cheek, careful as anything.\");\n} else {\n  send_command(\"emote brushes his fingers along $\" + targetEmote + \"'s cheek, unhurried.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws the back of one talon along $\" + targetEmote + \"'s cheek, careful as anything.\");\n} else {\n  send_command(\"emote brushes his fingers along $\" + targetEmote + \"'s cheek, unhurried.\");\n}"
       }
      ],
      "text": "^caress (\\w+)$",
@@ -317,7 +347,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote throws his head back and roars in triumph, wings flung wide.\");\n} else {\n  send_command(\"emote cheers, all his composure abandoned.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote throws his head back and roars in triumph, wings flung wide.\");\n} else {\n  send_command(\"emote cheers, all his composure abandoned.\");\n}"
       }
      ],
      "text": "^cheer$",
@@ -334,7 +364,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote roars his delight for $\" + targetEmote + \", wings flung wide.\");\n} else {\n  send_command(\"emote cheers $\" + targetEmote + \" on, composure entirely forgotten.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote roars his delight for $\" + targetEmote + \", wings flung wide.\");\n} else {\n  send_command(\"emote cheers $\" + targetEmote + \" on, composure entirely forgotten.\");\n}"
       }
      ],
      "text": "^cheer (\\w+)$",
@@ -351,7 +381,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote looks slowly about himself, one talon tapping at his jaw.\");\n} else {\n  send_command(\"chin\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote looks slowly about himself, one talon tapping at his jaw.\");\n} else {\n  send_command(\"chin\", 1);\n}"
       }
      ],
      "text": "^chin$",
@@ -368,7 +398,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote chuckles, the sound turning over deep in his chest.\");\n} else {\n  send_command(\"chuckle\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote chuckles, the sound turning over deep in his chest.\");\n} else {\n  send_command(\"chuckle\", 1);\n}"
       }
      ],
      "text": "^chuckle$",
@@ -385,7 +415,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote chuckles at $\" + targetEmote + \", the sound turning over deep in his chest.\");\n} else {\n  send_command(\"chuckle \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote chuckles at $\" + targetEmote + \", the sound turning over deep in his chest.\");\n} else {\n  send_command(\"chuckle \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^chuckle (\\w+)$",
@@ -402,7 +432,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote beats his wings once, slow and deliberate, in approval.\");\n} else {\n  send_command(\"clap\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote beats his wings once, slow and deliberate, in approval.\");\n} else {\n  send_command(\"clap\", 1);\n}"
       }
      ],
      "text": "^clap$",
@@ -419,7 +449,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote folds a wing over $\" + targetEmote + \" and keeps it there.\");\n} else {\n  send_command(\"emote settles an arm around $\" + targetEmote + \"'s shoulders and stays there.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote folds a wing over $\" + targetEmote + \" and keeps it there.\");\n} else {\n  send_command(\"emote settles an arm around $\" + targetEmote + \"'s shoulders and stays there.\");\n}"
       }
      ],
      "text": "^comfort (\\w+)$",
@@ -436,7 +466,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote breathes out long and low, and lets his eyes drift half shut, content.\");\n} else {\n  send_command(\"emote lets out a slow breath, thoroughly content.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote breathes out long and low, and lets his eyes drift half shut, content.\");\n} else {\n  send_command(\"emote lets out a slow breath, thoroughly content.\");\n}"
       }
      ],
      "text": "^contentsigh$",
@@ -453,7 +483,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote tilts his head until his neck cracks, and looks pleased about it.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote rolls the great weight of his head until something deep in his neck gives a slow, resonant crack, and looks entirely too pleased about it.\");\n\n    break;\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote tilts his head until his neck cracks, and looks pleased about it.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote rolls the great weight of his head until something deep in his neck gives a slow, resonant crack, and looks entirely too pleased about it.\");\n\n    break;\n}"
       }
      ],
      "text": "^crackneck$",
@@ -470,7 +500,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote bumps his head against $\" + targetEmote + \", companionable.\");\n} else {\n  send_command(\"emote pulls $\" + targetEmote + \" into a brief, friendly cuddle.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote bumps his head against $\" + targetEmote + \", companionable.\");\n} else {\n  send_command(\"emote pulls $\" + targetEmote + \" into a brief, friendly cuddle.\");\n}"
       }
      ],
      "text": "^cuddle (\\w+)$",
@@ -487,7 +517,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote coils about $\" + targetEmote + \" in a slow turn, graceful past all reason for his bulk.\");\n} else {\n  send_command(\"dance \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote coils about $\" + targetEmote + \" in a slow turn, graceful past all reason for his bulk.\");\n} else {\n  send_command(\"dance \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^dance (\\w+)$",
@@ -504,7 +534,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var emoteTarget = args[1];\n\nvar activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote (Saying nothing at all,) draws $\" + emoteTarget + \" into the curve of his arm and keeps $\" + emoteTarget + \"_him there.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote (Saying nothing at all,) curls his neck and one great wing around $\" + emoteTarget + \" and draws $\" + emoteTarget + \"_him into the sheltered warmth against his flank.\");    \n    break;\n}"
+       "script": "var emoteTarget = args[1];\n\nvar activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote (Saying nothing at all,) draws $\" + emoteTarget + \" into the curve of his arm and keeps $\" + emoteTarget + \"_him there.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote (Saying nothing at all,) curls his neck and one great wing around $\" + emoteTarget + \" and draws $\" + emoteTarget + \"_him into the sheltered warmth against his flank.\");    \n    break;\n}"
       }
      ],
      "text": "^drawclose (\\w+)$",
@@ -521,7 +551,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote (A single drop falls from) 's jaws, hissing into smoke before it lands.\");\n} else {\n  send_command(\"emote catches the scent of something and swallows, plainly hungry.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote (A single drop falls from) 's jaws, hissing into smoke before it lands.\");\n} else {\n  send_command(\"emote catches the scent of something and swallows, plainly hungry.\");\n}"
       }
      ],
      "text": "^drool$",
@@ -538,7 +568,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote goes still, the obvious answer arriving rather late.\");\n} else {\n  send_command(\"emote stops short, the obvious answer arriving rather late.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote goes still, the obvious answer arriving rather late.\");\n} else {\n  send_command(\"emote stops short, the obvious answer arriving rather late.\");\n}"
       }
      ],
      "text": "^duh$",
@@ -555,7 +585,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote brings his jaws close and breathes warm against $\" + targetEmote + \"'s ear\");\n} else {\n  send_command(\"earnibble \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote brings his jaws close and breathes warm against $\" + targetEmote + \"'s ear\");\n} else {\n  send_command(\"earnibble \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^earnibble (\\w+)$",
@@ -572,7 +602,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote flinches back with a snap of wings, thoroughly startled.\");\n} else {\n  send_command(\"emote startles badly, a hand going to his chest.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote flinches back with a snap of wings, thoroughly startled.\");\n} else {\n  send_command(\"emote startles badly, a hand going to his chest.\");\n}"
       }
      ],
      "text": "^eek|eep$",
@@ -589,7 +619,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (targetEmote == \"death\") { \n  send_command(\"embrace death\");\n}\nelse if (targetEmote == \"flame\") { \n  send_command(\"embrace flame\");\n}\nelse {\n  if (activeClass == \"Black Dragon\") {\n    send_command(\"emote draws $\" + targetEmote + \" against him and closes both wings around $\" + targetEmote + \"_him.\");\n  } else {\n    send_command(\"embrace \" + targetEmote, 1);\n  }\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (targetEmote == \"death\") { \n  send_command(\"embrace death\");\n}\nelse if (targetEmote == \"flame\") { \n  send_command(\"embrace flame\");\n}\nelse {\n  if (activeClass == \"Black Dragon\") {\n    send_command(\"emote draws $\" + targetEmote + \" against him and closes both wings around $\" + targetEmote + \"_him.\");\n  } else {\n    send_command(\"embrace \" + targetEmote, 1);\n  }\n}"
       }
      ],
      "text": "^embrace (\\w+)$",
@@ -606,7 +636,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote recoils, lips curling back from his teeth.\");\n} else {\n  send_command(\"emote draws back with an expression of frank distaste.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote recoils, lips curling back from his teeth.\");\n} else {\n  send_command(\"emote draws back with an expression of frank distaste.\");\n}"
       }
      ],
      "text": "^eww$",
@@ -623,7 +653,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote releases a held breath, acrid and hissing, that stings faintly in the air.\");\n} else {\n  send_command(\"exhale\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote releases a held breath, acrid and hissing, that stings faintly in the air.\");\n} else {\n  send_command(\"exhale\", 1);\n}"
       }
      ],
      "text": "^exhale$",
@@ -640,7 +670,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote spreads his wings to their full span and holds them there.\");\n} else {\n  send_command(\"emote rolls his shoulders and holds a moment, unhurriedly impressive.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote spreads his wings to their full span and holds them there.\");\n} else {\n  send_command(\"emote rolls his shoulders and holds a moment, unhurriedly impressive.\");\n}"
       }
      ],
      "text": "^flex$",
@@ -657,7 +687,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote narrows his eyes to slits, unconvinced.\");\n} else {\n  send_command(\"frown\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote narrows his eyes to slits, unconvinced.\");\n} else {\n  send_command(\"frown\", 1);\n}"
       }
      ],
      "text": "^frown$",
@@ -674,7 +704,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote sets his talons into the ground and lets the smoke build behind his teeth.\");\n} else {\n  send_command(\"emote closes his fists slowly and says nothing at all.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote sets his talons into the ground and lets the smoke build behind his teeth.\");\n} else {\n  send_command(\"emote closes his fists slowly and says nothing at all.\");\n}"
       }
      ],
      "text": "^fume$",
@@ -691,7 +721,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws a sharp breath, head rearing back in horror.\");\n} else {\n  send_command(\"emote draws a sharp breath, horrified.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws a sharp breath, head rearing back in horror.\");\n} else {\n  send_command(\"emote draws a sharp breath, horrified.\", 1);\n}"
       }
      ],
      "text": "^gasp$",
@@ -708,7 +738,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote turns his head and fixes $\" + targetEmote + \" with an unblinking stare.\");\n} else {\n  send_command(\"emote fixes $\" + targetEmote + \" with a long, level stare.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote turns his head and fixes $\" + targetEmote + \" with an unblinking stare.\");\n} else {\n  send_command(\"emote fixes $\" + targetEmote + \" with a long, level stare.\");\n}"
       }
      ],
      "text": "^glare (\\w+)$",
@@ -725,7 +755,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hooks a foreclaw about $\" + targetEmote + \" and pulls $\" + targetEmote + \"_him from harm's way.\");\n} else {\n  send_command(\"grab \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hooks a foreclaw about $\" + targetEmote + \" and pulls $\" + targetEmote + \"_him from harm's way.\");\n} else {\n  send_command(\"grab \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^grab (\\w+)$",
@@ -742,7 +772,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws his lips back from his teeth in something like a grin.\");\n} else {\n  send_command(\"grin\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws his lips back from his teeth in something like a grin.\");\n} else {\n  send_command(\"grin\", 1);\n}"
       }
      ],
      "text": "^grin$",
@@ -759,7 +789,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws his lips back from his teeth at $\" + targetEmote + \", in something like a grin.\");\n} else {\n  send_command(\"grin \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws his lips back from his teeth at $\" + targetEmote + \", in something like a grin.\");\n} else {\n  send_command(\"grin \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^grin (\\w+)$",
@@ -776,7 +806,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote growls, low and building, until the ground takes it up.\");\n} else {\n  send_command(\"emote growls low in his throat.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote growls, low and building, until the ground takes it up.\");\n} else {\n  send_command(\"emote growls low in his throat.\", 1);\n}"
       }
      ],
      "text": "^growl$",
@@ -793,7 +823,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles, committing to nothing.\");\n} else {\n  send_command(\"emote grunts, committing to nothing.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles, committing to nothing.\");\n} else {\n  send_command(\"emote grunts, committing to nothing.\", 1);\n}"
       }
      ],
      "text": "^grunt$",
@@ -810,7 +840,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote sweeps $\" + targetEmote + \" behind him and lowers his head at what stands before them.\");\n} else {\n  send_command(\"emote takes hold of $\" + targetEmote + \"'s arm and puts himself between $\" + targetEmote + \"_him and the rest of the world.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote sweeps $\" + targetEmote + \" behind him and lowers his head at what stands before them.\");\n} else {\n  send_command(\"emote takes hold of $\" + targetEmote + \"'s arm and puts himself between $\" + targetEmote + \"_him and the rest of the world.\");\n}"
       }
      ],
      "text": "^guard (\\w+)$",
@@ -827,7 +857,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote dips his head in greeting.\");\n} else {\n  send_command(\"emote raises a hand in greeting.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote dips his head in greeting.\");\n} else {\n  send_command(\"emote raises a hand in greeting.\", 1);\n}"
       }
      ],
      "text": "^hi$",
@@ -844,7 +874,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lifts a foreclaw and lets $\" + targetEmote + \" strike $\" + targetEmote + \"_his palm against it.\");\n} else {\n  send_command(\"emote swings his arm up and claps his palm to $\" + targetEmote + \"'s, grinning.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lifts a foreclaw and lets $\" + targetEmote + \" strike $\" + targetEmote + \"_his palm against it.\");\n} else {\n  send_command(\"emote swings his arm up and claps his palm to $\" + targetEmote + \"'s, grinning.\");\n}"
       }
      ],
      "text": "^highfive (\\w+)$",
@@ -861,7 +891,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote folds a wing briefly around $\" + targetEmote + \", steady and warm.\");\n} else {\n  send_command(\"hug \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote folds a wing briefly around $\" + targetEmote + \", steady and warm.\");\n} else {\n  send_command(\"hug \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^hug (\\w+)$",
@@ -878,7 +908,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote comes up behind $\" + targetEmote + \" and closes a wing around $\" + targetEmote + \"_him before $\" + targetEmote + \"_he can turn.\");\n} else {\n  send_command(\"hugbehind \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote comes up behind $\" + targetEmote + \" and closes a wing around $\" + targetEmote + \"_him before $\" + targetEmote + \"_he can turn.\");\n} else {\n  send_command(\"hugbehind \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^hugbehind (\\w+)$",
@@ -895,7 +925,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hums to himself, deep and tuneless, the picture of innocence.\");\n} else {\n  send_command(\"innocent\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hums to himself, deep and tuneless, the picture of innocence.\");\n} else {\n  send_command(\"innocent\", 1);\n}"
       }
      ],
      "text": "^innocent$",
@@ -912,7 +942,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var emoteTarget = args[1];\n\nvar activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote tips $\" + emoteTarget + \"'s chin up with one finger, holds $\" + emoteTarget + \"_his gaze for a few heartbeats, then kisses $\" + emoteTarget + \"_him softly.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lowers his great head until his snout rests feather-light against $\" + emoteTarget + \", holds $\" + emoteTarget + \"_his gaze for a long moment, then breathes across $\" + emoteTarget + \"_him something too gentle to be anything but a kiss.\");\n\n    break;\n}"
+       "script": "var emoteTarget = args[1];\n\nvar activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote tips $\" + emoteTarget + \"'s chin up with one finger, holds $\" + emoteTarget + \"_his gaze for a few heartbeats, then kisses $\" + emoteTarget + \"_him softly.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lowers his great head until his snout rests feather-light against $\" + emoteTarget + \", holds $\" + emoteTarget + \"_his gaze for a long moment, then breathes across $\" + emoteTarget + \"_him something too gentle to be anything but a kiss.\");\n\n    break;\n}"
       }
      ],
      "text": "^jaw (\\w+)$",
@@ -929,7 +959,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head and presses his brow to $\" + targetEmote + \"'s, breath warm between them.\");\n} else {\n  send_command(\"kiss \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head and presses his brow to $\" + targetEmote + \"'s, breath warm between them.\");\n} else {\n  send_command(\"kiss \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^kiss (\\w+)$",
@@ -946,7 +976,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lets the end of his tail find $\" + targetEmote + \"'s and settles there.\");\n} else {\n  send_command(\"lacehand \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lets the end of his tail find $\" + targetEmote + \"'s and settles there.\");\n} else {\n  send_command(\"lacehand \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^lacehand (\\w+)$",
@@ -963,7 +993,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lies back, unbothered, and makes himself comfortable\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote settles back with an unbothered sprawl, folds his wings loose, and arranges the great weight of himself into perfect comfort.\");\n\n    break;\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lies back, unbothered, and makes himself comfortable\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote settles back with an unbothered sprawl, folds his wings loose, and arranges the great weight of himself into perfect comfort.\");\n\n    break;\n}"
       }
      ],
      "text": "^layback$",
@@ -980,7 +1010,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote laughs, the sound rolling out of him.\");\n} else {\n  send_command(\"laugh\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote laughs, the sound rolling out of him.\");\n} else {\n  send_command(\"laugh\", 1);\n}"
       }
      ],
      "text": "^laugh$",
@@ -997,7 +1027,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote laughs with $\" + targetEmote + \", the sound rolling out of him.\");\n} else {\n  send_command(\"laugh \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote laughs with $\" + targetEmote + \", the sound rolling out of him.\");\n} else {\n  send_command(\"laugh \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^laugh (\\w+)$",
@@ -1014,7 +1044,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head to $\" + targetEmote + \" and murmurs, \\\"I love you.\\\"\");\n} else {\n  send_command(\"love \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head to $\" + targetEmote + \" and murmurs, \\\"I love you.\\\"\");\n} else {\n  send_command(\"love \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^love (\\w+)$",
@@ -1031,7 +1061,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head to $\" + targetEmote + \" and murmurs, \\\"I love you too.\\\"\");\n} else {\n  send_command(\"lovetoo \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head to $\" + targetEmote + \" and murmurs, \\\"I love you too.\\\"\");\n} else {\n  send_command(\"lovetoo \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^lovetoo (\\w+)$",
@@ -1048,7 +1078,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote runs his muzzle slowly along $\" + targetEmote + \"'s shoulder and up the side of $\" + targetEmote + \"_his neck.\");\n} else {\n  send_command(\"massage \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote runs his muzzle slowly along $\" + targetEmote + \"'s shoulder and up the side of $\" + targetEmote + \"_his neck.\");\n} else {\n  send_command(\"massage \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^massage (\\w+)$",
@@ -1065,7 +1095,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote traces his muzzle up the line of $\" + targetEmote + \"'s neck and rests it at the base of $\" + targetEmote + \"_his jaw.\");\n} else {\n  send_command(\"neckkiss \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote traces his muzzle up the line of $\" + targetEmote + \"'s neck and rests it at the base of $\" + targetEmote + \"_his jaw.\");\n} else {\n  send_command(\"neckkiss \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^neckkiss (\\w+)$",
@@ -1082,7 +1112,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote bumps his muzzle lightly against $\" + targetEmote + \", then lowers his head and presses his brow to $\"+ targetEmote + \"_hiss.\");\n} else {\n  send_command(\"nibblekiss \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote bumps his muzzle lightly against $\" + targetEmote + \", then lowers his head and presses his brow to $\"+ targetEmote + \"_hiss.\");\n} else {\n  send_command(\"nibblekiss \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^nibblekiss (\\w+)$",
@@ -1099,7 +1129,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles low, frankly approving.\");\n} else {\n  send_command(\"emote makes a low sound of frank approval.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles low, frankly approving.\");\n} else {\n  send_command(\"emote makes a low sound of frank approval.\", 1);\n}"
       }
      ],
      "text": "^nice$",
@@ -1116,7 +1146,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles low at $\" + targetEmote + \", frankly approving.\");\n} else {\n  send_command(\"emote makes a low sound of frank approval at $\" + targetEmote);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles low at $\" + targetEmote + \", frankly approving.\");\n} else {\n  send_command(\"emote makes a low sound of frank approval at $\" + targetEmote);\n}"
       }
      ],
      "text": "^nice (\\w+)$",
@@ -1133,7 +1163,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote tips a wing dismissively, unconcerned.\");\n} else {\n  send_command(\"emote waves it off, unconcerned.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote tips a wing dismissively, unconcerned.\");\n} else {\n  send_command(\"emote waves it off, unconcerned.\");\n}"
       }
      ],
      "text": "^np$",
@@ -1150,7 +1180,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote tips a wing at $\" + targetEmote + \", unconcerned. \\\"It was nothing.\\\"\");\n} else {\n  send_command(\"emote waves $\" + targetEmote + \" off. \\\"It was nothing.\\\"\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote tips a wing at $\" + targetEmote + \", unconcerned. \\\"It was nothing.\\\"\");\n} else {\n  send_command(\"emote waves $\" + targetEmote + \" off. \\\"It was nothing.\\\"\");\n}"
       }
      ],
      "text": "^np (\\w+)$",
@@ -1167,7 +1197,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote nudges $\" + targetEmote + \" with a wing, suggestively.\");\n} else {\n  send_command(\"nudge \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote nudges $\" + targetEmote + \" with a wing, suggestively.\");\n} else {\n  send_command(\"nudge \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^nudge (\\w+)$",
@@ -1184,7 +1214,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote comes over to $\" + targetEmote + \", a little bashful, and nuzzles his muzzle against $\" + targetEmote + \"_him.\");\n} else {\n  send_command(\"nuzzle \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote comes over to $\" + targetEmote + \", a little bashful, and nuzzles his muzzle against $\" + targetEmote + \"_him.\");\n} else {\n  send_command(\"nuzzle \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^nuzzle (\\w+)$",
@@ -1201,7 +1231,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote makes a long, appreciative sound.\");\n} else {\n  send_command(\"ohh\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote makes a long, appreciative sound.\");\n} else {\n  send_command(\"ohh\", 1);\n}"
       }
      ],
      "text": "^ohh$",
@@ -1218,7 +1248,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote (Caught out,) winces and draws his wings in.\");\n} else {\n  send_command(\"emote winces, caught out.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote (Caught out,) winces and draws his wings in.\");\n} else {\n  send_command(\"emote winces, caught out.\", 1);\n}"
       }
      ],
      "text": "^oops$",
@@ -1235,7 +1265,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hisses sharply, pained, a curl of vapour escaping with it.\");\n} else {\n  send_command(\"emote hisses through his teeth, pained.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hisses sharply, pained, a curl of vapour escaping with it.\");\n} else {\n  send_command(\"emote hisses through his teeth, pained.\", 1);\n}"
       }
      ],
      "text": "^ouch$",
@@ -1252,7 +1282,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hisses sharply and turns an injured look on $\" + targetEmote);\n} else {\n  send_command(\"emote hisses through his teeth and gives $\" + targetEmote + \" an injured look.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote hisses sharply and turns an injured look on $\" + targetEmote);\n} else {\n  send_command(\"emote hisses through his teeth and gives $\" + targetEmote + \" an injured look.\");\n}"
       }
      ],
      "text": "^ouch (\\w+)$",
@@ -1269,7 +1299,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote touches his muzzle briefly to $\" + targetEmote + \"'s cheek.\");\n} else {\n  send_command(\"peck \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote touches his muzzle briefly to $\" + targetEmote + \"'s cheek.\");\n} else {\n  send_command(\"peck \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^peck (\\w+)$",
@@ -1286,7 +1316,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote huffs, short and dismissive.\");\n} else {\n  send_command(\"emote makes a short, dismissive sound.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote huffs, short and dismissive.\");\n} else {\n  send_command(\"emote makes a short, dismissive sound.\", 1);\n}"
       }
      ],
      "text": "^pff$",
@@ -1303,7 +1333,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote huffs at $\" + targetEmote + \", unimpressed.\");\n} else {\n  send_command(\"emote makes a short, dismissive sound at $\" + targetEmote);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote huffs at $\" + targetEmote + \", unimpressed.\");\n} else {\n  send_command(\"emote makes a short, dismissive sound at $\" + targetEmote);\n}"
       }
      ],
      "text": "^pff (\\w+)$",
@@ -1320,7 +1350,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lets his wings sag, plainly relieved.\");\n} else {\n  send_command(\"phew\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lets his wings sag, plainly relieved.\");\n} else {\n  send_command(\"phew\", 1);\n}"
       }
      ],
      "text": "^phew$",
@@ -1337,7 +1367,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote flicks the tip of his tail across $\" + targetEmote + \"'s backside, then looks innocently elsewhere.\");\n} else {\n  send_command(\"pinch \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote flicks the tip of his tail across $\" + targetEmote + \"'s backside, then looks innocently elsewhere.\");\n} else {\n  send_command(\"pinch \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^pinch (\\w+)$",
@@ -1354,7 +1384,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote points a talon at $\" + targetEmote);\n} else {\n  send_command(\"emote points a finger at $\" + targetEmote);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote points a talon at $\" + targetEmote);\n} else {\n  send_command(\"emote points a finger at $\" + targetEmote);\n}"
       }
      ],
      "text": "^point (\\w+)$",
@@ -1371,7 +1401,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote pokes $\" + targetEmote + \" with the tip of one talon.\");\n} else {\n  send_command(\"emote pokes $\" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote pokes $\" + targetEmote + \" with the tip of one talon.\");\n} else {\n  send_command(\"emote pokes $\" + targetEmote, 1);\n}"
       }
      ],
      "text": "^poke (\\w+)$",
@@ -1388,7 +1418,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote raises a foreclaw in the air.\");\n} else {\n  send_command(\"raisehand\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote raises a foreclaw in the air.\");\n} else {\n  send_command(\"raisehand\", 1);\n}"
       }
      ],
      "text": "^raisehand$",
@@ -1405,7 +1435,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote raises a foreclaw to catch $\" + targetEmote + \"'s attention.\");\n} else {\n  send_command(\"raisehand \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote raises a foreclaw to catch $\" + targetEmote + \"'s attention.\");\n} else {\n  send_command(\"raisehand \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^raisehand (\\w+)$",
@@ -1422,7 +1452,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote turns his gaze upward for a long, wordless moment, then lets it fall back with a sigh\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lifts his gaze skyward, holds it a long, wordless while, then lets it fall on a breath that drifts out warm and acrid, like a sigh with smoke in it.\");\n\n    break;\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote turns his gaze upward for a long, wordless moment, then lets it fall back with a sigh\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lifts his gaze skyward, holds it a long, wordless while, then lets it fall on a breath that drifts out warm and acrid, like a sigh with smoke in it.\");\n\n    break;\n}"
       }
      ],
      "text": "^rolleyes$",
@@ -1439,7 +1469,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote drags a talon lightly through $\" + targetEmote + \"'s hair, leaving it worse than he found it.\");\n} else {\n  send_command(\"rufflehair \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote drags a talon lightly through $\" + targetEmote + \"'s hair, leaving it worse than he found it.\");\n} else {\n  send_command(\"rufflehair \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^rufflehair (\\w+)$",
@@ -1456,7 +1486,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote shakes his head, slow and heavy.\");\n} else {\n  send_command(\"shake\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote shakes his head, slow and heavy.\");\n} else {\n  send_command(\"shake\", 1);\n}"
       }
      ],
      "text": "^shake$",
@@ -1479,7 +1509,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lifts one shoulder in a gesture that suggests the matter has already outlived his interest\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote shifts one great wing a fraction, a gesture that suggests the matter has already outlived his interest.\");\n\n    break;\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lifts one shoulder in a gesture that suggests the matter has already outlived his interest\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote shifts one great wing a fraction, a gesture that suggests the matter has already outlived his interest.\");\n\n    break;\n}"
       }
      ],
      "text": "^shrug$",
@@ -1496,7 +1526,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote breathes out long and heavy, pained.\");\n} else {\n  send_command(\"sigh\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote breathes out long and heavy, pained.\");\n} else {\n  send_command(\"sigh\", 1);\n}"
       }
      ],
      "text": "^sigh$",
@@ -1513,7 +1543,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote settles onto his haunches.\");\n} else {\n  send_command(\"sit\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote settles onto his haunches.\");\n} else {\n  send_command(\"sit\", 1);\n}"
       }
      ],
      "text": "^sit$",
@@ -1530,7 +1560,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote softens, in what is unmistakably a smile.\");\n} else {\n  send_command(\"smile\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote softens, in what is unmistakably a smile.\");\n} else {\n  send_command(\"smile\", 1);\n}"
       }
      ],
      "text": "^smile$",
@@ -1547,7 +1577,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote softens at $\" + targetEmote + \", unmistakably pleased.\");\n} else {\n  send_command(\"smile \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote softens at $\" + targetEmote + \", unmistakably pleased.\");\n} else {\n  send_command(\"smile \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^smile (\\w+)$",
@@ -1564,7 +1594,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote curls himself around $\" + targetEmote + \" and settles, content.\");\n} else {\n  send_command(\"snuggle \" + targetEmote, 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote curls himself around $\" + targetEmote + \" and settles, content.\");\n} else {\n  send_command(\"snuggle \" + targetEmote, 1);\n}"
       }
      ],
      "text": "^snuggle (\\w+)$",
@@ -1587,7 +1617,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lets a slow smile settle across his face\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lets a slow warmth settle into his eyes.\");\n\n    break;\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lets a slow smile settle across his face\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lets a slow warmth settle into his eyes.\");\n\n    break;\n}"
       }
      ],
      "text": "^softsmile$",
@@ -1610,7 +1640,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote (Pressing his lips together tightly,) holds for one heroic second, and then loses it at once in a snort he can do nothing about\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote (Holding his head rigidly still,) manages one heroic second, and then loses it all at once in a sizzling snort of smoke he can do nothing about.\");\n\n    break;\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote (Pressing his lips together tightly,) holds for one heroic second, and then loses it at once in a snort he can do nothing about\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote (Holding his head rigidly still,) manages one heroic second, and then loses it all at once in a sizzling snort of smoke he can do nothing about.\");\n\n    break;\n}"
       }
      ],
      "text": "^stiffle$",
@@ -1627,7 +1657,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var emoteTarget = args[1];\n\nvar activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lifts a loose strand of $\" + emoteTarget + \"'s hair and tucks it behind $\" + emoteTarget + \"_his ear.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lowers his great head close to $\" + emoteTarget + \" and, with great care, breathes a slow warmth along the line of $\" + emoteTarget + \"_his hair, and it stirs at the touch of it.\");\n\n    break;\n}"
+       "script": "var emoteTarget = args[1];\n\nvar activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote lifts a loose strand of $\" + emoteTarget + \"'s hair and tucks it behind $\" + emoteTarget + \"_his ear.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote lowers his great head close to $\" + emoteTarget + \" and, with great care, breathes a slow warmth along the line of $\" + emoteTarget + \"_his hair, and it stirs at the touch of it.\");\n\n    break;\n}"
       }
      ],
      "text": "^strand (\\w+)$",
@@ -1644,7 +1674,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws air slowly across his teeth, considering.\");\n} else {\n  send_command(\"suck\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote draws air slowly across his teeth, considering.\");\n} else {\n  send_command(\"suck\", 1);\n}"
       }
      ],
      "text": "^suck$",
@@ -1661,7 +1691,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote inclines his head, grateful.\");\n} else {\n  send_command(\"emote inclines his head, grateful.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote inclines his head, grateful.\");\n} else {\n  send_command(\"emote inclines his head, grateful.\", 1);\n}"
       }
      ],
      "text": "^thank$",
@@ -1678,7 +1708,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head to $\" + targetEmote + \", plainly grateful.\");\n} else {\n  send_command(\"emote inclines his head to $\" + targetEmote + \", plainly grateful.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\nvar targetEmote = args[1];\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote lowers his head to $\" + targetEmote + \", plainly grateful.\");\n} else {\n  send_command(\"emote inclines his head to $\" + targetEmote + \", plainly grateful.\");\n}"
       }
      ],
      "text": "^thank (\\w+)$",
@@ -1695,7 +1725,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rasps a talon against his brow ridge, casting about for an idea.\");\n} else {\n  send_command(\"think\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rasps a talon against his brow ridge, casting about for an idea.\");\n} else {\n  send_command(\"think\", 1);\n}"
       }
      ],
      "text": "^think$",
@@ -1712,7 +1742,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote attempts to slip quietly away, with limited success.\");\n} else {\n  send_command(\"emote attempts to slip quietly away, hoping not to be noticed.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote attempts to slip quietly away, with limited success.\");\n} else {\n  send_command(\"emote attempts to slip quietly away, hoping not to be noticed.\");\n}"
       }
      ],
      "text": "^tiptoe$",
@@ -1729,7 +1759,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var emoteTarget = args[1];\n\nvar activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote settles a hand low at $\" + emoteTarget + \"'s waist and draws $\" + emoteTarget + \"_him in until there's no space left between them.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote curls close about $\" + emoteTarget + \" until wing and coil have gathered $\" + emoteTarget + \"_him in against the warmth of him, with no space left anywhere between.\");\n\n    break;\n}"
+       "script": "var emoteTarget = args[1];\n\nvar activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote settles a hand low at $\" + emoteTarget + \"'s waist and draws $\" + emoteTarget + \"_him in until there's no space left between them.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote curls close about $\" + emoteTarget + \" until wing and coil have gathered $\" + emoteTarget + \"_him in against the warmth of him, with no space left anywhere between.\");\n\n    break;\n}"
       }
      ],
      "text": "^waist (\\w+)$",
@@ -1752,7 +1782,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var emoteTarget = args[1];\n\nvar activeClass = get_variable(\"activeClass\");\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote (Tilting his head, one hand cupped to his ear,) looks at $\" + emoteTarget + \" and gestures at the wind with mild reproach.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote (Cocking his great head, straining to catch a word over the gale,) fixes $\" + emoteTarget + \" with a look and huffs a short breath at the wind in mild reproach.\");\n\n    break;\n}"
+       "script": "var emoteTarget = args[1];\n\nvar activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nswitch (activeClass) {\n  case \"Druid\":\n  case \"Magi\":\n    send_command(\"emote (Tilting his head, one hand cupped to his ear,) looks at $\" + emoteTarget + \" and gestures at the wind with mild reproach.\");\n    break;\n\n  case \"Black Dragon\":\n    send_command(\"emote (Cocking his great head, straining to catch a word over the gale,) fixes $\" + emoteTarget + \" with a look and huffs a short breath at the wind in mild reproach.\");\n\n    break;\n}"
       }
      ],
      "text": "^windy (\\w+)$",
@@ -1769,7 +1799,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote  opens his jaws in an enormous yawn, every tooth on display.\");\n} else {\n  send_command(\"emote opens his mouth in an enormous yawn.\", 1);\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote  opens his jaws in an enormous yawn, every tooth on display.\");\n} else {\n  send_command(\"emote opens his mouth in an enormous yawn.\", 1);\n}"
       }
      ],
      "text": "^yawn$",
@@ -1786,7 +1816,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote makes a delighted sound and lets his wings spread with it.\");\n} else {\n  send_command(\"emote brightens considerably, delighted.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote makes a delighted sound and lets his wings spread with it.\");\n} else {\n  send_command(\"emote brightens considerably, delighted.\");\n}"
       }
      ],
      "text": "^yay$",
@@ -1803,7 +1833,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "var activeClass = get_variable(\"activeClass\");\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles low and settles, thoroughly well fed.\");\n} else {\n  send_command(\"emote rubs at his stomach, well fed and unashamed of it.\");\n}"
+       "script": "var activeClass = (client.loom && client.loom.roleplay && client.loom.roleplay.cls) || get_variable(\"roleplay_class\") || \"\";\n\nif (activeClass == \"Black Dragon\") {\n  send_command(\"emote rumbles low and settles, thoroughly well fed.\");\n} else {\n  send_command(\"emote rubs at his stomach, well fed and unashamed of it.\");\n}"
       }
      ],
      "text": "^yum$",
@@ -1891,23 +1921,6 @@
   },
   {
    "type": "alias",
-   "name": "AEM ON/OFF/NOW/RELOAD",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "var activeClass = get_variable(\"activeClass\");\n\n// ---- bootstrap the engine once per session ----\nif (!window.AEM) {\n  var AEM = {};\n\n  switch (activeClass) {\n    case \"Magi\":\n      AEM.emotes = [\n  // Nostalgic: the old sleeper, now with new tools in his hands\n  { weight: 3, text: \"emote runs his thumb along his staff, a small private smile surfacing and fading.\" },\n  { weight: 5, text: \"emote turns a small crystal over in his fingers, watching the light fold within it.\" },\n  { weight: 1, text: \"emote goes still, one hand lifted, like a man who has just remembered someone long gone.\" },\n  { weight: 2, text: \"emote pauses, head canted, as though listening for a resonance he has not heard in centuries.\" },\n\n  // Attuned: nature is now read through the elements\n  { weight: 3, text: \"emote draws a slow breath, and the air about him cools a shade before warming again.\" },\n  { weight: 3, text: \"emote turns his palm upward as though testing for rain, and a single bead of water gathers there before he lets it fall.\" },\n  { weight: 3, text: \"emote lets a thread of static crawl between two fingertips before closing his hand gently upon it.\" },\n  { weight: 1, text: \"emote follows the path of some small creature with quiet, unhurried attention.\" },\n  { weight: 1, text: \"emote calls forth a shimmering treaty with a murmured word, runs his eyes down its binding clauses, and dismisses it with a small satisfied nod.\" },\n\n  // Contemplative: the scholar-artificer's idle habits\n  { weight: 2, text: \"emote rolls a glittering pearl between finger and thumb, holds it to the light, and tucks it away unsatisfied.\" },\n  { weight: 5, text: \"emote sets a small crystal spinning in the air before him without looking at it, catches it, and sets it spinning again.\" },\n  { weight: 3, text: \"emote breathes on one of the gems set in his staff and polishes it on his sleeve, turning it to the light to judge the result.\" },\n  { weight: 5, text: \"emote rolls a fragment of dried leaf between finger and thumb until it crumbles away.\" },\n  { weight: 3, text: \"emote settles his weight against his staff and simply observes, patient as old stone.\" },\n  { weight: 2, text: \"emote lets his eyes rest on nothing at all, lips moving on some silent calculation.\" },\n  { weight: 1, text: \"emote arches a brow at something no one else can see, one corner of his mouth twitching.\" }\n];\n      break;\n    case \"Druid\":\n  AEM.emotes = [{ weight: 2, text: \"emote pauses mid-step, his gaze drifting to some middle distance, as though a memory had briefly overtaken the present.\" }, { weight: 5, text: \"emote runs his thumb along the grain of his staff, a small private smile surfacing and fading.\" }, { weight: 1, text: \"emote goes still, one hand half-raised, like a man who has just remembered someone long gone.\" }, { weight: 2, text: \"emote turns his head toward some sound only he seems to have caught, holding still until it passes.\" }, { weight: 2, text: \"emote lets his gaze travel unhurriedly around the room, marking each way out without seeming to.\" }, { weight: 2, text: \"emote glances over his shoulder, then eases, as if reassuring himself the quiet held nothing.\" }, { weight: 2, text: \"emote narrows his eyes at a flicker of movement at the edge of his vision, watching until it resolves into nothing.\" }, { weight: 1, text: \"emote tilts his head, going briefly motionless, as though the air had carried him something.\" }, { weight: 1, text: \"emote draws a slow breath through his nose, reading the air the way another might read a page.\" }, { weight: 1, text: \"emote lowers a hand toward the ground, fingers spread, and holds it there a moment as if listening through his skin.\" }, { weight: 5, text: \"emote follows the path of some small creature with quiet, unhurried attention.\" }, { weight: 10, text: \"emote brushes something unseen from his palm and watches it fall.\" }, { weight: 5, text: \"emote settles his weight against his staff and simply observes, patient as old stone.\" }, { weight: 10, text: \"emote rolls a fragment of dried leaf between finger and thumb until it crumbles away.\" }, { weight: 1, text: \"emote lets his eyes rest on nothing at all, his thoughts plainly elsewhere.\" }, { weight: 2, text: \"emote arches a brow at something no one else can see, one corner of his mouth twitching.\" }];\n      break;\n\n    case \"Black Dragon\":\nAEM.emotes = [{ weight: 2, text: \"emote goes still, his great head lifting slightly, eyes fixed on some middle distance as though a memory had surfaced from a long way down.\" }, { weight: 10, text: \"emote (A single dark drop gathers at the edge of)'s jaw and falls, hissing into a thread of smoke that is gone before it lands.\" }, { weight: 1, text: \"emote holds one vast clawed forelimb half-raised, motionless, like something recalling a shape it has not held in a very long time.\" }, { weight: 2, text: \"emote turns his flattened snout toward a sound no one else has caught, the long neck still, until whatever it was has passed.\" }, { weight: 2, text: \"emote lets his gaze travel the room without haste, the dark eyes marking each way out and giving no sign of having done so.\" }, { weight: 10, text: \"emote (A slow breath leaves)'s snout, and for a moment the air before it shimmers with a heat that smells of scorched stone.\" }, { weight: 2, text: \"emote narrows his eyes at a flicker at the edge of sight, the whole immense form utterly still until it resolves into nothing.\" }, { weight: 5, text: \"emote drags the tip of one claw a slow inch across the ground, leaving a thin dark line that smokes faintly and fades.\" }, { weight: 1, text: \"emote tilts the great head, going briefly motionless, as though the air had carried him something worth keeping.\" }, { weight: 1, text: \"emote draws a long breath through his nostrils, reading the air the way another might read a page.\" }, { weight: 1, text: \"emote settles the massive dark weight of himself and simply watches, patiently.\" }, { weight: 5, text: \"emote follows the path of some small creature across the floor with quiet, unhurried attention, making no move toward it.\" }, { weight: 10, text: \"emote (A bead of something dark wells at the tip of) 's talon, drips, and sizzles into a thread of smoke before it reaches the ground.\" }, { weight: 1, text: \"emote lets the saucer eyes rest on nothing at all, the vast head lowered, his thoughts plainly a long way off.\" }, { weight: 2, text: \"emote lowers his head near the ground and holds it there, nostrils wide, as if listening to the earth through the heat of his own breath.\" }, { weight: 2, text: \"emote curls one corner of his lip from a razor-edged tooth at something no one else can see, the nearest thing to a private smile.\" }, { weight: 10, text: \"emote shifts his weight, and the ground notices.\" }\n];      \n      break;\n  }\n\n  AEM.minMinutes = 15;\n  AEM.maxMinutes = 19;\n\n  AEM.pick = function () {\n    var total = AEM.emotes.reduce(function (s, e) { return s + e.weight; }, 0);\n    var r = Math.random() * total;\n    for (var i = 0; i < AEM.emotes.length; i++) {\n      r -= AEM.emotes[i].weight;\n      if (r <= 0) return AEM.emotes[i].text;\n    }\n    return AEM.emotes[AEM.emotes.length - 1].text;\n  };\n\n  AEM.schedule = function () {\n    clearTimeout(AEM.timer);\n    var span = (AEM.maxMinutes - AEM.minMinutes) * 60000;\n    var delay = AEM.minMinutes * 60000 + Math.random() * span;\n    AEM.timer = setTimeout(AEM.fire, delay);\n  };\n\n  AEM.fire = function () {\n    if (get_variable(\"aem_on\") === \"1\") send_command(AEM.pick());\n    AEM.schedule();\n  };\n\n  AEM.start = function () {\n    set_variable(\"aem_on\", \"1\");\n    AEM.schedule();\n    display_notice(\"[roleplay] Ambient emotes: ON\", \"cyan\");\n  };\n\n  AEM.stop = function () {\n    set_variable(\"aem_on\", \"0\");\n    clearTimeout(AEM.timer);\n    display_notice(\"[roleplay] Ambient emotes: OFF\", \"cyan\");\n  };\n\n  window.AEM = AEM;\n}\n\n// ---- command dispatch ----\nvar arg = args[1] || \"\";\n\nif (arg === \"on\")          { window.AEM.start(); }\nelse if (arg === \"off\")    { window.AEM.stop(); }\nelse if (arg === \"now\")    { send_command(window.AEM.pick()); window.AEM.schedule(); }\nelse if (arg === \"reload\") { if (window.AEM) window.AEM.stop(); window.AEM = null; display_notice(\"[roleplay] Engine cleared — run AEM ON to rebuild.\", \"cyan\"); }\nelse {\n  var state = get_variable(\"aem_on\") === \"1\" ? \"ON\" : \"OFF\";\n  display_notice(\"[roleplay] Ambient emotes are currently \" + state + \". Use AEM ON / OFF / NOW / RELOAD.\", \"cyan\");\n}"
-    }
-   ],
-   "text": "^aem(?:\\s+(on|off|now|reload))?$",
-   "matching": "regexp",
-   "whole_words": true,
-   "case_sensitive": true,
-   "prefix_suffix": true
-  },
-  {
-   "type": "alias",
    "name": "",
    "enabled": true,
    "actions": [
@@ -1977,7 +1990,24 @@
    "whole_words": true,
    "case_sensitive": true,
    "prefix_suffix": true
+  },
+  {
+   "type": "alias",
+   "name": "roleplay",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// ROLEPLAY [subcommand ...]: settings, the ambient emotes and help. The emotes\n// and rituals keep their own aliases (see ROLEPLAY HELP).\nif (!client.loom || !client.loom.roleplay || client.loom.roleplay.cls === undefined) run_function(\"roleplay_setup\", [], \"roleplay\");\nvar RP = client.loom.roleplay;\nvar rpW = String(args[1] || \"\").trim().toLowerCase().split(/\\s+/);\nvar rpSub = rpW[0];\nvar rpP1 = rpW[1] || \"\";\nfunction rpSay(t, c) { display_notice(\"[roleplay] \" + t, c || \"cyan\"); }\nfunction rpOn() { return get_variable(\"roleplay_aem_on\") === \"1\"; }\n\nif (rpSub === \"\" || rpSub === \"status\") {\n  rpSay(\"emotes follow your class: \" + (RP.cls || \"not known yet (log in once)\") + \".\", RP.cls ? \"cyan\" : \"orange\");\n  if (!RP.aem && rpOn()) run_function(\"roleplay_aem\", [], \"roleplay\");\n  rpSay(\"ambient emotes: \" + (rpOn() ? \"on\" : \"off\") + (RP.aem && !RP.aem.has ? \" (none written for this class)\" : \"\") + \". ROLEPLAY AEM ON/OFF/NOW. custom_emotes lists the emotes; ROLEPLAY HELP for the rest.\");\n} else if (rpSub === \"help\") {\n  run_function(\"roleplay_help\", [], \"roleplay\");\n} else if (rpSub === \"aem\") {\n  if (rpP1 === \"on\") {\n    set_variable(\"roleplay_aem_on\", \"1\");\n    run_function(\"roleplay_aem\", [], \"roleplay\");\n    rpSay(RP.aem.has ? \"ambient emotes on: one every 15-19 minutes.\" : \"ambient emotes on, but none are written for \" + (RP.cls || \"this class\") + \" yet.\", RP.aem.has ? \"cyan\" : \"orange\");\n  } else if (rpP1 === \"off\") {\n    set_variable(\"roleplay_aem_on\", \"0\");\n    if (RP.aem) { try { clearTimeout(RP.aem.timer); } catch (e) {} }\n    rpSay(\"ambient emotes off.\");\n  } else if (rpP1 === \"now\") {\n    if (!RP.aem || RP.aem.cls !== RP.cls) run_function(\"roleplay_aem\", [], \"roleplay\");\n    if (!RP.aem.has) rpSay(\"no ambient emotes are written for \" + (RP.cls || \"this class\") + \".\", \"orange\");\n    else if (get_variable(\"pauseTriggers\") === \"on\") rpSay(\"triggers are paused, so nothing was sent.\", \"orange\");\n    else { send_command(RP.aem.pick()); if (rpOn()) RP.aem.schedule(); }\n  } else if (rpP1 === \"reload\") {\n    run_function(\"roleplay_aem\", [], \"roleplay\");\n    rpSay(\"ambient emotes rebuilt for \" + (RP.cls || \"no class\") + (rpOn() ? \", and running.\" : \".\"));\n  } else {\n    rpSay(\"ambient emotes: \" + (rpOn() ? \"on\" : \"off\") + \". ROLEPLAY AEM ON, OFF, NOW or RELOAD.\");\n  }\n} else if (rpSub === \"debug\") {\n  rpSay(\"cls=\" + RP.cls + \" saved=\" + get_variable(\"roleplay_class\") + \" aem_on=\" + get_variable(\"roleplay_aem_on\") + \" engine=\" + (RP.aem ? RP.aem.cls + \" has=\" + RP.aem.has + \" timer=\" + !!RP.aem.timer : \"none\") + \" pause=\" + (get_variable(\"pauseTriggers\") || \"unset\"), \"orange\");\n} else {\n  rpSay(\"unknown command '\" + rpSub + \"'. ROLEPLAY HELP for commands.\", \"orange\");\n}\n"
+    }
+   ],
+   "text": "^roleplay(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
   }
  ],
- "description": ""
+ "description": "Custom emotes worded per class, step-by-step rituals (massages, washing hair, the Saiha graduation), the cairn verses, and ambient emotes (ROLEPLAY AEM). The class comes from GMCP. State in client.loom.roleplay; roleplay_class, roleplay_aem_on. ROLEPLAY HELP for commands."
 }
