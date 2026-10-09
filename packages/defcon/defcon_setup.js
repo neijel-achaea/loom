@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.defcon) client.loom.defcon = {};
-client.loom.registry.defcon = { version: "0.2.0", keyword: "DEFCON" };
+client.loom.registry.defcon = { version: "0.2.1", keyword: "DEFCON" };
 
 var D = client.loom.defcon;
 
@@ -43,9 +43,11 @@ D.generic = [["alertness", 1, 10, true], ["vigilance", 1, 10, true], ["hypersigh
 
 if (!D.queue) D.queue = [];
 
-// Class: followed from GMCP in onGMCP. Until the first Char.Status of the
-// session arrives, borrow the legacy shared variable if a package still sets it.
-if (!D.cls && get_variable("activeClass")) D.cls = get_variable("activeClass");
+// Class: followed from GMCP in onGMCP, and kept in defcon_class because the
+// game sends Char.Status only at login and on a change. The first time,
+// loom's old activeClass seeds it (read only).
+if (!D.cls) D.cls = get_variable("defcon_class") || get_variable("activeClass") || "";
+if (D.cls && !get_variable("defcon_class")) set_variable("defcon_class", D.cls);
 
 // DEFCON UP on the first class message of each session (the old package sent
 // INITDEF on every load). On unless switched off.

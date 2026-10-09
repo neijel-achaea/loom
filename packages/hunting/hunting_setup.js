@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.2.4", keyword: "HUNTING" };
+client.loom.registry.hunting = { version: "0.2.5", keyword: "HUNTING" };
 
 var HU = client.loom.hunting;
 
@@ -28,9 +28,11 @@ if (!HU.slots) HU.slots = {};
 if (HU.glob === undefined) HU.glob = true;
 if (HU.rage === undefined) HU.rage = 0;
 
-// Class: followed from GMCP in onGMCP. Until the first Char.Status of the
-// session arrives, borrow the legacy shared variable if a package still sets it.
-if (!HU.cls && get_variable("activeClass")) HU.cls = get_variable("activeClass");
+// Class: followed from GMCP in onGMCP, and kept in hunting_class because the
+// game sends Char.Status only at login and on a change. The first time,
+// loom's old activeClass seeds it (read only).
+if (!HU.cls) HU.cls = get_variable("hunting_class") || get_variable("activeClass") || "";
+if (HU.cls && !get_variable("hunting_class")) set_variable("hunting_class", HU.cls);
 
 // One-time migration from the pre-0.2 names: copy when the new one is unset,
 // then clear the old one.

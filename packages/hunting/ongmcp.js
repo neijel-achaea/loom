@@ -5,6 +5,7 @@ var HU = client.loom.hunting;
 if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
   if (args.gmcp_args.class != HU.cls) {
     HU.cls = args.gmcp_args.class;
+    set_variable("hunting_class", HU.cls);
     run_function("hunting_buttons", [], "hunting");
   }
 }

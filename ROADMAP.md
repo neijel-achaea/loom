@@ -58,7 +58,7 @@ These apply to every package touched from v0.2 onwards.
 | `QUIT`/`QQ` wrapper | **loom**. Its pre-quit housekeeping (closing a huntstats session, for example) is integration work by nature. |
 | Party helpers | Personal configuration: a friends table in loom, not names in triggers |
 | The Oceana group | Out of the repository: a private package kept in game only (its party-command trigger could be abused through illusions) |
-| `REFILLVIAL`, highlights and gags | Topical home or loom; decided case by case during the pass |
+| `REFILLVIAL`, highlights and gags | `REFILLVIAL` became the **vials** package; the vines highlight went to patrolling, the Eleusian Techs gag to civic; the rest stays in loom |
 
 **Split `eleusis`** into:
 - **sigils**: monolith and flame sigil watcher, with per-city room tables and the city read from GMCP. Works in every city.
