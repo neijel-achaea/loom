@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.self) client.loom.self = {};
-client.loom.registry.self = { version: "0.5.0", keyword: "SELF" };
+client.loom.registry.self = { version: "0.2.0", keyword: "SELF" };
 var SF = client.loom.self;
 
 // The old package kept its state in client.self, client.selfWant,
