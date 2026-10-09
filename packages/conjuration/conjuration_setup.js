@@ -1,10 +1,11 @@
 // conjuration_setup -- run from onLoad and onInstall, and by any reflex that
 // finds the namespace missing. Namespace, registry, the recipes and the
-// ouroboros setting.
+// ouroboros setting. A ritual under way is client.loom.conjuration.run (see
+// conjuration_step).
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.conjuration) client.loom.conjuration = {};
-client.loom.registry.conjuration = { version: "0.2.0", keyword: "CONJURATION" };
+client.loom.registry.conjuration = { version: "0.2.1", keyword: "CONJURATION" };
 var CJ = client.loom.conjuration;
 
 // Every sigil and conjured item, by the word typed. Those with a recipe can

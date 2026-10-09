@@ -7,9 +7,10 @@ var hlRows = [
   ["CONJURATION", "your ouroboros and the recipes known"],
   ["CONJURATION <sigil>", "run its creation ritual (also CONJURATION MAKE <sigil>)"],
   ["CONJURATION OUROBOROS <number> [<number>]", "the ouroboros the reagents go into, and the one the sigil is taken from if it's another"],
+  ["CONJURATION STOP", "abandon the ritual under way"],
   ["CONJURATION LIST", "every sigil, and which have a recipe"],
   ["CONJURATION DEBUG", "internal state"],
-  ["Reagents come out of the rift. Nothing is sent while triggers are paused."]
+  ["The ritual goes one step at a time, each when the game is ready for it; CONJURATION shows how far it has got. Nothing is sent while triggers are paused."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {
