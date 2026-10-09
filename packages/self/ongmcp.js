@@ -1,4 +1,4 @@
-// Keeps client.self in step with GMCP. Afflictions and defences arrive as a
+// Keeps client.loom.self in step with GMCP. Afflictions and defences arrive as a
 // full List (on login, DIAGNOSE, DEF) and then as single Add / Remove updates;
 // the package keeps the running set. Self-contained, so it can be pasted into
 // the global onGMCP as-is if the package one never fires.
@@ -7,8 +7,8 @@ var sfA = null;
 try { sfM = args.gmcp_method; sfA = args.gmcp_args; } catch (e) { sfM = ""; }
 if (typeof sfA === "string") { try { sfA = JSON.parse(sfA); } catch (e) { sfA = null; } }
 if (sfM && sfA !== null && sfA !== undefined) {
-  if (!client.self) { run_function("self_init", [], "self"); }
-  var S = client.self;
+  if (!client.loom || !client.loom.self || !client.loom.self.keep) run_function("self_setup", [], "self");
+  var S = client.loom.self;
   var sfNow = Math.floor(new Date().getTime() / 1000);
   var sfDirty = false;
   var sfI;
@@ -40,7 +40,7 @@ if (sfM && sfA !== null && sfA !== undefined) {
       if (S.defs[sfA[sfI]]) {
         S.lost[sfA[sfI]] = sfNow;
         // A defence you asked to watch: say so out loud, not just in the tab.
-        if (client.selfWant && client.selfWant[sfA[sfI]]) { display_notice("[self] lost " + sfA[sfI] + "!", "#e08a78"); }
+        if (S.want && S.want[sfA[sfI]]) { display_notice("[self] lost " + sfA[sfI] + "!", "#e08a78"); }
       }
       delete S.defs[sfA[sfI]];
     }
@@ -56,6 +56,14 @@ if (sfM && sfA !== null && sfA !== undefined) {
     if (sfA.name) { S.info.name = sfA.name; }
     if (sfA.fullname) { S.info.fullname = sfA.fullname; }
     sfDirty = true;
+  }
+  // A class change (dragonform included) brings that class's watched list.
+  if (sfM === "Char.Status" && String(S.info["class"] || "any").toLowerCase().replace(/[^a-z0-9]+/g, "_") !== S.wantCls) run_function("self_setup", [], "self");
+  // An override that only repeats the game's name (as the old SETNAME usually
+  // did) is dropped, so self_name exists only when it changes something.
+  if ((sfM === "Char.Name" || sfM === "Char.Status") && S.nameOverride && S.info.name && S.nameOverride.toLowerCase() === String(S.info.name).toLowerCase()) {
+    S.nameOverride = "";
+    try { delete_variable("self_name"); } catch (e) {}
   }
   if (sfDirty) { try { run_function("self_render", [], "self"); } catch (e) {} }
 }

@@ -1,8 +1,3 @@
-// Only ask for a name if none is set yet: my_name is shared with other
-// packages (fishstats reads it), so a reimport must not blank it.
-var oiName = "";
-try { oiName = String(get_variable("my_name") || ""); } catch (e) { oiName = ""; }
-if (!oiName || oiName === "undefined") {
-  set_variable("my_name", "");
-  display_notice("Use SETNAME <name> to configure your own name.");
-}
+run_function("self_setup", [], "self");
+run_function("self_render", [], "self");
+display_notice("[self] installed. Create a UI tab named 'Self' for the panel, then DEF, DIAG and SCORE once. SELF HELP for commands.", "cyan");

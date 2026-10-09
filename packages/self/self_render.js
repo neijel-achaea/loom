@@ -1,11 +1,11 @@
-// Draws the 'Self' tab in the house style shared with Coffers, Level and the
+// self_render -- draws the 'Self' tab in the house style shared with Coffers, Level and the
 // rest: ink panel, serif small-caps headings, one large figure, monospace
 // ledger rows. The large figure is the affliction count, since that is the
 // thing to see first; the accent is a muted rose.
-run_function("self_init", [], "self");
-var S = client.self;
-var WANT = client.selfWant;
-var KEEP = client.selfKeep;
+if (!client.loom || !client.loom.self || !client.loom.self.keep) run_function("self_setup", [], "self");
+var S = client.loom.self;
+var WANT = S.want;
+var KEEP = S.keep;
 var WARN = "#e6c25a";
 var ROSE = "#e0a0a8";
 var DEEP = "#7a4a52";
@@ -36,10 +36,9 @@ var glyph = '<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-ali
 var I = S.info || {};
 var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#141012;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
-// The title is the character's name: my_name barely ever changes.
-var myName = "";
-try { myName = String(get_variable("my_name") || ""); } catch (e) { myName = ""; }
-if (!myName || myName === "undefined") { myName = I.name || "Self"; }
+// The title is the character's name: the game's (Char.Name / Char.Status),
+// unless SELF NAME set another.
+var myName = S.nameOverride || I.name || "Self";
 html += '<div style="font-family:' + SERIF + ';color:' + ROSE + ';font-size:14px;letter-spacing:0.22em;">' + glyph + esc(myName.toUpperCase()) + '</div>';
 var right = [];
 if (I.race) { right.push(esc(I.race)); }

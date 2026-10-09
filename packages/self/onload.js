@@ -12,6 +12,8 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
   }
 }
 
+run_function("self_setup", [], "self");
+// The tab fills from GMCP; SCORE and DEF fill in what GMCP doesn't send.
 send_command("score");
 send_command("def");
 

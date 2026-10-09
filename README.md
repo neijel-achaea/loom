@@ -37,7 +37,7 @@ their tab its own icon.
 | **reclamation** | — | *Retired (druid).* Records where enemies are seen in Eleusis and can alert the party (`REPORTENEMIES ON/OFF`, `WHEREIS <name>`, `VINESREPORT [days]`). |
 | **roleplay** | — | A large set of custom emotes, step-by-step rituals (including the Saiha `GRADUATION <name> <step>` ceremony), and the ambient emote system (`AEM ON/OFF/NOW/RELOAD`). |
 | **security** | — | Antitheft (`SECURITY ANTITHEFT ON/OFF`: puts back watched worn items, the backpack and gold taken out of it), `GG`/`PG` to move gold out of and into the backpack, your backpack and watched items as settings (`SECURITY BACKPACK`, `SECURITY ITEM ADD/DEL`, `SECURITY ITEMS`), house state commands (`SECURITY HOUSE IN/OUT`), and give, sell, drop and offer wrappers that lift selfishness around the action (selfishness followed from GMCP). `SECURITY HELP`. Publishes the backpack id at `client.loom.security.backpack`. |
-| **self** | Self | Replacement for the stock character panel (see below). `SELF`. |
+| **self** | Self | Replacement for the stock character panel (see below). `SELF HELP`. Your name, class and level come from GMCP. Reads nothing from other packages. |
 | **sigils** | — | Monolith and flame sigil watcher for any city: probes the monolith in every room you enter and flags sigils running out; the report lists them with an estimated cost. `SIGILS HELP`. |
 | **social** | — | Name highlighting by group (family, enemies, order, house, city, allies, friends, and your own name), and online/offline notices for the groups you watch. `SOCIAL ADD/DEL <group> <name>`, `LIST`, `COLOR`, `WATCH/UNWATCH`, `POLL ON/OFF/NOW`, `HELP`; your city's enemies list reloads itself from the game's list. Publishes the lists at `client.loom.social` (`groups`, `lists[group]`, `color[group]`), and still at `client.hl` for packages not yet updated. |
 | **standings** | Standings | EVE-style standings with adventurers and organisations, kept per character. `STANDINGS HELP`. Reads **social**'s lists (chips on a person) and **ledger**'s Achaean date if present. Other packages can suggest a dealing for review through `client.loom.standings.sug` + `standings_suggest`. |
@@ -73,15 +73,15 @@ A replacement for the stock character panel: name, race, class and level in the 
 - **Afflictions**: unwanted afflictions as red chips in a fixed row; a yellow **diag** chip when a venom's effects are unknown.
 - **Defences**: what's up; watched defences green when up and red under "missing" when not; stripped ones linger for two minutes.
 
-After importing: `SETNAME <name>`, then `DEF`, `DIAG` and `SCORE` once.
+After importing: `DEF`, `DIAG` and `SCORE` once.
 
 | Command | |
 |---|---|
-| `SELF` | Short help. |
+| `SELF` | Name, class, afflictions, and watched defences that are missing. `SELF HELP` for the commands. |
 | `SELF WANT <def> [...]` / `SELF UNWANT <def> [...]` | Watch defences. Each class keeps its own list, dragonform included. |
 | `SELF WANTS` | List watched defences for the current class. |
-| `SELF KEEP <aff> [...]` / `SELF UNKEEP <aff> [...]` | Hide afflictions kept on purpose (deafness, blindness, insomnia by default). |
-| `SETNAME <name>` | Name shown in the title. |
+| `SELF KEEP <aff> [...]` / `SELF UNKEEP <aff> [...]` | Hide afflictions kept on purpose (deafness, blindness, insomnia by default). `SELF KEEPS` lists them. |
+| `SELF NAME [<name>\|CLEAR]` | Show another name in the title; by default it's the game's. |
 
 ## Working on the packages
 
