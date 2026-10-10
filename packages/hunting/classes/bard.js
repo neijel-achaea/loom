@@ -7,7 +7,7 @@
 HU.classes["Bard"] = {
   // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
   mains: {
-    jab: ["Jab", "queue add b!wu!t!p blade jab @tar"]
+    jab: ["Jab", "queue add b!wu!t!p blade jab @tar torso"]
   },
   keys: [
     ["{main}", ""],
