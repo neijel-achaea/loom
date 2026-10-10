@@ -13,8 +13,7 @@ HU.classes["Shaman"] = {
     ["{main}", ""],
     ["Corruption", huQ + "curse @tar corruption"],
     ["Haemorrhage", huQ + "curse @tar haemorrhage"],
-    // Typed as given (INVULNERABILITY); check it isn't VULNERABILITY.
-    ["Vulnerability", huQ + "curse @tar invulnerability"],
+    ["Vulnerability", huQ + "curse @tar vulnerability"],
     ["Vurus", huQ + "invoke vurus @tar"],
     ["Cesaret", huQ + "invoke cesaret @tar"],
     ["", ""],
