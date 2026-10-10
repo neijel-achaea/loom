@@ -13,7 +13,8 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   var goldHr = Math.round(T.gold / hrs);
 
   var ep = HS.dragon();
-  var dGain = (ep !== null && T.startDragonPct !== null && T.startDragonPct !== undefined) ? (ep - T.startDragonPct) : null;
+  // No Dragonhood gain for a hunt that started as a dragon.
+  var dGain = (ep !== null && T.startDragonPct !== null && T.startDragonPct !== undefined && T.startDragonPct < 100) ? (ep - T.startDragonPct) : null;
 
   var players = [];
   for (var k in T.players) { if (T.players.hasOwnProperty(k)) players.push(k); }

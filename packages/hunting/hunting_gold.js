@@ -1,5 +1,5 @@
 // hunting_gold -- gold spilled from a corpse. AUTOGOLD ON picks it up when the
-// kill was yours (or announced) in the last 5 seconds, ALL picks up any gold,
+// kill was yours ("You have slain" or "slain by <you>") in the last 5 seconds, ALL picks up any gold,
 // OFF leaves it. Into the backpack when security has one set.
 if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;

@@ -37,7 +37,7 @@ else if (dcSub === "autoup") {
 }
 else if (dcSub === "list") {
   run_function("defcon_table", [], "defcon");
-  var dcLvl = to_number(get_variable("defcon_level")) || 5;
+  var dcLvl = D.level || 5;
   display_notice("[defcon] " + D.tbl.name + (D.tbl.known ? "" : " (general defences)") + ", tier: defence (priority)", C);
   for (var dcT = 1; dcT <= 5; dcT++) {
     var dcRow = [];
@@ -48,7 +48,7 @@ else if (dcSub === "list") {
   }
 }
 else if (dcSub === "debug") {
-  display_notice("[defcon] cls=" + D.cls + " upDone=" + D.upDone + " level=" + get_variable("defcon_level") + " queue=" + JSON.stringify(D.queue) + " timer=" + (D.timer ? "running" : "none"), C);
+  display_notice("[defcon] cls=" + D.cls + " upDone=" + D.upDone + " levels=" + JSON.stringify(D.levels) + " queue=" + JSON.stringify(D.queue) + " timer=" + (D.timer ? "running" : "none"), C);
 }
 else {
   display_notice("[defcon] unknown command '" + dcSub + "'. DEFCON HELP for commands.", "orange");
