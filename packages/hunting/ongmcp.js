@@ -1,4 +1,13 @@
-if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
+// Imported over an older build: Nexus doesn't rerun onLoad, so rebuild the
+// class tables and keys here, on the next GMCP message.
+var huFresh = !client.loom || !client.loom.hunting || !client.loom.hunting.classes;
+if (huFresh || client.loom.hunting.build !== "{{build}}") {
+  run_function("hunting_setup", [], "hunting");
+  if (!huFresh) {
+    run_function("hunting_buttons", [], "hunting");
+    display_notice("[hunting] updated to " + client.loom.registry.hunting.version + ".", "cyan");
+  }
+}
 var HU = client.loom.hunting;
 
 // Class: hunting follows it itself. On a change: that class's keys and costs,

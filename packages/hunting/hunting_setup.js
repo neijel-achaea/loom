@@ -3,9 +3,12 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.4.4", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "0.4.5", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
+// The build this state was made by: onGMCP compares it with its own and
+// reruns setup after an import over an older version (no onLoad then).
+HU.build = "{{build}}";
 
 // Per-class tables (classes/*.js): F-keys, battlerage costs, attack lines.
 // Session data, rebuilt on every load. HU.costs is the current class's costs,
