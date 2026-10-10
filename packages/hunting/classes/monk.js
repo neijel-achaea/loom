@@ -8,15 +8,14 @@
 HU.classes["Monk"] = {
   keys: [
     // One combo on one balance: sidekick, uppercut, uppercut (Eagle Stance).
-    // If COMBO doesn't take this form, the alternative is three commands
-    // joined with "|", but each would wait for its own balance.
+    // Syntax still to confirm in game.
     ["Combo", "queue add b!wu!t!p combo @tar sdk ucp ucp", "main"],
-    ["Spinningbackfist", huQ + "sbp @tar"],
-    ["Tornadokick", huQ + "tnk @tar"],
-    ["Splinterkick", huQ + "spk @tar"],
+    ["SBP", huQ + "sbp @tar", "Spinningbackfist"],
+    ["TNK", huQ + "tnk @tar", "Tornadokick"],
+    ["SPK", huQ + "spk @tar", "Splinterkick"],
     ["Mindblast", huQ + "mind blast @tar"],
     ["Scramble", huQ + "mind scramble @tar"],
-    ["Ripplestrike", huQ + "rpst @tar"],
+    ["RPST", huQ + "rpst @tar", "Ripplestrike"],
     ["", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],

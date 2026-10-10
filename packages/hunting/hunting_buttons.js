@@ -55,7 +55,11 @@ for (var huK = 1; huK <= 12; huK++) {
   huCmd = huCmd.replace("{dragon}", huDragon).replace("{staff}", huStaff).replace("{target}", huTarget).replace(/\s+$/, "");
   buttons_set_label(huK, huLabel);
   buttons_set_commands(huK, huCmd);
-  if (HU.costs[huLabel] !== undefined) HU.slots[huLabel] = huK;
+  // The third field is "main", or the ability this key uses when its label
+  // is an abbreviation ("SBP" for Spinningbackfist); otherwise the label is
+  // the ability name.
+  var huAb = (huRow[2] && huRow[2] != "main") ? huRow[2] : huLabel;
+  if (HU.costs[huAb] !== undefined) HU.slots[huAb] = huK;
   if (huRow[2] == "main") HU.main.push(huK);
   if (huTogOn) buttons_set_highlight(huK, 1);
 }

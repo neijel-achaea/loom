@@ -19,6 +19,8 @@ HU.classes["Magi"] = {
 
 Twelve rows, F1 first: `[label, command]`, or `[label, command, "main"]` for a
 key that lights whenever you have balance and equilibrium (your basic attack).
+When the label is an abbreviation, put the ability's name third so its rage
+highlight still works: `["SBP", huQ + "sbp @tar", "Spinningbackfist"]`.
 
 - `huQ` is the queue prefix for battlerage abilities: `huQ + "cast windlash at @tar"`.
 - A key whose label is in `rage` lights when that ability is ready: off
