@@ -27,6 +27,12 @@ HU.classes["Sentinel"] = {
     ["", ""],
     ["Shield", "touch shield"]
   ],
+  // Morphing breaks if anything is sent: pause from the call to the spirits
+  // until the transformation (or the Morph change in charstats).
+  pauses: [
+    [/^You throw your arms wide and a cry rings out from your lips, a clarion call to the ancient spirits of nature to taste the joy of life once more\.$/,
+     /^You are surrounded by a shining corona of blinding light as your soul is transformed by metamorphosis\.$/]
+  ],
   rage: { Pester: 14, Skewer: 36, Bore: 17, Swarm: 25, Tame: 32, Goad: 18, Provoke: 32 },
   // To capture (#31): Bite, Claw and Maul; Pester; Skewer; Bore (on a
   // shielded target); Swarm, plain and SWARM++ (target in aeon or
