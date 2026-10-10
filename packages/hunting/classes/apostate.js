@@ -5,8 +5,12 @@
 // Burrow 23s, Bloodlet 23s, Possess 43s, Horrify 34s, Provoke 20s.
 // Class condition (charstats, for self): Essence.
 HU.classes["Apostate"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    bleed: ["Bleed", "queue add b!wu!t!p deadeyes @tar bleed bleed"]
+  },
   keys: [
-    ["Bleed", "queue add b!wu!t!p deadeyes @tar bleed bleed", "main"],
+    ["{main}", ""],
     ["Convulsions", huQ + "stare @tar convulsions"],
     ["Burrow", huQ + "daegger burrow @tar"],
     ["Pierce", huQ + "daegger pierce @tar"],

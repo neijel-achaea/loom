@@ -5,10 +5,14 @@
 // Shock 23s, Punishment 23s, Recovery 44s, Provoke 20s, Regeneration 53s.
 // Class conditions (charstats, for self): Wrath, wrathbal, Spec.
 HU.classes["Paladin"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    doubleslash: ["Doubleslash", "queue add b!wu!t!p dsl @tar"]
+  },
   keys: [
     // Doubleslash with no spec yet (Spec: None). The other specs' main
     // attacks go in specKeys once tested.
-    ["Doubleslash", "queue add b!wu!t!p dsl @tar", "main"],
+    ["{main}", ""],
     ["Harrow", huQ + "harrow @tar"],
     ["Shock", huQ + "perform rite of shock at @tar"],
     ["Faithrend", huQ + "faithrend @tar"],

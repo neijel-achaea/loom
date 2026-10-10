@@ -6,8 +6,12 @@
 // Class conditions (charstats, for self): Angelpower, Devotion, conviction,
 // prayer_length, Prayer (Yes/No).
 HU.classes["Priest"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    smite: ["Smite", "queue add b!wu!t!p smite @tar"]
+  },
   keys: [
-    ["Smite", "queue add b!wu!t!p smite @tar", "main"],
+    ["{main}", ""],
     ["Torment", huQ + "angel torment @tar"],
     ["Desolation", huQ + "perform rite of desolation on @tar"],
     ["Crack", huQ + "crack @tar"],

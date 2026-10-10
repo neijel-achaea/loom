@@ -30,6 +30,24 @@ highlight still works: `["SBP", huQ + "sbp @tar", "Spinningbackfist"]`.
   `{DRAGON}` gut or incantation, `{MODE}` the dragon mode.
 - `["", ""]` leaves a key empty.
 
+## mains
+
+The main attacks F1 can use, by name. Put `["{main}", ""]` as F1: it shows
+the one in use, lit on balance and equilibrium.
+
+```js
+mains: {
+  overhand: ["Overhand", "queue add b!wu!t!p weave overhand @tar"],
+  charge: ["Charge", "queue add b!wu!t!p weave charge @tar"]
+},
+specMain: { "Two Handed": "slaughter" }   // optional: default per spec
+```
+
+In game, `HUNTING MAIN` lists them, `HUNTING MAIN CHARGE` switches (kept per
+class), and `HUNTING MAIN DEATHBLOW = weave deathblow @tar` adds one without
+editing this file, handy while testing. The default is the one picked, else
+the spec's, else the first.
+
 ## toggles (optional)
 
 Things a key switches on and off, such as the Serpent's sneaking:
@@ -58,6 +76,7 @@ specKeys: {
 
 Hunting redraws the keys when the spec changes. Lines don't need this: put
 every spec's attack lines in `lines`, only the one you use will ever show.
+For the main attack, `specMain` (above) is simpler.
 
 ## rage
 

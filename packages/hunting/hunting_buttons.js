@@ -31,6 +31,7 @@ if (huSpecRows) {
 }
 HU.slots = {};
 HU.main = [];
+run_function("hunting_mainlist", [], "hunting");
 
 for (var huK = 1; huK <= 12; huK++) {
   buttons_set_highlight(huK, 0);
@@ -40,6 +41,13 @@ for (var huK = 1; huK <= 12; huK++) {
   if (huLabel == "{stats}") {
     huLabel = huStats ? "Stats" : "";
     huCmd = huStats ? "huntstats" : "";
+  }
+  // {main}: the main attack in use (HUNTING MAIN); lit on balance and
+  // equilibrium.
+  if (huLabel == "{main}") {
+    huLabel = HU.mainNow ? HU.mainNow.label : "";
+    huCmd = HU.mainNow ? HU.mainNow.cmd : "";
+    if (HU.mainNow) HU.main.push(huK);
   }
   // {toggle:name}: a class toggle; the label shows its state, the key runs
   // HUNTING TOGGLE and is lit while the toggle is on.

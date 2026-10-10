@@ -5,10 +5,14 @@
 // Lash 23s, Erasure 23s, Curse 35s, Boinad 38s, Provoke 20s.
 // Class conditions (charstats, for self): Word (Yes/No), Age.
 HU.classes["Depthswalker"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    cull: ["Cull", "queue add eb!wu!t!p shadow cull @tar"]
+  },
   keys: [
     // Cull: the help doesn't say bal or eq, so it waits for both until #31
     // shows which one it uses.
-    ["Cull", "queue add eb!wu!t!p shadow cull @tar", "main"],
+    ["{main}", ""],
     ["Drain", huQ + "shadow drain @tar"],
     ["Lash", huQ + "shadow lash @tar"],
     ["Nakail", huQ + "intone nakail @tar"],

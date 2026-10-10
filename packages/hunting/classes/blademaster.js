@@ -5,8 +5,12 @@
 // Spinslash 23s, Headstrike 23s, Daze 33s, Nerveslash 31s, Provoke 20s.
 // Class conditions (charstats, for self): Shin, Stance.
 HU.classes["Blademaster"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    drawslash: ["Drawslash", "queue add b!wu!t!p drawslash @tar sternum"]
+  },
   keys: [
-    ["Drawslash", "queue add b!wu!t!p drawslash @tar sternum", "main"],
+    ["{main}", ""],
     ["Leapstrike", huQ + "leapstrike @tar"],
     ["Spinslash", huQ + "spinslash @tar"],
     ["Shatter", huQ + "shin shatter @tar"],

@@ -46,6 +46,12 @@
         },
         {
           "type": "function",
+          "name": "hunting_mainlist",
+          "enabled": true,
+          "code": "@file:hunting_mainlist.js"
+        },
+        {
+          "type": "function",
           "name": "hunting_help",
           "enabled": true,
           "code": "@file:hunting_help.js"

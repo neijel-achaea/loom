@@ -15,6 +15,8 @@ var hlRows = [
   ["HUNTING AUTOGOLD [ON|ALL|OFF]", "pick up gold from your kills, from any corpse, or not at all"],
   ["HUNTING PARTYTARGET [name|OFF]", "who party-aimed keys act on (the druid's Remedy key)"],
   ["HUNTING AFTERFORM [cmd|OFF]", "command sent when dragonform rises or falls, e.g. DEFCON UP"],
+  ["HUNTING MAIN [name]", "your class's main attack on F1 (no name: list them)"],
+  ["HUNTING MAIN <name> = <command>", "add one for this class, e.g. to try an attack; empty command removes it"],
   ["HUNTING TOGGLE <name> [ON|OFF]", "class toggles on the F-keys, e.g. the Serpent's SNEAK and WEAVE"],
   ["HUNTING BUTTONS", "lay out the F-keys again"],
   ["HUNTING RAGE", "rage, cooldowns and tracked keys"],

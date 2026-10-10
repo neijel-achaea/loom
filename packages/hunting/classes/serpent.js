@@ -5,8 +5,12 @@
 // Throatrip 23s, Snare 23s. Flagellate and Obliviate: not given.
 // Class condition (charstats, for self): Venom.
 HU.classes["Serpent"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    garrote: ["Garrote", "queue add b!wu!t!p garrote @tar"]
+  },
   keys: [
-    ["Garrote", "queue add b!wu!t!p garrote @tar", "main"],
+    ["{main}", ""],
     ["Thrash", huQ + "thrash @tar"],
     ["Throatrip", huQ + "throatrip @tar"],
     ["Excoriate", huQ + "excoriate @tar"],

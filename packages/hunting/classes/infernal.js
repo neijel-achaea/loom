@@ -5,8 +5,14 @@
 // Spike 23s, Hellstrike 23s, Deathlink 43s, Soulshield 37s, Provoke 20s.
 // Class conditions (charstats, for self): Essence, Spec.
 HU.classes["Infernal"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game. The
+  // default follows the specialisation (specMain); other specs to add.
+  mains: {
+    slaughter: ["Slaughter", "queue add b!wu!t!p slaughter @tar"]
+  },
+  specMain: { "Two Handed": "slaughter" },
   keys: [
-    ["", ""],
+    ["{main}", ""],
     ["Ravage", huQ + "ravage @tar"],
     ["Spike", huQ + "spike @tar"],
     ["Shiver", huQ + "shiver @tar"],
@@ -19,10 +25,6 @@ HU.classes["Infernal"] = {
     ["Soulshield", huQ + "soulshield"],
     ["Shield", "touch shield"]
   ],
-  // The main attack depends on the specialisation. Other specs still to add.
-  specKeys: {
-    "Two Handed": { 1: ["Slaughter", "queue add b!wu!t!p slaughter @tar", "main"] }
-  },
   rage: { Ravage: 14, Spike: 36, Shiver: 17, Hellstrike: 25, Deathlink: 30, Soulshield: 20, Provoke: 32 },
   // Still to capture (#31): the other specs' main attacks, Shiver (on a
   // shielded target), Deathlink, Provoke, and HELLSTRIKE++ (target reckless

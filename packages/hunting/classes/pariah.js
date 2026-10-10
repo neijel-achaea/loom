@@ -5,8 +5,12 @@
 // Feast 23s, Spider 23s, Wail 38s, Symphony 35s, Provoke 20s.
 // Class condition (charstats, for self): epitaph_length.
 HU.classes["Pariah"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    wrack: ["Wrack", "queue add b!wu!t!p blood wrack @tar"]
+  },
   keys: [
-    ["Wrack", "queue add b!wu!t!p blood wrack @tar", "main"],
+    ["{main}", ""],
     ["Boil", huQ + "blood boil @tar"],
     ["Feast", huQ + "swarm feast @tar"],
     ["Scour", huQ + "accursed scour @tar"],

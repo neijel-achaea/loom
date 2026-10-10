@@ -5,10 +5,14 @@
 // 16s, Devastate 23s, Whirlwind 23s, Regrowth 35s, Terror 38s, Provoke 20s.
 // Class conditions: none in charstats.
 HU.classes["Psion"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    overhand: ["Overhand", "queue add b!wu!t!p weave overhand @tar"]
+  },
   keys: [
     // Overhand: learnt early. Charge and later Deathblow are the other main
     // attacks; their lines are kept below so either one shows when used.
-    ["Overhand", "queue add b!wu!t!p weave overhand @tar", "main"],
+    ["{main}", ""],
     ["Barbedblade", huQ + "weave barbedblade @tar"],
     ["Devastate", huQ + "psi devastate @tar"],
     ["Pulverise", huQ + "weave pulverise @tar"],

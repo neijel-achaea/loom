@@ -5,8 +5,12 @@
 // Chaosgate 23s, Fluctuate 23s, Temperance 43s, Stagnate 35s, Provoke 20s.
 // Class conditions (charstats, for self): Karma, Entity (Yes/No).
 HU.classes["Occultist"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    warp: ["Warp", "queue add e!wu!t!p warp @tar"]
+  },
   keys: [
-    ["Warp", "queue add e!wu!t!p warp @tar", "main"],
+    ["{main}", ""],
     ["Harry", huQ + "harry @tar"],
     ["Chaosgate", huQ + "chaosgate @tar"],
     ["Ruin", huQ + "ruin @tar"],

@@ -5,8 +5,12 @@
 // Ensconce 23s, Befuddle 23s, Dustthrow 25s, Rap 33s, Provoke 20s.
 // Class conditions: none in charstats.
 HU.classes["Jester"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    bop: ["Bop", "queue add b!wu!t!p bop @tar"]
+  },
   keys: [
-    ["Bop", "queue add b!wu!t!p bop @tar", "main"],
+    ["{main}", ""],
     ["Noogie", huQ + "noogie @tar"],
     ["Ensconce", huQ + "ensconce firecracker on @tar"],
     ["Jacks", huQ + "throw jacks at @tar"],

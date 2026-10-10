@@ -6,10 +6,14 @@
 // Ripplestrike 27s, Provoke 20s.
 // Class conditions (charstats, for self): Kai, Stance.
 HU.classes["Monk"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    combo: ["Combo", "queue add b!wu!t!p combo @tar sdk ucp ucp"]
+  },
   keys: [
     // One combo on one balance: sidekick, uppercut, uppercut (Eagle Stance).
     // Syntax still to confirm in game.
-    ["Combo", "queue add b!wu!t!p combo @tar sdk ucp ucp", "main"],
+    ["{main}", ""],
     ["SBP", huQ + "sbp @tar", "Spinningbackfist"],
     ["TNK", huQ + "tnk @tar", "Tornadokick"],
     ["SPK", huQ + "spk @tar", "Splinterkick"],

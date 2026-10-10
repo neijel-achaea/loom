@@ -4,8 +4,12 @@
 // Cooldowns (for reference; the game's messages drive them): Miasma 16s,
 // Magnesium 23s, Pathogen 23s, Cadmium 31s, Hypnotic 41s, Provoke 20s.
 HU.classes["Alchemist"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    iron: ["Iron", "queue add e!wu!t!p educe iron @tar"]
+  },
   keys: [
-    ["Iron", "queue add e!wu!t!p educe iron @tar", "main"],
+    ["{main}", ""],
     ["Miasma", huQ + "throw miasma at @tar"],
     ["Magnesium", huQ + "educe magnesium @tar"],
     ["Caustic", huQ + "throw caustic at @tar"],

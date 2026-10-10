@@ -60,6 +60,49 @@ else if (huSub === "afterform") {
     display_notice("[hunting] after dragonform rises or falls: " + (huVal === "off" ? "nothing" : huRest.toUpperCase()) + ".", C);
   }
 }
+else if (huSub === "main") {
+  // HUNTING MAIN: list; HUNTING MAIN <name>: use it; HUNTING MAIN <name> =
+  // <command>: add or replace one for this class; HUNTING MAIN <name> = (empty):
+  // remove an added one.
+  run_function("hunting_mainlist", [], "hunting");
+  var huMeq = huRest.indexOf("=");
+  var huMname = (huMeq >= 0 ? huRest.substring(0, huMeq) : huRest).trim().toLowerCase().replace(/\s+/g, "");
+  var huMcmd = huMeq >= 0 ? huRest.substring(huMeq + 1).trim() : null;
+  if (!HU.cls) {
+    display_notice("[hunting] no class seen yet.", "orange");
+  } else if (huMname === "") {
+    var huMout = [];
+    for (var huMi = 0; huMi < HU.mainList.length; huMi++) {
+      var huMr = HU.mainList[huMi];
+      huMout.push((HU.mainNow && HU.mainNow.name == huMr.name ? "*" : "") + huMr.name.toUpperCase() + (huMr.added ? " (added)" : ""));
+    }
+    display_notice("[hunting] main attacks for " + HU.cls + ": " + (huMout.length ? huMout.join(", ") : "none") + ". HUNTING MAIN <name> to use one, HUNTING MAIN <name> = <command> to add one.", C);
+  } else if (huMcmd !== null) {
+    if (!HU.mainsAdded[HU.cls]) HU.mainsAdded[HU.cls] = {};
+    if (huMcmd === "") {
+      delete HU.mainsAdded[HU.cls][huMname];
+      display_notice("[hunting] removed the added " + huMname.toUpperCase() + " for " + HU.cls + ".", C);
+    } else {
+      HU.mainsAdded[HU.cls][huMname] = huMcmd;
+      HU.mains[HU.cls] = huMname;
+      set_variable("hunting_mains", JSON.stringify(HU.mains));
+      display_notice("[hunting] " + huMname.toUpperCase() + " = " + huMcmd + ", now your main attack as " + HU.cls + ".", "lime");
+    }
+    set_variable("hunting_mains_added", JSON.stringify(HU.mainsAdded));
+    run_function("hunting_buttons", [], "hunting");
+  } else {
+    var huMfound = false;
+    for (var huMj = 0; huMj < HU.mainList.length; huMj++) if (HU.mainList[huMj].name == huMname) huMfound = true;
+    if (!huMfound) {
+      display_notice("[hunting] no main attack " + huMname.toUpperCase() + " for " + HU.cls + ". HUNTING MAIN lists them.", "orange");
+    } else {
+      HU.mains[HU.cls] = huMname;
+      set_variable("hunting_mains", JSON.stringify(HU.mains));
+      run_function("hunting_buttons", [], "hunting");
+      display_notice("[hunting] main attack for " + HU.cls + ": " + huMname.toUpperCase() + ".", "lime");
+    }
+  }
+}
 else if (huSub === "toggle") {
   // Class toggles (classes/*.js "toggles"): flip, or set ON/OFF, and send
   // that state's commands.
