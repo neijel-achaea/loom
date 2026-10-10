@@ -7,7 +7,7 @@ the "{{description}}" placeholder in its registry line.
     python tools/build.py            -> every package into dist/
     python tools/build.py self coffers
 """
-import glob, hashlib, json, os, sys
+import glob, json, os, sys
 
 def resolve(node, folder):
     if isinstance(node, dict):
@@ -43,17 +43,6 @@ def fill(node, value):
         return node.replace(PLACEHOLDER, value)
     return node
 
-BUILD = '"{{build}}"'
-
-def fill_build(node, value):
-    if isinstance(node, dict):
-        return {k: fill_build(v, value) for k, v in node.items()}
-    if isinstance(node, list):
-        return [fill_build(v, value) for v in node]
-    if isinstance(node, str):
-        return node.replace(BUILD, value)
-    return node
-
 def build(name, root="packages", dist="dist"):
     folder = os.path.join(root, name)
     d = resolve(json.load(open(os.path.join(folder, "package.json"), encoding="utf-8")), folder)
@@ -63,11 +52,6 @@ def build(name, root="packages", dist="dist"):
     if not desc or "\n" in desc or len(desc) > MAX_DESCRIPTION:
         sys.exit("%s: the description must be one line of 1-%d characters (it is %d)" % (name, MAX_DESCRIPTION, len(desc)))
     d = fill(d, json.dumps(desc, ensure_ascii=False))
-    # "{{build}}": a stamp of this exact build, so a package can tell that it
-    # was imported over itself (Nexus does not rerun onLoad then) and rebuild
-    # its state.
-    stamp = hashlib.sha1(json.dumps(d, sort_keys=True).encode("utf-8")).hexdigest()[:10]
-    d = fill_build(d, json.dumps(stamp))
     os.makedirs(dist, exist_ok=True)
     path = os.path.join(dist, name + ".nxs")
     json.dump(d, open(path, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
