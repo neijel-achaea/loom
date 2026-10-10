@@ -65,22 +65,6 @@
    "code": "@file:coffers_help.js"
   },
   {
-   "type": "trigger",
-   "name": "",
-   "enabled": true,
-   "actions": [
-    {
-     "type": "script",
-     "enabled": true,
-     "script": "@file:trigger_prompt_tick.js"
-    }
-   ],
-   "text": "^\\d+h,\\s*\\d+m,",
-   "matching": "regexp",
-   "whole_words": false,
-   "case_sensitive": false
-  },
-  {
    "type": "alias",
    "name": "",
    "enabled": true,

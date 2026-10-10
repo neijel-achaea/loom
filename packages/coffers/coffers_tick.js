@@ -1,4 +1,4 @@
-// Runs on every prompt. Wealth is gold on hand + bank, so a deposit or a
+// Runs once per prompt, from Char.Vitals (see onGMCP). Wealth is gold on hand + bank, so a deposit or a
 // withdrawal moves nothing; only money that enters or leaves the character
 // counts as income or spending.
 if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
