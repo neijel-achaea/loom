@@ -24,10 +24,14 @@ HU.classes["Blademaster"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Leapstrike: 14, Spinslash: 36, Shatter: 17, Headstrike: 25, Daze: 26, Nerveslash: 22, Provoke: 32 },
-  // To capture (#31): Drawslash (check that STERNUM works); Leapstrike; Spinslash; Shatter (on a
-  // shielded target); Headstrike, plain and HEADSTRIKE++ (target reckless or
-  // afraid); Daze; Nerveslash; Provoke. Also check the name the game uses in
-  // "You can use ... again" for Headstrike (typed as STRIKE HEAD).
+  // Past level 35 (#149): Headstrike, plain and HEADSTRIKE++ (target
+  // reckless or afraid), and the name the game uses for it in "You can use
+  // ... again" (typed as STRIKE HEAD); Nerveslash; Provoke.
   lines: [
+    [/^With expert precision, you draw (.*) from its scabbard and unleash a vicious slash towards (.*)\.$/, "DRAWSLASH"],
+    [/^A Shin-enhanced leap flings you high into the air\.$/, "LEAPSTRIKE", "Leapstrike"],
+    [/^You hurl a precise blast of Shin energy at (.*)'s eyes\.$/, "DAZE", "Daze"],
+    [/^You unleash a burst of Shin energy at (.*), tearing apart (\w+) translucent shield\.$/, "SHATTER", "Shatter"],
+    [/^You twist in a tight circle, slashing (.*) with each spin\.$/, "SPINSLASH", "Spinslash"]
   ]
 };
