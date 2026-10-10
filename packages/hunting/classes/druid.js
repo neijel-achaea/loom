@@ -2,8 +2,12 @@
 // See classes/README.md for the format. Only this file changes when the
 // game rewords an attack or a key needs moving.
 HU.classes["Druid"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    maul: ["Maul", "queue add b!wu!t!p wreathe | queue add b!wu!t!p maul @tar"]
+  },
   keys: [
-    ["Maul", "queue add b!wu!t!p wreathe | queue add b!wu!t!p maul @tar"],
+    ["{main}", ""],
     ["Strangle", huQ + "strangle @tar"],
     ["Ravage", huQ + "ravage @tar"],
     ["Vinecrack", huQ + "vinecrack @tar"],
@@ -15,6 +19,12 @@ HU.classes["Druid"] = {
     ["Diag", "diagnose"],
     ["Barrier", "evoke barrier"],
     ["Shield", "touch shield"]
+  ],
+  // Morphing breaks if anything is sent: pause from the call to the spirits
+  // until the transformation (or the Morph change in charstats).
+  pauses: [
+    [/^You throw your arms wide and a cry rings out from your lips, a clarion call to the ancient spirits of nature to taste the joy of life once more\.$/,
+     /^You are surrounded by a shining corona of blinding light as your soul is transformed by metamorphosis\.$/]
   ],
   rage: { Strangle: 14, Redeem: 22, Vinecrack: 17, Ravage: 36, Sear: 25, Glare: 14 },
   lines: [

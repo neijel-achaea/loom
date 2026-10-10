@@ -23,8 +23,15 @@ var huStats = (client.loom.registry && client.loom.registry.huntstats) || get_va
 // A class with no layout yet gets the generic keys only.
 var huGeneric = [["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["", ""], ["{stats}", ""], ["Diag", "diagnose"], ["", ""], ["Shield", "touch shield"]];
 var huRows = (huEntry && huEntry.keys) || huGeneric;
+// Keys that depend on your specialisation: specKeys["<Spec>"] = { <F-key>: row }.
+var huSpecRows = huEntry && huEntry.specKeys && HU.spec ? huEntry.specKeys[HU.spec] : null;
+if (huSpecRows) {
+  huRows = huRows.slice();
+  for (var huF in huSpecRows) huRows[to_number(huF) - 1] = huSpecRows[huF];
+}
 HU.slots = {};
 HU.main = [];
+run_function("hunting_mainlist", [], "hunting");
 
 for (var huK = 1; huK <= 12; huK++) {
   buttons_set_highlight(huK, 0);
@@ -35,13 +42,35 @@ for (var huK = 1; huK <= 12; huK++) {
     huLabel = huStats ? "Stats" : "";
     huCmd = huStats ? "huntstats" : "";
   }
+  // {main}: the main attack in use (HUNTING MAIN); lit on balance and
+  // equilibrium.
+  if (huLabel == "{main}") {
+    huLabel = HU.mainNow ? HU.mainNow.label : "";
+    huCmd = HU.mainNow ? HU.mainNow.cmd : "";
+    if (HU.mainNow) HU.main.push(huK);
+  }
+  // {toggle:name}: a class toggle; the label shows its state, the key runs
+  // HUNTING TOGGLE and is lit while the toggle is on.
+  var huTog = huLabel.match(/^\{toggle:(\w+)\}$/);
+  var huTogOn = false;
+  if (huTog) {
+    var huTogDef = (huEntry && huEntry.toggles && huEntry.toggles[huTog[1]]) || {};
+    huTogOn = HU.toggles[huTog[1]] === "on";
+    huLabel = (huTogDef.label || huTog[1]) + (huTogOn ? " ON" : " OFF");
+    huCmd = "hunting toggle " + huTog[1];
+  }
   huLabel = huLabel.replace("{DRAGON}", huDragon == "gut" ? "Gut" : "Incantation").replace("{MODE}", huMode);
   huCmd = huCmd.replace("{dragon}", huDragon).replace("{staff}", huStaff).replace("{target}", huTarget).replace(/\s+$/, "");
   buttons_set_label(huK, huLabel);
   buttons_set_commands(huK, huCmd);
-  if (HU.costs[huLabel] !== undefined) HU.slots[huLabel] = huK;
+  // The third field is "main", or the ability this key uses when its label
+  // is an abbreviation ("SBP" for Spinningbackfist); otherwise the label is
+  // the ability name.
+  var huAb = (huRow[2] && huRow[2] != "main") ? huRow[2] : huLabel;
+  if (HU.costs[huAb] !== undefined) HU.slots[huAb] = huK;
   if (huRow[2] == "main") HU.main.push(huK);
+  if (huTogOn) buttons_set_highlight(huK, 1);
 }
 
-if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.cls || "no class") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");
+if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.cls || "no class") + (HU.spec ? ", spec " + HU.spec : "") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");
 run_function("hunting_highlight", [], "hunting");

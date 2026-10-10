@@ -1,0 +1,214 @@
+Source: Mhaldor CLHELP (in-game city help), pasted by Ricardo 2026-10-09.
+Reference for #30 (hunting attacks) and defcon tables (defensive abilities). Covers Mhaldor's classes only; ends mid-Shaman.
+Take with a grain of salt (Ricardo): the Two-Handed Slaughter/Carve split is
+out of date, and the "defensive abilities" mix in skills you use rather than
+keep up (e.g. Jester's Priestess, a tarot card), so they aren't defcon
+defences as listed.
+
+-----Alchemist-----
+Hunting Ability: Iron, Wrack*
+Defensive Ability: Robes**, Tin (damage reflection), Salt (afflictions)
+and Sulphur (increase efficiency of health vials)
+Weapon: None
+Armor: Ringmail
+Shield: Cavalry
+*Wrack has potential for more damage per second, especially with the
+Nimble trait, but Iron scales damage with Alchemy, which is the first
+area of focus. Wrack can have its damage TYPE changed to 4 different
+types if you use -- WRACK <target> <type> -- using either Choleric
+(poison), Melancholic (cold), Phlegmatic (asphyxiation), or Sanguine
+(magic). By default it does choleric.
+**Robes can be imbued with four elements for additional effects.
+Generally start with Lead, Iron, Salt, Tin.
+Notes:
+--> Kill a rat and use EXTISPICY to increase chances of critical
+strikes.
+--> Should you need to bond with the anchor, it can be found at
+'Crossing a peak in the mountains' in the Northern Vashnar Mountains.
+Once you reach it, TOUCH ANCHOR to attune yourself. Seek out a superior
+if you need assistance getting there.
+-----Apostate-----
+Hunting Ability: Decay (Necromancy), then Deadeyes Bleed Bleed
+Defensive Ability: Armour (Apostasy)
+Weapon: Daegger (Apostasy)
+Armor: Ringmail
+Shield: Cavalry
+-----Bard-----
+Hunting Ability: Jab or Highsun
+Defensive Ability: Tune, Prelude (magic resist)
+Weapon: Rapier (Songblessed)*
+Armor: Leather
+Shield: Buckler
+*You begin with a Songblessed Rapier. Any new rapier will need to be
+taken to the grotto to be Songblessed once more.
+Notes:
+--> Compositions have various effects. Most important to hunting are
+movements: Maqam for increased critical hit chance, Aria for endurance
+and Willpower regeneration (useful on extended hunting trips), Scherzo
+for health regeneration, and Prelude for increased magic resistance.
+-----Blademaster-----
+Hunting Ability: Drawslash <Target> Sternum while in a Stance*; Infuse
+Fire**; Multislash much later***
+Defensive Ability: Constitution, Alleviate (remove afflictions),
+eventually Toughness and Weathering (in Shindo)
+Weapon: TwoArts Blade****
+Armor: Scalemail
+Shield: None
+*Blademasters fight in stances. Use Doya (Damage increase) until you
+unlock Thyr (Speed). Thyr ends up more damage per second. Arash can be
+useful, but while it increases damage dealt, it increases damage
+received by 20%. Often the tradeoff means fleeing more often to heal,
+and dying more often while hunting.
+**At level 30, if you are within a house, you can EMBRACE CLASS and gain
+access to Shindo. You must learn up to Shin Trance to gain shin energy,
+allowing you to infuse. Uses willpower.
+***Can be infused, but does not gain Shin energy. Does more damage per
+second, but takes longer to recover and also uses much more endurance.
+****Unlike other warriors who can buy weapons in shops, Blademasters
+must obtain a named blade from Kavaya and Murad (see AB BLADENAME) a"see
+Notes below.
+Notes:
+--> Getting your TwoArts Blade should be your first priority overall,
+ahead of the skill priorities above. Seek out Kavaya and Murad, bow to
+Kavaya respectfully, indicate your interest, and then bring Murad the
+materials he requests. Guidance on where these can be found is in CLHELP
+BLADEMASTERQUEST.
+-----Depthswalker-----
+Hunting Ability: Cull (slower, but more damage), then Reap (faster)
+Defensive Ability: Images, Shadow Cloak, Rewind (healing) and Accelerate
+(afflictions)
+Weapon: Scythe (Manifested - AB MANIFEST)
+Armor: Scalemail
+Shield: Cavalry
+-----Jester-----
+Hunting Ability: Bop, Gallowshumour (below 50% health)
+Defensive Ability: Fool (afflictions), Priestess (healing), Magician
+(mana), Sun (passive healing, short-lived)
+Weapon: Blackjack*
+Armor: Scalemail
+Shield: Banded
+*Wished for with 500g using the Props ability in Pranks.
+-----Warrior (Infernal or Runewarden)-----
+Hunting Ability: Varies by specialisation (see Notes)
+Defensive Ability: Varies by specialisation (see Notes)
+Weapon: Varies by specialisation (see Notes)
+Armor: Field Plate or Full Plate*
+Shield: Varies by specialisation (see Notes)
+*Full Plate is the better but much more expensive option. Infernals
+should hellforge their gear to strengthen it.
+Notes:
+--> Infernals and Runewardens operate differently from other classes
+because your specialisation determines the skills and weapons you use.
+--> At 23 Lessons into Weaponmastery you will learn Specialise, which
+lets you choose a weapon style. Choose carefully a"changing your
+specialisation afterward costs 100 lessons.
+----> Two-Handed: Weapon - Warhammer or Bastard Sword; Shield - None;
+Hunting Abilities - Slaughter (Warhammer) and Carve (Bastard Sword).
+----> Dual Cutting: Weapon - Two Scimitars or two axes; Shield - None;
+Hunting Abilities - Doubleslash and Razeslash.
+----> Dual Blunt: Weapon - Two Morning Stars; Shield - None; Hunting
+Abilities - Doublewhirl and Fracture.
+----> Sword and Shield: Weapon - Longsword or Broadsword; Shield - Tower
+Shield; Hunting Abilities - Combination (Slice and Smash).
+----> Warning: Do not summon a hyena (Infernals) or falcon (Runewardens)
+until you are sure you can do so. This will generally not be for some
+time, until you have joined a Mhaldorian House and advanced sufficiently
+through its ranks.
+-----Magi-----
+Hunting Ability: Firelash, Staffcast** with rapidity
+Defensive Ability: Stoneskin, then Diamondskin; Reflect (absorbs one
+attack)
+Weapon: None***
+Armor: Cloth
+Shield: None
+*At level 30, if you are in a house, you can EMBRACE CLASS to unlock
+Artificing. At that point, save at least 23 lessons to craft your
+elemental staff; beyond that, both Elementalism and Artificing are valid
+next investments.
+**Later on, with Artificing.
+***Eventually, you will be able to create your own elemental staff.
+-----Monk-----
+Hunting Ability: Very early, while in Horse Stance (HRS), combo
+Snapkick, Jab, Jab*; after a few lessons, while in Eagle Stance** (EGS),
+combo Sidekick, Uppercut, Uppercut
+Defensive Ability: Weathering, Vitality, Toughness, Bodyblock (reduce
+physical, Tekura 112 Lessons), Regeneration (heal while draining mana,
+Kaido 134 Lessons), Resistance (magic defense, Kaido 267 Lessons)
+Weapon: None
+Armor: Leather
+Shield: None
+*Monks fight by chaining combinations together to unleash devastating
+combinations of blows called a combo. Typically, these consist of being
+in a stance, a kick, and two punches.
+**Stances are abilities within Tekura that impact how a monk fights
+while in them. For example, the Eagle Stance will make subsequent
+punches and kicks faster. While hunting, you should stay in Eagle until
+far down the line, when you learn Scorpion.
+-----Pariah-----
+Hunting Ability: Blood Wrack* until you can trace a cyclical epitaph,
+Sting (Pestilence)
+Defensive Ability: Shield** (primary defence, keep up at all times)
+Weapon: Ritual knife**
+Armor: Trace Shield
+Shield: None
+*When hunting, it can be your own blood. In combat with another
+adventurer, you will need their blood through Sanguine Hand. This is
+likely irrelevant early on.
+**Before beginning, you will need your ritual knife, and blood in it.
+This must be done in a desert a"walk to the Mhojave. CRUX DRAW to get
+your knife, then CRUX LET ME to get your blood into it, then TRACE
+SHIELD ME to get your defence up.
+Notes:
+--> Upon achieving Charnel, seek someone out for advice.
+--> To utilise most of Charnel, you'll need to read the tablet at the
+landmark PARIAHTABLET and undergo the ritual in your crypt built in the
+desert. The Chamber of Interment is one of the most important.
+-----Psion-----
+Hunting Ability: Overhand, eventually Deathblow (same damage, both
+faster than Charge); eventually Flurry (a finishing blow a"higher
+damage, slightly slower speed); Guided Strike (increase criticals) in
+Emulation
+Defensive Ability: Secondskin, Rally (health)
+Weapon: None***
+Armor: Cloth****
+Shield: Buckler
+*Unlocked upon embracing class, then the trip to Nur.
+**Transcend fully charges every five attacks. This can be used with
+Splinter for a balanceless shield break, or combined with Shatter for
+additional damage to denizens.
+***Psion abilities create spectral weapons that dissipate after the
+attack.
+****Secondskin acts as your main armour; cloth is nearly useless.
+Notes:
+--> Once you embrace this class, you can learn Emulation. However,
+learning Emulation also involves taking a pilgrimage to Nur, accessible
+by entering the flame at Yggdrasil and climbing up. It is a dangerous
+journey a"see the PSIONNUR scroll.
+--> To learn Emulation from a denizen, it must be Candlemas in Azdun.
+Weaving and Psionics must also be learned from Candlemas after a certain
+point if you wish to learn from a denizen. Otherwise, learn from another
+adventurer.
+-----Serpent-----
+Hunting Ability: Bite with Sumac until you have a whip or lash for
+Garrote
+Defensive Ability: Scales
+Weapon: Whip or Lash*
+Armor: Scalemail
+Shield: Buckler
+*Whip is stronger, Lash is faster. Try for a Lash a"speed is better.
+-----Shaman-----
+Hunting Ability: Bleed*
+Defensive Ability: Invoke Regeneration**
+Weapon: None
+Armor: Scalemail
+Shield: Cavalry
+*As you learn more in Curses, you'll pick up the ability to curse
+straight through magical shields with Truecurse (423 Lessons), and to
+curse much more swiftly with Swiftcurse (876 Lessons).
+**Must Commune using a ritual drum, available in Delos at Sundries of
+Delos. Sit, commune, and bind all five spirits you have. After that,
+Attune Ri'Shen for regeneration level 1. You can also attune Arius for
+increased mana regeneration, or Daina for willpower regeneration. Check
+SPIRIT BINDINGS to confirm at least Ri'Shen is attuned, plus one more
+spirit a"the rest should be listed as bound. You must re-commune, bind,
+and attune every time you enter the realms to use 

@@ -25,3 +25,25 @@ if (huLines && huLines.length) {
     break;
   }
 }
+
+// Toggles that keep something up while on: a "renew" line means it dropped,
+// so its command is sent again (not while triggers are paused).
+var huTg = huCls && huCls.toggles;
+if (huTg && get_variable("pauseTriggers") != "on") {
+  var huLine = String(args[1] || "");
+  for (var huTn in huTg) {
+    var huRn = huTg[huTn].renew;
+    if (huRn && HU.toggles[huTn] === "on" && huRn[0].test(huLine)) send_command(huRn[1]);
+  }
+}
+
+// Interruptible abilities (Sentinel morph): a "pauses" row's first pattern
+// pauses every package that respects pauseTriggers, its second resumes them.
+var huPs = huCls && huCls.pauses;
+if (huPs) {
+  var huPl = String(args[1] || "");
+  for (var huPi = 0; huPi < huPs.length; huPi++) {
+    if (huPs[huPi][0].test(huPl)) { set_variable("pauseTriggers", "on"); HU.paused = true; }
+    else if (huPs[huPi][1] && huPs[huPi][1].test(huPl)) { set_variable("pauseTriggers", "off"); HU.paused = false; }
+  }
+}

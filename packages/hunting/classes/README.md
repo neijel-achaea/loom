@@ -19,6 +19,8 @@ HU.classes["Magi"] = {
 
 Twelve rows, F1 first: `[label, command]`, or `[label, command, "main"]` for a
 key that lights whenever you have balance and equilibrium (your basic attack).
+When the label is an abbreviation, put the ability's name third so its rage
+highlight still works: `["SBP", huQ + "sbp @tar", "Spinningbackfist"]`.
 
 - `huQ` is the queue prefix for battlerage abilities: `huQ + "cast windlash at @tar"`.
 - A key whose label is in `rage` lights when that ability is ready: off
@@ -27,6 +29,71 @@ key that lights whenever you have balance and equilibrium (your basic attack).
   `{staff}` the staff attack, `{target}` the party target, `{dragon}` /
   `{DRAGON}` gut or incantation, `{MODE}` the dragon mode.
 - `["", ""]` leaves a key empty.
+
+## mains
+
+The main attacks F1 can use, by name. Put `["{main}", ""]` as F1: it shows
+the one in use, lit on balance and equilibrium.
+
+```js
+mains: {
+  overhand: ["Overhand", "queue add b!wu!t!p weave overhand @tar"],
+  charge: ["Charge", "queue add b!wu!t!p weave charge @tar"]
+},
+specMain: { "Two Handed": "slaughter" },  // optional: default per spec
+morphMain: { "Wolf": "bite" }             // optional: default per morph
+```
+
+In game, `HUNTING MAIN` lists them, `HUNTING MAIN CHARGE` switches (kept per
+class), and `HUNTING MAIN DEATHBLOW = weave deathblow @tar` adds one without
+editing this file, handy while testing. The default is the one picked, else
+the spec's or morph's, else the first. Changing spec or morph drops the
+hand-picked one, so F1 follows.
+
+## toggles (optional)
+
+Things a key switches on and off, such as the Serpent's sneaking:
+
+```js
+toggles: {
+  sneak: { label: "Sneak", on: ["hide", "conjure cloak"], off: ["emerge", "dispel self"],
+           renew: [/^Your shroud dissipates/, "conjure cloak"] }
+}
+```
+
+Put `["{toggle:sneak}", ""]` in `keys`: the key reads "Sneak ON" or "Sneak
+OFF", is lit while on, and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
+while the toggle is on, seeing that line sends the command again.
+
+## pauses (optional)
+
+Abilities that break if anything is sent while they happen, such as a
+Sentinel's morph: `[/starts/, /finishes/]`. The first line sets
+`pauseTriggers` on, so other packages hold back; the second sets it off.
+
+```js
+pauses: [
+  [/^You begin to morph/, /^You have finished morphing/]
+]
+```
+
+For a morph, the second pattern is optional: the `Morph:` change in
+charstats also ends the pause.
+
+## specKeys (optional)
+
+For classes whose attacks depend on the specialisation in `charstats`
+(`Spec: Two Handed`): keys that replace the defaults for that spec, by F-key.
+
+```js
+specKeys: {
+  "Two Handed": { 1: ["Slaughter", "queue add b!wu!t!p slaughter @tar", "main"] }
+}
+```
+
+Hunting redraws the keys when the spec changes. Lines don't need this: put
+every spec's attack lines in `lines`, only the one you use will ever show.
+For the main attack, `specMain` (above) is simpler.
 
 ## rage
 

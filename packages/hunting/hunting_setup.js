@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.3.2", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "0.4.0", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -20,6 +20,22 @@ HU.lineBg = "#000000";
 if (!HU.cd) HU.cd = {};
 if (!HU.slots) HU.slots = {};
 if (HU.glob === undefined) HU.glob = true;
+// Main attack chosen per class (HUNTING MAIN), and the ones added in game:
+// { "Psion": "overhand" }, { "Psion": { "deathblow": "weave deathblow @tar" } }.
+if (!HU.mains) {
+  HU.mains = {};
+  try { HU.mains = JSON.parse(get_variable("hunting_mains") || "{}") || {}; } catch (e) { HU.mains = {}; }
+}
+if (!HU.mainsAdded) {
+  HU.mainsAdded = {};
+  try { HU.mainsAdded = JSON.parse(get_variable("hunting_mains_added") || "{}") || {}; } catch (e) { HU.mainsAdded = {}; }
+}
+// Class toggles' state (sneak, weave...): { name: "on" | "off" }, kept so a
+// reload remembers it.
+if (!HU.toggles) {
+  HU.toggles = {};
+  try { HU.toggles = JSON.parse(get_variable("hunting_toggles") || "{}") || {}; } catch (e) { HU.toggles = {}; }
+}
 if (HU.rage === undefined) HU.rage = 0;
 
 // Class: followed from GMCP in onGMCP, and kept in hunting_class because the

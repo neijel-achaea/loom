@@ -2,8 +2,12 @@
 // See classes/README.md for the format. Only this file changes when the
 // game rewords an attack or a key needs moving.
 HU.classes["Sylvan"] = {
+  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
+  mains: {
+    thornrend: ["Thornrend", "queue add e!wu!t!p thornrend @tar"]
+  },
   keys: [
-    ["Thornrend", "queue add e!wu!t!p thornrend @tar", "main"],
+    ["{main}", ""],
     ["Torrent", huQ + "cast torrent at @tar"],
     ["Sandstorm", huQ + "cast sandstorm at @tar"],
     ["Thornpierce", huQ + "thornpierce @tar"],
