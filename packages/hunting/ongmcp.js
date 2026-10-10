@@ -44,17 +44,30 @@ if (args.gmcp_method == "Char.Vitals") {
   }
   // Specialisation (Infernal, Paladin, Runewarden): some keys depend on it,
   // so a change lays the keys out again.
-  var huSpec = null;
+  // Morph (Sentinel): picks the main attack, like the spec.
+  var huSpec = null, huMorph = null;
   if (stats) {
     for (var huS = 0; huS < stats.length; huS++) {
       var huSm = String(stats[huS]).match(/^Spec:\s*(.+)$/);
       if (huSm) huSpec = huSm[1];
+      var huMm = String(stats[huS]).match(/^Morph:\s*(.+)$/);
+      if (huMm) huMorph = huMm[1];
     }
   }
+  var huRedraw = false;
   if (huSpec !== null && huSpec !== HU.spec) {
+    // A real change (not the first reading after a load) drops the main
+    // attack picked by hand, so the new spec's default takes over.
+    if (HU.spec !== undefined && HU.mains[HU.cls]) { delete HU.mains[HU.cls]; set_variable("hunting_mains", JSON.stringify(HU.mains)); }
     HU.spec = huSpec;
-    run_function("hunting_buttons", [], "hunting");
+    huRedraw = true;
   }
+  if (huMorph !== null && huMorph !== HU.morph) {
+    if (HU.morph !== undefined && HU.mains[HU.cls]) { delete HU.mains[HU.cls]; set_variable("hunting_mains", JSON.stringify(HU.mains)); }
+    HU.morph = huMorph;
+    huRedraw = true;
+  }
+  if (huRedraw) run_function("hunting_buttons", [], "hunting");
   // Balance and equilibrium arrive on every vitals message, so refresh the
   // highlights each time (the main attack lights on bal + eq).
   run_function("hunting_highlight", [], "hunting");

@@ -3,7 +3,8 @@
 // Order: the class file's "mains", then those added with HUNTING MAIN x = cmd
 // (an added one with the same name replaces the file's). In use: the one
 // picked with HUNTING MAIN, else the class's default for your spec
-// (specMain), else the first.
+// (specMain) or morph (morphMain), else the first. A spec or morph change
+// drops the hand-picked one (see onGMCP).
 var HU = client.loom.hunting;
 var mlEntry = HU.classes[HU.cls] || {};
 var mlFile = mlEntry.mains || {};
@@ -25,5 +26,6 @@ for (var mlA in mlAdded) {
 }
 var mlPick = HU.mains[HU.cls];
 if (!mlPick || !mlByName[mlPick]) mlPick = (mlEntry.specMain && HU.spec && mlEntry.specMain[HU.spec]) || "";
+if (!mlPick || !mlByName[mlPick]) mlPick = (mlEntry.morphMain && HU.morph && mlEntry.morphMain[HU.morph]) || "";
 if (!mlPick || !mlByName[mlPick]) mlPick = HU.mainList.length ? HU.mainList[0].name : "";
 HU.mainNow = mlPick ? mlByName[mlPick] : null;

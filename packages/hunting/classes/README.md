@@ -40,13 +40,15 @@ mains: {
   overhand: ["Overhand", "queue add b!wu!t!p weave overhand @tar"],
   charge: ["Charge", "queue add b!wu!t!p weave charge @tar"]
 },
-specMain: { "Two Handed": "slaughter" }   // optional: default per spec
+specMain: { "Two Handed": "slaughter" },  // optional: default per spec
+morphMain: { "Wolf": "bite" }             // optional: default per morph
 ```
 
 In game, `HUNTING MAIN` lists them, `HUNTING MAIN CHARGE` switches (kept per
 class), and `HUNTING MAIN DEATHBLOW = weave deathblow @tar` adds one without
 editing this file, handy while testing. The default is the one picked, else
-the spec's, else the first.
+the spec's or morph's, else the first. Changing spec or morph drops the
+hand-picked one, so F1 follows.
 
 ## toggles (optional)
 

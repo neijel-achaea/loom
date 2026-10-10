@@ -5,13 +5,14 @@
 // Skewer 23s, Swarm 23s, Tame 43s, Goad 19s, Provoke 20s.
 // Class condition (charstats, for self): Morph.
 HU.classes["Sentinel"] = {
-  // Main attacks for F1: HUNTING MAIN picks one (BITE, CLAW, MAUL), and adds
-  // more in game.
+  // Main attacks for F1, following the morph; HUNTING MAIN picks another,
+  // and adds more in game.
   mains: {
     bite: ["Bite", "queue add b!wu!t!p bite @tar"],
     claw: ["Claw", "queue add b!wu!t!p claw @tar"],
     maul: ["Maul", "queue add b!wu!t!p maul @tar"]
   },
+  morphMain: { "Wolf": "bite", "Hyena": "claw", "Jaguar": "maul" },
   keys: [
     ["{main}", ""],
     ["Pester", huQ + "pester @tar"],
