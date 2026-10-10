@@ -65,6 +65,21 @@ Put `["{toggle:sneak}", ""]` in `keys`: the key reads "Sneak ON" or "Sneak
 OFF", is lit while on, and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
 while the toggle is on, seeing that line sends the command again.
 
+## pauses (optional)
+
+Abilities that break if anything is sent while they happen, such as a
+Sentinel's morph: `[/starts/, /finishes/]`. The first line sets
+`pauseTriggers` on, so other packages hold back; the second sets it off.
+
+```js
+pauses: [
+  [/^You begin to morph/, /^You have finished morphing/]
+]
+```
+
+For a morph, the second pattern is optional: the `Morph:` change in
+charstats also ends the pause.
+
 ## specKeys (optional)
 
 For classes whose attacks depend on the specialisation in `charstats`

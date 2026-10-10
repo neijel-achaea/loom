@@ -66,6 +66,8 @@ if (args.gmcp_method == "Char.Vitals") {
     if (HU.morph !== undefined && HU.mains[HU.cls]) { delete HU.mains[HU.cls]; set_variable("hunting_mains", JSON.stringify(HU.mains)); }
     HU.morph = huMorph;
     huRedraw = true;
+    // The new morph has arrived: whatever paused for it is done.
+    if (HU.paused) { set_variable("pauseTriggers", "off"); HU.paused = false; }
   }
   if (huRedraw) run_function("hunting_buttons", [], "hunting");
   // Balance and equilibrium arrive on every vitals message, so refresh the
