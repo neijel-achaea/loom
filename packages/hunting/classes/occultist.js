@@ -13,12 +13,17 @@ HU.classes["Occultist"] = {
     ["Fluctuate", huQ + "fluctuate @tar"],
     ["Temperance", huQ + "temper @tar"],
     ["Stagnate", huQ + "stagnate @tar"],
-    ["", ""],
+    ["{toggle:sneak}", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],
     ["", ""],
     ["Shield", "touch shield"]
   ],
+  // Sneak: commands still to tune in game. SHROUD to go in; the command to
+  // come out is unknown, so OFF only flips the key for now.
+  toggles: {
+    sneak: { label: "Sneak", on: ["shroud"], off: [] }
+  },
   rage: { Harry: 14, Chaosgate: 36, Ruin: 17, Fluctuate: 25, Temperance: 32, Stagnate: 24, Provoke: 32 },
   // To capture (#31): Warp; Harry; Chaosgate; Ruin (on a shielded target);
   // Fluctuate, plain and FLUCTUATE++ (target afraid or amnesiac); Temperance;
