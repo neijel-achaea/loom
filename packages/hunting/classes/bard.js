@@ -24,9 +24,13 @@ HU.classes["Bard"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Moulinet: 14, Howlslash: 36, Resonance: 17, Cyclone: 25, Trill: 28, Charm: 32, Provoke: 32 },
-  // To capture (#31): Jab; Moulinet; Howlslash; Resonance (on a shielded
-  // target); Cyclone, plain and CYCLONE++ (target clumsy or stunned); Trill;
-  // Charm; Provoke.
+  // Past level 35 (#149): Cyclone, plain and CYCLONE++ (target clumsy or
+  // stunned), Charm, Provoke.
   lines: [
+    [/^You dart out (.*) in a lightning-fast jab to the (\w+) of (.*)\.$/, "JAB"],
+    [/^You twist your wrist swiftly, slicing (.*) with a long slash of your sweeping blade\.$/, "MOULINET", "Moulinet"],
+    [/^You use your powerful voice to distract (.*) with a ululating howl before stepping in with a vicious slash\.$/, "HOWLSLASH", "Howlslash"],
+    [/^You hum a low note at (.*), causing (\w+) translucent shield to shatter as it resonates with the power of your voice\.$/, "RESONANCE", "Resonance"],
+    [/^You direct your voice in a high-pitched trill at (.*), dazing (\w+)\.$/, "TRILL", "Trill"]
   ]
 };
