@@ -23,15 +23,19 @@ HU.classes["Occultist"] = {
     ["", ""],
     ["Shield", "touch shield"]
   ],
-  // Sneak: SHROUD / UNSHROUD.
+  // Sneak: SHROUD / UNSHROUD; shrouds again when it dissipates while on.
   toggles: {
-    sneak: { label: "Sneak", on: ["shroud"], off: ["unshroud"] }
+    sneak: { label: "Sneak", on: ["shroud"], off: ["unshroud"],
+             renew: [/^Your shroud dissipates and you return to the realm of perception\.$/, "shroud"] }
   },
   rage: { Harry: 14, Chaosgate: 36, Ruin: 17, Fluctuate: 25, Temperance: 32, Stagnate: 24, Provoke: 32 },
-  // To capture (#31): Warp; Harry; Chaosgate; Ruin (on a shielded target);
-  // Fluctuate, plain and FLUCTUATE++ (target afraid or amnesiac); Temperance;
-  // Stagnate. Check the name in "You can use ... again" for
-  // Temperance (typed TEMPER).
+  // Past level 35 (#149): Fluctuate, plain and FLUCTUATE++ (target afraid or
+  // amnesiac); Stagnate.
   lines: [
+    [/^You reach out and clench a fist before (.*), who screams and doubles over in agony as (\w+) skin suddenly bubbles with gangrenous growths\.$/, "WARP"],
+    [/^Raising your hands in the air, you summon horrific visions to torment (.*)\.$/, "HARRY", "Harry"],
+    [/^You cup your hands together and fling them outwards, sending a spiral of shimmering portals into (.*)'s body\.$/, "CHAOSGATE", "Chaosgate"],
+    [/^You gesture in a slashing motion at (.*), and small tears form in (\w+) translucent shield as chaos rips it apart\.$/, "RUIN", "Ruin"],
+    [/^Multicoloured rays burst forth from your outstretched hands and strike (.*) in the head, forcing (\w+) to obey your will\.$/, "TEMPERANCE", "Temperance"]
   ]
 };

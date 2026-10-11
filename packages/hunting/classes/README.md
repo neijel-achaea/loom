@@ -62,7 +62,7 @@ toggles: {
 ```
 
 Put `["{toggle:sneak}", ""]` in `keys`: the key reads "Sneak ON" or "Sneak
-OFF", is lit while on, and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
+OFF" (not lit, so it isn't mistaken for a ready ability) and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
 while the toggle is on, seeing that line sends the command again. `seen` is
 optional too: `[/now on/, /now off/]`, the game's lines for each state, so the
 key follows however it was switched (typed, or dropped on its own).

@@ -50,7 +50,8 @@ for (var huK = 1; huK <= 12; huK++) {
     if (HU.mainNow) HU.main.push(huK);
   }
   // {toggle:name}: a class toggle; the label shows its state, the key runs
-  // HUNTING TOGGLE and is lit while the toggle is on.
+  // HUNTING TOGGLE. Not lit: the label says ON or OFF, and a lit key read as
+  // a ready ability.
   var huTog = huLabel.match(/^\{toggle:(\w+)\}$/);
   var huTogOn = false;
   if (huTog) {
@@ -69,7 +70,6 @@ for (var huK = 1; huK <= 12; huK++) {
   var huAb = (huRow[2] && huRow[2] != "main") ? huRow[2] : huLabel;
   if (HU.costs[huAb] !== undefined) HU.slots[huAb] = huK;
   if (huRow[2] == "main") HU.main.push(huK);
-  if (huTogOn) buttons_set_highlight(huK, 1);
 }
 
 if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.cls || "no class") + (HU.spec ? ", spec " + HU.spec : "") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");
