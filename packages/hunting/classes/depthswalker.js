@@ -27,7 +27,7 @@ HU.classes["Depthswalker"] = {
   rage: { Drain: 14, Lash: 36, Nakail: 17, Erasure: 25, Curse: 24, Boinad: 32, Provoke: 32 },
   // Past level 35 (#149): Nakail (needs Terminus, level 50; on a shielded
   // target); Erasure, plain and ERASURE++ (target weakened or amnesiac);
-  // Boinad; Provoke.
+  // Boinad.
   lines: [
     [/^You lay into (.*) with a vicious blow from a scythe of shadows\.$/, "CULL"],
     [/^You command the shadow of (.*) to begin siphoning away the life of its host\.$/, "DRAIN", "Drain"],

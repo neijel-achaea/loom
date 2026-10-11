@@ -30,7 +30,7 @@ HU.classes["Occultist"] = {
   rage: { Harry: 14, Chaosgate: 36, Ruin: 17, Fluctuate: 25, Temperance: 32, Stagnate: 24, Provoke: 32 },
   // To capture (#31): Warp; Harry; Chaosgate; Ruin (on a shielded target);
   // Fluctuate, plain and FLUCTUATE++ (target afraid or amnesiac); Temperance;
-  // Stagnate; Provoke. Check the name in "You can use ... again" for
+  // Stagnate. Check the name in "You can use ... again" for
   // Temperance (typed TEMPER).
   lines: [
   ]

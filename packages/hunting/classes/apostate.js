@@ -31,7 +31,7 @@ HU.classes["Apostate"] = {
   rage: { Convulsions: 14, Burrow: 36, Pierce: 17, Bloodlet: 25, Possess: 32, Horrify: 29, Provoke: 32 },
   // Past level 35 (#149): Burrow and Pierce (need the daegger, from
   // Apostasy at level 50), Bloodlet, plain and BLOODLET++ (target sensitive
-  // or stunned), Possess, Provoke.
+  // or stunned), Possess.
   lines: [
     [/^You stare at (.*), giving (\w+) the evil eye\. Blood begins to flow from (\w+) pores\.$/, "BLEED"],
     [/^You stare at (.*), giving (\w+) the evil eye\. (\w+) limbs begin to convulse\.$/, "CONVULSIONS", "Convulsions"],

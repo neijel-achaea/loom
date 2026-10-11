@@ -30,7 +30,7 @@ HU.classes["Monk"] = {
   // To capture (#31): the combo's three lines (sidekick, uppercut, uppercut;
   // each can be tagged on its own); Spinningbackfist; Tornadokick;
   // Splinterkick (on a shielded target); Mindblast, plain and MINDBLAST++
-  // (target weakened or sensitive); Scramble; Ripplestrike; Provoke. Check
+  // (target weakened or sensitive); Scramble; Ripplestrike. Check
   // the names in "You can use ... again" (Mindblast is typed MIND BLAST).
   lines: [
   ]

@@ -30,8 +30,7 @@ HU.classes["Unnamable"] = {
   rage: { Shriek: 14, Destroy: 36, Sunder: 17, Onslaught: 25, Entropy: 32, Dread: 24, Provoke: 32 },
   // To capture (#31): Doublewhirl (and the other specs' main attacks);
   // Shriek; Destroy; Fracture and Sunder (on a shielded target); Onslaught,
-  // plain and ONSLAUGHT++ (target charmed or sensitive); Entropy; Dread;
-  // Provoke.
+  // plain and ONSLAUGHT++ (target charmed or sensitive); Entropy; Dread.
   lines: [
   ]
 };

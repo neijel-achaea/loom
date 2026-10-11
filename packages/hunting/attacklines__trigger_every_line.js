@@ -1,12 +1,13 @@
 // Attack lines: a trigger on every line. Checks the
-// line against the current class's attack patterns only (classes/*.js):
+// line against the current class's attack patterns (classes/*.js), then the
+// lines every class shares (HU.sharedLines, in hunting_classes.js):
 // on a match, tags and highlights it and starts the ability's battlerage
 // cooldown. The first matching pattern wins.
 if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;
 var huCls = HU.classes && HU.classes[HU.cls];
-var huLines = huCls ? huCls.lines : null;
-if (huLines && huLines.length) {
+var huLines = (huCls && huCls.lines ? huCls.lines : []).concat(HU.sharedLines || []);
+if (huCls && huLines.length) {
   var huText = String(args[1] || "");
   for (var huI = 0; huI < huLines.length; huI++) {
     var huRow = huLines[huI];

@@ -27,7 +27,7 @@ HU.classes["Alchemist"] = {
   rage: { Miasma: 14, Magnesium: 36, Caustic: 17, Pathogen: 25, Cadmium: 22, Hypnotic: 28, Provoke: 32 },
   // Still to capture: Copper and Caustic (on a shielded target); and, past
   // level 35 (#149), Pathogen, plain and PATHOGEN++ (target inhibited or
-  // afraid), Hypnotic, Provoke.
+  // afraid), Hypnotic.
   lines: [
     [/^Directing the energy of iron, you engulf (.*)'s body with ashen flames, which burn (\w+) skin with their frigid touch\.$/, "IRON"],
     [/^You quickly mix together several chemical by-products and fling the toxic mixture into (.*)'s face, causing (\w+) to cough and choke\.$/, "MIASMA", "Miasma"],

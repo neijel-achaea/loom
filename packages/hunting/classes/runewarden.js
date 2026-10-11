@@ -30,7 +30,7 @@ HU.classes["Runewarden"] = {
   rage: { Collide: 14, Onslaught: 36, Fragment: 17, Etch: 25, Safeguard: 35, Bulwark: 28, Provoke: 32 },
   // To capture (#31): the combination's lines (rend, smash); Collide;
   // Onslaught; Raze and Fragment (on a shielded target); Etch, plain and
-  // ETCH++ (target in aeon or stunned); Safeguard; Bulwark; Provoke. The
+  // ETCH++ (target in aeon or stunned); Safeguard; Bulwark. The
   // other specs' main attacks, when tested.
   lines: [
   ]

@@ -25,7 +25,7 @@ HU.classes["Bard"] = {
   ],
   rage: { Moulinet: 14, Howlslash: 36, Resonance: 17, Cyclone: 25, Trill: 28, Charm: 32, Provoke: 32 },
   // Past level 35 (#149): Cyclone, plain and CYCLONE++ (target clumsy or
-  // stunned), Charm, Provoke.
+  // stunned), Charm.
   lines: [
     [/^You dart out (.*) in a lightning-fast jab to the (\w+) of (.*)\.$/, "JAB"],
     [/^You twist your wrist swiftly, slicing (.*) with a long slash of your sweeping blade\.$/, "MOULINET", "Moulinet"],

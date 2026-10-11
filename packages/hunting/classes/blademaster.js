@@ -26,7 +26,7 @@ HU.classes["Blademaster"] = {
   rage: { Leapstrike: 14, Spinslash: 36, Shatter: 17, Headstrike: 25, Daze: 26, Nerveslash: 22, Provoke: 32 },
   // Past level 35 (#149): Headstrike, plain and HEADSTRIKE++ (target
   // reckless or afraid), and the name the game uses for it in "You can use
-  // ... again" (typed as STRIKE HEAD); Nerveslash; Provoke.
+  // ... again" (typed as STRIKE HEAD); Nerveslash.
   lines: [
     [/^With expert precision, you draw (.*) from its scabbard and unleash a vicious slash towards (.*)\.$/, "DRAWSLASH"],
     [/^A Shin-enhanced leap flings you high into the air\.$/, "LEAPSTRIKE", "Leapstrike"],

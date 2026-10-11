@@ -113,4 +113,6 @@ One row per message you see when you hit with an attack:
   target, `\.` for a full stop, `^` and `$` to anchor the whole line.
 
 Only the current class's lines are checked, so patterns can't collide across
-classes.
+classes. Lines that are the same for every class (Provoke) live once in
+`HU.sharedLines`, at the end of `hunting_classes.js`, and are checked after the
+class's own.

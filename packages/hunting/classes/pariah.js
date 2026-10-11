@@ -26,7 +26,7 @@ HU.classes["Pariah"] = {
   rage: { Boil: 14, Feast: 36, Scour: 17, Spider: 25, Wail: 32, Symphony: 24, Provoke: 32 },
   // To capture (#31): Wrack; Boil; Feast; Scour (on a shielded target);
   // Spider, plain and SPIDER++ (target inhibited or sensitive); Wail;
-  // Symphony; Provoke.
+  // Symphony.
   lines: [
   ]
 };

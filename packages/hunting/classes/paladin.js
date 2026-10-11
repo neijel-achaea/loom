@@ -29,7 +29,7 @@ HU.classes["Paladin"] = {
   rage: { Harrow: 14, Shock: 36, Faithrend: 17, Punishment: 25, Recovery: 31, Provoke: 32, Regeneration: 33 },
   // To capture (#31): Doubleslash (and each spec's main attack); Harrow;
   // Shock; Faithrend (on a shielded target); Punishment, plain and
-  // PUNISHMENT++ (target weakened or clumsy); Recovery; Provoke;
+  // PUNISHMENT++ (target weakened or clumsy); Recovery;
   // Regeneration. Check the names in "You can use ... again" for the rites.
   lines: [
   ]

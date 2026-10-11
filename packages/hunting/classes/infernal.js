@@ -27,7 +27,7 @@ HU.classes["Infernal"] = {
   ],
   rage: { Ravage: 14, Spike: 36, Shiver: 17, Hellstrike: 25, Deathlink: 30, Soulshield: 20, Provoke: 32 },
   // Still to capture (#31): the other specs' main attacks, Shiver (on a
-  // shielded target), Deathlink, Provoke, and HELLSTRIKE++ (target reckless
+  // shielded target), Deathlink, and HELLSTRIKE++ (target reckless
   // or afraid).
   lines: [
     [/^Drawing back (.*), you unleash a flesh-mincing blow at (.*)\.$/, "SLAUGHTER"],

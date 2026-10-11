@@ -27,6 +27,7 @@ HU.classes["Black Dragon"] = {
     [/^You swing your mighty tail around, stabbing (.+) with an acid-covered spine\.$/, "DRAGONSTING", "Dragonsting"],
     [/^Opening your maw, you force out a tremendous stream of acid, blasting the flesh from the very bones of (.*)\.$/, "BLAST"],
     [/^You barrel into (.*) and knock (\w+) to the ground before stomping over (\w+) prone form\.$/, "OVERRIDE", "Override"],
+    [/^You open your enormous maw and let loose a mighty roar at (.*), causing (\w+) to quail in fear\.$/, "DRAGONFEAR", "Dragonfear"],
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
   ]
 };

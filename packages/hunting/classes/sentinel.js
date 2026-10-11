@@ -36,7 +36,7 @@ HU.classes["Sentinel"] = {
   rage: { Pester: 14, Skewer: 36, Bore: 17, Swarm: 25, Tame: 32, Goad: 18, Provoke: 32 },
   // To capture (#31): Bite, Claw and Maul; Pester; Skewer; Bore (on a
   // shielded target); Swarm, plain and SWARM++ (target in aeon or
-  // inhibited); Tame; Goad; Provoke.
+  // inhibited); Tame; Goad.
   lines: [
   ]
 };

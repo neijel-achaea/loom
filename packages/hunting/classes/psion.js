@@ -28,7 +28,7 @@ HU.classes["Psion"] = {
   rage: { Barbedblade: 14, Devastate: 36, Pulverise: 17, Whirlwind: 25, Regrowth: 24, Terror: 32, Provoke: 32 },
   // Still to capture (#31): Overhand; Pulverise (on a shielded target);
   // Whirlwind, plain and WHIRLWIND++ (target inhibited or stunned);
-  // Regrowth; Terror; Provoke.
+  // Regrowth; Terror.
   // Charge, Barbedblade and Devastate come from Ricardo's pre-Loom package.
   lines: [
     [/^Charging forward, you drive a translucent spear into (.*)\.$/, "CHARGE"],

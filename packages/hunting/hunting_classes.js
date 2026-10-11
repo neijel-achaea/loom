@@ -6,3 +6,8 @@ var HU = client.loom.hunting;
 // Prefix for battlerage keys: queued, so they fire as soon as you can act.
 var huQ = "queue add !wu!t!p ";
 HU.classes = {};
+// Lines every class shares (Provoke, level 100, is the same for all), checked
+// after the current class's own lines.
+HU.sharedLines = [
+  [/^Your back snaps straight as you unleash a fierce bellow at (.*)\.$/, "PROVOKE", "Provoke"]
+];

@@ -26,7 +26,7 @@ HU.classes["Jester"] = {
   rage: { Noogie: 14, Ensconce: 36, Jacks: 17, Befuddle: 25, Dustthrow: 18, Rap: 26, Provoke: 32 },
   // To capture (#31): Bop; Noogie; Ensconce; Jacks (on a shielded target);
   // Befuddle, plain and BEFUDDLE++ (target in aeon or amnesiac); Dustthrow;
-  // Rap; Provoke.
+  // Rap.
   lines: [
   ]
 };

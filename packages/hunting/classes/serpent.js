@@ -30,7 +30,8 @@ HU.classes["Serpent"] = {
              renew: [/^Your shroud dissipates and you return to the realm of perception\.$/, "conjure cloak"] },
     weave: { label: "Weave", on: ["weaving on"], off: ["weaving off"] }
   },
-  // No Provoke listed for Serpent: add it here if the class has it.
+  // No Provoke listed for Serpent: if the class has it, add its cost to rage
+  // (the line itself is shared, in hunting_classes.js).
   rage: { Thrash: 14, Throatrip: 36, Excoriate: 17, Snare: 25, Flagellate: 25, Obliviate: 28 },
   // To capture (#31): Garrote; Thrash; Throatrip; Excoriate (on a shielded
   // target); Snare, plain and SNARE++ (target reckless or inhibited);
