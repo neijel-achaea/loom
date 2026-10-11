@@ -29,6 +29,7 @@ HU.classes["Magi"] = {
     [/^You summon a whirlwind of flame around (.*) which consumes (\w+) translucent shield\.$/, "DISINTEGRATE", "Disintegrate"],
     [/^A bolt of lightning roars out from your hands as you cast a powerful spell at (.*), inciting sensitive nerves across (\w+) skin\.$/, "STORMBOLT", "Stormbolt"],
     [/^You raise your hands dramatically and summon a mighty flaming rock from the sky that slams into the clumsy form of (.*)\.$/, "FIREFALL++", "Firefall"],
+    [/^You summon a polar vortex in a tight field around (.*), chilling the small pocket so intensely that time itself begins to slow\.$/, "DILATION", "Dilation"],
     [/^You point an elemental staff at (.*) and (\w+) screams in pain as (\w+) skin begins to freeze and crack\.$/, "STAFF"]
   ]
 };
