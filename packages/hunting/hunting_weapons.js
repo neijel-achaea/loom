@@ -24,9 +24,9 @@ HU.weapons = {
     mains: { doubleslash: ["Doubleslash", "queue add b!wu!t!p dsl @tar"] },
     // Two hits per Doubleslash, each worded one of these ways (from the Paladin).
     lines: [
-      [/^Lightning-quick, you jab (.*) with (.*)\.$/, "DSL"],
-      [/^You slash into (.*) with (.*)\.$/, "DSL"],
-      [/^You swing (.*) at (.*) with all your might\.$/, "DSL"]
+      [/^Lightning-quick, you jab (.*) with (.*)\.$/, "DOUBLESLASH"],
+      [/^You slash into (.*) with (.*)\.$/, "DOUBLESLASH"],
+      [/^You swing (.*) at (.*) with all your might\.$/, "DOUBLESLASH"]
     ]
   },
   "Dual Blunt": {
