@@ -84,9 +84,13 @@ function readCol(kind, v) {
   return TXT;
 }
 // XP rank change since this page load: lower is better, so a drop is green.
+// A character without a rank yet reports 0: shown as "-", and not taken as
+// the starting point, so the first real rank becomes it instead of a change.
 var xpNow = parseInt(I.xprank || C.xprank || "", 10);
-if (!isNaN(xpNow) && S.xpBase === undefined) { S.xpBase = xpNow; }
-var xpTxt = isNaN(xpNow) ? "" : String(xpNow);
+var xpNone = !isNaN(xpNow) && xpNow <= 0;
+if (xpNone) { xpNow = NaN; }
+if (!isNaN(xpNow) && (S.xpBase === undefined || S.xpBase <= 0)) { S.xpBase = xpNow; }
+var xpTxt = xpNone ? "-" : (isNaN(xpNow) ? "" : String(xpNow));
 var xpHtml = "";
 if (!isNaN(xpNow) && S.xpBase !== undefined && xpNow !== S.xpBase) {
   var xd = xpNow - S.xpBase;
