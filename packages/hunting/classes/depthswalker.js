@@ -7,11 +7,10 @@
 HU.classes["Depthswalker"] = {
   // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
   mains: {
-    cull: ["Cull", "queue add eb!wu!t!p shadow cull @tar"]
+    cull: ["Cull", "queue add b!wu!t!p shadow cull @tar"]
   },
   keys: [
-    // Cull: the help doesn't say bal or eq, so it waits for both until #31
-    // shows which one it uses.
+    // Cull takes balance (checked in game, #31).
     ["{main}", ""],
     ["Drain", huQ + "shadow drain @tar"],
     ["Lash", huQ + "shadow lash @tar"],
@@ -26,9 +25,13 @@ HU.classes["Depthswalker"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Drain: 14, Lash: 36, Nakail: 17, Erasure: 25, Curse: 24, Boinad: 32, Provoke: 32 },
-  // To capture (#31): Cull (and which balance it takes); Drain; Lash; Nakail
-  // (on a shielded target); Erasure, plain and ERASURE++ (target weakened or
-  // amnesiac); Curse; Boinad; Provoke.
+  // Past level 35 (#149): Nakail (needs Terminus, level 50; on a shielded
+  // target); Erasure, plain and ERASURE++ (target weakened or amnesiac);
+  // Boinad; Provoke.
   lines: [
+    [/^You lay into (.*) with a vicious blow from a scythe of shadows\.$/, "CULL"],
+    [/^You command the shadow of (.*) to begin siphoning away the life of its host\.$/, "DRAIN", "Drain"],
+    [/^You summon whips of shadow to viciously lash the form of (.*)\.$/, "LASH", "Lash"],
+    [/^Bending your formidable will upon (.*), you slow the passage of time about (\w+) to a crawl\.$/, "CURSE", "Curse"]
   ]
 };
