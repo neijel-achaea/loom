@@ -31,6 +31,11 @@ HU.classes["Druid"] = {
     [/You roar in rage and spring upon/, "RAVAGE", "Ravage"],
     [/^You spring forwards onto /, "MAUL"],
     [/Rising in response to your incantation, vines burst forth from the very earth/, "STRANGLE", "Strangle"],
-    [/You cause the tip of your quarterstaff to glow brightly before thrusting it at the face of/, "GLARE", "Glare"]
+    [/You cause the tip of your quarterstaff to glow brightly before thrusting it at the face of/, "GLARE", "Glare"],
+    // Sear: matched on its opening, so the line counts whether the target
+    // averts its eyes (as here, on a stunned one) or takes the full beam.
+    [/^You hold your quarterstaff aloft and focus a beam of intense sunlight on /, "SEAR", "Sear"],
+    [/^At your command, undergrowth rises from the ground under (.*) and pierces (\w+) skin/, "REDEEM", "Redeem"],
+    [/^You clench one fist before (.*) and vines grow up to entangle (\w+) translucent shield/, "VINECRACK", "Vinecrack"]
   ]
 };
