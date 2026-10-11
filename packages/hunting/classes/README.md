@@ -80,6 +80,16 @@ pauses: [
 For a morph, the second pattern is optional: the `Morph:` change in
 charstats also ends the pause.
 
+## weapons (optional)
+
+`weapons: true` for the knight classes (Infernal, Paladin, Runewarden,
+Unnamable). Their main attacks depend on the Weaponmastery specialisation, and
+a spec's attacks print the same lines whichever class uses it, so they live
+once in `hunting_weapons.js`: per spec, its main attacks, its default for F1
+and its lines. Every weapons class gets all of them after its own `mains` and
+`lines`, and F1 follows `Spec:` from charstats. A class's own first main stays
+the default while it has no spec (Paladin's Doubleslash).
+
 ## specKeys (optional)
 
 For classes whose attacks depend on the specialisation in `charstats`

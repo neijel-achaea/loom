@@ -6,11 +6,13 @@
 // Class conditions (charstats, for self): Karma, Anathema (Yes/No),
 // Manifestation, Spec.
 HU.classes["Unnamable"] = {
-  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game. The
-  // specs' defaults (specMain) to add once tested.
+  // Main attacks for F1 and their lines come from the weapon specs, shared
+  // by the knight classes (hunting_weapons.js); Doublewhirl first, so it's the
+  // default with no spec. HUNTING MAIN adds more in game.
   mains: {
     doublewhirl: ["Doublewhirl", "queue add b!wu!t!p doublewhirl @tar"]
   },
+  weapons: true,
   keys: [
     ["{main}", ""],
     ["Shriek", huQ + "unnamable shriek @tar"],
@@ -28,8 +30,8 @@ HU.classes["Unnamable"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Shriek: 14, Destroy: 36, Sunder: 17, Onslaught: 25, Entropy: 32, Dread: 24, Provoke: 32 },
-  // To capture (#31): Doublewhirl (and the other specs' main attacks);
-  // Shriek; Destroy; Fracture and Sunder (on a shielded target); Onslaught,
+  // To capture (#31): Doublewhirl and Fracture (Dual Blunt, in
+  // hunting_weapons.js); Shriek; Destroy; Sunder (on a shielded target); Onslaught,
   // plain and ONSLAUGHT++ (target charmed or sensitive); Entropy; Dread.
   lines: [
   ]
