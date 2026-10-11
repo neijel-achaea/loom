@@ -114,11 +114,17 @@ Order: foundation first, then by how much coupling each package removes. The key
 
 **Done when:** every class has an entry, even if marked "generic only"; your own classes (Druid, Magi, Serpent, Infernal, dragonform) are fully configured; adding a class touches only tables.
 
-## Loom 0.4 — Integrations
+## Loom 0.4 — Enhancements
+
+**Goal:** the feature and enhancement ideas raised during v0.2 and v0.3, kept out of those milestones so they could stay focused on fixing and tidying, plus custom tabs that replace the stock Nexus windows: **Comms** (#157) for the communication window and **Room** (#158) for the Room tab.
+
+Comes before Integrations on purpose: the new tabs are the biggest new consumers of other packages' state, so building them first lets the integration layer be designed against more real cases. Every tab ships standalone; any integration idea found along the way is filed straight into Loom 0.5 as its own `integration` issue.
+
+## Loom 0.5 — Integrations
 
 **Goal:** packages installed together feed each other.
 
-### The three entry points
+### The entry points
 
 Almost every integration ends in one of three places, so each gets one documented way in:
 
@@ -127,6 +133,8 @@ Almost every integration ends in one of three places, so each gets one documente
 | **Ledger** | add-or-update / withdraw an item, keyed by `source` + id | The `source` field finally holds more than "manual". When the condition clears, the source withdraws its item. |
 | **Coffers** | propose a goal | Shown as a suggestion; the player accepts it. |
 | **Standings** | suggest a nudge | Lands in the existing suggestions list; never applied automatically. |
+
+A fourth kind arrived with the v0.4 tabs: a tab that **displays** another package's state (a highlight colour, the current target, a flagged shrine) rather than feeding one of the three. It gets its own read-only **display entry point** (#159): the tab asks loom, loom answers only when the source package is installed and the link is on, and otherwise the tab renders plainly.
 
 The integration code itself lives in the **loom** package, so neither side knows about the other.
 
@@ -154,11 +162,18 @@ The integration code itself lives in the **loom** package, so neither side knows
 | **fishingstats** | Fish for missing species | Fish sales as an income source | — | Proud emote on a new world record |
 | **patrolling** | Replant task for exterminated rooms | — | — | — |
 | **dmgchart** | — | — | — | Feeds huntstats an area-danger figure |
-| **standings** | — | — | — | Highlight colour by band; vision warns on hostile standing |
+| **standings** | — | — | — | Highlight colour by band; vision warns on hostile standing; band on hover in Comms |
 
-## Loom 0.5 — Enhancements
+**Display integrations** (via the display entry point):
 
-**Goal:** the feature and enhancement ideas raised during v0.2 and v0.3, kept out of those milestones so they could stay focused on fixing and tidying. Handled after v0.4.
+| Source | Comms | Room |
+|---|---|---|
+| **social** | Talker names in their highlight colours | Players in their highlight colours |
+| **standings** | Standing band on hover | — |
+| **hunting** | — | Current target marked in the mobs list |
+| **patrolling** | — | Shrines flagged |
+| **sigils** | — | Monoliths and sigil state flagged |
+| **harvesting** | — | The environment's plants, low stock marked |
 
 ## Loom 0.6 — Autobasher
 
@@ -201,4 +216,4 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 ## Tracking
 
-GitHub issues grouped into milestones Loom 0.2 to Loom 0.8: one issue per package in v0.2, one per integration in v0.4, one per step in v0.6. Player reports carry the `from-users` label.
+GitHub issues grouped into milestones Loom 0.2 to Loom 0.8: one issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Player reports carry the `from-users` label.
