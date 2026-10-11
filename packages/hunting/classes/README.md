@@ -63,7 +63,9 @@ toggles: {
 
 Put `["{toggle:sneak}", ""]` in `keys`: the key reads "Sneak ON" or "Sneak
 OFF", is lit while on, and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
-while the toggle is on, seeing that line sends the command again.
+while the toggle is on, seeing that line sends the command again. `seen` is
+optional too: `[/now on/, /now off/]`, the game's lines for each state, so the
+key follows however it was switched (typed, or dropped on its own).
 
 ## pauses (optional)
 
@@ -78,7 +80,13 @@ pauses: [
 ```
 
 For a morph, the second pattern is optional: the `Morph:` change in
-charstats also ends the pause.
+charstats also ends the pause. A third field is a command sent once paused:
+the Monk's Tekura grading answers the tutor with `"ok"`.
+
+## gags (optional)
+
+Lines to hide: `gags: [/^You connect!$/]` (the Monk's combo prints it after
+every hit).
 
 ## weapons (optional)
 

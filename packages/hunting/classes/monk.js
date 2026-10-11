@@ -12,7 +12,6 @@ HU.classes["Monk"] = {
   },
   keys: [
     // One combo on one balance: sidekick, uppercut, uppercut (Eagle Stance).
-    // Syntax still to confirm in game.
     ["{main}", ""],
     ["SBP", huQ + "sbp @tar", "Spinningbackfist"],
     ["TNK", huQ + "tnk @tar", "Tornadokick"],
@@ -23,15 +22,33 @@ HU.classes["Monk"] = {
     ["", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],
-    ["", ""],
+    ["{toggle:block}", ""],
     ["Shield", "touch shield"]
   ],
+  // F11: Bodyblock. The game's own lines keep the key right, however it was
+  // switched.
+  toggles: {
+    block: { label: "Block", on: ["bdb"], off: ["unblock bdb"],
+             seen: [/^You ready yourself to block as best you can\.$/, /^You lower your body block\.$/] }
+  },
+  // Tekura gradings: the tutor's demonstration breaks if anything else is
+  // sent, so triggers pause, "ok" starts it, and the new belt resumes them.
+  pauses: [
+    [/offers you a formal grading\. Type "OK" to commence the demonstration\.$/,
+     /confers on you the right to wear the \w+ belt\.$/, "ok"]
+  ],
+  // "You connect!" follows every hit of a combo; a miss says so instead.
+  gags: [/^You connect!$/],
   rage: { Spinningbackfist: 14, Tornadokick: 36, Splinterkick: 17, Mindblast: 25, Scramble: 22, Ripplestrike: 25, Provoke: 32 },
-  // To capture (#31): the combo's three lines (sidekick, uppercut, uppercut;
-  // each can be tagged on its own); Spinningbackfist; Tornadokick;
-  // Splinterkick (on a shielded target); Mindblast, plain and MINDBLAST++
-  // (target weakened or sensitive); Scramble; Ripplestrike. Check
-  // the names in "You can use ... again" (Mindblast is typed MIND BLAST).
+  // Past level 35 (#149): Mindblast, plain and MINDBLAST++ (target weakened
+  // or sensitive), and its name in "You can use ... again" (typed MIND
+  // BLAST); Ripplestrike.
   lines: [
+    [/^You pump out at (.*) with a powerful side kick\.$/, "SDK"],
+    [/^You launch a powerful uppercut at (.*)\.$/, "UCP"],
+    [/^You spin and strike (.*) with the back of your fist\.$/, "SBP", "Spinningbackfist"],
+    [/^You leap and spin in the air, striking (.*) repeatedly with an outstretched foot\.$/, "TNK", "Tornadokick"],
+    [/^You focus your rage in a single powerful sidekick, shattering (.*)'s translucent shield\.$/, "SPK", "Splinterkick"],
+    [/^You rummage quickly through (.*)'s mind, finding the link to fine motor control before exerting a small amount of psychic force and deadening it\.$/, "SCRAMBLE", "Scramble"]
   ]
 };

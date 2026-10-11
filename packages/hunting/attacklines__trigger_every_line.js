@@ -27,6 +27,31 @@ if (huCls && huLines.length) {
   }
 }
 
+// Lines to hide (a class's "gags"), such as the Monk's "You connect!" after
+// each hit of a combo.
+var huGags = huCls && huCls.gags;
+if (huGags) {
+  var huGl = String(args[1] || "");
+  for (var huGi = 0; huGi < huGags.length; huGi++) { if (huGags[huGi].test(huGl)) { gag_current_line(); break; } }
+}
+
+// Toggles whose state the game reports ("seen": [/now on/, /now off/]): the
+// key follows, whether it was switched from the key, typed, or dropped.
+var huTs = huCls && huCls.toggles;
+if (huTs) {
+  var huTl = String(args[1] || "");
+  for (var huTsn in huTs) {
+    var huSeen = huTs[huTsn].seen;
+    if (!huSeen) continue;
+    var huTsNew = huSeen[0] && huSeen[0].test(huTl) ? "on" : (huSeen[1] && huSeen[1].test(huTl) ? "off" : "");
+    if (huTsNew && HU.toggles[huTsn] !== huTsNew) {
+      HU.toggles[huTsn] = huTsNew;
+      set_variable("hunting_toggles", JSON.stringify(HU.toggles));
+      run_function("hunting_buttons", [], "hunting");
+    }
+  }
+}
+
 // Toggles that keep something up while on: a "renew" line means it dropped,
 // so its command is sent again (not while triggers are paused).
 var huTg = huCls && huCls.toggles;
@@ -40,11 +65,13 @@ if (huTg && get_variable("pauseTriggers") != "on") {
 
 // Interruptible abilities (Sentinel morph): a "pauses" row's first pattern
 // pauses every package that respects pauseTriggers, its second resumes them.
+// An optional third field is a command sent once paused (the Monk's "ok" to a
+// Tekura grading).
 var huPs = huCls && huCls.pauses;
 if (huPs) {
   var huPl = String(args[1] || "");
   for (var huPi = 0; huPi < huPs.length; huPi++) {
-    if (huPs[huPi][0].test(huPl)) { set_variable("pauseTriggers", "on"); HU.paused = true; }
+    if (huPs[huPi][0].test(huPl)) { set_variable("pauseTriggers", "on"); HU.paused = true; if (huPs[huPi][2]) send_command(huPs[huPi][2]); }
     else if (huPs[huPi][1] && huPs[huPi][1].test(huPl)) { set_variable("pauseTriggers", "off"); HU.paused = false; }
   }
 }
