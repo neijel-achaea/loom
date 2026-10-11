@@ -17,9 +17,19 @@ if (sub == "gap") {
     set_variable("dmgchart_gap", String(g));
     display_notice("[dmgchart] fight gap set to " + g + "s", "cyan");
   }
+} else if (sub == "window") {
+  var w = parseFloat(rest);
+  if (isNaN(w) || w <= 0 || w > 120) {
+    display_notice("[dmgchart] usage: DMGCHART WINDOW <seconds>, 1 to 120  (currently " + d.window + "s)", "yellow");
+  } else {
+    d.window = w;
+    set_variable("dmgchart_window", String(w));
+    display_notice("[dmgchart] health lasts now uses the last " + w + "s of the fight", "cyan");
+  }
 } else if (sub == "reset") {
   d.fight = null;
   d.lastInc = null;
+  d.recent = [];
   display_notice("[dmgchart] fight cleared; the next damage line starts a new one", "cyan");
 } else if (sub == "start") {
   if (d.sess) {
@@ -82,7 +92,7 @@ if (sub == "gap") {
   }
 } else if (sub == "" || sub == "status") {
   var dcF = d.fight;
-  var dcLine = "gap " + d.gap + "s, " + d.saved.length + " saved session" + (d.saved.length == 1 ? "" : "s");
+  var dcLine = "gap " + d.gap + "s, health lasts over the last " + d.window + "s, " + d.saved.length + " saved session" + (d.saved.length == 1 ? "" : "s");
   if (d.sess) dcLine += ", recording '" + d.sess.name + "' (" + d.sess.fights + " fights so far)";
   display_notice("[dmgchart] " + dcLine + ".", "cyan");
   if (dcF) {
@@ -113,9 +123,9 @@ if (sub == "gap") {
   client.loom.dmgchart = { hp: d.hp };
   run_function("dmgchart_setup", [], "dmgchart");
   d = client.loom.dmgchart;
-  display_notice("[dmgchart] rebuilt from the saved variables (gap " + d.gap + "s" + (d.sess ? ", recording '" + d.sess.name + "' resumed from its last checkpoint" : "") + ")", "cyan");
+  display_notice("[dmgchart] rebuilt from the saved variables (gap " + d.gap + "s, window " + d.window + "s" + (d.sess ? ", recording '" + d.sess.name + "' resumed from its last checkpoint" : "") + ")", "cyan");
 } else if (sub == "debug") {
-  display_notice("[dmgchart] gap=" + d.gap + " view='" + d.view + "' saved=" + d.saved.length + " nextId=" + d.nextId + " hp=" + d.hp + " sess=" + (d.sess ? d.sess.name + "/" + d.sess.fights : "none") + " fight=" + (d.fight ? d.fight.outTotal + "/" + d.fight.incTotal : "none") + " lastInc=" + (d.lastInc ? d.lastInc.type + ":" + d.lastInc.amt : "none"), "orange");
+  display_notice("[dmgchart] gap=" + d.gap + " window=" + d.window + " recent=" + (d.recent ? d.recent.length : 0) + " view='" + d.view + "' saved=" + d.saved.length + " nextId=" + d.nextId + " hp=" + d.hp + " sess=" + (d.sess ? d.sess.name + "/" + d.sess.fights : "none") + " fight=" + (d.fight ? d.fight.outTotal + "/" + d.fight.incTotal : "none") + " lastInc=" + (d.lastInc ? d.lastInc.type + ":" + d.lastInc.amt : "none"), "orange");
 } else {
   display_notice("[dmgchart] unknown command '" + sub + "'. DMGCHART HELP for commands.", "orange");
 }

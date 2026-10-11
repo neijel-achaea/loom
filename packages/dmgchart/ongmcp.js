@@ -16,7 +16,7 @@ if (dcM === "Char.Vitals" && dcA) {
       var dcF = DC.fight;
       var dcGain = (typeof DC.hp === "number") ? dcHp - DC.hp + (DC.incSince || 0) : 0;
       var dcHealed = false;
-      if (dcF && dcGain > 0 && Date.now() - dcF.last <= DC.gap * 1000) { dcF.heal = (dcF.heal || 0) + dcGain; dcHealed = true; }
+      if (dcF && dcGain > 0 && Date.now() - dcF.last <= DC.gap * 1000) { dcF.heal = (dcF.heal || 0) + dcGain; dcHealed = true; run_function("dmgchart_recent", { t: Date.now(), inc: 0, heal: dcGain }, "dmgchart"); }
       DC.hp = dcHp;
       DC.incSince = 0;
       if (dcHealed && !DC.view) run_function("dmgchart_render", [], "dmgchart");

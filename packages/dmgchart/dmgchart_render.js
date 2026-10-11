@@ -151,21 +151,31 @@ if (!src) {
     ex += xline("trading", "untouched so far", EMBER);
   }
   // Staying power, for the live fight only: current health (from Char.Vitals)
-  // over incoming dps less healing. Healing is every rise in health during
-  // the fight (elixirs, regeneration, anything), as dmgchart_heal counts it.
+  // over incoming dps less healing, both over the last d.window seconds (or
+  // the fight so far, if shorter), so a fresh attacker shows at once (#153).
+  // Healing is every rise in health during the fight (elixirs, regeneration,
+  // anything), as onGMCP counts it.
   if (!d.view && src.incTotal > 0) {
     var hpNow = d.hp;
-    var inDps = src.incTotal / dur;
     var heal = src.heal || 0;
-    var healDps = heal / dur;
-    if (heal > 0) ex += xline("healed", heal + " (" + Math.round(healDps) + "/s)", "#7fbf7f");
-    if (typeof hpNow === "number" && !isNaN(hpNow) && hpNow > 0 && inDps > 0) {
-      var netDps = inDps - healDps;
-      if (netDps <= 0) {
-        ex += xline("health lasts", "healing keeps up", "#7fbf7f");
+    if (heal > 0) ex += xline("healed", heal + " (" + Math.round(heal / dur) + "/s)", "#7fbf7f");
+    var wNow = Date.now();
+    var wSpan = Math.max(1, Math.min(d.window, (wNow - src.start) / 1000));
+    var wInc = 0, wHeal = 0;
+    var rc = d.recent || [];
+    for (var ri = 0; ri < rc.length; ri++) {
+      if (rc[ri].t >= wNow - wSpan * 1000 && rc[ri].t >= src.start) { wInc += rc[ri].inc; wHeal += rc[ri].heal; }
+    }
+    var wSec = Math.round(wSpan) + "s";
+    var wTag = "at the rate of the last " + wSec;
+    if (typeof hpNow === "number" && !isNaN(hpNow) && hpNow > 0) {
+      if (wInc <= 0) {
+        ex += xline("health lasts", "nothing taken in the last " + wSec, "#7fbf7f");
+      } else if (wInc <= wHeal) {
+        ex += xline("health lasts", "healing keeps up " + wTag, "#7fbf7f");
       } else {
-        var last = hpNow / netDps;
-        ex += xline("health lasts", "~" + secs(last) + " at this rate" + (heal > 0 ? ", after healing" : ""), last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
+        var last = hpNow / ((wInc - wHeal) / wSpan);
+        ex += xline("health lasts", "~" + secs(last) + " " + wTag + (wHeal > 0 ? ", after healing" : ""), last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
       }
     }
   }

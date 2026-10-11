@@ -1,22 +1,35 @@
 if (!client.loom || !client.loom.dmgchart || !client.loom.dmgchart.saved) run_function("dmgchart_setup", [], "dmgchart");
 // Bleeding arrives as "Health lost: N (raw)." then "You bleed N health."
-// If that raw line was just recorded, move it from raw to bleed (fight and session); else record bleed.
+// If that raw line was just recorded, take it back (amount, hit, fight time,
+// and the fight it opened, if any), then record the amount as passive bleeding,
+// which counts but doesn't keep a fight going (#152).
 var amt = parseInt(args[1], 10);
 var d = client.loom.dmgchart;
 var li = d.lastInc;
-var f = d.fight;
-if (f && li && li.type == "raw" && li.amt == amt && Date.now() - li.t < 1500 && (f.inc.raw || 0) >= amt) {
-  f.inc.raw -= amt;
-  if (f.inc.raw <= 0) { delete f.inc.raw; }
-  f.inc.bleed = (f.inc.bleed || 0) + amt;
-  if (li.inSess && d.sess && (d.sess.inc.raw || 0) >= amt) {
-    d.sess.inc.raw -= amt;
-    if (d.sess.inc.raw <= 0) { delete d.sess.inc.raw; }
-    d.sess.inc.bleed = (d.sess.inc.bleed || 0) + amt;
+if (li && li.type == "raw" && li.amt == amt && li.undo && Date.now() - li.t < 1500) {
+  var u = li.undo;
+  var f = d.fight;
+  if (f && (f.inc.raw || 0) >= amt) {
+    f.inc.raw -= amt;
+    if (f.inc.raw <= 0) { delete f.inc.raw; }
+    f.incTotal -= amt;
+    if (f.hits) { f.hits.inc.n--; f.hits.inc.max = u.max || 0; }
+    if (u.opened) { d.fight = u.fight; } else { f.last = u.last; }
   }
-  d.lastInc = { type: "bleed", amt: amt, t: li.t, inSess: li.inSess };
-  run_function("dmgchart_render", [], "dmgchart");
-} else {
-  d.ev = { dir: "inc", type: "bleed", amt: amt };
-  run_function("dmgchart_add", [], "dmgchart");
+  var ss = d.sess;
+  if (li.inSess && ss && (ss.inc.raw || 0) >= amt) {
+    ss.inc.raw -= amt;
+    if (ss.inc.raw <= 0) { delete ss.inc.raw; }
+    ss.incTotal -= amt;
+    if (ss.hits) { ss.hits.inc.n--; ss.hits.inc.max = u.sMax || 0; }
+    ss.lastT = u.sLastT;
+    ss.combatMs = u.sCombat;
+    ss.fights = u.sFights;
+  }
+  d.incSince = (d.incSince || 0) - amt;
+  // The raw line's entry in the recent list stays: dmgchart_add below adds the
+  // bleed again, so drop it first.
+  if (d.recent && d.recent.length && d.recent[d.recent.length - 1].inc == amt) d.recent.pop();
 }
+d.ev = { dir: "inc", type: "bleed", amt: amt };
+run_function("dmgchart_add", [], "dmgchart");
