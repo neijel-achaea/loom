@@ -27,7 +27,7 @@ HU.classes["Pariah"] = {
   // Past level 35 (#149): Spider, plain and SPIDER++ (target inhibited or
   // sensitive); Wail.
   lines: [
-    [/^You raise your left hand before (.*), and clench it into a fist as you wrack the blood that flows throughout\.$/, "WRACK"],
+    [/^You raise your (?:left|right) hand before (.*), and clench it into a fist as you wrack the blood that flows throughout\.$/, "WRACK"],
     [/^You reach out and claw at the air, heating the body of (.*) from within\.$/, "BOIL", "Boil"],
     [/^You croon to the myriad minds that surround you, and send them to feast upon (.*) in a wave of chittering hunger\.$/, "FEAST", "Feast"],
     [/^You flick your hand towards (.*), and a sheet of sand rises to scour the magical shield surrounding (\w+)\.$/, "SCOUR", "Scour"],
