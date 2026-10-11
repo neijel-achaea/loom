@@ -22,7 +22,12 @@ HU.weapons = {
   "Dual Cutting": {
     main: "doubleslash",
     mains: { doubleslash: ["Doubleslash", "queue add b!wu!t!p dsl @tar"] },
-    lines: []
+    // Two hits per Doubleslash, each worded one of these ways (from the Paladin).
+    lines: [
+      [/^Lightning-quick, you jab (.*) with (.*)\.$/, "DSL"],
+      [/^You slash into (.*) with (.*)\.$/, "DSL"],
+      [/^You swing (.*) at (.*) with all your might\.$/, "DSL"]
+    ]
   },
   "Dual Blunt": {
     main: "doublewhirl",

@@ -27,10 +27,13 @@ HU.classes["Paladin"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Harrow: 14, Shock: 36, Faithrend: 17, Punishment: 25, Recovery: 31, Provoke: 32, Regeneration: 33 },
-  // To capture (#31): Doubleslash (Dual Cutting, in hunting_weapons.js); Harrow;
-  // Shock; Faithrend (on a shielded target); Punishment, plain and
-  // PUNISHMENT++ (target weakened or clumsy); Recovery;
-  // Regeneration. Check the names in "You can use ... again" for the rites.
+  // Doubleslash's lines are Dual Cutting's, in hunting_weapons.js.
+  // Past level 35 (#149): Punishment, plain and PUNISHMENT++ (target weakened
+  // or clumsy); Recovery.
   lines: [
+    [/^Holy fire lends strength to your arm as you bring (.*) crashing down on (.*)\.$/, "HARROW", "Harrow"],
+    [/^You perform a holy rite and bind it to (.*)'s soul, creating a conduit for holy lightning to strike down upon (\w+)\.$/, "SHOCK", "Shock"],
+    [/^You raise (.*) high in the air and utter a quick prayer as you bring it crashing down on (.*), shattering (\w+) translucent shield\.$/, "FAITHREND", "Faithrend"],
+    [/^You perform a holy rite and a gold-tinged aura springs up around you\.$/, "REGENERATION", "Regeneration"]
   ]
 };
