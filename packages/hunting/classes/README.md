@@ -116,7 +116,7 @@ For the main attack, `specMain` (above) is simpler.
 ## rage
 
 `{ Ability: cost }`, named as the game names it in "You can use Windlash
-again". Costs belong to the class, so two classes may share an ability name
+again", which is always the skill's own name (Temperance, not TEMPER). Costs belong to the class, so two classes may share an ability name
 with different costs.
 
 ## lines

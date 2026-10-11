@@ -26,8 +26,7 @@ HU.classes["Shaman"] = {
   rage: { Corruption: 14, Haemorrhage: 36, Vulnerability: 17, Vurus: 25, Cesaret: 18, Korkma: 29, Provoke: 32 },
   // To capture (#31): Bleed; Corruption; Haemorrhage; Vulnerability (on a
   // shielded target); Vurus, plain and VURUS++ (target sensitive or
-  // amnesiac); Cesaret; Korkma. Check the names in "You can use ...
-  // again" for the curses.
+  // amnesiac); Cesaret; Korkma.
   lines: [
   ]
 };

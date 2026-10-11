@@ -41,8 +41,7 @@ HU.classes["Monk"] = {
   gags: [/^You connect!$/],
   rage: { Spinningbackfist: 14, Tornadokick: 36, Splinterkick: 17, Mindblast: 25, Scramble: 22, Ripplestrike: 25, Provoke: 32 },
   // Past level 35 (#149): Mindblast, plain and MINDBLAST++ (target weakened
-  // or sensitive), and its name in "You can use ... again" (typed MIND
-  // BLAST); Ripplestrike.
+  // or sensitive); Ripplestrike.
   lines: [
     [/^You pump out at (.*) with a powerful side kick\.$/, "SDK"],
     [/^You launch a powerful uppercut at (.*)\.$/, "UCP"],
