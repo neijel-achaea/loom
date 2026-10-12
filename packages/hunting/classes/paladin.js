@@ -27,6 +27,8 @@ HU.classes["Paladin"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Harrow: 14, Shock: 36, Faithrend: 17, Punishment: 25, Recovery: 31, Provoke: 32, Regeneration: 33 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Faithrend"],
   // Doubleslash's lines are Dual Cutting's, in hunting_weapons.js.
   // Past level 35 (#149): Punishment, plain and PUNISHMENT++ (target weakened
   // or clumsy); Recovery.

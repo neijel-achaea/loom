@@ -11,6 +11,7 @@ HELP says it isn't configured yet.
 HU.classes["Magi"] = {
   keys: [ ... ],    // F1 to F12
   rage: { ... },    // battlerage costs
+  razes: [ ... ],   // the shieldbreak: no cooldown, no global cooldown
   lines: [ ... ]    // your attack lines: highlighted, tagged, and cooldowns
 };
 ```
@@ -119,6 +120,14 @@ For the main attack, `specMain` (above) is simpler.
 again", which is always the skill's own name (Temperance, not TEMPER). Costs belong to the class, so two classes may share an ability name
 with different costs.
 
+## razes
+
+The class's shieldbreak, which costs rage but has no cooldown of its own and
+doesn't start the global battlerage cooldown: `razes: ["Disintegrate"]`. The
+game never says it is ready again, so its attack line only tags and
+highlights, and its key lights whenever the global cooldown is clear and you
+have the rage. Without this, using it would leave every rage key dark.
+
 ## lines
 
 One row per message you see when you hit with an attack:
@@ -126,7 +135,7 @@ One row per message you see when you hit with an attack:
 
 - The line is highlighted and gets `[TAG] ` in front of it.
 - `"Ability"` names a battlerage ability: seeing the line starts its cooldown
-  and the global battlerage cooldown.
+  and the global battlerage cooldown (unless it is in `razes`).
 - Patterns are ordinary JavaScript regular expressions: `(.*)` for the
   target, `\.` for a full stop, `^` and `$` to anchor the whole line.
 

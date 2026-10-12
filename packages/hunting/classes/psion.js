@@ -26,6 +26,8 @@ HU.classes["Psion"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Barbedblade: 14, Devastate: 36, Pulverise: 17, Whirlwind: 25, Regrowth: 24, Terror: 32, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Pulverise"],
   // Still to capture (#31): Overhand; Pulverise (on a shielded target);
   // Whirlwind, plain and WHIRLWIND++ (target inhibited or stunned);
   // Regrowth; Terror.

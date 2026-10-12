@@ -27,6 +27,8 @@ HU.classes["Druid"] = {
      /^You are surrounded by a shining corona of blinding light as your soul is transformed by metamorphosis\.$/]
   ],
   rage: { Strangle: 14, Redeem: 22, Vinecrack: 17, Ravage: 36, Sear: 25, Glare: 14 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Vinecrack"],
   lines: [
     [/You roar in rage and spring upon/, "RAVAGE", "Ravage"],
     [/^You spring forwards onto /, "MAUL"],

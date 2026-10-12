@@ -25,6 +25,8 @@ HU.classes["Runewarden"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Collide: 14, Onslaught: 36, Fragment: 17, Etch: 25, Safeguard: 35, Bulwark: 28, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Fragment"],
   // To capture (#31): the combination's lines (rend, smash; they go in
   // hunting_weapons.js, Sword and Shield); Collide;
   // Onslaught; Raze and Fragment (on a shielded target); Etch, plain and

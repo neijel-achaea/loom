@@ -25,6 +25,8 @@ HU.classes["Alchemist"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Miasma: 14, Magnesium: 36, Caustic: 17, Pathogen: 25, Cadmium: 22, Hypnotic: 28, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Caustic"],
   // Still to capture: Copper and Caustic (on a shielded target); and, past
   // level 35 (#149), Pathogen, plain and PATHOGEN++ (target inhibited or
   // afraid), Hypnotic.

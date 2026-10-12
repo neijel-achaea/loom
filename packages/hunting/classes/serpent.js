@@ -33,6 +33,8 @@ HU.classes["Serpent"] = {
   // No Provoke listed for Serpent: if the class has it, add its cost to rage
   // (the line itself is shared, in hunting_classes.js).
   rage: { Thrash: 14, Throatrip: 36, Excoriate: 17, Snare: 25, Flagellate: 25, Obliviate: 28 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Excoriate"],
   // To capture (#31): Garrote; Thrash; Throatrip; Excoriate (on a shielded
   // target); Snare, plain and SNARE++ (target reckless or inhibited);
   // Flagellate; Obliviate.

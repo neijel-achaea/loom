@@ -24,6 +24,8 @@ HU.classes["Jester"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Noogie: 14, Ensconce: 36, Jacks: 17, Befuddle: 25, Dustthrow: 18, Rap: 26, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Jacks"],
   // Past level 35 (#149): BEFUDDLE++ (target in aeon or amnesiac); Rap.
   // Befuddle: the plain line is the "minor headache" one; any other line
   // that starts the same way (likely the ++ one) is tagged BEFUDDLE until

@@ -40,6 +40,8 @@ HU.classes["Monk"] = {
   // "You connect!" follows every hit of a combo; a miss says so instead.
   gags: [/^You connect!$/],
   rage: { Spinningbackfist: 14, Tornadokick: 36, Splinterkick: 17, Mindblast: 25, Scramble: 22, Ripplestrike: 25, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Splinterkick"],
   // Past level 35 (#149): Mindblast, plain and MINDBLAST++ (target weakened
   // or sensitive); Ripplestrike.
   lines: [

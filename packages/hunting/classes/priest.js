@@ -25,6 +25,8 @@ HU.classes["Priest"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Torment: 14, Desolation: 36, Crack: 17, Hammer: 25, Incense: 18, Horrify: 29, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Crack"],
   // To capture (#31): Smite; Torment; Desolation; Crack (on a shielded
   // target); Hammer, plain and HAMMER++ (target clumsy or amnesiac); Incense;
   // Horrify.

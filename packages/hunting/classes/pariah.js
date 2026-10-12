@@ -24,6 +24,8 @@ HU.classes["Pariah"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Boil: 14, Feast: 36, Scour: 17, Spider: 25, Wail: 32, Symphony: 24, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Scour"],
   // Past level 35 (#149): Spider, plain and SPIDER++ (target inhibited or
   // sensitive); Wail.
   lines: [

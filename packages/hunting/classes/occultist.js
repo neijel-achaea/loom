@@ -29,6 +29,8 @@ HU.classes["Occultist"] = {
              renew: [/^Your shroud dissipates and you return to the realm of perception\.$/, "shroud"] }
   },
   rage: { Harry: 14, Chaosgate: 36, Ruin: 17, Fluctuate: 25, Temperance: 32, Stagnate: 24, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Ruin"],
   // Past level 35 (#149): Fluctuate, plain and FLUCTUATE++ (target afraid or
   // amnesiac); Stagnate.
   lines: [

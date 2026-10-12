@@ -17,6 +17,8 @@ HU.classes["Blue Dragon"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14, Override: 36 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Frostrive"],
   lines: [
     [/^You form small chunks of ice in your enormous maw, then spit them at (.*) in a barrage\.$/, "DRAGONCHILL", "Dragonchill"],
     [/^You breathe a wave of icy air at (.*)\.$/, "FROSTWAVE", "Frostwave"],

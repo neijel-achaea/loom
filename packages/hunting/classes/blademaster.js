@@ -24,6 +24,8 @@ HU.classes["Blademaster"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Leapstrike: 14, Spinslash: 36, Shatter: 17, Headstrike: 25, Daze: 26, Nerveslash: 22, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Shatter"],
   // Past level 35 (#149): Headstrike, plain and HEADSTRIKE++ (target
   // reckless or afraid); Nerveslash.
   lines: [

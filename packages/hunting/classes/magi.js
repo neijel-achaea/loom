@@ -21,6 +21,8 @@ HU.classes["Magi"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Windlash: 14, Dilation: 35, Disintegrate: 17, Squeeze: 36, Firefall: 25, Stormbolt: 25 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Disintegrate"],
   lines: [
     [/^As you point an elemental staff at (.*), a scintilla of bright, burning light shoots out, striking (\w+) with focused elemental power\.$/, "STAFF"],
     [/^You draw upon the power of air to summon sharp gusts of wind which begin to whip across (.*)'s exposed flesh\.$/, "WINDLASH", "Windlash"],

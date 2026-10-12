@@ -25,6 +25,8 @@ HU.classes["Depthswalker"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Drain: 14, Lash: 36, Nakail: 17, Erasure: 25, Curse: 24, Boinad: 32, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Nakail"],
   // Past level 35 (#149): Nakail (needs Terminus, level 50; on a shielded
   // target); Erasure, plain and ERASURE++ (target weakened or amnesiac);
   // Boinad.

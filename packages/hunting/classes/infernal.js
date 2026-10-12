@@ -23,6 +23,8 @@ HU.classes["Infernal"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Ravage: 14, Spike: 36, Shiver: 17, Hellstrike: 25, Deathlink: 30, Soulshield: 20, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Shiver"],
   // Past level 35 (#149): Deathlink (needs someone to cast it on) and
   // HELLSTRIKE++ (target reckless or afraid).
   lines: [

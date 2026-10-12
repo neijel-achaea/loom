@@ -17,6 +17,8 @@ HU.classes["Black Dragon"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Dragonspit: 14, Dragonsting: 25, Dissolve: 17, Override: 36, Corrode: 25, Dragonfear: 29, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Dissolve"],
   lines: [
     [/^You rip into (.*) with your massive, deadly claws\.$/, "GUT"],
     [/^You spit a stream of acidic venom at (.*) who writhes in agony as the spittle seeps into (\w+) skin\.$/, "DRAGONSPIT", "Dragonspit"],

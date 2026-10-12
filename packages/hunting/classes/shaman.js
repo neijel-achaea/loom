@@ -24,6 +24,8 @@ HU.classes["Shaman"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Corruption: 14, Haemorrhage: 36, Vulnerability: 17, Vurus: 25, Cesaret: 18, Korkma: 29, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Vulnerability"],
   // To capture (#31): Bleed; Corruption; Haemorrhage; Vulnerability (on a
   // shielded target); Vurus, plain and VURUS++ (target sensitive or
   // amnesiac); Cesaret; Korkma.

@@ -24,6 +24,8 @@ HU.classes["Bard"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Moulinet: 14, Howlslash: 36, Resonance: 17, Cyclone: 25, Trill: 28, Charm: 32, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Resonance"],
   // Past level 35 (#149): Cyclone, plain and CYCLONE++ (target clumsy or
   // stunned), Charm.
   lines: [

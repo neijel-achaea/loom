@@ -29,6 +29,8 @@ HU.classes["Apostate"] = {
              renew: [/^Your shroud dissipates and you return to the realm of perception\.$/, "shroud"] }
   },
   rage: { Convulsions: 14, Burrow: 36, Pierce: 17, Bloodlet: 25, Possess: 32, Horrify: 29, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Pierce"],
   // Past level 35 (#149): Burrow and Pierce (need the daegger, from
   // Apostasy at level 50), Bloodlet, plain and BLOODLET++ (target sensitive
   // or stunned), Possess.

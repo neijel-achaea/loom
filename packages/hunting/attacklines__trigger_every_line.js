@@ -18,7 +18,12 @@ if (huCls && huLines.length) {
     // inserts.
     colorize_current_line(0, huText.length, HU.lineFg, HU.lineBg);
     replace_current_line(0, 0, huTag, HU.lineFg, HU.lineBg);
-    if (huRow[2]) {
+    // A shieldbreak (the class's "razes") has no cooldown of its own and
+    // doesn't start the global one, so the game never says it is ready
+    // again: marking it would leave every rage key dark until another
+    // ability ran its course.
+    var huRz = (huCls.razes || []).indexOf(huRow[2]) >= 0;
+    if (huRow[2] && !huRz) {
       HU.cd[huRow[2]] = false;
       HU.glob = false;
       run_function("hunting_highlight", [], "hunting");
