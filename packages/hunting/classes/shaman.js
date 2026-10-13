@@ -26,9 +26,14 @@ HU.classes["Shaman"] = {
   rage: { Corruption: 14, Haemorrhage: 36, Vulnerability: 17, Vurus: 25, Cesaret: 18, Korkma: 29, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Vulnerability"],
-  // To capture (#31): Bleed; Corruption; Haemorrhage; Vulnerability (on a
-  // shielded target); Vurus, plain and VURUS++ (target sensitive or
-  // amnesiac); Cesaret; Korkma.
+  // Past level 35 (#149): Vurus, plain and VURUS++ (target sensitive or
+  // amnesiac); Cesaret.
+  // Pronouns are left open: they change with the target.
   lines: [
+    [/^You point an imperious finger at (.*) and blood begins to flow from (\w+) pores\.$/, "BLEED"],
+    [/^You point an imperious finger at (.*)\. (\w+) flesh blackens and sloughs off\.$/, "CORRUPTION", "Corruption"],
+    [/^You point an imperious finger at (.*)\. Blood spurts out of (.*)'s eyes, ears, nose, and mouth\.$/, "HAEMORRHAGE", "Haemorrhage"],
+    [/^You point an imperious finger at (.*) and (\w+) translucent shield fades away\.$/, "VULNERABILITY", "Vulnerability"],
+    [/^You call upon the spirit of Korkma, sending his many-tentacled form to torment (.*)\.$/, "KORKMA", "Korkma"]
   ]
 };
