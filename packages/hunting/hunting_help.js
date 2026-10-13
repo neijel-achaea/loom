@@ -22,6 +22,7 @@ var hlRows = [
   ["HUNTING RAGE", "rage, cooldowns and tracked keys"],
   ["HUNTING RESET", "clear rage cooldowns, lay out the F-keys again"],
   ["HUNTING DEBUG", "internal state"],
+  ["F8 to F12 only show if Nexus is set to 12 buttons: gear icon (bottom right) > Buttons > Button Count."],
   [hlClassNote]
 ];
 var hlW = 0;
