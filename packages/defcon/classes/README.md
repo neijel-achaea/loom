@@ -43,7 +43,7 @@ system should keep up.
 
 Start from `D.generic` (the defences every class shares) and add the class's
 own. Keep the shared ones' tiers and priorities unless the class has a reason
-to differ (dragonform raises curseward to tier 1).
+to differ.
 
 To take a defence out of every table, delete its rows and add it to
 `D.retired` in `defcon_classes.js`, so its curing priority is reset once.
