@@ -1,6 +1,7 @@
 // Depthswalker: DEFCON UP commands and defences. See classes/README.md.
-// DEFCON UP conjures the shadow cloak (worn, not a defence; tah'maal needs
-// it). The manifested scythe stays between sessions, so it isn't recalled.
+// No DEFCON UP commands: the shadow cloak (worn; tah'maal needs it) and the
+// manifested scythe both stay between sessions, and the game says when the
+// cloak decays.
 // The Terminus intonements (word balance, after embracing) are free once up:
 // tsuura (less damage from denizens), mainaas (cutting and blunt
 // resistance), tah'maal (fire resistance, over the cloak) and trusad (more
@@ -9,7 +10,7 @@
 // Not kept: kail (a hunting panic key, F11), ukhia, instill (for PvP),
 // veil (to look at once learned); Aeonics spends age in the moment.
 D.classes["Depthswalker"] = {
-  up: ["queue add eq shadow cloak"],
+  up: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],
