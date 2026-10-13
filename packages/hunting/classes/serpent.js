@@ -2,7 +2,7 @@
 // See classes/README.md for the format. Only this file changes when the
 // game rewords an attack or a key needs moving.
 // Cooldowns (for reference; the game's messages drive them): Thrash 16s,
-// Throatrip 23s, Snare 23s. Flagellate and Obliviate: not given.
+// Throatrip 23s, Snare 23s, Provoke 20s. Flagellate and Obliviate: not given.
 // Class condition (charstats, for self): Venom.
 HU.classes["Serpent"] = {
   // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
@@ -30,12 +30,11 @@ HU.classes["Serpent"] = {
              renew: [/^Your shroud dissipates and you return to the realm of perception\.$/, "conjure cloak"] },
     weave: { label: "Weave", on: ["weaving on"], off: ["weaving off"] }
   },
-  // No Provoke listed for Serpent: if the class has it, add its cost to rage
-  // (the line itself is shared, in hunting_classes.js).
-  rage: { Thrash: 14, Throatrip: 36, Excoriate: 17, Snare: 25, Flagellate: 25, Obliviate: 28 },
+  rage: { Thrash: 14, Throatrip: 36, Excoriate: 17, Snare: 25, Flagellate: 25, Obliviate: 28, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Excoriate"],
-  // Past level 35 (#149): SNARE++ (target reckless or inhibited); Obliviate.
+  // For #149: SNARE++ (target reckless or inhibited); Obliviate; Lash as a
+  // second main.
   // Weapons and pronouns are left open: the whip can change. Snare matches on
   // its opening, so the plain line and SNARE++ both count.
   lines: [
