@@ -21,7 +21,9 @@ HU.classes["Alchemist"] = {
     ["", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],
-    ["", ""],
+    // Tin: reflects part of the next two attacks' damage (500 mana). A
+    // panic key, not kept up by DEFCON.
+    ["Tin", "queue add e!wu!t!p educe tin"],
     ["Shield", "touch shield"]
   ],
   rage: { Miasma: 14, Magnesium: 36, Caustic: 17, Pathogen: 25, Cadmium: 22, Hypnotic: 28, Provoke: 32 },
