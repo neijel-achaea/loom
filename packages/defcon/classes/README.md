@@ -55,6 +55,27 @@ to differ (dragonform raises rebounding and curseward to tier 1).
 | 2 | Hunting plus "noisy" defences (heldbreath, mass) |
 | 1 | Full alert, including mana-draining upkeep |
 
+## Choosing a defence's tier
+
+Ask these in order; the first yes sets the tier.
+
+1. Does it **drain mana continuously** while up? → **1**
+2. Is it **noisy** (others in the room see it), or does it **get in the way
+   of ordinary actions** if it's always kept up? → **2**. Insomnia stops you
+   sleeping and selfishness blocks generosity, and curing would raise them
+   again straight away, so both sit at 2.
+3. Does it **use something up** (a herb, salve, elixir, mineral or ink), or
+   drain a lot of endurance or willpower? → **3**
+4. Is it **free once up** and useful while hunting? → **4**
+5. Is it passive or permanent: the **bare minimum**? → **5**
+
+**Exception:** mindseye stays at 5 although it comes from a tattoo: without
+it you log in blind and deaf.
+
+Curing priority is separate from the tier: 1 is cured first. Most defences
+sit between 8 and 15; keep a defence's priority the same across classes
+unless the class has a reason to differ.
+
 ## Checking a change
 
 The four original tables were checked against their DEFCON UP commands and
