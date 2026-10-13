@@ -63,7 +63,8 @@ Retired so far: rebounding and curseward (both need constant recasting).
 
 Ask these in order; the first yes sets the tier.
 
-1. Does it **drain mana continuously** while up? → **1**
+1. Does it **drain mana continuously** while up, or does it **only help
+   against adventurers** (no use while hunting)? → **1**
 2. Is it **noisy** (others in the room see it), or does it **get in the way
    of ordinary actions** if it's always kept up? → **2**. Insomnia stops you
    sleeping and selfishness blocks generosity, and curing would raise them
