@@ -21,7 +21,9 @@ HU.classes["Depthswalker"] = {
     ["", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],
-    ["", ""],
+    // Kail: a prismatic barrier (word balance and equilibrium). A panic key:
+    // it likely drops when you attack, so DEFCON doesn't keep it (#156).
+    ["Kail", "queue add e!wu!t!p intone kail"],
     ["Shield", "touch shield"]
   ],
   rage: { Drain: 14, Lash: 36, Nakail: 17, Erasure: 25, Curse: 24, Boinad: 32, Provoke: 32 },
