@@ -28,11 +28,13 @@ HU.weapons = {
   "Dual Cutting": {
     main: "doubleslash",
     mains: { doubleslash: ["Doubleslash", "queue add b!wu!t!p dsl @tar"] },
-    // Two hits per Doubleslash, each worded one of these ways (from the Paladin).
+    // Two hits per Doubleslash, each worded one of these ways (from the
+    // Paladin). They're the game's plain weapon hits, so JAB, SLASH and SWING
+    // print them too: each is tagged by its wording, not as DOUBLESLASH.
     lines: [
-      [/^Lightning-quick, you jab (.*) with (.*)\.$/, "DOUBLESLASH"],
-      [/^You slash into (.*) with (.*)\.$/, "DOUBLESLASH"],
-      [/^You swing (.*) at (.*) with all your might\.$/, "DOUBLESLASH"]
+      [/^Lightning-quick, you jab (.*) with (.*)\.$/, "JAB"],
+      [/^You slash into (.*) with (.*)\.$/, "SLASH"],
+      [/^You swing (.*) at (.*) with all your might\.$/, "SWING"]
     ]
   },
   "Dual Blunt": {
@@ -43,8 +45,8 @@ HU.weapons = {
 };
 // Every class with "weapons: true" gets every spec's main attacks (after its
 // own, so its own first one stays the default with no spec), the spec's
-// default for F1, and every spec's lines (after its own; only the spec you
-// use will ever show).
+// default for F1, and every spec's lines (after its own; mostly only the
+// spec you use will show, but Dual Cutting's are the plain weapon hits).
 for (var hwC in HU.classes) {
   var hwE = HU.classes[hwC];
   if (!hwE.weapons) continue;
