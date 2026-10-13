@@ -16,8 +16,8 @@ D.alias = { "Black Dragon": "Dragon", "Blue Dragon": "Dragon", "Red Dragon": "Dr
 // Defences taken out of every table. DEFCON resets their curing priority
 // once per table, so a priority set by an older version doesn't keep the
 // game recasting them. Rebounding: it needs recasting so often that you do
-// little else (#156).
-D.retired = ["rebounding"];
+// little else (#156). Curseward: the same, needs constant recasting.
+D.retired = ["rebounding", "curseward"];
 
 // Sent by DEFCON UP for every class, after the class's own commands.
 D.common = ["selfishness", "avoid physical", "insomnia"];
@@ -34,7 +34,6 @@ D.generic = [
   ["fangbarrier", 3, 8],
   ["deafness", 3, 4],
   ["blindness", 3, 4],
-  ["curseward", 2, 9],
   ["kola", 3, 3],
   ["levitating", 3, 15],
   ["speed", 3, 5],

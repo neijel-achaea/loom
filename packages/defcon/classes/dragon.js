@@ -16,7 +16,6 @@ D.classes["Dragon"] = {
     ["fangbarrier", 3, 8],
     ["deafness", 3, 4],
     ["blindness", 3, 4],
-    ["curseward", 2, 9],
     ["kola", 3, 3],
     ["levitating", 3, 15],
     ["speed", 3, 5],

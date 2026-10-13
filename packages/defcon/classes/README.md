@@ -47,7 +47,7 @@ to differ.
 
 To take a defence out of every table, delete its rows and add it to
 `D.retired` in `defcon_classes.js`, so its curing priority is reset once.
-Retired so far: rebounding.
+Retired so far: rebounding and curseward (both need constant recasting).
 
 ## Levels
 

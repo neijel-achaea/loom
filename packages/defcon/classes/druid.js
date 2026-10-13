@@ -15,7 +15,6 @@ D.classes["Druid"] = {
     ["blindness", 3, 4],
     ["temperance", 3, 12],
     ["vitality", 3, 7],
-    ["curseward", 2, 9],
     ["kola", 3, 3],
     ["levitating", 3, 15],
     ["speed", 3, 5],
