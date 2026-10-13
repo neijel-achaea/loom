@@ -8,6 +8,8 @@ HU.classes["Sentinel"] = {
   // Main attacks for F1, following the morph; HUNTING MAIN picks another,
   // and adds more in game.
   mains: {
+    // First, so it's the default with no morph.
+    doublestrike: ["Doublestrike", "queue add b!wu!t!p doublestrike @tar"],
     bite: ["Bite", "queue add b!wu!t!p bite @tar"],
     claw: ["Claw", "queue add b!wu!t!p claw @tar"],
     maul: ["Maul", "queue add b!wu!t!p maul @tar"]
@@ -36,9 +38,20 @@ HU.classes["Sentinel"] = {
   rage: { Pester: 14, Skewer: 36, Bore: 17, Swarm: 25, Tame: 32, Goad: 18, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Bore"],
-  // To capture (#31): Bite, Claw and Maul; Pester; Skewer; Bore (on a
-  // shielded target); Swarm, plain and SWARM++ (target in aeon or
-  // inhibited); Tame; Goad.
+  // For #149: SWARM++ (target in aeon or inhibited); Doublestrike's other
+  // hit, if it has one.
+  // Weapons, pronouns and the pestering animal are left open. Swarm matches
+  // on its opening, so SWARM++ counts too.
   lines: [
+    [/^You lay open the flesh of (.*) with an expert lateral slice with (.*)\.$/, "DOUBLESTRIKE"],
+    [/^You sink your teeth deep into (.*), who howls in pain\.$/, "BITE"],
+    [/^You strike brutally at (.*), and shred (\w+) skin\.$/, "CLAW"],
+    [/^You spring forwards onto (.*), and maul (\w+) viciously\.$/, "MAUL"],
+    [/^(.*) continues to pester (.*), continually biting (\w+)\.$/, "PESTER", "Pester"],
+    [/^You leap high into the air, (.*) held high above your head as you land on top of (.*), skewering (\w+) with your weapon\.$/, "SKEWER", "Skewer"],
+    [/^You thrust forward with (.*), piercing through (.*)'s shield\.$/, "BORE", "Bore"],
+    [/^You utter a loud, buzzing call, and a swarm of wasps rushes in/, "SWARM", "Swarm"],
+    [/^Making soothing noises, you carefully approach (.*), assuring (\w+) that you are a friend and urging (\w+) to fight for you\.$/, "TAME", "Tame"],
+    [/^You cower before (.*), causing (\w+) to recklessly attack you with no regard for (\w+) own safety\.$/, "GOAD", "Goad"]
   ]
 };
