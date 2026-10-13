@@ -27,10 +27,16 @@ HU.classes["Runewarden"] = {
   rage: { Collide: 14, Onslaught: 36, Fragment: 17, Etch: 25, Safeguard: 35, Bulwark: 28, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Fragment"],
-  // To capture (#31): the combination's lines (rend, smash; they go in
-  // hunting_weapons.js, Sword and Shield); Collide;
-  // Onslaught; Raze and Fragment (on a shielded target); Etch, plain and
-  // ETCH++ (target in aeon or stunned); Safeguard; Bulwark.
+  // The combination's and Raze's lines are Sword and Shield's, in
+  // hunting_weapons.js.
+  // Past level 35 (#149): Fragment (on a shielded target); ETCH++ (target in
+  // aeon or stunned); Safeguard.
   lines: [
+    [/^You charge at (.*), slamming into (\w+) and throwing (\w+) back\.$/, "COLLIDE", "Collide"],
+    [/^You unleash a ferocious onslaught on (.*), relentlessly pounding (\w+) with (.*)\.$/, "ONSLAUGHT", "Onslaught"],
+    // Etch: matched on its opening, so a glancing hit (as captured) and a
+    // full one both count.
+    [/^You trace the outline of a rune in the air with (.*)\. The edges catch fire as it hurtles towards /, "ETCH", "Etch"],
+    [/^The runes on your armour flare brightly as you adopt a defensive stance\.$/, "BULWARK", "Bulwark"]
   ]
 };

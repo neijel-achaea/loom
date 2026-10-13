@@ -17,7 +17,13 @@ HU.weapons = {
   "Sword and Shield": {
     main: "combination",
     mains: { combination: ["Combo", "queue add b!wu!t!p combination @tar rend smash"] },
-    lines: []
+    // The combination's two hits, and Raze (the balance shieldbreak), from
+    // the Runewarden.
+    lines: [
+      [/^You carve into (.*)'s flesh with a vicious strike, opening a bleeding wound\.$/, "REND"],
+      [/^You brutally smash your shield into (.*)\.$/, "SMASH"],
+      [/^You raze (.*)'s magical shield with (.*)\.$/, "RAZE"]
+    ]
   },
   "Dual Cutting": {
     main: "doubleslash",
