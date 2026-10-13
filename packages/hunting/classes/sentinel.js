@@ -38,12 +38,13 @@ HU.classes["Sentinel"] = {
   rage: { Pester: 14, Skewer: 36, Bore: 17, Swarm: 25, Tame: 32, Goad: 18, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Bore"],
-  // For #149: SWARM++ (target in aeon or inhibited); Doublestrike's other
-  // hit, if it has one.
+  // For #149: SWARM++ (target in aeon or inhibited).
   // Weapons, pronouns and the pestering animal are left open. Swarm matches
   // on its opening, so SWARM++ counts too.
   lines: [
+    // Doublestrike's two hits: the slice, then the haft.
     [/^You lay open the flesh of (.*) with an expert lateral slice with (.*)\.$/, "DOUBLESTRIKE"],
+    [/^Turning with the motion of your strike, you come back around and slam the haft of your weapon into the temple of (.*)\.$/, "DOUBLESTRIKE"],
     [/^You sink your teeth deep into (.*), who howls in pain\.$/, "BITE"],
     [/^You strike brutally at (.*), and shred (\w+) skin\.$/, "CLAW"],
     [/^You spring forwards onto (.*), and maul (\w+) viciously\.$/, "MAUL"],

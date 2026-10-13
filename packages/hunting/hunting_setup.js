@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.4.29", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "0.4.30", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
