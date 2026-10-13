@@ -20,7 +20,9 @@ HU.classes["Jester"] = {
     ["", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],
-    ["", ""],
+    // Fool: a tarot card that throws off three afflictions (balance; 35s
+    // before it attends again). A panic key, not a defence (#156).
+    ["Fool", "queue add b!wu!t!p fling fool at me"],
     ["Shield", "touch shield"]
   ],
   rage: { Noogie: 14, Ensconce: 36, Jacks: 17, Befuddle: 25, Dustthrow: 18, Rap: 26, Provoke: 32 },
