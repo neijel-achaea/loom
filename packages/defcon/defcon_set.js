@@ -24,6 +24,19 @@ for (var dcI = 0; dcI < dcDefs.length; dcI++) {
   }
 }
 
+// Retired defences: reset once per table (defcon_retired remembers which).
+var dcRet = {};
+try { dcRet = JSON.parse(get_variable("defcon_retired") || "{}") || {}; } catch (e) { dcRet = {}; }
+var dcRetDone = dcRet[D.tbl.name] || [];
+for (var dcR = 0; dcR < (D.retired || []).length; dcR++) {
+  if (dcRetDone.indexOf(D.retired[dcR]) < 0) {
+    dcQueue.push("curing priority defence " + D.retired[dcR] + " reset");
+    dcRetDone.push(D.retired[dcR]);
+  }
+}
+dcRet[D.tbl.name] = dcRetDone;
+set_variable("defcon_retired", JSON.stringify(dcRet));
+
 D.levels[D.tbl.name] = dcLevel;
 D.level = dcLevel;
 set_variable("defcon_levels", JSON.stringify(D.levels));

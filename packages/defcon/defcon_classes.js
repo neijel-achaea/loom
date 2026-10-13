@@ -13,6 +13,12 @@ D.classes = {};
 // Every dragon colour shares the dragonform table.
 D.alias = { "Black Dragon": "Dragon", "Blue Dragon": "Dragon", "Red Dragon": "Dragon", "Green Dragon": "Dragon", "Silver Dragon": "Dragon", "Gold Dragon": "Dragon" };
 
+// Defences taken out of every table. DEFCON resets their curing priority
+// once per table, so a priority set by an older version doesn't keep the
+// game recasting them. Rebounding: it needs recasting so often that you do
+// little else (#156).
+D.retired = ["rebounding"];
+
 // Sent by DEFCON UP for every class, after the class's own commands.
 D.common = ["selfishness", "avoid physical", "insomnia"];
 
@@ -24,7 +30,6 @@ D.generic = [
   ["telesense", 1, 10, true],
   ["metawake", 1, 9, true],
   ["mass", 2, 8],
-  ["rebounding", 2, 2],
   ["heldbreath", 2, 20],
   ["fangbarrier", 3, 8],
   ["deafness", 3, 4],
@@ -36,7 +41,7 @@ D.generic = [
   ["poisonresist", 3, 8],
   ["nightsight", 4, 13],
   ["deathsight", 4, 18],
-  ["thirdeye", 4, 5],
+  ["thirdeye", 3, 5],
   ["insomnia", 2, 6],
   ["selfishness", 2, 17],
   ["mindseye", 5, 1],
