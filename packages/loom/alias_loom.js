@@ -1,4 +1,4 @@
-// LOOM [LIST|HELP|PAUSE on/off|DEBUG on/off|ROOM]
+// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM]
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
@@ -39,6 +39,16 @@ if (sub === "" || sub === "list") {
   }
   if (html && rows.length) nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + rows.join("\n") + '</span>');
   display_notice("[loom] pause " + (get_variable("pauseTriggers") || "off") + ", debug " + (get_variable("debug") || "off") + ". LOOM HELP for commands.", C);
+} else if (sub === "updates") {
+  // LOOM UPDATES: check now. LOOM UPDATES AUTO ON|OFF: the check at login.
+  if (val === "auto") {
+    var luAuto = String(parts[2] || "").toLowerCase();
+    if (luAuto === "on" || luAuto === "off") set_variable("loom_autoupdates", luAuto);
+    display_notice("[loom] version check at login is " + (get_variable("loom_autoupdates") || "on") + ".", C);
+  } else {
+    set_variable("loom_updates_mode", "manual");
+    run_function("loom_updates", [], "loom");
+  }
 } else if (sub === "help") {
   run_function("loom_help", [], "loom");
 } else if (sub === "pause" || sub === "debug") {

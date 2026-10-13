@@ -5,6 +5,8 @@ var hlTitle = "[loom] the suite package. Commands:";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["LOOM", "packages loaded, with version and command"],
+  ["LOOM UPDATES", "packages here that are older than on GitHub"],
+  ["LOOM UPDATES AUTO ON|OFF", "the same check once at login, silent when all is current"],
   ["LOOM PAUSE ON|OFF", "stop packages sending commands (interruptible actions)"],
   ["LOOM DEBUG ON|OFF", "debug notices"],
   ["LOOM ROOM", "current room id, name, area and environment"],

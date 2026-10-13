@@ -34,6 +34,12 @@
       "code": "@file:loom_help.js"
     },
     {
+      "type": "function",
+      "name": "loom_updates",
+      "enabled": true,
+      "code": "@file:loom_updates.js"
+    },
+    {
       "type": "alias",
       "name": "",
       "enabled": true,
