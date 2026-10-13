@@ -42,7 +42,7 @@
           "type": "function",
           "name": "hunting_classes",
           "enabled": true,
-          "code": "@cat:hunting_classes.js classes/*.js"
+          "code": "@cat:hunting_classes.js classes/*.js hunting_weapons.js"
         },
         {
           "type": "function",

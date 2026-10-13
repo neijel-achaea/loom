@@ -2,7 +2,7 @@
 // See classes/README.md for the format. Only this file changes when the
 // game rewords an attack or a key needs moving.
 // Cooldowns (for reference; the game's messages drive them): Thrash 16s,
-// Throatrip 23s, Snare 23s. Flagellate and Obliviate: not given.
+// Throatrip 23s, Snare 23s, Provoke 20s. Flagellate and Obliviate: not given.
 // Class condition (charstats, for self): Venom.
 HU.classes["Serpent"] = {
   // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
@@ -30,11 +30,19 @@ HU.classes["Serpent"] = {
              renew: [/^Your shroud dissipates and you return to the realm of perception\.$/, "conjure cloak"] },
     weave: { label: "Weave", on: ["weaving on"], off: ["weaving off"] }
   },
-  // No Provoke listed for Serpent: add it here if the class has it.
-  rage: { Thrash: 14, Throatrip: 36, Excoriate: 17, Snare: 25, Flagellate: 25, Obliviate: 28 },
-  // To capture (#31): Garrote; Thrash; Throatrip; Excoriate (on a shielded
-  // target); Snare, plain and SNARE++ (target reckless or inhibited);
-  // Flagellate; Obliviate.
+  rage: { Thrash: 14, Throatrip: 36, Excoriate: 17, Snare: 25, Flagellate: 25, Obliviate: 28, Provoke: 32 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Excoriate"],
+  // For #149: SNARE++ (target reckless or inhibited); Obliviate; Lash as a
+  // second main.
+  // Weapons and pronouns are left open: the whip can change. Snare matches on
+  // its opening, so the plain line and SNARE++ both count.
   lines: [
+    [/^You slip behind (.*) and garrote (\w+) with your (.*)\.$/, "GARROTE"],
+    [/^You crack (.*) over your head before repeatedly lashing (.*) with it\.$/, "THRASH", "Thrash"],
+    [/^You leap upon (.*) and sink your fangs into (\w+) throat before leaping away, blood gushing from the horrific wound\.$/, "THROATRIP", "Throatrip"],
+    [/^You lash out at (.*) with your (.*), stripping (\w+) translucent shield\.$/, "EXCORIATE", "Excoriate"],
+    [/^You step behind (.*) and trip (\w+) into your waiting (.*)\./, "SNARE", "Snare"],
+    [/^You crack (.*) lightly against (.*)'s flesh, awakening sensitive nerves\.$/, "FLAGELLATE", "Flagellate"]
   ]
 };

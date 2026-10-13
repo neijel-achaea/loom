@@ -24,9 +24,16 @@ HU.classes["Pariah"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Boil: 14, Feast: 36, Scour: 17, Spider: 25, Wail: 32, Symphony: 24, Provoke: 32 },
-  // To capture (#31): Wrack; Boil; Feast; Scour (on a shielded target);
-  // Spider, plain and SPIDER++ (target inhibited or sensitive); Wail;
-  // Symphony; Provoke.
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Scour"],
+  // Past level 35 (#149): Spider, plain and SPIDER++ (target inhibited or
+  // sensitive); Wail.
   lines: [
+    [/^You raise your (?:left|right) hand before (.*), and clench it into a fist as you wrack the blood that flows throughout\.$/, "WRACK"],
+    [/^You reach out and claw at the air, heating the body of (.*) from within\.$/, "BOIL", "Boil"],
+    [/^You croon to the myriad minds that surround you, and send them to feast upon (.*) in a wave of chittering hunger\.$/, "FEAST", "Feast"],
+    [/^You flick your hand towards (.*), and a sheet of sand rises to scour the magical shield surrounding (\w+)\.$/, "SCOUR", "Scour"],
+    // Symphony: matched on its opening, as the target's reaction follows.
+    [/^You tilt back your head and raise your voice in humming symphony with the myriad minds that crawl and fly\./, "SYMPHONY", "Symphony"]
   ]
 };

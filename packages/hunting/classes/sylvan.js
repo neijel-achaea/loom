@@ -21,6 +21,8 @@ HU.classes["Sylvan"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Torrent: 14, Sandstorm: 29, Thornpierce: 17, Stonevine: 36, Leechroot: 25, Rockshot: 28 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Thornpierce"],
   lines: [
     [/^You command the razor-edged thorny vines around you to lash out and rend the flesh of (.*)\.$/, "THORNREND"],
     [/^(.*) coughs and splutters as you channel a gout of water at (\w+) face\.$/, "TORRENT", "Torrent"],

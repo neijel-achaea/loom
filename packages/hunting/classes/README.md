@@ -11,6 +11,7 @@ HELP says it isn't configured yet.
 HU.classes["Magi"] = {
   keys: [ ... ],    // F1 to F12
   rage: { ... },    // battlerage costs
+  razes: [ ... ],   // the shieldbreak: no cooldown, no global cooldown
   lines: [ ... ]    // your attack lines: highlighted, tagged, and cooldowns
 };
 ```
@@ -62,8 +63,10 @@ toggles: {
 ```
 
 Put `["{toggle:sneak}", ""]` in `keys`: the key reads "Sneak ON" or "Sneak
-OFF", is lit while on, and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
-while the toggle is on, seeing that line sends the command again.
+OFF" (not lit, so it isn't mistaken for a ready ability) and runs `HUNTING TOGGLE SNEAK`. `renew` is optional:
+while the toggle is on, seeing that line sends the command again. `seen` is
+optional too: `[/now on/, /now off/]`, the game's lines for each state, so the
+key follows however it was switched (typed, or dropped on its own).
 
 ## pauses (optional)
 
@@ -78,7 +81,23 @@ pauses: [
 ```
 
 For a morph, the second pattern is optional: the `Morph:` change in
-charstats also ends the pause.
+charstats also ends the pause. A third field is a command sent once paused:
+the Monk's Tekura grading answers the tutor with `"ok"`.
+
+## gags (optional)
+
+Lines to hide: `gags: [/^You connect!$/]` (the Monk's combo prints it after
+every hit).
+
+## weapons (optional)
+
+`weapons: true` for the knight classes (Infernal, Paladin, Runewarden,
+Unnamable). Their main attacks depend on the Weaponmastery specialisation, and
+a spec's attacks print the same lines whichever class uses it, so they live
+once in `hunting_weapons.js`: per spec, its main attacks, its default for F1
+and its lines. Every weapons class gets all of them after its own `mains` and
+`lines`, and F1 follows `Spec:` from charstats. A class's own first main stays
+the default while it has no spec (Paladin's Doubleslash).
 
 ## specKeys (optional)
 
@@ -98,8 +117,16 @@ For the main attack, `specMain` (above) is simpler.
 ## rage
 
 `{ Ability: cost }`, named as the game names it in "You can use Windlash
-again". Costs belong to the class, so two classes may share an ability name
+again", which is always the skill's own name (Temperance, not TEMPER). Costs belong to the class, so two classes may share an ability name
 with different costs.
+
+## razes
+
+The class's shieldbreak, which costs rage but has no cooldown of its own and
+doesn't start the global battlerage cooldown: `razes: ["Disintegrate"]`. The
+game never says it is ready again, so its attack line only tags and
+highlights, and its key lights whenever the global cooldown is clear and you
+have the rage. Without this, using it would leave every rage key dark.
 
 ## lines
 
@@ -108,9 +135,11 @@ One row per message you see when you hit with an attack:
 
 - The line is highlighted and gets `[TAG] ` in front of it.
 - `"Ability"` names a battlerage ability: seeing the line starts its cooldown
-  and the global battlerage cooldown.
+  and the global battlerage cooldown (unless it is in `razes`).
 - Patterns are ordinary JavaScript regular expressions: `(.*)` for the
   target, `\.` for a full stop, `^` and `$` to anchor the whole line.
 
 Only the current class's lines are checked, so patterns can't collide across
-classes.
+classes. Lines that are the same for every class (Provoke) live once in
+`HU.sharedLines`, at the end of `hunting_classes.js`, and are checked after the
+class's own.

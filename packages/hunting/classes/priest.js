@@ -25,10 +25,17 @@ HU.classes["Priest"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Torment: 14, Desolation: 36, Crack: 17, Hammer: 25, Incense: 18, Horrify: 29, Provoke: 32 },
-  // To capture (#31): Smite; Torment; Desolation; Crack (on a shielded
-  // target); Hammer, plain and HAMMER++ (target clumsy or amnesiac); Incense;
-  // Horrify; Provoke. Check the names in "You can use ... again" for the
-  // rites.
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Crack"],
+  // Past level 35 (#149): Hammer, plain and HAMMER++ (target clumsy or
+  // amnesiac); Horrify.
+  // Weapons and pronouns are left open: they change with what you wield and
+  // with your angel.
   lines: [
+    [/^You utter a prayer and smite (.*) with (.*)\.$/, "SMITE"],
+    [/^Your angel flares its wings and flaps them powerfully at (.*), causing shards of crystal to tear through (\w+) flesh\.$/, "TORMENT", "Torment"],
+    [/^Praying to the Gods, you lay a desolating rite on (.*)'s body and watch as (\w+) arches (\w+) back in agony\.$/, "DESOLATION", "Desolation"],
+    [/^You strike (.*)'s translucent shield with your (.*), shattering it completely\.$/, "CRACK", "Crack"],
+    [/^Your guardian angel becomes translucent as (\w+) floats first through you and then (.*), absorbing your rage and passing it to (\w+)\.$/, "INCENSE", "Incense"]
   ]
 };

@@ -5,12 +5,9 @@
 // Onslaught 23s, Etch 23s, Safeguard 57s, Bulwark 45s, Provoke 20s.
 // Class conditions (charstats, for self): Ferocity, empower, Spec.
 HU.classes["Runewarden"] = {
-  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game. The
-  // default follows the specialisation (specMain); other specs to add.
-  mains: {
-    combination: ["Combo", "queue add b!wu!t!p combination @tar rend smash"]
-  },
-  specMain: { "Sword and Shield": "combination" },
+  // Main attacks for F1 and their lines come from the weapon specs, shared
+  // by the knight classes (hunting_weapons.js). HUNTING MAIN adds more in game.
+  weapons: true,
   keys: [
     ["{main}", ""],
     ["Collide", huQ + "collide @tar"],
@@ -28,10 +25,18 @@ HU.classes["Runewarden"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Collide: 14, Onslaught: 36, Fragment: 17, Etch: 25, Safeguard: 35, Bulwark: 28, Provoke: 32 },
-  // To capture (#31): the combination's lines (rend, smash); Collide;
-  // Onslaught; Raze and Fragment (on a shielded target); Etch, plain and
-  // ETCH++ (target in aeon or stunned); Safeguard; Bulwark; Provoke. The
-  // other specs' main attacks, when tested.
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Fragment"],
+  // The combination's and Raze's lines are Sword and Shield's, in
+  // hunting_weapons.js.
+  // Past level 35 (#149): Fragment (on a shielded target); ETCH++ (target in
+  // aeon or stunned); Safeguard.
   lines: [
+    [/^You charge at (.*), slamming into (\w+) and throwing (\w+) back\.$/, "COLLIDE", "Collide"],
+    [/^You unleash a ferocious onslaught on (.*), relentlessly pounding (\w+) with (.*)\.$/, "ONSLAUGHT", "Onslaught"],
+    // Etch: matched on its opening, so a glancing hit (as captured) and a
+    // full one both count.
+    [/^You trace the outline of a rune in the air with (.*)\. The edges catch fire as it hurtles towards /, "ETCH", "Etch"],
+    [/^The runes on your armour flare brightly as you adopt a defensive stance\.$/, "BULWARK", "Bulwark"]
   ]
 };

@@ -21,6 +21,8 @@ HU.classes["Magi"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Windlash: 14, Dilation: 35, Disintegrate: 17, Squeeze: 36, Firefall: 25, Stormbolt: 25 },
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Disintegrate"],
   lines: [
     [/^As you point an elemental staff at (.*), a scintilla of bright, burning light shoots out, striking (\w+) with focused elemental power\.$/, "STAFF"],
     [/^You draw upon the power of air to summon sharp gusts of wind which begin to whip across (.*)'s exposed flesh\.$/, "WINDLASH", "Windlash"],
@@ -29,6 +31,7 @@ HU.classes["Magi"] = {
     [/^You summon a whirlwind of flame around (.*) which consumes (\w+) translucent shield\.$/, "DISINTEGRATE", "Disintegrate"],
     [/^A bolt of lightning roars out from your hands as you cast a powerful spell at (.*), inciting sensitive nerves across (\w+) skin\.$/, "STORMBOLT", "Stormbolt"],
     [/^You raise your hands dramatically and summon a mighty flaming rock from the sky that slams into the clumsy form of (.*)\.$/, "FIREFALL++", "Firefall"],
+    [/^You summon a polar vortex in a tight field around (.*), chilling the small pocket so intensely that time itself begins to slow\.$/, "DILATION", "Dilation"],
     [/^You point an elemental staff at (.*) and (\w+) screams in pain as (\w+) skin begins to freeze and crack\.$/, "STAFF"]
   ]
 };

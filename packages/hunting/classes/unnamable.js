@@ -6,11 +6,13 @@
 // Class conditions (charstats, for self): Karma, Anathema (Yes/No),
 // Manifestation, Spec.
 HU.classes["Unnamable"] = {
-  // Main attacks for F1: HUNTING MAIN picks one, and adds more in game. The
-  // specs' defaults (specMain) to add once tested.
+  // Main attacks for F1 and their lines come from the weapon specs, shared
+  // by the knight classes (hunting_weapons.js); Doublewhirl first, so it's the
+  // default with no spec. HUNTING MAIN adds more in game.
   mains: {
     doublewhirl: ["Doublewhirl", "queue add b!wu!t!p doublewhirl @tar"]
   },
+  weapons: true,
   keys: [
     ["{main}", ""],
     ["Shriek", huQ + "unnamable shriek @tar"],
@@ -28,10 +30,13 @@ HU.classes["Unnamable"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Shriek: 14, Destroy: 36, Sunder: 17, Onslaught: 25, Entropy: 32, Dread: 24, Provoke: 32 },
-  // To capture (#31): Doublewhirl (and the other specs' main attacks);
-  // Shriek; Destroy; Fracture and Sunder (on a shielded target); Onslaught,
-  // plain and ONSLAUGHT++ (target charmed or sensitive); Entropy; Dread;
-  // Provoke.
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Sunder"],
+  // For #149: Fracture and Sunder (on a shielded target); Onslaught, plain and
+  // ONSLAUGHT++ (target charmed or sensitive); Entropy.
   lines: [
+    [/^Your many mouths shriek at (.*), a wrath-filled cry given ancient power\.$/, "SHRIEK", "Shriek"],
+    [/^You lash out with power and will, your only task to crush the light from your wretched target, (.*)\.$/, "DESTROY", "Destroy"],
+    [/^You croon to (.*) of terror, of the fear of aeons, of the ineffable dread, each of your mouths joined in profane design\.$/, "DREAD", "Dread"]
   ]
 };

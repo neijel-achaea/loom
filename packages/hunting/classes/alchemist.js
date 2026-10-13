@@ -12,7 +12,9 @@ HU.classes["Alchemist"] = {
     ["{main}", ""],
     ["Miasma", huQ + "throw miasma at @tar"],
     ["Magnesium", huQ + "educe magnesium @tar"],
-    ["Caustic", huQ + "throw caustic at @tar"],
+    // Copper: the equilibrium shieldbreak (no rage). Caustic is the rage
+    // one, tracked but without a key.
+    ["Copper", "queue add e!wu!t!p educe copper @tar"],
     ["Pathogen", huQ + "throw pathogen at @tar"],
     ["Cadmium", huQ + "educe cadmium @tar"],
     ["Hypnotic", huQ + "throw hypnotic at @tar"],
@@ -23,9 +25,15 @@ HU.classes["Alchemist"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Miasma: 14, Magnesium: 36, Caustic: 17, Pathogen: 25, Cadmium: 22, Hypnotic: 28, Provoke: 32 },
-  // To capture (#31): Iron; Miasma; Magnesium; Caustic (on a shielded
-  // target); Pathogen, plain and PATHOGEN++ (target inhibited or afraid);
-  // Cadmium; Hypnotic; Provoke.
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Caustic"],
+  // Still to capture: Copper and Caustic (on a shielded target); and, past
+  // level 35 (#149), Pathogen, plain and PATHOGEN++ (target inhibited or
+  // afraid), Hypnotic.
   lines: [
+    [/^Directing the energy of iron, you engulf (.*)'s body with ashen flames, which burn (\w+) skin with their frigid touch\.$/, "IRON"],
+    [/^You quickly mix together several chemical by-products and fling the toxic mixture into (.*)'s face, causing (\w+) to cough and choke\.$/, "MIASMA", "Miasma"],
+    [/^You sketch out the symbol for magnesium and direct the energy to sear (.*)'s flesh\.$/, "MAGNESIUM", "Magnesium"],
+    [/^You sketch a bisected triangle in the air and direct the energy of cadmium to pierce (.*)'s skin, weakening (\w+)\.$/, "CADMIUM", "Cadmium"]
   ]
 };

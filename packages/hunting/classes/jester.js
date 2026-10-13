@@ -24,9 +24,19 @@ HU.classes["Jester"] = {
     ["Shield", "touch shield"]
   ],
   rage: { Noogie: 14, Ensconce: 36, Jacks: 17, Befuddle: 25, Dustthrow: 18, Rap: 26, Provoke: 32 },
-  // To capture (#31): Bop; Noogie; Ensconce; Jacks (on a shielded target);
-  // Befuddle, plain and BEFUDDLE++ (target in aeon or amnesiac); Dustthrow;
-  // Rap; Provoke.
+  // Shieldbreak: no cooldown, no global cooldown (see README, razes).
+  razes: ["Jacks"],
+  // Past level 35 (#149): BEFUDDLE++ (target in aeon or amnesiac); Rap.
+  // Befuddle: the plain line is the "minor headache" one; any other line
+  // that starts the same way (likely the ++ one) is tagged BEFUDDLE until
+  // it's captured.
   lines: [
+    [/^You reach out and bop (.*) on the nose with your blackjack\.$/, "BOP"],
+    [/^You wrap (.*) in a tight headlock and repeatedly rub your knuckles painfully across (\w+) scalp\.$/, "NOOGIE", "Noogie"],
+    [/^You discreetly secret a lit firecracker to (.*?)\./, "ENSCONCE", "Ensconce"],
+    [/^You throw a handful of small metallic jacks at (.*), the sharpened points shredding (\w+) translucent shield\.$/, "JACKS", "Jacks"],
+    [/^You strike up a bantering dialogue with (.*), but you're only able to cause a minor headache\.$/, "BEFUDDLE", "Befuddle"],
+    [/^You strike up a bantering dialogue with /, "BEFUDDLE", "Befuddle"],
+    [/^You take a pinch of diamond dust and flick it at (.*)'s face\./, "DUSTTHROW", "Dustthrow"]
   ]
 };
