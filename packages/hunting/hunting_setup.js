@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.4.31", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "0.4.32", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -30,8 +30,8 @@ if (!HU.mainsAdded) {
   HU.mainsAdded = {};
   try { HU.mainsAdded = JSON.parse(get_variable("hunting_mains_added") || "{}") || {}; } catch (e) { HU.mainsAdded = {}; }
 }
-// Class toggles' state (sneak, weave...): { name: "on" | "off" }, kept so a
-// reload remembers it.
+// Class toggles' state (sneak, weave...): { name: "on" | "off" }, kept
+// across HUNTING BUTTONS and RESET; onLoad sets them all OFF.
 if (!HU.toggles) {
   HU.toggles = {};
   try { HU.toggles = JSON.parse(get_variable("hunting_toggles") || "{}") || {}; } catch (e) { HU.toggles = {}; }
