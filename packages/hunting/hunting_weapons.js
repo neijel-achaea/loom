@@ -40,7 +40,11 @@ HU.weapons = {
   "Dual Blunt": {
     main: "doublewhirl",
     mains: { doublewhirl: ["Doublewhirl", "queue add b!wu!t!p doublewhirl @tar"] },
-    lines: []
+    // Doublewhirl's two hits, one line each (from the Unnamable). Fracture,
+    // the balance shieldbreak, still to capture.
+    lines: [
+      [/^You whip (.*) toward (.*)\.$/, "DOUBLEWHIRL"]
+    ]
   }
 };
 // Every class with "weapons: true" gets every spec's main attacks (after its

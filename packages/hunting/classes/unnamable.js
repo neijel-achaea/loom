@@ -32,9 +32,11 @@ HU.classes["Unnamable"] = {
   rage: { Shriek: 14, Destroy: 36, Sunder: 17, Onslaught: 25, Entropy: 32, Dread: 24, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Sunder"],
-  // To capture (#31): Doublewhirl and Fracture (Dual Blunt, in
-  // hunting_weapons.js); Shriek; Destroy; Sunder (on a shielded target); Onslaught,
-  // plain and ONSLAUGHT++ (target charmed or sensitive); Entropy; Dread.
+  // For #149: Fracture and Sunder (on a shielded target); Onslaught, plain and
+  // ONSLAUGHT++ (target charmed or sensitive); Entropy.
   lines: [
+    [/^Your many mouths shriek at (.*), a wrath-filled cry given ancient power\.$/, "SHRIEK", "Shriek"],
+    [/^You lash out with power and will, your only task to crush the light from your wretched target, (.*)\.$/, "DESTROY", "Destroy"],
+    [/^You croon to (.*) of terror, of the fear of aeons, of the ineffable dread, each of your mouths joined in profane design\.$/, "DREAD", "Dread"]
   ]
 };
