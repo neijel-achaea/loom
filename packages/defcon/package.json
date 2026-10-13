@@ -35,6 +35,12 @@
     },
     {
       "type": "function",
+      "name": "defcon_classes",
+      "enabled": true,
+      "code": "@cat:defcon_classes.js classes/*.js"
+    },
+    {
+      "type": "function",
       "name": "defcon_table",
       "enabled": true,
       "code": "@file:defcon_table.js"
