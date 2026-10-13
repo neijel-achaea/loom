@@ -5,16 +5,16 @@
 // Skewer 23s, Swarm 23s, Tame 43s, Goad 19s, Provoke 20s.
 // Class condition (charstats, for self): Morph.
 HU.classes["Sentinel"] = {
-  // Main attacks for F1, following the morph; HUNTING MAIN picks another,
-  // and adds more in game.
+  // Main attacks for F1. Doublestrike is the default, morphed or not
+  // (#150 testing); without it learned, HUNTING MAIN BITE, CLAW or MAUL
+  // once and that's remembered. HUNTING MAIN x = cmd adds more in game.
   mains: {
-    // First, so it's the default with no morph.
+    // First, so it's the default.
     doublestrike: ["Doublestrike", "queue add b!wu!t!p doublestrike @tar"],
     bite: ["Bite", "queue add b!wu!t!p bite @tar"],
     claw: ["Claw", "queue add b!wu!t!p claw @tar"],
     maul: ["Maul", "queue add b!wu!t!p maul @tar"]
   },
-  morphMain: { "Wolf": "bite", "Hyena": "claw", "Jaguar": "maul" },
   keys: [
     ["{main}", ""],
     ["Pester", huQ + "pester @tar"],
