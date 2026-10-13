@@ -40,10 +40,11 @@ HU.weapons = {
   "Dual Blunt": {
     main: "doublewhirl",
     mains: { doublewhirl: ["Doublewhirl", "queue add b!wu!t!p doublewhirl @tar"] },
-    // Doublewhirl's two hits, one line each (from the Unnamable). Fracture,
-    // the balance shieldbreak, still to capture.
+    // Doublewhirl's two hits, one line each (from the Unnamable). Tagged
+    // WHIRL, not DOUBLEWHIRL, in case a plain flail hit prints it too (as
+    // with Dual Cutting). Fracture, the balance shieldbreak, still to capture.
     lines: [
-      [/^You whip (.*) toward (.*)\.$/, "DOUBLEWHIRL"]
+      [/^You whip (.*) toward (.*)\.$/, "WHIRL"]
     ]
   }
 };
