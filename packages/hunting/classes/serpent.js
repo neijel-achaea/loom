@@ -35,9 +35,15 @@ HU.classes["Serpent"] = {
   rage: { Thrash: 14, Throatrip: 36, Excoriate: 17, Snare: 25, Flagellate: 25, Obliviate: 28 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Excoriate"],
-  // To capture (#31): Garrote; Thrash; Throatrip; Excoriate (on a shielded
-  // target); Snare, plain and SNARE++ (target reckless or inhibited);
-  // Flagellate; Obliviate.
+  // Past level 35 (#149): SNARE++ (target reckless or inhibited); Obliviate.
+  // Weapons and pronouns are left open: the whip can change. Snare matches on
+  // its opening, so the plain line and SNARE++ both count.
   lines: [
+    [/^You slip behind (.*) and garrote (\w+) with your (.*)\.$/, "GARROTE"],
+    [/^You crack (.*) over your head before repeatedly lashing (.*) with it\.$/, "THRASH", "Thrash"],
+    [/^You leap upon (.*) and sink your fangs into (\w+) throat before leaping away, blood gushing from the horrific wound\.$/, "THROATRIP", "Throatrip"],
+    [/^You lash out at (.*) with your (.*), stripping (\w+) translucent shield\.$/, "EXCORIATE", "Excoriate"],
+    [/^You step behind (.*) and trip (\w+) into your waiting (.*)\./, "SNARE", "Snare"],
+    [/^You crack (.*) lightly against (.*)'s flesh, awakening sensitive nerves\.$/, "FLAGELLATE", "Flagellate"]
   ]
 };
