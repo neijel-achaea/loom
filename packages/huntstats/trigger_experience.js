@@ -10,5 +10,7 @@ if (HS && HS.cur && HS.cur.area !== undefined) {
     HS.cur.xp += hsG;
     HS.cur.lastXpAt = Date.now();
     HS.save(false);
+    // The hunt under way heads the Stats tab (#90).
+    run_function("huntstats_render", [], "huntstats");
   }
 }
