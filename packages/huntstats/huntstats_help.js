@@ -8,6 +8,10 @@ var hlRows = [
   ["HUNTSTATS AREAS", "every area hunted, by total time, with its rates"],
   ["HUNTSTATS LOG", "the last five hunts"],
   ["HUNTSTATS FLUSH", "file the hunt under way now"],
+  ["HUNTSTATS PARTY", "who you're hunting with"],
+  ["HUNTSTATS PARTY ADD <names>", "add people to the party (kept until removed)"],
+  ["HUNTSTATS PARTY DEL <names>", "remove people from the party"],
+  ["HUNTSTATS PARTY CLEAR", "back to hunting alone"],
   ["HUNTSTATS WIPE CONFIRM", "clear all area records and the log"],
   ["HUNTSTATS DEBUG", "internal state"],
   ["A hunt is filed when you leave its area, and needs a minute or more of experience."]

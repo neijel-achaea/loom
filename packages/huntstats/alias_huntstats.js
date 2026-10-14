@@ -58,10 +58,54 @@ if (hsSub === "" || hsSub === "status") {
   } else {
     hsSay("this clears ALL area records and the hunt log. HUNTSTATS WIPE CONFIRM to proceed.", "orange");
   }
+} else if (hsSub === "party") {
+  // HUNTSTATS PARTY [ADD <names> | DEL <names> | CLEAR] (#87): who you're
+  // hunting with, by hand. Names take a capital letter whatever was typed.
+  var hsNames = [];
+  for (var hsK = 2; hsK < hsW.length; hsK++) {
+    var hsNm = hsW[hsK].replace(/,/g, "");
+    if (hsNm) hsNames.push(hsNm.charAt(0).toUpperCase() + hsNm.slice(1));
+  }
+  var hsBad = [];
+  for (var hsB = 0; hsB < hsNames.length; hsB++) { if (!/^[A-Z][a-z]+$/.test(hsNames[hsB])) hsBad.push(hsNames[hsB]); }
+  if (hsP1 === "" || hsP1 === "list") {
+    hsSay(HS.party.length ? "party: " + HS.party.join(", ") + ". HUNTSTATS PARTY ADD/DEL <name> or CLEAR to change it." : "no party: you're hunting alone. HUNTSTATS PARTY ADD <name> to add someone.", "cyan");
+  } else if ((hsP1 === "add" || hsP1 === "del" || hsP1 === "remove") && hsNames.length === 0) {
+    hsSay("usage: HUNTSTATS PARTY " + (hsP1 === "add" ? "ADD" : "DEL") + " <name> [<name> ...]", "orange");
+  } else if ((hsP1 === "add" || hsP1 === "del" || hsP1 === "remove") && hsBad.length) {
+    hsSay("not a name: " + hsBad.join(", ") + " (letters only)", "orange");
+  } else if (hsP1 === "add") {
+    var hsAdded = [];
+    for (var hsA1 = 0; hsA1 < hsNames.length; hsA1++) {
+      if (HS.party.indexOf(hsNames[hsA1]) < 0) { HS.party.push(hsNames[hsA1]); hsAdded.push(hsNames[hsA1]); }
+      if (HS.cur) { if (!HS.cur.players) HS.cur.players = {}; HS.cur.players[hsNames[hsA1]] = 1; }
+    }
+    HS.saveParty();
+    if (HS.cur) HS.save(true);
+    hsSay(hsAdded.length ? "added " + hsAdded.join(", ") + ". Party: " + HS.party.join(", ") + "." : "already in the party: " + hsNames.join(", ") + ".", hsAdded.length ? "lime" : "cyan");
+  } else if (hsP1 === "del" || hsP1 === "remove") {
+    var hsGone = [], hsMissing = [];
+    for (var hsD = 0; hsD < hsNames.length; hsD++) {
+      var hsAt = HS.party.indexOf(hsNames[hsD]);
+      if (hsAt >= 0) { HS.party.splice(hsAt, 1); hsGone.push(hsNames[hsD]); } else { hsMissing.push(hsNames[hsD]); }
+      if (HS.cur && HS.cur.players) delete HS.cur.players[hsNames[hsD]];
+    }
+    HS.saveParty();
+    if (HS.cur) HS.save(true);
+    if (hsGone.length) hsSay("removed " + hsGone.join(", ") + ". " + (HS.party.length ? "Party: " + HS.party.join(", ") + "." : "No party now."), "lime");
+    if (hsMissing.length) hsSay("not in the party: " + hsMissing.join(", ") + ".", "orange");
+  } else if (hsP1 === "clear") {
+    HS.party = [];
+    HS.saveParty();
+    if (HS.cur) { HS.cur.players = {}; HS.save(true); }
+    hsSay("party cleared: you're hunting alone.", "lime");
+  } else {
+    hsSay("usage: HUNTSTATS PARTY [ADD <name> | DEL <name> | CLEAR]", "orange");
+  }
 } else if (hsSub === "debug") {
   var T = HS.cur || {};
   hsSay("level=" + HS.level + " nl=" + HS.nl + " dragon=" + (HS.dragon() === null ? "?" : HS.dragon().toFixed(3)) + " resumed=" + !!HS.resumed);
-  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(","));
+  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(",") + " party=" + HS.party.join(","));
 } else {
   hsSay("unknown command '" + hsSub + "'. HUNTSTATS HELP for commands.", "orange");
 }
