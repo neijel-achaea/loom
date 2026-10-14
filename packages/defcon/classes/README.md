@@ -131,6 +131,11 @@ DEFCON INIT ADD queue add bal hellforge channel conqueror     heals on kills (he
 ```
 Untested whether the hellforge activation and channel persist across logins.
 
+### Pariah (Charnel, after embracing)
+```
+DEFCON ADD resolve 4 11            halves bleeding damage; bleeding can't kill you
+```
+
 ### Jester
 ```
 DEFCON ADD arrowcatch 1 15 RELAX   catches arrows (mana drain)
