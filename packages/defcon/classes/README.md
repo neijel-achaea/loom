@@ -103,7 +103,6 @@ above. Report back what works, and it becomes a default.
 
 ### Blademaster
 ```
-DEFCON ADD toughness 4 10          less damage from cutting attacks
 DEFCON ADD constitution 4 13       "stomach of steel"
 DEFCON ADD consciousness 4 12      harder to knock unconscious
 DEFCON ADD clarity 4 13            sees hidden people and illusions (650 mana once)
