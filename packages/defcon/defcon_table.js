@@ -1,5 +1,5 @@
 // defcon_table -- picks the table for the current class into D.tbl
-// ({ name, up, defs, known }) and that class's remembered level into D.level
+// ({ name, up, aftermorph, defs, known }) and that class's remembered level into D.level
 // (undefined: never applied in this class). Unknown classes get the generic
 // defences. Levels are kept per table name (defcon_levels), since the game
 // keeps a curing list per class: every dragon colour shares "Dragon".
@@ -7,9 +7,9 @@ var D = client.loom.defcon;
 var dcKey = D.alias[D.cls] || D.cls;
 var dcEntry = D.classes[dcKey];
 if (dcEntry) {
-  D.tbl = { name: dcKey, up: dcEntry.up, defs: dcEntry.defs, known: true };
+  D.tbl = { name: dcKey, up: dcEntry.up, aftermorph: dcEntry.aftermorph || [], defs: dcEntry.defs, known: true };
 } else {
-  D.tbl = { name: D.cls || "unknown", up: [], defs: D.generic, known: false };
+  D.tbl = { name: D.cls || "unknown", up: [], aftermorph: [], defs: D.generic, known: false };
 }
 
 if (!D.levels) {

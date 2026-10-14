@@ -23,7 +23,7 @@ D.classes["Sylvan"] = {
     ["insomnia", 2, 6],
     ["selfishness", 2, 17],
     ["mindseye", 5, 1],
-    ["barkskin", 3, 10],
+    ["barkskin", 4, 10],
     ["temperance", 3, 8]
   ]
 };

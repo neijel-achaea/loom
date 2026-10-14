@@ -1,8 +1,8 @@
 // Blademaster: DEFCON INIT commands and defences. See classes/README.md.
 // DEFCON UP positions the scabbard (the First Art needs it, every login),
 // enters the Shin trance and takes the Doya stance, on the balance queue.
-// Defaults: the generic defences plus gripping. Unconfirmed Shindo and
-// Striking defences are suggestions in classes/README.md.
+// Defaults: the generic defences plus gripping and toughness. Unconfirmed
+// Shindo and Striking defences are suggestions in classes/README.md.
 D.classes["Blademaster"] = {
   up: ["queue add bal position scabbard", "queue add bal shin trance", "queue add bal doya"],
   defs: [
@@ -27,6 +27,7 @@ D.classes["Blademaster"] = {
     ["selfishness", 2, 17],
     ["mindseye", 5, 1],
     ["temperance", 3, 8],
-    ["gripping", 4, 12]
+    ["gripping", 4, 12],
+    ["toughness", 4, 10]
   ]
 };

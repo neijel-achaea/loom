@@ -28,10 +28,19 @@ D.classes["Magi"] = {
 
 ## up
 
-Commands DEFCON UP sends for the class, before the common ones
-(`selfishness`, `avoid physical`, `insomnia`). Put here what has to happen
-first: a form, a stance, wielding something. Commands that need balance or
-equilibrium go through the queue: `queue add eq ...`, `queue add bal ...`.
+Commands DEFCON UP sends for the class, after the common ones
+(`selfishness`, `avoid physical`, `insomnia`), so they're the last thing
+sent. Put here what has to happen first: a form, a stance, wielding
+something. Commands that need balance or equilibrium go through the queue:
+`queue add eq ...`, `queue add bal ...`. Something interrupted by any
+command (a morph) goes last of all.
+
+## aftermorph
+
+Optional. Commands that must wait until the morph in `up` has completed
+(embrace spirit, for instance): DEFCON holds them back and sends them when
+the game says the metamorphosis is done, or when the Morph charstat
+changes. If you're already in that form, they're sent straight away.
 
 ## defs
 
@@ -45,7 +54,9 @@ system should keep up.
   full alert.
 - **curing priority**: 1 (first) to 25.
 - **relax**: `true` when the defence should be dropped (`RELAX <name>`) once
-  the level no longer wants it, e.g. an upkeep that drains mana.
+  the level no longer wants it, e.g. an upkeep that drains mana. A string
+  instead is the defence's own off command, for one that `RELAX` doesn't
+  take down: `["distortaura", 1, 14, "normalaura"]`.
 
 Start from `D.generic` (the defences every class shares) and add the class's
 own. Keep the shared ones' tiers and priorities unless the class has a reason
@@ -103,7 +114,6 @@ above. Report back what works, and it becomes a default.
 
 ### Blademaster
 ```
-DEFCON ADD toughness 4 10          less damage from cutting attacks
 DEFCON ADD constitution 4 13       "stomach of steel"
 DEFCON ADD consciousness 4 12      harder to knock unconscious
 DEFCON ADD clarity 4 13            sees hidden people and illusions (650 mana once)
@@ -125,13 +135,31 @@ last until logout), and veil.
 
 ### Infernal
 ```
-DEFCON ADD resistance 4 10         less damage from magic
 DEFCON INIT ADD queue add bal hellforge activate relentless   fear immunity (hellforged armour)
 DEFCON INIT ADD queue add bal hellforge channel conqueror     heals on kills (hellforged armour)
 ```
 Untested whether the hellforge activation and channel persist across logins.
 
+### Pariah (Charnel, after embracing)
+```
+DEFCON ADD resolve 4 11            halves bleeding damage; bleeding can't kill you
+```
+
+### Priest (Zeal, after embracing; DEF names unconfirmed)
+```
+DEFCON ADD protection 4 10         less damage from physical blows (RECITE PROTECTION ME)
+DEFCON ADD fire 4 12               fire protection (RECITE FIRE ME)
+DEFCON ADD void 4 12               cold resistance (RECITE VOID ME)
+DEFCON ADD will 4 14               faster willpower regeneration (RECITE WILL ME)
+DEFCON ADD endurance 4 14          faster endurance regeneration (RECITE ENDURANCE ME)
+```
+
 ### Jester
 ```
 DEFCON ADD arrowcatch 1 15 RELAX   catches arrows (mana drain)
+```
+
+### Shaman
+```
+DEFCON ADD arrowcatching 1 15 "invoke arrowcatching off"   catches arrows (Silvanix; mana drain)
 ```

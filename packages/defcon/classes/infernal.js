@@ -1,6 +1,6 @@
 // Infernal: defences. See classes/README.md. Skills: Oppression,
 // Malignity, Weaponmastery.
-// Defaults: the generic defences plus gripping. Resistance and the
+// Defaults: the generic defences plus resistance and gripping. The
 // hellforge activations are suggestions in classes/README.md until
 // confirmed. Soulshield is a battlerage key in hunting (F11).
 D.classes["Infernal"] = {
@@ -27,6 +27,7 @@ D.classes["Infernal"] = {
     ["selfishness", 2, 17],
     ["mindseye", 5, 1],
     ["temperance", 3, 8],
+    ["resistance", 4, 10],
     ["gripping", 4, 12]
   ]
 };

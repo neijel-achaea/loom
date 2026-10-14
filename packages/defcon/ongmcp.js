@@ -16,3 +16,19 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
     if (get_variable("defcon_autoup") == "on") run_function("defcon_up", [], "defcon");
   }
 }
+
+// Morph (Druid, Sentinel), from charstats: a change completes a pending
+// DEFCON UP morph (defcon_aftermorph).
+if (args.gmcp_method == "Char.Vitals" && args.gmcp_args.charstats) {
+  var dcStats = args.gmcp_args.charstats, dcMorph = null;
+  for (var dcS = 0; dcS < dcStats.length; dcS++) {
+    var dcMs = String(dcStats[dcS]).match(/^Morph:\s*(.+)$/);
+    if (dcMs) dcMorph = dcMs[1];
+  }
+  if (dcMorph !== null && dcMorph !== D.morph) {
+    D.morph = dcMorph;
+    // Only the form DEFCON UP asked for (or, if it named none, any form):
+    // the first reading after a load is often "None".
+    if (D.afterMorph && (D.afterMorph.want ? dcMorph.toLowerCase() == D.afterMorph.want : !/^none$/i.test(dcMorph))) run_function("defcon_aftermorph", [], "defcon");
+  }
+}

@@ -65,6 +65,12 @@
     },
     {
       "type": "function",
+      "name": "defcon_aftermorph",
+      "enabled": true,
+      "code": "@file:defcon_aftermorph.js"
+    },
+    {
+      "type": "function",
       "name": "defcon_help",
       "enabled": true,
       "code": "@file:defcon_help.js"
@@ -227,6 +233,22 @@
         }
       ],
       "text": "^Your insomnia has cleared up\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_morphed.js"
+        }
+      ],
+      "text": "^You are surrounded by a shining corona of blinding light as your soul is transformed by metamorphosis\\.$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true
