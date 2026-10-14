@@ -17,7 +17,7 @@ DEFCON INIT, and DEFCON says it isn't configured yet.
 
 ```js
 D.classes["Magi"] = {
-  up: ["queue add eq simultaneity", "wield staff"],
+  init: ["queue add eq simultaneity", "wield staff"],
   defs: [
     ["alertness", 1, 10, true],
     ["stoneskin", 4, 10],
