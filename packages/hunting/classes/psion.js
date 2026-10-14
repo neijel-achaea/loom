@@ -18,11 +18,14 @@ HU.classes["Psion"] = {
     ["Pulverise", huQ + "weave pulverise @tar"],
     ["Whirlwind", huQ + "weave whirlwind @tar"],
     ["Regrowth", huQ + "enact regrowth @tar"],
-    ["", ""],
+    // Terror on F7, where it's shown by default (#114); F11 is the panic key.
+    ["Terror", huQ + "psi terror @tar"],
     ["", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],
-    ["Terror", huQ + "psi terror @tar"],
+    // Indomitability: images that each soak three hits (equilibrium). A
+    // panic key: curing would keep re-casting it as they run out (#156).
+    ["Indomitability", "queue add e!wu!t!p enact indomitability"],
     ["Shield", "touch shield"]
   ],
   rage: { Barbedblade: 14, Devastate: 36, Pulverise: 17, Whirlwind: 25, Regrowth: 24, Terror: 32, Provoke: 32 },
