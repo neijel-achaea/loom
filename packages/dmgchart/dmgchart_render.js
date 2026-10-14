@@ -143,6 +143,21 @@ if (!src) {
     ex += xrow("average hit", H.out.n > 0 ? Math.round(src.outTotal / H.out.n) : "&mdash;", H.inc.n > 0 ? Math.round(src.incTotal / H.inc.n) : "&mdash;");
     ex += xrow("biggest hit", H.out.max || "&mdash;", H.inc.max || "&mdash;");
     ex += xrow("hits a minute", Math.round(H.out.n / (dur / 60)), Math.round(H.inc.n / (dur / 60)));
+    // Your own critical hits (#185): count, share of hits, best tier reached,
+    // and their average against the rest of your hits.
+    if (H.out.cn) {
+      var crOrder = ["CRITICAL", "CRUSHING", "OBLITERATING", "ANNIHILATINGLY POWERFUL", "WORLD-SHATTERING", "PLANE-RAZING"];
+      var crBest = "", crRank = -1;
+      for (var crK in H.out.ct) {
+        if (H.out.ct.hasOwnProperty(crK)) {
+          var crR = crOrder.indexOf(crK);
+          if (crR > crRank || crBest === "") { crRank = crR; crBest = crK; }
+        }
+      }
+      ex += xrow("crits" + (crBest ? ' <span style="color:' + EMBER + ';">(best ' + esc(crBest.toLowerCase()) + ')</span>' : ""), H.out.cn + " (" + Math.round(100 * H.out.cn / Math.max(1, H.out.n)) + "%)", "&mdash;");
+      var crRest = H.out.n - H.out.cn;
+      ex += xrow("average crit", Math.round(H.out.cdmg / H.out.cn) + (crRest > 0 ? ' <span style="color:' + MUTED + ';">vs ' + Math.round((src.outTotal - H.out.cdmg) / crRest) + '</span>' : ""), "&mdash;");
+    }
   }
   // Health lasts, for the live fight only: current health over how fast it
   // has really fallen across the last d.window seconds (or the fight so far),

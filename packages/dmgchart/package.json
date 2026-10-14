@@ -59,6 +59,22 @@
     },
     {
       "type": "trigger",
+      "name": "dmgchart crit",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_crit.js"
+        }
+      ],
+      "text": "^You have scored an? (.*?) ?CRITICAL hit!$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "dmgchart outgoing",
       "enabled": true,
       "actions": [

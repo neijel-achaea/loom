@@ -5,10 +5,22 @@ if (!client.loom || !client.loom.dmgchart || !client.loom.dmgchart.saved) run_fu
 // goes to the fight that just ended; with no fight at all, only to the session.
 var d = client.loom.dmgchart;
 var e = d.ev;
+// A crit on a hits.out object: cn crits, cdmg their damage, ct the count per
+// tier. Saved sessions keep it with the hit counts (#185).
+function addCrit(h, c) {
+  h.cn = (h.cn || 0) + 1;
+  h.cdmg = (h.cdmg || 0) + c.amt;
+  if (!h.ct) h.ct = {};
+  h.ct[c.tier] = (h.ct[c.tier] || 0) + 1;
+}
 if (e && !isNaN(e.amt)) {
   var now = Date.now();
   var gapMs = d.gap * 1000;
   var passive = (e.dir == "inc" && e.type == "bleed");
+  // A crit line just before this outgoing hit makes it a crit (#185).
+  var crit = null;
+  if (e.dir == "out" && d.crit && now - d.crit.t < 1500) crit = { tier: d.crit.tier, amt: e.amt };
+  if (e.dir == "out") d.crit = null;
   var f = d.fight;
   var ss = d.sess;
   // What this event changes, so trigger_bleed can take back a raw line that
@@ -29,6 +41,7 @@ if (e && !isNaN(e.amt)) {
       undo.max = f.hits[e.dir].max;
       f.hits[e.dir].n++;
       if (e.amt > f.hits[e.dir].max) { f.hits[e.dir].max = e.amt; }
+      if (crit) addCrit(f.hits.out, crit);
       f.last = now;
     }
   }
@@ -40,6 +53,7 @@ if (e && !isNaN(e.amt)) {
       undo.sMax = ss.hits[e.dir].max;
       ss.hits[e.dir].n++;
       if (e.amt > ss.hits[e.dir].max) { ss.hits[e.dir].max = e.amt; }
+      if (crit) addCrit(ss.hits.out, crit);
     }
     ss[e.dir][e.type] = (ss[e.dir][e.type] || 0) + e.amt;
     ss[e.dir + "Total"] += e.amt;
