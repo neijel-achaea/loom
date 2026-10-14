@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.social) client.loom.social = {};
-client.loom.registry.social = { version: "0.2.2", keyword: "SOCIAL", desc: "{{description}}" };
+client.loom.registry.social = { version: "0.2.3", keyword: "SOCIAL", desc: "{{description}}" };
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.
@@ -76,7 +76,8 @@ if (S.prev === undefined) S.prev = null;
 S.capturing = false;
 S.buf = [];
 if (!S.lastCount) S.lastCount = 0;
-S.reNames = /^[A-Z][a-z]+(?:,\s*[A-Z][a-z]+)*(?:,?\s*and\s+[A-Z][a-z]+)?\.?$/;
+// A line of QW names: wrapped lines end in "," or "and", or start with "and" (#75).
+S.reNames = /^(?:and\s+)?[A-Z][a-z]+(?:(?:,\s*(?:and\s+)?|\s+and\s+)[A-Z][a-z]+)*(?:,|,?\s+and|\.)?$/;
 S.reFooter = /^Plus another \d+/;
 S.reWord = /[A-Z][a-z]+/g;
 if (S.timer) clearInterval(S.timer);

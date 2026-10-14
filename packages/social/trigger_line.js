@@ -21,13 +21,17 @@ if (soLine) {
     }
   }
 }
+// The capture ends on QW's last line, "Plus another N ... (M total)." (#75),
+// not on a timer; only QW-shaped lines are gagged.
 if (S.capturing) {
   if (soLine === "qw") {
     gag_current_line();
-  } else if (S.reFooter.test(soLine) || S.reNames.test(soLine)) {
+  } else if (S.reFooter.test(soLine)) {
     S.buf.push(soLine);
-    clearTimeout(S.flushT);
-    S.flushT = setTimeout(function () { run_function("social_flush", [], "social"); }, 5000);
+    gag_current_line();
+    run_function("social_flush", [], "social");
+  } else if (S.reNames.test(soLine)) {
+    S.buf.push(soLine);
     gag_current_line();
   }
 }

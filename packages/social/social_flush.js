@@ -1,5 +1,6 @@
-// social_flush -- end of a QW capture: compare with the previous set and
-// announce watched names that came online or went offline.
+// social_flush -- end of a QW capture (its "Plus another" line, or the 30s
+// safety when no reply came): compare with the previous set and announce
+// watched names that came online or went offline.
 var S = client.loom.social;
 S.capturing = false;
 clearTimeout(S.safetyT);
