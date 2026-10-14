@@ -66,8 +66,8 @@ function columns(cols) {
 }
 
 // Character: ranks on the left, organisations in the middle, the longer
-// SCORE readings on the right. Age and XP rank are live from Char.Status;
-// the rest only as fresh as the last SCORE.
+// SCORE readings on the right. Age, XP rank and explorer rank are live from
+// Char.Status; the rest only as fresh as the last SCORE.
 var C = S.score || {};
 // Readings by exact wording: the best in green, the worst in red, a few in
 // between in yellow, anything unlisted in plain white. Add phrases as they turn up.
@@ -83,20 +83,36 @@ function readCol(kind, v) {
   if (t.yellow.indexOf(k) >= 0) { return WARN; }
   return TXT;
 }
-// XP rank change since this page load: lower is better, so a drop is green.
-// A character without a rank yet reports 0: shown as "-", and not taken as
-// the starting point, so the first real rank becomes it instead of a change.
-var xpNow = parseInt(I.xprank || C.xprank || "", 10);
-var xpNone = !isNaN(xpNow) && xpNow <= 0;
-if (xpNone) { xpNow = NaN; }
-if (!isNaN(xpNow) && (S.xpBase === undefined || S.xpBase <= 0)) { S.xpBase = xpNow; }
-var xpTxt = xpNone ? "-" : (isNaN(xpNow) ? "" : String(xpNow));
-var xpHtml = "";
-if (!isNaN(xpNow) && S.xpBase !== undefined && xpNow !== S.xpBase) {
-  var xd = xpNow - S.xpBase;
-  xpHtml = ' <span style="color:' + (xd < 0 ? OK : AFF) + ';">(' + (xd > 0 ? "+" : "") + xd + ')</span>';
+// Rank change since this page load (XP and explorer): lower is better, so a
+// drop shows as a green up arrow, a rise as a red down arrow (▲3, ▼2).
+// The readings come in order of preference (Char.Status first, then SCORE);
+// the first real rank is used, and one that isn't a number (a rank title,
+// say) or is 0 falls through to the next. With no real rank anywhere (a new
+// character reports 0) it shows "-" and isn't taken as the starting point,
+// so the first real rank becomes it instead of a change.
+// Returns [text, html after it].
+function rankDelta(raws, baseKey) {
+  var now = NaN;
+  for (var ri = 0; ri < raws.length; ri++) {
+    var rv = String(raws[ri] === undefined || raws[ri] === null ? "" : raws[ri]);
+    if (!/^\s*\d+\s*$/.test(rv)) { continue; }
+    now = parseInt(rv, 10);
+    if (now > 0) { break; }
+  }
+  var none = !isNaN(now) && now <= 0;
+  if (none) { now = NaN; }
+  if (!isNaN(now) && (S[baseKey] === undefined || S[baseKey] <= 0)) { S[baseKey] = now; }
+  var html = "";
+  if (!isNaN(now) && S[baseKey] !== undefined && now !== S[baseKey]) {
+    var d = now - S[baseKey];
+    // Up the ranking (a lower number) is an up arrow; down is a down arrow.
+    html = ' <span style="color:' + (d < 0 ? OK : AFF) + ';">' + (d < 0 ? "&#9650;" : "&#9660;") + Math.abs(d) + '</span>';
+  }
+  return [none ? "-" : (isNaN(now) ? "" : String(now)), html];
 }
-var chA = cell("age", I.age || C.age || "") + cell("xp rank", xpTxt, false, xpHtml) + cell("explorer", C.explorer || "");
+var xpR = rankDelta([I.xprank, C.xprank], "xpBase");
+var exR = rankDelta([I.explorerrank, C.explorer], "explorerBase");
+var chA = cell("age", I.age || C.age || "") + cell("xp rank", xpR[0], false, xpR[1]) + cell("explorer", exR[0], false, exR[1]);
 var chB = cell("city rank", C.cityRank || "") +
   cell("house rank", C.houseRank || "") +
   cell("soldier", C.soldier ? C.soldier.toLowerCase() : "");
