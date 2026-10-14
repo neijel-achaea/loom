@@ -9,5 +9,8 @@ HU.classes = {};
 // Lines every class shares (Provoke, level 100, is the same for all), checked
 // after the current class's own lines.
 HU.sharedLines = [
-  [/^Your back snaps straight as you unleash a fierce bellow at (.*)\.$/, "PROVOKE", "Provoke"]
+  [/^Your back snaps straight as you unleash a fierce bellow at (.*)\.$/, "PROVOKE", "Provoke"],
+  // A rage shieldbreak (Caustic, Shiver, Jacks...) on a target with no shield:
+  // tagged, but no ability named, so no cooldown starts.
+  [/^Your rage is wasted as (.*) is not protected by a shield\.$/, "NO SHIELD"]
 ];

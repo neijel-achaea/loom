@@ -29,13 +29,22 @@ HU.classes["Alchemist"] = {
   rage: { Miasma: 14, Magnesium: 36, Caustic: 17, Pathogen: 25, Cadmium: 22, Hypnotic: 28, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Caustic"],
-  // Still to capture: Copper and Caustic (on a shielded target); and, past
-  // level 35 (#149), Pathogen, plain and PATHOGEN++ (target inhibited or
-  // afraid), Hypnotic.
+  // Still to capture, past level 35 (#149): PATHOGEN++ (target inhibited
+  // or afraid), Hypnotic; Caustic on a shielded target. Caustic on an
+  // unshielded one prints the shared "Your rage is wasted" line.
   lines: [
     [/^Directing the energy of iron, you engulf (.*)'s body with ashen flames, which burn (\w+) skin with their frigid touch\.$/, "IRON"],
     [/^You quickly mix together several chemical by-products and fling the toxic mixture into (.*)'s face, causing (\w+) to cough and choke\.$/, "MIASMA", "Miasma"],
     [/^You sketch out the symbol for magnesium and direct the energy to sear (.*)'s flesh\.$/, "MAGNESIUM", "Magnesium"],
-    [/^You sketch a bisected triangle in the air and direct the energy of cadmium to pierce (.*)'s skin, weakening (\w+)\.$/, "CADMIUM", "Cadmium"]
+    [/^You sketch a bisected triangle in the air and direct the energy of cadmium to pierce (.*)'s skin, weakening (\w+)\.$/, "CADMIUM", "Cadmium"],
+    // Copper: the equilibrium shieldbreak, tagged whether or not there was a
+    // shield to shatter.
+    [/^Directing the energy of copper, you send myriad russet streams towards (.*), shattering (\w+) shield\.$/, "COPPER"],
+    [/^Directing the energy of copper, you send myriad russet streams towards (.*), which whip around (\w+) ineffectually\.$/, "COPPER"],
+    // Pathogen: the plain line is the one where the target fights off the
+    // worst; any other line that starts the same way (likely PATHOGEN++) is
+    // tagged PATHOGEN until it's captured.
+    [/^You quickly combine and throw the virulent pathogen at (.*)\. The chemical seeps through (\w+) skin but (\w+) is able to fight off the worst of its effects\.$/, "PATHOGEN", "Pathogen"],
+    [/^You quickly combine and throw the virulent pathogen at /, "PATHOGEN", "Pathogen"]
   ]
 };
