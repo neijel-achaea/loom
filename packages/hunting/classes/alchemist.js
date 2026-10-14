@@ -13,8 +13,9 @@ HU.classes["Alchemist"] = {
     ["Miasma", huQ + "throw miasma at @tar"],
     ["Magnesium", huQ + "educe magnesium @tar"],
     // Copper: the equilibrium shieldbreak (no rage). Caustic is the rage
-    // one, tracked but without a key.
-    ["Copper", "queue add e!wu!t!p educe copper @tar"],
+    // one, tracked but without a key. Lit whenever you have balance and
+    // equilibrium, like Iron.
+    ["Copper", "queue add e!wu!t!p educe copper @tar", "main"],
     ["Pathogen", huQ + "throw pathogen at @tar"],
     ["Cadmium", huQ + "educe cadmium @tar"],
     ["Hypnotic", huQ + "throw hypnotic at @tar"],
