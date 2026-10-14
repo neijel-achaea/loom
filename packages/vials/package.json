@@ -35,6 +35,12 @@
     },
     {
       "type": "function",
+      "name": "vials_learn",
+      "enabled": true,
+      "code": "@file:vials_learn.js"
+    },
+    {
+      "type": "function",
       "name": "vials_help",
       "enabled": true,
       "code": "@file:vials_help.js"
@@ -55,6 +61,22 @@
       "whole_words": false,
       "case_sensitive": false,
       "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "vials elixlist",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_elixlist.js"
+        }
+      ],
+      "text": "^(?:Vial\\s+Fluid\\s+Sips\\s+Months\\s*|-{10,}\\s*|.*\\bvial\\d+\\s+.+\\s+\\d+\\s+(?:---|\\d+)\\s*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": "Refill your vials from the rift by elixir"
