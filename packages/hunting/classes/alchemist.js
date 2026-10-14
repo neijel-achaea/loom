@@ -30,9 +30,8 @@ HU.classes["Alchemist"] = {
   rage: { Miasma: 14, Magnesium: 36, Caustic: 17, Pathogen: 25, Cadmium: 22, Hypnotic: 28, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Caustic"],
-  // Still to capture, past level 35 (#149): PATHOGEN++ (target inhibited
-  // or afraid), Hypnotic. Caustic on an unshielded target prints the shared
-  // "Your rage is wasted" line.
+  // Caustic on an unshielded target prints the shared "Your rage is wasted"
+  // line. Pathogen's ++ variant is caught by its opening words (README).
   lines: [
     [/^Directing the energy of iron, you engulf (.*)'s body with ashen flames, which burn (\w+) skin with their frigid touch\.$/, "IRON"],
     [/^You quickly mix together several chemical by-products and fling the toxic mixture into (.*)'s face, causing (\w+) to cough and choke\.$/, "MIASMA", "Miasma"],
@@ -48,6 +47,7 @@ HU.classes["Alchemist"] = {
     // worst; any other line that starts the same way (likely PATHOGEN++) is
     // tagged PATHOGEN until it's captured.
     [/^You quickly combine and throw the virulent pathogen at (.*)\. The chemical seeps through (\w+) skin but (\w+) is able to fight off the worst of its effects\.$/, "PATHOGEN", "Pathogen"],
-    [/^You quickly combine and throw the virulent pathogen at /, "PATHOGEN", "Pathogen"]
+    [/^You quickly combine and throw the virulent pathogen at /, "PATHOGEN", "Pathogen"],
+    [/^Taking care to avoid the fumes, you quickly form the hypnotic chemical and throw it into (.*)'s face\.$/, "HYPNOTIC", "Hypnotic"]
   ]
 };
