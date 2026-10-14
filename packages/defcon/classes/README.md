@@ -28,10 +28,12 @@ D.classes["Magi"] = {
 
 ## up
 
-Commands DEFCON UP sends for the class, before the common ones
-(`selfishness`, `avoid physical`, `insomnia`). Put here what has to happen
-first: a form, a stance, wielding something. Commands that need balance or
-equilibrium go through the queue: `queue add eq ...`, `queue add bal ...`.
+Commands DEFCON UP sends for the class, after the common ones
+(`selfishness`, `avoid physical`, `insomnia`), so they're the last thing
+sent. Put here what has to happen first: a form, a stance, wielding
+something. Commands that need balance or equilibrium go through the queue:
+`queue add eq ...`, `queue add bal ...`. Something interrupted by any
+command (a morph) goes last of all.
 
 ## defs
 
