@@ -14,7 +14,7 @@ HU.classes["Runewarden"] = {
     ["Onslaught", huQ + "onslaught @tar"],
     // Raze: the balance shieldbreak (no rage). Fragment is the rage one,
     // tracked but without a key.
-    ["Raze", "queue add b!wu!t!p raze @tar"],
+    ["Raze", "queue add b!wu!t!p raze @tar", "main"],
     ["Etch", huQ + "etch rune at @tar"],
     ["Safeguard", huQ + "safeguard {target}"],
     ["", ""],

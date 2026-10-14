@@ -139,6 +139,18 @@ One row per message you see when you hit with an attack:
 - Patterns are ordinary JavaScript regular expressions: `(.*)` for the
   target, `\.` for a full stop, `^` and `$` to anchor the whole line.
 
+**The ++ versions** (an ability's stronger effect when the target already
+has certain afflictions) mostly can't be captured. So an ability with a ++
+version gets two rows: its plain line, then a pattern matching only the
+line's opening, which tags any other ending (the ++ one) with the same tag
+and starts the same cooldown. Rows are checked in order and the first match
+wins:
+
+```js
+[/^You quickly combine and throw the virulent pathogen at (.*)\. The chemical seeps through (\w+) skin but (\w+) is able to fight off the worst of its effects\.$/, "PATHOGEN", "Pathogen"],
+[/^You quickly combine and throw the virulent pathogen at /, "PATHOGEN", "Pathogen"]
+```
+
 Only the current class's lines are checked, so patterns can't collide across
 classes. Lines that are the same for every class (Provoke) live once in
 `HU.sharedLines`, at the end of `hunting_classes.js`, and are checked after the

@@ -19,7 +19,7 @@ HU.classes["Unnamable"] = {
     ["Destroy", huQ + "unnamable destroy @tar"],
     // Fracture: the balance shieldbreak (no rage). Sunder is the rage one,
     // tracked but without a key.
-    ["Fracture", "queue add b!wu!t!p fracture @tar shield"],
+    ["Fracture", "queue add b!wu!t!p fracture @tar shield", "main"],
     ["Onslaught", huQ + "unnamable onslaught @tar"],
     ["Entropy", huQ + "croon entropy @tar"],
     ["", ""],

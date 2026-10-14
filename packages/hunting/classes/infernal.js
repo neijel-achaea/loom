@@ -25,13 +25,15 @@ HU.classes["Infernal"] = {
   rage: { Ravage: 14, Spike: 36, Shiver: 17, Hellstrike: 25, Deathlink: 30, Soulshield: 20, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Shiver"],
-  // Past level 35 (#149): Deathlink (needs someone to cast it on) and
-  // HELLSTRIKE++ (target reckless or afraid).
+  // Past level 35 (#149): Deathlink (needs someone to cast it on).
+  // HELLSTRIKE++ isn't captured: any line opening like Hellstrike's is
+  // tagged HELLSTRIKE.
   lines: [
     [/^A black tendril of mist coalesces from your hand and enters (.*)'s brain, causing (\w+) to flinch in pain\.$/, "RAVAGE", "Ravage"],
     [/^A miasma of black flames springs up around you\.$/, "SOULSHIELD", "Soulshield"],
     [/^You leap upon (.*), forming putrid spikes on your armour that tear into (\w+) flesh\.$/, "SPIKE", "Spike"],
     [/^Dark energy wreathes (.*) as you slash at (.*) with it, causing (\w+) translucent shield to crumble\.$/, "SHIVER", "Shiver"],
-    [/^Dark fire courses down (.*) as you strike (.*) with a solid blow\.$/, "HELLSTRIKE", "Hellstrike"]
+    [/^Dark fire courses down (.*) as you strike (.*) with a solid blow\.$/, "HELLSTRIKE", "Hellstrike"],
+    [/^Dark fire courses down (.*) as you strike /, "HELLSTRIKE", "Hellstrike"]
   ]
 };
