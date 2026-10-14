@@ -126,7 +126,6 @@ last until logout), and veil.
 
 ### Infernal
 ```
-DEFCON ADD resistance 4 10         less damage from magic
 DEFCON INIT ADD queue add bal hellforge activate relentless   fear immunity (hellforged armour)
 DEFCON INIT ADD queue add bal hellforge channel conqueror     heals on kills (hellforged armour)
 ```
