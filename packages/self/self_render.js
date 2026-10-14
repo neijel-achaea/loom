@@ -84,11 +84,21 @@ function readCol(kind, v) {
   return TXT;
 }
 // Rank change since this page load (XP and explorer): lower is better, so a
-// drop shows as a green up arrow, a rise as a red down arrow (▲3, ▼2). A character without a rank yet reports 0: shown as "-", and
-// not taken as the starting point, so the first real rank becomes it instead
-// of a change. Returns [text, html after it].
-function rankDelta(raw, baseKey) {
-  var now = parseInt(raw || "", 10);
+// drop shows as a green up arrow, a rise as a red down arrow (▲3, ▼2).
+// The readings come in order of preference (Char.Status first, then SCORE);
+// the first real rank is used, and one that isn't a number (a rank title,
+// say) or is 0 falls through to the next. With no real rank anywhere (a new
+// character reports 0) it shows "-" and isn't taken as the starting point,
+// so the first real rank becomes it instead of a change.
+// Returns [text, html after it].
+function rankDelta(raws, baseKey) {
+  var now = NaN;
+  for (var ri = 0; ri < raws.length; ri++) {
+    var rv = String(raws[ri] === undefined || raws[ri] === null ? "" : raws[ri]);
+    if (!/^\s*\d+\s*$/.test(rv)) { continue; }
+    now = parseInt(rv, 10);
+    if (now > 0) { break; }
+  }
   var none = !isNaN(now) && now <= 0;
   if (none) { now = NaN; }
   if (!isNaN(now) && (S[baseKey] === undefined || S[baseKey] <= 0)) { S[baseKey] = now; }
@@ -100,8 +110,8 @@ function rankDelta(raw, baseKey) {
   }
   return [none ? "-" : (isNaN(now) ? "" : String(now)), html];
 }
-var xpR = rankDelta(I.xprank || C.xprank, "xpBase");
-var exR = rankDelta(I.explorerrank || C.explorer, "explorerBase");
+var xpR = rankDelta([I.xprank, C.xprank], "xpBase");
+var exR = rankDelta([I.explorerrank, C.explorer], "explorerBase");
 var chA = cell("age", I.age || C.age || "") + cell("xp rank", xpR[0], false, xpR[1]) + cell("explorer", exR[0], false, exR[1]);
 var chB = cell("city rank", C.cityRank || "") +
   cell("house rank", C.houseRank || "") +
