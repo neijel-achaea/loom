@@ -84,7 +84,7 @@ function readCol(kind, v) {
   return TXT;
 }
 // Rank change since this page load (XP and explorer): lower is better, so a
-// drop is green. A character without a rank yet reports 0: shown as "-", and
+// drop shows as a green up arrow, a rise as a red down arrow (▲3, ▼2). A character without a rank yet reports 0: shown as "-", and
 // not taken as the starting point, so the first real rank becomes it instead
 // of a change. Returns [text, html after it].
 function rankDelta(raw, baseKey) {
@@ -95,7 +95,8 @@ function rankDelta(raw, baseKey) {
   var html = "";
   if (!isNaN(now) && S[baseKey] !== undefined && now !== S[baseKey]) {
     var d = now - S[baseKey];
-    html = ' <span style="color:' + (d < 0 ? OK : AFF) + ';">(' + (d > 0 ? "+" : "") + d + ')</span>';
+    // Up the ranking (a lower number) is an up arrow; down is a down arrow.
+    html = ' <span style="color:' + (d < 0 ? OK : AFF) + ';">' + (d < 0 ? "&#9650;" : "&#9660;") + Math.abs(d) + '</span>';
   }
   return [none ? "-" : (isNaN(now) ? "" : String(now)), html];
 }
