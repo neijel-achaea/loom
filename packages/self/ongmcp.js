@@ -40,7 +40,7 @@ if (sfM && sfA !== null && sfA !== undefined) {
       if (S.defs[sfA[sfI]]) {
         S.lost[sfA[sfI]] = sfNow;
         // A defence you asked to watch: say so out loud, not just in the tab.
-        if (S.want && S.want[sfA[sfI]]) { display_notice("[self] lost " + sfA[sfI] + "!", "#e08a78"); }
+        if (S.want && S.want[sfA[sfI]]) { display_notice("[self] lost " + sfA[sfI] + "!", "orange"); }
       }
       delete S.defs[sfA[sfI]];
     }

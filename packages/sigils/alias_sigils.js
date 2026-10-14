@@ -25,11 +25,11 @@ else if (sub === "clear") {
   set_variable("sigils_flagged", {});
   S.queue = [];
   S.await = null;
-  display_notice("[sigils] list cleared.", "cyan");
+  display_notice("[sigils] list cleared.", "lime");
 }
 else if (sub === "reset") {
   run_function("sigils_setup", [], "sigils");
-  display_notice("[sigils] reset: queue cleared, missing defaults restored. Flagged and ignored rooms are kept.", "cyan");
+  display_notice("[sigils] reset: queue cleared, missing defaults restored. Flagged and ignored rooms are kept.", "lime");
 }
 else if (sub === "debug") {
   display_notice("[sigils] on=" + get_variable("sigils_on")

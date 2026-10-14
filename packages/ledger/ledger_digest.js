@@ -42,16 +42,16 @@ for (i = 0; i < dated.length; i++) {
   if (ddiff > 0) { rel = rel + (rel.length ? ", " : "") + ddiff + (ddiff == 1 ? " day" : " days"); }
   if (!rel.length) { rel = "today"; }
   if (diff < 0) {
-    display_notice("[ledger] #" + dated[i].id + " OVERDUE by " + rel + " - " + dated[i].text, "#ff5f5f");
+    display_notice("[ledger] #" + dated[i].id + " OVERDUE by " + rel + " - " + dated[i].text, "orange");
     shown++;
   } else if (shown < 5) {
     var lead = (diff === 0) ? "today" : ("in " + rel);
-    display_notice("[ledger] #" + dated[i].id + " " + lead + " - " + dated[i].text, "#ffd77f");
+    display_notice("[ledger] #" + dated[i].id + " " + lead + " - " + dated[i].text, "cyan");
     shown++;
   }
 }
-if (dated.length === 0) { display_notice("[ledger] nothing on the calendar", "#889999"); }
+if (dated.length === 0) { display_notice("[ledger] nothing on the calendar", "cyan"); }
 
 if (standing.length > 0) {
-  display_notice("[ledger] " + standing.length + " standing - oldest: #" + standing[0].id + " " + standing[0].text, "#8fe0c8");
+  display_notice("[ledger] " + standing.length + " standing - oldest: #" + standing[0].id + " " + standing[0].text, "cyan");
 }

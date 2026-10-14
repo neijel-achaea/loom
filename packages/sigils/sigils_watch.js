@@ -13,5 +13,5 @@ if (next) {
   display_notice("[sigils] watch ON. Probing every room, flagging under " + thr + " months (monolith and flame).", "lime");
 } else {
   var n = Object.keys(get_variable("sigils_flagged") || {}).length;
-  display_notice("[sigils] watch OFF. " + n + " room(s) flagged. SIGILS REPORT to see them.", "yellow");
+  display_notice("[sigils] watch OFF. " + n + " room(s) flagged. SIGILS REPORT to see them.", "lime");
 }

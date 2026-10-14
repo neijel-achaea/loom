@@ -13,7 +13,7 @@ for (var paI = 0; paI < paNames.length; paI++) {
   paTotal += paS;
 }
 if (paTotal <= 0) {
-  display_notice("[patrolling] no areas with a weight above 0.", "#ffcc55");
+  display_notice("[patrolling] no areas with a weight above 0.", "orange");
 } else {
   var paR = Math.random() * paTotal;
   var paK = 0;

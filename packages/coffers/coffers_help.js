@@ -25,7 +25,7 @@ for (var hlI = 0; hlI < hlRows.length; hlI++) {
 var hlPad = "                                                            ";
 var hlHtml = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
 var hlOut = [];
-if (!hlHtml) display_notice(hlTitle, "gold");
+if (!hlHtml) display_notice(hlTitle, "cyan");
 for (var hlJ = 0; hlJ < hlRows.length; hlJ++) {
   var hlR = hlRows[hlJ];
   var hlCmd = hlR.length > 1 ? hlR[0] : "";
@@ -40,6 +40,6 @@ for (var hlJ = 0; hlJ < hlRows.length; hlJ++) {
   }
 }
 if (hlHtml) {
-  display_notice(hlTitle, "gold");
+  display_notice(hlTitle, "cyan");
   nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + hlOut.join("\n") + '</span>');
 }

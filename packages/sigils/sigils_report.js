@@ -40,7 +40,7 @@ flameRows.sort();
 
 var colhead = "  Months    Room  Location";
 
-display_notice((S.city ? String(S.city).toUpperCase() + " " : "") + "SIGIL REPORT", "yellow");
+display_notice((S.city ? String(S.city).toUpperCase() + " " : "") + "SIGIL REPORT", "cyan");
 display_notice("Rooms with less than " + thr + " months of usefulness left.", "white");
 display_notice(" ", "white");
 

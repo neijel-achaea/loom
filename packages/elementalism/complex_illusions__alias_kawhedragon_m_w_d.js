@@ -50,7 +50,7 @@ switch (step) {
 
 if (textStep != "") {
   send_command("cast illusion " + textStep);
-  display_notice("Step " + step + " out of 11.");
+  display_notice("Step " + step + " out of 11.", "cyan");
 } else {
   display_notice ("Wrong step: " + args[1]);
 }

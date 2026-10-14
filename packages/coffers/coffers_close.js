@@ -15,8 +15,8 @@ if (S) {
     if (net > 0 && (!R.bestSess || net > R.bestSess.net)) { R.bestSess = { net: net, s: S.s, dur: dur }; isRec = true; }
     var line = "[coffers] session of " + F.date(S.s) + " " + F.hm(S.s) + " closed after " + F.dur(dur) + ": net " + F.s(net) + " gold (in " + F.n(S.inn) + ", out " + F.n(S.out) + ")";
     if (dur >= 600) { line += ", " + F.s(Math.round(net / (dur / 3600))) + "/hr"; }
-    display_notice(line + ".", net >= 0 ? "gold" : "orange");
-    if (isRec) { display_notice("[coffers] *** that was your most profitable session yet ***", "gold"); }
+    display_notice(line + ".", net >= 0 ? "lime" : "orange");
+    if (isRec) { display_notice("[coffers] *** that was your most profitable session yet ***", "lime"); }
     try { set_variable("coffers_sessions", JSON.stringify(CO.sessions)); } catch (e) {}
     try { set_variable("coffers_rec", JSON.stringify(CO.rec)); } catch (e) {}
   }

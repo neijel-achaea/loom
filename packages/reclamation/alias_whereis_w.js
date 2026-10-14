@@ -1,7 +1,7 @@
 var target = (args[1] || "").toLowerCase();
 
 if (!target) {
-  display_notice("[reclamation] Usage: WHEREIS <name>", "cyan");
+  display_notice("[reclamation] Usage: WHEREIS <name>", "orange");
 } else {
   var enemyLocations = {};
   var stored = get_variable("enemyLocations");

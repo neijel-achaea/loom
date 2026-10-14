@@ -24,29 +24,29 @@ if (hs.length === 0) {
   var tot = last2[1] + last2[2];
   var pct = Math.round((tot / goal) * 1000) / 10;
   display_notice("[talpieces] progress: " + tot + " / " + goal + " pieces (" + pct + "%), " + (goal - tot) + " to go", "cyan");
-  display_notice("[talpieces] tracking since " + fl(hs[0][0]) + " across " + hs.length + " data point" + (hs.length === 1 ? "" : "s") + ", latest " + fl(last2[0]), "white");
+  display_notice("[talpieces] tracking since " + fl(hs[0][0]) + " across " + hs.length + " data point" + (hs.length === 1 ? "" : "s") + ", latest " + fl(last2[0]), "cyan");
   var windows = [7, 30];
   for (var w = 0; w < windows.length; w++) {
     var r = rateOver(windows[w]);
     // Skip a window that reaches all the way back: the all-time line says it.
     if (r && !r.whole) {
-      display_notice("[talpieces] last " + windows[w] + "d: " + (r.gain >= 0 ? "+" : "") + r.gain + " pieces = " + (Math.round(r.per * 10) / 10) + "/day", "white");
+      display_notice("[talpieces] last " + windows[w] + "d: " + (r.gain >= 0 ? "+" : "") + r.gain + " pieces = " + (Math.round(r.per * 10) / 10) + "/day", "cyan");
     }
   }
   var all = rateOver(100000);
   if (all) {
-    display_notice("[talpieces] all time: " + (all.gain >= 0 ? "+" : "") + all.gain + " pieces over " + (Math.round(all.days * 10) / 10) + "d = " + (Math.round(all.per * 10) / 10) + "/day", "white");
+    display_notice("[talpieces] all time: " + (all.gain >= 0 ? "+" : "") + all.gain + " pieces over " + (Math.round(all.days * 10) / 10) + "d = " + (Math.round(all.per * 10) / 10) + "/day", "cyan");
   }
   var seven = rateOver(7);
   if (tot >= goal) {
-    display_notice("[talpieces] the set is complete.", "green");
+    display_notice("[talpieces] the set is complete.", "lime");
   } else if (seven && seven.per > 0) {
     var dl = (goal - tot) / seven.per;
     display_notice("[talpieces] at the " + (seven.whole ? "all-time" : "7-day") + " rate: about " + Math.ceil(dl) + " days left, finishing near " + fl(last2[0] + Math.round(dl * 86400)), "cyan");
   } else if (all && all.per > 0) {
     var dl2 = (goal - tot) / all.per;
-    display_notice("[talpieces] no gain in the last 7 days. At the all-time rate: about " + Math.ceil(dl2) + " days left.", "yellow");
+    display_notice("[talpieces] no gain in the last 7 days. At the all-time rate: about " + Math.ceil(dl2) + " days left.", "orange");
   } else {
-    display_notice("[talpieces] not enough movement yet to project a finish.", "yellow");
+    display_notice("[talpieces] not enough movement yet to project a finish.", "cyan");
   }
 }

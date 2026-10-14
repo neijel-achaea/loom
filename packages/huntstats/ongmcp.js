@@ -25,7 +25,7 @@ if (!HS.resumed) {
         display_notice("[huntstats] resumed hunt in " + hsB.area + " (" + hsB.xp.toLocaleString() + " xp so far)", "cyan");
       } else {
         run_function("huntstats_finalize", [], "huntstats");
-        display_notice("[huntstats] filed interrupted hunt in " + hsB.area, "cyan");
+        display_notice("[huntstats] filed interrupted hunt in " + hsB.area, "lime");
       }
     } else {
       try { set_variable("huntstats_open", ""); } catch (e) {}

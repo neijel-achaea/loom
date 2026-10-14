@@ -36,7 +36,7 @@ else if ((dcSub === "init" && dcVal === "auto") || dcSub === "autoup") {
   if (dcSub === "autoup") display_notice("[defcon] DEFCON AUTOUP is now DEFCON INIT AUTO.", "orange");
   if (dcOnOff === "on" || dcOnOff === "off") {
     set_variable("defcon_autoinit", dcOnOff);
-    display_notice("[defcon] init at login " + dcOnOff.toUpperCase() + ": your class's init commands " + (dcOnOff === "on" ? "are" : "aren't") + " sent when you log in.", C);
+    display_notice("[defcon] init at login " + dcOnOff.toUpperCase() + ": your class's init commands " + (dcOnOff === "on" ? "are" : "aren't") + " sent when you log in.", "lime");
   } else {
     display_notice("[defcon] init at login is " + String(get_variable("defcon_autoinit")).toUpperCase() + ". DEFCON INIT AUTO ON or OFF.", C);
   }
@@ -55,7 +55,7 @@ else if (dcSub === "export") {
 }
 else if (dcSub === "on" || dcSub === "off") {
   send_command("curing defences " + dcSub);
-  display_notice("[defcon] defence upkeep " + dcSub.toUpperCase() + ".", C);
+  display_notice("[defcon] defence upkeep " + dcSub.toUpperCase() + ".", "lime");
 }
 else if (dcSub === "list") {
   run_function("defcon_list", [], "defcon");

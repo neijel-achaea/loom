@@ -7,7 +7,7 @@ var raw = String(client.loom.standings.args || "").replace(/^\s+|\s+$/g, "");
 var W = raw.length ? raw.split(/\s+/) : [];
 var now = Math.floor(new Date().getTime() / 1000);
 
-function say(t, c) { display_notice("[standings] " + t, c || "#c9b6e8"); }
+function say(t, c) { display_notice("[standings] " + t, c || "cyan"); }
 function render() { run_function("standings_render", [], "standings"); }
 function restOf(from) { return W.slice(from).join(" "); }
 // Get or create the entity for a name; organisations are keyed with "@".
@@ -25,7 +25,7 @@ function record(e, step, note) {
   e.s = F.score(e.log);
   F.save();
   var b = F.band(e.s);
-  if (step === 0) { say("noted for " + e.name + (ic ? " (" + F.icTxt(ic) + ")" : "") + ": " + (note || "")); }
+  if (step === 0) { say("noted for " + e.name + (ic ? " (" + F.icTxt(ic) + ")" : "") + ": " + (note || ""), "lime"); }
   else { say(e.name + " " + F.steps(step) + ": " + F.signed(before) + " → " + F.signed(e.s) + " (" + b[1] + ")" + (note ? " — " + note : ""), b[2]); }
   client.loom.standings.view = { k: kOf(e) };
   render();
@@ -85,7 +85,7 @@ else if (W[0].toLowerCase() === "ok") {
 }
 else if (W[0].toLowerCase() === "skip") {
   if (DB.pending.length === 0) { say("nothing waiting for review."); }
-  else { var sk = DB.pending.shift(); F.save(); say("dismissed: " + sk.who + " — " + sk.why + "." + (DB.pending.length ? " " + DB.pending.length + " more waiting." : "")); render(); }
+  else { var sk = DB.pending.shift(); F.save(); say("dismissed: " + sk.who + " — " + sk.why + "." + (DB.pending.length ? " " + DB.pending.length + " more waiting." : ""), "lime"); render(); }
 }
 else if (W[0].toLowerCase() === "rebuild") {
   client.loom.standings.F = undefined;
@@ -94,7 +94,7 @@ else if (W[0].toLowerCase() === "rebuild") {
   // Recompute every standing with the fresh rules.
   for (var kr in DB.e) { if (DB.e.hasOwnProperty(kr)) { DB.e[kr].s = F.score(DB.e[kr].log || []); } }
   F.save();
-  say("helpers rebuilt and every standing recomputed.");
+  say("helpers rebuilt and every standing recomputed.", "lime");
   render();
 }
 else if (W[0].toLowerCase() === "debug") {
@@ -138,7 +138,7 @@ else {
       var gone = eu.log.pop();
       eu.s = F.score(eu.log);
       F.save();
-      say("removed " + (gone.length > 4 ? "set " + F.signed(gone[4]) : F.steps(gone[2])) + (gone[3] ? " (" + gone[3] + ")" : "") + " from " + eu.name + "; now " + F.signed(eu.s) + ".");
+      say("removed " + (gone.length > 4 ? "set " + F.signed(gone[4]) : F.steps(gone[2])) + (gone[3] ? " (" + gone[3] + ")" : "") + " from " + eu.name + "; now " + F.signed(eu.s) + ".", "lime");
       client.loom.standings.view = { k: kOf(eu) };
       render();
     }
@@ -158,7 +158,7 @@ else {
           if (verb === "untag" && at >= 0) { et.tags.splice(at, 1); }
         }
         F.save();
-        say(et.name + " tags: " + (et.tags.length ? et.tags.join(", ") : "none") + ".");
+        say(et.name + " tags: " + (et.tags.length ? et.tags.join(", ") : "none") + ".", "lime");
         client.loom.standings.view = { k: kOf(et) };
         render();
       }
@@ -168,7 +168,7 @@ else {
     var ef = ent(who, false);
     if (!ef) { say(who + " is not on the books.", "orange"); }
     else if ((W[2] || "").toLowerCase() !== "confirm") { say("this erases " + ef.name + "'s whole history. STANDINGS " + who.toUpperCase() + " FORGET CONFIRM to proceed.", "orange"); }
-    else { delete DB.e[kOf(ef)]; F.save(); client.loom.standings.view = null; say(ef.name + " has been struck from the books."); render(); }
+    else { delete DB.e[kOf(ef)]; F.save(); client.loom.standings.view = null; say(ef.name + " has been struck from the books.", "orange"); render(); }
   }
   else if (verb === "") {
     var ev = ent(who, false);

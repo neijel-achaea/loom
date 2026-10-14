@@ -18,14 +18,14 @@ if (tpSub === "" || tpSub === "status") {
 } else if (tpSub === "mark") {
   TP.forceMark = true;
   run_function("talpieces_sync", [], "talpieces");
-  display_notice("[talpieces] history point recorded (" + (TP.nowC + TP.nowR) + " pieces).", C);
+  display_notice("[talpieces] history point recorded (" + (TP.nowC + TP.nowR) + " pieces).", "lime");
 } else if (tpSub === "graph") {
   if (tpArg === "on" || tpArg === "off") {
     TP.graphOn = (tpArg === "on");
   } else if (/^\d+$/.test(tpArg)) {
     var tpV = parseInt(tpArg, 10);
     if (tpV < 40 || tpV > 400) {
-      display_notice("[talpieces] pick a graph height between 40 and 400 (default 110, lower is flatter).", "yellow");
+      display_notice("[talpieces] pick a graph height between 40 and 400 (default 110, lower is flatter).", "orange");
       tpV = 0;
     }
     if (tpV) { TP.chartH = tpV; set_variable("talpieces_graph_h", String(tpV)); }
@@ -36,7 +36,7 @@ if (tpSub === "" || tpSub === "status") {
   }
   set_variable("talpieces_graph", TP.graphOn ? "on" : "off");
   run_function("talpieces_render", [], "talpieces");
-  display_notice("[talpieces] panel graph " + (TP.graphOn ? "shown" : "hidden") + ", " + TP.chartH + "px high.", C);
+  display_notice("[talpieces] panel graph " + (TP.graphOn ? "shown" : "hidden") + ", " + TP.chartH + "px high.", "lime");
 } else if (tpSub === "seed") {
   var tpM = tpRaw.match(/^\S+\s+(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(\d+))?(?:\s+(\d+))?\s*$/);
   if (!tpM) {
@@ -48,7 +48,7 @@ if (tpSub === "" || tpSub === "status") {
 } else if (tpSub === "csv") {
   var hs = TP.hist || [];
   var tpStart = hs.length > 300 ? hs.length - 300 : 0;
-  if (tpStart > 0) display_notice("[talpieces] showing the most recent 300 of " + hs.length + " points.", "yellow");
+  if (tpStart > 0) display_notice("[talpieces] showing the most recent 300 of " + hs.length + " points.", "cyan");
   display_notice("date,unix,common,rare,total", "white");
   for (var tpI = tpStart; tpI < hs.length; tpI++) {
     var tpD = new Date(hs[tpI][0] * 1000);
@@ -60,25 +60,25 @@ if (tpSub === "" || tpSub === "status") {
 } else if (tpSub === "combine") {
   if (tpArg === "on" || tpArg === "off") set_variable("talpieces_combine", tpArg);
   display_notice("[talpieces] combine " + String(get_variable("talpieces_combine")).toUpperCase() + ": "
-    + (get_variable("talpieces_combine") === "off" ? "listing your pieces leaves them as they are." : "listing your pieces queues TALISMAN COMBINE for each row."), C);
+    + (get_variable("talpieces_combine") === "off" ? "listing your pieces leaves them as they are." : "listing your pieces queues TALISMAN COMBINE for each row."), (tpArg === "on" || tpArg === "off") ? "lime" : C);
 } else if (tpSub === "wipe") {
   var tpConfirm = (tpW[2] === "confirm");
   if (tpArg === "pieces") {
     if (tpConfirm) {
       TP.reset();
       run_function("talpieces_sync", [], "talpieces");
-      display_notice("[talpieces] all tracked pieces wiped. List your pieces in game to rebuild them.", "red");
+      display_notice("[talpieces] all tracked pieces wiped. List your pieces in game to rebuild them.", "orange");
     } else {
-      display_notice("[talpieces] this clears ALL tracked pieces. TALPIECES WIPE PIECES CONFIRM to proceed.", "yellow");
+      display_notice("[talpieces] this clears ALL tracked pieces. TALPIECES WIPE PIECES CONFIRM to proceed.", "orange");
     }
   } else if (tpArg === "history") {
     if (tpConfirm) {
       TP.hist = [];
       set_variable("talpieces_hist", "[]");
       run_function("talpieces_render", [], "talpieces");
-      display_notice("[talpieces] progress history cleared. Piece counts are untouched.", "red");
+      display_notice("[talpieces] progress history cleared. Piece counts are untouched.", "orange");
     } else {
-      display_notice("[talpieces] this clears the progress GRAPH history only, not your pieces. TALPIECES WIPE HISTORY CONFIRM to proceed.", "yellow");
+      display_notice("[talpieces] this clears the progress GRAPH history only, not your pieces. TALPIECES WIPE HISTORY CONFIRM to proceed.", "orange");
     }
   } else {
     display_notice("[talpieces] TALPIECES WIPE PIECES|HISTORY [CONFIRM].", "orange");
@@ -88,7 +88,7 @@ if (tpSub === "" || tpSub === "status") {
   TP.hist = null;
   run_function("talpieces_setup", [], "talpieces");
   run_function("talpieces_render", [], "talpieces");
-  display_notice("[talpieces] reloaded from saved variables.", C);
+  display_notice("[talpieces] reloaded from saved variables.", "lime");
 } else if (tpSub === "debug") {
   display_notice("[talpieces] building=" + TP.building + " graphOn=" + TP.graphOn + " chartH=" + TP.chartH + " hist=" + (TP.hist ? TP.hist.length : 0)
     + " combine=" + get_variable("talpieces_combine") + " pieces=" + JSON.stringify(TP.pieces), C);

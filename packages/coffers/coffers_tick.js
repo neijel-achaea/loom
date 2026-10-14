@@ -35,7 +35,7 @@ function feedDay() {
   var closedNet = last[3] - last[4];
   if (closedNet > 0 && (!R.bestDay || closedNet > R.bestDay.net)) {
     R.bestDay = { net: closedNet, t: last[0] };
-    display_notice("[coffers] yesterday's books are closed: " + F.s(closedNet) + " gold. A new best day!", "gold");
+    display_notice("[coffers] yesterday's books are closed: " + F.s(closedNet) + " gold. A new best day!", "lime");
   }
   var cut = now - CO.daySpan * 86400;
   var todayStart = F.dayStart(now);
@@ -67,7 +67,7 @@ if (g !== undefined && b !== undefined) {
     CO.sess = { s: now, last: now, w0: W, w1: W, inn: 0, out: 0, peak: W, low: W, big: 0 };
     changed = true;
     force = true;
-    display_notice("[coffers] the books are open: " + F.n(W) + " gold (" + F.n(g) + " in the purse, " + F.n(b) + " in the bank).", "gold");
+    display_notice("[coffers] the books are open: " + F.n(W) + " gold (" + F.n(g) + " in the purse, " + F.n(b) + " in the bank).", "cyan");
   }
   var S = CO.sess;
   S.last = now;
@@ -94,7 +94,7 @@ if (g !== undefined && b !== undefined) {
     changed = true;
     force = true;
     if (CO.big > 0 && d >= CO.big) {
-      display_notice("[coffers] Ka-ching! " + F.s(d) + " gold. Session " + F.s(S.inn - S.out) + ", fortune " + F.n(W) + ".", "gold");
+      display_notice("[coffers] Ka-ching! " + F.s(d) + " gold. Session " + F.s(S.inn - S.out) + ", fortune " + F.n(W) + ".", "lime");
     } else if (CO.big > 0 && -d >= CO.big) {
       display_notice("[coffers] " + F.n(-d) + " gold just left the purse. Session " + F.s(S.inn - S.out) + ".", "orange");
     }
@@ -109,7 +109,7 @@ if (g !== undefined && b !== undefined) {
   else if (tAt > R.tierAt) {
     R.tierAt = tAt;
     force = true;
-    display_notice("[coffers] *** MILESTONE *** your fortune passes " + F.n(CO.tiers[ti][0]) + " gold. Welcome to the " + CO.tiers[ti][1] + ".", "gold");
+    display_notice("[coffers] *** MILESTONE *** your fortune passes " + F.n(CO.tiers[ti][0]) + " gold. Welcome to the " + CO.tiers[ti][1] + ".", "lime");
   }
 
   // Goal: take the base on the first reading after it was set, and announce
@@ -122,7 +122,7 @@ if (g !== undefined && b !== undefined) {
     } else if (!CO.goalDone && W - CO.goalBase >= CO.goal) {
       CO.goalDone = true;
       try { set_variable("coffers_goal_done", "1"); } catch (e) {}
-      display_notice("[coffers] *** GOAL REACHED *** " + F.s(CO.goal) + " gold earned since " + F.date(CO.goalT) + ". Set the next one with COFFERS GOAL.", "gold");
+      display_notice("[coffers] *** GOAL REACHED *** " + F.s(CO.goal) + " gold earned since " + F.date(CO.goalT) + ". Set the next one with COFFERS GOAL.", "lime");
     }
   }
 

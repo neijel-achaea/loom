@@ -27,6 +27,6 @@ if (arg === "") {
     }
     ign[key] = nm;
     set_variable("sigils_ignored", ign);
-    display_notice("[sigils] ignoring room " + key + (nm !== "?" ? " (" + nm + ")" : "") + ".", "cyan");
+    display_notice("[sigils] ignoring room " + key + (nm !== "?" ? " (" + nm + ")" : "") + ".", "lime");
   }
 }

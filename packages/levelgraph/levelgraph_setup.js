@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.levelgraph) client.loom.levelgraph = {};
-client.loom.registry.levelgraph = { version: "0.2.1", keyword: "LEVELGRAPH", desc: "{{description}}" };
+client.loom.registry.levelgraph = { version: "0.2.2", keyword: "LEVELGRAPH", desc: "{{description}}" };
 var LG = client.loom.levelgraph;
 
 // One-time migration: lvl_* -> levelgraph_*. A new variable that already

@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.patrolling) client.loom.patrolling = {};
-client.loom.registry.patrolling = { version: "0.2.2", keyword: "PATROLLING", desc: "{{description}}" };
+client.loom.registry.patrolling = { version: "0.2.3", keyword: "PATROLLING", desc: "{{description}}" };
 var P = client.loom.patrolling;
 
 // One-time migration: patrol_last -> patrolling_last; the old session object

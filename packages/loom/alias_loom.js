@@ -44,7 +44,7 @@ if (sub === "" || sub === "list") {
   if (val === "auto") {
     var luAuto = String(parts[2] || "").toLowerCase();
     if (luAuto === "on" || luAuto === "off") set_variable("loom_autoupdates", luAuto);
-    display_notice("[loom] version check at login is " + (get_variable("loom_autoupdates") || "on") + ".", C);
+    display_notice("[loom] version check at login is " + (get_variable("loom_autoupdates") || "on") + ".", (luAuto === "on" || luAuto === "off") ? "lime" : C);
   } else {
     set_variable("loom_updates_mode", "manual");
     run_function("loom_updates", [], "loom");
@@ -55,7 +55,7 @@ if (sub === "" || sub === "list") {
   var vname = (sub === "pause") ? "pauseTriggers" : "debug";
   if (val === "on" || val === "off") {
     set_variable(vname, val);
-    display_notice("[loom] " + sub + " " + val, C);
+    display_notice("[loom] " + sub + " " + val, "lime");
   } else {
     display_notice("[loom] " + sub + " is " + (get_variable(vname) || "off") + ". Use LOOM " + sub.toUpperCase() + " ON or OFF.", C);
   }
@@ -64,7 +64,7 @@ if (sub === "" || sub === "list") {
   if (rm) {
     display_notice("[loom] room " + rm.id + ": " + rm.name + " (" + rm.area + ", " + rm.environment + ")", C);
   } else {
-    display_notice("[loom] no room seen yet; move once and try again.", C);
+    display_notice("[loom] no room seen yet; move once and try again.", "orange");
   }
 } else {
   display_notice("[loom] unknown command '" + sub + "'. LOOM HELP for commands.", "orange");

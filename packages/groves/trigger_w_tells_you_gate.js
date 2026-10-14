@@ -10,7 +10,7 @@ if (pause == "off") {
       send_command("tell " + who + " Sorry, I'm not in my grove.");
     } else {
       send_command("grove gate " + who);   
-      display_notice("[grove] portal opened for " + who, "cyan");
+      display_notice("[grove] portal opened for " + who, "lime");
     }
   }
 } else {

@@ -34,10 +34,10 @@ luL.report = (data, manual) => {
   if (old.length) {
     display_notice("[loom] " + old.length + " package" + (old.length == 1 ? "" : "s") + " out of date: " + old.join(", ") + ". Reimport from github.com/neijel-achaea/loom (dist/).", "orange");
   } else if (manual) {
-    display_notice("[loom] every package here is up to date.", "cyan");
+    display_notice("[loom] every package here is up to date.", "lime");
   }
   if (manual && ahead.length) display_notice("[loom] newer than main (a branch build): " + ahead.join(", ") + ".", "cyan");
-  if (manual && missing.length) display_notice("[loom] not installed here: " + missing.join(", ") + ".", "#6f8f8f");
+  if (manual && missing.length) display_notice("[loom] not installed here: " + missing.join(", ") + ".", "cyan");
 };
 
 if (luManual) display_notice("[loom] checking package versions...", "cyan");

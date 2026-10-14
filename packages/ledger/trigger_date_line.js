@@ -9,7 +9,7 @@ for (i = 0; i < client.loom.ledger.months.length; i++) {
   if (client.loom.ledger.months[i].toLowerCase() == mn) { mi = i; }
 }
 if (mi < 0) {
-  display_notice("[ledger] unknown month in date line: " + args[2], "#ff5f5f");
+  display_notice("[ledger] unknown month in date line: " + args[2], "orange");
 } else {
   if (client.loom.ledger.armed) {
     gag_current_line();

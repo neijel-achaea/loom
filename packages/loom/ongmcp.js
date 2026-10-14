@@ -21,6 +21,6 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
   var cls = args.gmcp_args.class;
   if (cls != L.cls) {
     L.cls = cls;
-    display_notice("[loom] class: " + cls, "green");
+    display_notice("[loom] class: " + cls, "cyan");
   }
 }

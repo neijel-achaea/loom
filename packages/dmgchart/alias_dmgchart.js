@@ -11,42 +11,42 @@ if (sub == "show" || sub == "del") rest = restId;
 if (sub == "gap") {
   var g = parseFloat(rest);
   if (isNaN(g) || g <= 0) {
-    display_notice("[dmgchart] usage: DMGCHART GAP <seconds>  (currently " + d.gap + "s)", "yellow");
+    display_notice("[dmgchart] usage: DMGCHART GAP <seconds>  (currently " + d.gap + "s)", "orange");
   } else {
     d.gap = g;
     set_variable("dmgchart_gap", String(g));
-    display_notice("[dmgchart] fight gap set to " + g + "s", "cyan");
+    display_notice("[dmgchart] fight gap set to " + g + "s", "lime");
   }
 } else if (sub == "window") {
   var w = parseFloat(rest);
   if (isNaN(w) || w <= 0 || w > 120) {
-    display_notice("[dmgchart] usage: DMGCHART WINDOW <seconds>, 1 to 120  (currently " + d.window + "s)", "yellow");
+    display_notice("[dmgchart] usage: DMGCHART WINDOW <seconds>, 1 to 120  (currently " + d.window + "s)", "orange");
   } else {
     d.window = w;
     set_variable("dmgchart_window", String(w));
-    display_notice("[dmgchart] health lasts now uses the last " + w + "s of the fight", "cyan");
+    display_notice("[dmgchart] health lasts now uses the last " + w + "s of the fight", "lime");
   }
 } else if (sub == "reset") {
   d.fight = null;
   d.lastInc = null;
   d.recent = [];
-  display_notice("[dmgchart] fight cleared; the next damage line starts a new one", "cyan");
+  display_notice("[dmgchart] fight cleared; the next damage line starts a new one", "lime");
 } else if (sub == "start") {
   if (d.sess) {
-    display_notice("[dmgchart] session '" + d.sess.name + "' is already recording. DMGCHART END first.", "yellow");
+    display_notice("[dmgchart] session '" + d.sess.name + "' is already recording. DMGCHART END first.", "orange");
   } else {
     d.sess = { name: rest || ("session " + d.nextId), start: Date.now(), lastT: 0, combatMs: 0, fights: 0, inc: {}, out: {}, incTotal: 0, outTotal: 0 };
     set_variable("dmgchart_open", JSON.stringify(d.sess));
     d.sessSaved = Date.now();
-    display_notice("[dmgchart] recording session '" + d.sess.name + "'. DMGCHART END to save it.", "cyan");
+    display_notice("[dmgchart] recording session '" + d.sess.name + "'. DMGCHART END to save it.", "lime");
   }
 } else if (sub == "end") {
   if (!d.sess) {
-    display_notice("[dmgchart] no session is recording. DMGCHART START [name] to begin one.", "yellow");
+    display_notice("[dmgchart] no session is recording. DMGCHART START [name] to begin one.", "orange");
   } else {
     var ss = d.sess;
     if (ss.fights == 0) {
-      display_notice("[dmgchart] session '" + ss.name + "' had no damage; discarded.", "yellow");
+      display_notice("[dmgchart] session '" + ss.name + "' had no damage; discarded.", "orange");
     } else {
       var rec = { id: d.nextId, name: ss.name, start: ss.start, end: Date.now(), combatMs: ss.combatMs, fights: ss.fights, inc: ss.inc, out: ss.out, incTotal: ss.incTotal, outTotal: ss.outTotal, hits: ss.hits || null };
       d.nextId++;
@@ -54,7 +54,7 @@ if (sub == "gap") {
       while (d.saved.length > 50) { d.saved.shift(); }
       set_variable("dmgchart_sessions", JSON.stringify(d.saved));
       var cs = Math.max(1, rec.combatMs / 1000);
-      display_notice("[dmgchart] saved session #" + rec.id + " '" + rec.name + "': " + rec.fights + " fights, " + Math.round(cs) + "s in combat, out " + Math.round(rec.outTotal / cs) + " dps, in " + Math.round(rec.incTotal / cs) + " dps", "cyan");
+      display_notice("[dmgchart] saved session #" + rec.id + " '" + rec.name + "': " + rec.fights + " fights, " + Math.round(cs) + "s in combat, out " + Math.round(rec.outTotal / cs) + " dps, in " + Math.round(rec.incTotal / cs) + " dps", "lime");
     }
     d.sess = null;
     set_variable("dmgchart_open", "");
@@ -62,11 +62,11 @@ if (sub == "gap") {
   }
 } else if (sub == "show") {
   if (rest == "") {
-    if (d.sess) { d.view = "session"; } else { display_notice("[dmgchart] no session recording. DMGCHART SHOW <#> for a saved one.", "yellow"); }
+    if (d.sess) { d.view = "session"; } else { display_notice("[dmgchart] no session recording. DMGCHART SHOW <#> for a saved one.", "orange"); }
   } else {
     var found = false;
     for (var q = 0; q < d.saved.length; q++) { if (String(d.saved[q].id) == rest) { found = true; } }
-    if (found) { d.view = rest; } else { display_notice("[dmgchart] no saved session #" + rest, "yellow"); }
+    if (found) { d.view = rest; } else { display_notice("[dmgchart] no saved session #" + rest, "orange"); }
   }
 } else if (sub == "live") {
   d.view = "";
@@ -74,21 +74,21 @@ if (sub == "gap") {
   var kept = [];
   for (var x = 0; x < d.saved.length; x++) { if (String(d.saved[x].id) != rest) { kept.push(d.saved[x]); } }
   if (kept.length == d.saved.length) {
-    display_notice("[dmgchart] no saved session #" + rest, "yellow");
+    display_notice("[dmgchart] no saved session #" + rest, "orange");
   } else {
     d.saved = kept;
     set_variable("dmgchart_sessions", JSON.stringify(d.saved));
     if (String(d.view) == rest) { d.view = ""; }
-    display_notice("[dmgchart] deleted session #" + rest, "cyan");
+    display_notice("[dmgchart] deleted session #" + rest, "orange");
   }
 } else if (sub == "wipe") {
   if (rest.toLowerCase() == "confirm") {
     d.saved = [];
     set_variable("dmgchart_sessions", "[]");
     if (d.view != "session") { d.view = ""; }
-    display_notice("[dmgchart] all saved sessions wiped", "red");
+    display_notice("[dmgchart] all saved sessions wiped", "orange");
   } else {
-    display_notice("[dmgchart] this deletes ALL saved sessions. DMGCHART WIPE CONFIRM to proceed.", "yellow");
+    display_notice("[dmgchart] this deletes ALL saved sessions. DMGCHART WIPE CONFIRM to proceed.", "orange");
   }
 } else if (sub == "" || sub == "status") {
   var dcF = d.fight;
@@ -107,9 +107,9 @@ if (sub == "gap") {
   run_function("dmgchart_help", [], "dmgchart");
 } else if (sub == "list") {
   if (!d.saved.length) {
-    display_notice("[dmgchart] no saved sessions. DMGCHART START [name] to record one.", "yellow");
+    display_notice("[dmgchart] no saved sessions. DMGCHART START [name] to record one.", "cyan");
   } else {
-    display_notice("[dmgchart] " + d.saved.length + " saved session" + (d.saved.length == 1 ? "" : "s") + ", newest first:", "white");
+    display_notice("[dmgchart] " + d.saved.length + " saved session" + (d.saved.length == 1 ? "" : "s") + ", newest first:", "cyan");
     for (var li = d.saved.length - 1; li >= 0; li--) {
       var lv = d.saved[li];
       var lcs = Math.max(1, lv.combatMs / 1000);
@@ -123,7 +123,7 @@ if (sub == "gap") {
   client.loom.dmgchart = { hp: d.hp };
   run_function("dmgchart_setup", [], "dmgchart");
   d = client.loom.dmgchart;
-  display_notice("[dmgchart] rebuilt from the saved variables (gap " + d.gap + "s, window " + d.window + "s" + (d.sess ? ", recording '" + d.sess.name + "' resumed from its last checkpoint" : "") + ")", "cyan");
+  display_notice("[dmgchart] rebuilt from the saved variables (gap " + d.gap + "s, window " + d.window + "s" + (d.sess ? ", recording '" + d.sess.name + "' resumed from its last checkpoint" : "") + ")", "lime");
 } else if (sub == "debug") {
   display_notice("[dmgchart] gap=" + d.gap + " window=" + d.window + " recent=" + (d.recent ? d.recent.length : 0) + " view='" + d.view + "' saved=" + d.saved.length + " nextId=" + d.nextId + " hp=" + d.hp + " sess=" + (d.sess ? d.sess.name + "/" + d.sess.fights : "none") + " fight=" + (d.fight ? d.fight.outTotal + "/" + d.fight.incTotal : "none") + " lastInc=" + (d.lastInc ? d.lastInc.type + ":" + d.lastInc.amt : "none"), "orange");
 } else {

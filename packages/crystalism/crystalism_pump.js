@@ -5,7 +5,7 @@ if (CR.state === "refining") {
     CR.pumpT = setTimeout(function () { run_function("crystalism_pump", [], "crystalism"); }, 1500);
   } else if (!CR.queue.length) {
     send_command("inr all");
-    display_notice("[crystalism] refine done.", "cyan");
+    display_notice("[crystalism] refine done.", "lime");
     CR.state = "idle";
   } else {
     send_command(CR.queue.shift());

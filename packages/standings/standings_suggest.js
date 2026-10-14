@@ -18,7 +18,7 @@ if (sg && sg.who) {
     P.push({ t: now, ic: F.ic(now), who: who, why: why, step: step });
     while (P.length > 20) { P.shift(); }
     F.save();
-    display_notice("[standings] review: " + who + " — " + why + " (suggested " + F.steps(step) + "). STANDINGS OK to record, STANDINGS SKIP to dismiss.", "#c9b6e8");
+    display_notice("[standings] review: " + who + " — " + why + " (suggested " + F.steps(step) + "). STANDINGS OK to record, STANDINGS SKIP to dismiss.", "cyan");
     run_function("standings_render", [], "standings");
   }
 }

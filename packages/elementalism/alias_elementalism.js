@@ -19,7 +19,7 @@ if (elSub === "" || elSub === "status") {
   } else {
     EL.name = elP1.charAt(0).toUpperCase() + elP1.slice(1);
     set_variable("elementalism_name", EL.name);
-    elSay("set pieces use " + EL.name + ".");
+    elSay("set pieces use " + EL.name + ".", "lime");
   }
 } else if (elSub === "pronouns") {
   var elPr = elP1.toLowerCase();
@@ -28,7 +28,7 @@ if (elSub === "" || elSub === "status") {
   } else {
     EL.pron = elPr;
     set_variable("elementalism_pronouns", elPr);
-    elSay("pronouns: " + elPr + ".");
+    elSay("pronouns: " + elPr + ".", "lime");
   }
 } else if (elSub === "debug") {
   elSay("name=" + EL.name + " pron=" + EL.pron + " saved=" + get_variable("elementalism_name") + "/" + get_variable("elementalism_pronouns"), "orange");

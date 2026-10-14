@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.vials) client.loom.vials = {};
-client.loom.registry.vials = { version: "0.2.1", keyword: "VIALS", desc: "{{description}}" };
+client.loom.registry.vials = { version: "0.2.2", keyword: "VIALS", desc: "{{description}}" };
 var VI = client.loom.vials;
 if (!VI.map) {
   var viRaw;

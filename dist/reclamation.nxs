@@ -29,7 +29,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "var arg = (args[1] || \"\").toLowerCase();\n\nif (arg === \"on\")       { set_variable(\"reportEnemies\", 1); display_notice(\"[reclamation] Report Enemies mode: ON\", \"cyan\"); }\nelse if (arg === \"off\") { set_variable(\"reportEnemies\", 0); display_notice(\"[reclamation] Report Enemies mode: OFF\", \"cyan\"); }\nelse {\n  var state = get_variable(\"reportEnemies\");\n  var verboseState = (state == 1) ? \"ON\" : \"OFF\";\n  display_notice(\"[reclamation] Report Enemies mode: \" + verboseState + \". Use REPORTENEMIES ON/OFF.\", \"cyan\");\n}"
+     "script": "var arg = (args[1] || \"\").toLowerCase();\n\nif (arg === \"on\")       { set_variable(\"reportEnemies\", 1); display_notice(\"[reclamation] Report Enemies mode: ON\", \"lime\"); }\nelse if (arg === \"off\") { set_variable(\"reportEnemies\", 0); display_notice(\"[reclamation] Report Enemies mode: OFF\", \"lime\"); }\nelse {\n  var state = get_variable(\"reportEnemies\");\n  var verboseState = (state == 1) ? \"ON\" : \"OFF\";\n  display_notice(\"[reclamation] Report Enemies mode: \" + verboseState + \". Use REPORTENEMIES ON/OFF.\", \"cyan\");\n}"
     }
    ],
    "text": "^reportenemies(?: (\\w+))?$",
@@ -46,7 +46,7 @@
     {
      "type": "script",
      "enabled": true,
-     "script": "var target = (args[1] || \"\").toLowerCase();\n\nif (!target) {\n  display_notice(\"[reclamation] Usage: WHEREIS <name>\", \"cyan\");\n} else {\n  var enemyLocations = {};\n  var stored = get_variable(\"enemyLocations\");\n  if (stored) { try { enemyLocations = JSON.parse(stored); } catch (e) {} }\n\n  var rec = enemyLocations[target];\n  if (rec) {\n    var mins = Math.round((Date.now() - rec.time) / 60000);\n    display_notice(\"[reclamation] \" + rec.name + \" last seen at \" + rec.location + \" (\" + mins + \"m ago).\", \"cyan\");\n  } else {\n    display_notice(\"[reclamation] No Eleusis sighting recorded for \" + target + \".\", \"cyan\");\n  }\n}"
+     "script": "var target = (args[1] || \"\").toLowerCase();\n\nif (!target) {\n  display_notice(\"[reclamation] Usage: WHEREIS <name>\", \"orange\");\n} else {\n  var enemyLocations = {};\n  var stored = get_variable(\"enemyLocations\");\n  if (stored) { try { enemyLocations = JSON.parse(stored); } catch (e) {} }\n\n  var rec = enemyLocations[target];\n  if (rec) {\n    var mins = Math.round((Date.now() - rec.time) / 60000);\n    display_notice(\"[reclamation] \" + rec.name + \" last seen at \" + rec.location + \" (\" + mins + \"m ago).\", \"cyan\");\n  } else {\n    display_notice(\"[reclamation] No Eleusis sighting recorded for \" + target + \".\", \"cyan\");\n  }\n}"
     }
    ],
    "text": "^whereis(?: (\\w+))?$",

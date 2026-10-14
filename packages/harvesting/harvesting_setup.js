@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.harvesting) client.loom.harvesting = {};
-client.loom.registry.harvesting = { version: "0.2.1", keyword: "HARVESTING", desc: "{{description}}" };
+client.loom.registry.harvesting = { version: "0.2.2", keyword: "HARVESTING", desc: "{{description}}" };
 var H = client.loom.harvesting;
 
 // Plants that grow in each environment (GMCP Room.Info environment, lower case).

@@ -13,6 +13,6 @@ if (get_variable("crystalism_portal") == "on") {
     send_command("tell " + crWho + " Sorry, you're not in my allowed list.");
   } else {
     send_command("embed sonicportal " + crWho);
-    display_notice("[crystalism] portal opened for " + crWho + ".", "cyan");
+    display_notice("[crystalism] portal opened for " + crWho + ".", "lime");
   }
 }
