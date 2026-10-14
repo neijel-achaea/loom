@@ -25,9 +25,6 @@ function secs(s) {
 function caps(t, col) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || DEEP) + ';font-size:11px;margin:0 0 3px;">' + t + '</div>'; }
 function section(title, inner) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title, EMBER) + inner + '</div>'; }
 // One exchange row: a label, then the dealt and taken figures in their accents.
-function xrow(label, a, b) {
-  return '<div style="display:flex;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="flex:1 1 auto;color:' + MUTED + ';">' + label + '</span><span style="min-width:5em;text-align:right;color:' + TXT + ';">' + a + '</span><span style="min-width:5em;text-align:right;color:' + TXT + ';">' + b + '</span></div>';
-}
 function xline(label, text, c) {
   return '<div style="display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="color:' + MUTED + ';">' + label + '</span><span style="color:' + c + ';">' + text + '</span></div>';
 }
@@ -133,16 +130,32 @@ if (!src) {
   }
   html += '</div>';
 
-  // The exchange: how the blows compare. Hit counts were added after the
-  // first sessions were saved, so those show no exchange rows.
+  // The exchange: your hits, split into normal hits and each crit tier
+  // (#185), with their count, share of all your hits and average. The four
+  // usual tiers always have a row; the two rarest only once reached. Then
+  // your biggest hit and hits a minute. Incoming is in the donut above.
+  // Hit counts were added after the first sessions were saved, so those
+  // show no exchange rows.
   var H = src.hits || null;
   var ex = "";
-  if (H) {
-    ex += '<div style="display:flex;gap:6px;color:' + MUTED + ';border-bottom:1px solid ' + RULE + ';padding-bottom:1px;"><span style="flex:1 1 auto;"></span><span style="min-width:5em;text-align:right;color:' + EMBER + ';">dealt</span><span style="min-width:5em;text-align:right;color:' + CRIMSON + ';">taken</span></div>';
-    ex += xrow("hits", H.out.n, H.inc.n);
-    ex += xrow("average hit", H.out.n > 0 ? Math.round(src.outTotal / H.out.n) : "&mdash;", H.inc.n > 0 ? Math.round(src.incTotal / H.inc.n) : "&mdash;");
-    ex += xrow("biggest hit", H.out.max || "&mdash;", H.inc.max || "&mdash;");
-    ex += xrow("hits a minute", Math.round(H.out.n / (dur / 60)), Math.round(H.inc.n / (dur / 60)));
+  if (H && H.out.n > 0) {
+    var crOrder = [["CRITICAL", "critical hits"], ["CRUSHING", "crushing hits"], ["OBLITERATING", "obliterating hits"], ["ANNIHILATINGLY POWERFUL", "annihilatingly powerful hits"], ["WORLD-SHATTERING", "world-shattering hits"], ["PLANE-RAZING", "plane-razing hits"]];
+    var crT = H.out.ct || {};
+    var crN = H.out.cn || 0;
+    var crD = H.out.cdmg || 0;
+    function hrow(label, n, dmg, c) {
+      return '<div style="display:flex;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="flex:1 1 auto;color:' + (n > 0 ? c : MUTED) + ';">' + label + '</span><span style="min-width:4em;text-align:right;color:' + (n > 0 ? TXT : MUTED) + ';">' + n + '</span><span style="min-width:4em;text-align:right;color:' + MUTED + ';">' + Math.round(100 * n / H.out.n) + '%</span><span style="min-width:5em;text-align:right;color:' + (n > 0 ? EMBER : MUTED) + ';">' + (n > 0 ? Math.round(dmg / n) : "&mdash;") + '</span></div>';
+    }
+    ex += '<div style="display:flex;gap:6px;color:' + MUTED + ';border-bottom:1px solid ' + RULE + ';padding-bottom:1px;"><span style="flex:1 1 auto;"></span><span style="min-width:4em;text-align:right;">hits</span><span style="min-width:4em;text-align:right;">share</span><span style="min-width:5em;text-align:right;">average</span></div>';
+    ex += hrow("hits", H.out.n - crN, src.outTotal - crD, TXT);
+    for (var crI = 0; crI < crOrder.length; crI++) {
+      var crE = crT[crOrder[crI][0]];
+      var crCn = crE ? (typeof crE === "number" ? crE : crE.n) : 0;
+      var crCd = crE && typeof crE === "object" ? crE.dmg : 0;
+      if (crI < 4 || crCn > 0) ex += hrow(crOrder[crI][1], crCn, crCd, EMBER);
+    }
+    ex += xline("biggest hit", H.out.max, TXT);
+    ex += xline("hits a minute", Math.round(H.out.n / (dur / 60)), TXT);
   }
   // Health lasts, for the live fight only: current health over how fast it
   // has really fallen across the last d.window seconds (or the fight so far),
