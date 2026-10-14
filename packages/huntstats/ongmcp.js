@@ -1,6 +1,7 @@
 // Everything huntstats knows about where you are and how far along you are
-// comes from GMCP: Room.Info for the area, Room.Players for who hunted with
-// you, Char.Status and Char.Vitals for the level and percent to next.
+// comes from GMCP: Room.Info for the area, Char.Status and Char.Vitals for the
+// level and percent to next. Who hunted with you is the manual party list
+// (HUNTSTATS PARTY, #87), not whoever was in the room.
 var hsM = "";
 var hsA = null;
 try { hsM = args.gmcp_method; hsA = args.gmcp_args; } catch (e) { hsM = ""; }
@@ -69,9 +70,3 @@ if (hsM === "Room.Info" && hsA && hsA.area) {
   }
 }
 
-if (hsM === "Room.Players" && hsA && hsA.length && HS.cur) {
-  if (!HS.cur.players) HS.cur.players = {};
-  for (var hsJ = 0; hsJ < hsA.length; hsJ++) {
-    if (hsA[hsJ] && hsA[hsJ].name) HS.cur.players[hsA[hsJ].name] = 1;
-  }
-}

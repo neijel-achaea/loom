@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.2.3", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.2.4", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -90,12 +90,23 @@ HS.xpToDragon = function () {
   return t[99] - (t[l] + (HS.nl / 100) * (t[l + 1] - t[l]));
 };
 HS.dur = function (ms) { var m = Math.floor(ms / 60000); return Math.floor(m / 60) + "h " + (m % 60) + "m"; };
-// fresh(): empty accumulators for a new hunt, keeping the area.
+// The party (#87): names added by hand with HUNTSTATS PARTY ADD, kept until
+// removed or cleared, across hunts and reloads (saved as huntstats_party).
+// Each hunt starts with the party as it stands, and names added during a
+// hunt join it; the hunt's players are what the log and the tab show.
+if (!HS.party) {
+  HS.party = [];
+  try { HS.party = JSON.parse(get_variable("huntstats_party") || "[]") || []; } catch (e) { HS.party = []; }
+}
+HS.saveParty = function () { try { set_variable("huntstats_party", JSON.stringify(HS.party)); } catch (e) {} };
+// fresh(): empty accumulators for a new hunt, keeping the area; the party
+// carries over.
 HS.fresh = function () {
   if (!HS.cur) HS.cur = {};
   HS.cur.xp = 0; HS.cur.gold = 0; HS.cur.kills = 0;
   HS.cur.firstXpAt = 0; HS.cur.lastXpAt = 0;
   HS.cur.startDragonPct = null; HS.cur.players = {};
+  for (var fI = 0; fI < HS.party.length; fI++) HS.cur.players[HS.party[fI]] = 1;
 };
 // save(): checkpoint the open hunt so a refresh, crash or disconnect can
 // recover it. Throttled to once every five seconds unless forced.

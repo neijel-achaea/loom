@@ -34,3 +34,10 @@ if (!T || T.area === undefined) {
     }
   }
 }
+// Who this hunt is with (#87): the hunt's players, which include anyone
+// added during it.
+if (T) {
+  var stP = [];
+  for (var stK in (T.players || {})) { if (T.players.hasOwnProperty(stK)) stP.push(stK); }
+  say(stP.length ? "party: " + stP.join(", ") : "hunting alone (HUNTSTATS PARTY ADD <name> to add someone)");
+}
