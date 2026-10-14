@@ -123,5 +123,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Damage dealt and taken by type per fight, healing, recorded sessions"
+  "description": "Damage dealt and taken by type per fight, health lasts, recorded sessions"
 }

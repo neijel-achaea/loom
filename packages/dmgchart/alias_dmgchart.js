@@ -29,7 +29,6 @@ if (sub == "gap") {
 } else if (sub == "reset") {
   d.fight = null;
   d.lastInc = null;
-  d.recent = [];
   display_notice("[dmgchart] fight cleared; the next damage line starts a new one", "lime");
 } else if (sub == "start") {
   if (d.sess) {

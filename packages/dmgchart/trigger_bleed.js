@@ -26,10 +26,6 @@ if (li && li.type == "raw" && li.amt == amt && li.undo && Date.now() - li.t < 15
     ss.combatMs = u.sCombat;
     ss.fights = u.sFights;
   }
-  d.incSince = (d.incSince || 0) - amt;
-  // The raw line's entry in the recent list stays: dmgchart_add below adds the
-  // bleed again, so drop it first.
-  if (d.recent && d.recent.length && d.recent[d.recent.length - 1].inc == amt) d.recent.pop();
 }
 d.ev = { dir: "inc", type: "bleed", amt: amt };
 run_function("dmgchart_add", [], "dmgchart");

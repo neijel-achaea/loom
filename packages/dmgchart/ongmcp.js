@@ -1,8 +1,7 @@
-// Current health from Char.Vitals: for "health lasts" in the exchange, and
-// to count healing. Between two prompts, healing is the change in health
-// plus the damage taken in between (so a heal and a hit on the same prompt
-// both count); while a fight is on (up to the gap after its last blow) it
-// is added to that fight.
+// Current health from Char.Vitals, logged with its time for "health lasts" in
+// the exchange: how fast health is really falling, whatever hit or healed it.
+// While a fight is on (up to the gap after its last blow) every reading
+// redraws the tab, so the figure follows sips and regeneration too.
 var dcM = "";
 var dcA = null;
 try { dcM = args.gmcp_method; dcA = args.gmcp_args; } catch (e) { dcM = ""; }
@@ -13,13 +12,11 @@ if (dcM === "Char.Vitals" && dcA) {
     var DC = client.loom.dmgchart;
     var dcHp = parseInt(dcA.hp, 10);
     if (!isNaN(dcHp)) {
-      var dcF = DC.fight;
-      var dcGain = (typeof DC.hp === "number") ? dcHp - DC.hp + (DC.incSince || 0) : 0;
-      var dcHealed = false;
-      if (dcF && dcGain > 0 && Date.now() - dcF.last <= DC.gap * 1000) { dcF.heal = (dcF.heal || 0) + dcGain; dcHealed = true; run_function("dmgchart_recent", { t: Date.now(), inc: 0, heal: dcGain }, "dmgchart"); }
+      var dcNow = Date.now();
+      var dcChanged = dcHp !== DC.hp;
       DC.hp = dcHp;
-      DC.incSince = 0;
-      if (dcHealed && !DC.view) run_function("dmgchart_render", [], "dmgchart");
+      if (dcChanged || !DC.recent || !DC.recent.length) run_function("dmgchart_recent", { t: dcNow, hp: dcHp }, "dmgchart");
+      if (DC.fight && !DC.view && dcNow - DC.fight.last <= DC.gap * 1000) run_function("dmgchart_render", [], "dmgchart");
     }
   }
 }
