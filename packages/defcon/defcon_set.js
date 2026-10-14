@@ -20,7 +20,9 @@ for (var dcI = 0; dcI < dcDefs.length; dcI++) {
     dcQueue.push("curing priority defence " + dcName + " " + dcDefs[dcI][2]);
   } else if (!dcWant && (dcResync || dcHad)) {
     dcQueue.push("curing priority defence " + dcName + " reset");
-    if (dcRelax) dcQueue.push("relax " + dcName);
+    // relax: true sends RELAX <name>; a string is the defence's own off
+    // command (distortaura goes down with NORMALAURA).
+    if (dcRelax) dcQueue.push(typeof dcRelax == "string" ? dcRelax : "relax " + dcName);
   }
 }
 

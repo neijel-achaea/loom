@@ -45,7 +45,9 @@ system should keep up.
   full alert.
 - **curing priority**: 1 (first) to 25.
 - **relax**: `true` when the defence should be dropped (`RELAX <name>`) once
-  the level no longer wants it, e.g. an upkeep that drains mana.
+  the level no longer wants it, e.g. an upkeep that drains mana. A string
+  instead is the defence's own off command, for one that `RELAX` doesn't
+  take down: `["distortaura", 1, 14, "normalaura"]`.
 
 Start from `D.generic` (the defences every class shares) and add the class's
 own. Keep the shared ones' tiers and priorities unless the class has a reason
