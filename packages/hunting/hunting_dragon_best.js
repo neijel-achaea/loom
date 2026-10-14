@@ -2,7 +2,7 @@
 // the fuller pool and with INCANTATION while willpower is. Vitals come from
 // hunting's own onGMCP.
 var HU = client.loom.hunting;
-var huDragon = HU.cls == "Black Dragon" || HU.cls == "Blue Dragon";
+var huDragon = / Dragon$/.test(HU.cls || "");
 if (huDragon && get_variable("hunting_dragon_mode") == "auto" && HU.maxep && HU.maxwp) {
   var huAttack = (HU.ep / HU.maxep > HU.wp / HU.maxwp) ? "gut" : "incantation";
   if (huAttack != get_variable("hunting_dragon_attack")) {

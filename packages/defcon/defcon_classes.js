@@ -12,7 +12,7 @@
 var D = client.loom.defcon;
 D.classes = {};
 // Every dragon colour shares the dragonform table.
-D.alias = { "Black Dragon": "Dragon", "Blue Dragon": "Dragon", "Red Dragon": "Dragon", "Green Dragon": "Dragon", "Silver Dragon": "Dragon", "Gold Dragon": "Dragon" };
+D.alias = { "Black Dragon": "Dragon", "Blue Dragon": "Dragon", "Red Dragon": "Dragon", "Green Dragon": "Dragon", "Silver Dragon": "Dragon", "Gold Dragon": "Dragon", "Golden Dragon": "Dragon" };
 
 // Defences taken out of every table. DEFCON resets their curing priority
 // once per table, so a priority set by an older version doesn't keep the

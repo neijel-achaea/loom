@@ -9,11 +9,11 @@ HU.classes["Blue Dragon"] = {
     ["Blast", "queue add eb!wu!t!p blast @tar", "main"],
     ["Frostwave", huQ + "frostwave @tar"],
     ["Ague", huQ + "ague @tar"],
-    ["", ""],
+    ["Glaciate", huQ + "glaciate @tar"],
     ["{MODE}", "hunting dragonmode"],
     ["{stats}", ""],
     ["Diag", "diagnose"],
-    ["", ""],
+    ["Dragonheal", "queue add eq!wu!t!p dragonheal", "main"],
     ["Shield", "touch shield"]
   ],
   rage: { Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14, Override: 36 },
@@ -24,6 +24,7 @@ HU.classes["Blue Dragon"] = {
     [/^You breathe a wave of icy air at (.*)\.$/, "FROSTWAVE", "Frostwave"],
     [/^You let loose a steady stream of cold air around (.*), who begins to shiver uncontrollably\.$/, "AGUE", "Ague"],
     [/^You breathe a column of icy air at (.*)'s head, stunning (\w+)\.$/, "GLACIATE", "Glaciate"],
+    [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"],
     [/^Opening your massive maw, you throw your head forward and blast wave after wave of deadly, all-consuming cold at (.*)\.$/, "BLAST"]
   ]
 };
