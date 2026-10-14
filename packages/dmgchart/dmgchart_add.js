@@ -5,13 +5,15 @@ if (!client.loom || !client.loom.dmgchart || !client.loom.dmgchart.saved) run_fu
 // goes to the fight that just ended; with no fight at all, only to the session.
 var d = client.loom.dmgchart;
 var e = d.ev;
-// A crit on a hits.out object: cn crits, cdmg their damage, ct the count per
-// tier. Saved sessions keep it with the hit counts (#185).
+// A crit on a hits.out object: cn crits, cdmg their damage, ct per tier
+// {n, dmg}. Saved sessions keep it with the hit counts (#185).
 function addCrit(h, c) {
   h.cn = (h.cn || 0) + 1;
   h.cdmg = (h.cdmg || 0) + c.amt;
   if (!h.ct) h.ct = {};
-  h.ct[c.tier] = (h.ct[c.tier] || 0) + 1;
+  if (!h.ct[c.tier]) h.ct[c.tier] = { n: 0, dmg: 0 };
+  h.ct[c.tier].n++;
+  h.ct[c.tier].dmg += c.amt;
 }
 if (e && !isNaN(e.amt)) {
   var now = Date.now();
