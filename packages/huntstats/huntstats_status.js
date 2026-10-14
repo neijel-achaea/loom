@@ -2,12 +2,12 @@
 // rates, time to the next level and Dragonhood.
 var HS = client.loom.huntstats;
 var T = HS.cur;
-function say(t, c) { display_notice("[huntstats] " + t, c || "white"); }
+function say(t, c) { display_notice("[huntstats] " + t, c || "cyan"); }
 
 if (!T || T.area === undefined) {
-  say("waiting for room data...", "yellow");
+  say("waiting for room data...", "cyan");
 } else if (!T.firstXpAt) {
-  say(T.area + " - no kills yet this hunt", "yellow");
+  say(T.area + " - no kills yet this hunt", "cyan");
 } else {
   var ms = Date.now() - T.firstXpAt;
   var hrs = ms / 3600000;

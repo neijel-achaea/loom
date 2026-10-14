@@ -13,7 +13,7 @@ if (paSub === "" || paSub === "status") {
 } else if (paSub === "on" || paSub === "off") {
   set_variable("patrolling_on", paSub);
   if (paSub === "off") { P.active = false; P.gag = false; }
-  display_notice("[patrolling] " + paSub.toUpperCase() + ".", C);
+  display_notice("[patrolling] " + paSub.toUpperCase() + ".", "lime");
   if (paSub === "on") run_function("patrolling_check", [], "patrolling");
 } else if (paSub === "here") {
   run_function("patrolling_check", [], "patrolling");
@@ -30,7 +30,7 @@ if (paSub === "" || paSub === "status") {
     var paLast = get_variable("patrolling_last") || {};
     paLast[paMatch] = new Date().getTime();
     set_variable("patrolling_last", paLast);
-    display_notice("[patrolling] " + paMatch + " stamped as patrolled.", C);
+    display_notice("[patrolling] " + paMatch + " stamped as patrolled.", "lime");
   } else {
     display_notice("[patrolling] area '" + (paRest || P.room.area || "?") + "' isn't in the table.", "orange");
   }
@@ -44,11 +44,11 @@ if (paSub === "" || paSub === "status") {
   } else {
     var paV = (paRest.toLowerCase() === "off") ? "" : paRest.toLowerCase();
     set_variable("patrolling_" + paSub, paV);
-    display_notice("[patrolling] " + paSub + ": " + (paV || "none") + ".", C);
+    display_notice("[patrolling] " + paSub + ": " + (paV || "none") + ".", "lime");
   }
 } else if (paSub === "reset") {
   run_function("patrolling_setup", [], "patrolling");
-  display_notice("[patrolling] tables reloaded.", C);
+  display_notice("[patrolling] tables reloaded.", "lime");
 } else if (paSub === "debug") {
   display_notice("[patrolling] room=" + JSON.stringify(P.room) + " active=" + P.active + " present=" + JSON.stringify(P.present) + " shrines=" + JSON.stringify(P.shrines), C);
 } else {

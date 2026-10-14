@@ -14,12 +14,12 @@ if (fiSub === "" || fiSub === "status") {
   run_function("fishing_help", [], "fishing");
 } else if (fiSub === "bait") {
   if (fiArg !== "") set_variable("fishing_bait", fiArg.toLowerCase());
-  display_notice("[fishing] bait: " + (get_variable("fishing_bait") || "not set") + ".", C);
+  display_notice("[fishing] bait: " + (get_variable("fishing_bait") || "not set") + ".", fiArg !== "" ? "lime" : C);
 } else if (fiSub === "cast") {
   FI.dir = fiArg.toLowerCase();
   run_function("fishing_cast", [], "fishing");
 } else if (fiSub === "ding") {
   var fiD = fiArg.toLowerCase();
   if (fiD === "on" || fiD === "off") set_variable("fishing_ding", fiD);
-  display_notice("[fishing] ding " + (get_variable("fishing_ding") === "off" ? "OFF: new records stay quiet." : "ON: a new yearly record tells the party \"Ding fish!\"."), C);
+  display_notice("[fishing] ding " + (get_variable("fishing_ding") === "off" ? "OFF: new records stay quiet." : "ON: a new yearly record tells the party \"Ding fish!\"."), (fiD === "on" || fiD === "off") ? "lime" : C);
 }

@@ -24,4 +24,4 @@ if (dcAfter.length) {
   }
 }
 for (var dcI = 0; dcI < dcCmds.length; dcI++) send_command(dcCmds[dcI]);
-display_notice("[defcon] init sent for " + D.tbl.name + (D.tbl.known ? "" : " (class not configured yet: common defences only)") + (D.afterMorph ? "; the rest once the morph completes" : "") + ".", "cyan");
+display_notice("[defcon] init sent for " + D.tbl.name + (D.tbl.known ? "" : " (class not configured yet: common defences only)") + (D.afterMorph ? "; the rest once the morph completes" : "") + ".", "lime");

@@ -94,7 +94,7 @@ switch (step) {
 
 if (textStep != "") {
   send_command(textStep);
-  display_notice("Step " + step + " out of 20.");
+  display_notice("Step " + step + " out of 20.", "cyan");
 } else {
   display_notice ("Wrong step: " + args[1]);
 }

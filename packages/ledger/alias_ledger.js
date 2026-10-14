@@ -61,14 +61,14 @@ if (lgSub === "" || lgSub === "status") {
     if (!bad.length && due < today) bad = "that date is already behind you - nothing added";
   }
   if (bad.length) {
-    lgSay(bad, "#ff5f5f");
+    lgSay(bad, "orange");
   } else {
     var items = lgLoad();
     var seq = parseInt(get_variable("ledger_seq") || "0", 10) + 1;
     items.push({ id: seq, text: txt, source: "manual", status: "open", created: today, touched: today, due: due, repeat: rep, tag: null, link: null, notified: false });
     lgSave(items);
     set_variable("ledger_seq", "" + seq);
-    lgSay("#" + seq + " added" + (due ? "" : " (standing)"), "#8fe0c8");
+    lgSay("#" + seq + " added" + (due ? "" : " (standing)"), "lime");
     run_function("ledger_check", [], "ledger");
   }
 } else if (lgSub === "done" || lgSub === "drop" || lgSub === "touch") {
@@ -78,11 +78,11 @@ if (lgSub === "" || lgSub === "status") {
   if (isNaN(lgWant)) {
     lgSay("LEDGER " + lgSub.toUpperCase() + " <#>", "orange");
   } else if (idx < 0) {
-    lgSay("no item #" + lgWant, "#ff5f5f");
+    lgSay("no item #" + lgWant, "orange");
   } else if (lgSub === "touch") {
     its[idx].touched = td;
     lgSave(its);
-    lgSay("#" + lgWant + " touched", "#8fe0c8");
+    lgSay("#" + lgWant + " touched", "lime");
   } else if (lgSub === "done" && its[idx].repeat) {
     var r = its[idx].repeat;
     var next;
@@ -97,12 +97,12 @@ if (lgSub === "" || lgSub === "status") {
     its[idx].notified = false;
     lgSave(its);
     var gap = next - td;
-    lgSay("#" + lgWant + " done - next in " + Math.floor(gap / 25) + "mo " + (gap % 25) + "d", "#8fe0c8");
+    lgSay("#" + lgWant + " done - next in " + Math.floor(gap / 25) + "mo " + (gap % 25) + "d", "lime");
   } else {
     var gone = its[idx].text;
     its.splice(idx, 1);
     lgSave(its);
-    lgSay("#" + lgWant + " " + (lgSub === "done" ? "done" : "dropped") + " - " + gone, lgSub === "done" ? "#8fe0c8" : "orange");
+    lgSay("#" + lgWant + " " + (lgSub === "done" ? "done" : "dropped") + " - " + gone, lgSub === "done" ? "lime" : "orange");
   }
   run_function("ledger_render", [], "ledger");
 } else if (lgSub === "debug") {
@@ -110,7 +110,7 @@ if (lgSub === "" || lgSub === "status") {
   if (dv === "on" || dv === "off") {
     LG.debug = (dv === "on");
     set_variable("ledger_debug", LG.debug ? "1" : "0");
-    lgSay("debug " + (LG.debug ? "ON" : "OFF"));
+    lgSay("debug " + (LG.debug ? "ON" : "OFF"), "lime");
   } else {
     var all = lgLoad();
     lgSay("day " + LG.day + " | items " + all.length + " | seq " + get_variable("ledger_seq") + " | armed " + (LG.armed ? "yes" : "no") + " | inblock " + (LG.inBlock ? "yes" : "no") + " | pause " + (get_variable("pauseTriggers") || "unset") + " | debug " + (LG.debug ? "ON" : "OFF") + ". LEDGER DEBUG ON/OFF.");
@@ -119,7 +119,7 @@ if (lgSub === "" || lgSub === "status") {
   client.loom.ledger = {};
   run_function("ledger_setup", [], "ledger");
   run_function("ledger_render", [], "ledger");
-  lgSay("rebuilt from the saved variables (day " + client.loom.ledger.day + ")");
+  lgSay("rebuilt from the saved variables (day " + client.loom.ledger.day + ")", "lime");
 } else {
   lgSay("unknown command '" + lgSub + "'. LEDGER HELP for commands.", "orange");
 }

@@ -36,7 +36,7 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   set_variable("huntstats_areas", JSON.stringify(areas));
 
   var extra = (dGain !== null) ? (", " + (dGain < 0 ? "" : "+") + dGain.toFixed(3) + "% dragon") : "";
-  display_notice("[huntstats] " + rec.area + ": " + rec.xp.toLocaleString() + " xp (" + xpHr.toLocaleString() + "/hr), " + rec.gold.toLocaleString() + " gold, " + rec.kills + " kills, " + HS.dur(ms) + extra, "cyan");
+  display_notice("[huntstats] " + rec.area + ": " + rec.xp.toLocaleString() + " xp (" + xpHr.toLocaleString() + "/hr), " + rec.gold.toLocaleString() + " gold, " + rec.kills + " kills, " + HS.dur(ms) + extra, "lime");
   run_function("huntstats_render", [], "huntstats");
 }
 

@@ -21,7 +21,7 @@ if (soSub === "" || soSub === "status") {
   } else if (S.lists[soGroup][soW[2]]) {
     delete S.lists[soGroup][soW[2]];
     run_function("social_save", [], "social");
-    display_notice("[social] -" + soW[2] + " from " + soGroup, C);
+    display_notice("[social] -" + soW[2] + " from " + soGroup, "lime");
   } else {
     display_notice("[social] " + soW[2] + " is not in " + soGroup + ".", "orange");
   }
@@ -58,7 +58,7 @@ if (soSub === "" || soSub === "status") {
   } else {
     S.watch[soGroup] = (soSub === "watch");
     run_function("social_save", [], "social");
-    display_notice("[social] " + (S.watch[soGroup] ? "now watching " : "no longer watching ") + soGroup + ".", C);
+    display_notice("[social] " + (S.watch[soGroup] ? "now watching " : "no longer watching ") + soGroup + ".", "lime");
   }
 } else if (soSub === "poll") {
   if (soGroup === "on" || soGroup === "off") {
@@ -79,7 +79,7 @@ if (soSub === "" || soSub === "status") {
 } else if (soSub === "reset") {
   S.prev = null;
   run_function("social_setup", [], "social");
-  display_notice("[social] reset: lists reloaded, watchlist re-primes on the next poll.", C);
+  display_notice("[social] reset: lists reloaded, watchlist re-primes on the next poll.", "lime");
 } else {
   display_notice("[social] unknown command '" + soSub + "'. SOCIAL HELP for commands.", "orange");
 }

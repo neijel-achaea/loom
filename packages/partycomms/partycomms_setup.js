@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.partycomms) client.loom.partycomms = {};
-client.loom.registry.partycomms = { version: "0.2.1", keyword: "PARTYCOMMS", desc: "{{description}}" };
+client.loom.registry.partycomms = { version: "0.2.2", keyword: "PARTYCOMMS", desc: "{{description}}" };
 var PC = client.loom.partycomms;
 
 // One-time migration. party_on becomes partycomms_on; the rest were working

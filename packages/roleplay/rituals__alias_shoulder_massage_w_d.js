@@ -58,7 +58,7 @@ switch (step) {
 
 if (textStep != "") {
   send_command("emote " + textStep);
-  display_notice("Step " + step + " out of 13.");
+  display_notice("Step " + step + " out of 13.", "cyan");
 } else {
   display_notice ("Wrong step: " + args[1]);
 }

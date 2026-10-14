@@ -16,7 +16,7 @@ else if (seSub === "help") {
 else if (seSub === "antitheft") {
   if (seVal === "on" || seVal === "off") {
     set_variable("security_antitheft", seVal);
-    display_notice("[security] antitheft " + seVal.toUpperCase() + ".", C);
+    display_notice("[security] antitheft " + seVal.toUpperCase() + ".", "lime");
   } else {
     display_notice("[security] antitheft is " + String(get_variable("security_antitheft")).toUpperCase() + ". SECURITY ANTITHEFT ON or OFF.", C);
   }
@@ -30,7 +30,7 @@ else if (seSub === "backpack") {
     SE.backpack = seBpParts[0].trim();
     set_variable("security_backpack", SE.backpack);
     if (seBpParts.length > 1) set_variable("security_backpack_desc", seBpParts[1].trim());
-    display_notice("[security] backpack " + SE.backpack + (seBpParts.length > 1 ? " = " + seBpParts[1].trim() : "") + ".", C);
+    display_notice("[security] backpack " + SE.backpack + (seBpParts.length > 1 ? " = " + seBpParts[1].trim() : "") + ".", "lime");
   }
 }
 else if (seSub === "items") {
@@ -45,7 +45,7 @@ else if (seSub === "item" && seVal === "add") {
     var seNewDesc = seAdd[1].trim().replace(/\.$/, "");
     SE.items.push({ desc: seNewDesc, wear: seAdd[0].trim() });
     set_variable("security_items", SE.items);
-    display_notice("[security] watching " + seNewDesc + ".", C);
+    display_notice("[security] watching " + seNewDesc + ".", "lime");
   }
 }
 else if (seSub === "item" && seVal === "del") {
@@ -53,7 +53,7 @@ else if (seSub === "item" && seVal === "del") {
   if (seN >= 1 && seN <= SE.items.length) {
     var seGone = SE.items.splice(seN - 1, 1)[0];
     set_variable("security_items", SE.items);
-    display_notice("[security] no longer watching " + seGone.desc + ".", C);
+    display_notice("[security] no longer watching " + seGone.desc + ".", "lime");
   } else {
     display_notice("[security] SECURITY ITEM DEL <n>, with n from SECURITY ITEMS.", "orange");
   }
@@ -67,7 +67,7 @@ else if (seSub === "house") {
     var seWhich = String(seWords[2]).toLowerCase();
     seHouse[seWhich] = seRaw.replace(/^\S+\s+\S+\s+\S+\s*/, "");
     set_variable("security_house", seHouse);
-    display_notice("[security] house " + seWhich + ": " + (seHouse[seWhich] || "cleared") + ".", C);
+    display_notice("[security] house " + seWhich + ": " + (seHouse[seWhich] || "cleared") + ".", "lime");
   } else {
     display_notice("[security] SECURITY HOUSE IN|OUT, or SECURITY HOUSE SET IN|OUT <command>.", "orange");
   }

@@ -6,16 +6,16 @@ if (P.learn) {
 } else {
   var paExp = P.expected[paEnv];
   var paOut = [];
-  var paCol = "#55ff55";
+  var paCol = "lime";
   if (!paExp) {
     paOut.push("no expected list for '" + paEnv + "' (PATROLLING LEARN prints one)");
-    paCol = "#ffcc55";
+    paCol = "orange";
   } else {
     var paMiss = [];
     for (var paI = 0; paI < paExp.length; paI++) { if (P.present.indexOf(paExp[paI]) < 0) paMiss.push(paExp[paI]); }
-    if (paMiss.length) { paOut.push("missing " + paMiss.join(", ")); paCol = "#ff5555"; }
+    if (paMiss.length) { paOut.push("missing " + paMiss.join(", ")); paCol = "orange"; }
     else paOut.push("all present");
   }
-  if (P.shrines.length) { paOut.push("SHRINE/TOTEM: " + P.shrines.join(" ; ")); paCol = "#ff5555"; }
+  if (P.shrines.length) { paOut.push("SHRINE/TOTEM: " + P.shrines.join(" ; ")); paCol = "orange"; }
   display_notice("[patrolling] " + paEnv + ": " + paOut.join("  |  "), paCol);
 }

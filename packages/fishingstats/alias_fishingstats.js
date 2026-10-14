@@ -30,16 +30,16 @@ if (fsSub === "" || fsSub === "status") {
 } else if (fsSub === "end") {
   var had = FS.session.n;
   run_function("fishingstats_archive", [], "fishingstats");
-  if (had > 0) { fsSay("session filed to the log (" + had + " landed). New session started."); }
-  else { fsSay("nothing landed, so nothing was filed. Session restarted.", "yellow"); }
+  if (had > 0) { fsSay("session filed to the log (" + had + " landed). New session started.", "lime"); }
+  else { fsSay("nothing landed, so nothing was filed. Session restarted.", "cyan"); }
 } else if (fsSub === "discard") {
   if (fsW0 === "confirm") {
     FS.session = FS.blank();
     fsSave();
     run_function("fishingstats_render", [], "fishingstats");
-    fsSay("current session discarded, without filing it. New session started.");
+    fsSay("current session discarded, without filing it. New session started.", "orange");
   } else {
-    fsSay("this throws away the current session without filing it. FISHINGSTATS DISCARD CONFIRM to proceed.", "yellow");
+    fsSay("this throws away the current session without filing it. FISHINGSTATS DISCARD CONFIRM to proceed.", "orange");
   }
 } else if (fsSub === "log") {
   if (fsW0 === "wipe") {
@@ -47,9 +47,9 @@ if (fsSub === "" || fsSub === "status") {
       FS.log = [];
       try { set_variable("fishingstats_log", "[]"); } catch (e) {}
       run_function("fishingstats_log_render", [], "fishingstats");
-      fsSay("session log cleared. The current session is untouched.", "red");
+      fsSay("session log cleared. The current session is untouched.", "orange");
     } else {
-      fsSay("this clears ALL filed sessions. FISHINGSTATS LOG WIPE CONFIRM to proceed.", "yellow");
+      fsSay("this clears ALL filed sessions. FISHINGSTATS LOG WIPE CONFIRM to proceed.", "orange");
     }
   } else {
     run_function("fishingstats_log_render", [], "fishingstats");
@@ -80,25 +80,25 @@ if (fsSub === "" || fsSub === "status") {
     FS.session.areas[fsRest] = (FS.session.areas[fsRest] || 0) + 1;
     fsSave();
     run_function("fishingstats_render", [], "fishingstats");
-    fsSay("area pinned to " + fsRest + ". FISHINGSTATS AREA AUTO to follow the game again.");
+    fsSay("area pinned to " + fsRest + ". FISHINGSTATS AREA AUTO to follow the game again.", "lime");
   }
 } else if (fsSub === "year") {
   if (fsW0) {
     FS.session.year = parseInt(fsW0, 10) || 0;
     fsSave();
     run_function("fishingstats_render", [], "fishingstats");
-    fsSay("session year set to " + FS.session.year + " AF.");
+    fsSay("session year set to " + FS.session.year + " AF.", "lime");
   } else {
     fsSay("session year is " + (FS.session.year || "unknown") + ". It is picked up from the RANKINGS FISHING header, or set it with FISHINGSTATS YEAR 1014.");
   }
 } else if (fsSub === "gap") {
   var m = fsW0 ? parseInt(fsW0, 10) : 0;
   if (!m) { fsSay("sessions are filed automatically after " + FS.gap + " minutes idle. FISHINGSTATS GAP 5-1440 to change it."); }
-  else if (m < 5 || m > 1440) { fsSay("pick a gap between 5 and 1440 minutes.", "yellow"); }
+  else if (m < 5 || m > 1440) { fsSay("pick a gap between 5 and 1440 minutes.", "orange"); }
   else {
     FS.gap = m;
     try { set_variable("fishingstats_gap", String(m)); } catch (e) {}
-    fsSay("idle gap set to " + m + " minutes.");
+    fsSay("idle gap set to " + m + " minutes.", "lime");
   }
 } else if (fsSub === "me") {
   if (fsW0 === "auto") {
@@ -106,13 +106,13 @@ if (fsSub === "" || fsSub === "status") {
     try { set_variable("fishingstats_me", ""); } catch (e) {}
     FS.me = FS.gmcpName || "You";
     run_function("fishingstats_render", [], "fishingstats");
-    fsSay("your angler name follows the game again: " + FS.me + ".");
+    fsSay("your angler name follows the game again: " + FS.me + ".", "lime");
   } else if (fsW[0]) {
     FS.meSet = fsW[0];
     FS.me = fsW[0];
     try { set_variable("fishingstats_me", fsW[0]); } catch (e) {}
     run_function("fishingstats_render", [], "fishingstats");
-    fsSay("your angler name is set to " + fsW[0] + "; your row is highlighted. FISHINGSTATS ME AUTO to take it from the game.");
+    fsSay("your angler name is set to " + fsW[0] + "; your row is highlighted. FISHINGSTATS ME AUTO to take it from the game.", "lime");
   } else {
     fsSay("your angler name is " + FS.me + (FS.meSet ? " (set with FISHINGSTATS ME)" : " (from the game)") + ".");
   }
@@ -132,7 +132,7 @@ if (fsSub === "" || fsSub === "status") {
     else { FS.col[who] = hex; }
     try { set_variable("fishingstats_colours", JSON.stringify(FS.col)); } catch (e) {}
     run_function("fishingstats_render", [], "fishingstats");
-    fsSay(who + " is now " + (hex.toLowerCase() === "reset" ? "back on the default palette" : hex) + ".");
+    fsSay(who + " is now " + (hex.toLowerCase() === "reset" ? "back on the default palette" : hex) + ".", "lime");
   }
 } else if (fsSub === "add") {
   var am = fsRest.match(/^(\S+)\s+(\d+)(?:\s+(\d+))?\s+(\D.*)$/);
@@ -143,7 +143,7 @@ if (fsSub === "" || fsSub === "status") {
     var ozv = parseInt(am[3], 10) || 0;
     FS.inp = { angler: am[1], species: am[4], oz: lbv * 16 + ozv };
     run_function("fishingstats_record", [], "fishingstats");
-    fsSay("recorded " + am[1] + " " + lbv + "lb " + ozv + "oz " + am[4] + ".");
+    fsSay("recorded " + am[1] + " " + lbv + "lb " + ozv + "oz " + am[4] + ".", "lime");
   }
 } else if (fsSub === "csv") {
   var cs = FS.session;
@@ -168,13 +168,13 @@ if (fsSub === "" || fsSub === "status") {
     for (var bi = 0; bi < buf.length; bi++) { display_notice("| " + buf[bi], "yellow"); }
   } else if (fsW0 === "clear") {
     FS.buf = [];
-    fsSay("buffer cleared.");
+    fsSay("buffer cleared.", "lime");
   } else {
     if (fsW0 === "on") { FS.learn = true; }
     else if (fsW0 === "off") { FS.learn = false; }
     else { FS.learn = !FS.learn; }
     if (FS.learn) { FS.buf = []; }
-    fsSay("capture " + (FS.learn ? "ON. Catch a fish, have someone else catch one, then FISHINGSTATS LEARN OFF and LEARN SHOW." : "off. FISHINGSTATS LEARN SHOW dumps what was captured."));
+    fsSay("capture " + (FS.learn ? "ON. Catch a fish, have someone else catch one, then FISHINGSTATS LEARN OFF and LEARN SHOW." : "off. FISHINGSTATS LEARN SHOW dumps what was captured."), "lime");
   }
 } else if (fsSub === "demo") {
   FS.session = FS.blank();
@@ -193,7 +193,7 @@ if (fsSub === "" || fsSub === "status") {
     FS.inp = { angler: dw, species: dFish[(di * 5) % dFish.length], oz: 12 + ((di * 37) % 900) + (di % 5) * 40 };
     run_function("fishingstats_record", [], "fishingstats");
   }
-  fsSay("demo data loaded into the tab. FISHINGSTATS DISCARD CONFIRM clears it.");
+  fsSay("demo data loaded into the tab. FISHINGSTATS DISCARD CONFIRM clears it.", "lime");
 } else if (fsSub === "debug") {
   fsSay("me=" + FS.me + " meSet=" + FS.meSet + " gmcpName=" + FS.gmcpName + " area=" + FS.areaNow + " src=" + FS.areaSrc + " gmcpArea=" + FS.areaGmcp
     + " gap=" + FS.gap + " learn=" + FS.learn + " log=" + FS.log.length + " records year=" + FS.rec.year + " (" + Object.keys(FS.rec.f).length + " species)");

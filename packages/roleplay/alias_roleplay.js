@@ -18,11 +18,11 @@ if (rpSub === "" || rpSub === "status") {
   if (rpP1 === "on") {
     set_variable("roleplay_aem_on", "1");
     run_function("roleplay_aem", [], "roleplay");
-    rpSay(RP.aem.has ? "ambient emotes on: one every 15-19 minutes." : "ambient emotes on, but none are written for " + (RP.cls || "this class") + " yet.", RP.aem.has ? "cyan" : "orange");
+    rpSay(RP.aem.has ? "ambient emotes on: one every 15-19 minutes." : "ambient emotes on, but none are written for " + (RP.cls || "this class") + " yet.", RP.aem.has ? "cyan" : "orange", "lime");
   } else if (rpP1 === "off") {
     set_variable("roleplay_aem_on", "0");
     if (RP.aem) { try { clearTimeout(RP.aem.timer); } catch (e) {} }
-    rpSay("ambient emotes off.");
+    rpSay("ambient emotes off.", "lime");
   } else if (rpP1 === "now") {
     if (!RP.aem || RP.aem.cls !== RP.cls) run_function("roleplay_aem", [], "roleplay");
     if (!RP.aem.has) rpSay("no ambient emotes are written for " + (RP.cls || "this class") + ".", "orange");
@@ -30,7 +30,7 @@ if (rpSub === "" || rpSub === "status") {
     else { send_command(RP.aem.pick()); if (rpOn()) RP.aem.schedule(); }
   } else if (rpP1 === "reload") {
     run_function("roleplay_aem", [], "roleplay");
-    rpSay("ambient emotes rebuilt for " + (RP.cls || "no class") + (rpOn() ? ", and running." : "."));
+    rpSay("ambient emotes rebuilt for " + (RP.cls || "no class") + (rpOn() ? ", and running." : "."), "lime");
   } else {
     rpSay("ambient emotes: " + (rpOn() ? "on" : "off") + ". ROLEPLAY AEM ON, OFF, NOW or RELOAD.");
   }

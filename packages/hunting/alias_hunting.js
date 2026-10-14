@@ -27,14 +27,14 @@ else if (huSub === "dragonmode") {
     if (huNext === "physical") set_variable("hunting_dragon_attack", "gut");
     if (huNext === "magical") set_variable("hunting_dragon_attack", "incantation");
     if (huNext === "auto") run_function("hunting_dragon_best", [], "hunting");
-    display_notice("[hunting] dragon mode " + huNext.toUpperCase() + ": attacking with " + get_variable("hunting_dragon_attack") + ".", C);
+    display_notice("[hunting] dragon mode " + huNext.toUpperCase() + ": attacking with " + get_variable("hunting_dragon_attack") + ".", "lime");
     run_function("hunting_buttons", [], "hunting");
   }
 }
 else if (huSub === "autogold") {
   if (huVal === "on" || huVal === "off" || huVal === "all") {
     set_variable("hunting_autogold", huVal);
-    display_notice("[hunting] autogold " + huVal.toUpperCase() + ".", C);
+    display_notice("[hunting] autogold " + huVal.toUpperCase() + ".", "lime");
   } else if (huVal === "") {
     display_notice("[hunting] autogold is " + String(get_variable("hunting_autogold")).toUpperCase() + ". HUNTING AUTOGOLD ON (your kills), ALL (any gold) or OFF.", C);
   } else {
@@ -47,7 +47,7 @@ else if (huSub === "partytarget") {
     display_notice("[hunting] party target: " + (huPt ? huPt : "none") + ". HUNTING PARTYTARGET <name> or OFF.", C);
   } else {
     set_variable("hunting_party_target", huVal === "off" ? "" : huVal);
-    display_notice("[hunting] party target " + (huVal === "off" ? "cleared" : "set to " + huVal) + ".", C);
+    display_notice("[hunting] party target " + (huVal === "off" ? "cleared" : "set to " + huVal) + ".", "lime");
     run_function("hunting_buttons", [], "hunting");
   }
 }
@@ -57,7 +57,7 @@ else if (huSub === "afterform") {
     display_notice("[hunting] after dragonform rises or falls: " + (huAf ? huAf.toUpperCase() : "nothing") + ". HUNTING AFTERFORM <command> or OFF.", C);
   } else {
     set_variable("hunting_after_form", huVal === "off" ? "" : huRest);
-    display_notice("[hunting] after dragonform rises or falls: " + (huVal === "off" ? "nothing" : huRest.toUpperCase()) + ".", C);
+    display_notice("[hunting] after dragonform rises or falls: " + (huVal === "off" ? "nothing" : huRest.toUpperCase()) + ".", "lime");
   }
 }
 else if (huSub === "main") {
@@ -81,7 +81,7 @@ else if (huSub === "main") {
     if (!HU.mainsAdded[HU.cls]) HU.mainsAdded[HU.cls] = {};
     if (huMcmd === "") {
       delete HU.mainsAdded[HU.cls][huMname];
-      display_notice("[hunting] removed the added " + huMname.toUpperCase() + " for " + HU.cls + ".", C);
+      display_notice("[hunting] removed the added " + huMname.toUpperCase() + " for " + HU.cls + ".", "lime");
     } else {
       HU.mainsAdded[HU.cls][huMname] = huMcmd;
       HU.mains[HU.cls] = huMname;
@@ -125,7 +125,7 @@ else if (huSub === "toggle") {
     HU.toggles[huTn] = huTnext;
     set_variable("hunting_toggles", JSON.stringify(HU.toggles));
     run_function("hunting_buttons", [], "hunting");
-    display_notice("[hunting] " + (huTdef.label || huTn) + " " + huTnext.toUpperCase() + ".", C);
+    display_notice("[hunting] " + (huTdef.label || huTn) + " " + huTnext.toUpperCase() + ".", "lime");
   }
 }
 else if (huSub === "buttons") {
@@ -142,7 +142,7 @@ else if (huSub === "reset") {
   HU.glob = true;
   run_function("hunting_setup", [], "hunting");
   run_function("hunting_buttons", [], "hunting");
-  display_notice("[hunting] reset: rage cooldowns cleared, F-keys laid out again. Settings are kept.", C);
+  display_notice("[hunting] reset: rage cooldowns cleared, F-keys laid out again. Settings are kept.", "lime");
 }
 else if (huSub === "debug") {
   display_notice("[hunting] cls=" + HU.cls + " bal=" + HU.bal + " eq=" + HU.eq

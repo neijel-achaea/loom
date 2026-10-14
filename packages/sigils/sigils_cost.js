@@ -7,4 +7,4 @@ if ((which === "monolith" || which === "flame") && !isNaN(v) && v >= 0) {
   display_notice("[sigils] use SIGILS COST MONOLITH <gold> or SIGILS COST FLAME <gold>.", "orange");
 }
 display_notice("[sigils] costs: monolith sigil " + get_variable("sigils_cost_monolith")
-  + " gold, flame sigil " + get_variable("sigils_cost_flame") + " gold.", "cyan");
+  + " gold, flame sigil " + get_variable("sigils_cost_flame") + " gold.", (which === "monolith" || which === "flame") && !isNaN(v) && v >= 0 ? "lime" : "cyan");

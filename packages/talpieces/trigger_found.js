@@ -6,5 +6,5 @@ var level = parseInt(args[3], 10);
 if (!isNaN(level)) {
   TP.add(color, type, level, 1);
   run_function("talpieces_sync", [], "talpieces");
-  display_notice("[talpieces] +" + color + " " + type + " (lvl " + level + ") - now have " + TP.getcount(color, type), "cyan");
+  display_notice("[talpieces] +" + color + " " + type + " (lvl " + level + ") - now have " + TP.getcount(color, type), "lime");
 }

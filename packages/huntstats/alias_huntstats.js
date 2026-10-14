@@ -20,10 +20,10 @@ if (hsSub === "" || hsSub === "status") {
       arr.push({ area: k, xpHr: hrs > 0 ? Math.round(a.xp / hrs) : 0, goldHr: hrs > 0 ? Math.round(a.gold / hrs) : 0, sessions: a.sessions, ms: a.ms });
     }
   }
-  if (arr.length === 0) { hsSay("no area history yet", "yellow"); }
+  if (arr.length === 0) { hsSay("no area history yet", "cyan"); }
   else {
     arr.sort(function (x, y) { return y.ms - x.ms; });
-    hsSay("areas by total time (lifetime):", "white");
+    hsSay("areas by total time (lifetime):", "cyan");
     for (var j = 0; j < arr.length; j++) {
       var r = arr[j];
       display_notice("  " + r.area + " - " + r.xpHr.toLocaleString() + " xp/hr, " + r.goldHr.toLocaleString() + " gold/hr (" + r.sessions + " hunt" + (r.sessions === 1 ? "" : "s") + ", " + HS.dur(r.ms) + ")");
@@ -32,9 +32,9 @@ if (hsSub === "" || hsSub === "status") {
 } else if (hsSub === "log") {
   var log = [];
   try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }
-  if (log.length === 0) { hsSay("no hunts logged yet", "yellow"); }
+  if (log.length === 0) { hsSay("no hunts logged yet", "cyan"); }
   else {
-    hsSay("last " + log.length + " hunt" + (log.length === 1 ? "" : "s") + ":", "white");
+    hsSay("last " + log.length + " hunt" + (log.length === 1 ? "" : "s") + ":", "cyan");
     for (var i = 0; i < log.length; i++) {
       var s = log[i];
       var pl = (s.players && s.players.length) ? ("  party: " + s.players.join(", ")) : "";
@@ -46,17 +46,17 @@ if (hsSub === "" || hsSub === "status") {
   var hsHad = HS.cur && HS.cur.firstXpAt && HS.cur.xp > 0;
   var hsLong = hsHad && (HS.cur.lastXpAt - HS.cur.firstXpAt) >= 60000;
   run_function("huntstats_finalize", [], "huntstats");
-  if (hsLong) hsSay("hunt filed", "green");
-  else if (hsHad) hsSay("under a minute of experience, so nothing was filed; counters reset.", "yellow");
-  else hsSay("no hunt under way.", "yellow");
+  if (hsLong) hsSay("hunt filed", "lime");
+  else if (hsHad) hsSay("under a minute of experience, so nothing was filed; counters reset.", "cyan");
+  else hsSay("no hunt under way.", "orange");
 } else if (hsSub === "wipe") {
   if (hsP1 === "confirm") {
     set_variable("huntstats_areas", "{}");
     set_variable("huntstats_log", "[]");
     run_function("huntstats_render", [], "huntstats");
-    hsSay("all area records and the log wiped", "red");
+    hsSay("all area records and the log wiped", "orange");
   } else {
-    hsSay("this clears ALL area records and the hunt log. HUNTSTATS WIPE CONFIRM to proceed.", "yellow");
+    hsSay("this clears ALL area records and the hunt log. HUNTSTATS WIPE CONFIRM to proceed.", "orange");
   }
 } else if (hsSub === "debug") {
   var T = HS.cur || {};

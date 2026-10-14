@@ -6,7 +6,7 @@ if (R) {
   R.i++;
   R.tries = 0;
   if (R.i >= R.steps.length) {
-    display_notice("[conjuration] " + R.sigil + " sigil made.", "cyan");
+    display_notice("[conjuration] " + R.sigil + " sigil made.", "lime");
     CJ.run = null;
   } else {
     R.state = "send";

@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.fishingstats) client.loom.fishingstats = {};
-client.loom.registry.fishingstats = { version: "0.2.1", keyword: "FISHINGSTATS", desc: "{{description}}" };
+client.loom.registry.fishingstats = { version: "0.2.2", keyword: "FISHINGSTATS", desc: "{{description}}" };
 var FS = client.loom.fishingstats;
 
 function fsGet(name) {

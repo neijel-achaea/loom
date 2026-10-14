@@ -40,13 +40,13 @@ if (viSub === "" || viSub === "list") {
       else viBad.push(viP[viJ] + " " + viP[viJ + 1]);
     }
     viSave();
-    if (viSet.length) viSay("set: " + viSet.join(", ") + ".");
+    if (viSet.length) viSay("set: " + viSet.join(", ") + ".", "lime");
     if (viBad.length) viSay("not understood: " + viBad.join(", ") + ".", "orange");
   }
 } else if (viSub === "forget") {
   var viF = viW[1] || "";
   if (!VI.map[viF]) viSay("no vial set for '" + viF + "'.", "orange");
-  else { delete VI.map[viF]; viSave(); viSay(viF + " forgotten."); }
+  else { delete VI.map[viF]; viSave(); viSay(viF + " forgotten.", "lime"); }
 } else if (viSub === "refill") {
   var viE = viW[1] || "";
   if (get_variable("pauseTriggers") === "on") {
@@ -61,7 +61,7 @@ if (viSub === "" || viSub === "list") {
     viSay(viE ? "no vial set for '" + viE + "'. VIALS lists yours." : "VIALS REFILL <elixir> or VIALS REFILL ALL.", "orange");
   }
 } else if (viSub === "debug") {
-  viSay("map=" + JSON.stringify(VI.map) + " saved=" + get_variable("vials_map") + " pause=" + (get_variable("pauseTriggers") || "unset"), "orange");
+  viSay("map=" + JSON.stringify(VI.map) + " saved=" + get_variable("vials_map") + " pause=" + (get_variable("pauseTriggers") || "unset"), "cyan");
 } else {
   viSay("unknown command '" + viSub + "'. VIALS HELP for commands.", "orange");
 }

@@ -130,7 +130,7 @@ function stSave() { try { set_variable("standings_db", JSON.stringify(client.loo
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "0.2.1", keyword: "STANDINGS", desc: "{{description}}" };
+client.loom.registry.standings = { version: "0.2.2", keyword: "STANDINGS", desc: "{{description}}" };
 var ST = client.loom.standings;
 
 // One-time migration from the pre-0.2 names: st_db/st_cal become

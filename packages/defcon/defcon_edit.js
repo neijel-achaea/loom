@@ -39,7 +39,7 @@ if (E.verb === "add") {
     if (dcBa && JSON.stringify(dcBa.slice(1)) === JSON.stringify(dcRow)) delete M.defs[dcN];
     else M.defs[dcN] = dcRow;
     dcOk = true;
-    dcSay(dcN + " added to " + dcName + " at tier " + dcT + ", priority " + dcP + (dcRel ? (dcRel === "relax" ? ", relaxed below it" : ", turned off with '" + dcRel + "' below it") : "") + ".");
+    dcSay(dcN + " added to " + dcName + " at tier " + dcT + ", priority " + dcP + (dcRel ? (dcRel === "relax" ? ", relaxed below it" : ", turned off with '" + dcRel + "' below it") : "") + ".", "lime");
   }
 }
 else if (E.verb === "set") {
@@ -58,7 +58,7 @@ else if (E.verb === "set") {
     if (dcB && JSON.stringify(dcB.slice(1)) === JSON.stringify(dcRow2)) delete M.defs[dcN2];
     else M.defs[dcN2] = dcRow2;
     dcOk = true;
-    dcSay(dcN2 + " in " + dcName + ": tier " + dcT2 + ", priority " + dcP2 + ".");
+    dcSay(dcN2 + " in " + dcName + ": tier " + dcT2 + ", priority " + dcP2 + ".", "lime");
   }
 }
 else if (E.verb === "remove") {
@@ -69,7 +69,7 @@ else if (E.verb === "remove") {
     // A default stays out (null); one the player added is simply forgotten.
     if (dcInBase(dcN3)) M.defs[dcN3] = null; else delete M.defs[dcN3];
     dcOk = true;
-    dcSay(dcN3 + " removed from " + dcName + ". DEFCON RESET " + dcN3 + " brings the default back.");
+    dcSay(dcN3 + " removed from " + dcName + ". DEFCON RESET " + dcN3 + " brings the default back.", "lime");
   }
 }
 else if (E.verb === "reset") {
@@ -78,7 +78,7 @@ else if (E.verb === "reset") {
     delete D.custom[dcName];
     M = null;
     dcOk = true;
-    dcSay(dcName + " is back to the default table: all your changes for it are gone.");
+    dcSay(dcName + " is back to the default table: all your changes for it are gone.", "lime");
   } else if (!dcN4) {
     dcSay("DEFCON RESET <defence>, or DEFCON RESET ALL for the whole " + dcName + " table.", "orange");
   } else if (!M.defs.hasOwnProperty(dcN4)) {
@@ -86,7 +86,7 @@ else if (E.verb === "reset") {
   } else {
     delete M.defs[dcN4];
     dcOk = true;
-    dcSay(dcN4 + " in " + dcName + " is back to " + (dcInBase(dcN4) ? "the default." : "not being kept (it isn't a default)."));
+    dcSay(dcN4 + " in " + dcName + " is back to " + (dcInBase(dcN4) ? "the default." : "not being kept (it isn't a default)."), "lime");
   }
 }
 else if (E.verb === "init" || E.verb === "aftermorph") {
@@ -104,7 +104,7 @@ else if (E.verb === "init" || E.verb === "aftermorph") {
     if (dcRmAt >= 0) L.remove.splice(dcRmAt, 1);
     else if (dcList.indexOf(dcCmd) < 0) L.add.push(dcCmd);
     dcOk = true;
-    dcSay("'" + dcCmd + "' sent " + dcLabel + " for " + dcName + ".");
+    dcSay("'" + dcCmd + "' sent " + dcLabel + " for " + dcName + ".", "lime");
   } else if (dcOp === "remove" && dcCmd) {
     if (/^\d+$/.test(dcCmd)) dcCmd = dcList[parseInt(dcCmd, 10) - 1] || dcCmd;
     if (dcList.indexOf(dcCmd) < 0) {
@@ -114,7 +114,7 @@ else if (E.verb === "init" || E.verb === "aftermorph") {
       if (dcAddAt >= 0) L.add.splice(dcAddAt, 1);
       if (dcBaseList.indexOf(dcCmd) >= 0 && L.remove.indexOf(dcCmd) < 0) L.remove.push(dcCmd);
       dcOk = true;
-      dcSay("'" + dcCmd + "' no longer sent " + dcLabel + " for " + dcName + ".");
+      dcSay("'" + dcCmd + "' no longer sent " + dcLabel + " for " + dcName + ".", "lime");
     }
   } else {
     dcSay("DEFCON " + dcKey.toUpperCase() + " ADD <command>, or DEFCON " + dcKey.toUpperCase() + " REMOVE <command | number from DEFCON LIST>.", "orange");

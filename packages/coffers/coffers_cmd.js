@@ -9,7 +9,7 @@ var p1 = A[1] || "";
 var p2 = A[2] || "";
 var now = Math.floor(new Date().getTime() / 1000);
 
-function say(t, col) { display_notice("[coffers] " + t, col || "gold"); }
+function say(t, col) { display_notice("[coffers] " + t, col || "cyan"); }
 function plain(t) { display_notice(t, "white"); }
 function save(name, val) { try { set_variable(name, val); } catch (e) {} }
 function amt(s) {
@@ -93,12 +93,12 @@ else if (c === "days") {
 else if (c === "new") {
   run_function("coffers_close", [], "coffers");
   CO.force = true;
-  say("session closed. The next prompt opens fresh books.");
+  say("session closed. The next prompt opens fresh books.", "lime");
   render();
 }
 else if (c === "goal") {
   if (p1 === "") { say(CO.goal > 0 ? "goal is to earn " + F.n(CO.goal) + " gold, counted from " + F.date(CO.goalT) + ". COFFERS GOAL OFF clears it." : "no goal set. Usage: COFFERS GOAL 50000 (or 50k, 1.5m): an amount to earn from now."); }
-  else if (p1 === "off" || p1 === "0") { CO.goal = 0; CO.goalBase = -1; save("coffers_goal", "0"); save("coffers_goal_base", "-1"); say("goal cleared."); render(); }
+  else if (p1 === "off" || p1 === "0") { CO.goal = 0; CO.goalBase = -1; save("coffers_goal", "0"); save("coffers_goal_base", "-1"); say("goal cleared.", "lime"); render(); }
   else {
     var ga = amt(p1);
     if (ga <= 0) { say("could not read '" + p1 + "' as an amount. Try 50000, 50k or 1.5m.", "orange"); }
@@ -111,7 +111,7 @@ else if (c === "goal") {
         CO.goalT = now;
         CO.goalDone = false;
         save("coffers_goal", String(ga)); save("coffers_goal_base", String(CO.goalBase)); save("coffers_goal_t", String(now)); save("coffers_goal_done", "0");
-        say("goal set: earn " + F.n(ga) + " gold, counting from your current " + F.n(CO.goalBase) + ".");
+        say("goal set: earn " + F.n(ga) + " gold, counting from your current " + F.n(CO.goalBase) + ".", "lime");
         render();
       }
     }
@@ -129,14 +129,14 @@ else if (c === "graph") {
     CO.graphLong = mode === "on" ? true : (mode === "off" ? false : !CO.graphLong);
     save("coffers_graph_long", CO.graphLong ? "1" : "0");
   }
-  say("session graph " + (CO.graphSess ? "shown" : "hidden") + ", day-by-day graph " + (CO.graphLong ? "shown" : "hidden") + ".");
+  say("session graph " + (CO.graphSess ? "shown" : "hidden") + ", day-by-day graph " + (CO.graphLong ? "shown" : "hidden") + ".", "lime");
   render();
 }
 else if (c === "size") {
   var sz = parseInt(p1, 10) || 0;
   if (!sz) { say("graph height is " + CO.chartH + ". Usage: COFFERS SIZE 40-400 (default 105)."); }
   else if (sz < 40 || sz > 400) { say("pick a height between 40 and 400.", "orange"); }
-  else { CO.chartH = sz; save("coffers_graph_h", String(sz)); say("graph height set to " + sz + "."); render(); }
+  else { CO.chartH = sz; save("coffers_graph_h", String(sz)); say("graph height set to " + sz + ".", "lime"); render(); }
 }
 else if (c === "span") {
   var sv = parseInt(p2, 10) || 0;
@@ -146,7 +146,7 @@ else if (c === "span") {
   else {
     if (p1 === "session") { CO.mins = sv; save("coffers_span_mins", String(sv)); }
     else { CO.daySpan = sv; save("coffers_span_days", String(sv)); }
-    say(p1 + " window set to " + sv + (p1 === "session" ? " minutes." : " days.") + " Older points drop off at the next prompt.");
+    say(p1 + " window set to " + sv + (p1 === "session" ? " minutes." : " days.") + " Older points drop off at the next prompt.", "lime");
     render();
   }
 }
@@ -154,13 +154,13 @@ else if (c === "gap") {
   var gv = parseInt(p1, 10) || 0;
   if (!gv) { say("a session closes after " + CO.gap + " minutes without a prompt. Usage: COFFERS GAP 5-240."); }
   else if (gv < 5 || gv > 240) { say("gap must be 5-240 minutes.", "orange"); }
-  else { CO.gap = gv; save("coffers_gap", String(gv)); say("sessions now close after " + gv + " silent minutes."); }
+  else { CO.gap = gv; save("coffers_gap", String(gv)); say("sessions now close after " + gv + " silent minutes.", "lime"); }
 }
 else if (c === "bigcoin") {
   var bv = p1 === "off" ? 0 : amt(p1);
   if (p1 === "") { say(CO.big > 0 ? "single changes of " + F.n(CO.big) + "+ gold are announced. COFFERS BIGCOIN OFF silences them." : "big-coin announcements are off. Usage: COFFERS BIGCOIN 1000 (or 1k)."); }
   else if (bv < 0) { say("could not read '" + p1 + "' as an amount.", "orange"); }
-  else { CO.big = bv; save("coffers_bigcoin", String(bv)); say(bv > 0 ? "announcing single changes of " + F.n(bv) + "+ gold." : "big-coin announcements off."); }
+  else { CO.big = bv; save("coffers_bigcoin", String(bv)); say(bv > 0 ? "announcing single changes of " + F.n(bv) + "+ gold." : "big-coin announcements off.", "lime"); }
 }
 else if (c === "csv") {
   var cw2 = p1 || "days";
@@ -181,7 +181,7 @@ else if (c === "wipe") {
     CO.min = []; CO.days = []; CO.sessions = []; CO.rec = {}; CO.sess = null;
     save("coffers_min", "[]"); save("coffers_days", "[]"); save("coffers_sessions", "[]"); save("coffers_rec", "{}"); save("coffers_sess", "");
     CO.force = true;
-    say("ledger burned. Fresh books open at the next prompt.", "red");
+    say("ledger burned. Fresh books open at the next prompt.", "orange");
     render();
   }
 }
@@ -190,7 +190,7 @@ else if (c === "rebuild") {
   CO.tiers = undefined;
   if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
 var CO = client.loom.coffers;
-  say("helpers and rank table rebuilt.");
+  say("helpers and rank table rebuilt.", "lime");
   render();
 }
 else if (c === "debug") {

@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.fishing) client.loom.fishing = {};
-client.loom.registry.fishing = { version: "0.2.1", keyword: "FISHING", desc: "{{description}}" };
+client.loom.registry.fishing = { version: "0.2.2", keyword: "FISHING", desc: "{{description}}" };
 
 // One-time migration: bait -> fishing_bait.
 var fiOld = get_variable("bait");

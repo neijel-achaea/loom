@@ -16,7 +16,7 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
   LG.forceMark = true;
   run_function("levelgraph_sample", [], "levelgraph");
   if (!(LG.level > 0)) lgSay("no level reading yet, so nothing was recorded. It arrives with the next prompt.", "orange");
-  else lgSay("sample recorded. Session buffer " + LG.min.length + " point(s), long term " + LG.day.length + " day(s).");
+  else lgSay("sample recorded. Session buffer " + LG.min.length + " point(s), long term " + LG.day.length + " day(s).", "lime");
 } else if (lgSub === "graph") {
   var which = lgP1;
   var mode = lgP2;
@@ -30,28 +30,28 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
     set_variable("levelgraph_graph_long", LG.graphLong ? "1" : "0");
   }
   run_function("levelgraph_render", [], "levelgraph");
-  lgSay("session graph " + (LG.graphSess ? "shown" : "hidden") + ", long-term graph " + (LG.graphLong ? "shown" : "hidden") + ".");
+  lgSay("session graph " + (LG.graphSess ? "shown" : "hidden") + ", long-term graph " + (LG.graphLong ? "shown" : "hidden") + ".", "lime");
 } else if (lgSub === "size") {
   var lgV = parseInt(lgP1, 10) || 0;
   if (!lgV) { lgSay("graph height is " + LG.chartH + ". LEVELGRAPH SIZE 40-400 (default 105), applies to both graphs."); }
-  else if (lgV < 40 || lgV > 400) { lgSay("pick a height between 40 and 400.", "yellow"); }
+  else if (lgV < 40 || lgV > 400) { lgSay("pick a height between 40 and 400.", "orange"); }
   else {
     LG.chartH = lgV;
     set_variable("levelgraph_graph_h", String(lgV));
     run_function("levelgraph_render", [], "levelgraph");
-    lgSay("graph height set to " + lgV + ".");
+    lgSay("graph height set to " + lgV + ".", "lime");
   }
 } else if (lgSub === "span") {
   var lgS = parseInt(lgP2, 10) || 0;
   if (lgP1 !== "session" && lgP1 !== "long") { lgSay("windows: session " + LG.mins + " min, long " + LG.days + " days. LEVELGRAPH SPAN SESSION 15-720 | LEVELGRAPH SPAN LONG 7-365."); }
   else if (!lgS) { lgSay(lgP1 + " window is " + (lgP1 === "session" ? LG.mins + " minutes" : LG.days + " days") + "."); }
-  else if (lgP1 === "session" && (lgS < 15 || lgS > 720)) { lgSay("session window must be 15-720 minutes.", "yellow"); }
-  else if (lgP1 === "long" && (lgS < 7 || lgS > 365)) { lgSay("long window must be 7-365 days.", "yellow"); }
+  else if (lgP1 === "session" && (lgS < 15 || lgS > 720)) { lgSay("session window must be 15-720 minutes.", "orange"); }
+  else if (lgP1 === "long" && (lgS < 7 || lgS > 365)) { lgSay("long window must be 7-365 days.", "orange"); }
   else {
     if (lgP1 === "session") { LG.mins = lgS; set_variable("levelgraph_span_mins", String(lgS)); }
     else { LG.days = lgS; set_variable("levelgraph_span_days", String(lgS)); }
     run_function("levelgraph_render", [], "levelgraph");
-    lgSay(lgP1 + " window set to " + lgS + (lgP1 === "session" ? " minutes." : " days.") + " Points beyond it drop off at the next sample.");
+    lgSay(lgP1 + " window set to " + lgS + (lgP1 === "session" ? " minutes." : " days.") + " Points beyond it drop off at the next sample.", "lime");
   }
 } else if (lgSub === "csv") {
   var lgWhich = lgP1 === "session" ? "session" : "long";
@@ -71,9 +71,9 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
     set_variable("levelgraph_min", "[]");
     set_variable("levelgraph_day", "[]");
     run_function("levelgraph_render", [], "levelgraph");
-    lgSay("both level buffers cleared.", "red");
+    lgSay("both level buffers cleared.", "orange");
   } else {
-    lgSay("this clears BOTH the session and long-term buffers. LEVELGRAPH WIPE CONFIRM to proceed.", "yellow");
+    lgSay("this clears BOTH the session and long-term buffers. LEVELGRAPH WIPE CONFIRM to proceed.", "orange");
   }
 } else if (lgSub === "debug") {
   lgSay("level=" + LG.level + " nl=" + LG.nl + " min=" + LG.min.length + " day=" + LG.day.length + " graphs " + LG.graphSess + "/" + LG.graphLong + " height " + LG.chartH + " spans " + LG.mins + "m/" + LG.days + "d");

@@ -26,7 +26,7 @@ if (arSub === "" || arSub === "status") {
     AR.staff = AR.staffs[arP1];
     set_variable("artificing_staff", AR.staff);
     // hunting, when installed, puts it on its staff key with the next prompt.
-    arSay("staff attack: " + arP1 + " (" + AR.staff + ").");
+    arSay("staff attack: " + arP1 + " (" + AR.staff + ").", "lime");
   }
 } else if (arSub === "treaty" || arSub === "tf") {
   if (AR.elementals.indexOf(arP1) < 0) {
@@ -41,7 +41,7 @@ if (arSub === "" || arSub === "status") {
   }
 } else if (arSub === "resume") {
   run_function("artificing_resume", [], "artificing");
-  arSay("triggers unpaused and sipping on.");
+  arSay("triggers unpaused and sipping on.", "lime");
 } else if (arSub === "debug") {
   arSay("staff=" + AR.staff + " treaty=" + JSON.stringify(AR.treaty) + " pause=" + (get_variable("pauseTriggers") || "unset") + " saved=" + get_variable("artificing_staff"), "orange");
 } else {

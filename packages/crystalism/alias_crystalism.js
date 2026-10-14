@@ -22,7 +22,7 @@ if (crSub === "" || crSub === "status") {
 } else if (crSub === "pearls" || crSub === "portal") {
   if (crVal === "on" || crVal === "off") {
     set_variable("crystalism_" + crSub, crVal);
-    display_notice("[crystalism] " + (crSub === "pearls" ? "pearl pickup " : "portal for city members ") + crVal.toUpperCase() + ".", C);
+    display_notice("[crystalism] " + (crSub === "pearls" ? "pearl pickup " : "portal for city members ") + crVal.toUpperCase() + ".", "lime");
   } else {
     display_notice("[crystalism] CRYSTALISM " + crSub.toUpperCase() + " ON or OFF.", "orange");
   }

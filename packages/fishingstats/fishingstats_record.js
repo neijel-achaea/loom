@@ -46,7 +46,7 @@ if (inp && inp.angler && inp.species) {
   if (hit && oz > hit[0]) {
     s.rec = (s.rec || 0) + 1;
     var lb1 = Math.floor(oz / 16);
-    display_notice("[fishingstats] " + who + "'s " + sp + " at " + lb1 + "lb " + (oz % 16) + "oz beats this year's ranking of " + Math.floor(hit[0] / 16) + "lb " + (hit[0] % 16) + "oz by " + hit[1] + ".", "cyan");
+    display_notice("[fishingstats] " + who + "'s " + sp + " at " + lb1 + "lb " + (oz % 16) + "oz beats this year's ranking of " + Math.floor(hit[0] / 16) + "lb " + (hit[0] % 16) + "oz by " + hit[1] + ".", "lime");
   }
 
   try { set_variable("fishingstats_session", JSON.stringify(s)); } catch (e) {}
