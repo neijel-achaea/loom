@@ -2,12 +2,13 @@
 // (one file per class; see classes/README.md). Run from defcon_setup.
 //
 // Per class, in classes/<class>.js, named exactly as GMCP sends the class:
-//   up   -- commands DEFCON UP sends for this class, before the common ones
+//   init -- commands DEFCON INIT sends for this class, after the common ones
+//   aftermorph -- optional: sent once the morph in init has completed
 //   defs -- [defence, tier, curing priority, relax?]. A defence is kept up at
 //           DEFCON n when its tier >= n. "relax" defences are also dropped
 //           (RELAX <def>) when the level no longer wants them.
 // A class with no file gets D.generic for its defences and only D.common
-// for DEFCON UP.
+// for DEFCON INIT.
 var D = client.loom.defcon;
 D.classes = {};
 // Every dragon colour shares the dragonform table.
@@ -19,7 +20,7 @@ D.alias = { "Black Dragon": "Dragon", "Blue Dragon": "Dragon", "Red Dragon": "Dr
 // little else (#156). Curseward: the same, needs constant recasting.
 D.retired = ["rebounding", "curseward"];
 
-// Sent by DEFCON UP for every class, after the class's own commands.
+// Sent by DEFCON INIT for every class, before the class's own commands.
 D.common = ["selfishness", "avoid physical", "insomnia"];
 
 // Defences for a class with no table yet: the general ones every class above shares.

@@ -1,12 +1,12 @@
-// Apostate: DEFCON UP commands and defences. See classes/README.md.
-// DEFCON UP summons the Baalzadeen first (demon armour needs it), then the
+// Apostate: DEFCON INIT commands and defences. See classes/README.md.
+// DEFCON INIT summons the Baalzadeen first (demon armour needs it), then the
 // daegger, masks the Baalzadeen and wields the daegger. Everything waits for
 // equilibrium in order, so the wield comes after the summon.
 // Demon armour costs the Baalzadeen 300 health, lifevision 600 mana once:
 // neither drains, so both are kept from DEFCON 4. Lifevision mostly guards
 // against adventurers (thieves), but costs nothing to keep up.
 D.classes["Apostate"] = {
-  up: ["queue add eq summon baalzadeen", "queue add eq summon daegger", "queue add eq mask", "queue add eq wield daegger"],
+  init: ["queue add eq summon baalzadeen", "queue add eq summon daegger", "queue add eq mask", "queue add eq wield daegger"],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

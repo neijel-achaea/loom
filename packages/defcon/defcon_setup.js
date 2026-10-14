@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.defcon) client.loom.defcon = {};
-client.loom.registry.defcon = { version: "0.3.30", keyword: "DEFCON", desc: "{{description}}" };
+client.loom.registry.defcon = { version: "0.4.0", keyword: "DEFCON", desc: "{{description}}" };
 
 var D = client.loom.defcon;
 
@@ -18,6 +18,12 @@ if (!D.queue) D.queue = [];
 if (!D.cls) D.cls = get_variable("defcon_class") || get_variable("activeClass") || "";
 if (D.cls && !get_variable("defcon_class")) set_variable("defcon_class", D.cls);
 
-// DEFCON UP on the first class message of each session (the old package sent
-// INITDEF on every load). On unless switched off.
-if (!get_variable("defcon_autoup")) set_variable("defcon_autoup", "on");
+// DEFCON INIT on the first class message of each session (the old package
+// sent INITDEF on every load). On unless switched off. Until 0.4.0 this was
+// defcon_autoup: carried over once.
+var dcAu = get_variable("defcon_autoup");
+if (dcAu !== null && dcAu !== undefined) {
+  if (!get_variable("defcon_autoinit")) set_variable("defcon_autoinit", String(dcAu));
+  delete_variable("defcon_autoup");
+}
+if (!get_variable("defcon_autoinit")) set_variable("defcon_autoinit", "on");

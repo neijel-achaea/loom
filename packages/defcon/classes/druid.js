@@ -1,9 +1,9 @@
-// Druid: DEFCON UP commands and defences. See classes/README.md.
-// DEFCON UP morphs into a wyvern on equilibrium, last, since anything sent
+// Druid: DEFCON INIT commands and defences. See classes/README.md.
+// DEFCON INIT morphs into a wyvern on equilibrium, last, since anything sent
 // while morphing breaks it (Neijel has truemorph, others may not). Once the
 // morph completes: embrace the spirit, summon fire, flail the staff.
 D.classes["Druid"] = {
-  up: ["queue add eq morph wyvern"],
+  init: ["queue add eq morph wyvern"],
   aftermorph: ["queue add eq embrace spirit", "queue add eq summon fire", "flail staff"],
   defs: [
     ["alertness", 1, 10, true],

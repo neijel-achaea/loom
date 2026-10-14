@@ -1,13 +1,13 @@
-// Monk: DEFCON UP commands and defences. See classes/README.md.
+// Monk: DEFCON INIT commands and defences. See classes/README.md.
 // Skills: Tekura, Kaido, Telepathy.
-// DEFCON UP takes the Eagle stance (EGS) on balance: the hunting combo
+// DEFCON INIT takes the Eagle stance (EGS) on balance: the hunting combo
 // (sidekick, uppercut, uppercut) is built for it.
 // Toughness (less cutting damage), vitality (a big heal under 25% health;
 // only raised near full health and mana) and weathering (+1 constitution)
 // are free once up: DEFCON 4. Projectiles and dodging drain mana and
 // willpower: DEFCON 1, relaxed below. Bodyblock is a hunting toggle (F11).
 D.classes["Monk"] = {
-  up: ["queue add bal egs"],
+  init: ["queue add bal egs"],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

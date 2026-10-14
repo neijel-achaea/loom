@@ -13,12 +13,20 @@ var dcClassNote = "Classes set up: " + dcKnown.join(", ") + "."
 var hlRows = [
   ["DEFCON", "status"],
   ["DEFCON 1-5", "keep defences of that tier and above in curing (5 = fewest, 1 = all), for your current class"],
-  ["DEFCON UP", "raise your class's defences now"],
-  ["DEFCON LIST", "defences per tier for your class, with curing priority"],
-  ["DEFCON AUTOUP ON|OFF", "DEFCON UP when you log in"],
+  ["DEFCON LIST", "your class's defences by tier, with curing priority; * marks your own changes"],
+  ["DEFCON INIT", "send your class's init commands now (stance, summons, weapons...)"],
+  ["DEFCON INIT AUTO ON|OFF", "send them when you log in"],
+  ["Your own table, for the class you're in:"],
+  ["DEFCON ADD <def> <tier> <prio> [RELAX]", "add a defence (RELAX, or the command that turns it off, drops it below its tier)"],
+  ["DEFCON SET <def> <tier> [prio]", "change one"],
+  ["DEFCON REMOVE <def>", "stop keeping one, even a default"],
+  ["DEFCON RESET <def>|ALL", "back to the default"],
+  ["DEFCON INIT ADD|REMOVE <cmd>", "change the init commands (REMOVE also takes the number from DEFCON LIST)"],
+  ["DEFCON AFTERMORPH ADD|REMOVE <cmd>", "commands sent once the init morph completes"],
+  ["DEFCON EXPORT", "print the whole table to share, in the class-file format"],
   ["DEFCON ON|OFF", "the game's defence upkeep (CURING DEFENCES ON/OFF)"],
   ["DEFCON DEBUG", "internal state"],
-  ["Each class keeps its own level, as the game keeps its own curing list (dragonform counts as one class)."],
+  ["Each class keeps its own level and changes, as the game keeps its own curing list (dragonform counts as one class). Default fixes still reach you, except where you changed that entry."],
   [dcClassNote]
 ];
 var hlW = 0;

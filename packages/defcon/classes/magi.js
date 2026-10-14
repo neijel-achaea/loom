@@ -1,7 +1,7 @@
-// Magi: DEFCON UP commands and defences. See classes/README.md.
+// Magi: DEFCON INIT commands and defences. See classes/README.md.
 // Simultaneity and the staff first.
 D.classes["Magi"] = {
-  up: ["queue add eq simultaneity", "wield staff"],
+  init: ["queue add eq simultaneity", "wield staff"],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

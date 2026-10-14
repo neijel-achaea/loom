@@ -1,6 +1,6 @@
-// Priest: DEFCON UP commands and defences. See classes/README.md.
+// Priest: DEFCON INIT commands and defences. See classes/README.md.
 // Skills: Spirituality, Devotion, Zeal (after embracing).
-// DEFCON UP summons the angel (equilibrium), then summons and wields the
+// DEFCON INIT summons the angel (equilibrium), then summons and wields the
 // spiritual mace (balance), in that order.
 // Angel care heals your afflictions but drains angel power: DEFCON 1,
 // switched off (ANGEL CARE OFF) below. DEF name "care" unconfirmed.
@@ -8,7 +8,7 @@
 // tattoo), inspiration (short and costly), the room rites. The Zeal
 // blessings are suggestions until confirmed after embracing.
 D.classes["Priest"] = {
-  up: ["queue add eq angel summon", "queue add bal summon mace", "queue add bal wield mace"],
+  init: ["queue add eq angel summon", "queue add bal summon mace", "queue add bal wield mace"],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

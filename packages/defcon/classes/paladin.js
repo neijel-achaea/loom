@@ -1,12 +1,12 @@
 // Paladin: defences. See classes/README.md. Skills: Weaponmastery,
-// Excision, Valour. Nothing is sent on DEFCON UP.
+// Excision, Valour. Nothing is sent on DEFCON INIT.
 // Free once up (DEFCON 4): faith (resists cutting, blunt and some magic),
 // unbowed (a health surge when badly hurt, can stop one killing blow),
 // resistance (less magic damage), gripping and weathering (+1 con).
 // The Rite of Regeneration is a hunting key (F11). Fury stays out (500
 // willpower per re-enable).
 D.classes["Paladin"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

@@ -1,17 +1,17 @@
 if (!client.loom || !client.loom.defcon || !client.loom.defcon.classes) run_function("defcon_setup", [], "defcon");
 var D = client.loom.defcon;
-// DEFCON UP: the common commands, then the class's own, last: anything sent
+// DEFCON INIT: the common commands, then the class's own, last: anything sent
 // while morphing breaks the morph, so a class can end on one. Commands the
 // class lists in "aftermorph" wait for the morph to complete
 // (defcon_aftermorph, from the game's line or the Morph charstat).
 run_function("defcon_table", [], "defcon");
-var dcCmds = D.common.concat(D.tbl.up);
+var dcCmds = D.common.concat(D.tbl.init);
 var dcAfter = D.tbl.aftermorph || [];
 D.afterMorph = null;
 if (dcAfter.length) {
   var dcWant = "";
-  for (var dcJ = 0; dcJ < D.tbl.up.length; dcJ++) {
-    var dcMm = String(D.tbl.up[dcJ]).match(/\bmorph\s+(\w+)\s*$/i);
+  for (var dcJ = 0; dcJ < D.tbl.init.length; dcJ++) {
+    var dcMm = String(D.tbl.init[dcJ]).match(/\bmorph\s+(\w+)\s*$/i);
     if (dcMm) dcWant = dcMm[1].toLowerCase();
   }
   if (dcWant && String(D.morph || "").toLowerCase() == dcWant) {
@@ -24,4 +24,4 @@ if (dcAfter.length) {
   }
 }
 for (var dcI = 0; dcI < dcCmds.length; dcI++) send_command(dcCmds[dcI]);
-display_notice("[defcon] defences up for " + D.tbl.name + (D.tbl.known ? "" : " (class not configured yet: common defences only)") + (D.afterMorph ? "; the rest once the morph completes" : "") + ".", "cyan");
+display_notice("[defcon] init sent for " + D.tbl.name + (D.tbl.known ? "" : " (class not configured yet: common defences only)") + (D.afterMorph ? "; the rest once the morph completes" : "") + ".", "cyan");

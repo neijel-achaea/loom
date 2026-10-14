@@ -1,4 +1,4 @@
-// defcon_aftermorph -- the morph DEFCON UP asked for has completed: send the
+// defcon_aftermorph -- the morph DEFCON INIT asked for has completed: send the
 // class's "aftermorph" commands, once. Run from the metamorphosis line and
 // from a Morph charstat change.
 var D = client.loom.defcon;

@@ -1,10 +1,10 @@
 // Jester: defences. See classes/README.md. Skills: Pranks, Tarot,
-// Puppetry. Nothing is sent on DEFCON UP (the blackjack stays wielded).
+// Puppetry. Nothing is sent on DEFCON INIT (the blackjack stays wielded).
 // Slipperiness (no ongoing cost) and gripping at DEFCON 4; acrobatics
 // (endurance) and balancing (mana) only at 1, relaxed below. Arrowcatch is
 // a suggestion in classes/README.md. Fool is a hunting key (F11).
 D.classes["Jester"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

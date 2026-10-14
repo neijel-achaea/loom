@@ -1,12 +1,12 @@
 // Runewarden: defences. See classes/README.md. Skills: Weaponmastery,
-// Runelore, Discipline. Nothing is sent on DEFCON UP.
+// Runelore, Discipline. Nothing is sent on DEFCON INIT.
 // Free once up (DEFCON 4): resistance (less magic damage), gripping and
 // weathering (+1 constitution), as on the other knights.
 // Runes sketched on yourself (algiz, jera, berkana) don't show in DEF, so
 // curing can't keep them; fury stays out (500 willpower per re-enable).
 // Bulwark is a battlerage key (F11).
 D.classes["Runewarden"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

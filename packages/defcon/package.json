@@ -71,6 +71,24 @@
     },
     {
       "type": "function",
+      "name": "defcon_edit",
+      "enabled": true,
+      "code": "@file:defcon_edit.js"
+    },
+    {
+      "type": "function",
+      "name": "defcon_list",
+      "enabled": true,
+      "code": "@file:defcon_list.js"
+    },
+    {
+      "type": "function",
+      "name": "defcon_export",
+      "enabled": true,
+      "code": "@file:defcon_export.js"
+    },
+    {
+      "type": "function",
       "name": "defcon_help",
       "enabled": true,
       "code": "@file:defcon_help.js"

@@ -1,10 +1,10 @@
-// Dragon: DEFCON UP commands and defences. See classes/README.md.
+// Dragon: DEFCON INIT commands and defences. See classes/README.md.
 // Every dragon colour uses this table (D.alias in defcon_classes.js).
 // Same tiers as the generic table (the README's questions). Own defences:
 // dragonarmour (500 mana, then drains willpower and endurance: 3, relaxed
 // below it) and dragonbreath (SUMMON, 300 mana once: 4).
 D.classes["Dragon"] = {
-  up: ["dragonarmour"],
+  init: ["dragonarmour"],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

@@ -1,13 +1,13 @@
-// Sentinel: DEFCON UP commands and defences. See classes/README.md.
+// Sentinel: DEFCON INIT commands and defences. See classes/README.md.
 // Skills: Metamorphosis, Woodlore, Skirmishing.
-// DEFCON UP morphs into a jaguar on equilibrium, last, since anything sent
+// DEFCON INIT morphs into a jaguar on equilibrium, last, since anything sent
 // while morphing breaks it. Once the morph completes, it embraces the spirit
 // (less endurance loss in every spirit form). If the morph doesn't take,
 // morph by hand.
 // Free once up (DEFCON 4): barkskin (200 mana once, physical protection),
 // firstaid (wounds clot faster) and fleetness (faster through forests).
 D.classes["Sentinel"] = {
-  up: ["queue add eq morph jaguar"],
+  init: ["queue add eq morph jaguar"],
   aftermorph: ["queue add eq embrace spirit"],
   defs: [
     ["alertness", 1, 10, true],

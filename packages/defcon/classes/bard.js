@@ -1,5 +1,5 @@
-// Bard: DEFCON UP commands and defences. See classes/README.md.
-// Tempo is a footwork setting, not a defence: DEFCON UP sets MODERATO on
+// Bard: DEFCON INIT commands and defences. See classes/README.md.
+// Tempo is a footwork setting, not a defence: DEFCON INIT sets MODERATO on
 // balance, and it can be changed by hand at any time. Blade tune (balance)
 // and grip (balance, keeps weapons from being knocked away) are free once up.
 // Acrobatics (harder to hit) drains endurance heavily and doesn't seem to
@@ -8,7 +8,7 @@
 // Composition's movements only last while a song plays, and Sagas has no
 // self defence, so neither adds anything here.
 D.classes["Bard"] = {
-  up: ["queue add bal tempo moderato"],
+  init: ["queue add bal tempo moderato"],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

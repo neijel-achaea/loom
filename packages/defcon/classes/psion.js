@@ -1,12 +1,12 @@
 // Psion: defences. See classes/README.md. Skills: Weaving, Psionics,
-// Emulation. Nothing is sent on DEFCON UP (WEAVE PREPARE lasts until
+// Emulation. Nothing is sent on DEFCON INIT (WEAVE PREPARE lasts until
 // changed).
 // Free once up (DEFCON 4): secondskin (WEAVE SECONDSKIN, resists every
 // damage type) and guidedstrike (ENACT GUIDEDSTRIKE, bigger critical hits).
 // Indomitability is a hunting panic key (F11): its images run out, so
 // curing would keep re-casting it.
 D.classes["Psion"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],
