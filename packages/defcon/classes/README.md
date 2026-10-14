@@ -158,3 +158,8 @@ DEFCON ADD endurance 4 14          faster endurance regeneration (RECITE ENDURAN
 ```
 DEFCON ADD arrowcatch 1 15 RELAX   catches arrows (mana drain)
 ```
+
+### Shaman
+```
+DEFCON ADD arrowcatching 1 15 "invoke arrowcatching off"   catches arrows (Silvanix; mana drain)
+```
