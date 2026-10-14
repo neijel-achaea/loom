@@ -1,13 +1,8 @@
-// Blademaster: DEFCON UP commands and defences. See classes/README.md.
+// Blademaster: DEFCON INIT commands and defences. See classes/README.md.
 // DEFCON UP positions the scabbard (the First Art needs it, every login),
-// enters the Shin trance (Shin abilities and binding's healing need it) and
-// takes the Doya stance; all on the balance queue, in that order.
-// Free once up (DEFCON 4): gripping, toughness, constitution, consciousness,
-// clarity (650 mana once) and binding (300 mana once). Projectiles, dodging
-// and mindnet drain mana: DEFCON 1, relaxed below.
-// Not kept: sturdiness, immunity and breathing end on your next action;
-// perfection, block and engage only work against adventurers and cost Shin
-// or mana; retaliationstrike is toggled by hand.
+// enters the Shin trance and takes the Doya stance, on the balance queue.
+// Defaults: the generic defences plus gripping. Unconfirmed Shindo and
+// Striking defences are suggestions in classes/README.md.
 D.classes["Blademaster"] = {
   up: ["queue add bal position scabbard", "queue add bal shin trance", "queue add bal doya"],
   defs: [
@@ -32,14 +27,6 @@ D.classes["Blademaster"] = {
     ["selfishness", 2, 17],
     ["mindseye", 5, 1],
     ["temperance", 3, 8],
-    ["gripping", 4, 12],
-    ["toughness", 4, 10],
-    ["constitution", 4, 13],
-    ["consciousness", 4, 12],
-    ["clarity", 4, 13],
-    ["binding", 4, 11],
-    ["projectiles", 1, 14, true],
-    ["dodging", 1, 15, true],
-    ["mindnet", 1, 15, true]
+    ["gripping", 4, 12]
   ]
 };

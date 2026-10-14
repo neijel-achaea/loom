@@ -1,14 +1,7 @@
-// Depthswalker: DEFCON UP commands and defences. See classes/README.md.
-// No DEFCON UP commands: the shadow cloak (worn; tah'maal needs it) and the
-// manifested scythe both stay between sessions, and the game says when the
-// cloak decays.
-// The Terminus intonements (word balance, after embracing) are free once up:
-// tsuura (less damage from denizens), mainaas (cutting and blunt
-// resistance), tah'maal (fire resistance, over the cloak) and trusad (more
-// critical hits on denizens). Their DEF names are unconfirmed until the
-// alt learns Terminus.
-// Not kept: kail (a hunting panic key, F11), ukhia, instill (for PvP),
-// veil (to look at once learned); Aeonics spends age in the moment.
+// Depthswalker: defences. See classes/README.md.
+// Defaults: the generic defences. The shadow cloak and scythe persist
+// across sessions, so nothing is sent on DEFCON UP. The Terminus
+// intonements (after embracing) are suggestions in classes/README.md.
 D.classes["Depthswalker"] = {
   up: [],
   defs: [
@@ -32,10 +25,6 @@ D.classes["Depthswalker"] = {
     ["insomnia", 2, 6],
     ["selfishness", 2, 17],
     ["mindseye", 5, 1],
-    ["temperance", 3, 8],
-    ["tsuura", 4, 10],
-    ["mainaas", 4, 11],
-    ["tahmaal", 4, 12],
-    ["trusad", 4, 13]
+    ["temperance", 3, 8]
   ]
 };
