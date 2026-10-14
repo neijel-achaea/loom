@@ -15,7 +15,7 @@ if (e && !isNaN(e.amt)) {
   // turns out to be bleeding (the game prints "Health lost: N (raw)." first).
   var undo = { fight: f, opened: false, last: f ? f.last : 0, sLastT: ss ? ss.lastT : 0, sCombat: ss ? ss.combatMs : 0, sFights: ss ? ss.fights : 0 };
   if (!passive && (!f || now - f.last > gapMs)) {
-    f = { start: now, last: now, inc: {}, out: {}, incTotal: 0, outTotal: 0, heal: 0 };
+    f = { start: now, last: now, inc: {}, out: {}, incTotal: 0, outTotal: 0 };
     d.fight = f;
     d.lastInc = null;
     undo.opened = true;
@@ -46,9 +46,6 @@ if (e && !isNaN(e.amt)) {
     if (now - d.sessSaved > 5000) { set_variable("dmgchart_open", JSON.stringify(ss)); d.sessSaved = now; }
   }
   if (e.dir == "inc") {
-    d.incSince = (d.incSince || 0) + e.amt;
-    // Recent incoming, for health lasts over the last few seconds (#153).
-    run_function("dmgchart_recent", { t: now, inc: e.amt, heal: 0 }, "dmgchart");
     d.lastInc = { type: e.type, amt: e.amt, t: now, inSess: !!ss, undo: undo };
   }
   run_function("dmgchart_render", [], "dmgchart");

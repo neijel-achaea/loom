@@ -5,7 +5,7 @@
 // state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "0.3.1", keyword: "DMGCHART", desc: "{{description}}" };
+client.loom.registry.dmgchart = { version: "0.3.2", keyword: "DMGCHART", desc: "{{description}}" };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};
 var DC = client.loom.dmgchart;
 
@@ -39,7 +39,7 @@ if (DC.gap === undefined) {
 }
 if (DC.window === undefined) {
   DC.window = parseFloat(get_variable("dmgchart_window"));
-  if (isNaN(DC.window) || DC.window <= 0) DC.window = 10;
+  if (isNaN(DC.window) || DC.window <= 0) DC.window = 6;
 }
 if (!DC.recent) DC.recent = [];
 DC.tab = "DmgChart";

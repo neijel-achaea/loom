@@ -134,7 +134,7 @@ if (!src) {
   html += '</div>';
 
   // The exchange: how the blows compare. Hit counts were added after the
-  // first sessions were saved, so those show only the ratio.
+  // first sessions were saved, so those show no exchange rows.
   var H = src.hits || null;
   var ex = "";
   if (H) {
@@ -144,39 +144,25 @@ if (!src) {
     ex += xrow("biggest hit", H.out.max || "&mdash;", H.inc.max || "&mdash;");
     ex += xrow("hits a minute", Math.round(H.out.n / (dur / 60)), Math.round(H.inc.n / (dur / 60)));
   }
-  if (src.incTotal > 0) {
-    var ratio = src.outTotal / src.incTotal;
-    ex += xline("trading", (ratio >= 10 ? Math.round(ratio) : Math.round(ratio * 10) / 10) + " dealt for every 1 taken", ratio >= 1 ? EMBER : CRIMSON);
-  } else if (src.outTotal > 0) {
-    ex += xline("trading", "untouched so far", EMBER);
-  }
-  // Staying power, for the live fight only: current health (from Char.Vitals)
-  // over incoming dps less healing, both over the last d.window seconds (or
-  // the fight so far, if shorter), so a fresh attacker shows at once (#153).
-  // Healing is every rise in health during the fight (elixirs, regeneration,
-  // anything), as onGMCP counts it.
+  // Health lasts, for the live fight only: current health over how fast it
+  // has really fallen across the last d.window seconds (or the fight so far),
+  // from the Char.Vitals readings, so every hit and heal counts and nothing
+  // can be counted twice. Shown only while health is falling, after a short
+  // warm-up (3s and 2 hits taken), so it never claims all is well (#153).
   if (!d.view && src.incTotal > 0) {
     var hpNow = d.hp;
-    var heal = src.heal || 0;
-    if (heal > 0) ex += xline("healed", heal + " (" + Math.round(heal / dur) + "/s)", "#7fbf7f");
     var wNow = Date.now();
-    var wSpan = Math.max(1, Math.min(d.window, (wNow - src.start) / 1000));
-    var wInc = 0, wHeal = 0;
+    var wFrom = Math.max(wNow - d.window * 1000, src.start);
+    var wSpan = (wNow - wFrom) / 1000;
     var rc = d.recent || [];
+    var hpThen = null;
     for (var ri = 0; ri < rc.length; ri++) {
-      if (rc[ri].t >= wNow - wSpan * 1000 && rc[ri].t >= src.start) { wInc += rc[ri].inc; wHeal += rc[ri].heal; }
+      if (rc[ri].t <= wFrom) { hpThen = rc[ri].hp; } else { if (hpThen === null) hpThen = rc[ri].hp; break; }
     }
-    var wSec = Math.round(wSpan) + "s";
-    var wTag = "at the rate of the last " + wSec;
-    if (typeof hpNow === "number" && !isNaN(hpNow) && hpNow > 0) {
-      if (wInc <= 0) {
-        ex += xline("health lasts", "nothing taken in the last " + wSec, "#7fbf7f");
-      } else if (wInc <= wHeal) {
-        ex += xline("health lasts", "healing keeps up " + wTag, "#7fbf7f");
-      } else {
-        var last = hpNow / ((wInc - wHeal) / wSpan);
-        ex += xline("health lasts", "~" + secs(last) + " " + wTag + (wHeal > 0 ? ", after healing" : ""), last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
-      }
+    if (typeof hpNow === "number" && !isNaN(hpNow) && hpNow > 0 && hpThen !== null && wSpan >= 3 && H && H.inc.n >= 2 && hpThen > hpNow) {
+      var drop = (hpThen - hpNow) / wSpan;
+      var last = hpNow / drop;
+      ex += xline("health lasts", "~" + secs(last) + " (losing " + Math.round(drop) + "/s over the last " + Math.round(wSpan) + "s)", last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
     }
   }
   if (ex) { html += section("The exchange", ex); }
