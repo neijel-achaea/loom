@@ -20,7 +20,9 @@ HU.classes["Occultist"] = {
     ["{toggle:sneak}", ""],
     ["{stats}", ""],
     ["Diag", "diagnose"],
-    ["", ""],
+    // Simulacrum: absorbs damage until it cracks (3% karma, equilibrium). A
+    // panic key: curing doesn't keep it, since every raise costs karma (#156).
+    ["Simulacrum", "queue add e!wu!t!p simulacrum"],
     ["Shield", "touch shield"]
   ],
   // Sneak: SHROUD / UNSHROUD; shrouds again when it dissipates while on.
