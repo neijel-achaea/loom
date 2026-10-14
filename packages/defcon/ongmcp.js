@@ -10,10 +10,11 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
     run_function("defcon_table", [], "defcon");
     display_notice("[defcon] " + D.tbl.name + ": " + ((D.level === undefined || D.level === null) ? "no DEFCON level set in this class yet." : "DEFCON " + D.level + "."), "cyan");
   }
-  // First class message of the session: raise defences if DEFCON AUTOUP is on.
+  // First class message of the session: send the init commands if DEFCON
+  // INIT AUTO is on.
   if (!D.upDone) {
     D.upDone = true;
-    if (get_variable("defcon_autoup") == "on") run_function("defcon_up", [], "defcon");
+    if (get_variable("defcon_autoinit") == "on") run_function("defcon_up", [], "defcon");
   }
 }
 

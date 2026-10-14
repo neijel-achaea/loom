@@ -1,6 +1,6 @@
 // Unnamable: defences. See classes/README.md. Skills: Weaponmastery,
 // Dominion (the knights' shared skill), Anathema. Nothing is sent on
-// DEFCON UP.
+// DEFCON INIT.
 // Free once up (DEFCON 4): resistance, gripping and weathering, as on the
 // other knights.
 // Mutations (Anathema) don't persist across logins and use their own
@@ -8,9 +8,9 @@
 // mouths (0.5% karma; Shriek, Dread and Entropy need it) and bulk (0.5%
 // karma; +1 strength, minor cutting and blunt resistance) are left to
 // curing at DEFCON 3, since each raise costs karma. DEF names unconfirmed;
-// if curing doesn't raise them, they move to DEFCON UP.
+// if curing doesn't raise them, they move to DEFCON INIT.
 D.classes["Unnamable"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

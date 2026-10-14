@@ -1,9 +1,9 @@
 // Depthswalker: defences. See classes/README.md.
 // Defaults: the generic defences. The shadow cloak and scythe persist
-// across sessions, so nothing is sent on DEFCON UP. The Terminus
+// across sessions, so nothing is sent on DEFCON INIT. The Terminus
 // intonements (after embracing) are suggestions in classes/README.md.
 D.classes["Depthswalker"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

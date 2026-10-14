@@ -4,7 +4,7 @@
 // hellforge activations are suggestions in classes/README.md until
 // confirmed. Soulshield is a battlerage key in hunting (F11).
 D.classes["Infernal"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

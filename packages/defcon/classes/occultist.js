@@ -1,12 +1,12 @@
 // Occultist: defences. See classes/README.md. Skills: Occultism,
-// Domination, Tarot. Nothing is sent on DEFCON UP.
+// Domination, Tarot. Nothing is sent on DEFCON INIT.
 // Astralvision (lifevision and deathsight in one) is free once up: DEFCON 4.
 // Distortaura (karma, then a steady mana drain) feeds back physical damage
 // and softens some denizen damage: DEFCON 1, taken down with NORMALAURA
 // below. Simulacrum and heartstone cost karma on every raise, so curing
 // doesn't keep them; simulacrum is a hunting panic key (F11).
 D.classes["Occultist"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

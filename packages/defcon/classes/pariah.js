@@ -1,12 +1,12 @@
-// Pariah: DEFCON UP commands and defences. See classes/README.md.
+// Pariah: DEFCON INIT commands and defences. See classes/README.md.
 // Skills: Memorium, Pestilence, Charnel (after embracing).
-// DEFCON UP lets your own blood onto the ritual blade (CRUX LET ME) on
+// DEFCON INIT lets your own blood onto the ritual blade (CRUX LET ME) on
 // equilibrium. Swarms persist, so nothing else is sent.
 // Free once up (DEFCON 4): shieldlogograph (TRACE SHIELD ME, damage
 // resistance by intelligence) and leechlogograph (TRACE LEECH ME, draws
 // out afflictions for five minutes). Resolve is a suggestion.
 D.classes["Pariah"] = {
-  up: ["queue add eq crux let me"],
+  init: ["queue add eq crux let me"],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

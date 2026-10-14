@@ -1,11 +1,11 @@
 // Serpent: defences. See classes/README.md. Skills: Subterfuge, Venom,
-// Hypnosis. Nothing is sent on DEFCON UP.
+// Hypnosis. Nothing is sent on DEFCON INIT.
 // Scales (balance, mildly protective) are free once up: DEFCON 4.
 // Weaving and hiding are the hunting keys' Weave and Sneak toggles, so
 // DEFCON leaves them alone (it would fight the toggle). Pacing and phase
 // are for chasing or avoiding adventurers.
 D.classes["Serpent"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

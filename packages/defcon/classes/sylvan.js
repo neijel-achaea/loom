@@ -1,7 +1,7 @@
-// Sylvan: DEFCON UP commands and defences. See classes/README.md.
-// No class commands for DEFCON UP yet.
+// Sylvan: DEFCON INIT commands and defences. See classes/README.md.
+// No class commands for DEFCON INIT yet.
 D.classes["Sylvan"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

@@ -1,10 +1,10 @@
-// Alchemist: DEFCON UP commands and defences. See classes/README.md.
+// Alchemist: DEFCON INIT commands and defences. See classes/README.md.
 // Sulphur and mercury (EDUCE, 350 mana each, equilibrium) make health and
 // mana elixirs heal more; they wear off and are re-educed. Not kept:
 // tin (500 mana, reflects two attacks: a hunting key instead), lead
 // (density: the mass salve covers it), extispicy (needs a rat corpse).
 D.classes["Alchemist"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

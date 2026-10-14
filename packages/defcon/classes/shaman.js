@@ -1,5 +1,5 @@
 // Shaman: defences. See classes/README.md. Skills: Vodun, Curses,
-// Spiritlore. Nothing is sent on DEFCON UP: spirit bonds and attunements
+// Spiritlore. Nothing is sent on DEFCON INIT: spirit bonds and attunements
 // last until changed.
 // Free once up (DEFCON 4): gripping, and the invocations regeneration
 // (Ri'shen, 300 mana once) and purification (Daina, 200 mana once), which
@@ -7,7 +7,7 @@
 // Arrowcatching (mana drain) is a suggestion; swiftcurse is used up after
 // ten curses, so curing can't keep it.
 D.classes["Shaman"] = {
-  up: [],
+  init: [],
   defs: [
     ["alertness", 1, 10, true],
     ["vigilance", 1, 10, true],

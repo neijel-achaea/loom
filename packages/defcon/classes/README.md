@@ -3,8 +3,8 @@
 The class files hold **defaults**: the generic defences, what was confirmed
 in game, and clear low-hanging fruit (gripping for a class that has it).
 Anything researched but not yet confirmed is listed under
-[Suggestions](#suggestions) instead, ready to add by hand once player-editable
-tables land (#175). A confirmed suggestion moves into its class file.
+[Suggestions](#suggestions) instead, ready for players to add to their own
+table. A confirmed suggestion moves into its class file.
 
 One file per class. Adding a class, or fixing one, means editing only its file
 here and rebuilding (`python3 tools/build.py defcon`). The files are joined
@@ -13,7 +13,7 @@ after `defcon_classes.js` into one Nexus function, in name order.
 The entry is named exactly as GMCP sends the class (`Magi`, `Sylvan`). Every
 dragon colour uses `Dragon` through `D.alias` in `defcon_classes.js`. A class
 with no file gets `D.generic` for its defences and only `D.common` on
-DEFCON UP, and DEFCON says it isn't configured yet.
+DEFCON INIT, and DEFCON says it isn't configured yet.
 
 ```js
 D.classes["Magi"] = {
@@ -26,9 +26,9 @@ D.classes["Magi"] = {
 };
 ```
 
-## up
+## init
 
-Commands DEFCON UP sends for the class, after the common ones
+Commands DEFCON INIT sends for the class, after the common ones
 (`selfishness`, `avoid physical`, `insomnia`), so they're the last thing
 sent. Put here what has to happen first: a form, a stance, wielding
 something. Commands that need balance or equilibrium go through the queue:
@@ -37,7 +37,7 @@ command (a morph) goes last of all.
 
 ## aftermorph
 
-Optional. Commands that must wait until the morph in `up` has completed
+Optional. Commands that must wait until the morph in `init` has completed
 (embrace spirit, for instance): DEFCON holds them back and sends them when
 the game says the metamorphosis is done, or when the Morph charstat
 changes. If you're already in that form, they're sent straight away.
@@ -101,16 +101,29 @@ unless the class has a reason to differ.
 
 ## Checking a change
 
-The four original tables were checked against their DEFCON UP commands and
+The four original tables were checked against their DEFCON INIT commands and
 the curing commands at every level before and after the split (#156). Do the
 same for a fixed class: load the built `dist/defcon.nxs` in node, stub the
 Nexus calls, and compare `defcon_set`'s queue at DEFCON 5 to 1.
 
+## Players' own tables
+
+Players change their table in game (`DEFCON ADD`, `SET`, `REMOVE`, `RESET`,
+`INIT ADD/REMOVE`, `AFTERMORPH ADD/REMOVE`). Only their changes are stored,
+per class, in the `defcon_custom` variable, and laid over the class file on
+every load: a fix to a default still reaches them, except where they
+changed that entry.
+
+`DEFCON EXPORT` prints their whole table in this file's format, with their
+changes marked in comments. To adopt an exported table as the new default,
+paste it over the class file (keeping the header comment), check the
+marked lines, and rebuild.
+
 ## Suggestions
 
 Researched from the wiki, not confirmed in game. Each line is the command to
-add it to your own table (#175); tier and priority follow the questions
-above. Report back what works, and it becomes a default.
+add it to your own table; tier and priority follow the questions above.
+Report back what works (DEFCON EXPORT), and it becomes a default.
 
 ### Blademaster
 ```
