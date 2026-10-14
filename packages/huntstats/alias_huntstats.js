@@ -123,6 +123,7 @@ if (hsSub === "" || hsSub === "status") {
   } else {
     hsSay("usage: HUNTSTATS PARTY [ADD <name> | DEL <name> | CLEAR]", "orange");
   }
+  if (hsP1 !== "" && hsP1 !== "list") run_function("huntstats_render", [], "huntstats");
 } else if (hsSub === "debug") {
   var T = HS.cur || {};
   hsSay("level=" + HS.level + " nl=" + HS.nl + " dragon=" + (HS.dragon() === null ? "?" : HS.dragon().toFixed(3)) + " resumed=" + !!HS.resumed);

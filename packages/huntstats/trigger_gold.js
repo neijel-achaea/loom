@@ -6,5 +6,6 @@ if (HS && HS.cur && HS.cur.area !== undefined) {
   if (!isNaN(hsG)) {
     HS.cur.gold += hsG;
     if (HS.held) HS.held("you", hsG);
+    run_function("huntstats_render", [], "huntstats");
   }
 }

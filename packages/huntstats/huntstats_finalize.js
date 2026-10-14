@@ -43,9 +43,11 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
     for (var spI = 0; spI < spl.length; spI++) display_notice("[huntstats] " + spl[spI], "cyan");
     if (HS.splitTell) HS.tellSplit();
   }
-  run_function("huntstats_render", [], "huntstats");
 }
 
 HS.fresh();
 HS.lastSave = 0;
 try { set_variable("huntstats_open", ""); } catch (e) {}
+// Redrawn after the hunt is cleared, so the tab no longer shows it as under
+// way (#90).
+run_function("huntstats_render", [], "huntstats");

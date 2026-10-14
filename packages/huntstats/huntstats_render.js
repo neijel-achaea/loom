@@ -63,11 +63,48 @@ html += '<div style="display:flex;justify-content:space-between;align-items:base
 html += '<div style="font-family:' + SERIF + ';color:' + MOSS + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'HUNTING</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + (dh !== null ? 'dragonhood <span style="color:' + DRAGON + ';">' + dh.toFixed(2) + '%</span>' : arr.length + ' area' + (arr.length === 1 ? '' : 's')) + '</div></div>';
 
+// The hunt under way (#90): running from its first experience until it is
+// filed, or idle for 10 minutes (the same gap after which a resumed hunt is
+// filed instead). While it runs it heads the tab; otherwise the last
+// finished hunt does.
+var C = null;
+try { C = client.loom.huntstats.cur; } catch (e) { C = null; }
+var live = !!(C && C.area !== undefined && C.firstXpAt && C.xp > 0 && (Date.now() - (C.lastXpAt || C.firstXpAt)) < 600000);
+function lifeBox() {
+  var hb = caps("Lifetime", MOSS);
+  var lh = lt.ms / 3600000;
+  hb += row("time hunted", fmtDur(lt.ms));
+  hb += row("hunts", String(lt.sessions));
+  hb += row("xp / hr", lh > 0 ? thou(lt.xp / lh) : "&mdash;", MOSS);
+  hb += row("gold / hr", lh > 0 ? thou(lt.gold / lh) : "&mdash;", GOLD);
+  hb += row("kills", thou(lt.kills));
+  return box(hb, DEEP);
+}
+
+if (live) {
+  var cMs = Math.max(1000, Date.now() - C.firstXpAt);
+  var cH = cMs / 3600000;
+  html += '<div style="margin:6px 0 1px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + MOSS + ';">' + thou(C.xp / cH) + '</span> ';
+  html += '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">xp/hour, this hunt</span></div>';
+  html += '<div style="color:' + MUTED + ';">in <span style="font-family:' + SERIF + ';color:' + TXT + ';">' + esc(C.area) + '</span> &middot; under way</div>';
+  var cb = caps("This hunt", MOSS);
+  cb += row("time", fmtDur(cMs));
+  cb += row("experience", thou(C.xp));
+  cb += row("gold", thou(C.gold || 0) + ' <span style="color:' + MUTED + ';">(' + thou((C.gold || 0) / cH) + '/hr)</span>', GOLD);
+  cb += row("kills", String(C.kills || 0) + ' <span style="color:' + MUTED + ';">(' + Math.round((C.kills || 0) / cH) + '/hr)</span>');
+  var cP = [];
+  for (var cK in (C.players || {})) { if (C.players.hasOwnProperty(cK)) cP.push(cK); }
+  cb += row("party", cP.length ? esc(cP.join(", ")) : "alone");
+  if (dh !== null && C.startDragonPct !== null && C.startDragonPct !== undefined && dh - C.startDragonPct > 0) { cb += row("dragonhood", '+' + (dh - C.startDragonPct).toFixed(3) + '%', DRAGON); }
+  html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">' + box(cb, MOSS) + lifeBox() + '</div>';
+}
+
 if (log.length === 0) {
-  html += '<div style="margin-top:8px;">' + quiet("No hunts logged yet. A hunt is filed when you leave the area, or with HUNTSTATS FLUSH; it needs a minute or more of experience to count.") + '</div>';
+  if (!live) html += '<div style="margin-top:8px;">' + quiet("No hunts logged yet. A hunt is filed when you leave the area, or with HUNTSTATS FLUSH; it needs a minute or more of experience to count.") + '</div>';
 } else {
-  // The headline is the most recent hunt's experience rate.
+  // Without a hunt under way, the headline is the most recent hunt's rate.
   var L = log[0];
+  if (!live) {
   html += '<div style="margin:6px 0 1px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + MOSS + ';">' + thou(L.xpHr) + '</span> ';
   html += '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">xp/hour, last hunt</span></div>';
   html += '<div style="color:' + MUTED + ';">in <span style="font-family:' + SERIF + ';color:' + TXT + ';">' + esc(L.area) + '</span>' + (L.at ? ' &middot; ' + ago(L.at) : '') + '</div>';
@@ -80,15 +117,9 @@ if (log.length === 0) {
   lb += row("kills", String(L.kills) + (L.ms > 0 ? ' <span style="color:' + MUTED + ';">(' + Math.round(L.kills / (L.ms / 3600000)) + '/hr)</span>' : ''));
   if (L.dGain !== null && L.dGain !== undefined && L.dGain !== 0) { lb += row("dragonhood", '+' + L.dGain.toFixed(3) + '%', DRAGON); }
   cols += box(lb, MOSS);
-  var hb = caps("Lifetime", MOSS);
-  var lh = lt.ms / 3600000;
-  hb += row("time hunted", fmtDur(lt.ms));
-  hb += row("hunts", String(lt.sessions));
-  hb += row("xp / hr", lh > 0 ? thou(lt.xp / lh) : "&mdash;", MOSS);
-  hb += row("gold / hr", lh > 0 ? thou(lt.gold / lh) : "&mdash;", GOLD);
-  hb += row("kills", thou(lt.kills));
-  cols += box(hb, DEEP);
+  cols += lifeBox();
   html += cols + '</div>';
+  }
 
   // Recent hunts, newest first, each as a two-line ledger entry.
   var rs = "";
