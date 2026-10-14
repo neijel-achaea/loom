@@ -136,6 +136,15 @@ Untested whether the hellforge activation and channel persist across logins.
 DEFCON ADD resolve 4 11            halves bleeding damage; bleeding can't kill you
 ```
 
+### Priest (Zeal, after embracing; DEF names unconfirmed)
+```
+DEFCON ADD protection 4 10         less damage from physical blows (RECITE PROTECTION ME)
+DEFCON ADD fire 4 12               fire protection (RECITE FIRE ME)
+DEFCON ADD void 4 12               cold resistance (RECITE VOID ME)
+DEFCON ADD will 4 14               faster willpower regeneration (RECITE WILL ME)
+DEFCON ADD endurance 4 14          faster endurance regeneration (RECITE ENDURANCE ME)
+```
+
 ### Jester
 ```
 DEFCON ADD arrowcatch 1 15 RELAX   catches arrows (mana drain)
