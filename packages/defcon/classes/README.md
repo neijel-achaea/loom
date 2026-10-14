@@ -35,6 +35,13 @@ something. Commands that need balance or equilibrium go through the queue:
 `queue add eq ...`, `queue add bal ...`. Something interrupted by any
 command (a morph) goes last of all.
 
+## aftermorph
+
+Optional. Commands that must wait until the morph in `up` has completed
+(embrace spirit, for instance): DEFCON holds them back and sends them when
+the game says the metamorphosis is done, or when the Morph charstat
+changes. If you're already in that form, they're sent straight away.
+
 ## defs
 
 `[defence, tier, curing priority, relax?]`, one row per defence the curing
