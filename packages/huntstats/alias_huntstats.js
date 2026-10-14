@@ -29,6 +29,65 @@ if (hsSub === "" || hsSub === "status") {
       display_notice("  " + r.area + " - " + r.xpHr.toLocaleString() + " xp/hr, " + r.goldHr.toLocaleString() + " gold/hr (" + r.sessions + " hunt" + (r.sessions === 1 ? "" : "s") + ", " + HS.dur(r.ms) + ")");
     }
   }
+} else if (hsSub === "suggest") {
+  // HUNTSTATS SUGGEST [WEIGHTS <xp> <gold> <variety>] (#88): where to hunt
+  // next. Each area's xp/hr and gold/hr are scaled against your best area,
+  // plus a variety bonus that grows to full over 7 days since you last hunted
+  // there (areas from before this was recorded count as long ago). The
+  // weights say how much each counts. xp/hr holds whatever your level, so old
+  // records stay valid and time spent somewhere doesn't count.
+  if (hsP1 === "weights") {
+    var hsWa = [parseFloat(hsW[2]), parseFloat(hsW[3]), parseFloat(hsW[4])];
+    if (hsW.length < 3) {
+      hsSay("weights: xp " + HS.weights[0] + ", gold " + HS.weights[1] + ", variety " + HS.weights[2] + ". HUNTSTATS SUGGEST WEIGHTS <xp> <gold> <variety> to change them.", "cyan");
+    } else if (isNaN(hsWa[0]) || isNaN(hsWa[1]) || isNaN(hsWa[2]) || hsWa[0] < 0 || hsWa[1] < 0 || hsWa[2] < 0 || hsWa[0] + hsWa[1] + hsWa[2] <= 0) {
+      hsSay("usage: HUNTSTATS SUGGEST WEIGHTS <xp> <gold> <variety>, three numbers not all zero (default 70 25 5)", "orange");
+    } else {
+      HS.weights = hsWa;
+      set_variable("huntstats_weights", hsWa.join(" "));
+      hsSay("weights set: xp " + hsWa[0] + ", gold " + hsWa[1] + ", variety " + hsWa[2] + ".", "lime");
+    }
+  } else {
+    var sgA = {};
+    try { sgA = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { sgA = {}; }
+    var sgL = [], sgBx = 0, sgBg = 0;
+    for (var sgK in sgA) {
+      if (!sgA.hasOwnProperty(sgK)) continue;
+      var sgR = sgA[sgK], sgH = sgR.ms / 3600000;
+      if (!(sgH > 0)) continue;
+      var sgE = { area: sgK, xp: sgR.xp / sgH, gold: sgR.gold / sgH, last: sgR.last || 0 };
+      sgL.push(sgE);
+      if (sgE.xp > sgBx) sgBx = sgE.xp;
+      if (sgE.gold > sgBg) sgBg = sgE.gold;
+    }
+    if (!sgL.length) {
+      hsSay("no area history yet: hunt a few areas first.", "cyan");
+    } else {
+      var sgW = HS.weights, sgT = sgW[0] + sgW[1] + sgW[2];
+      for (var sgI = 0; sgI < sgL.length; sgI++) {
+        var sgX = sgL[sgI];
+        var sgDays = sgX.last ? (Date.now() - sgX.last) / 86400000 : 7;
+        sgX.days = sgX.last ? sgDays : null;
+        sgX.score = 100 * (sgW[0] * (sgBx > 0 ? sgX.xp / sgBx : 0) + sgW[1] * (sgBg > 0 ? sgX.gold / sgBg : 0) + sgW[2] * Math.min(sgDays, 7) / 7) / sgT;
+      }
+      sgL.sort(function (p, q) { return q.score - p.score; });
+      var sgN = Math.min(10, sgL.length);
+      hsSay("where to hunt next (xp " + sgW[0] + ", gold " + sgW[1] + ", variety " + sgW[2] + "):", "cyan");
+      var sgHtml = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
+      var sgRows = [];
+      var sgWid = 0;
+      for (var sgM = 0; sgM < sgN; sgM++) sgWid = Math.max(sgWid, sgL[sgM].area.length);
+      for (var sgJ = 0; sgJ < sgN; sgJ++) {
+        var sgY = sgL[sgJ];
+        var sgWhen = sgY.days === null ? "" : (sgY.days < 1 ? "today" : Math.floor(sgY.days) + "d ago");
+        var sgName = sgY.area + new Array(sgWid - sgY.area.length + 3).join(" ");
+        var sgTxt = ("   " + (sgJ + 1) + ". ").slice(-5) + sgName + ("   " + Math.round(sgY.score)).slice(-3) + "   " + (HS.n(sgY.xp) + " xp/hr").padStart(14) + "  " + (HS.n(sgY.gold) + " gold/hr").padStart(15) + (sgWhen ? "  last " + sgWhen : "");
+        if (sgHtml) sgRows.push('<span style="color:' + (sgJ === 0 ? "#00ffff" : "#9fc9c9") + '">' + sgTxt.replace(/&/g, "&amp;").replace(/</g, "&lt;") + '</span>');
+        else display_notice(sgTxt, "cyan");
+      }
+      if (sgHtml) nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + sgRows.join("\n") + '</span>');
+    }
+  }
 } else if (hsSub === "log") {
   var log = [];
   try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }

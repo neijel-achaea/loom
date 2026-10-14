@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.2.8", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.2.9", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -99,6 +99,11 @@ if (!HS.party) {
   try { HS.party = JSON.parse(get_variable("huntstats_party") || "[]") || []; } catch (e) { HS.party = []; }
 }
 if (!HS.me) { try { HS.me = String(get_variable("huntstats_name") || ""); } catch (e) { HS.me = ""; } }
+// HUNTSTATS SUGGEST weights (#88): xp, gold, variety (huntstats_weights).
+if (!HS.weights) {
+  var hsWt = String(get_variable("huntstats_weights") || "").split(/[\s,]+/);
+  HS.weights = (hsWt.length === 3 && !isNaN(parseFloat(hsWt[0]))) ? [parseFloat(hsWt[0]), parseFloat(hsWt[1]), parseFloat(hsWt[2])] : [70, 25, 5];
+}
 if (HS.splitTell === undefined) HS.splitTell = (String(get_variable("huntstats_splittell") || "") === "on");
 HS.saveParty = function () { try { set_variable("huntstats_party", JSON.stringify(HS.party)); } catch (e) {} };
 // fresh(): empty accumulators for a new hunt, keeping the area; the party

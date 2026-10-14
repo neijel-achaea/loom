@@ -32,6 +32,7 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
   var a = areas[rec.area] || { xp: 0, gold: 0, kills: 0, ms: 0, sessions: 0 };
   a.xp += rec.xp; a.gold += rec.gold; a.kills += rec.kills; a.ms += rec.ms; a.sessions += 1;
+  a.last = rec.at; // when you last hunted here, for HUNTSTATS SUGGEST (#88)
   areas[rec.area] = a;
   set_variable("huntstats_areas", JSON.stringify(areas));
 
