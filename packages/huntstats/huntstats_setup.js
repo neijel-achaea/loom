@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.2.6", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.2.7", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -98,6 +98,7 @@ if (!HS.party) {
   HS.party = [];
   try { HS.party = JSON.parse(get_variable("huntstats_party") || "[]") || []; } catch (e) { HS.party = []; }
 }
+if (!HS.me) { try { HS.me = String(get_variable("huntstats_name") || ""); } catch (e) { HS.me = ""; } }
 if (HS.splitTell === undefined) HS.splitTell = (String(get_variable("huntstats_splittell") || "") === "on");
 HS.saveParty = function () { try { set_variable("huntstats_party", JSON.stringify(HS.party)); } catch (e) {} };
 // fresh(): empty accumulators for a new hunt, keeping the area; the party
@@ -144,7 +145,8 @@ HS.split = function (tell) {
   for (var sI = 0; sI < who.length; sI++) total += (L[who[sI]] || 0);
   if (total <= 0) return null;
   var share = total / who.length;
-  var me = HS.me || "Me";
+  // Until your name has come over GMCP once (at a login), "I".
+  var me = HS.me || "I";
   function nm(w) { return w === "you" ? me : w; }
   var pay = [], get = [];
   for (var sM = 0; sM < who.length; sM++) {
@@ -161,7 +163,7 @@ HS.split = function (tell) {
     if (Math.round(m) >= 1) {
       var from = pay[pI].who, to = get[gI].who;
       moves.push(from === "you" ? "you give " + to + " " + HS.n(m) : (to === "you" ? from + " gives you " + HS.n(m) : from + " gives " + to + " " + HS.n(m)));
-      movesTell.push(nm(from) + " gives " + nm(to) + " " + HS.n(m));
+      movesTell.push(nm(from) + (nm(from) === "I" ? " give " : " gives ") + nm(to) + " " + HS.n(m));
     }
     pay[pI].amt -= m; get[gI].amt -= m;
     if (pay[pI].amt < 1) pI++;

@@ -126,7 +126,7 @@ if (hsSub === "" || hsSub === "status") {
 } else if (hsSub === "debug") {
   var T = HS.cur || {};
   hsSay("level=" + HS.level + " nl=" + HS.nl + " dragon=" + (HS.dragon() === null ? "?" : HS.dragon().toFixed(3)) + " resumed=" + !!HS.resumed);
-  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(",") + " party=" + HS.party.join(","));
+  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(",") + " party=" + HS.party.join(",") + " me=" + (HS.me || "?"));
 } else {
   hsSay("unknown command '" + hsSub + "'. HUNTSTATS HELP for commands.", "orange");
 }

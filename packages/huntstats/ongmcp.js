@@ -34,8 +34,12 @@ if (!HS.resumed) {
   }
 }
 
-// Your name, for the split's party tell report (#89).
-if ((hsM === "Char.Name" || hsM === "Char.Status") && hsA && hsA.name) HS.me = String(hsA.name);
+// Your name, for the split's party tell report (#89). The game sends it only
+// at login, so it's kept (huntstats_name) for a package loaded mid-session.
+if ((hsM === "Char.Name" || hsM === "Char.Status") && hsA && hsA.name && String(hsA.name) !== HS.me) {
+  HS.me = String(hsA.name);
+  try { set_variable("huntstats_name", HS.me); } catch (e) {}
+}
 
 if (hsM === "Char.Status" && hsA && hsA.level !== undefined) {
   var hsS = String(hsA.level).match(/(\d+)(?:\s*\(([\d.]+)%\))?/);
