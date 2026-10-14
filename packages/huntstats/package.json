@@ -101,9 +101,25 @@
           "script": "@file:trigger_gold.js"
         }
       ],
-      "text": "^You pick up ([\\d,]+) gold sovereigns\\.",
+      "text": "^You pick up ([\\d,]+) gold sovereigns?\\.",
       "matching": "regexp",
       "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "huntstats party gold",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_gold_party.js"
+        }
+      ],
+      "text": "^(?:[A-Z][a-z]+ picks up|You drop|[A-Z][a-z]+ drops|You give|[A-Z][a-z]+ gives) (?:[\\d,]+|some) gold sovereigns?(?: to (?:you|[A-Z][a-z]+))?\\.$",
+      "matching": "regexp",
+      "whole_words": false,
       "case_sensitive": true
     },
     {
