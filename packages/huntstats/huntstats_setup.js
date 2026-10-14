@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.2.5", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.2.6", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -128,10 +128,12 @@ HS.held = function (who, n) {
 };
 HS.inHunt = function (who) { return who === "you" || !!(HS.cur && HS.cur.players && HS.cur.players[who]); };
 HS.n = function (x) { return Math.round(x).toLocaleString(); };
-// split(): the split of the hunt under way as lines of text, or null when
-// there is no party or no gold. Even shares, and the fewest transfers that
-// get everyone there (largest debtor pays largest creditor first).
-HS.split = function () {
+// split(tell): the split of the hunt under way as lines of text, or null
+// when there is no party or no gold. Even shares, and the fewest transfers
+// that get everyone there (largest debtor pays largest creditor first).
+// With tell, the party tell report instead: one line per person under your
+// own name (HS.me, from GMCP), then TOTAL and SPLIT, readable by everyone.
+HS.split = function (tell) {
   var T = HS.cur;
   if (!T) return null;
   var who = ["you"];
@@ -142,10 +144,8 @@ HS.split = function () {
   for (var sI = 0; sI < who.length; sI++) total += (L[who[sI]] || 0);
   if (total <= 0) return null;
   var share = total / who.length;
-  var lines = [];
-  var heldTxt = [];
-  for (var sJ = 0; sJ < who.length; sJ++) heldTxt.push(who[sJ] + " " + HS.n(L[who[sJ]] || 0));
-  lines.push("split: " + HS.n(total) + " gold among " + who.length + ", " + HS.n(share) + " each. Net this hunt: " + heldTxt.join(", ") + ".");
+  var me = HS.me || "Me";
+  function nm(w) { return w === "you" ? me : w; }
   var pay = [], get = [];
   for (var sM = 0; sM < who.length; sM++) {
     var b = (L[who[sM]] || 0) - share;
@@ -154,21 +154,41 @@ HS.split = function () {
   }
   pay.sort(function (x, y) { return y.amt - x.amt; });
   get.sort(function (x, y) { return y.amt - x.amt; });
-  var moves = [];
+  var moves = [], movesTell = [];
   var pI = 0, gI = 0;
   while (pI < pay.length && gI < get.length) {
     var m = Math.min(pay[pI].amt, get[gI].amt);
     if (Math.round(m) >= 1) {
       var from = pay[pI].who, to = get[gI].who;
       moves.push(from === "you" ? "you give " + to + " " + HS.n(m) : (to === "you" ? from + " gives you " + HS.n(m) : from + " gives " + to + " " + HS.n(m)));
+      movesTell.push(nm(from) + " gives " + nm(to) + " " + HS.n(m));
     }
     pay[pI].amt -= m; get[gI].amt -= m;
     if (pay[pI].amt < 1) pI++;
     if (get[gI].amt < 1) gI++;
   }
+  var lines = [];
+  if (tell) {
+    for (var tJ = 0; tJ < who.length; tJ++) lines.push(nm(who[tJ]) + ": " + HS.n(L[who[tJ]] || 0) + " gold");
+    lines.push("TOTAL: " + HS.n(total) + " gold, " + HS.n(share) + " each");
+    lines.push("SPLIT: " + (movesTell.length ? movesTell.join(", ") : "already even"));
+    if (T.unknown && T.unknown.length) lines.push("Not counted (no amount shown): " + T.unknown.join(", ").replace(/\byou\b/g, me));
+    return lines;
+  }
+  var heldTxt = [];
+  for (var sJ = 0; sJ < who.length; sJ++) heldTxt.push(who[sJ] + " " + HS.n(L[who[sJ]] || 0));
+  lines.push("split: " + HS.n(total) + " gold among " + who.length + ", " + HS.n(share) + " each. Net this hunt: " + heldTxt.join(", ") + ".");
   lines.push(moves.length ? "to settle: " + moves.join("; ") + "." : "already even.");
   if (T.unknown && T.unknown.length) lines.push("not counted (the game shows no amount): " + T.unknown.join(", ") + ".");
   return lines;
+};
+// tellSplit(): send the report to party tell, one line each; false when
+// there is nothing to send or outbound commands are paused.
+HS.tellSplit = function () {
+  var tl = HS.split(true);
+  if (!tl || get_variable("pauseTriggers") == "on") return false;
+  for (var tI = 0; tI < tl.length; tI++) send_command("pt " + tl[tI], 1);
+  return true;
 };
 // save(): checkpoint the open hunt so a refresh, crash or disconnect can
 // recover it. Throttled to once every five seconds unless forced.

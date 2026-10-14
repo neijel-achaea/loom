@@ -13,7 +13,8 @@ var hlRows = [
   ["HUNTSTATS PARTY DEL <names>", "remove people from the party"],
   ["HUNTSTATS PARTY CLEAR", "back to hunting alone"],
   ["HUNTSTATS SPLIT", "the party's gold so far and the transfers that even it out"],
-  ["HUNTSTATS SPLIT TELL ON|OFF", "also send the split to party tell when a party hunt ends (default off)"],
+  ["HUNTSTATS SPLIT REPORT", "send the split to party tell now, one line per person"],
+  ["HUNTSTATS SPLIT TELL ON|OFF", "also send it to party tell when a party hunt ends (default off)"],
   ["HUNTSTATS WIPE CONFIRM", "clear all area records and the log"],
   ["HUNTSTATS DEBUG", "internal state"],
   ["A hunt is filed when you leave its area, and needs a minute or more of experience. A party hunt's gold split is shown then."]

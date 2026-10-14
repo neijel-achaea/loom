@@ -59,8 +59,13 @@ if (hsSub === "" || hsSub === "status") {
     hsSay("this clears ALL area records and the hunt log. HUNTSTATS WIPE CONFIRM to proceed.", "orange");
   }
 } else if (hsSub === "split") {
-  // HUNTSTATS SPLIT [TELL ON|OFF] (#89): the gold split of the hunt under way.
-  if (hsP1 === "tell") {
+  // HUNTSTATS SPLIT [REPORT | TELL ON|OFF] (#89): the gold split of the hunt
+  // under way; REPORT sends it to party tell now.
+  if (hsP1 === "report") {
+    if (!HS.split(true)) hsSay("nothing to report: no party or no gold this hunt.", "orange");
+    else if (!HS.tellSplit()) hsSay("not sent: outgoing commands are paused.", "orange");
+    else hsSay("split sent to party tell.", "lime");
+  } else if (hsP1 === "tell") {
     var hsT = hsW[2] || "";
     if (hsT === "on" || hsT === "off") {
       HS.splitTell = (hsT === "on");

@@ -41,9 +41,7 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   var spl = HS.split();
   if (spl) {
     for (var spI = 0; spI < spl.length; spI++) display_notice("[huntstats] " + spl[spI], "cyan");
-    if (HS.splitTell && get_variable("pauseTriggers") != "on") {
-      for (var spJ = 0; spJ < spl.length; spJ++) send_command("pt " + spl[spJ], 1);
-    }
+    if (HS.splitTell) HS.tellSplit();
   }
   run_function("huntstats_render", [], "huntstats");
 }

@@ -34,6 +34,9 @@ if (!HS.resumed) {
   }
 }
 
+// Your name, for the split's party tell report (#89).
+if ((hsM === "Char.Name" || hsM === "Char.Status") && hsA && hsA.name) HS.me = String(hsA.name);
+
 if (hsM === "Char.Status" && hsA && hsA.level !== undefined) {
   var hsS = String(hsA.level).match(/(\d+)(?:\s*\(([\d.]+)%\))?/);
   if (hsS) {
