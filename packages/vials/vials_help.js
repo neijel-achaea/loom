@@ -4,13 +4,14 @@
 var hlTitle = "[vials] refill your vials from the rift. Commands:";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
-  ["VIALS", "which vial holds which elixir"],
+  ["VIALS", "which vial holds which elixir, with sips and decay after a LEARN"],
+  ["VIALS LEARN", "read your vials from ELIXLIST and set them all"],
   ["VIALS REFILL <elixir>", "fill that elixir's vial from the rift"],
   ["VIALS REFILL ALL", "fill every vial set"],
   ["VIALS SET <elixir> <vial> [...]", "which vial holds an elixir; several pairs on one line"],
   ["VIALS FORGET <elixir>", "stop tracking that vial"],
   ["VIALS DEBUG", "internal state"],
-  ["Vial numbers come from ELIXLIST or II VIAL. Nothing is sent while triggers are paused."]
+  ["VIALS LEARN replaces the list with what ELIXLIST shows. Nothing is sent while triggers are paused."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

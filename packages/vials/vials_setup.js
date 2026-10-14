@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.vials) client.loom.vials = {};
-client.loom.registry.vials = { version: "0.2.2", keyword: "VIALS", desc: "{{description}}" };
+client.loom.registry.vials = { version: "0.2.3", keyword: "VIALS", desc: "{{description}}" };
 var VI = client.loom.vials;
 if (!VI.map) {
   var viRaw;
@@ -12,3 +12,9 @@ if (!VI.map) {
   try { VI.map = JSON.parse(viRaw) || {}; } catch (e) { VI.map = {}; }
   if (Object.prototype.toString.call(VI.map) !== "[object Object]") VI.map = {};
 }
+// Sips and months per elixir from the last VIALS LEARN (vials_info), shown by
+// VIALS; vials set by hand have none.
+if (!VI.info) {
+  try { VI.info = JSON.parse(get_variable("vials_info") || "{}") || {}; } catch (e) { VI.info = {}; }
+}
+if (VI.learn === undefined) VI.learn = null;
