@@ -7,7 +7,7 @@ var hlRows = [
   ["HUNTSTATS", "the hunt under way: rates, next level, Dragonhood"],
   ["HUNTSTATS AREAS", "every area hunted, by total time, with its rates"],
   ["HUNTSTATS LOG", "the last five hunts"],
-  ["HUNTSTATS SUGGEST", "the five best areas to hunt next, by xp/hr, gold/hr and how long since you went"],
+  ["HUNTSTATS SUGGEST", "the ten best areas to hunt next, by xp/hr, gold/hr and how long since you went"],
   ["HUNTSTATS SUGGEST WEIGHTS <x> <g> <v>", "how much xp, gold and variety count (default 70 25 5)"],
   ["HUNTSTATS FLUSH", "file the hunt under way now"],
   ["HUNTSTATS PARTY", "who you're hunting with"],

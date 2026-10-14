@@ -71,15 +71,17 @@ if (hsSub === "" || hsSub === "status") {
         sgX.score = 100 * (sgW[0] * (sgBx > 0 ? sgX.xp / sgBx : 0) + sgW[1] * (sgBg > 0 ? sgX.gold / sgBg : 0) + sgW[2] * Math.min(sgDays, 7) / 7) / sgT;
       }
       sgL.sort(function (p, q) { return q.score - p.score; });
-      var sgN = Math.min(5, sgL.length);
+      var sgN = Math.min(10, sgL.length);
       hsSay("where to hunt next (xp " + sgW[0] + ", gold " + sgW[1] + ", variety " + sgW[2] + "):", "cyan");
       var sgHtml = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
       var sgRows = [];
+      var sgWid = 0;
+      for (var sgM = 0; sgM < sgN; sgM++) sgWid = Math.max(sgWid, sgL[sgM].area.length);
       for (var sgJ = 0; sgJ < sgN; sgJ++) {
         var sgY = sgL[sgJ];
         var sgWhen = sgY.days === null ? "" : (sgY.days < 1 ? "today" : Math.floor(sgY.days) + "d ago");
-        var sgName = (sgY.area + "                                ").slice(0, 30);
-        var sgTxt = ("  " + (sgJ + 1) + ". ").slice(-5) + sgName + ("   " + Math.round(sgY.score)).slice(-3) + "   " + (HS.n(sgY.xp) + " xp/hr").padStart(14) + "  " + (HS.n(sgY.gold) + " gold/hr").padStart(15) + (sgWhen ? "  last " + sgWhen : "");
+        var sgName = sgY.area + new Array(sgWid - sgY.area.length + 3).join(" ");
+        var sgTxt = ("   " + (sgJ + 1) + ". ").slice(-5) + sgName + ("   " + Math.round(sgY.score)).slice(-3) + "   " + (HS.n(sgY.xp) + " xp/hr").padStart(14) + "  " + (HS.n(sgY.gold) + " gold/hr").padStart(15) + (sgWhen ? "  last " + sgWhen : "");
         if (sgHtml) sgRows.push('<span style="color:' + (sgJ === 0 ? "#00ffff" : "#9fc9c9") + '">' + sgTxt.replace(/&/g, "&amp;").replace(/</g, "&lt;") + '</span>');
         else display_notice(sgTxt, "cyan");
       }
