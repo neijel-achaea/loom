@@ -47,6 +47,12 @@
     },
     {
       "type": "function",
+      "name": "dmgchart_lasts",
+      "enabled": true,
+      "code": "@file:dmgchart_lasts.js"
+    },
+    {
+      "type": "function",
       "name": "dmgchart_render",
       "enabled": true,
       "code": "@file:dmgchart_render.js"
