@@ -37,6 +37,12 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
 
   var extra = (dGain !== null) ? (", " + (dGain < 0 ? "" : "+") + dGain.toFixed(3) + "% dragon") : "";
   display_notice("[huntstats] " + rec.area + ": " + rec.xp.toLocaleString() + " xp (" + xpHr.toLocaleString() + "/hr), " + rec.gold.toLocaleString() + " gold, " + rec.kills + " kills, " + HS.dur(ms) + extra, "lime");
+  // The party's gold split (#89), and to party tell with SPLIT TELL ON.
+  var spl = HS.split();
+  if (spl) {
+    for (var spI = 0; spI < spl.length; spI++) display_notice("[huntstats] " + spl[spI], "cyan");
+    if (HS.splitTell) HS.tellSplit();
+  }
   run_function("huntstats_render", [], "huntstats");
 }
 

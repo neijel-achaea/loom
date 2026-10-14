@@ -58,6 +58,27 @@ if (hsSub === "" || hsSub === "status") {
   } else {
     hsSay("this clears ALL area records and the hunt log. HUNTSTATS WIPE CONFIRM to proceed.", "orange");
   }
+} else if (hsSub === "split") {
+  // HUNTSTATS SPLIT [REPORT | TELL ON|OFF] (#89): the gold split of the hunt
+  // under way; REPORT sends it to party tell now.
+  if (hsP1 === "report") {
+    if (!HS.split(true)) hsSay("nothing to report: no party or no gold this hunt.", "orange");
+    else if (!HS.tellSplit()) hsSay("not sent: outgoing commands are paused.", "orange");
+    else hsSay("split sent to party tell.", "lime");
+  } else if (hsP1 === "tell") {
+    var hsT = hsW[2] || "";
+    if (hsT === "on" || hsT === "off") {
+      HS.splitTell = (hsT === "on");
+      set_variable("huntstats_splittell", hsT);
+      hsSay("the split at the end of a party hunt " + (HS.splitTell ? "also goes to party tell" : "stays in your window") + ".", "lime");
+    } else {
+      hsSay("the split " + (HS.splitTell ? "goes to party tell too" : "stays in your window") + ". HUNTSTATS SPLIT TELL ON or OFF to change it.", "cyan");
+    }
+  } else {
+    var hsSp = HS.split();
+    if (!hsSp) hsSay(HS.cur && HS.cur.players && Object.keys(HS.cur.players).length ? "no gold picked up by the party this hunt yet." : "no party this hunt: HUNTSTATS PARTY ADD <name> first.", "cyan");
+    else for (var hsSI = 0; hsSI < hsSp.length; hsSI++) hsSay(hsSp[hsSI], "cyan");
+  }
 } else if (hsSub === "party") {
   // HUNTSTATS PARTY [ADD <names> | DEL <names> | CLEAR] (#87): who you're
   // hunting with, by hand. Names take a capital letter whatever was typed.
@@ -105,7 +126,7 @@ if (hsSub === "" || hsSub === "status") {
 } else if (hsSub === "debug") {
   var T = HS.cur || {};
   hsSay("level=" + HS.level + " nl=" + HS.nl + " dragon=" + (HS.dragon() === null ? "?" : HS.dragon().toFixed(3)) + " resumed=" + !!HS.resumed);
-  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(",") + " party=" + HS.party.join(","));
+  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(",") + " party=" + HS.party.join(",") + " me=" + (HS.me || "?"));
 } else {
   hsSay("unknown command '" + hsSub + "'. HUNTSTATS HELP for commands.", "orange");
 }
