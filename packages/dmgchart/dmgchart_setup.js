@@ -5,7 +5,7 @@
 // state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "0.3.3", keyword: "DMGCHART", desc: "{{description}}" };
+client.loom.registry.dmgchart = { version: "0.3.4", keyword: "DMGCHART", desc: "{{description}}" };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};
 var DC = client.loom.dmgchart;
 
@@ -41,6 +41,14 @@ if (DC.window === undefined) {
   DC.window = parseFloat(get_variable("dmgchart_window"));
   if (isNaN(DC.window) || DC.window <= 0) DC.window = 6;
 }
+// DMGCHART WARN: seconds of health left that set off the notice (#93),
+// 0 when off. Saved as dmgchart_warn ("off" or the seconds).
+if (DC.warn === undefined) {
+  var dcWarn = String(get_variable("dmgchart_warn") || "").trim().toLowerCase();
+  DC.warn = dcWarn == "off" ? 0 : parseFloat(dcWarn);
+  if (isNaN(DC.warn) || DC.warn < 0) DC.warn = 10;
+}
+if (DC.lasts === undefined) DC.lasts = null;
 if (!DC.recent) DC.recent = [];
 DC.tab = "DmgChart";
 if (!DC.colors) DC.colors = { "cutting": "#d9534f", "blunt": "#b08968", "magical": "#9b6bd6", "unblockable": "#d8d8d8", "poison": "#6abf4b", "fire": "#f0883e", "cold": "#5bc0de", "electricity": "#f2d43d", "asphyxiation": "#7f8fa6", "psychic": "#e36bb8", "raw": "#8c8c8c", "bleed": "#8b1e2d" };

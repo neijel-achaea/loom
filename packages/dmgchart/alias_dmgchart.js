@@ -26,6 +26,27 @@ if (sub == "gap") {
     set_variable("dmgchart_window", String(w));
     display_notice("[dmgchart] health lasts now uses the last " + w + "s of the fight", "lime");
   }
+} else if (sub == "warn") {
+  // DMGCHART WARN [<seconds> | OFF] (#93): the notice when health lasts drops
+  // below the threshold.
+  var wa = rest.toLowerCase();
+  if (wa == "") {
+    display_notice("[dmgchart] " + (d.warn > 0 ? "warns when health lasts drops below " + d.warn + "s" : "health lasts warning is off") + ". DMGCHART WARN <seconds> or WARN OFF to change it.", "cyan");
+  } else if (wa == "off") {
+    d.warn = 0;
+    set_variable("dmgchart_warn", "off");
+    display_notice("[dmgchart] health lasts warning off", "lime");
+  } else {
+    var wv = parseFloat(wa);
+    if (isNaN(wv) || wv <= 0 || wv > 120) {
+      display_notice("[dmgchart] usage: DMGCHART WARN <seconds>, 1 to 120, or WARN OFF  (currently " + (d.warn > 0 ? d.warn + "s" : "off") + ")", "orange");
+    } else {
+      d.warn = wv;
+      set_variable("dmgchart_warn", String(wv));
+      if (d.fight) d.fight.warned = false;
+      display_notice("[dmgchart] warns when health lasts drops below " + wv + "s", "lime");
+    }
+  }
 } else if (sub == "reset") {
   d.fight = null;
   d.lastInc = null;
@@ -91,7 +112,7 @@ if (sub == "gap") {
   }
 } else if (sub == "" || sub == "status") {
   var dcF = d.fight;
-  var dcLine = "gap " + d.gap + "s, health lasts over the last " + d.window + "s, " + d.saved.length + " saved session" + (d.saved.length == 1 ? "" : "s");
+  var dcLine = "gap " + d.gap + "s, health lasts over the last " + d.window + "s, " + (d.warn > 0 ? "warning below " + d.warn + "s" : "warning off") + ", " + d.saved.length + " saved session" + (d.saved.length == 1 ? "" : "s");
   if (d.sess) dcLine += ", recording '" + d.sess.name + "' (" + d.sess.fights + " fights so far)";
   display_notice("[dmgchart] " + dcLine + ".", "cyan");
   if (dcF) {
@@ -124,7 +145,7 @@ if (sub == "gap") {
   d = client.loom.dmgchart;
   display_notice("[dmgchart] rebuilt from the saved variables (gap " + d.gap + "s, window " + d.window + "s" + (d.sess ? ", recording '" + d.sess.name + "' resumed from its last checkpoint" : "") + ")", "lime");
 } else if (sub == "debug") {
-  display_notice("[dmgchart] gap=" + d.gap + " window=" + d.window + " recent=" + (d.recent ? d.recent.length : 0) + " view='" + d.view + "' saved=" + d.saved.length + " nextId=" + d.nextId + " hp=" + d.hp + " sess=" + (d.sess ? d.sess.name + "/" + d.sess.fights : "none") + " fight=" + (d.fight ? d.fight.outTotal + "/" + d.fight.incTotal : "none") + " lastInc=" + (d.lastInc ? d.lastInc.type + ":" + d.lastInc.amt : "none"), "orange");
+  display_notice("[dmgchart] gap=" + d.gap + " window=" + d.window + " warn=" + d.warn + " lasts=" + (d.lasts ? Math.round(d.lasts.secs) + "s" : "none") + " recent=" + (d.recent ? d.recent.length : 0) + " view='" + d.view + "' saved=" + d.saved.length + " nextId=" + d.nextId + " hp=" + d.hp + " sess=" + (d.sess ? d.sess.name + "/" + d.sess.fights : "none") + " fight=" + (d.fight ? d.fight.outTotal + "/" + d.fight.incTotal : "none") + " lastInc=" + (d.lastInc ? d.lastInc.type + ":" + d.lastInc.amt : "none"), "orange");
 } else {
   display_notice("[dmgchart] unknown command '" + sub + "'. DMGCHART HELP for commands.", "orange");
 }

@@ -1,7 +1,8 @@
 // Current health from Char.Vitals, logged with its time for "health lasts" in
 // the exchange: how fast health is really falling, whatever hit or healed it.
 // While a fight is on (up to the gap after its last blow) every reading
-// redraws the tab, so the figure follows sips and regeneration too.
+// works health lasts out again (and the WARN notice, #93) and redraws the
+// tab, so the figure follows sips and regeneration too.
 var dcM = "";
 var dcA = null;
 try { dcM = args.gmcp_method; dcA = args.gmcp_args; } catch (e) { dcM = ""; }
@@ -16,7 +17,10 @@ if (dcM === "Char.Vitals" && dcA) {
       var dcChanged = dcHp !== DC.hp;
       DC.hp = dcHp;
       if (dcChanged || !DC.recent || !DC.recent.length) run_function("dmgchart_recent", { t: dcNow, hp: dcHp }, "dmgchart");
-      if (DC.fight && !DC.view && dcNow - DC.fight.last <= DC.gap * 1000) run_function("dmgchart_render", [], "dmgchart");
+      if (DC.fight && dcNow - DC.fight.last <= DC.gap * 1000) {
+        run_function("dmgchart_lasts", [], "dmgchart");
+        if (!DC.view) run_function("dmgchart_render", [], "dmgchart");
+      }
     }
   }
 }

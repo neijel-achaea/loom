@@ -157,26 +157,11 @@ if (!src) {
     ex += xline("biggest hit", H.out.max, TXT);
     ex += xline("hits a minute", Math.round(H.out.n / (dur / 60)), TXT);
   }
-  // Health lasts, for the live fight only: current health over how fast it
-  // has really fallen across the last d.window seconds (or the fight so far),
-  // from the Char.Vitals readings, so every hit and heal counts and nothing
-  // can be counted twice. Shown only while health is falling, after a short
-  // warm-up (3s and 2 hits taken), so it never claims all is well (#153).
-  if (!d.view && src.incTotal > 0) {
-    var hpNow = d.hp;
-    var wNow = Date.now();
-    var wFrom = Math.max(wNow - d.window * 1000, src.start);
-    var wSpan = (wNow - wFrom) / 1000;
-    var rc = d.recent || [];
-    var hpThen = null;
-    for (var ri = 0; ri < rc.length; ri++) {
-      if (rc[ri].t <= wFrom) { hpThen = rc[ri].hp; } else { if (hpThen === null) hpThen = rc[ri].hp; break; }
-    }
-    if (typeof hpNow === "number" && !isNaN(hpNow) && hpNow > 0 && hpThen !== null && wSpan >= 3 && H && H.inc.n >= 2 && hpThen > hpNow) {
-      var drop = (hpThen - hpNow) / wSpan;
-      var last = hpNow / drop;
-      ex += xline("health lasts", "~" + secs(last) + " (losing " + Math.round(drop) + "/s over the last " + Math.round(wSpan) + "s)", last < 10 ? CRIMSON : (last < 30 ? "#e6c25a" : MUTED));
-    }
+  // Health lasts, for the live fight only, as dmgchart_lasts worked it out
+  // (#153, #93): absent while health isn't falling.
+  var LA = d.lasts;
+  if (!d.view && LA && LA.start == src.start && Date.now() - src.last <= d.gap * 1000) {
+    ex += xline("health lasts", "~" + secs(LA.secs) + " (losing " + Math.round(LA.drop) + "/s over the last " + Math.round(LA.span) + "s)", LA.secs < 10 ? CRIMSON : (LA.secs < 30 ? "#e6c25a" : MUTED));
   }
   if (ex) { html += section("The exchange", ex); }
 }

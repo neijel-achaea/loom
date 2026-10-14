@@ -63,6 +63,7 @@ if (e && !isNaN(e.amt)) {
   }
   if (e.dir == "inc") {
     d.lastInc = { type: e.type, amt: e.amt, t: now, inSess: !!ss, undo: undo };
+    run_function("dmgchart_lasts", [], "dmgchart");
   }
   run_function("dmgchart_render", [], "dmgchart");
 }
