@@ -28,9 +28,11 @@ function caps(t, n) { return '<div style="font-family:' + SERIF + ';font-variant
 // a type column left empty for now (shrines, plants… from the integrations).
 // glow: false, or the colour of a targeted row (yellow mob, red player).
 // tint: an explicit row background (a flagged item), else the glow's own.
-function row(n, name, title, type, glow, tint) {
+// icon: html for a mark beside the quantity (a flagged item's icon), so
+// names stay aligned in every section.
+function row(n, name, title, type, glow, tint, icon) {
   return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;' + (tint ? 'background:' + tint + ';' : (glow ? 'background:' + (glow === PGLOW ? 'rgba(255,106,94,0.08)' : 'rgba(255,215,94,0.07)') + ';' : '')) + '">' +
-    '<span style="flex:0 0 2.6em;text-align:right;font-size:11px;color:' + MUTED + ';">' + (n > 1 ? n + '&times;' : '') + '</span>' +
+    '<span style="flex:0 0 3.4em;text-align:right;font-size:11px;color:' + MUTED + ';white-space:nowrap;">' + (n > 1 ? n + '&times;' : '') + (icon || '') + '</span>' +
     '<span style="flex:1 1 auto;">' + name + '</span>' +
     (type ? '<span style="flex:0 0 auto;font-size:12px;color:' + (glow || MUTED) + ';font-style:italic;font-family:' + SERIF + ';">' + esc(type) + '</span>' : '') + '</div>';
 }
@@ -160,7 +162,9 @@ if (!R.info) {
     var fl = flagOf[im[ii].it.id];
     if (fl) {
       var fc = FLAG[fl.tone] || MUTED;
-      html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (fl.tone === "bad" ? fc : (take ? TXT : MUTED)) + ';">' + esc(im[ii].it.name) + '</span>', fl.title || "", fl.label, fc, fl.tone === "bad" ? "rgba(255,154,76,0.09)" : "transparent");
+      // The flag as an icon left of the name, the words on hover (Ricardo).
+      var ficon = fl.icon ? '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:13px;color:' + fc + ';margin-left:3px;">' + esc(fl.icon) + '\ufe0e</span>' : '';
+      html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (fl.tone === "bad" ? fc : (take ? TXT : MUTED)) + ';">' + esc(im[ii].it.name) + '</span>', fl.title || fl.label || "", fl.icon ? "" : fl.label, fc, fl.tone === "bad" ? "rgba(255,154,76,0.09)" : "transparent", ficon);
     } else {
       html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
     }
