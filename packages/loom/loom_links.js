@@ -403,3 +403,20 @@ L.addLink({
     lg.entry.upsert({ source: "sigils", key: "patrol", text: text, due: due });
   }
 });
+
+// #60 standings -> social (Ricardo): a switch, SOCIAL COLOURS GROUPS|STANDINGS
+// (social's own setting, default groups). In standings mode social asks this
+// link for a name's colour: the band's colour for anyone on the books. Social
+// passes it on to everything that shows its colours: game lines, Online,
+// Here and Comms. Its own question, so it switches apart from standings-online.
+L.addLink({
+  id: "standings-social", src: "standings", dst: "social", issue: 60,
+  desc: "Names coloured by standing band, when SOCIAL COLOURS STANDINGS is chosen",
+  answers: {
+    "person.colour": function (name) {
+      var st = client.loom.standings;
+      var r = st && st.look && st.look.standing ? st.look.standing(name) : undefined;
+      return r ? r.colour : undefined;
+    }
+  }
+});

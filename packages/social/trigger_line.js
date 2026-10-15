@@ -13,12 +13,8 @@ if (soLine) {
       colorize_current_line(soM.index, soM[0].length, S.color.self, "");
       continue;
     }
-    for (var soI = 0; soI < S.groups.length; soI++) {
-      if (S.lists[S.groups[soI]][soName]) {
-        colorize_current_line(soM.index, soM[0].length, S.color[S.groups[soI]], "");
-        break;
-      }
-    }
+    var soCol = S.nameColour(soName);
+    if (soCol) colorize_current_line(soM.index, soM[0].length, soCol, "");
   }
 }
 // The capture ends on QW's last line, "Plus another N ... (M total)." (#75),

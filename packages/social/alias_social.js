@@ -92,11 +92,25 @@ if (soSub === "" || soSub === "status") {
   S.prev = null;
   run_function("social_setup", [], "social");
   display_notice("[social] reset: lists reloaded, watchlist re-primes on the next poll.", "lime");
+} else if (soSub === "colours" || soSub === "colors") {
+  // Name colours by group or by standing band (#60).
+  if (soGroup === "groups" || soGroup === "standings") {
+    S.colourBy = soGroup;
+    set_variable("social_colour_by", soGroup);
+    S.standCache = {}; S.standCacheN = 0;
+    display_notice("[social] names coloured by " + (soGroup === "groups" ? "group." : "standing band; people not on the books keep their group colour."), "lime");
+    var soLk = client.loom.loom;
+    if (soGroup === "standings" && (!soLk || !soLk.linkState || soLk.linkState("standings-social") !== "on")) display_notice("[social] standing colours need the standings package and the standings-social link on (LOOM LINKS); until then, group colours.", "orange");
+  } else if (soGroup === "") {
+    display_notice("[social] names are coloured by " + (S.colourBy === "standings" ? "standing band (group colour for people not on the books)" : "group") + ". SOCIAL COLOURS GROUPS|STANDINGS.", "cyan");
+  } else {
+    display_notice("[social] SOCIAL COLOURS GROUPS|STANDINGS.", "orange");
+  }
 } else {
   display_notice("[social] unknown command '" + soSub + "'. SOCIAL HELP for commands.", "orange");
 }
 // Lists, colours, watches and polling all show on the Online tab (#76).
-if (["add", "del", "color", "colour", "watch", "unwatch", "poll", "reset", "offline"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
+if (["add", "del", "color", "colour", "colours", "colors", "watch", "unwatch", "poll", "reset", "offline"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
 // Lists and colours are what social's look reports (#159): tell loom, so the
 // tabs showing them redraw (guarded: social works without loom).
-if (["add", "del", "color", "colour"].indexOf(soSub) >= 0 && client.loom.notify) client.loom.notify("social");
+if (["add", "del", "color", "colour", "colours", "colors"].indexOf(soSub) >= 0 && client.loom.notify) client.loom.notify("social");

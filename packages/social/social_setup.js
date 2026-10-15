@@ -4,7 +4,16 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.social) client.loom.social = {};
 // redraw: how loom redraws the Online tab when an integration's source changes (#159).
-client.loom.registry.social = { version: "0.3.6", keyword: "SOCIAL", desc: "{{description}}", redraw: function () { run_function("social_online", [], "social"); } };
+// The redraw also forgets the standing colours cached for name colouring
+// (#60), since it runs when standings changes or a link into social flips;
+// in standings mode it passes the change on to the tabs that show social's
+// colours (Here, Comms).
+client.loom.registry.social = { version: "0.4.0", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
+  var So = client.loom.social;
+  if (So) { So.standCache = {}; So.standCacheN = 0; }
+  run_function("social_online", [], "social");
+  if (So && So.colourBy === "standings" && client.loom.notify) client.loom.notify("social");
+} };
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.
@@ -118,6 +127,30 @@ S.timer = setInterval(function () { run_function("social_poll", [], "social"); }
 // (#159): what social knows about a person, never its variables. Groups in
 // priority order, so a name in two groups takes the first one's colour, as
 // in the game's highlights. Every group counts here, watched or not.
+// Name colouring (#60): by group (the default) or by standing band, from
+// SOCIAL COLOURS GROUPS|STANDINGS (social_colour_by). In standings mode a
+// person on the books takes the band's colour, asked of loom as social's own
+// question person.colour (link standings-social); anyone else keeps their
+// group colour. Answers are cached per name until the next redraw, since the
+// line trigger asks for every capitalised word.
+S.colourBy = get_variable("social_colour_by") === "standings" ? "standings" : "groups";
+S.standCache = {};
+S.standCacheN = 0;
+S.nameColour = function (name) {
+  var n = String(name || "").trim().toLowerCase();
+  if (!n) return undefined;
+  if (S.colourBy === "standings" && client.loom.loom && client.loom.loom.answer) {
+    var c = S.standCache[n];
+    if (c === undefined) {
+      c = client.loom.loom.answer("social", "person.colour", n) || null;
+      if (S.standCacheN > 3000) { S.standCache = {}; S.standCacheN = 0; }
+      S.standCache[n] = c; S.standCacheN++;
+    }
+    if (c) return c;
+  }
+  var g = S.look.group(n);
+  return g ? S.color[g] : undefined;
+};
 S.look = {
   group: function (name) {
     var n = String(name || "").trim().toLowerCase();
@@ -125,7 +158,7 @@ S.look = {
     for (var i = 0; i < S.groups.length; i++) { if (S.lists[S.groups[i]] && S.lists[S.groups[i]][n]) return S.groups[i]; }
     return undefined;
   },
-  colour: function (name) { var g = S.look.group(name); return g ? S.color[g] : undefined; }
+  colour: function (name) { return S.nameColour(name); }
 };
 // A reimport may change lists or colours: tell loom (guarded: social works
 // without it).

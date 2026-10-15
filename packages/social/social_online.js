@@ -99,7 +99,7 @@ if (!watchedN) {
   for (var ri = 0; ri < rows.length; ri++) {
     var r = rows[ri];
     var g2 = grp[r.n];
-    var col = S.color[g2] || TXT;
+    var col = S.nameColour(r.n) || S.color[g2] || TXT;
     var f = fl[r.n];
     var glow = !r.out && f && f.kind === "in";
     var nameStyle = r.out ? 'color:' + MUTED + ';text-decoration:line-through;' : 'color:' + col + ';' + (glow ? 'font-weight:bold;text-shadow:0 0 6px ' + col + ',0 0 2px ' + col + ';' : '');
@@ -137,7 +137,7 @@ if (watchedN && S.prev !== null) {
     for (var oi = 0; oi < off.length; oi++) {
       var o = off[oi];
       html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;opacity:0.55;">';
-      html += '<span title="' + esc(grp[o.n]) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:11px;cursor:default;color:' + (S.color[grp[o.n]] || TXT) + ';">' + esc(cap(o.n)) + '</span>';
+      html += '<span title="' + esc(grp[o.n]) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:11px;cursor:default;color:' + (S.nameColour(o.n) || S.color[grp[o.n]] || TXT) + ';">' + esc(cap(o.n)) + '</span>';
       html += standCell(o.n);
       html += '<span style="min-width:5.5em;text-align:right;color:' + MUTED + ';white-space:nowrap;">' + (o.seen ? agoTxt(now - o.seen) : "not seen yet") + '</span>';
       html += '</div>';
