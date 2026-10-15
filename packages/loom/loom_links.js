@@ -192,3 +192,14 @@ L.addLink({
     "person.standing": function (n) { var s = client.loom.standings; return s && s.look ? s.look.standing(n) : undefined; }
   }
 });
+
+// #50 standings -> social: your standing with someone, as its icon, in the
+// "has awoken" notice ("Ana \u2665 has awoken"). Its own question, so it
+// switches off apart from the Online column (standings-online).
+L.addLink({
+  id: "standings-login", src: "standings", dst: "social", issue: 50,
+  desc: "Your standing's icon in the 'has awoken' notice",
+  answers: {
+    "notice.standing": function (n) { var s = client.loom.standings; return s && s.look ? s.look.standing(n) : undefined; }
+  }
+});
