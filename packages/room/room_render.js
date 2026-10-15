@@ -10,7 +10,7 @@
 //     ITEMS (things you can take stand out, fixtures are muted), each as a
 //     table: quantity when more than one, the name, and a type column the
 //     integrations can fill (shrine, plant…)
-// Integrations (0.5: #162 social colours, #163 hunting target, #164 shrines,
+// Integrations (0.5: #162 social colours (done), #163 hunting target, #164 shrines,
 // #165 sigils, #166 plants) will mark rows through the display entry point #159.
 var R = client.loom.room;
 var AMBER = "#e0b46c";
@@ -88,10 +88,19 @@ if (!R.info) {
   }
   if (tgtPl) { tgtWord = ""; if (useGmcp) tgtId = ""; }
   html += caps("players", pl.length);
+  // Through loom's display entry point (#159): a player's highlight colour
+  // and group from social (#162), when both are installed and the link is
+  // on; otherwise plain. The target glow still wins.
+  var LL = client.loom.loom;
+  var ask = function (q, n) { return (LL && LL.answer) ? LL.answer("room", q, n) : undefined; };
   for (var pi = 0; pi < pl.length; pi++) {
     var isT = pl[pi] === tgtPl;
     var pHp = (isT && useGmcp && R.target.hp !== "") ? R.target.hp + "%" : (isT ? "target" : "");
-    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : TXT) + ';">' + esc(pl[pi]) + '</span>', R.players[pl[pi]], pHp, isT ? PGLOW : false);
+    var pCol = ask("person.colour", pl[pi]);
+    var pGrp = ask("person.group", pl[pi]);
+    var pTitle = R.players[pl[pi]] || "";
+    if (pGrp) pTitle = (pTitle ? pTitle + " \u00b7 " : "") + pGrp;
+    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>', pTitle, pHp, isT ? PGLOW : false);
   }
 
   // Mobs and items.

@@ -97,3 +97,6 @@ if (soSub === "" || soSub === "status") {
 }
 // Lists, colours, watches and polling all show on the Online tab (#76).
 if (["add", "del", "color", "colour", "watch", "unwatch", "poll", "reset", "offline"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
+// Lists and colours are what social's look reports (#159): tell loom, so the
+// tabs showing them redraw (guarded: social works without loom).
+if (["add", "del", "color", "colour"].indexOf(soSub) >= 0 && client.loom.notify) client.loom.notify("social");
