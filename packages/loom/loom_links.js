@@ -448,3 +448,23 @@ L.addLink({
     }
   }
 });
+
+// #39 huntstats -> coffers (Ricardo: realistic, a little better each time):
+// when a hunt starts in an area you've hunted before, propose a gold goal of
+// your average hunt there +10% (average gold/hr x average hunt length is just
+// total gold / hunts), rounded up to 100. Withdrawn when the hunt ends
+// (filed, or you leave the area); an accepted goal stays yours.
+L.huntGoalStretch = 1.1;
+L.addLink({
+  id: "huntstats-coffers", src: "huntstats", dst: "coffers", issue: 39,
+  desc: "A gold goal 10% over your average hunt in an area, when you start hunting there",
+  update: function () {
+    var hs = client.loom.huntstats, co = client.loom.coffers;
+    if (!hs || !hs.look || !hs.look.hunt || !hs.look.average || !co || !co.entry) return;
+    var h = hs.look.hunt();
+    var avg = h ? hs.look.average(h.area) : undefined;
+    if (!h || !avg) { co.entry.withdraw("huntstats", "hunt"); return; }
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+    co.entry.propose({ source: "huntstats", key: "hunt", amount: Math.ceil(avg.gold * L.huntGoalStretch / 100) * 100, why: "10% over your average hunt in " + h.area + " (" + fmt(avg.gold) + " gold over " + avg.hunts + " hunt" + (avg.hunts === 1 ? "" : "s") + ")" });
+  }
+});

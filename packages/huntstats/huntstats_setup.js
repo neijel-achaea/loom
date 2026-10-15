@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.2.9", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.2.10", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -208,3 +208,22 @@ HS.save = function (force) {
 
 // The Dragonhood F-key setting existed briefly before release; drop it.
 try { if (get_variable("huntstats_button") !== undefined && get_variable("huntstats_button") !== null) delete_variable("huntstats_button"); } catch (e) {}
+
+// The read-only look other packages see through loom (#39): never its variables.
+//   look.hunt()     -> { area } while a hunt is under way (experience earned
+//                      in this area), undefined otherwise
+//   look.average(area) -> { gold, hunts } for that area: the average gold one
+//                      filed hunt earned there (total gold / hunts), or
+//                      undefined when no hunt there is on record
+HS.look = {
+  hunt: function () {
+    var c = HS.cur;
+    return (c && c.area !== undefined && c.firstXpAt && c.xp > 0) ? { area: c.area } : undefined;
+  },
+  average: function (area) {
+    var areas = {};
+    try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
+    var a = areas[area];
+    return (a && a.sessions > 0 && a.gold > 0) ? { gold: Math.round(a.gold / a.sessions), hunts: a.sessions } : undefined;
+  }
+};

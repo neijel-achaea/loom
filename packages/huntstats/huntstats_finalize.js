@@ -52,3 +52,5 @@ try { set_variable("huntstats_open", ""); } catch (e) {}
 // Redrawn after the hunt is cleared, so the tab no longer shows it as under
 // way (#90).
 run_function("huntstats_render", [], "huntstats");
+// The hunt is over: tell loom (#39 withdraws its goal proposal).
+if (client.loom.notify) client.loom.notify("huntstats");
