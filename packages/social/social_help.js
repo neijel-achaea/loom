@@ -9,6 +9,7 @@ var hlRows = [
   ["SOCIAL DEL <group> <name>", "remove it"],
   ["SOCIAL LIST [group]", "names in a group (no group: counts)"],
   ["SOCIAL COLOR <group|self> [#rrggbb]", "highlight colour (no colour: back to the default)"],
+  ["SOCIAL COLOURS [GROUPS|STANDINGS]", "colour names by group (default) or by standing band"],
   ["SOCIAL WATCH [group]", "announce when that group's names log in or out (no group: show)"],
   ["SOCIAL OFFLINE [ON|OFF]", "show or fold the Online tab's offline section (clicking its heading flips it too)"],
   ["SOCIAL UNWATCH <group>", "stop announcing it"],
