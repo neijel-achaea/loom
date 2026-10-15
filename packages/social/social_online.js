@@ -97,8 +97,8 @@ if (!watchedN) {
   html += '</div>';
 }
 // OFFLINE: watched people not online (nor just left), last seen most recent
-// first, never seen last. A click on the heading folds or unfolds it for the
-// rest of the session; SOCIAL OFFLINE ON/OFF sets it for good.
+// first, never seen last. A click on the heading folds or unfolds it until
+// the page reloads; SOCIAL OFFLINE ON/OFF sets it for good.
 if (watchedN && S.prev !== null) {
   var off = [];
   for (var n3 in grp) {
@@ -106,16 +106,13 @@ if (watchedN && S.prev !== null) {
   }
   off.sort(function (a, b) { return (b.seen - a.seen) || (a.n < b.n ? -1 : (a.n > b.n ? 1 : 0)); });
   if (off.length) {
-    // A click on the heading can't reach client.* from the tab page, so the
-    // fold lives on the window (window.loomOnlineOffline), which both the
-    // page and this script see; it holds until the page reloads, when the
-    // saved SOCIAL OFFLINE setting applies again.
-    var wFold;
-    try { wFold = window.loomOnlineOffline; } catch (e) { wFold = undefined; }
-    var shown = (typeof wFold === "boolean") ? wFold : S.showOffline !== false;
-    var tog = "var d=this.nextSibling,v=d.style.display=='none';d.style.display=v?'block':'none';this.firstChild.textContent=v?'\\u25BE ':'\\u25B8 ';window.loomOnlineOffline=v;";
-    html += '<div onclick="' + tog + '" style="cursor:pointer;margin-top:9px;border-top:1px solid ' + RULE + ';padding-top:5px;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + DEEP + ';"><span>' + (shown ? '\u25BE ' : '\u25B8 ') + '</span>offline <span style="color:' + MUTED + ';">' + off.length + '</span></div>';
-    html += '<div style="display:' + (shown ? 'block' : 'none') + ';">';
+    // The fold isn't in this HTML at all: a class on the page body
+    // (loom-ofl-fold) hides the list and turns the arrow, through a style
+    // set up once below. The click toggles that class; redraws never touch
+    // it, so they can't undo it or flicker. SOCIAL OFFLINE ON/OFF and a page
+    // load set it from the saved setting.
+    html += '<div onclick="document.body.classList.toggle(\'loom-ofl-fold\')" style="cursor:pointer;margin-top:9px;border-top:1px solid ' + RULE + ';padding-top:5px;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + DEEP + ';"><span class="loom-ofl-arrow"></span>offline <span style="color:' + MUTED + ';">' + off.length + '</span></div>';
+    html += '<div class="loom-ofl-list">';
     for (var oi = 0; oi < off.length; oi++) {
       var o = off[oi];
       html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;opacity:0.55;">';
@@ -130,4 +127,14 @@ html += '<div style="display:flex;justify-content:space-between;margin-top:6px;c
 html += '<span>' + (S.qwTotal ? S.lastCount + ' visible &middot; ' + S.qwHidden + ' hidden &middot; ' + S.qwTotal + ' total' : '') + '</span>';
 html += '<span>' + (polling ? (dt ? 'last poll ' + p2(dt.getHours()) + ':' + p2(dt.getMinutes()) + ':' + p2(dt.getSeconds()) : '') : '<span style="color:#e0a05a;">polling off</span>') + '</span></div>';
 html += '</div>';
+// The fold's style, once per page; the body class starts from the setting.
+try {
+  if (!document.getElementById("loom-ofl-style")) {
+    var oflSt = document.createElement("style");
+    oflSt.id = "loom-ofl-style";
+    oflSt.textContent = 'body.loom-ofl-fold .loom-ofl-list { display: none; } .loom-ofl-arrow::before { content: "\\25BE  "; } body.loom-ofl-fold .loom-ofl-arrow::before { content: "\\25B8  "; }';
+    document.head.appendChild(oflSt);
+    document.body.classList.toggle("loom-ofl-fold", S.showOffline === false);
+  }
+} catch (e) {}
 try { set_custom_tab_html("Online", html); } catch (e) {}
