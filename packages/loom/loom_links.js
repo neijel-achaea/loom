@@ -203,3 +203,22 @@ L.addLink({
     "notice.standing": function (n) { var s = client.loom.standings; return s && s.look ? s.look.standing(n) : undefined; }
   }
 });
+
+// #164 patrolling -> room: shrines and totems of friendly and hostile gods
+// flagged in the Here tab's items. item.flags answers { label, tone, icon,
+// title }: the tab owns the colours ("bad" = alert, "good" = reassuring),
+// the icon says what the thing is (Ricardo: an icon left of the name, other
+// icons for other things later). Neutral gods' shrines get no flag. Sigils
+// (#165) will answer the same question.
+L.addLink({
+  id: "patrolling-room", src: "patrolling", dst: "room", issue: 164,
+  desc: "Friendly and hostile gods' shrines and totems flagged in Here",
+  answers: {
+    "item.flags": function (name) {
+      var p = client.loom.patrolling;
+      var it = p && p.look ? p.look.item(name) : undefined;
+      if (!it || it.stance === "neutral") return undefined;
+      return { label: it.stance + " " + it.kind, tone: it.stance === "hostile" ? "bad" : "good", icon: it.kind === "totem" ? "\u2625" : "\u26ea", title: (it.god ? it.god.charAt(0).toUpperCase() + it.god.slice(1) + ": " : "") + it.stance + " " + it.kind };
+    }
+  }
+});

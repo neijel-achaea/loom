@@ -12,7 +12,10 @@ var hlRows = [
   ["PATROLLING STAMP [area]", "mark an area as patrolled (no area: the one you're in)"],
   ["PATROLLING FIRE", "tell your clan there's a fire here"],
   ["PATROLLING CLAN <clan|OFF>", "clan for fire alerts, lightning reports and replanting logs"],
-  ["PATROLLING GOD <god|OFF>", "don't flag shrines and totems of your god"],
+  ["PATROLLING GODS", "friendly and hostile gods; every other god is neutral"],
+  ["PATROLLING GODS FRIENDLY <god>", "not reported on patrol; marked friendly in Here"],
+  ["PATROLLING GODS HOSTILE <god>", "marked hostile in Here, with a warning in its header"],
+  ["PATROLLING GODS NEUTRAL <god>", "take a god off the lists"],
   ["PATROLLING RESET / DEBUG", "reload the tables / internal state"]
 ];
 var hlW = 0;

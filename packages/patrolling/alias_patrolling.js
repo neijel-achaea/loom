@@ -38,7 +38,33 @@ if (paSub === "" || paSub === "status") {
   var paClan = get_variable("patrolling_clan");
   if (!paClan) display_notice("[patrolling] no clan set. PATROLLING CLAN <clan>.", "orange");
   else { send_command("clan switch " + paClan); send_command("clt Fire at me! " + P.room.name + " (" + P.room.id + ") at " + P.room.area); }
-} else if (paSub === "clan" || paSub === "god") {
+} else if (paSub === "gods") {
+  // PATROLLING GODS [FRIENDLY|HOSTILE|NEUTRAL <god>] (#164)
+  var paGw = paRest.split(/\s+/);
+  var paSt = String(paGw[0] || "").toLowerCase();
+  var paGn = paGw.slice(1).join(" ").trim().toLowerCase();
+  if (paRest === "") {
+    var paF = [], paH = [];
+    for (var paG in P.gods) { if (P.gods.hasOwnProperty(paG)) (P.gods[paG] === "hostile" ? paH : paF).push(paG.charAt(0).toUpperCase() + paG.slice(1)); }
+    display_notice("[patrolling] friendly: " + (paF.length ? paF.sort().join(", ") : "none") + ". hostile: " + (paH.length ? paH.sort().join(", ") : "none") + ". Every other god is neutral.", C);
+  } else if ((paSt === "friendly" || paSt === "hostile" || paSt === "neutral") && paGn) {
+    if (paSt === "neutral") delete P.gods[paGn]; else P.gods[paGn] = paSt;
+    P.saveGods();
+    display_notice("[patrolling] " + paGn.charAt(0).toUpperCase() + paGn.slice(1) + " is now " + paSt + ".", "lime");
+  } else {
+    display_notice("[patrolling] usage: PATROLLING GODS [FRIENDLY|HOSTILE|NEUTRAL <god>]", "orange");
+  }
+} else if (paSub === "god") {
+  // The old single god (before #164): it meant "don't flag these", which is
+  // what a friendly god is now. Kept as a spelling until patrolling 0.4.0.
+  if (paRest === "" || paRest.toLowerCase() === "off") {
+    display_notice("[patrolling] PATROLLING GOD is now PATROLLING GODS: PATROLLING GODS lists them, PATROLLING GODS FRIENDLY|HOSTILE|NEUTRAL <god> sets one.", "orange");
+  } else {
+    P.gods[paRest.toLowerCase()] = "friendly";
+    P.saveGods();
+    display_notice("[patrolling] PATROLLING GOD is now PATROLLING GODS FRIENDLY <god>; " + paRest.charAt(0).toUpperCase() + paRest.slice(1).toLowerCase() + " added as friendly.", "lime");
+  }
+} else if (paSub === "clan") {
   if (paRest === "") {
     display_notice("[patrolling] " + paSub + ": " + (get_variable("patrolling_" + paSub) || "none") + ".", C);
   } else {

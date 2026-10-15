@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.patrolling) client.loom.patrolling = {};
-client.loom.registry.patrolling = { version: "0.2.3", keyword: "PATROLLING", desc: "{{description}}" };
+client.loom.registry.patrolling = { version: "0.3.0", keyword: "PATROLLING", desc: "{{description}}" };
 var P = client.loom.patrolling;
 
 // One-time migration: patrol_last -> patrolling_last; the old session object
@@ -20,8 +20,40 @@ if (client.patrol) {
 if (!get_variable("patrolling_on")) set_variable("patrolling_on", "off");
 // Clan for fire alerts, lightning reports and replanting logs; empty = none.
 if (get_variable("patrolling_clan") === null || get_variable("patrolling_clan") === undefined) set_variable("patrolling_clan", "");
-// Your god: shrines and totems of your god aren't flagged; empty = flag all.
-if (get_variable("patrolling_god") === null || get_variable("patrolling_god") === undefined) set_variable("patrolling_god", "");
+// Gods by stance (#164, Ricardo): patrolling_gods = { sartan: "hostile",
+// gaia: "friendly" }; any god not listed is neutral. Shrines and totems of
+// friendly gods aren't reported on patrol; the Here tab marks friendly and
+// hostile ones. One-time migration: the old single patrolling_god becomes a
+// friendly god (it only ever meant "don't flag these").
+P.gods = {};
+try { P.gods = JSON.parse(get_variable("patrolling_gods") || "{}") || {}; } catch (e) { P.gods = {}; }
+var paOldGod = get_variable("patrolling_god");
+if (paOldGod !== null && paOldGod !== undefined) {
+  if (String(paOldGod).trim()) P.gods[String(paOldGod).trim().toLowerCase()] = "friendly";
+  delete_variable("patrolling_god");
+  set_variable("patrolling_gods", JSON.stringify(P.gods));
+}
+P.saveGods = function () {
+  set_variable("patrolling_gods", JSON.stringify(P.gods));
+  if (client.loom.notify) client.loom.notify("patrolling");
+};
+// The read-only look other tabs see through loom's display entry point
+// (#159): what patrolling makes of an item, never its variables.
+//   look.item(name) -> { kind: "shrine"|"totem", god, stance } for a shrine
+//     or totem ("friendly", "hostile" or "neutral"), undefined otherwise.
+//     A listed god is found as a word anywhere in the name ("a shrine of
+//     Sartan", "a totem to Sartan"); god is "" when none is listed.
+P.look = {
+  item: function (name) {
+    var n = String(name || "");
+    var km = n.match(/\b(shrine|totem)\b/i);
+    if (!km) return undefined;
+    for (var g in P.gods) {
+      if (P.gods.hasOwnProperty(g) && new RegExp("\\b" + g.replace(/[^a-z' -]/g, "") + "\\b", "i").test(n)) return { kind: km[1].toLowerCase(), god: g, stance: P.gods[g] };
+    }
+    return { kind: km[1].toLowerCase(), god: "", stance: "neutral" };
+  }
+};
 if (!get_variable("patrolling_last")) set_variable("patrolling_last", {});
 
 P.active = false;

@@ -11,7 +11,7 @@
 //     ITEMS (things you can take stand out, fixtures are muted), each as a
 //     table: quantity when more than one, the name, and a type column the
 //     integrations can fill (shrine, plant…)
-// Integrations (0.5: #162 social colours (done), #163 hunting target, #164 shrines,
+// Integrations (0.5: #162 social colours (done), #163 hunting target, #164 shrines (done),
 // #165 sigils, #166 plants) will mark rows through the display entry point #159.
 var R = client.loom.room;
 var AMBER = "#e0b46c";
@@ -27,9 +27,12 @@ function caps(t, n) { return '<div style="font-family:' + SERIF + ';font-variant
 // A table row: quantity (when more than one), the name indented after it, and
 // a type column left empty for now (shrines, plants… from the integrations).
 // glow: false, or the colour of a targeted row (yellow mob, red player).
-function row(n, name, title, type, glow) {
-  return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;' + (glow ? 'background:' + (glow === PGLOW ? 'rgba(255,106,94,0.08)' : 'rgba(255,215,94,0.07)') + ';' : '') + '">' +
-    '<span style="flex:0 0 2.6em;text-align:right;font-size:11px;color:' + MUTED + ';">' + (n > 1 ? n + '&times;' : '') + '</span>' +
+// tint: an explicit row background (a flagged item), else the glow's own.
+// icon: html for a mark beside the quantity (a flagged item's icon), so
+// names stay aligned in every section.
+function row(n, name, title, type, glow, tint, icon) {
+  return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;' + (tint ? 'background:' + tint + ';' : (glow ? 'background:' + (glow === PGLOW ? 'rgba(255,106,94,0.08)' : 'rgba(255,215,94,0.07)') + ';' : '')) + '">' +
+    '<span style="flex:0 0 3.4em;text-align:right;font-size:11px;color:' + MUTED + ';white-space:nowrap;">' + (n > 1 ? n + '&times;' : '') + (icon || '') + '</span>' +
     '<span style="flex:1 1 auto;">' + name + '</span>' +
     (type ? '<span style="flex:0 0 auto;font-size:12px;color:' + (glow || MUTED) + ';font-style:italic;font-family:' + SERIF + ';">' + esc(type) + '</span>' : '') + '</div>';
 }
@@ -72,6 +75,19 @@ if (!R.info) {
   var tags = "";
   var det = I.details || [];
   for (var di = 0; di < det.length; di++) tags += '<span style="display:inline-block;margin:0 4px 0 0;padding:0 4px;border:1px solid ' + DEEP + ';color:' + MUTED + ';">' + esc(det[di]) + '</span>';
+  // Items flagged through loom's display entry point (item.flags: { label,
+  // tone }): shrines and totems of friendly or hostile gods (#164, from
+  // patrolling), later monoliths (#165). Worked out here so an alert also
+  // shows as a tag beside the details, seen without scrolling.
+  var LLi = client.loom.loom;
+  var FLAG = { bad: "#ff9a4c", good: "#8fd694" };
+  var flagOf = {}, alerts = {};
+  for (var fk in R.items) {
+    if (!R.items.hasOwnProperty(fk) || /m/.test(R.items[fk].attrib || "")) continue;
+    var fa = (LLi && LLi.answers) ? LLi.answers("room", "item.flags", R.items[fk].name) : [];
+    if (fa.length) { flagOf[fk] = fa[0].value; if (fa[0].value.tone === "bad") alerts[fa[0].value.label] = true; }
+  }
+  for (var al in alerts) { if (alerts.hasOwnProperty(al)) tags += '<span style="display:inline-block;margin:0 4px 0 0;padding:0 4px;border:1px solid ' + FLAG.bad + ';color:' + FLAG.bad + ';">\u26a0 ' + esc(al) + '</span>'; }
   var ex = [];
   for (var ek in (I.exits || {})) { if (I.exits.hasOwnProperty(ek)) ex.push(ek); }
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:3px;">';
@@ -143,7 +159,15 @@ if (!R.info) {
   html += caps("items", items.length);
   for (var ii = 0; ii < im.length; ii++) {
     var take = /t/.test(im[ii].it.attrib || "");
-    html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
+    var fl = flagOf[im[ii].it.id];
+    if (fl) {
+      var fc = FLAG[fl.tone] || MUTED;
+      // The flag as an icon left of the name, the words on hover (Ricardo).
+      var ficon = fl.icon ? '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:13px;color:' + fc + ';margin-left:3px;">' + esc(fl.icon) + '\ufe0e</span>' : '';
+      html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (fl.tone === "bad" ? fc : (take ? TXT : MUTED)) + ';">' + esc(im[ii].it.name) + '</span>', fl.title || fl.label || "", fl.icon ? "" : fl.label, fc, fl.tone === "bad" ? "rgba(255,154,76,0.09)" : "transparent", ficon);
+    } else {
+      html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
+    }
   }
 }
 html += '</div>';
