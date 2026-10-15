@@ -145,6 +145,10 @@ How the display entry point works (#159):
 - **Question names are dotted** and named for what the tab needs (`person.colour`, `person.band`, `item.flags`, `room.plants`, `target`), so a later source can answer the same question without the tab changing.
 - **Redraws without polling.** A source calls `if (client.loom.notify) client.loom.notify("<pkg>")` when state its `look` reports changes; loom redraws the destination of every link from it that is on, debounced (50 ms). Switching a link on or off redraws its destination too. Destinations say how to redraw in their registry entry (`redraw: function () { … }`); room, comms and social have one.
 
+Each destination publishes its entry point as an **`entry`** object on its own namespace, the write-side counterpart of a source's read-only `look` (#159). Loom's integrations call it only while their link is on, and pass their link's source name, so whatever they create can be told apart and taken back:
+
+- **Standings** (#36): `client.loom.standings.entry.suggest({ who, step, why, source })` queues a dealing for review (one pending item per source and person: a newer suggestion replaces the older); `entry.withdraw(source[, who])` takes them back. Nothing is recorded until the player says `STANDINGS OK`.
+
 The integration code itself lives in the **loom** package, so neither side knows about the other.
 
 ### Switching integrations on and off

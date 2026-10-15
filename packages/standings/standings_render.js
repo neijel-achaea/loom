@@ -110,7 +110,7 @@ function pendingRows(filterKey) {
     if (filterKey && F.key(p.who) !== filterKey) { continue; }
     out += '<div style="display:flex;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="color:' + MUTED + ';min-width:8.5em;">' + (p.ic > 0 ? F.icTxt(p.ic) : F.realTxt(p.t)) + '</span>' +
       (filterKey ? '' : '<span style="font-family:' + SERIF + ';font-size:11px;min-width:5.5em;">' + esc(p.who) + '</span>') +
-      '<span style="flex:1 1 auto;">' + esc(p.why) + '</span><span>' + stepTxt(p.step) + '?</span></div>';
+      '<span style="flex:1 1 auto;">' + esc(p.why) + (p.src ? ' <span style="color:' + MUTED + ';">\u00b7 ' + esc(p.src) + '</span>' : '') + '</span><span>' + stepTxt(p.step) + '?</span></div>';
   }
   if (out) { out += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">STANDINGS OK records the first as suggested, STANDINGS SKIP dismisses it.</div>'; }
   return out;
@@ -209,11 +209,13 @@ else {
   // ------------------------------------------------------------ overview ---
   html += '<div style="margin:6px 0 2px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + STEEL + ';">' + people.length + '</span> <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">' + (people.length === 1 ? 'adventurer' : 'adventurers') + ' on the books' + (orgsN ? ', ' + orgsN + ' organisation' + (orgsN === 1 ? '' : 's') : '') + '</span></div>';
   if (vk && !E) { html += '<div style="color:' + MUTED + ';">' + esc(vk) + ' is not on the books.</div>'; }
+  // Suggestions waiting (from triggers or other packages, #36), even before
+  // anyone is on the books: a suggestion may be someone's first dealing.
+  var pa = pendingRows(null);
+  if (pa) { html += section("Awaiting review", pa); }
   if (people.length === 0) {
-    html += quiet("No one yet. Everyone starts Neutral; STANDINGS &lt;name&gt; ++ shared tea in the grove adds the first entry.");
+    if (!pa) { html += quiet("No one yet. Everyone starts Neutral; STANDINGS &lt;name&gt; ++ shared tea in the grove adds the first entry."); }
   } else {
-    var pa = pendingRows(null);
-    if (pa) { html += section("Awaiting review", pa); }
     // Recent dealings across everyone.
     var rec = [];
     for (var r = 0; r < people.length; r++) { for (var rl = 0; rl < people[r].log.length; rl++) { rec.push([people[r].log[rl], people[r].name]); } }
