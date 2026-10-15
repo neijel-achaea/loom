@@ -100,6 +100,12 @@ if (lgSub === "" || lgSub === "status") {
     lgSay("#" + lgWant + " done - next in " + Math.floor(gap / 25) + "mo " + (gap % 25) + "d", "lime");
   } else {
     var gone = its[idx].text;
+    // An item another package added stays away until its condition clears
+    // (its source withdraws it), instead of coming straight back (#34).
+    if (its[idx].source && its[idx].source !== "manual" && its[idx].key !== undefined) {
+      LG.dismissed[its[idx].source + "|" + its[idx].key] = true;
+      LG.saveDismissed();
+    }
     its.splice(idx, 1);
     lgSave(its);
     lgSay("#" + lgWant + " " + (lgSub === "done" ? "done" : "dropped") + " - " + gone, lgSub === "done" ? "lime" : "orange");

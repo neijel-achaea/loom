@@ -15,6 +15,8 @@ var hlRows = [
   ["LEDGER DATE", "ask the game for today's date"],
   ["LEDGER DEBUG [ON|OFF]", "internal state, or debug notices"],
   ["LEDGER REBUILD", "rebuild from the saved variables"],
+  ["Items other packages add show their source (\u00b7 harvesting); they go away by themselves when"],
+  ["their condition clears. DONE or DROP one and it stays away until then."],
   ["One Achaean day is one real hour; the date updates itself as each day begins."]
 ];
 var hlW = 0;

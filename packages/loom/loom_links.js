@@ -82,6 +82,15 @@ L.setLink = function (id, on) {
   if (was !== now && typeof ch === "function") {
     try { ch(now); } catch (e) { display_notice("[loom] link " + id + " failed to switch: " + e, "orange"); }
   }
+  // Switched off: whatever the link created in its destination goes, for
+  // every destination with a write-side entry point (standings #36, ledger
+  // #34, coffers #35), so no integration can forget to clean up.
+  if (was && !now) {
+    var dn = client.loom[L.links[id].dst];
+    if (dn && dn.entry && typeof dn.entry.withdraw === "function") {
+      try { dn.entry.withdraw(L.links[id].src); } catch (e) { display_notice("[loom] link " + id + " could not take back its items: " + e, "orange"); }
+    }
+  }
   if (was !== now) L.redraw(L.links[id].dst);
   return true;
 };

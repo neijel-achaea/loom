@@ -42,11 +42,11 @@ for (i = 0; i < dated.length; i++) {
   if (ddiff > 0) { rel = rel + (rel.length ? ", " : "") + ddiff + (ddiff == 1 ? " day" : " days"); }
   if (!rel.length) { rel = "today"; }
   if (diff < 0) {
-    display_notice("[ledger] #" + dated[i].id + " OVERDUE by " + rel + " - " + dated[i].text, "orange");
+    display_notice("[ledger] #" + dated[i].id + " OVERDUE by " + rel + " - " + dated[i].text + (dated[i].source && dated[i].source !== "manual" ? " (" + dated[i].source + ")" : ""), "orange");
     shown++;
   } else if (shown < 5) {
     var lead = (diff === 0) ? "today" : ("in " + rel);
-    display_notice("[ledger] #" + dated[i].id + " " + lead + " - " + dated[i].text, "cyan");
+    display_notice("[ledger] #" + dated[i].id + " " + lead + " - " + dated[i].text + (dated[i].source && dated[i].source !== "manual" ? " (" + dated[i].source + ")" : ""), "cyan");
     shown++;
   }
 }

@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "0.2.2", keyword: "LEDGER", desc: "{{description}}" };
+client.loom.registry.ledger = { version: "0.3.0", keyword: "LEDGER", desc: "{{description}}" };
 var LG = client.loom.ledger;
 
 // One-time migration: lg_* -> ledger_*. A new variable that already holds
@@ -58,3 +58,81 @@ if (LG.inBlock === undefined) LG.inBlock = false;
 if (LG.pendingDigest === undefined) LG.pendingDigest = false;
 if (LG.debug === undefined) LG.debug = (get_variable("ledger_debug") === "1");
 if (LG.debug) display_notice("[ledger] set up (day " + LG.day + ")", "cyan");
+
+// The entry point other packages feed (#34), through loom's integrations.
+// Their items appear in the ledger straight away (reminders, not
+// judgements), marked with their source, and are theirs to update and take
+// back: each is keyed by source + key, so an integration only ever touches
+// its own items, never the player's. Defined on every run, so a reimport
+// replaces it.
+//   entry.upsert({ source, key, text, due, dueIn }) -> the item's number,
+//     or 0 when not added. due is an Achaean day number (as LG.day), dueIn
+//     days from today; neither = a standing item. An existing item for that
+//     source and key is updated quietly (its due notice re-armed if the date
+//     moved); a new one is announced.
+//   entry.withdraw(source[, key]) -> how many items were taken back; for a
+//     condition that cleared, or a link switched off.
+// The player may DONE or DROP a generated item: it then stays away
+// (ledger_dismissed) until its source withdraws it, i.e. until its
+// condition clears; if the condition comes back, so does the item.
+LG.dismissed = {};
+try { LG.dismissed = JSON.parse(get_variable("ledger_dismissed") || "{}") || {}; } catch (e) { LG.dismissed = {}; }
+LG.saveDismissed = function () {
+  var any = false;
+  for (var k in LG.dismissed) { if (LG.dismissed.hasOwnProperty(k)) { any = true; break; } }
+  if (any) set_variable("ledger_dismissed", JSON.stringify(LG.dismissed));
+  else delete_variable("ledger_dismissed");
+};
+LG.entry = {
+  upsert: function (it) {
+    if (!it || !it.source || it.key === undefined || it.key === null || !it.text) return 0;
+    var src = String(it.source), key = String(it.key);
+    if (LG.dismissed[src + "|" + key]) return 0;
+    var items;
+    try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
+    var today = LG.day;
+    var due = null;
+    if (it.due) due = parseInt(it.due, 10) || null;
+    else if (it.dueIn !== undefined && it.dueIn !== null && today > 0) due = today + (parseInt(it.dueIn, 10) || 0);
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].source === src && items[i].key === key) {
+        var moved = items[i].due !== due;
+        items[i].text = String(it.text);
+        items[i].due = due;
+        if (moved) items[i].notified = false;
+        set_variable("ledger_items", JSON.stringify(items));
+        run_function("ledger_check", [], "ledger");
+        return items[i].id;
+      }
+    }
+    var seq = parseInt(get_variable("ledger_seq") || "0", 10) + 1;
+    items.push({ id: seq, text: String(it.text), source: src, key: key, status: "open", created: today, touched: today, due: due, repeat: null, tag: null, link: null, notified: false });
+    set_variable("ledger_items", JSON.stringify(items));
+    set_variable("ledger_seq", "" + seq);
+    display_notice("[ledger] #" + seq + " from " + src + ": " + it.text, "cyan");
+    run_function("ledger_check", [], "ledger");
+    return seq;
+  },
+  withdraw: function (source, key) {
+    if (!source) return 0;
+    var src = String(source), k = (key === undefined || key === null) ? null : String(key);
+    var items;
+    try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
+    var n = 0, last = null;
+    for (var i = items.length - 1; i >= 0; i--) {
+      if (items[i].source === src && (k === null || items[i].key === k)) { last = items[i]; items.splice(i, 1); n++; }
+    }
+    // Its condition cleared: a dismissal of it is over, so it can come back.
+    var dropped = false;
+    for (var dk in LG.dismissed) {
+      if (LG.dismissed.hasOwnProperty(dk) && (k === null ? dk.indexOf(src + "|") === 0 : dk === src + "|" + k)) { delete LG.dismissed[dk]; dropped = true; }
+    }
+    if (dropped) LG.saveDismissed();
+    if (n) {
+      set_variable("ledger_items", JSON.stringify(items));
+      display_notice("[ledger] " + src + " took back " + (n === 1 ? "#" + last.id + ": " + last.text : n + " items"), "cyan");
+      run_function("ledger_render", [], "ledger");
+    }
+    return n;
+  }
+};
