@@ -5,6 +5,9 @@ var S = client.loom.social;
 S.capturing = false;
 clearTimeout(S.safetyT);
 clearTimeout(S.flushT);
+// QW's last line: "Plus another N whose presence you cannot fully sense (M total)."
+var soFoot = S.buf.join(" ").match(/Plus another (\d+)[\s\S]*?\((\d+) total\)/);
+if (soFoot) { S.qwHidden = parseInt(soFoot[1], 10); S.qwTotal = parseInt(soFoot[2], 10); }
 var soText = S.buf.join(" ").replace(/Plus another[\s\S]*$/, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
 S.buf = [];
 var soParts = soText.split(/,|\band\b/);
@@ -22,6 +25,8 @@ if (!soNames.length) {
   var soUp = 0, soDown = 0, soPrimed = false;
   if (S.prev === null) {
     soPrimed = true;
+    // Online before the first poll: counted from now.
+    for (var soP in soNow) S.since[soP] = Date.now();
   } else {
     // name -> colour of its highest-priority watched group
     var soIdx = {};
@@ -31,10 +36,10 @@ if (!soNames.length) {
       for (var soN in S.lists[soGr]) { if (!soIdx[soN]) soIdx[soN] = S.color[soGr]; }
     }
     for (var soA in soNow) {
-      if (!S.prev[soA]) { soUp++; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + " has awoken.", soIdx[soA]); }
+      if (!S.prev[soA]) { soUp++; S.since[soA] = Date.now(); S.flash[soA] = { kind: "in", at: Date.now() }; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + " has awoken.", soIdx[soA]); }
     }
     for (var soB in S.prev) {
-      if (!soNow[soB]) { soDown++; if (soIdx[soB]) display_notice("[social] " + soB.charAt(0).toUpperCase() + soB.slice(1) + " has drifted into slumber.", soIdx[soB]); }
+      if (!soNow[soB]) { soDown++; delete S.since[soB]; S.flash[soB] = { kind: "out", at: Date.now() }; if (soIdx[soB]) display_notice("[social] " + soB.charAt(0).toUpperCase() + soB.slice(1) + " has drifted into slumber.", soIdx[soB]); }
     }
   }
   S.prev = soNow;
@@ -43,3 +48,6 @@ if (!soNames.length) {
     S.reportOnce = false;
   }
 }
+// The Online tab (#76), after every poll.
+S.lastPoll = Date.now();
+run_function("social_online", [], "social");

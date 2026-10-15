@@ -1,7 +1,7 @@
 // social_help -- the HELP screen. Printed in a monospace block through
 // nexusclient.add_html_line when this Nexus has it, so the columns line up;
 // otherwise as plain notices.
-var hlTitle = "[social] name highlighting by group, and online/offline notices for the names you watch. Commands:";
+var hlTitle = "[social] name highlighting by group, online/offline notices and the Online tab for the names you watch. Commands:";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["SOCIAL", "status: list sizes, polling, watched groups"],

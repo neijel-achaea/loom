@@ -83,3 +83,5 @@ if (soSub === "" || soSub === "status") {
 } else {
   display_notice("[social] unknown command '" + soSub + "'. SOCIAL HELP for commands.", "orange");
 }
+// Lists, colours, watches and polling all show on the Online tab (#76).
+if (["add", "del", "color", "colour", "watch", "unwatch", "poll", "reset"].indexOf(soSub) >= 0) run_function("social_online", [], "social");

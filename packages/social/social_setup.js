@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.social) client.loom.social = {};
-client.loom.registry.social = { version: "0.2.3", keyword: "SOCIAL", desc: "{{description}}" };
+client.loom.registry.social = { version: "0.3.0", keyword: "SOCIAL", desc: "{{description}}" };
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.
@@ -74,6 +74,13 @@ S.debug = get_variable("social_debug") == "on";
 S.interval = 5000;
 if (S.prev === undefined) S.prev = null;
 S.capturing = false;
+// The Online tab (#76): when each online person was first seen, recent
+// arrivals and departures (glow / greyed for S.flashMs), the last poll and
+// QW's hidden and total counts.
+if (!S.since) S.since = {};
+if (!S.flash) S.flash = {};
+S.flashMs = 10000;
+if (S.lastPoll === undefined) S.lastPoll = 0;
 S.buf = [];
 if (!S.lastCount) S.lastCount = 0;
 // A line of QW names: wrapped lines end in "," or "and", or start with "and" (#75).
