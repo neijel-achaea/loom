@@ -91,6 +91,9 @@ function chip(i, label, n, on, muted) {
 }
 var inTells = C.view === "tells" || C.view.indexOf("tell:") === 0;
 var html = '<div id="loom-comms" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + INK + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
+// The header (title, mute link, filters, and a conversation's own line) stays
+// put at the top of the tab while the lines scroll under it (Ricardo).
+html += '<div style="position:sticky;top:0;z-index:2;background:' + INK + ';margin:-7px -8px 0;padding:7px 8px 0;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DIM + ';padding-bottom:3px;">';
 html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + ACC + ';">Comms</span>';
 if (C.chans[C.view] && C.view !== "all") {
@@ -103,7 +106,13 @@ for (var ci = 0; ci < keys.length; ci++) {
   var ck = keys[ci];
   html += chip(ci + 1, C.name(ck), C.muted[ck] ? 0 : (ck === "tells" ? tellUnread : C.chans[ck].unread), C.view === ck || (ck === "tells" && inTells), !!C.muted[ck]);
 }
-html += '</div><div style="border-top:1px solid ' + RULE + ';padding-top:4px;">';
+html += '</div>';
+if (C.view.indexOf("tell:") === 0) {
+  var hw = C.convs[C.view.slice(5)];
+  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(hw.name) + '</span>' +
+    ' <span class="loom-cm-who" onclick="window.loomComms&&window.loomComms.tell(\'' + hw.name.replace(/[^A-Za-z]/g, "") + '\')" style="color:' + MUTED + ';">(reply)</span></div>';
+}
+html += '<div style="border-bottom:1px solid ' + RULE + ';"></div></div><div style="padding-top:4px;">';
 
 if (C.view === "tells") {
   // The conversations, newest first.
@@ -137,8 +146,6 @@ if (C.view === "tells") {
     if (rows.length > 200) rows = rows.slice(rows.length - 200);
   } else if (C.view.indexOf("tell:") === 0) {
     var who = C.convs[C.view.slice(5)];
-    html += '<div style="margin-bottom:3px;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(who.name) + '</span>' +
-      ' <span class="loom-cm-who" onclick="window.loomComms&&window.loomComms.tell(\'' + who.name.replace(/[^A-Za-z]/g, "") + '\')" style="color:' + MUTED + ';">(reply)</span></div>';
     var wl = C.chans.tells ? C.chans.tells.lines : [];
     for (var wi = 0; wi < wl.length; wi++) { if (wl[wi].conv && wl[wi].conv.toLowerCase() === who.name.toLowerCase()) rows.push(wl[wi]); }
   } else {
