@@ -97,9 +97,8 @@ if (!watchedN) {
   html += '</div>';
 }
 // OFFLINE: watched people not online (nor just left), last seen most recent
-// first, never seen last. The heading folds it: a click flips it on the page
-// only (until the next redraw keeps it, through S.showOffline); SOCIAL
-// OFFLINE ON/OFF sets it for good.
+// first, never seen last. A click on the heading folds or unfolds it for the
+// rest of the session; SOCIAL OFFLINE ON/OFF sets it for good.
 if (watchedN && S.prev !== null) {
   var off = [];
   for (var n3 in grp) {
@@ -107,8 +106,14 @@ if (watchedN && S.prev !== null) {
   }
   off.sort(function (a, b) { return (b.seen - a.seen) || (a.n < b.n ? -1 : (a.n > b.n ? 1 : 0)); });
   if (off.length) {
-    var shown = S.showOffline !== false;
-    var tog = "var d=this.nextSibling,v=d.style.display=='none';d.style.display=v?'block':'none';this.firstChild.textContent=v?'\\u25BE ':'\\u25B8 ';try{client.loom.social.showOffline=v;}catch(e){}";
+    // A click on the heading can't reach client.* from the tab page, so the
+    // fold lives on the window (window.loomOnlineOffline), which both the
+    // page and this script see; it holds until the page reloads, when the
+    // saved SOCIAL OFFLINE setting applies again.
+    var wFold;
+    try { wFold = window.loomOnlineOffline; } catch (e) { wFold = undefined; }
+    var shown = (typeof wFold === "boolean") ? wFold : S.showOffline !== false;
+    var tog = "var d=this.nextSibling,v=d.style.display=='none';d.style.display=v?'block':'none';this.firstChild.textContent=v?'\\u25BE ':'\\u25B8 ';window.loomOnlineOffline=v;";
     html += '<div onclick="' + tog + '" style="cursor:pointer;margin-top:9px;border-top:1px solid ' + RULE + ';padding-top:5px;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + DEEP + ';"><span>' + (shown ? '\u25BE ' : '\u25B8 ') + '</span>offline <span style="color:' + MUTED + ';">' + off.length + '</span></div>';
     html += '<div style="display:' + (shown ? 'block' : 'none') + ';">';
     for (var oi = 0; oi < off.length; oi++) {

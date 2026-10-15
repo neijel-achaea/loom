@@ -76,6 +76,8 @@ if (soSub === "" || soSub === "status") {
   if (soOff === "on" || soOff === "off") {
     S.showOffline = soOff === "on";
     set_variable("social_offline", soOff);
+    // Also overrides a fold set by clicking the heading this session.
+    try { window.loomOnlineOffline = S.showOffline; } catch (e) {}
     display_notice("[social] the Online tab's offline section is " + (S.showOffline ? "shown" : "folded") + ".", "lime");
   } else {
     display_notice("[social] the Online tab's offline section is " + (S.showOffline ? "shown" : "folded") + ". SOCIAL OFFLINE ON or OFF to change it; clicking its heading flips it too.", "cyan");
