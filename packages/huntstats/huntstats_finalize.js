@@ -33,6 +33,10 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   var a = areas[rec.area] || { xp: 0, gold: 0, kills: 0, ms: 0, sessions: 0 };
   a.xp += rec.xp; a.gold += rec.gold; a.kills += rec.kills; a.ms += rec.ms; a.sessions += 1;
   a.last = rec.at; // when you last hunted here, for HUNTSTATS SUGGEST (#88)
+  // The most gold one hunt here earned (#39), seeded from the recent log.
+  var aBest = a.best || 0;
+  for (var lb = 0; lb < log.length; lb++) { if (log[lb].area === rec.area && log[lb].gold > aBest) aBest = log[lb].gold; }
+  if (aBest > 0) a.best = aBest;
   areas[rec.area] = a;
   set_variable("huntstats_areas", JSON.stringify(areas));
 
@@ -52,3 +56,5 @@ try { set_variable("huntstats_open", ""); } catch (e) {}
 // Redrawn after the hunt is cleared, so the tab no longer shows it as under
 // way (#90).
 run_function("huntstats_render", [], "huntstats");
+// The hunt is over: tell loom (#39 withdraws its goal proposal).
+if (client.loom.notify) client.loom.notify("huntstats");

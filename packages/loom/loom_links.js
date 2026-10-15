@@ -448,3 +448,22 @@ L.addLink({
     }
   }
 });
+
+// #39 huntstats -> coffers (Ricardo: aspirational): when a hunt starts in an
+// area you've hunted before, propose a gold goal of your best hunt there
+// +10%, rounded up to 100. Withdrawn when the hunt ends (filed, or you leave
+// the area); an accepted goal stays yours.
+L.huntGoalStretch = 1.1;
+L.addLink({
+  id: "huntstats-coffers", src: "huntstats", dst: "coffers", issue: 39,
+  desc: "A gold goal to beat your best hunt in an area, when you start hunting there",
+  update: function () {
+    var hs = client.loom.huntstats, co = client.loom.coffers;
+    if (!hs || !hs.look || !hs.look.hunt || !co || !co.entry) return;
+    var h = hs.look.hunt();
+    var best = h ? hs.look.best(h.area) : undefined;
+    if (!h || !(best > 0)) { co.entry.withdraw("huntstats", "hunt"); return; }
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+    co.entry.propose({ source: "huntstats", key: "hunt", amount: Math.ceil(best * L.huntGoalStretch / 100) * 100, why: "beat your best hunt in " + h.area + " (" + fmt(best) + " gold)" });
+  }
+});

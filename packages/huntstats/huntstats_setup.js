@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.2.9", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.2.10", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -208,3 +208,24 @@ HS.save = function (force) {
 
 // The Dragonhood F-key setting existed briefly before release; drop it.
 try { if (get_variable("huntstats_button") !== undefined && get_variable("huntstats_button") !== null) delete_variable("huntstats_button"); } catch (e) {}
+
+// The read-only look other packages see through loom (#39): never its variables.
+//   look.hunt()     -> { area } while a hunt is under way (experience earned
+//                      in this area), undefined otherwise
+//   look.best(area) -> the most gold one filed hunt earned in that area, or
+//                      undefined when none is known (older records: the
+//                      recent-hunts log fills in until the next filed hunt)
+HS.look = {
+  hunt: function () {
+    var c = HS.cur;
+    return (c && c.area !== undefined && c.firstXpAt && c.xp > 0) ? { area: c.area } : undefined;
+  },
+  best: function (area) {
+    var areas = {}, log = [], b = 0;
+    try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
+    try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }
+    if (areas[area] && areas[area].best > b) b = areas[area].best;
+    for (var i = 0; i < log.length; i++) { if (log[i] && log[i].area === area && log[i].gold > b) b = log[i].gold; }
+    return b > 0 ? b : undefined;
+  }
+};
