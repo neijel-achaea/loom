@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.self) client.loom.self = {};
-client.loom.registry.self = { version: "0.2.4", keyword: "SELF", desc: "{{description}}" };
+client.loom.registry.self = { version: "0.2.5", keyword: "SELF", desc: "{{description}}" };
 var SF = client.loom.self;
 
 // The old package kept its state in client.self, client.selfWant,
@@ -71,3 +71,20 @@ if (!SF.keep) SF.keep = sfList("self_keep", "deafness,blindness,insomnia");
 var sfName;
 try { sfName = get_variable("self_name"); } catch (e) { sfName = undefined; }
 SF.nameOverride = (sfName === undefined || sfName === null || String(sfName) === "undefined") ? "" : String(sfName);
+
+// The read-only look other packages see through loom (#47).
+//   look.explorer() -> { rank, base, dropped } once a real explorer rank is
+//     known: rank now (GMCP first, then SCORE), base the one at this page
+//     load (as the tab's arrow uses), dropped when rank is now worse (a
+//     higher number). Undefined while unknown.
+SF.look = {
+  explorer: function () {
+    var raws = [SF.info ? SF.info.explorerrank : undefined, SF.score ? SF.score.explorer : undefined], now = NaN;
+    for (var i = 0; i < raws.length; i++) {
+      var v = String(raws[i] === undefined || raws[i] === null ? "" : raws[i]);
+      if (/^\s*\d+\s*$/.test(v) && parseInt(v, 10) > 0) { now = parseInt(v, 10); break; }
+    }
+    if (isNaN(now) || !(SF.explorerBase > 0)) return undefined;
+    return { rank: now, base: SF.explorerBase, dropped: now > SF.explorerBase };
+  }
+};

@@ -468,3 +468,19 @@ L.addLink({
     co.entry.propose({ source: "huntstats", key: "hunt", amount: Math.ceil(avg.gold * L.huntGoalStretch / 100) * 100, why: "10% over your average hunt in " + h.area + " (" + fmt(avg.gold) + " gold over " + avg.hunts + " hunt" + (avg.hunts === 1 ? "" : "s") + ")" });
   }
 });
+
+// #47 self -> ledger (Ricardo): when your explorer rank drops while you're
+// logged in (the red arrow in the Self tab), the ledger gets "Explore a new
+// area"; nothing stored, the starting point is this page load's first
+// reading, as the tab's. Withdrawn when the rank is back at or above it.
+L.addLink({
+  id: "self-ledger", src: "self", dst: "ledger", issue: 47,
+  desc: "Explore a new area, when your explorer rank drops while you play",
+  update: function () {
+    var sf = client.loom.self, lg = client.loom.ledger;
+    if (!sf || !sf.look || !sf.look.explorer || !lg || !lg.entry) return;
+    var e = sf.look.explorer();
+    if (!e || !e.dropped) { lg.entry.withdraw("self", "explore"); return; }
+    lg.entry.upsert({ source: "self", key: "explore", text: "Explore a new area (explorer rank " + e.base + " \u2192 " + e.rank + ")" });
+  }
+});
