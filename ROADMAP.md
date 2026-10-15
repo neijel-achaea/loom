@@ -1,7 +1,7 @@
 # Loom — Roadmap
 
 **Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
-**Current release:** Loom 0.3 (Multiclass) · in progress: Loom 0.4 (Enhancements)
+**Current release:** Loom 0.4 (Enhancements) · next: Loom 0.5 (Integrations)
 
 See the README for what each package does today.
 

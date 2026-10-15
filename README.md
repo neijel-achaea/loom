@@ -2,7 +2,7 @@
 
 *Weaving your Achaea client together.*
 
-**Version 0.3** (multiclass): hunting, defcon and self work for any class, with a class file per class and editable defence tables, and fall back to generic behaviour for classes not configured yet. Built on 0.2, where every package became standalone. See the [releases](https://github.com/neijel-achaea/loom/releases). v0.4 (enhancements, and custom Online, Comms and Room tabs) is under way on main: see [ROADMAP.md](ROADMAP.md).
+**Version 0.4** (enhancements): custom tabs replacing the stock Nexus windows (**Online**, **Here** for the room, **Comms**), plus the enhancements gathered during 0.2 and 0.3: notice colours across the suite, dmgchart crits and a health warning, huntstats party, gold split and hunting suggestions, vials learned from ELIXLIST, and more. Built on 0.3 (every class) and 0.2 (every package standalone). See the [releases](https://github.com/neijel-achaea/loom/releases). v0.5 (integrations: packages installed together feed each other) is next: see [ROADMAP.md](ROADMAP.md).
 
 Loom is a suite of reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
 package is self-contained: it can be dropped onto any character without
