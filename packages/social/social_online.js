@@ -4,7 +4,9 @@
 // notices. Drawn after every QW poll (social_flush); nothing is sent for it.
 //   - arrivals glow for S.flashMs, departures stay greyed for as long
 //   - "online for", counted from the first poll that saw them
-//   - the group's name as a muted tag, so colour isn't the only cue
+//   - the group's name in a tooltip on the name (Ricardo: colour is enough)
+//   - below, OFFLINE: the other watched people, last seen most recent first,
+//     folded or shown by clicking its heading or with SOCIAL OFFLINE ON/OFF
 //   - room on each row for columns other packages may add (#196 standings,
 //     #197 ledger, through the display entry point #159); none yet
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
@@ -21,9 +23,17 @@ var now = Date.now();
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function cap(n) { return n.charAt(0).toUpperCase() + n.slice(1); }
 function p2(n) { return (n < 10 ? "0" : "") + n; }
-function forTxt(ms) {
+function agoTxt(ms) {
   var m = Math.floor(ms / 60000);
   if (m < 1) return "just now";
+  if (m < 60) return m + "m ago";
+  var h = Math.floor(m / 60);
+  if (h < 48) return h + "h ago";
+  return Math.floor(h / 24) + "d ago";
+}
+function forTxt(ms) {
+  var m = Math.floor(ms / 60000);
+  if (m < 1) return "&lt;1m";
   if (m < 60) return m + "m";
   return Math.floor(m / 60) + "h " + p2(m % 60) + "m";
 }
@@ -79,13 +89,37 @@ if (!watchedN) {
     var since = (S.since && S.since[r.n]) ? now - S.since[r.n] : null;
     var right = r.out ? "logged out" : (glow ? "logged in" : (since !== null ? forTxt(since) : ""));
     html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:2px 0;' + (r.out ? 'opacity:0.6;' : '') + '">';
-    html += '<span style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:12px;' + nameStyle + '">' + esc(cap(r.n)) + '</span>';
-    html += '<span style="min-width:4.5em;color:' + MUTED + ';font-style:italic;font-family:' + SERIF + ';">' + esc(g2) + '</span>';
-    // Integration columns (#196, #197) go here, between the group and the time.
+    html += '<span title="' + esc(g2) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:12px;cursor:default;' + nameStyle + '">' + esc(cap(r.n)) + '</span>';
+    // Integration columns (#196, #197) go here, between the name and the time.
     html += '<span style="min-width:5.5em;text-align:right;color:' + (r.out ? MUTED : (glow ? col : MUTED)) + ';white-space:nowrap;">' + right + '</span>';
     html += '</div>';
   }
   html += '</div>';
+}
+// OFFLINE: watched people not online (nor just left), last seen most recent
+// first, never seen last. The heading folds it: a click flips it on the page
+// only (until the next redraw keeps it, through S.showOffline); SOCIAL
+// OFFLINE ON/OFF sets it for good.
+if (watchedN && S.prev !== null) {
+  var off = [];
+  for (var n3 in grp) {
+    if (grp.hasOwnProperty(n3) && !on[n3] && !(fl[n3] && fl[n3].kind === "out")) off.push({ n: n3, seen: (S.seen && S.seen[n3]) || 0 });
+  }
+  off.sort(function (a, b) { return (b.seen - a.seen) || (a.n < b.n ? -1 : (a.n > b.n ? 1 : 0)); });
+  if (off.length) {
+    var shown = S.showOffline !== false;
+    var tog = "var d=this.nextSibling,v=d.style.display=='none';d.style.display=v?'block':'none';this.firstChild.textContent=v?'\\u25BE ':'\\u25B8 ';try{client.loom.social.showOffline=v;}catch(e){}";
+    html += '<div onclick="' + tog + '" style="cursor:pointer;margin-top:9px;border-top:1px solid ' + RULE + ';padding-top:5px;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + DEEP + ';"><span>' + (shown ? '\u25BE ' : '\u25B8 ') + '</span>offline <span style="color:' + MUTED + ';">' + off.length + '</span></div>';
+    html += '<div style="display:' + (shown ? 'block' : 'none') + ';">';
+    for (var oi = 0; oi < off.length; oi++) {
+      var o = off[oi];
+      html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;opacity:0.55;">';
+      html += '<span title="' + esc(grp[o.n]) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:11px;cursor:default;color:' + (S.color[grp[o.n]] || TXT) + ';">' + esc(cap(o.n)) + '</span>';
+      html += '<span style="min-width:5.5em;text-align:right;color:' + MUTED + ';white-space:nowrap;">' + (o.seen ? agoTxt(now - o.seen) : "not seen yet") + '</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
 }
 html += '<div style="display:flex;justify-content:space-between;margin-top:6px;color:' + MUTED + ';">';
 html += '<span>' + (S.qwTotal ? S.lastCount + ' visible &middot; ' + S.qwHidden + ' hidden &middot; ' + S.qwTotal + ' total' : '') + '</span>';

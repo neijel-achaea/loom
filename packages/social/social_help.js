@@ -10,6 +10,7 @@ var hlRows = [
   ["SOCIAL LIST [group]", "names in a group (no group: counts)"],
   ["SOCIAL COLOR <group|self> [#rrggbb]", "highlight colour (no colour: back to the default)"],
   ["SOCIAL WATCH [group]", "announce when that group's names log in or out (no group: show)"],
+  ["SOCIAL OFFLINE [ON|OFF]", "show or fold the Online tab's offline section (clicking its heading flips it too)"],
   ["SOCIAL UNWATCH <group>", "stop announcing it"],
   ["SOCIAL POLL ON|OFF|NOW", "the QW poll behind the announcements (every 5s)"],
   ["SOCIAL RESET", "reload the lists, re-prime the watchlist"],

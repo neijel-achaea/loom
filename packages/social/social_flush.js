@@ -48,6 +48,17 @@ if (!soNames.length) {
     S.reportOnce = false;
   }
 }
+// Last seen, for the Offline section: everyone listed who is online now. Those
+// who just left keep the time of the last poll that saw them.
+var soListed = function (n) { for (var g = 0; g < S.groups.length; g++) { if (S.lists[S.groups[g]][n]) return true; } return false; };
+var soSeenNow = Date.now();
+for (var soS1 = 0; soS1 < soNames.length; soS1++) { if (soListed(soNames[soS1])) S.seen[soNames[soS1]] = soSeenNow; }
+if (soDown > 0 || soSeenNow - S.seenSaved > 60000) {
+  // Drop names no longer in any list, then save.
+  for (var soD in S.seen) { if (!soListed(soD)) delete S.seen[soD]; }
+  set_variable("social_seen", JSON.stringify(S.seen));
+  S.seenSaved = soSeenNow;
+}
 // The Online tab (#76), after every poll.
 S.lastPoll = Date.now();
 run_function("social_online", [], "social");

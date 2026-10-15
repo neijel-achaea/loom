@@ -80,6 +80,15 @@ S.capturing = false;
 if (!S.since) S.since = {};
 if (!S.flash) S.flash = {};
 S.flashMs = 10000;
+// When each listed person was last seen online (social_seen, name -> ms),
+// for the tab's Offline section. Only names in a list are kept, so it stays
+// small. Written when someone logs off, and at most once a minute otherwise.
+if (!S.seen) {
+  try { S.seen = JSON.parse(get_variable("social_seen") || "{}") || {}; } catch (e) { S.seen = {}; }
+}
+if (S.seenSaved === undefined) S.seenSaved = 0;
+// Offline section shown or folded (social_offline on/off, default on).
+S.showOffline = get_variable("social_offline") != "off";
 if (S.lastPoll === undefined) S.lastPoll = 0;
 S.buf = [];
 if (!S.lastCount) S.lastCount = 0;

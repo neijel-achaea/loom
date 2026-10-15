@@ -70,6 +70,16 @@ if (soSub === "" || soSub === "status") {
   } else {
     display_notice("[social] polling is " + String(get_variable("social_poll")).toUpperCase() + ". SOCIAL POLL ON|OFF|NOW.", C);
   }
+} else if (soSub === "offline") {
+  // SOCIAL OFFLINE [ON|OFF]: show or fold the Online tab's Offline section.
+  var soOff = (soW[1] || "").toLowerCase();
+  if (soOff === "on" || soOff === "off") {
+    S.showOffline = soOff === "on";
+    set_variable("social_offline", soOff);
+    display_notice("[social] the Online tab's offline section is " + (S.showOffline ? "shown" : "folded") + ".", "lime");
+  } else {
+    display_notice("[social] the Online tab's offline section is " + (S.showOffline ? "shown" : "folded") + ". SOCIAL OFFLINE ON or OFF to change it; clicking its heading flips it too.", "cyan");
+  }
 } else if (soSub === "debug") {
   if (soGroup === "on" || soGroup === "off") {
     S.debug = (soGroup === "on");
@@ -84,4 +94,4 @@ if (soSub === "" || soSub === "status") {
   display_notice("[social] unknown command '" + soSub + "'. SOCIAL HELP for commands.", "orange");
 }
 // Lists, colours, watches and polling all show on the Online tab (#76).
-if (["add", "del", "color", "colour", "watch", "unwatch", "poll", "reset"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
+if (["add", "del", "color", "colour", "watch", "unwatch", "poll", "reset", "offline"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
