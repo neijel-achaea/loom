@@ -7,6 +7,7 @@ var hlRows = [
   ["CRYSTALISM", "status"],
   ["CRYSTALISM REFINE [n]", "refine stored facets into the shapes you have fewest of (at most n crystals, 200 a run)"],
   ["CRYSTALISM STOP", "cancel a refine run"],
+  ["CRYSTALISM MIN [<n> | <shape> <n|DEFAULT>]", "minimum stock per shape (default for all, or one shape)"],
   ["CRYSTALISM PEARLS ON|OFF", "pick up pearls that drop from corpses"],
   ["CRYSTALISM PORTAL ON|OFF", "open a sonic portal for city members who tell you \"Gate.\" (needs social's city list)"],
   ["CRYSTALISM DEBUG", "internal state"],
