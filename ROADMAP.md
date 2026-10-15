@@ -137,6 +137,14 @@ Almost every integration ends in one of three places, so each gets one documente
 
 A fourth kind arrived with the v0.4 tabs: a tab that **displays** another package's state (a highlight colour, the current target, a flagged shrine) rather than feeding one of the three. It gets its own read-only **display entry point** (#159): the tab asks loom, loom answers only when the source package is installed and the link is on, and otherwise the tab renders plainly.
 
+How the display entry point works (#159):
+
+- **Sources publish a read-only `look`** on their own namespace, e.g. `client.loom.social.look.colour(name)`. It reports the package's own state and knows nothing of loom or any tab; nothing outside the package reads its variables.
+- **Links answer questions.** Each display link in `loom_links` maps question names to functions over its source's `look`: `answers: { "person.colour": function (n) { … } }`.
+- **Tabs ask by need, not by source, as their own package:** `client.loom.loom.answer("room", q, arg)` gives the first answer, `answers("room", q, arg)` all of them as `[{link, value}]`. Only links into the asking package that are on answer, so switching off `social-room` takes the colours out of Here but not out of Comms. With no answer (or no loom) the tab renders plainly. Tabs guard the call: `var LL = client.loom.loom; var c = LL && LL.answer ? LL.answer("room", "person.colour", name) : undefined;`
+- **Question names are dotted** and named for what the tab needs (`person.colour`, `person.band`, `item.flags`, `room.plants`, `target`), so a later source can answer the same question without the tab changing.
+- **Redraws without polling.** A source calls `if (client.loom.notify) client.loom.notify("<pkg>")` when state its `look` reports changes; loom redraws the destination of every link from it that is on, debounced (50 ms). Switching a link on or off redraws its destination too. Destinations say how to redraw in their registry entry (`redraw: function () { … }`); room, comms and social have one.
+
 The integration code itself lives in the **loom** package, so neither side knows about the other.
 
 ### Switching integrations on and off

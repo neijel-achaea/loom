@@ -1,4 +1,6 @@
-// loom_links -- the integrations catalogue and its on/off switches (#37).
+// loom_links -- the integrations catalogue and its on/off switches (#37),
+// and the display entry point (#159): tabs ask loom questions, links answer
+// them from their source's read-only `look`, sources announce changes.
 // Run from onLoad and onInstall. Every integration lives in this package
 // and registers here with L.addLink; it is on as soon as both of its
 // packages are installed, unless the player switched it off. Only the
@@ -9,21 +11,24 @@ if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
 var L = client.loom.loom;
 
-// The catalogue: id -> { id, src, dst, desc, issue, change }, plus the ids
+// The catalogue: id -> { id, src, dst, desc, issue, change, answers }, plus the ids
 // in the order they were added (the order LOOM LINKS lists them in).
 // Rebuilt on every load, so a removed integration leaves nothing behind.
 L.links = {};
 L.linkOrder = [];
 
-// Register an integration. e = { id, src, dst, desc, issue, change }:
+// Register an integration. e = { id, src, dst, desc, issue, change, answers }:
 // src and dst are package names as in client.loom.registry; change, if
 // given, is called with true/false when the player switches the link on or
-// off, so the integration can withdraw what it created or redraw a tab.
+// off, so the integration can withdraw what it created (the destination is
+// redrawn either way). answers, for display integrations, maps a question
+// name to a function answering it from the source's `look`, e.g.
+//   answers: { "person.colour": function (name) { return client.loom.social.look.colour(name); } }
 L.addLink = function (e) {
   if (!e || !e.id) return;
   var id = String(e.id).toLowerCase();
   if (!L.links[id]) L.linkOrder.push(id);
-  L.links[id] = { id: id, src: e.src, dst: e.dst, desc: e.desc || "", issue: e.issue || 0, change: e.change };
+  L.links[id] = { id: id, src: e.src, dst: e.dst, desc: e.desc || "", issue: e.issue || 0, change: e.change, answers: e.answers || {} };
 };
 
 // The switched-off ids, as a set. Read once per load and kept in step by
@@ -77,7 +82,65 @@ L.setLink = function (id, on) {
   if (was !== now && typeof ch === "function") {
     try { ch(now); } catch (e) { display_notice("[loom] link " + id + " failed to switch: " + e, "orange"); }
   }
+  if (was !== now) L.redraw(L.links[id].dst);
   return true;
+};
+
+// ---- The display entry point (#159) ----------------------------------
+// Questions are named by what the tab needs, dotted (person.colour,
+// item.flags, room.plants, target), never by who answers, so a later source
+// can answer the same question without the tab changing. A tab asks as its
+// own package (dst), so only links into that package answer: switching off
+// social-room takes the colours out of Here but not out of Comms. Answers
+// come only from links that are on; a link that throws or answers
+// undefined/null/"" is skipped. With no answer the tab renders plainly.
+
+// Every answer, in link order, as [{ link, value }]. For questions where
+// several sources may speak at once (flags on an item row).
+L.answers = function (dst, q, arg) {
+  var out = [];
+  for (var i = 0; i < L.linkOrder.length; i++) {
+    var e = L.links[L.linkOrder[i]];
+    var f = e && e.answers && e.answers[q];
+    if (typeof f !== "function" || e.dst !== dst || !L.linkOn(e.id)) continue;
+    var v;
+    try { v = f(arg); } catch (err) { v = undefined; }
+    if (v !== undefined && v !== null && v !== "") out.push({ link: e.id, value: v });
+  }
+  return out;
+};
+
+// The first answer, or undefined. For questions with one answer (a colour).
+L.answer = function (dst, q, arg) {
+  var a = L.answers(dst, q, arg);
+  return a.length ? a[0].value : undefined;
+};
+
+// Redraw a destination package's display, debounced per package (a burst of
+// changes is one draw). Destinations say how in their registry entry:
+// client.loom.registry.<pkg>.redraw.
+L.redrawT = L.redrawT || {};
+L.redraw = function (dst) {
+  if (!dst) return;
+  if (L.redrawT[dst]) clearTimeout(L.redrawT[dst]);
+  L.redrawT[dst] = setTimeout(function () {
+    L.redrawT[dst] = null;
+    var r = (client.loom.registry || {})[dst];
+    if (r && typeof r.redraw === "function") {
+      try { r.redraw(); } catch (e) { display_notice("[loom] redraw of " + dst + " failed: " + e, "orange"); }
+    }
+  }, 50);
+};
+
+// Sources call this when state their `look` reports has changed, guarded so
+// they work without loom:  if (client.loom.notify) client.loom.notify("social");
+// Every destination of a link from that source that is on is redrawn.
+client.loom.notify = function (src) {
+  var seen = {};
+  for (var i = 0; i < L.linkOrder.length; i++) {
+    var e = L.links[L.linkOrder[i]];
+    if (e.src === src && !seen[e.dst] && L.linkOn(e.id)) { seen[e.dst] = true; L.redraw(e.dst); }
+  }
 };
 
 // Integrations register below, one L.addLink each, as they land in 0.5.
