@@ -307,3 +307,32 @@ L.addLink({
     lg.entry.upsert({ source: "talpieces", key: "spares", text: "Spare talisman pieces to trade (" + total + "): " + bits.join(", ") });
   }
 });
+
+// #44 crystalism -> ledger: one "collect pearls" reminder, as harvesting's
+// (Ricardo): it appears when any shape falls below 90% of its minimum, goes
+// when all are back at it, and says how many pearls to fetch: the crystals
+// short in all (each low shape up to its minimum), 9 facets to a pearl
+// folded into the master crystal, one crystal refined from each facet.
+// Nothing happens until the rift has been read (CRYSTALISM REFINE).
+L.addLink({
+  id: "crystalism-ledger", src: "crystalism", dst: "ledger", issue: 44,
+  desc: "A collect pearls reminder in the ledger when crystals run low",
+  update: function () {
+    var c = client.loom.crystalism, lg = client.loom.ledger;
+    if (!c || !c.look || !lg || !lg.entry) return;
+    var lv = c.look.levels();
+    if (!lv.length) return;
+    var under = [], urgent = false, short = 0;
+    for (var i = 0; i < lv.length; i++) {
+      if (lv[i].have < lv[i].min) { under.push(lv[i]); short += lv[i].min - lv[i].have; }
+      if (lv[i].have < lv[i].min * L.harvestTrigger) urgent = true;
+    }
+    if (!under.length) { lg.entry.withdraw("crystalism", "pearls"); return; }
+    if (!urgent && !lg.entry.get("crystalism", "pearls")) return;
+    under.sort(function (a, b) { return a.have / a.min - b.have / b.min; });
+    var pearls = Math.ceil(short / (c.facetsPerPearl || 9));
+    var bits = [];
+    for (var j = 0; j < under.length; j++) bits.push(under[j].shape + " " + under[j].have + "/" + under[j].min);
+    lg.entry.upsert({ source: "crystalism", key: "pearls", text: "Collect " + pearls + " pearl" + (pearls === 1 ? "" : "s") + ": " + bits.join(", ") + " (" + short + " crystal" + (short === 1 ? "" : "s") + " short)" });
+  }
+});
