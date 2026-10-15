@@ -1,0 +1,90 @@
+{
+  "type": "group",
+  "name": "comms",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "comms_setup",
+      "enabled": true,
+      "code": "@file:comms_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "comms_add",
+      "enabled": true,
+      "code": "@file:comms_add.js"
+    },
+    {
+      "type": "function",
+      "name": "comms_render",
+      "enabled": true,
+      "code": "@file:comms_render.js"
+    },
+    {
+      "type": "function",
+      "name": "comms_view",
+      "enabled": true,
+      "code": "@file:comms_view.js"
+    },
+    {
+      "type": "function",
+      "name": "comms_mute",
+      "enabled": true,
+      "code": "@file:comms_mute.js"
+    },
+    {
+      "type": "function",
+      "name": "comms_save",
+      "enabled": true,
+      "code": "@file:comms_save.js"
+    },
+    {
+      "type": "function",
+      "name": "comms_help",
+      "enabled": true,
+      "code": "@file:comms_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "comms",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_comms.js"
+        }
+      ],
+      "text": "^comms(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    }
+  ],
+  "description": "A Comms tab replacing the stock comm window: channels, tells, unread, mute"
+}
