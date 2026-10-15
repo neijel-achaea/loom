@@ -12,7 +12,7 @@
 //     table: quantity when more than one, the name, and a type column the
 //     integrations can fill (shrine, plant…)
 // Integrations (0.5: #162 social colours (done), #163 hunting target, #164 shrines (done),
-// #165 sigils, #166 plants) will mark rows through the display entry point #159.
+// #165 sigils (done), #166 plants) will mark rows through the display entry point #159.
 var R = client.loom.room;
 var AMBER = "#e0b46c";
 var DEEP = "#7a5f33";
@@ -80,12 +80,28 @@ if (!R.info) {
   // patrolling), later monoliths (#165). Worked out here so an alert also
   // shows as a tag beside the details, seen without scrolling.
   var LLi = client.loom.loom;
-  var FLAG = { bad: "#ff9a4c", good: "#8fd694" };
+  var FLAG = { bad: "#ff9a4c", good: "#8fd694", info: "#c8bfae" };
   var flagOf = {}, alerts = {};
   for (var fk in R.items) {
     if (!R.items.hasOwnProperty(fk) || /m/.test(R.items[fk].attrib || "")) continue;
     var fa = (LLi && LLi.answers) ? LLi.answers("room", "item.flags", R.items[fk].name) : [];
     if (fa.length) { flagOf[fk] = fa[0].value; if (fa[0].value.tone === "bad") alerts[fa[0].value.label] = true; }
+  }
+  // Room-wide warnings (room.alerts: [{ label, tone }]), e.g. a city room
+  // without a monolith (#165, from sigils), shown like an item's alert.
+  if (LLi && LLi.answers) {
+    var rNames = [];
+    for (var rk in R.items) { if (R.items.hasOwnProperty(rk) && !/m/.test(R.items[rk].attrib || "")) rNames.push(R.items[rk].name); }
+    var ra = LLi.answers("room", "room.alerts", { id: I.num, area: I.area, environment: I.environment, items: rNames });
+    for (var ri = 0; ri < ra.length; ri++) {
+      var rv = ra[ri].value || [];
+      for (var rj = 0; rj < rv.length; rj++) {
+        if (rv[rj].tone !== "bad") continue;
+        alerts[rv[rj].label] = true;
+        // The rows the alert is about (e.g. the monolith itself) turn bad too.
+        if (rv[rj].mark) { for (var mk in flagOf) { if (flagOf.hasOwnProperty(mk) && flagOf[mk].label === rv[rj].mark) flagOf[mk] = { label: flagOf[mk].label, tone: "bad", icon: flagOf[mk].icon, title: rv[rj].label }; } }
+      }
+    }
   }
   for (var al in alerts) { if (alerts.hasOwnProperty(al)) tags += '<span style="display:inline-block;margin:0 4px 0 0;padding:0 4px;border:1px solid ' + FLAG.bad + ';color:' + FLAG.bad + ';">\u26a0 ' + esc(al) + '</span>'; }
   var ex = [];

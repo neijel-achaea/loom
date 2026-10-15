@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.sigils) client.loom.sigils = {};
-client.loom.registry.sigils = { version: "0.2.3", keyword: "SIGILS", desc: "{{description}}" };
+client.loom.registry.sigils = { version: "0.2.4", keyword: "SIGILS", desc: "{{description}}" };
 
 var S = client.loom.sigils;
 S.queue = [];
@@ -27,3 +27,12 @@ if (get_variable("sigils_cost_monolith") === null || get_variable("sigils_cost_m
 if (get_variable("sigils_cost_flame") === null || get_variable("sigils_cost_flame") === undefined) set_variable("sigils_cost_flame", 500);
 if (!get_variable("sigils_flagged")) set_variable("sigils_flagged", {});
 if (!get_variable("sigils_ignored")) set_variable("sigils_ignored", {});
+
+// The read-only look other tabs see through loom (#159, #165): what sigils
+// makes of a room, never its variables.
+//   look.isMonolith(name) -> true for a monolith among a room's items
+//   look.ignored(roomId)  -> true for a room on SIGILS IGNORE's list
+S.look = {
+  isMonolith: function (name) { return /\bmonolith\b/i.test(String(name || "")); },
+  ignored: function (id) { var ign = get_variable("sigils_ignored") || {}; return !!ign[String(id)]; }
+};
