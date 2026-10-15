@@ -20,6 +20,9 @@ var DIM = "#5f5a68";
 var RULE = "#26222e";
 var INK = "#121016";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
+// The lines themselves in a plain sans: the serif was hard to read at chat
+// size (Ricardo). Only this tab; the heading keeps the house serif.
+var SANS = "'Segoe UI','Noto Sans','Helvetica Neue',Arial,sans-serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function p2(n) { return (n < 10 ? "0" : "") + n; }
@@ -67,7 +70,7 @@ function lineRow(l, tag) {
     var tv = l.conv ? "tell:" + l.conv.toLowerCase() : tk;
     h += '<span class="loom-cm-tag" title="' + esc(C.name(tk)) + '" onclick="window.loomComms&&window.loomComms.view(\'' + esc(tv).replace(/'/g, "") + '\')" style="flex:none;width:6.5em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + firstCol(l) + ';opacity:0.8;">' + esc(tn) + '</span>';
   }
-  h += '<span style="flex:1;min-width:0;font-family:' + SERIF + ';font-size:12px;line-height:1.35;">' + body(l) + '</span></div>';
+  h += '<span style="flex:1;min-width:0;font-family:' + SANS + ';font-size:13px;line-height:1.4;">' + body(l) + '</span></div>';
   return h;
 }
 
@@ -116,8 +119,8 @@ if (C.view === "tells") {
     var prev = "";
     if (lastL) { for (var sj = 0; sj < lastL.segs.length; sj++) prev += lastL.segs[sj][0]; }
     html += '<div class="loom-cm-conv" onclick="window.loomComms&&window.loomComms.view(\'tell:' + cc.name.toLowerCase().replace(/[^a-z]/g, "") + '\')" style="display:flex;gap:8px;align-items:baseline;padding:3px 0;border-bottom:1px dotted ' + RULE + ';">';
-    html += '<span style="flex:none;width:7em;font-family:' + SERIF + ';font-size:12px;color:' + (cc.unread ? ACC : TXT) + ';">' + esc(cc.name) + badge(cc.unread) + '</span>';
-    html += '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + MUTED + ';">' + esc(prev) + '</span>';
+    html += '<span style="flex:none;width:7em;font-family:' + SANS + ';font-size:13px;color:' + (cc.unread ? ACC : TXT) + ';">' + esc(cc.name) + badge(cc.unread) + '</span>';
+    html += '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SANS + ';font-size:12px;color:' + MUTED + ';">' + esc(prev) + '</span>';
     html += '<span style="flex:none;color:' + DIM + ';">' + (cc.last ? ago(cc.last) : '') + '</span></div>';
   }
 } else {
@@ -134,7 +137,7 @@ if (C.view === "tells") {
     if (rows.length > 200) rows = rows.slice(rows.length - 200);
   } else if (C.view.indexOf("tell:") === 0) {
     var who = C.convs[C.view.slice(5)];
-    html += '<div style="margin-bottom:3px;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span style="font-family:' + SERIF + ';font-size:12px;color:' + ACC + ';">&middot; ' + esc(who.name) + '</span>' +
+    html += '<div style="margin-bottom:3px;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(who.name) + '</span>' +
       ' <span class="loom-cm-who" onclick="window.loomComms&&window.loomComms.tell(\'' + who.name.replace(/[^A-Za-z]/g, "") + '\')" style="color:' + MUTED + ';">(reply)</span></div>';
     var wl = C.chans.tells ? C.chans.tells.lines : [];
     for (var wi = 0; wi < wl.length; wi++) { if (wl[wi].conv && wl[wi].conv.toLowerCase() === who.name.toLowerCase()) rows.push(wl[wi]); }

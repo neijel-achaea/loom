@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.comms) client.loom.comms = {};
-client.loom.registry.comms = { version: "0.1.2", keyword: "COMMS", desc: "{{description}}" };
+client.loom.registry.comms = { version: "0.1.3", keyword: "COMMS", desc: "{{description}}" };
 var C = client.loom.comms;
 C.tab = "Comms";
 if (!C.chans) C.chans = {};
