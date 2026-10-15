@@ -158,9 +158,10 @@ for (var stM = 0; stM < stMoves.length; stM++) {
 if (client.st) { client.st = undefined; }
 if (client.stF) { client.stF = undefined; }
 
-if (!ST.F) {
-  ST.F = { SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
-}
+// The helpers are rebuilt on every run (they're only functions and tables),
+// so a reimport brings in changed ones at once: kept from the first run, a
+// reimport left the old band names in place until a page reload (#218).
+ST.F = { SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
 if (!ST.db) {
   var stDb = stLoad("standings_db", null);
   if (!stDb || typeof stDb !== "object" || !stDb.e) { stDb = { e: {}, pending: [] }; }
