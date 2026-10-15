@@ -31,7 +31,7 @@
    "type": "function",
    "name": "room_setup",
    "enabled": true,
-   "code": "// room_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry and state for the Here tab\n// (#158), a replacement for the stock Room tab fed only by GMCP:\n//   R.info     the last Room.Info (name, desc, area, environment, details, exits, num)\n//   R.players  name -> fullname, from Room.Players / AddPlayer / RemovePlayer\n//   R.items    id -> item, from Char.Items List / Add / Remove / Update (location \"room\")\n//   R.me       your name (Char.Name / Char.Status, kept as room_name), left off the players\n//   R.raw      the last payload of each method, for ROOM DEBUG\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.room) client.loom.room = {};\n// redraw: how loom redraws the Here tab when an integration's source changes (#159).\nclient.loom.registry.room = { version: \"0.1.9\", keyword: \"ROOM\", desc: \"A Here tab replacing the stock Room tab: exits, players, mobs and items\", redraw: function () { run_function(\"room_render\", [], \"room\"); } };\nvar R = client.loom.room;\nif (!R.info) R.info = null;\nif (!R.players) R.players = {};\nif (!R.items) R.items = {};\nif (!R.raw) R.raw = {};\n// Your target (IRE.Target.Info: id and health), and the tar variable as last\n// seen, so a change of it redraws the tab.\nif (R.target === undefined) R.target = null;\nif (R.lastTar === undefined) R.lastTar = \"\";\nif (R.tarAt === undefined) R.tarAt = 0;\nif (!R.me) { try { R.me = String(get_variable(\"room_name\") || \"\"); } catch (e) { R.me = \"\"; } }\n// The description starts folded to two lines (room_desc \"folded\"/\"open\").\nR.descOpen = get_variable(\"room_desc\") == \"open\";\nR.tab = \"Here\";\n"
+   "code": "// room_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry and state for the Here tab\n// (#158), a replacement for the stock Room tab fed only by GMCP:\n//   R.info     the last Room.Info (name, desc, area, environment, details, exits, num)\n//   R.players  name -> fullname, from Room.Players / AddPlayer / RemovePlayer\n//   R.items    id -> item, from Char.Items List / Add / Remove / Update (location \"room\")\n//   R.me       your name (Char.Name / Char.Status, kept as room_name), left off the players\n//   R.raw      the last payload of each method, for ROOM DEBUG\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.room) client.loom.room = {};\n// redraw: how loom redraws the Here tab when an integration's source changes (#159).\nclient.loom.registry.room = { version: \"0.1.10\", keyword: \"ROOM\", desc: \"A Here tab replacing the stock Room tab: exits, players, mobs and items\", redraw: function () { run_function(\"room_render\", [], \"room\"); } };\nvar R = client.loom.room;\nif (!R.info) R.info = null;\nif (!R.players) R.players = {};\nif (!R.items) R.items = {};\nif (!R.raw) R.raw = {};\n// Your target (IRE.Target.Info: id and health), and the tar variable as last\n// seen, so a change of it redraws the tab.\nif (R.target === undefined) R.target = null;\nif (R.lastTar === undefined) R.lastTar = \"\";\nif (R.tarAt === undefined) R.tarAt = 0;\nif (!R.me) { try { R.me = String(get_variable(\"room_name\") || \"\"); } catch (e) { R.me = \"\"; } }\n// The description starts folded to two lines (room_desc \"folded\"/\"open\").\nR.descOpen = get_variable(\"room_desc\") == \"open\";\nR.tab = \"Here\";\n"
   },
   {
    "type": "function",
@@ -83,6 +83,22 @@
     }
    ],
    "text": "^(?:([A-Z][a-z]+) begins to flap (?:his|her|their|its) wings powerfully, and rises quickly up into the firmament\\.)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "room target line",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// The game's own confirmation of a new target (ST / SETTARGET), e.g.\n// \"Your target is now: Rat (a denizen)\". Ricardo, #205: after targeting a\n// player, ST RAT left the player lit. This line arrives whatever GMCP does or\n// doesn't send, so it sets the target too, as a word (a player's name, or a\n// word in a mob's name): whichever of this, IRE.Target.*, or the tar variable\n// changed last decides the glow.\nif (!client.loom || !client.loom.room || !client.loom.room.raw) run_function(\"room_setup\", [], \"room\");\nvar R = client.loom.room;\nvar tlName = String(args[1] || \"\").trim();\nif (tlName) {\n  R.target = { id: tlName, name: \"\", hp: \"\", at: Date.now(), line: String(args[2] || \"\") };\n  clearTimeout(R.drawT);\n  R.drawT = setTimeout(function () { run_function(\"room_render\", [], \"room\"); }, 50);\n}\n"
+    }
+   ],
+   "text": "^Your target is now: (.+?)(?: \\((.+)\\))?\\.?$",
    "matching": "regexp",
    "whole_words": false,
    "case_sensitive": true

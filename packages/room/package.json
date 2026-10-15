@@ -88,6 +88,22 @@
       "case_sensitive": true
     },
     {
+      "type": "trigger",
+      "name": "room target line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_target_line.js"
+        }
+      ],
+      "text": "^Your target is now: (.+?)(?: \\((.+)\\))?\\.?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
       "type": "alias",
       "name": "room",
       "enabled": true,
