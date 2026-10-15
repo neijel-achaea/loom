@@ -36,6 +36,8 @@ function dayName(d) {
 function caps(t, col) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;color:' + (col || SEPIA) + ';font-size:11px;margin:0 0 2px;">' + t + '</div>'; }
 function section(title, inner, col) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title, col) + inner + '</div>'; }
 function quiet(t) { return '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">' + t + '</div>'; }
+// Items another package added (#34) carry their source, muted.
+function srcMark(it) { return (it.source && it.source !== "manual") ? ' <span style="color:' + MUTED + ';" title="added by ' + esc(it.source) + '">&middot; ' + esc(it.source) + '</span>' : ''; }
 // One ledger line: entry number in the margin, the text, and the reckoning on the right.
 function entry(id, text, right, rightCol, textCol) {
   return '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;">' +
@@ -126,7 +128,7 @@ if (dated.length === 0) {
     else if (diff === 0) { when = "today"; col = AMBER; }
     else if (diff <= SOON) { when = "in " + r; col = AMBER; }
     else { when = "in " + r; col = TXT; }
-    var txt = esc(dated[i].text);
+    var txt = esc(dated[i].text) + srcMark(dated[i]);
     if (dated[i].repeat) { txt += ' <span style="color:' + SEPIA + ';" title="repeats">&#8635;</span>'; }
     var right = '<span style="color:' + MUTED + ';">' + dayName(dated[i].due) + '</span>&nbsp; ' + when;
     ap += entry(dated[i].id, txt, right, col, diff < 0 ? WAX : TXT);
@@ -144,7 +146,7 @@ if (standing.length === 0) {
     var arel = rel(age);
     if (!arel.length) { arel = "fresh"; }
     else { arel = "untouched " + arel; }
-    st += entry(standing[i].id, esc(standing[i].text), arel, age >= 50 ? AMBER : MUTED);
+    st += entry(standing[i].id, esc(standing[i].text) + srcMark(standing[i]), arel, age >= 50 ? AMBER : MUTED);
   }
 }
 html += section("Standing", st, PARCH);

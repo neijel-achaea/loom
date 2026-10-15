@@ -9,7 +9,7 @@ for (i = 0; i < items.length; i++) {
   if (items[i].due && items[i].due <= today && !items[i].notified) {
     items[i].notified = true;
     dirty = true;
-    display_notice("[ledger] #" + items[i].id + " due - " + items[i].text, "orange");
+    display_notice("[ledger] #" + items[i].id + " due - " + items[i].text + (items[i].source && items[i].source !== "manual" ? " (" + items[i].source + ")" : ""), "orange");
   }
 }
 if (dirty) { set_variable("ledger_items", JSON.stringify(items)); }

@@ -148,6 +148,8 @@ How the display entry point works (#159):
 Each destination publishes its entry point as an **`entry`** object on its own namespace, the write-side counterpart of a source's read-only `look` (#159). Loom's integrations call it only while their link is on, and pass their link's source name, so whatever they create can be told apart and taken back:
 
 - **Standings** (#36): `client.loom.standings.entry.suggest({ who, step, why, source })` queues a dealing for review (one pending item per source and person: a newer suggestion replaces the older); `entry.withdraw(source[, who])` takes them back. Nothing is recorded until the player says `STANDINGS OK`.
+- **Ledger** (#34): `client.loom.ledger.entry.upsert({ source, key, text, due | dueIn })` adds or updates the source's item for that key; it appears at once, marked with its source; `entry.withdraw(source[, key])` takes it back when the condition clears. If the player `DONE`s or `DROP`s a generated item it stays away until its source withdraws it, then can come back.
+- Switching a link off makes loom call its destination's `entry.withdraw(<source>)`, so a link's creations go with it.
 
 The integration code itself lives in the **loom** package, so neither side knows about the other.
 
