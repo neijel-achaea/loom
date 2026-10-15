@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.social) client.loom.social = {};
-client.loom.registry.social = { version: "0.3.0", keyword: "SOCIAL", desc: "{{description}}" };
+client.loom.registry.social = { version: "0.3.1", keyword: "SOCIAL", desc: "{{description}}" };
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.

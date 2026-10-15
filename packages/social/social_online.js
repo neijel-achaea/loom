@@ -66,7 +66,7 @@ rows.sort(function (a, b) { return a.n < b.n ? -1 : (a.n > b.n ? 1 : 0); });
 
 var dt = S.lastPoll ? new Date(S.lastPoll) : null;
 var polling = get_variable("social_poll") == "on";
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0f1312;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-online" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0f1312;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + TEAL + ';font-size:14px;letter-spacing:0.22em;">ONLINE</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;"><span style="color:' + TEAL + ';">' + onN + '</span> of ' + watchedN + ' watched</div></div>';
@@ -129,14 +129,20 @@ html += '<div style="display:flex;justify-content:space-between;margin-top:6px;c
 html += '<span>' + (S.qwTotal ? S.lastCount + ' visible &middot; ' + S.qwHidden + ' hidden &middot; ' + S.qwTotal + ' total' : '') + '</span>';
 html += '<span>' + (polling ? (dt ? 'last poll ' + p2(dt.getHours()) + ':' + p2(dt.getMinutes()) + ':' + p2(dt.getSeconds()) : '') : '<span style="color:#e0a05a;">polling off</span>') + '</span></div>';
 html += '</div>';
-// The fold's style, once per page; the body class starts from the setting.
+// The page style: the fold, and the panel filling the tab however few rows it
+// has (the tab's own container takes the panel's ink, in case Nexus doesn't pass
+// its height down). Its text is set on every draw, so a reimport's change shows
+// without a page reload; the body class starts from the setting the first time.
 try {
-  if (!document.getElementById("loom-ofl-style")) {
-    var oflSt = document.createElement("style");
+  var oflSt = document.getElementById("loom-ofl-style");
+  if (!oflSt) {
+    oflSt = document.createElement("style");
     oflSt.id = "loom-ofl-style";
-    oflSt.textContent = 'body.loom-ofl-fold .loom-ofl-list { display: none; } .loom-ofl-arrow::before { content: "\\25BE  "; } body.loom-ofl-fold .loom-ofl-arrow::before { content: "\\25B8  "; }';
     document.head.appendChild(oflSt);
     document.body.classList.toggle("loom-ofl-fold", S.showOffline === false);
   }
+  var oflCss = 'body.loom-ofl-fold .loom-ofl-list { display: none; } .loom-ofl-arrow::before { content: "\\25BE  "; } body.loom-ofl-fold .loom-ofl-arrow::before { content: "\\25B8  "; }' +
+    ' .flexlayout__tab:has(#loom-online) { background: #0f1312 !important; } .flexlayout__tab:has(#loom-online) > * { min-height: 100%; }';
+  if (oflSt.textContent !== oflCss) oflSt.textContent = oflCss;
 } catch (e) {}
 try { set_custom_tab_html("Online", html); } catch (e) {}
