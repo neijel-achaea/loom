@@ -1,4 +1,4 @@
-// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM]
+// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM|LINKS|LINK <id> [on/off]]
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
@@ -48,6 +48,60 @@ if (sub === "" || sub === "list") {
   } else {
     set_variable("loom_updates_mode", "manual");
     run_function("loom_updates", [], "loom");
+  }
+} else if (sub === "links" || (sub === "link" && !val)) {
+  // LOOM LINKS: every integration, its state and what it does.
+  if (!client.loom.loom.addLink) run_function("loom_links", [], "loom");
+  var LK = client.loom.loom;
+  var lkIds = LK.linkOrder || [];
+  if (!lkIds.length) {
+    display_notice("[loom] no integrations yet: they arrive with Loom 0.5 and are listed here as each one lands.", C);
+  } else {
+    var lkHtml = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
+    var lkEsc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+    var lkCol = { on: "#7fe07f", off: "#ff9f43", waiting: "#6f8f8f" };
+    var lkW = 0, lkN = { on: 0, off: 0, waiting: 0 };
+    for (var lkI = 0; lkI < lkIds.length; lkI++) if (lkIds[lkI].length > lkW) lkW = lkIds[lkI].length;
+    var lkPad = "                                        ";
+    var lkRows = [];
+    for (var lkJ = 0; lkJ < lkIds.length; lkJ++) {
+      var lkId = lkIds[lkJ];
+      var lkE = LK.links[lkId];
+      var lkSt = LK.linkState(lkId);
+      lkN[lkSt]++;
+      var lkMiss = LK.linkMissing(lkId);
+      // The description, then why it's waiting when a package is missing.
+      var lkDesc = lkE.desc + (lkSt === "waiting" || (lkSt === "off" && lkMiss.length) ? " (needs " + lkMiss.join(" and ") + ")" : "");
+      var lkName = (lkId + lkPad).slice(0, lkW + 2);
+      var lkStw = (lkSt + lkPad).slice(0, 9);
+      if (lkHtml) {
+        lkRows.push('&nbsp;&nbsp;<span style="color:#00ffff">' + lkEsc(lkName) + '</span><span style="color:' + lkCol[lkSt] + '">' + lkEsc(lkStw) + '</span><span style="color:#9fc9c9">' + lkEsc(lkDesc) + '</span>');
+      } else {
+        display_notice("  " + lkName + lkStw + lkDesc, lkCol[lkSt]);
+      }
+    }
+    if (lkHtml) {
+      display_notice("[loom] integrations: " + lkN.on + " on, " + lkN.off + " off, " + lkN.waiting + " waiting for a package", C);
+      nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + lkRows.join("\n") + '</span>');
+    }
+    display_notice("[loom] LOOM LINK <id> ON|OFF to switch one. New integrations start on.", C);
+  }
+} else if (sub === "link") {
+  // LOOM LINK <id> [ON|OFF]: show or switch one integration.
+  if (!client.loom.loom.addLink) run_function("loom_links", [], "loom");
+  var LN = client.loom.loom;
+  var lnTo = String(parts[2] || "").toLowerCase();
+  if (!LN.links[val]) {
+    display_notice("[loom] no integration '" + val + "'. LOOM LINKS lists them.", "orange");
+  } else if (lnTo !== "" && lnTo !== "on" && lnTo !== "off") {
+    display_notice("[loom] usage: LOOM LINK " + val + " ON|OFF", "orange");
+  } else {
+    if (lnTo) LN.setLink(val, lnTo === "on");
+    var lnSt = LN.linkState(val);
+    var lnMiss = LN.linkMissing(val);
+    var lnMsg = "[loom] " + val + " is " + (lnTo ? "now " : "") + (lnSt === "waiting" ? "on" : lnSt);
+    if (lnMiss.length) lnMsg += (lnSt === "off" ? "" : ", waiting for ") + (lnSt === "off" ? " (and needs " + lnMiss.join(" and ") + ")" : lnMiss.join(" and ") + " to be installed");
+    display_notice(lnMsg + ".", lnTo ? "lime" : C);
   }
 } else if (sub === "help") {
   run_function("loom_help", [], "loom");
