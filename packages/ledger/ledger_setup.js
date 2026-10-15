@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "0.3.0", keyword: "LEDGER", desc: "{{description}}" };
+client.loom.registry.ledger = { version: "0.3.1", keyword: "LEDGER", desc: "{{description}}" };
 var LG = client.loom.ledger;
 
 // One-time migration: lg_* -> ledger_*. A new variable that already holds
@@ -112,6 +112,14 @@ LG.entry = {
     display_notice("[ledger] #" + seq + " from " + src + ": " + it.text, "cyan");
     run_function("ledger_check", [], "ledger");
     return seq;
+  },
+  // entry.get(source, key) -> a copy of that source's item, or null; so an
+  // integration can tell whether its reminder is already standing.
+  get: function (source, key) {
+    var items;
+    try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
+    for (var i = 0; i < items.length; i++) { if (items[i].source === String(source) && items[i].key === String(key)) return JSON.parse(JSON.stringify(items[i])); }
+    return null;
   },
   withdraw: function (source, key) {
     if (!source) return 0;

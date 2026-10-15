@@ -17,19 +17,36 @@ var L = client.loom.loom;
 L.links = {};
 L.linkOrder = [];
 
-// Register an integration. e = { id, src, dst, desc, issue, change, answers }:
+// Register an integration. e = { id, src, dst, desc, issue, change, answers, update }:
 // src and dst are package names as in client.loom.registry; change, if
 // given, is called with true/false when the player switches the link on or
 // off, so the integration can withdraw what it created (the destination is
 // redrawn either way). answers, for display integrations, maps a question
 // name to a function answering it from the source's `look`, e.g.
 //   answers: { "person.colour": function (name) { return client.loom.social.look.colour(name); } }
+// update, for integrations that write to their destination (a ledger item,
+// a coffers proposal): run when the source notifies, when the link is
+// switched on, and once at load; debounced, so a burst of changes (a whole
+// IR listing) runs it once. It reads the source's look and calls the
+// destination's entry; switching off withdraws on its own (setLink).
 L.addLink = function (e) {
   if (!e || !e.id) return;
   var id = String(e.id).toLowerCase();
   if (!L.links[id]) L.linkOrder.push(id);
-  L.links[id] = { id: id, src: e.src, dst: e.dst, desc: e.desc || "", issue: e.issue || 0, change: e.change, answers: e.answers || {} };
+  L.links[id] = { id: id, src: e.src, dst: e.dst, desc: e.desc || "", issue: e.issue || 0, change: e.change, answers: e.answers || {}, update: e.update };
 };
+L.updateT = L.updateT || {};
+L.runUpdate = function (id) {
+  var e = L.links[id];
+  if (!e || typeof e.update !== "function") return;
+  if (L.updateT[id]) clearTimeout(L.updateT[id]);
+  L.updateT[id] = setTimeout(function () {
+    L.updateT[id] = null;
+    if (!L.linkOn(id)) return;
+    try { L.links[id].update(); } catch (err) { display_notice("[loom] link " + id + " failed to update: " + err, "orange"); }
+  }, 200);
+};
+L.updateAll = function () { for (var i = 0; i < L.linkOrder.length; i++) L.runUpdate(L.linkOrder[i]); };
 
 // The switched-off ids, as a set. Read once per load and kept in step by
 // L.setLink, so the hot path (L.linkOn) never parses the variable.
@@ -91,6 +108,7 @@ L.setLink = function (id, on) {
       try { dn.entry.withdraw(L.links[id].src); } catch (e) { display_notice("[loom] link " + id + " could not take back its items: " + e, "orange"); }
     }
   }
+  if (!was && now) L.runUpdate(id);
   if (was !== now) L.redraw(L.links[id].dst);
   return true;
 };
@@ -148,7 +166,9 @@ client.loom.notify = function (src) {
   var seen = {};
   for (var i = 0; i < L.linkOrder.length; i++) {
     var e = L.links[L.linkOrder[i]];
-    if (e.src === src && !seen[e.dst] && L.linkOn(e.id)) { seen[e.dst] = true; L.redraw(e.dst); }
+    if (e.src !== src || !L.linkOn(e.id)) continue;
+    if (typeof e.update === "function") L.runUpdate(e.id);
+    if (!seen[e.dst]) { seen[e.dst] = true; L.redraw(e.dst); }
   }
 };
 
@@ -220,5 +240,33 @@ L.addLink({
       if (!it || it.stance === "neutral") return undefined;
       return { label: it.stance + " " + it.kind, tone: it.stance === "hostile" ? "bad" : "good", icon: it.kind === "totem" ? "\u2625" : "\u26ea", title: (it.god ? it.god.charAt(0).toUpperCase() + it.god.slice(1) + ": " : "") + it.stance + " " + it.kind };
     }
+  }
+});
+
+// #46 harvesting -> ledger: one standing "Harvest run" reminder (Ricardo:
+// one per plant would be spam). It appears when any plant falls below 90%
+// of its minimum, lists every plant under its minimum while it stands, and
+// goes away only when all are back at their minimum: the gap between the
+// two keeps a plant hovering near one line from making reminders "like
+// sausages".
+L.harvestTrigger = 0.9;
+L.addLink({
+  id: "harvesting-ledger", src: "harvesting", dst: "ledger", issue: 46,
+  desc: "A harvest run reminder in the ledger when plant stock runs low",
+  update: function () {
+    var h = client.loom.harvesting, lg = client.loom.ledger;
+    if (!h || !h.look || !lg || !lg.entry) return;
+    var lv = h.look.levels(), under = [], urgent = false;
+    for (var i = 0; i < lv.length; i++) {
+      if (lv[i].stock < lv[i].min) under.push(lv[i]);
+      if (lv[i].stock < lv[i].min * L.harvestTrigger) urgent = true;
+    }
+    if (!under.length) { lg.entry.withdraw("harvesting", "run"); return; }
+    if (!urgent && !lg.entry.get("harvesting", "run")) return;
+    under.sort(function (a, b) { return a.stock / a.min - b.stock / b.min; });
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+    var bits = [];
+    for (var j = 0; j < under.length; j++) bits.push(under[j].plant + " " + fmt(under[j].stock) + "/" + fmt(under[j].min));
+    lg.entry.upsert({ source: "harvesting", key: "run", text: "Harvest run: " + bits.join(", ") });
   }
 });

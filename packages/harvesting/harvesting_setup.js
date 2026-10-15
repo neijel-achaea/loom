@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.harvesting) client.loom.harvesting = {};
-client.loom.registry.harvesting = { version: "0.2.2", keyword: "HARVESTING", desc: "{{description}}" };
+client.loom.registry.harvesting = { version: "0.2.3", keyword: "HARVESTING", desc: "{{description}}" };
 var H = client.loom.harvesting;
 
 // Plants that grow in each environment (GMCP Room.Info environment, lower case).
@@ -54,3 +54,26 @@ H.inrFor = null;
 H.inRift = false;
 H.dashes = 0;
 if (H.quiet === undefined) H.quiet = false;
+
+// The read-only look other packages see through loom (#159, #46): what
+// harvesting knows about your stock, never its variables.
+//   look.levels() -> [{ plant, stock, min }] for every plant whose stock has
+//     been seen in the rift (IR/INR), min being its own or the default.
+H.look = {
+  levels: function () {
+    var out = [], seen = {};
+    for (var env in H.plants) {
+      if (!H.plants.hasOwnProperty(env)) continue;
+      for (var i = 0; i < H.plants[env].length; i++) {
+        var pl = H.plants[env][i];
+        if (seen[pl]) continue;
+        seen[pl] = true;
+        var st = H.stock[H.map[pl] || pl];
+        if (st === undefined || st === null) continue;
+        out.push({ plant: pl, stock: st, min: (H.min[pl] != null ? H.min[pl] : H.defMin) });
+      }
+    }
+    return out;
+  }
+};
+if (client.loom.notify) client.loom.notify("harvesting");

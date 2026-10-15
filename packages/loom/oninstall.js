@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
-client.loom.registry.loom = { version: "0.4.9", keyword: "LOOM", desc: "{{description}}" };
+client.loom.registry.loom = { version: "0.4.10", keyword: "LOOM", desc: "{{description}}" };
 
 // The legacy room variables loom used to set have no readers left: delete
 // them once. activeClass is left for hunting, defcon and roleplay to seed
@@ -19,3 +19,5 @@ set_variable("pauseTriggers", "off");
 
 // The integrations catalogue and the LOOM LINK switches.
 run_function("loom_links", [], "loom");
+// Integrations that write (ledger reminders, …) look at their source once.
+client.loom.loom.updateAll();
