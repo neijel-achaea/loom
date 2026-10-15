@@ -329,10 +329,9 @@ L.addLink({
     }
     if (!under.length) { lg.entry.withdraw("crystalism", "pearls"); return; }
     if (!urgent && !lg.entry.get("crystalism", "pearls")) return;
-    under.sort(function (a, b) { return a.have / a.min - b.have / b.min; });
+    // Just the pearls (Ricardo: REFINE fills the shapes evenly, so they top
+    // up together; the shapes' detail is in CRYSTALISM MIN).
     var pearls = Math.ceil(short / (c.facetsPerPearl || 9));
-    var bits = [];
-    for (var j = 0; j < under.length; j++) bits.push(under[j].shape + " " + under[j].have + "/" + under[j].min);
-    lg.entry.upsert({ source: "crystalism", key: "pearls", text: "Collect " + pearls + " pearl" + (pearls === 1 ? "" : "s") + ": " + bits.join(", ") + " (" + short + " crystal" + (short === 1 ? "" : "s") + " short)" });
+    lg.entry.upsert({ source: "crystalism", key: "pearls", text: "Collect " + pearls + " pearl" + (pearls === 1 ? "" : "s") });
   }
 });
