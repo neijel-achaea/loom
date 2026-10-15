@@ -149,6 +149,7 @@ Each destination publishes its entry point as an **`entry`** object on its own n
 
 - **Standings** (#36): `client.loom.standings.entry.suggest({ who, step, why, source })` queues a dealing for review (one pending item per source and person: a newer suggestion replaces the older); `entry.withdraw(source[, who])` takes them back. Nothing is recorded until the player says `STANDINGS OK`.
 - **Ledger** (#34): `client.loom.ledger.entry.upsert({ source, key, text, due | dueIn })` adds or updates the source's item for that key; it appears at once, marked with its source; `entry.withdraw(source[, key])` takes it back when the condition clears. If the player `DONE`s or `DROP`s a generated item it stays away until its source withdraws it, then can come back.
+- **Coffers** (#35): `client.loom.coffers.entry.propose({ source, key, amount, why })` queues a proposed goal (one per source and key, newer replaces older); the player takes it with `COFFERS ACCEPT [n]` (it becomes the goal, remembering its source) or `COFFERS DISMISS [n]` (it stays away until its source withdraws it); `entry.withdraw(source[, key])` takes proposals back.
 - Switching a link off makes loom call its destination's `entry.withdraw(<source>)`, so a link's creations go with it.
 
 The integration code itself lives in the **loom** package, so neither side knows about the other.

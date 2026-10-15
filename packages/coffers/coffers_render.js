@@ -144,8 +144,19 @@ if (g === undefined) {
   if (CO.goal > 0 && CO.goalBase >= 0) {
     var gEarn = W - CO.goalBase;
     var gp = gEarn / CO.goal * 100;
-    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(CO.goal) + ' since ' + F.date(CO.goalT) + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
+    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(CO.goal) + ' since ' + F.date(CO.goalT) + (CO.goalSrc ? ' &middot; ' + esc(CO.goalSrc) : '') + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
     html += bar(gp, gp >= 100 ? UP : GOLD, 3);
+  }
+  // Goals other packages proposed (#35), waiting for ACCEPT or DISMISS.
+  var PR = CO.proposals || [];
+  if (PR.length) {
+    var pin = "";
+    for (var pq = 0; pq < PR.length; pq++) {
+      pin += '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="color:' + MUTED + ';min-width:1.4em;">' + (pq + 1) + '.</span>' +
+        '<span style="flex:1 1 auto;min-width:0;color:' + TXT + ';">earn <span style="color:' + GOLD + ';">' + F.n(PR[pq].amount) + '</span>' + (PR[pq].why ? ' &mdash; ' + esc(PR[pq].why) : '') + ' <span style="color:' + MUTED + ';">&middot; ' + esc(PR[pq].src) + '</span></span></div>';
+    }
+    pin += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">COFFERS ACCEPT makes the first your goal, COFFERS DISMISS drops it.</div>';
+    html += section("Proposed goals", pin);
   }
 
   // Three ledger columns: this session, today, and the all-time records.
