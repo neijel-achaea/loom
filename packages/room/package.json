@@ -1,0 +1,66 @@
+{
+  "type": "group",
+  "name": "room",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "room_setup",
+      "enabled": true,
+      "code": "@file:room_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "room_render",
+      "enabled": true,
+      "code": "@file:room_render.js"
+    },
+    {
+      "type": "function",
+      "name": "room_help",
+      "enabled": true,
+      "code": "@file:room_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "room",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_room.js"
+        }
+      ],
+      "text": "^room(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    }
+  ],
+  "description": "A Here tab replacing the stock Room tab: exits, players, mobs and items"
+}
