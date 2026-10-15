@@ -5,6 +5,9 @@ var S = client.loom.social;
 S.capturing = false;
 clearTimeout(S.safetyT);
 clearTimeout(S.flushT);
+// QW's last line: "Plus another N whose presence you cannot fully sense (M total)."
+var soFoot = S.buf.join(" ").match(/Plus another (\d+)[\s\S]*?\((\d+) total\)/);
+if (soFoot) { S.qwHidden = parseInt(soFoot[1], 10); S.qwTotal = parseInt(soFoot[2], 10); }
 var soText = S.buf.join(" ").replace(/Plus another[\s\S]*$/, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
 S.buf = [];
 var soParts = soText.split(/,|\band\b/);
@@ -22,6 +25,8 @@ if (!soNames.length) {
   var soUp = 0, soDown = 0, soPrimed = false;
   if (S.prev === null) {
     soPrimed = true;
+    // Online before the first poll: counted from your login.
+    for (var soP in soNow) S.since[soP] = S.loginAt || Date.now();
   } else {
     // name -> colour of its highest-priority watched group
     var soIdx = {};
@@ -31,15 +36,31 @@ if (!soNames.length) {
       for (var soN in S.lists[soGr]) { if (!soIdx[soN]) soIdx[soN] = S.color[soGr]; }
     }
     for (var soA in soNow) {
-      if (!S.prev[soA]) { soUp++; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + " has awoken.", soIdx[soA]); }
+      if (!S.prev[soA]) { soUp++; S.since[soA] = Date.now(); S.flash[soA] = { kind: "in", at: Date.now() }; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + " has awoken.", soIdx[soA]); }
     }
     for (var soB in S.prev) {
-      if (!soNow[soB]) { soDown++; if (soIdx[soB]) display_notice("[social] " + soB.charAt(0).toUpperCase() + soB.slice(1) + " has drifted into slumber.", soIdx[soB]); }
+      if (!soNow[soB]) { soDown++; delete S.since[soB]; S.flash[soB] = { kind: "out", at: Date.now() }; if (soIdx[soB]) display_notice("[social] " + soB.charAt(0).toUpperCase() + soB.slice(1) + " has drifted into slumber.", soIdx[soB]); }
     }
   }
+  // Anyone online whose login we never saw counts from yours.
+  for (var soQ in soNow) { if (!S.since[soQ]) S.since[soQ] = S.loginAt || Date.now(); }
   S.prev = soNow;
   if (S.reportOnce || S.debug) {
     display_notice(soPrimed ? "[social] primed with " + soNames.length + " names." : "[social] poll: " + soUp + " new, " + soDown + " gone (" + soNames.length + " online).", "cyan");
     S.reportOnce = false;
   }
 }
+// Last seen, for the Offline section: everyone listed who is online now. Those
+// who just left keep the time of the last poll that saw them.
+var soListed = function (n) { for (var g = 0; g < S.groups.length; g++) { if (S.lists[S.groups[g]][n]) return true; } return false; };
+var soSeenNow = Date.now();
+for (var soS1 = 0; soS1 < soNames.length; soS1++) { if (soListed(soNames[soS1])) S.seen[soNames[soS1]] = soSeenNow; }
+if (soDown > 0 || soSeenNow - S.seenSaved > 60000) {
+  // Drop names no longer in any list, then save.
+  for (var soD in S.seen) { if (!soListed(soD)) delete S.seen[soD]; }
+  set_variable("social_seen", JSON.stringify(S.seen));
+  S.seenSaved = soSeenNow;
+}
+// The Online tab (#76), after every poll.
+S.lastPoll = Date.now();
+run_function("social_online", [], "social");

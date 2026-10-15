@@ -3,6 +3,8 @@ if (!client.loom || !client.loom.social || !client.loom.social.lists) run_functi
 var S = client.loom.social;
 if (args.gmcp_method == "Char.Name" && args.gmcp_args.name) {
   S.me = String(args.gmcp_args.name).toLowerCase();
+  // You just logged in: the Online tab counts those already on from now.
+  S.loginAt = Date.now();
 }
 if (args.gmcp_method == "Char.Status") {
   if (args.gmcp_args.name) S.me = String(args.gmcp_args.name).toLowerCase();

@@ -59,6 +59,12 @@
     },
     {
       "type": "function",
+      "name": "social_online",
+      "enabled": true,
+      "code": "@file:social_online.js"
+    },
+    {
+      "type": "function",
       "name": "social_help",
       "enabled": true,
       "code": "@file:social_help.js"
@@ -145,5 +151,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Name highlights by group, and online/offline notices for those you watch"
+  "description": "Name highlights by group; who you watch, online in the Online tab"
 }
