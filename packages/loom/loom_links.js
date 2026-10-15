@@ -422,16 +422,26 @@ L.addLink({
   }
 });
 
-// #166 harvesting -> room: the plants of the room's environment in Here,
-// with your rift stock, the ones under their minimum marked. Display only.
+// #166 harvesting -> room (Ricardo): the plants of the room's environment in
+// Here: green when here and stocked, yellow when here but under the minimum
+// (stock not seen counts as none, as harvesting does), red when missing.
+// Which plants are here comes from patrolling's silent PLANTS check
+// (PATROLLING ON); until it has seen this room, nothing is shown. Display only.
 L.addLink({
   id: "harvesting-room", src: "harvesting", dst: "room", issue: 166,
-  desc: "The plants of the room's environment in Here, low stock marked",
+  desc: "The environment's plants in Here: stocked, low or missing (needs PATROLLING ON)",
   answers: {
     "room.plants": function (ctx) {
       var h = client.loom.harvesting;
       if (!h || !h.look || !h.look.environment || !ctx) return undefined;
+      var p = client.loom.patrolling;
+      var here = (p && p.look && p.look.plants) ? p.look.plants(ctx.id) : undefined;
+      if (!here) return undefined;
       var l = h.look.environment(ctx.environment);
+      for (var i = 0; i < l.length; i++) {
+        l[i].present = here.indexOf(l[i].plant) >= 0;
+        l[i].low = (l[i].stock === null ? 0 : l[i].stock) < l[i].min;
+      }
       return l.length ? l : undefined;
     }
   }
