@@ -6,7 +6,7 @@ var rmM = "";
 var rmA = null;
 try { rmM = args.gmcp_method; rmA = args.gmcp_args; } catch (e) { rmM = ""; }
 if (typeof rmA === "string") { try { rmA = JSON.parse(rmA); } catch (e) { /* a bare name, as RemovePlayer may send */ } }
-var rmMine = /^Room\.(Info|Players|AddPlayer|RemovePlayer)$/.test(rmM) || rmM === "IRE.Target.Info" || rmM === "Char.Vitals" || (/^Char\.Items\.(List|Add|Remove|Update)$/.test(rmM) && rmA && rmA.location === "room") || rmM === "Char.Name" || rmM === "Char.Status";
+var rmMine = /^Room\.(Info|Players|AddPlayer|RemovePlayer)$/.test(rmM) || rmM === "IRE.Target.Info" || rmM === "IRE.Target.Set" || rmM === "Char.Vitals" || (/^Char\.Items\.(List|Add|Remove|Update)$/.test(rmM) && rmA && rmA.location === "room") || rmM === "Char.Name" || rmM === "Char.Status";
 if (rmMine) {
   if (!client.loom || !client.loom.room || !client.loom.room.raw) run_function("room_setup", [], "room");
   var R = client.loom.room;
@@ -45,6 +45,12 @@ if (rmMine) {
     var rmTn = String(rmA.short_desc || "");
     if (!rmTn && R.target && R.target.id === rmTi) rmTn = R.target.name || "";
     R.target = { id: rmTi, name: rmTn, hp: String(rmA.hpperc || "").replace("%", ""), at: Date.now() };
+  } else if (rmM === "IRE.Target.Set") {
+    // The game announcing a new target (ST/SETTARGET; Ricardo, #205: a
+    // player stayed lit after ST RAT). The payload is the target as typed or
+    // an id, maybe quoted; empty means none. Health comes with Info later.
+    var rmTs = String(rmA === null || rmA === undefined ? "" : (typeof rmA === "object" ? (rmA.target || rmA.id || "") : rmA)).replace(/^"|"$/g, "").trim();
+    R.target = rmTs ? { id: rmTs, name: "", hp: "", at: Date.now() } : { id: "", name: "", hp: "", none: true, at: Date.now() };
   } else if (rmM === "Char.Vitals") {
     // Every prompt: redraw only if the tar variable changed (ST, or a
     // targeting alias), since that sends nothing of its own.

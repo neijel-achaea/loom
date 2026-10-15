@@ -10,7 +10,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.1.8", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+client.loom.registry.room = { version: "0.1.9", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};

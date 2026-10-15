@@ -43,16 +43,21 @@ function merge(list) {
   return out;
 }
 
-// Your target: whichever changed last, the id from IRE.Target.Info or the tar
-// variable (an id, or a word matched against the living mobs' names, first
-// match; also the fallback when the game's id isn't in the room). Its row
-// glows, as in the stock tab, with its health in the type column.
+// Your target: whichever changed last decides, alone. Either the game's
+// (IRE.Target.Info or IRE.Target.Set, in R.target: an id, or a word such as
+// a player's name or "rat"; an empty Set means no target) or the tar
+// variable (an id or a word). An id glows that mob; a word glows the player
+// of that name, else the first living mob whose name holds it. Info's
+// short_desc is the word when its id isn't in the room. The row glows, as in
+// the stock tab, with its health in the type column.
 var GLOW = "#ffd75e";
 var PGLOW = "#ff6a5e";
 var tarV = String(get_variable("tar") || "").trim();
-var useGmcp = !!(R.target && R.target.id && (!tarV || (R.target.at || 0) >= (R.tarAt || 0)));
-var tgtId = useGmcp ? String(R.target.id) : (/^\d+$/.test(tarV) ? tarV : "");
-var tgtWord = (tarV && !/^\d+$/.test(tarV)) ? tarV.toLowerCase() : "";
+var gm = R.target || null;
+var useGmcp = !!(gm && (gm.none || gm.id || gm.name) && (!tarV || (gm.at || 0) >= (R.tarAt || 0)));
+var tgtSrc = useGmcp ? (gm.none ? "" : String(gm.id || "")) : tarV;
+var tgtId = /^\d+$/.test(tgtSrc) ? tgtSrc : "";
+var tgtWord = (tgtSrc && !tgtId) ? tgtSrc.toLowerCase() : ((useGmcp && !gm.none && gm.name) ? String(gm.name).toLowerCase() : "");
 
 var I = R.info || {};
 var html = '<div id="loom-here" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#13110e;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
@@ -85,9 +90,9 @@ if (!R.info) {
   var tgtPl = "";
   for (var pt = 0; pt < pl.length; pt++) {
     var plL = pl[pt].toLowerCase();
-    if (useGmcp ? (String(R.target.id).toLowerCase() === plL || String(R.target.name || "").toLowerCase() === plL) : tgtWord === plL) { tgtPl = pl[pt]; break; }
+    if (tgtWord === plL) { tgtPl = pl[pt]; break; }
   }
-  if (tgtPl) { tgtWord = ""; if (useGmcp) tgtId = ""; }
+  if (tgtPl) { tgtWord = ""; tgtId = ""; }
   html += caps("players", pl.length);
   // Through loom's display entry point (#159): a player's highlight colour
   // and group from social (#162), when both are installed and the link is
