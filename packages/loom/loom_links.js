@@ -270,3 +270,40 @@ L.addLink({
     lg.entry.upsert({ source: "harvesting", key: "run", text: "Harvest run: " + bits.join(", ") });
   }
 });
+
+// #54 talpieces -> ledger: a reminder per colour whose set is complete (all
+// seven commons and its rare), and one standing reminder of spare pieces to
+// trade away (Ricardo), with a buffer so a single extra piece doesn't make
+// one: it appears at L.talSpareOn spare pieces in all and goes below
+// L.talSpareOff. Spares are counted in level-1 pieces, as the goal counts.
+L.talSpareOn = 16;
+L.talSpareOff = 8;
+L.addLink({
+  id: "talpieces-ledger", src: "talpieces", dst: "ledger", issue: 54,
+  desc: "Ledger reminders for complete talisman sets and spare pieces",
+  update: function () {
+    var t = client.loom.talpieces, lg = client.loom.ledger;
+    if (!t || !t.look || !lg || !lg.entry) return;
+    var cs = t.look.colours(), spare = [], total = 0;
+    for (var i = 0; i < cs.length; i++) {
+      var done = true;
+      for (var j = 0; j < cs[i].types.length; j++) {
+        var x = cs[i].types[j];
+        if (x.have < x.need) done = false;
+        if (x.have > x.need) { spare.push({ name: cs[i].colour + " " + x.type, n: x.have - x.need }); total += x.have - x.need; }
+      }
+      var cap = cs[i].colour.charAt(0).toUpperCase() + cs[i].colour.slice(1);
+      if (done) lg.entry.upsert({ source: "talpieces", key: "set:" + cs[i].colour, text: cap + " talisman set complete: turn it in" });
+      else lg.entry.withdraw("talpieces", "set:" + cs[i].colour);
+    }
+    var standing = !!lg.entry.get("talpieces", "spares");
+    // Below the lower line it goes (and a dismissal of it ends); between the
+    // lines a standing reminder stays, and none is made.
+    if (total < L.talSpareOff) { lg.entry.withdraw("talpieces", "spares"); return; }
+    if (!standing && total < L.talSpareOn) return;
+    spare.sort(function (a, b) { return b.n - a.n; });
+    var bits = [];
+    for (var k = 0; k < spare.length; k++) bits.push(spare[k].name + " +" + spare[k].n);
+    lg.entry.upsert({ source: "talpieces", key: "spares", text: "Spare talisman pieces to trade (" + total + "): " + bits.join(", ") });
+  }
+});

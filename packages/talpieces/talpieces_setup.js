@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.talpieces) client.loom.talpieces = {};
-client.loom.registry.talpieces = { version: "0.2.2", keyword: "TALPIECES", desc: "{{description}}" };
+client.loom.registry.talpieces = { version: "0.2.3", keyword: "TALPIECES", desc: "{{description}}" };
 var TP = client.loom.talpieces;
 
 function tpHas(name) {
@@ -129,3 +129,21 @@ TP.histSoft = 700;
 TP.histCap = 1500;
 if (TP.building === undefined) TP.building = false;
 if (TP.forceMark === undefined) TP.forceMark = false;
+
+// The read-only look other packages see through loom (#159, #54): what you
+// hold against what the set needs, never the piece book itself. Counts are
+// in level-1 pieces, as the goal counts them.
+//   look.colours() -> [{ colour, types: [{ type, have, need, rare }] }],
+//     the 7 commons and the colour's rare, for every colour.
+TP.look = {
+  colours: function () {
+    var out = [];
+    for (var ci = 0; ci < TP.colors.length; ci++) {
+      var c = TP.colors[ci], ty = [];
+      for (var ti = 0; ti < TP.commonTypes.length; ti++) ty.push({ type: TP.commonTypes[ti], have: TP.getcount(c, TP.commonTypes[ti]), need: TP.reqCommon, rare: false });
+      ty.push({ type: TP.colorrare[c], have: TP.getcount(c, TP.colorrare[c]), need: TP.reqRare, rare: true });
+      out.push({ colour: c, types: ty });
+    }
+    return out;
+  }
+};
