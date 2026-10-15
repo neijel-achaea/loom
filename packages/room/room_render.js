@@ -4,9 +4,10 @@
 //   - header: room name, area and environment, details as tags, exits, number
 //   - description folded to two lines; a click on it unfolds it (a class on the
 //     page body, as Online's offline section, so redraws never undo it)
-//   - PLAYERS (you left off, full title on hover), MOBS (duplicates merged,
-//     dead ones marked), ITEMS (duplicates merged; things you can take stand
-//     out, fixtures are muted)
+//   - PLAYERS (you left off, full title on hover), MOBS (dead ones greyed),
+//     ITEMS (things you can take stand out, fixtures are muted), each as a
+//     table: quantity when more than one, the name, and a type column the
+//     integrations can fill (shrine, plant…)
 // Integrations (0.5: #162 social colours, #163 hunting target, #164 shrines,
 // #165 sigils, #166 plants) will mark rows through the display entry point #159.
 var R = client.loom.room;
@@ -20,7 +21,14 @@ var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function caps(t, n) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + (n ? AMBER : DIM) + ';margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">' + t + ' <span style="color:' + MUTED + ';">' + n + '</span></div>'; }
-function row(inner, title) { return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;">' + inner + '</div>'; }
+// A table row: quantity (when more than one), the name indented after it, and
+// a type column left empty for now (shrines, plants… from the integrations).
+function row(n, name, title, type) {
+  return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;">' +
+    '<span style="flex:0 0 2.6em;text-align:right;color:' + MUTED + ';">' + (n > 1 ? n + '&times;' : '') + '</span>' +
+    '<span style="flex:1 1 auto;">' + name + '</span>' +
+    (type ? '<span style="flex:0 0 auto;color:' + MUTED + ';font-style:italic;font-family:' + SERIF + ';">' + esc(type) + '</span>' : '') + '</div>';
+}
 // Merge items of the same name, keeping order of first appearance.
 function merge(list) {
   var out = [], at = {};
@@ -30,7 +38,6 @@ function merge(list) {
   }
   return out;
 }
-function many(m) { return (m.n > 1 ? '<span style="color:' + MUTED + ';">' + m.n + '&times; </span>' : ''); }
 
 var I = R.info || {};
 var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#13110e;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
@@ -59,7 +66,7 @@ if (!R.info) {
   for (var pk in R.players) { if (R.players.hasOwnProperty(pk) && pk.toLowerCase() !== String(R.me).toLowerCase()) pl.push(pk); }
   pl.sort();
   html += caps("players", pl.length);
-  for (var pi = 0; pi < pl.length; pi++) html += row('<span style="font-family:' + SERIF + ';font-size:12px;color:' + TXT + ';">' + esc(pl[pi]) + '</span>', R.players[pl[pi]]);
+  for (var pi = 0; pi < pl.length; pi++) html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + TXT + ';">' + esc(pl[pi]) + '</span>', R.players[pl[pi]]);
 
   // Mobs and items.
   var mobs = [], items = [];
@@ -71,14 +78,15 @@ if (!R.info) {
   var mm = merge(mobs);
   html += caps("mobs", mobs.length);
   for (var mi = 0; mi < mm.length; mi++) {
+    // Dead ones are greyed out; their name already says "the corpse of…".
     var dead = /d/.test(mm[mi].it.attrib || "");
-    html += row(many(mm[mi]) + '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (dead ? DIM : TXT) + ';' + (dead ? 'text-decoration:line-through;' : '') + '">' + esc(mm[mi].it.name) + '</span>' + (dead ? ' <span style="color:' + DIM + ';font-style:italic;">dead</span>' : ''));
+    html += row(mm[mi].n, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (dead ? DIM : TXT) + ';">' + esc(mm[mi].it.name) + '</span>');
   }
   var im = merge(items);
   html += caps("items", items.length);
   for (var ii = 0; ii < im.length; ii++) {
     var take = /t/.test(im[ii].it.attrib || "");
-    html += row(many(im[ii]) + '<span style="font-family:' + SERIF + ';font-size:11px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
+    html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:11px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
   }
 }
 html += '</div>';
