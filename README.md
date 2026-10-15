@@ -2,7 +2,7 @@
 
 *Weaving your Achaea client together.*
 
-**Version 0.2**: every package standalone, with one command, HELP and a status view each, its own `<pkg>_` variables and a short description under LOOM. v0.3 (multiclass) is next: see [ROADMAP.md](ROADMAP.md).
+**Version 0.3** (multiclass): hunting, defcon and self work for any class, with a class file per class and editable defence tables, and fall back to generic behaviour for classes not configured yet. Built on 0.2, where every package became standalone. See the [releases](https://github.com/neijel-achaea/loom/releases). v0.4 (enhancements, and custom Online, Comms and Room tabs) is under way on main: see [ROADMAP.md](ROADMAP.md).
 
 Loom is a suite of reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
 package is self-contained: it can be dropped onto any character without
@@ -101,7 +101,7 @@ After changing a package in Nexus, export it, run `extract.py` over it and commi
 
 Two kinds of version live in this repository.
 
-- **Loom releases** follow the milestones: Loom 0.3 is milestone *Loom 0.3 · Multiclass*, released on GitHub with the tag `loom-v0.3.0`. The release notes list every package's version at that point.
+- **Loom releases** follow the milestones: Loom 0.3 is milestone *Loom 0.3 · Multiclass*, released on GitHub with the tag `loom-v0.3.0`. The release notes list every package's version at that point. A release is cut when its milestone closes; if main has already moved on, it is cut from the commit where the milestone ended, on a `release/X.Y` branch.
 - **Packages** each keep their own [semantic version](https://semver.org), set in the registry line of their setup code and shown by `LOOM`. They move independently of each other and of the milestones:
   - a fix bumps the last number: 0.2.1 → 0.2.2
   - new behaviour bumps the middle one: 0.2.2 → 0.3.0
