@@ -17,7 +17,10 @@ var SIZES = [0, 0.5, 1.5, 4];
 // Nemesis, Hostile, Strained, Neutral, Acquaintance, Friend, Soulmate. Only
 // the names changed; the thresholds and colours are as before, and nothing
 // stores a band name (bands are always worked out from the score).
-var BANDS = [[-6, "Nemesis", "#d9534f"], [-2.5, "Hostile", "#e07a4f"], [-0.5, "Strained", "#d8b45a"], [0.5, "Neutral", "#9a9aa3"], [2.5, "Acquaintance", "#8fc3d8"], [6, "Friend", "#5a9be0"], [10.01, "Soulmate", "#7b8ff0"]];
+// [up to, name, colour, icon]: the icon stands in for the name where room is
+// short (the Online tab, with the name on hover); text symbols, so they take
+// the band's colour (shown with U+FE0E so no font draws them as emoji).
+var BANDS = [[-6, "Nemesis", "#d9534f", "\u2620"], [-2.5, "Hostile", "#e07a4f", "\u2694"], [-0.5, "Strained", "#d8b45a", "\u26a0"], [0.5, "Neutral", "#9a9aa3", "\u25cb"], [2.5, "Acquaintance", "#8fc3d8", "\u263a"], [6, "Friend", "#5a9be0", "\u2665"], [10.01, "Soulmate", "#7b8ff0", "\u2766"]];
 var MONTHS = ["Sarapin", "Daedalan", "Aeguary", "Miraman", "Scarlatan", "Ero", "Valnuary", "Lupar", "Phaestian", "Chronos", "Glacian", "Mayan"];
 
 // Standing from a log: each nudge counts for less the closer the standing
@@ -225,7 +228,7 @@ ST.entry = {
 
 // The read-only look other tabs see through loom's display entry point
 // (#159): what standings knows about a person, never its book.
-//   look.standing(name) -> { band, colour, score, trend, recent } or
+//   look.standing(name) -> { band, colour, icon, score, trend, recent } or
 //     undefined when they aren't on the books. trend: the sign of the
 //     nudges in the last ST.recentDays real days (1 up, -1 down, 0 none);
 //     recent: how many dealings in that time.
@@ -239,6 +242,6 @@ ST.look = {
     var since = Math.floor(new Date().getTime() / 1000) - ST.recentDays * 86400;
     var sum = 0, n = 0;
     for (var i = 0; i < e.log.length; i++) { if (e.log[i][0] >= since) { sum += e.log[i][2] || 0; n++; } }
-    return { band: b[1], colour: b[2], score: e.s, trend: sum > 0 ? 1 : (sum < 0 ? -1 : 0), recent: n };
+    return { band: b[1], colour: b[2], icon: b[3] || "", score: e.s, trend: sum > 0 ? 1 : (sum < 0 ? -1 : 0), recent: n };
   }
 };

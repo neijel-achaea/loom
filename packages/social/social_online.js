@@ -13,16 +13,18 @@
 // (#196, from standings), when both are installed and the link is on.
 var LL = client.loom.loom;
 function ask(q, n) { return (LL && LL.answer) ? LL.answer("social", q, n) : undefined; }
-// The standing column: the band in its colour, an arrow when it moved in the
-// last few days, the score and the dealings on hover. Empty for someone not
-// on the books, so the column stays quiet.
+// The standing column: the band's icon in its colour (Ricardo: icons, the
+// words on hover), an arrow when it moved in the last few days; the band,
+// score and recent dealings on hover. Empty for someone not on the books, so
+// the column stays quiet. Falls back to the band's name with no icon.
 function standCell(n) {
   var st = ask("person.standing", cap(n));
-  if (!st) return '<span style="flex:none;min-width:8em;"></span>';
+  if (!st) return '<span style="flex:none;min-width:2.6em;"></span>';
   var arrow = st.trend > 0 ? ' &#9650;' : (st.trend < 0 ? ' &#9660;' : '');
   var sc = (st.score > 0 ? "+" : "") + (Math.round(st.score * 10) / 10).toFixed(1);
   var tip = st.band + " " + sc + (st.recent ? ", " + st.recent + " dealing" + (st.recent === 1 ? "" : "s") + " in the last few days" + (st.trend > 0 ? ", up" : (st.trend < 0 ? ", down" : "")) : "");
-  return '<span title="' + esc(tip) + '" style="flex:none;min-width:8em;text-align:right;white-space:nowrap;cursor:default;color:' + esc(st.colour) + ';">' + esc(st.band) + '<span style="font-size:8px;">' + arrow + '</span></span>';
+  var mark = st.icon ? '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:12px;">' + esc(st.icon) + '\ufe0e</span>' : esc(st.band);
+  return '<span title="' + esc(tip) + '" style="flex:none;min-width:2.6em;text-align:right;white-space:nowrap;cursor:default;color:' + esc(st.colour) + ';">' + mark + '<span style="font-size:8px;">' + arrow + '</span></span>';
 }
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
 // small-caps headings, monospace rows. The accent is a moonlit teal.
