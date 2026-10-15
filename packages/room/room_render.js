@@ -29,9 +29,9 @@ function caps(t, n) { return '<div style="font-family:' + SERIF + ';font-variant
 // glow: false, or the colour of a targeted row (yellow mob, red player).
 function row(n, name, title, type, glow) {
   return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;' + (glow ? 'background:' + (glow === PGLOW ? 'rgba(255,106,94,0.08)' : 'rgba(255,215,94,0.07)') + ';' : '') + '">' +
-    '<span style="flex:0 0 2.6em;text-align:right;color:' + MUTED + ';">' + (n > 1 ? n + '&times;' : '') + '</span>' +
+    '<span style="flex:0 0 2.6em;text-align:right;font-size:11px;color:' + MUTED + ';">' + (n > 1 ? n + '&times;' : '') + '</span>' +
     '<span style="flex:1 1 auto;">' + name + '</span>' +
-    (type ? '<span style="flex:0 0 auto;color:' + (glow || MUTED) + ';font-style:italic;font-family:' + SERIF + ';">' + esc(type) + '</span>' : '') + '</div>';
+    (type ? '<span style="flex:0 0 auto;font-size:12px;color:' + (glow || MUTED) + ';font-style:italic;font-family:' + SERIF + ';">' + esc(type) + '</span>' : '') + '</div>';
 }
 // Merge items of the same name, keeping order of first appearance.
 function merge(list) {
@@ -66,7 +66,7 @@ if (!R.info) {
 } else {
   var name = String(I.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, "");
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
-  html += '<div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:13px;letter-spacing:0.06em;">' + esc(name) + '</div>';
+  html += '<div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + '</div>';
   html += '<div style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:11px;white-space:nowrap;">' + esc(I.area || "") + (I.environment ? ' &middot; ' + esc(I.environment) : '') + '</div></div>';
   // Details as tags, exits, room number.
   var tags = "";
@@ -106,7 +106,7 @@ if (!R.info) {
     var pGrp = ask("person.group", pl[pi]);
     var pTitle = R.players[pl[pi]] || "";
     if (pGrp) pTitle = (pTitle ? pTitle + " \u00b7 " : "") + pGrp;
-    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>', pTitle, pHp, isT ? PGLOW : false);
+    html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>', pTitle, pHp, isT ? PGLOW : false);
   }
 
   // Mobs and items, in the room's own order (R.order; ids not in it, which
@@ -132,18 +132,18 @@ if (!R.info) {
     var mob = mobs[mi];
     if (mob === tgtMob) {
       var tHp = (R.target && String(R.target.id) === String(mob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target", tHp, GLOW);
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target", tHp, GLOW);
     } else {
       // Dead ones are greyed out; their name already says "the corpse of…".
       var dead = /d/.test(mob.attrib || "");
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (dead ? DIM : TXT) + ';">' + esc(mob.name) + '</span>');
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (dead ? DIM : TXT) + ';">' + esc(mob.name) + '</span>');
     }
   }
   var im = merge(items);
   html += caps("items", items.length);
   for (var ii = 0; ii < im.length; ii++) {
     var take = /t/.test(im[ii].it.attrib || "");
-    html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:11px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
+    html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
   }
 }
 html += '</div>';
