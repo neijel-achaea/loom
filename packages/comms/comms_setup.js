@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.comms) client.loom.comms = {};
-client.loom.registry.comms = { version: "0.1.1", keyword: "COMMS", desc: "{{description}}" };
+client.loom.registry.comms = { version: "0.1.2", keyword: "COMMS", desc: "{{description}}" };
 var C = client.loom.comms;
 C.tab = "Comms";
 if (!C.chans) C.chans = {};
@@ -86,13 +86,13 @@ try {
       if (cc.view && cc.chans[cc.view]) run_function("comms_mute", { key: cc.view, on: !cc.muted[cc.view] }, "comms");
     },
     tell: function (name) {
-      // Put "tell <name> " in the input line. Nexus's input is a React field, so
+      // Put "t <name> " in the input line (Ricardo prefers the short form). Nexus's input is a React field, so
       // the value goes in through the native setter and an input event.
       var n = String(name).replace(/[^A-Za-z]/g, "");
       if (!n) return;
       var inp = window.loomComms.input();
       if (!inp) { display_notice("[comms] couldn't find the input line to put the tell in. COMMS DEBUG shows what was looked for.", "orange"); return; }
-      var v = "tell " + n + " ";
+      var v = "t " + n + " ";
       try {
         var proto = Object.getPrototypeOf(inp);
         var desc = Object.getOwnPropertyDescriptor(proto, "value");

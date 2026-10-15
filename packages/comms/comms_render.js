@@ -8,7 +8,7 @@
 //     conversation, both sides
 //   - lines that name you marked (your own lines as they come: dimming them
 //     made them hard to read, Ricardo)
-//   - a click on a talker's name puts "tell <name> " in the input line
+//   - a click on a talker's name puts "t <name> " in the input line
 // Clicks go through window.loomComms (comms_setup): the tab's page can't
 // reach client. House style shared with Stats, Online, Here: ink panel,
 // serif small-caps headings, monospace rows. The accent is a soft violet.
@@ -44,7 +44,7 @@ function body(l) {
     var m = whoRe ? whoRe.exec(tx) : null;
     if (m) {
       out += '<span' + st + '>' + esc(tx.slice(0, m.index)) +
-        '<span class="loom-cm-who" title="tell ' + who + '" onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' +
+        '<span class="loom-cm-who" title="t ' + who + '" onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' +
         esc(tx.slice(m.index + who.length)) + '</span>';
       whoRe = null;
     } else {
