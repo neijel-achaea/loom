@@ -23,6 +23,7 @@ if (hvA[0] === "" || hvA[0] === "status") {
 } else if (hvA[0] === "min" && hvA.length == 2 && /^\d+$/.test(hvA[1])) {
   H.defMin = parseInt(hvA[1], 10);
   set_variable("harvesting_default_min", H.defMin);
+  if (client.loom.notify) client.loom.notify("harvesting");
   display_notice("[harvesting] default minimum: " + H.defMin + ".", "lime");
 } else if (hvA[0] === "min" && hvA.length == 3 && (hvA[2] === "default" || /^\d+$/.test(hvA[2]))) {
   if (hvA[2] === "default") delete H.min[hvA[1]];
