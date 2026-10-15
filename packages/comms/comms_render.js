@@ -6,7 +6,8 @@
 //     (a click on the tag opens that channel)
 //   - Tells: the people you've been telling, newest first; a click opens the
 //     conversation, both sides
-//   - your own lines dimmed, lines that name you marked
+//   - lines that name you marked (your own lines as they come: dimming them
+//     made them hard to read, Ricardo)
 //   - a click on a talker's name puts "tell <name> " in the input line
 // Clicks go through window.loomComms (comms_setup): the tab's page can't
 // reach client. House style shared with Stats, Online, Here: ink panel,
@@ -58,7 +59,7 @@ function firstCol(l) {
 }
 function lineRow(l, tag) {
   var bg = l.mention ? 'background:rgba(185,164,230,0.10);border-left:2px solid ' + ACC + ';padding-left:4px;' : 'border-left:2px solid transparent;padding-left:4px;';
-  var h = '<div style="display:flex;gap:6px;align-items:baseline;padding:1px 0;' + bg + (l.me ? 'opacity:0.55;' : '') + '">';
+  var h = '<div style="display:flex;gap:6px;align-items:baseline;padding:1px 0;' + bg + '">';
   h += '<span title="' + esc(hms(l.t)) + '" style="flex:none;width:2.9em;color:' + DIM + ';">' + hm(l.t) + '</span>';
   if (tag) {
     var tk = l.ch;
