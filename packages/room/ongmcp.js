@@ -23,12 +23,21 @@ if (rmMine) {
     delete R.players[typeof rmA === "string" ? rmA : rmA.name];
   } else if (rmM === "Char.Items.List") {
     R.items = {};
+    // R.order: the ids in the game's own order (Char.Items.List, then each
+    // Add at the end). R.items alone would iterate by id, since JavaScript
+    // walks number-like keys in ascending order, and the room's order is
+    // what targeting by name follows.
+    R.order = [];
     var rmL = rmA.items || [];
-    for (var rmJ = 0; rmJ < rmL.length; rmJ++) R.items[rmL[rmJ].id] = rmL[rmJ];
+    for (var rmJ = 0; rmJ < rmL.length; rmJ++) { R.items[rmL[rmJ].id] = rmL[rmJ]; R.order.push(String(rmL[rmJ].id)); }
   } else if ((rmM === "Char.Items.Add" || rmM === "Char.Items.Update") && rmA.item) {
+    if (!R.order) R.order = [];
+    if (!R.items[rmA.item.id]) R.order.push(String(rmA.item.id));
     R.items[rmA.item.id] = rmA.item;
   } else if (rmM === "Char.Items.Remove" && rmA.item !== undefined) {
-    delete R.items[typeof rmA.item === "object" ? rmA.item.id : rmA.item];
+    var rmRid = String(typeof rmA.item === "object" ? rmA.item.id : rmA.item);
+    delete R.items[rmRid];
+    if (R.order) { var rmAt = R.order.indexOf(rmRid); if (rmAt >= 0) R.order.splice(rmAt, 1); }
   } else if (rmM === "IRE.Target.Info" && rmA) {
     // Your target, for the glow on its mob: its id, and its health. Later
     // updates for the same target can carry only the health.

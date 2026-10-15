@@ -5,8 +5,9 @@
 //   - description folded to two lines; a click on it unfolds it (a class on the
 //     page body, as Online's offline section, so redraws never undo it)
 //   - PLAYERS (you left off, full title on hover, a targeted one glowing
-//     red), MOBS (your target first,
-//     glowing yellow with its health; dead ones greyed),
+//     red), MOBS (one row each, in the room's own order, so the next one a
+//     name would hit is the next row down; your target glows yellow in
+//     place, with its health; dead ones greyed),
 //     ITEMS (things you can take stand out, fixtures are muted), each as a
 //     table: quantity when more than one, the name, and a type column the
 //     integrations can fill (shrine, plant…)
@@ -103,29 +104,35 @@ if (!R.info) {
     html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>', pTitle, pHp, isT ? PGLOW : false);
   }
 
-  // Mobs and items.
-  var mobs = [], items = [];
-  for (var ik in R.items) {
-    if (!R.items.hasOwnProperty(ik)) continue;
-    var it = R.items[ik];
+  // Mobs and items, in the room's own order (R.order; ids not in it, which
+  // shouldn't happen, after them).
+  var mobs = [], items = [], seenId = {};
+  var ord = (R.order || []).slice();
+  for (var ik in R.items) { if (R.items.hasOwnProperty(ik) && ord.indexOf(String(ik)) < 0) ord.push(String(ik)); }
+  for (var oi = 0; oi < ord.length; oi++) {
+    var it = R.items[ord[oi]];
+    if (!it || seenId[ord[oi]]) continue;
+    seenId[ord[oi]] = true;
     if (/m/.test(it.attrib || "")) mobs.push(it); else items.push(it);
   }
-  // The target is split out of its merged group, so only that one glows.
+  // Mobs one row each (Ricardo: merging them, then splitting the target out
+  // and lifting it to the top, made it hard to see what comes next). The
+  // target glows where it stands: by id, or the first living mob whose name
+  // holds the tar word, as the game would pick it.
   var tgtMob = null;
   for (var ti = 0; ti < mobs.length && !tgtMob; ti++) { if (tgtId && String(mobs[ti].id) === tgtId) tgtMob = mobs[ti]; }
   for (var tj = 0; tj < mobs.length && !tgtMob && tgtWord; tj++) { if (!/d/.test(mobs[tj].attrib || "") && mobs[tj].name.toLowerCase().indexOf(tgtWord) >= 0) tgtMob = mobs[tj]; }
-  var rest = [];
-  for (var tk = 0; tk < mobs.length; tk++) { if (mobs[tk] !== tgtMob) rest.push(mobs[tk]); }
-  var mm = merge(rest);
   html += caps("mobs", mobs.length);
-  if (tgtMob) {
-    var tHp = (R.target && String(R.target.id) === String(tgtMob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
-    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(tgtMob.name) + '</span>', "your target", tHp, GLOW);
-  }
-  for (var mi = 0; mi < mm.length; mi++) {
-    // Dead ones are greyed out; their name already says "the corpse of…".
-    var dead = /d/.test(mm[mi].it.attrib || "");
-    html += row(mm[mi].n, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (dead ? DIM : TXT) + ';">' + esc(mm[mi].it.name) + '</span>');
+  for (var mi = 0; mi < mobs.length; mi++) {
+    var mob = mobs[mi];
+    if (mob === tgtMob) {
+      var tHp = (R.target && String(R.target.id) === String(mob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target", tHp, GLOW);
+    } else {
+      // Dead ones are greyed out; their name already says "the corpse of…".
+      var dead = /d/.test(mob.attrib || "");
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (dead ? DIM : TXT) + ';">' + esc(mob.name) + '</span>');
+    }
   }
   var im = merge(items);
   html += caps("items", items.length);
