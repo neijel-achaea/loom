@@ -9,6 +9,8 @@
 //   - lines that name you marked (your own lines as they come: dimming them
 //     made them hard to read, Ricardo)
 //   - a click on a talker's name puts "t <name> " in the input line
+//   - with social and loom installed (link social-comms, #160), talkers and
+//     the people in Tells in their highlight colours, the group on hover
 // Clicks go through window.loomComms (comms_setup): the tab's page can't
 // reach client. House style shared with Stats, Online, Here: ink panel,
 // serif small-caps headings, monospace rows. The accent is a soft violet.
@@ -36,7 +38,12 @@ function ago(t) {
   var h = Math.floor(m / 60);
   return h < 48 ? h + "h" : Math.floor(h / 24) + "d";
 }
-// A line's text: its segments in their colours, the talker's name clickable.
+// Through loom's display entry point (#159): a person's highlight colour and
+// group from social (#160), when the link is on; otherwise nothing.
+var LL = client.loom.loom;
+function ask(q, n) { return (LL && LL.answer) ? LL.answer("comms", q, n) : undefined; }
+// A line's text: its segments in their colours, the talker's name clickable
+// (and in their highlight colour, when social knows them).
 function body(l) {
   var out = "";
   var who = (!l.me && /^[A-Za-z]+$/.test(l.talker || "")) ? l.talker : "";
@@ -46,8 +53,10 @@ function body(l) {
     var st = l.segs[i][1] ? ' style="color:' + l.segs[i][1] + ';"' : '';
     var m = whoRe ? whoRe.exec(tx) : null;
     if (m) {
+      var wCol = ask("person.colour", who);
+      var wGrp = ask("person.group", who);
       out += '<span' + st + '>' + esc(tx.slice(0, m.index)) +
-        '<span class="loom-cm-who" title="t ' + who + '" onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' +
+        '<span class="loom-cm-who" title="t ' + who + (wGrp ? ' \u00b7 ' + esc(wGrp) : '') + '"' + (wCol ? ' style="color:' + esc(wCol) + ';"' : '') + ' onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' +
         esc(tx.slice(m.index + who.length)) + '</span>';
       whoRe = null;
     } else {
@@ -109,7 +118,9 @@ for (var ci = 0; ci < keys.length; ci++) {
 html += '</div>';
 if (C.view.indexOf("tell:") === 0) {
   var hw = C.convs[C.view.slice(5)];
-  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(hw.name) + '</span>' +
+  var hwCol = ask("person.colour", hw.name);
+  var hwGrp = ask("person.group", hw.name);
+  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span' + (hwGrp ? ' title="' + esc(hwGrp) + '"' : '') + ' style="font-family:' + SANS + ';font-size:13px;color:' + esc(hwCol || ACC) + ';">&middot; ' + esc(hw.name) + '</span>' +
     ' <span class="loom-cm-who" onclick="window.loomComms&&window.loomComms.tell(\'' + hw.name.replace(/[^A-Za-z]/g, "") + '\')" style="color:' + MUTED + ';">(reply)</span></div>';
 }
 html += '<div style="border-bottom:1px solid ' + RULE + ';"></div></div><div style="padding-top:4px;">';
@@ -128,7 +139,11 @@ if (C.view === "tells") {
     var prev = "";
     if (lastL) { for (var sj = 0; sj < lastL.segs.length; sj++) prev += lastL.segs[sj][0]; }
     html += '<div class="loom-cm-conv" onclick="window.loomComms&&window.loomComms.view(\'tell:' + cc.name.toLowerCase().replace(/[^a-z]/g, "") + '\')" style="display:flex;gap:8px;align-items:baseline;padding:3px 0;border-bottom:1px dotted ' + RULE + ';">';
-    html += '<span style="flex:none;width:7em;font-family:' + SANS + ';font-size:13px;color:' + (cc.unread ? ACC : TXT) + ';">' + esc(cc.name) + badge(cc.unread) + '</span>';
+    // In their highlight colour when social knows them (the unread badge
+    // still says what's new); otherwise accent when unread, as before.
+    var ccCol = ask("person.colour", cc.name);
+    var ccGrp = ask("person.group", cc.name);
+    html += '<span' + (ccGrp ? ' title="' + esc(ccGrp) + '"' : '') + ' style="flex:none;width:7em;font-family:' + SANS + ';font-size:13px;color:' + esc(ccCol || (cc.unread ? ACC : TXT)) + ';">' + esc(cc.name) + badge(cc.unread) + '</span>';
     html += '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SANS + ';font-size:12px;color:' + MUTED + ';">' + esc(prev) + '</span>';
     html += '<span style="flex:none;color:' + DIM + ';">' + (cc.last ? ago(cc.last) : '') + '</span></div>';
   }
