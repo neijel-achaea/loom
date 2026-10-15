@@ -1,0 +1,108 @@
+{
+  "type": "group",
+  "name": "room",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "room_setup",
+      "enabled": true,
+      "code": "@file:room_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "room_render",
+      "enabled": true,
+      "code": "@file:room_render.js"
+    },
+    {
+      "type": "function",
+      "name": "room_help",
+      "enabled": true,
+      "code": "@file:room_help.js"
+    },
+    {
+      "type": "trigger",
+      "name": "room player arrives",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "client.loom = client.loom || {}; client.loom.room = client.loom.room || {}; client.loom.room.lineKind = \"in\";"
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_player_line.js"
+        }
+      ],
+      "text": "^(?:([A-Z][a-z]+) descends from above\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "room player leaves",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "client.loom = client.loom || {}; client.loom.room = client.loom.room || {}; client.loom.room.lineKind = \"out\";"
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_player_line.js"
+        }
+      ],
+      "text": "^(?:([A-Z][a-z]+) begins to flap (?:his|her|their|its) wings powerfully, and rises quickly up into the firmament\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "alias",
+      "name": "room",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_room.js"
+        }
+      ],
+      "text": "^room(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false
+    }
+  ],
+  "description": "A Here tab replacing the stock Room tab: exits, players, mobs and items"
+}
