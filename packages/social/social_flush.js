@@ -25,8 +25,8 @@ if (!soNames.length) {
   var soUp = 0, soDown = 0, soPrimed = false;
   if (S.prev === null) {
     soPrimed = true;
-    // Online before the first poll: counted from now.
-    for (var soP in soNow) S.since[soP] = Date.now();
+    // Online before the first poll: counted from your login.
+    for (var soP in soNow) S.since[soP] = S.loginAt || Date.now();
   } else {
     // name -> colour of its highest-priority watched group
     var soIdx = {};
@@ -42,6 +42,8 @@ if (!soNames.length) {
       if (!soNow[soB]) { soDown++; delete S.since[soB]; S.flash[soB] = { kind: "out", at: Date.now() }; if (soIdx[soB]) display_notice("[social] " + soB.charAt(0).toUpperCase() + soB.slice(1) + " has drifted into slumber.", soIdx[soB]); }
     }
   }
+  // Anyone online whose login we never saw counts from yours.
+  for (var soQ in soNow) { if (!S.since[soQ]) S.since[soQ] = S.loginAt || Date.now(); }
   S.prev = soNow;
   if (S.reportOnce || S.debug) {
     display_notice(soPrimed ? "[social] primed with " + soNames.length + " names." : "[social] poll: " + soUp + " new, " + soDown + " gone (" + soNames.length + " online).", "cyan");

@@ -86,7 +86,9 @@ if (!watchedN) {
     var f = fl[r.n];
     var glow = !r.out && f && f.kind === "in";
     var nameStyle = r.out ? 'color:' + MUTED + ';text-decoration:line-through;' : 'color:' + col + ';' + (glow ? 'font-weight:bold;text-shadow:0 0 6px ' + col + ',0 0 2px ' + col + ';' : '');
-    var since = (S.since && S.since[r.n]) ? now - S.since[r.n] : null;
+    // Online since their login, or since yours if we never saw theirs.
+    var sinceAt = (S.since && S.since[r.n]) || S.loginAt;
+    var since = sinceAt ? now - sinceAt : null;
     var right = r.out ? "logged out" : (glow ? "logged in" : (since !== null ? forTxt(since) : ""));
     html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:2px 0;' + (r.out ? 'opacity:0.6;' : '') + '">';
     html += '<span title="' + esc(g2) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:12px;cursor:default;' + nameStyle + '">' + esc(cap(r.n)) + '</span>';

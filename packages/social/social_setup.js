@@ -78,6 +78,10 @@ S.capturing = false;
 // arrivals and departures (glow / greyed for S.flashMs), the last poll and
 // QW's hidden and total counts.
 if (!S.since) S.since = {};
+// Your own login: whoever was already online when you came on (no login of
+// theirs seen) counts from here. Set again by Char.Name, which the game sends
+// at login; until then, from when this package was set up.
+if (!S.loginAt) S.loginAt = Date.now();
 if (!S.flash) S.flash = {};
 S.flashMs = 10000;
 // When each listed person was last seen online (social_seen, name -> ms),
