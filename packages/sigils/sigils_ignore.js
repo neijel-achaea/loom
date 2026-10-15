@@ -27,6 +27,7 @@ if (arg === "") {
     }
     ign[key] = nm;
     set_variable("sigils_ignored", ign);
+    if (client.loom.notify) client.loom.notify("sigils");
     display_notice("[sigils] ignoring room " + key + (nm !== "?" ? " (" + nm + ")" : "") + ".", "lime");
   }
 }

@@ -7,6 +7,7 @@ if (key === "") {
 } else if (ign[key] !== undefined) {
   delete ign[key];
   set_variable("sigils_ignored", ign);
+  if (client.loom.notify) client.loom.notify("sigils");
   display_notice("[sigils] room " + key + " is watched again.", "lime");
 } else {
   display_notice("[sigils] room " + key + " was not on the ignore list.", "orange");

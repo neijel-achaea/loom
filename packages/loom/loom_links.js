@@ -335,3 +335,30 @@ L.addLink({
     lg.entry.upsert({ source: "crystalism", key: "pearls", text: "Collect " + pearls + " pearl" + (pearls === 1 ? "" : "s") });
   }
 });
+
+// #165 sigils -> room (Ricardo): monoliths shown in Here with their own icon,
+// and two warnings by the room's environment: an urban room without a
+// monolith (unless SIGILS IGNORE skips it), and a monolith outside an urban
+// room. room.alerts answers [{ label, tone, mark }] for the whole room, given
+// { id, environment, items: [names] }; Here shows them as header tags, and
+// turns the rows flagged with `mark` (an item flag's label) to the alert.
+L.addLink({
+  id: "sigils-room", src: "sigils", dst: "room", issue: 165,
+  desc: "Monoliths in Here; warns of a city room without one, or one outside the city",
+  answers: {
+    "item.flags": function (name) {
+      var s = client.loom.sigils;
+      return (s && s.look && s.look.isMonolith(name)) ? { label: "monolith", tone: "info", icon: "\u25ae", title: "monolith" } : undefined;
+    },
+    "room.alerts": function (ctx) {
+      var s = client.loom.sigils;
+      if (!s || !s.look || !ctx) return undefined;
+      var mono = false;
+      for (var i = 0; i < (ctx.items || []).length; i++) { if (s.look.isMonolith(ctx.items[i])) { mono = true; break; } }
+      var urban = /^urban$/i.test(String(ctx.environment || ""));
+      if (urban && !mono && !s.look.ignored(ctx.id)) return [{ label: "no monolith", tone: "bad" }];
+      if (!urban && mono) return [{ label: "monolith outside the city", tone: "bad", mark: "monolith" }];
+      return undefined;
+    }
+  }
+});
