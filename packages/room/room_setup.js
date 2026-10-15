@@ -10,7 +10,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.1.11", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+client.loom.registry.room = { version: "0.1.12", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
@@ -21,6 +21,21 @@ if (!R.raw) R.raw = {};
 if (R.target === undefined) R.target = null;
 if (R.lastTar === undefined) R.lastTar = "";
 if (R.tarAt === undefined) R.tarAt = 0;
+// The tar variable is set inside Nexus (TAR, aliases) and sends nothing to
+// the game, so waiting for the next prompt to notice it made the glow lag
+// (Ricardo: "less crisp than the stock tab"). Look at it a few times a
+// second instead: one variable read and a compare, and a draw only when it
+// changed. Replaced on every setup, so a reimport never leaves two.
+if (R.tarWatch) clearInterval(R.tarWatch);
+R.tarWatch = setInterval(function () {
+  var tw;
+  try { tw = String(get_variable("tar") || ""); } catch (e) { return; }
+  if (tw === R.lastTar) return;
+  R.lastTar = tw;
+  R.tarAt = Date.now();
+  clearTimeout(R.drawT);
+  run_function("room_render", [], "room");
+}, 150);
 if (!R.me) { try { R.me = String(get_variable("room_name") || ""); } catch (e) { R.me = ""; } }
 // The description starts folded to two lines (room_desc "folded"/"open").
 R.descOpen = get_variable("room_desc") == "open";
