@@ -336,6 +336,10 @@ L.addLink({
   }
 });
 
+// City environments: GMCP's "Urban", and "Trees" for the forest-city of
+// Eleusis (Ricardo). Add others here if a city reports something else.
+L.cityEnvs = ["urban", "trees"];
+
 // #165 sigils -> room (Ricardo): monoliths shown in Here with their own icon,
 // and two warnings by the room's environment: an urban room without a
 // monolith (unless SIGILS IGNORE skips it), and a monolith outside an urban
@@ -355,7 +359,7 @@ L.addLink({
       if (!s || !s.look || !ctx) return undefined;
       var mono = false;
       for (var i = 0; i < (ctx.items || []).length; i++) { if (s.look.isMonolith(ctx.items[i])) { mono = true; break; } }
-      var urban = /^urban$/i.test(String(ctx.environment || ""));
+      var urban = L.cityEnvs.indexOf(String(ctx.environment || "").toLowerCase()) >= 0;
       if (urban && !mono && !s.look.ignored(ctx.id)) return [{ label: "no monolith", tone: "bad" }];
       if (!urban && mono) return [{ label: "monolith outside the city", tone: "bad", mark: "monolith" }];
       return undefined;
