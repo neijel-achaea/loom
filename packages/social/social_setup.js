@@ -128,11 +128,11 @@ S.timer = setInterval(function () { run_function("social_poll", [], "social"); }
 // priority order, so a name in two groups takes the first one's colour, as
 // in the game's highlights. Every group counts here, watched or not.
 // Name colouring (#60): by group (the default) or by standing band, from
-// SOCIAL COLOURS GROUPS|STANDINGS (social_colour_by). In standings mode a
-// person on the books takes the band's colour, asked of loom as social's own
-// question person.colour (link standings-social); anyone else keeps their
-// group colour. Answers are cached per name until the next redraw, since the
-// line trigger asks for every capitalised word.
+// SOCIAL COLOURS GROUPS|STANDINGS (social_colour_by). In standings mode
+// groups are ignored (Ricardo): a person on the books takes the band's
+// colour, asked of loom as social's own question person.colour (link
+// standings-social); anyone else stays plain. Answers are cached per name
+// until the next redraw, since the line trigger asks for every capitalised word.
 S.colourBy = get_variable("social_colour_by") === "standings" ? "standings" : "groups";
 S.standCache = {};
 S.standCacheN = 0;
@@ -146,7 +146,7 @@ S.nameColour = function (name) {
       if (S.standCacheN > 3000) { S.standCache = {}; S.standCacheN = 0; }
       S.standCache[n] = c; S.standCacheN++;
     }
-    if (c) return c;
+    return c || undefined;
   }
   var g = S.look.group(n);
   return g ? S.color[g] : undefined;

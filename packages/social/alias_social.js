@@ -98,11 +98,11 @@ if (soSub === "" || soSub === "status") {
     S.colourBy = soGroup;
     set_variable("social_colour_by", soGroup);
     S.standCache = {}; S.standCacheN = 0;
-    display_notice("[social] names coloured by " + (soGroup === "groups" ? "group." : "standing band; people not on the books keep their group colour."), "lime");
+    display_notice("[social] names coloured by " + (soGroup === "groups" ? "group." : "standing band; group colours are ignored, people not on the books stay plain."), "lime");
     var soLk = client.loom.loom;
-    if (soGroup === "standings" && (!soLk || !soLk.linkState || soLk.linkState("standings-social") !== "on")) display_notice("[social] standing colours need the standings package and the standings-social link on (LOOM LINKS); until then, group colours.", "orange");
+    if (soGroup === "standings" && (!soLk || !soLk.linkState || soLk.linkState("standings-social") !== "on")) display_notice("[social] standing colours need the standings package and the standings-social link on (LOOM LINKS); until then, names stay plain.", "orange");
   } else if (soGroup === "") {
-    display_notice("[social] names are coloured by " + (S.colourBy === "standings" ? "standing band (group colour for people not on the books)" : "group") + ". SOCIAL COLOURS GROUPS|STANDINGS.", "cyan");
+    display_notice("[social] names are coloured by " + (S.colourBy === "standings" ? "standing band (people not on the books plain)" : "group") + ". SOCIAL COLOURS GROUPS|STANDINGS.", "cyan");
   } else {
     display_notice("[social] SOCIAL COLOURS GROUPS|STANDINGS.", "orange");
   }

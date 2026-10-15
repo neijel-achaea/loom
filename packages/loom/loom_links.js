@@ -406,7 +406,8 @@ L.addLink({
 
 // #60 standings -> social (Ricardo): a switch, SOCIAL COLOURS GROUPS|STANDINGS
 // (social's own setting, default groups). In standings mode social asks this
-// link for a name's colour: the band's colour for anyone on the books. Social
+// link for a name's colour: the band's colour for anyone on the books, groups
+// ignored, plain for everyone else (Ricardo). Social
 // passes it on to everything that shows its colours: game lines, Online,
 // Here and Comms. Its own question, so it switches apart from standings-online.
 L.addLink({
