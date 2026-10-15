@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "0.3.1", keyword: "LEDGER", desc: "{{description}}" };
+client.loom.registry.ledger = { version: "0.3.2", keyword: "LEDGER", desc: "{{description}}" };
 var LG = client.loom.ledger;
 
 // One-time migration: lg_* -> ledger_*. A new variable that already holds

@@ -17,6 +17,8 @@ var hlRows = [
   ["LEDGER REBUILD", "rebuild from the saved variables"],
   ["Items other packages add show their source (\u00b7 harvesting); they go away by themselves when"],
   ["their condition clears. DONE or DROP one and it stays away until then."],
+  ["LEDGER DISMISSED", "those you've sent away, waiting for their condition to clear"],
+  ["LEDGER RESTORE <source> [key]", "bring one back now (ALL for every one)"],
   ["One Achaean day is one real hour; the date updates itself as each day begins."]
 ];
 var hlW = 0;
