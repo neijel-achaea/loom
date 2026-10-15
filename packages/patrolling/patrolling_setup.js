@@ -46,7 +46,14 @@ P.saveGods = function () {
 //   look.plants(roomId) -> the plants PLANTS found in that room on its last
 //     check (["ginseng", ...]), or undefined when that room wasn't the last
 //     one checked (#166: Here colours the environment's plants by it)
+//   look.expected(env) -> the plants that should grow in that environment
+//     (GMCP's name, any case), from the expected table; undefined if unknown
 P.look = {
+  expected: function (env) {
+    var e = String(env || "").trim().toLowerCase();
+    for (var k in P.expected) { if (P.expected.hasOwnProperty(k) && k.toLowerCase() === e) return P.expected[k].slice(); }
+    return undefined;
+  },
   plants: function (id) {
     var ph = P.plantsHere;
     return (ph && id !== undefined && id !== null && String(ph.id) === String(id)) ? ph.present.slice() : undefined;

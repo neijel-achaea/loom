@@ -120,7 +120,7 @@ if (!R.info) {
       var pp = rp[pi];
       var pk2 = !pp.present ? "gone" : (pp.low ? "low" : "ok");
       if (pk2 === "gone") gone++;
-      var ptitle = pp.plant + ": " + (pp.present ? "here" : "not here") + "; " + (pp.stock === null || pp.stock === undefined ? "not seen in your rift yet" : nfmt(pp.stock) + " in the rift") + ", minimum " + nfmt(pp.min);
+      var ptitle = pp.plant + ": " + (pp.present ? "here" : "not here") + (pp.tracked === false ? "" : "; " + (pp.stock === null || pp.stock === undefined ? "not seen in your rift yet" : nfmt(pp.stock) + " in the rift") + ", minimum " + nfmt(pp.min));
       pbits.push((pi ? ' ' : '') + '<span title="' + esc(ptitle) + '" style="white-space:nowrap;cursor:default;color:' + PCOL[pk2] + ';">' + esc(pp.plant) + (pi < rp.length - 1 ? '<span style="color:' + DIM + ';"> &middot;</span>' : '') + '</span>');
     }
     if (gone) alerts[gone === 1 ? "1 plant missing" : gone + " plants missing"] = true;

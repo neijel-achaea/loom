@@ -59,19 +59,15 @@ if (H.quiet === undefined) H.quiet = false;
 // harvesting knows about your stock, never its variables.
 //   look.levels() -> [{ plant, stock, min }] for every plant whose stock has
 //     been seen in the rift (IR/INR), min being its own or the default.
-//   look.environment(env) -> [{ plant, stock, min, low }] for the plants that
-//     grow in that environment (GMCP Room.Info's), in the table's order;
-//     stock null when not seen in the rift yet, low when stock < min (#166).
+//   look.plant(name) -> { stock, min, tracked } for a plant: tracked when
+//     harvesting knows it (it grows in one of its environments), stock null
+//     when not seen in the rift yet (#166)
 H.look = {
-  environment: function (env) {
-    var list = H.plants[String(env || "").trim().toLowerCase()] || [], out = [];
-    for (var i = 0; i < list.length; i++) {
-      var pl = list[i], st = H.stock[H.map[pl] || pl];
-      var mn = (H.min[pl] != null ? H.min[pl] : H.defMin);
-      var have = (st === undefined || st === null) ? null : st;
-      out.push({ plant: pl, stock: have, min: mn, low: have !== null && have < mn });
-    }
-    return out;
+  plant: function (name) {
+    var pl = String(name || "").trim().toLowerCase(), tracked = false;
+    for (var env in H.plants) { if (H.plants.hasOwnProperty(env) && H.plants[env].indexOf(pl) >= 0) { tracked = true; break; } }
+    var st = H.stock[H.map[pl] || pl];
+    return { stock: (st === undefined || st === null) ? null : st, min: (H.min[pl] != null ? H.min[pl] : H.defMin), tracked: tracked };
   },
   levels: function () {
     var out = [], seen = {};
