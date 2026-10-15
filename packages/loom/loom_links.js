@@ -173,3 +173,13 @@ L.addLink({
     "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; }
   }
 });
+
+// #196 standings -> social: your standing with each watched person in the
+// Online tab.
+L.addLink({
+  id: "standings-online", src: "standings", dst: "social", issue: 196,
+  desc: "Your standing with each person in the Online tab",
+  answers: {
+    "person.standing": function (n) { var s = client.loom.standings; return s && s.look ? s.look.standing(n) : undefined; }
+  }
+});

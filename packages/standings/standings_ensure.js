@@ -125,12 +125,17 @@ function stLists(name) {
   }
   return out;
 }
-function stSave() { try { set_variable("standings_db", JSON.stringify(client.loom.standings.db)); } catch (e) {} }
+// Saving is also the moment standings' state changes, so loom's display
+// integrations (#159) hear about it here, guarded: standings works without loom.
+function stSave() {
+  try { set_variable("standings_db", JSON.stringify(client.loom.standings.db)); } catch (e) {}
+  if (client.loom.notify) { client.loom.notify("standings"); }
+}
 
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "0.3.0", keyword: "STANDINGS", desc: "{{description}}" };
+client.loom.registry.standings = { version: "0.3.1", keyword: "STANDINGS", desc: "{{description}}" };
 var ST = client.loom.standings;
 
 // One-time migration from the pre-0.2 names: st_db/st_cal become
@@ -211,5 +216,25 @@ ST.entry = {
     }
     if (n) { ST.F.save(); run_function("standings_render", [], "standings"); }
     return n;
+  }
+};
+
+// The read-only look other tabs see through loom's display entry point
+// (#159): what standings knows about a person, never its book.
+//   look.standing(name) -> { band, colour, score, trend, recent } or
+//     undefined when they aren't on the books. trend: the sign of the
+//     nudges in the last ST.recentDays real days (1 up, -1 down, 0 none);
+//     recent: how many dealings in that time.
+ST.recentDays = 3;
+ST.look = {
+  standing: function (name) {
+    if (!name || !ST.db || !ST.db.e) { return undefined; }
+    var e = ST.db.e[stKey(name)];
+    if (!e || !e.log || !e.log.length) { return undefined; }
+    var b = stBand(e.s);
+    var since = Math.floor(new Date().getTime() / 1000) - ST.recentDays * 86400;
+    var sum = 0, n = 0;
+    for (var i = 0; i < e.log.length; i++) { if (e.log[i][0] >= since) { sum += e.log[i][2] || 0; n++; } }
+    return { band: b[1], colour: b[2], score: e.s, trend: sum > 0 ? 1 : (sum < 0 ? -1 : 0), recent: n };
   }
 };

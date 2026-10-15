@@ -9,6 +9,21 @@
 //     folded or shown by clicking its heading or with SOCIAL OFFLINE ON/OFF
 //   - room on each row for columns other packages may add (#196 standings,
 //     #197 ledger, through the display entry point #159); none yet
+// Through loom's display entry point (#159): your standing with each person
+// (#196, from standings), when both are installed and the link is on.
+var LL = client.loom.loom;
+function ask(q, n) { return (LL && LL.answer) ? LL.answer("social", q, n) : undefined; }
+// The standing column: the band in its colour, an arrow when it moved in the
+// last few days, the score and the dealings on hover. Empty for someone not
+// on the books, so the column stays quiet.
+function standCell(n) {
+  var st = ask("person.standing", cap(n));
+  if (!st) return '<span style="flex:none;min-width:6.5em;"></span>';
+  var arrow = st.trend > 0 ? ' &#9650;' : (st.trend < 0 ? ' &#9660;' : '');
+  var sc = (st.score > 0 ? "+" : "") + (Math.round(st.score * 10) / 10).toFixed(1);
+  var tip = st.band + " " + sc + (st.recent ? ", " + st.recent + " dealing" + (st.recent === 1 ? "" : "s") + " in the last few days" + (st.trend > 0 ? ", up" : (st.trend < 0 ? ", down" : "")) : "");
+  return '<span title="' + esc(tip) + '" style="flex:none;min-width:6.5em;text-align:right;white-space:nowrap;cursor:default;color:' + esc(st.colour) + ';">' + esc(st.band) + '<span style="font-size:8px;">' + arrow + '</span></span>';
+}
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
 // small-caps headings, monospace rows. The accent is a moonlit teal.
 var S = client.loom.social;
@@ -92,7 +107,9 @@ if (!watchedN) {
     var right = r.out ? "logged out" : (glow ? "logged in" : (since !== null ? forTxt(since) : ""));
     html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:2px 0;' + (r.out ? 'opacity:0.6;' : '') + '">';
     html += '<span title="' + esc(g2) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:12px;cursor:default;' + nameStyle + '">' + esc(cap(r.n)) + '</span>';
-    // Integration columns (#196, #197) go here, between the name and the time.
+    // Integration columns go here, between the name and the time: standing
+    // (#196), then ledger (#197).
+    html += standCell(r.n);
     html += '<span style="min-width:5.5em;text-align:right;color:' + (r.out ? MUTED : (glow ? col : MUTED)) + ';white-space:nowrap;">' + right + '</span>';
     html += '</div>';
   }
@@ -119,6 +136,7 @@ if (watchedN && S.prev !== null) {
       var o = off[oi];
       html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;opacity:0.55;">';
       html += '<span title="' + esc(grp[o.n]) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:11px;cursor:default;color:' + (S.color[grp[o.n]] || TXT) + ';">' + esc(cap(o.n)) + '</span>';
+      html += standCell(o.n);
       html += '<span style="min-width:5.5em;text-align:right;color:' + MUTED + ';white-space:nowrap;">' + (o.seen ? agoTxt(now - o.seen) : "not seen yet") + '</span>';
       html += '</div>';
     }

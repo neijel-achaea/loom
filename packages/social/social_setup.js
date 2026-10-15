@@ -4,7 +4,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.social) client.loom.social = {};
 // redraw: how loom redraws the Online tab when an integration's source changes (#159).
-client.loom.registry.social = { version: "0.3.3", keyword: "SOCIAL", desc: "{{description}}", redraw: function () { run_function("social_online", [], "social"); } };
+client.loom.registry.social = { version: "0.3.4", keyword: "SOCIAL", desc: "{{description}}", redraw: function () { run_function("social_online", [], "social"); } };
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.
