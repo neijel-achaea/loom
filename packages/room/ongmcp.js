@@ -33,7 +33,9 @@ if (rmMine) {
     // Your target, for the glow on its mob: its id, and its health. Later
     // updates for the same target can carry only the health.
     var rmTi = String(rmA.id || "");
-    R.target = { id: rmTi, hp: String(rmA.hpperc || "").replace("%", ""), at: Date.now() };
+    var rmTn = String(rmA.short_desc || "");
+    if (!rmTn && R.target && R.target.id === rmTi) rmTn = R.target.name || "";
+    R.target = { id: rmTi, name: rmTn, hp: String(rmA.hpperc || "").replace("%", ""), at: Date.now() };
   } else if (rmM === "Char.Vitals") {
     // Every prompt: redraw only if the tar variable changed (ST, or a
     // targeting alias), since that sends nothing of its own.

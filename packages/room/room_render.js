@@ -4,7 +4,8 @@
 //   - header: room name, area and environment, details as tags, exits, number
 //   - description folded to two lines; a click on it unfolds it (a class on the
 //     page body, as Online's offline section, so redraws never undo it)
-//   - PLAYERS (you left off, full title on hover), MOBS (your target first,
+//   - PLAYERS (you left off, full title on hover, a targeted one glowing
+//     red), MOBS (your target first,
 //     glowing yellow with its health; dead ones greyed),
 //     ITEMS (things you can take stand out, fixtures are muted), each as a
 //     table: quantity when more than one, the name, and a type column the
@@ -24,11 +25,12 @@ function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").
 function caps(t, n) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + (n ? AMBER : DIM) + ';margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">' + t + ' <span style="color:' + MUTED + ';">' + n + '</span></div>'; }
 // A table row: quantity (when more than one), the name indented after it, and
 // a type column left empty for now (shrines, plants… from the integrations).
+// glow: false, or the colour of a targeted row (yellow mob, red player).
 function row(n, name, title, type, glow) {
-  return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;' + (glow ? 'background:rgba(255,215,94,0.07);' : '') + '">' +
+  return '<div' + (title ? ' title="' + esc(title) + '"' : '') + ' style="display:flex;align-items:baseline;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;cursor:default;' + (glow ? 'background:' + (glow === PGLOW ? 'rgba(255,106,94,0.08)' : 'rgba(255,215,94,0.07)') + ';' : '') + '">' +
     '<span style="flex:0 0 2.6em;text-align:right;color:' + MUTED + ';">' + (n > 1 ? n + '&times;' : '') + '</span>' +
     '<span style="flex:1 1 auto;">' + name + '</span>' +
-    (type ? '<span style="flex:0 0 auto;color:' + (glow ? GLOW : MUTED) + ';font-style:italic;font-family:' + SERIF + ';">' + esc(type) + '</span>' : '') + '</div>';
+    (type ? '<span style="flex:0 0 auto;color:' + (glow || MUTED) + ';font-style:italic;font-family:' + SERIF + ';">' + esc(type) + '</span>' : '') + '</div>';
 }
 // Merge items of the same name, keeping order of first appearance.
 function merge(list) {
@@ -45,6 +47,7 @@ function merge(list) {
 // match; also the fallback when the game's id isn't in the room). Its row
 // glows, as in the stock tab, with its health in the type column.
 var GLOW = "#ffd75e";
+var PGLOW = "#ff6a5e";
 var tarV = String(get_variable("tar") || "").trim();
 var useGmcp = !!(R.target && R.target.id && (!tarV || (R.target.at || 0) >= (R.tarAt || 0)));
 var tgtId = useGmcp ? String(R.target.id) : (/^\d+$/.test(tarV) ? tarV : "");
@@ -72,12 +75,24 @@ if (!R.info) {
     html += '<div onclick="document.body.classList.toggle(\'loom-room-desc-open\')" title="click to unfold or fold" class="loom-room-desc" style="cursor:pointer;margin-top:4px;font-family:' + SERIF + ';font-size:11px;line-height:1.35;color:' + MUTED + ';">' + esc(I.desc) + '</div>';
   }
 
-  // Players, you left off.
+  // Players, you left off. A player you target glows red: the tar name, or
+  // the game's target info naming them, whichever changed last. A player
+  // match wins over a mob whose name merely contains the word.
   var pl = [];
   for (var pk in R.players) { if (R.players.hasOwnProperty(pk) && pk.toLowerCase() !== String(R.me).toLowerCase()) pl.push(pk); }
   pl.sort();
+  var tgtPl = "";
+  for (var pt = 0; pt < pl.length; pt++) {
+    var plL = pl[pt].toLowerCase();
+    if (useGmcp ? (String(R.target.id).toLowerCase() === plL || String(R.target.name || "").toLowerCase() === plL) : tgtWord === plL) { tgtPl = pl[pt]; break; }
+  }
+  if (tgtPl) { tgtWord = ""; if (useGmcp) tgtId = ""; }
   html += caps("players", pl.length);
-  for (var pi = 0; pi < pl.length; pi++) html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + TXT + ';">' + esc(pl[pi]) + '</span>', R.players[pl[pi]]);
+  for (var pi = 0; pi < pl.length; pi++) {
+    var isT = pl[pi] === tgtPl;
+    var pHp = (isT && useGmcp && R.target.hp !== "") ? R.target.hp + "%" : (isT ? "target" : "");
+    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : TXT) + ';">' + esc(pl[pi]) + '</span>', R.players[pl[pi]], pHp, isT ? PGLOW : false);
+  }
 
   // Mobs and items.
   var mobs = [], items = [];
@@ -96,7 +111,7 @@ if (!R.info) {
   html += caps("mobs", mobs.length);
   if (tgtMob) {
     var tHp = (R.target && String(R.target.id) === String(tgtMob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
-    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(tgtMob.name) + '</span>', "your target", tHp, true);
+    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(tgtMob.name) + '</span>', "your target", tHp, GLOW);
   }
   for (var mi = 0; mi < mm.length; mi++) {
     // Dead ones are greyed out; their name already says "the corpse of…".
