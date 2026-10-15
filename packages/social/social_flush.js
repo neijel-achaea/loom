@@ -1,6 +1,14 @@
 // social_flush -- end of a QW capture (its "Plus another" line, or the 30s
 // safety when no reply came): compare with the previous set and announce
 // watched names that came online or went offline.
+// Your standing with someone, as its icon, for the "has awoken" notice
+// (#50, from standings through loom's link standings-login): "Ana \u2665 has
+// awoken" (Ricardo). Empty when the link is off or they aren't on the books.
+function soMark(name) {
+  var LL = client.loom.loom;
+  var st = (LL && LL.answer) ? LL.answer("social", "notice.standing", name) : undefined;
+  return (st && st.icon) ? " " + st.icon + "\ufe0e" : "";
+}
 var S = client.loom.social;
 S.capturing = false;
 clearTimeout(S.safetyT);
@@ -36,7 +44,7 @@ if (!soNames.length) {
       for (var soN in S.lists[soGr]) { if (!soIdx[soN]) soIdx[soN] = S.color[soGr]; }
     }
     for (var soA in soNow) {
-      if (!S.prev[soA]) { soUp++; S.since[soA] = Date.now(); S.flash[soA] = { kind: "in", at: Date.now() }; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + " has awoken.", soIdx[soA]); }
+      if (!S.prev[soA]) { soUp++; S.since[soA] = Date.now(); S.flash[soA] = { kind: "in", at: Date.now() }; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + soMark(soA.charAt(0).toUpperCase() + soA.slice(1)) + " has awoken.", soIdx[soA]); }
     }
     for (var soB in S.prev) {
       if (!soNow[soB]) { soDown++; delete S.since[soB]; S.flash[soB] = { kind: "out", at: Date.now() }; if (soIdx[soB]) display_notice("[social] " + soB.charAt(0).toUpperCase() + soB.slice(1) + " has drifted into slumber.", soIdx[soB]); }
