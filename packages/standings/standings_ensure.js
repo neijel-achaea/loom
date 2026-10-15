@@ -13,7 +13,11 @@ function stLoad(name, def) {
 // amount, so these can be retuned later without rewriting any history.
 var SIZES = [0, 0.5, 1.5, 4];
 // Bands, lowest first: [upper bound, label, colour]. Renaming later is a data edit.
-var BANDS = [[-6, "Hated", "#d9534f"], [-2.5, "Distrusted", "#e07a4f"], [-0.5, "Wary", "#d8b45a"], [0.5, "Neutral", "#9a9aa3"], [2.5, "Warm", "#8fc3d8"], [6, "Trusted", "#5a9be0"], [10.01, "Kin", "#7b8ff0"]];
+// Band names (Ricardo, 2026-10-15, once standings showed in more tabs):
+// Nemesis, Hostile, Strained, Neutral, Acquaintance, Friend, Soulmate. Only
+// the names changed; the thresholds and colours are as before, and nothing
+// stores a band name (bands are always worked out from the score).
+var BANDS = [[-6, "Nemesis", "#d9534f"], [-2.5, "Hostile", "#e07a4f"], [-0.5, "Strained", "#d8b45a"], [0.5, "Neutral", "#9a9aa3"], [2.5, "Acquaintance", "#8fc3d8"], [6, "Friend", "#5a9be0"], [10.01, "Soulmate", "#7b8ff0"]];
 var MONTHS = ["Sarapin", "Daedalan", "Aeguary", "Miraman", "Scarlatan", "Ero", "Valnuary", "Lupar", "Phaestian", "Chronos", "Glacian", "Mayan"];
 
 // Standing from a log: each nudge counts for less the closer the standing
@@ -135,7 +139,7 @@ function stSave() {
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "0.3.1", keyword: "STANDINGS", desc: "{{description}}" };
+client.loom.registry.standings = { version: "0.3.2", keyword: "STANDINGS", desc: "{{description}}" };
 var ST = client.loom.standings;
 
 // One-time migration from the pre-0.2 names: st_db/st_cal become

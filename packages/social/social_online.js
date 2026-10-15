@@ -18,11 +18,11 @@ function ask(q, n) { return (LL && LL.answer) ? LL.answer("social", q, n) : unde
 // on the books, so the column stays quiet.
 function standCell(n) {
   var st = ask("person.standing", cap(n));
-  if (!st) return '<span style="flex:none;min-width:6.5em;"></span>';
+  if (!st) return '<span style="flex:none;min-width:8em;"></span>';
   var arrow = st.trend > 0 ? ' &#9650;' : (st.trend < 0 ? ' &#9660;' : '');
   var sc = (st.score > 0 ? "+" : "") + (Math.round(st.score * 10) / 10).toFixed(1);
   var tip = st.band + " " + sc + (st.recent ? ", " + st.recent + " dealing" + (st.recent === 1 ? "" : "s") + " in the last few days" + (st.trend > 0 ? ", up" : (st.trend < 0 ? ", down" : "")) : "");
-  return '<span title="' + esc(tip) + '" style="flex:none;min-width:6.5em;text-align:right;white-space:nowrap;cursor:default;color:' + esc(st.colour) + ';">' + esc(st.band) + '<span style="font-size:8px;">' + arrow + '</span></span>';
+  return '<span title="' + esc(tip) + '" style="flex:none;min-width:8em;text-align:right;white-space:nowrap;cursor:default;color:' + esc(st.colour) + ';">' + esc(st.band) + '<span style="font-size:8px;">' + arrow + '</span></span>';
 }
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
 // small-caps headings, monospace rows. The accent is a moonlit teal.
