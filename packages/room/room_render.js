@@ -40,7 +40,7 @@ function merge(list) {
 }
 
 var I = R.info || {};
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#13110e;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-here" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#13110e;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 if (!R.info) {
   html += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">Waiting for the room… (move, or LOOK)</div>';
 } else {
@@ -95,7 +95,11 @@ try {
   if (!document.getElementById("loom-room-style")) {
     var rmSt = document.createElement("style");
     rmSt.id = "loom-room-style";
-    rmSt.textContent = 'body:not(.loom-room-desc-open) .loom-room-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }';
+    // The fold, and the tab the same size whatever the room holds: the panel
+    // fills the tab, and the tab's own container takes the panel's ink in
+    // case Nexus doesn't pass its height down.
+    rmSt.textContent = 'body:not(.loom-room-desc-open) .loom-room-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } ' +
+      '.flexlayout__tab:has(#loom-here) { background: #13110e !important; } .flexlayout__tab:has(#loom-here) > * { min-height: 100%; }';
     document.head.appendChild(rmSt);
     document.body.classList.toggle("loom-room-desc-open", R.descOpen === true);
   }
