@@ -111,6 +111,35 @@ if (lgSub === "" || lgSub === "status") {
     lgSay("#" + lgWant + " " + (lgSub === "done" ? "done" : "dropped") + " - " + gone, lgSub === "done" ? "lime" : "orange");
   }
   run_function("ledger_render", [], "ledger");
+} else if (lgSub === "dismissed") {
+  // Reminders other packages made that you DONE/DROPped, kept away until
+  // their condition clears (#34).
+  var lgDk = [];
+  for (var lgD in LG.dismissed) { if (LG.dismissed.hasOwnProperty(lgD)) lgDk.push(lgD.replace("|", " ")); }
+  if (!lgDk.length) lgSay("nothing dismissed.");
+  else lgSay("dismissed, kept away until their condition clears: " + lgDk.sort().join(", ") + ". LEDGER RESTORE <source> [key] brings one back.");
+} else if (lgSub === "restore") {
+  // LEDGER RESTORE <source> [key] | ALL: end dismissals; the source is asked
+  // to look again at once (through loom), so a reminder still due comes back.
+  var lgRw = lgRest.toLowerCase().split(/\s+/);
+  var lgRs = lgRw[0] || "", lgRk = lgRw.slice(1).join(" ");
+  if (!lgRs) {
+    lgSay("LEDGER RESTORE <source> [key], or LEDGER RESTORE ALL. LEDGER DISMISSED lists them.", "orange");
+  } else {
+    var lgGone = [], lgSrcs = {};
+    for (var lgX in LG.dismissed) {
+      if (!LG.dismissed.hasOwnProperty(lgX)) continue;
+      var lgP = lgX.split("|");
+      if (lgRs === "all" || (lgP[0] === lgRs && (!lgRk || lgP[1] === lgRk))) { lgGone.push(lgP.join(" ")); lgSrcs[lgP[0]] = true; delete LG.dismissed[lgX]; }
+    }
+    if (!lgGone.length) {
+      lgSay("nothing dismissed for '" + lgRest + "'. LEDGER DISMISSED lists them.", "orange");
+    } else {
+      LG.saveDismissed();
+      lgSay("restored: " + lgGone.join(", ") + ".", "lime");
+      for (var lgS in lgSrcs) { if (lgSrcs.hasOwnProperty(lgS) && client.loom.notify) client.loom.notify(lgS); }
+    }
+  }
 } else if (lgSub === "debug") {
   var dv = lgRest.toLowerCase();
   if (dv === "on" || dv === "off") {
