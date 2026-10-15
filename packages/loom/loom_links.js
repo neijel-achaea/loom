@@ -336,8 +336,9 @@ L.addLink({
   }
 });
 
-// The cities, matched as a word in the room's GMCP area (Ricardo: by area,
-// not environment; a city holds rooms of many environments).
+// The cities: a room is in one when its GMCP area IS the city's name, exactly
+// (case aside). Ricardo: by area, not environment (a city holds rooms of many
+// environments), and exactly, so "The Cyrene Road" isn't Cyrene.
 L.cityAreas = ["Targossas", "Cyrene", "Hashan", "Ashtan", "Mhaldor", "Eleusis"];
 
 // #165 sigils -> room (Ricardo): monoliths shown in Here with their own icon,
@@ -359,7 +360,8 @@ L.addLink({
       if (!s || !s.look || !ctx) return undefined;
       var mono = false;
       for (var i = 0; i < (ctx.items || []).length; i++) { if (s.look.isMonolith(ctx.items[i])) { mono = true; break; } }
-      var urban = new RegExp("\\b(?:" + L.cityAreas.join("|") + ")\\b", "i").test(String(ctx.area || ""));
+      var area = String(ctx.area || "").trim().toLowerCase(), urban = false;
+      for (var ci = 0; ci < L.cityAreas.length; ci++) { if (L.cityAreas[ci].toLowerCase() === area) { urban = true; break; } }
       if (urban && !mono && !s.look.ignored(ctx.id)) return [{ label: "no monolith", tone: "bad" }];
       if (!urban && mono) return [{ label: "monolith outside the city", tone: "bad", mark: "monolith" }];
       return undefined;
