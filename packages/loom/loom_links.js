@@ -183,3 +183,12 @@ L.addLink({
     "person.standing": function (n) { var s = client.loom.standings; return s && s.look ? s.look.standing(n) : undefined; }
   }
 });
+
+// #161 standings -> comms: your standing with a talker, on hover.
+L.addLink({
+  id: "standings-comms", src: "standings", dst: "comms", issue: 161,
+  desc: "Your standing with a talker, on hover in the Comms tab",
+  answers: {
+    "person.standing": function (n) { var s = client.loom.standings; return s && s.look ? s.look.standing(n) : undefined; }
+  }
+});
