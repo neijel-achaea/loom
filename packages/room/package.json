@@ -46,6 +46,48 @@
       "code": "@file:room_help.js"
     },
     {
+      "type": "trigger",
+      "name": "room player arrives",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "client.loom = client.loom || {}; client.loom.room = client.loom.room || {}; client.loom.room.lineKind = \"in\";"
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_player_line.js"
+        }
+      ],
+      "text": "^(?:([A-Z][a-z]+) descends from above\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "room player leaves",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "client.loom = client.loom || {}; client.loom.room = client.loom.room || {}; client.loom.room.lineKind = \"out\";"
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_player_line.js"
+        }
+      ],
+      "text": "^(?:([A-Z][a-z]+) begins to flap (?:his|her|their|its) wings powerfully, and rises quickly up into the firmament\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
       "type": "alias",
       "name": "room",
       "enabled": true,

@@ -31,7 +31,7 @@
    "type": "function",
    "name": "room_setup",
    "enabled": true,
-   "code": "// room_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry and state for the Here tab\n// (#158), a replacement for the stock Room tab fed only by GMCP:\n//   R.info     the last Room.Info (name, desc, area, environment, details, exits, num)\n//   R.players  name -> fullname, from Room.Players / AddPlayer / RemovePlayer\n//   R.items    id -> item, from Char.Items List / Add / Remove / Update (location \"room\")\n//   R.me       your name (Char.Name / Char.Status, kept as room_name), left off the players\n//   R.raw      the last payload of each method, for ROOM DEBUG\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.room) client.loom.room = {};\nclient.loom.registry.room = { version: \"0.1.1\", keyword: \"ROOM\", desc: \"A Here tab replacing the stock Room tab: exits, players, mobs and items\" };\nvar R = client.loom.room;\nif (!R.info) R.info = null;\nif (!R.players) R.players = {};\nif (!R.items) R.items = {};\nif (!R.raw) R.raw = {};\nif (!R.me) { try { R.me = String(get_variable(\"room_name\") || \"\"); } catch (e) { R.me = \"\"; } }\n// The description starts folded to two lines (room_desc \"folded\"/\"open\").\nR.descOpen = get_variable(\"room_desc\") == \"open\";\nR.tab = \"Here\";\n"
+   "code": "// room_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry and state for the Here tab\n// (#158), a replacement for the stock Room tab fed only by GMCP:\n//   R.info     the last Room.Info (name, desc, area, environment, details, exits, num)\n//   R.players  name -> fullname, from Room.Players / AddPlayer / RemovePlayer\n//   R.items    id -> item, from Char.Items List / Add / Remove / Update (location \"room\")\n//   R.me       your name (Char.Name / Char.Status, kept as room_name), left off the players\n//   R.raw      the last payload of each method, for ROOM DEBUG\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.room) client.loom.room = {};\nclient.loom.registry.room = { version: \"0.1.2\", keyword: \"ROOM\", desc: \"A Here tab replacing the stock Room tab: exits, players, mobs and items\" };\nvar R = client.loom.room;\nif (!R.info) R.info = null;\nif (!R.players) R.players = {};\nif (!R.items) R.items = {};\nif (!R.raw) R.raw = {};\nif (!R.me) { try { R.me = String(get_variable(\"room_name\") || \"\"); } catch (e) { R.me = \"\"; } }\n// The description starts folded to two lines (room_desc \"folded\"/\"open\").\nR.descOpen = get_variable(\"room_desc\") == \"open\";\nR.tab = \"Here\";\n"
   },
   {
    "type": "function",
@@ -44,6 +44,48 @@
    "name": "room_help",
    "enabled": true,
    "code": "// room_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[room] the Here tab: the room you are in, its exits, players, mobs and items. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"ROOM\", \"the room in a line, and how the description starts\"],\n  [\"ROOM DESC OPEN|FOLDED\", \"show the description in full, or folded to two lines (clicking it flips it too)\"],\n  [\"ROOM DEBUG\", \"the last room GMCP payloads, as they came\"],\n  [\"The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+  },
+  {
+   "type": "trigger",
+   "name": "room player arrives",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "client.loom = client.loom || {}; client.loom.room = client.loom.room || {}; client.loom.room.lineKind = \"in\";"
+    },
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Players arriving and leaving without GMCP: flying up and landing send no\n// Room.AddPlayer / Room.RemovePlayer, so these lines keep the Here tab right\n// until the next Room.Players (on your next move) settles it. Each line's\n// name is the first capture group that matched, so more wordings can be added\n// to the triggers' alternations as Ricardo finds them.\nif (!client.loom || !client.loom.room || !client.loom.room.raw) run_function(\"room_setup\", [], \"room\");\nvar R = client.loom.room;\nvar plName = \"\";\nfor (var plI = 1; plI < args.length; plI++) { if (args[plI]) { plName = String(args[plI]); break; } }\nif (plName && plName.toLowerCase() !== String(R.me).toLowerCase()) {\n  if (R.lineKind === \"in\") { if (!R.players[plName]) R.players[plName] = plName; }\n  else delete R.players[plName];\n  clearTimeout(R.drawT);\n  R.drawT = setTimeout(function () { run_function(\"room_render\", [], \"room\"); }, 50);\n}\n"
+    }
+   ],
+   "text": "^(?:([A-Z][a-z]+) descends from above\\.)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "room player leaves",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "client.loom = client.loom || {}; client.loom.room = client.loom.room || {}; client.loom.room.lineKind = \"out\";"
+    },
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// Players arriving and leaving without GMCP: flying up and landing send no\n// Room.AddPlayer / Room.RemovePlayer, so these lines keep the Here tab right\n// until the next Room.Players (on your next move) settles it. Each line's\n// name is the first capture group that matched, so more wordings can be added\n// to the triggers' alternations as Ricardo finds them.\nif (!client.loom || !client.loom.room || !client.loom.room.raw) run_function(\"room_setup\", [], \"room\");\nvar R = client.loom.room;\nvar plName = \"\";\nfor (var plI = 1; plI < args.length; plI++) { if (args[plI]) { plName = String(args[plI]); break; } }\nif (plName && plName.toLowerCase() !== String(R.me).toLowerCase()) {\n  if (R.lineKind === \"in\") { if (!R.players[plName]) R.players[plName] = plName; }\n  else delete R.players[plName];\n  clearTimeout(R.drawT);\n  R.drawT = setTimeout(function () { run_function(\"room_render\", [], \"room\"); }, 50);\n}\n"
+    }
+   ],
+   "text": "^(?:([A-Z][a-z]+) begins to flap (?:his|her|their|its) wings powerfully, and rises quickly up into the firmament\\.)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
   },
   {
    "type": "alias",

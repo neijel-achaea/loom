@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
-client.loom.registry.room = { version: "0.1.1", keyword: "ROOM", desc: "{{description}}" };
+client.loom.registry.room = { version: "0.1.2", keyword: "ROOM", desc: "{{description}}" };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
