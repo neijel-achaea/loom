@@ -87,12 +87,12 @@ if (!R.info) {
     var fa = (LLi && LLi.answers) ? LLi.answers("room", "item.flags", R.items[fk].name) : [];
     if (fa.length) { flagOf[fk] = fa[0].value; if (fa[0].value.tone === "bad") alerts[fa[0].value.label] = true; }
   }
-  // Room-wide warnings (room.alerts: [{ label, tone }]), e.g. an urban room
+  // Room-wide warnings (room.alerts: [{ label, tone }]), e.g. a city room
   // without a monolith (#165, from sigils), shown like an item's alert.
   if (LLi && LLi.answers) {
     var rNames = [];
     for (var rk in R.items) { if (R.items.hasOwnProperty(rk) && !/m/.test(R.items[rk].attrib || "")) rNames.push(R.items[rk].name); }
-    var ra = LLi.answers("room", "room.alerts", { id: I.num, environment: I.environment, items: rNames });
+    var ra = LLi.answers("room", "room.alerts", { id: I.num, area: I.area, environment: I.environment, items: rNames });
     for (var ri = 0; ri < ra.length; ri++) {
       var rv = ra[ri].value || [];
       for (var rj = 0; rj < rv.length; rj++) {
