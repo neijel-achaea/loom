@@ -23,11 +23,13 @@ if (fid !== null && fid !== undefined && fid !== "") {
     if (prev) {
       delete bad[key];
       set_variable("sigils_flagged", bad);
+      if (client.loom.notify) client.loom.notify("sigils");
       if (!ign[key]) display_notice("[sigils] " + nm + " (" + key + ") -- all good now.", "lime");
     }
   } else {
     bad[key] = { id: key, name: nm, months: fmo, flame: ffl, t: Date.now() };
     set_variable("sigils_flagged", bad);
+    if (client.loom.notify) client.loom.notify("sigils");
 
     // Only announce new flags or changed readings, not every re-probe.
     if (!prev || prev.months !== fmo || prev.flame !== ffl) {

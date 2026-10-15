@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.sigils) client.loom.sigils = {};
-client.loom.registry.sigils = { version: "0.2.4", keyword: "SIGILS", desc: "{{description}}" };
+client.loom.registry.sigils = { version: "0.2.5", keyword: "SIGILS", desc: "{{description}}" };
 
 var S = client.loom.sigils;
 S.queue = [];
@@ -32,7 +32,23 @@ if (!get_variable("sigils_ignored")) set_variable("sigils_ignored", {});
 // makes of a room, never its variables.
 //   look.isMonolith(name) -> true for a monolith among a room's items
 //   look.ignored(roomId)  -> true for a room on SIGILS IGNORE's list
+//   look.expiring()       -> the flagged rooms whose monolith is under the
+//     threshold, ignored ones left out (#42): [{ id, name, months, t }],
+//     months as read (-1 none, 0 under a month), t the reading's time (ms)
 S.look = {
   isMonolith: function (name) { return /\bmonolith\b/i.test(String(name || "")); },
-  ignored: function (id) { var ign = get_variable("sigils_ignored") || {}; return !!ign[String(id)]; }
+  ignored: function (id) { var ign = get_variable("sigils_ignored") || {}; return !!ign[String(id)]; },
+  expiring: function () {
+    var bad = get_variable("sigils_flagged") || {}, ign = get_variable("sigils_ignored") || {};
+    var thr = get_variable("sigils_threshold");
+    if (thr === null || thr === undefined) thr = 10;
+    var out = [];
+    for (var k in bad) {
+      if (!bad.hasOwnProperty(k) || ign[k]) continue;
+      var r = bad[k];
+      var mo = (r.months === null || r.months === undefined) ? -1 : r.months;
+      if (mo < thr) out.push({ id: String(r.id), name: r.name || "?", months: mo, t: r.t || 0 });
+    }
+    return out;
+  }
 };
