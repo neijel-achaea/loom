@@ -35,6 +35,12 @@
     },
     {
       "type": "function",
+      "name": "loom_links",
+      "enabled": true,
+      "code": "@file:loom_links.js"
+    },
+    {
+      "type": "function",
       "name": "loom_updates",
       "enabled": true,
       "code": "@file:loom_updates.js"
