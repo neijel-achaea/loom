@@ -11,8 +11,10 @@
 //     ITEMS (things you can take stand out, fixtures are muted), each as a
 //     table: quantity when more than one, the name, and a type column the
 //     integrations can fill (shrine, plant…)
+//   - the plants of the room's environment, under the description, with your
+//     rift stock and the ones under their minimum marked (#166, from harvesting)
 // Integrations (0.5: #162 social colours (done), #163 hunting target, #164 shrines (done),
-// #165 sigils (done), #166 plants) will mark rows through the display entry point #159.
+// #165 sigils (done), #166 plants (done)) will mark rows through the display entry point #159.
 var R = client.loom.room;
 var AMBER = "#e0b46c";
 var DEEP = "#7a5f33";
@@ -111,6 +113,22 @@ if (!R.info) {
   html += '<span style="white-space:nowrap;color:' + MUTED + ';">exits <span style="color:' + AMBER + ';">' + (ex.length ? esc(ex.join("  ")) : "none") + '</span>' + (I.num ? ' &middot; ' + esc(I.num) : '') + '</span></div>';
   if (I.desc) {
     html += '<div onclick="document.body.classList.toggle(\'loom-room-desc-open\')" title="click to unfold or fold" class="loom-room-desc" style="cursor:pointer;margin-top:4px;font-family:' + SERIF + ';font-size:11px;line-height:1.35;color:' + MUTED + ';">' + esc(I.desc) + '</div>';
+  }
+  // The plants of this environment (room.plants: [{ plant, stock, min, low }],
+  // #166, from harvesting): one line, your rift stock beside each, the ones
+  // under their minimum in the alert colour. Nothing when no plant grows here.
+  var rp = (LLi && LLi.answer) ? LLi.answer("room", "room.plants", { id: I.num, area: I.area, environment: I.environment }) : undefined;
+  if (rp && rp.length) {
+    var kfmt = function (v) { return v >= 10000 ? Math.round(v / 1000) + "k" : (v >= 1000 ? (Math.round(v / 100) / 10) + "k" : String(v)); };
+    var nfmt = function (v) { return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+    var pbits = [];
+    for (var pi = 0; pi < rp.length; pi++) {
+      var pp = rp[pi], ptitle, pcol, pnum;
+      if (pp.stock === null || pp.stock === undefined) { ptitle = pp.plant + ": not seen in your rift yet"; pcol = MUTED; pnum = ""; }
+      else { ptitle = pp.plant + ": " + nfmt(pp.stock) + " in the rift, minimum " + nfmt(pp.min) + (pp.low ? " (low)" : ""); pcol = pp.low ? FLAG.bad : TXT; pnum = kfmt(pp.stock); }
+      pbits.push((pi ? ' ' : '') + '<span title="' + esc(ptitle) + '" style="white-space:nowrap;cursor:default;color:' + pcol + ';">' + (pp.low ? '\u25be' : '') + esc(pp.plant) + (pnum ? ' <span style="color:' + (pp.low ? FLAG.bad : MUTED) + ';font-size:9px;">' + pnum + '</span>' : '') + (pi < rp.length - 1 ? '<span style="color:' + DIM + ';"> &middot;</span>' : '') + '</span>');
+    }
+    html += '<div style="margin-top:4px;line-height:1.5;"><span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + DIM + ';margin-right:6px;">plants</span>' + pbits.join('') + '</div>';
   }
 
   // Players, you left off. A player you target glows red: the tar name, or

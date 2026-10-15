@@ -421,3 +421,18 @@ L.addLink({
     }
   }
 });
+
+// #166 harvesting -> room: the plants of the room's environment in Here,
+// with your rift stock, the ones under their minimum marked. Display only.
+L.addLink({
+  id: "harvesting-room", src: "harvesting", dst: "room", issue: 166,
+  desc: "The plants of the room's environment in Here, low stock marked",
+  answers: {
+    "room.plants": function (ctx) {
+      var h = client.loom.harvesting;
+      if (!h || !h.look || !h.look.environment || !ctx) return undefined;
+      var l = h.look.environment(ctx.environment);
+      return l.length ? l : undefined;
+    }
+  }
+});
