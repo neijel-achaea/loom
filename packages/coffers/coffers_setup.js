@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "0.2.3", keyword: "COFFERS", desc: "{{description}}" };
+client.loom.registry.coffers = { version: "0.3.0", keyword: "COFFERS", desc: "{{description}}" };
 var CO = client.loom.coffers;
 
 // One-time migration: gc_* -> coffers_*. A new variable that already holds
@@ -147,3 +147,64 @@ if (CO.goal === undefined) { CO.goal = gcNum("coffers_goal", 0, 0, 2000000000); 
 if (CO.goalBase === undefined) { CO.goalBase = gcNum("coffers_goal_base", -1, -1, 2000000000000); }
 if (CO.goalT === undefined) { CO.goalT = gcNum("coffers_goal_t", 0, 0, 4000000000); }
 if (CO.goalDone === undefined) { CO.goalDone = String(gcRaw("coffers_goal_done")) === "1"; }
+// Where an accepted goal came from (a package's proposal, #35); "" when set by hand.
+if (CO.goalSrc === undefined) { var gsRaw = gcRaw("coffers_goal_src"); CO.goalSrc = (gsRaw === undefined || gsRaw === null) ? "" : String(gsRaw); }
+
+// The entry point other packages feed (#35), through loom's integrations: a
+// proposed goal waits as a suggestion, tagged with its source, until the
+// player accepts it (COFFERS ACCEPT: it becomes the goal) or dismisses it.
+// Defined on every run, so a reimport replaces it.
+//   entry.propose({ source, key, amount, why }) -> true when queued or
+//     updated. One proposal per source and key: a newer one replaces the
+//     older quietly. A dismissed one stays away until its source withdraws
+//     it (its condition cleared); then it can come back.
+//   entry.withdraw(source[, key]) -> how many proposals were taken back.
+if (!CO.proposals) { CO.proposals = gcArr("coffers_proposals"); }
+if (!CO.dismissed) { var cdRaw = gcJSON("coffers_dismissed", {}); CO.dismissed = (cdRaw && typeof cdRaw === "object") ? cdRaw : {}; }
+CO.saveProposals = function () {
+  try { set_variable("coffers_proposals", JSON.stringify(CO.proposals)); } catch (e) {}
+  var any = false;
+  for (var k in CO.dismissed) { if (CO.dismissed.hasOwnProperty(k)) { any = true; break; } }
+  try { if (any) set_variable("coffers_dismissed", JSON.stringify(CO.dismissed)); else delete_variable("coffers_dismissed"); } catch (e) {}
+};
+CO.entry = {
+  propose: function (pr) {
+    if (!pr || !pr.source || pr.key === undefined || pr.key === null) return false;
+    var amount = Math.round(Number(pr.amount));
+    if (!(amount > 0)) return false;
+    var src = String(pr.source), key = String(pr.key);
+    if (CO.dismissed[src + "|" + key]) return false;
+    var why = String(pr.why || "");
+    var t = Math.floor(new Date().getTime() / 1000);
+    var P = CO.proposals;
+    for (var i = 0; i < P.length; i++) {
+      if (P[i].src === src && P[i].key === key) {
+        P[i].amount = amount; P[i].why = why; P[i].t = t;
+        CO.saveProposals();
+        run_function("coffers_render", [], "coffers");
+        return true;
+      }
+    }
+    P.push({ src: src, key: key, amount: amount, why: why, t: t });
+    while (P.length > 10) { P.shift(); }
+    CO.saveProposals();
+    display_notice("[coffers] " + src + " proposes a goal: earn " + CO.f.n(amount) + " gold" + (why ? " \u2014 " + why : "") + ". COFFERS ACCEPT to take it, COFFERS DISMISS to drop it.", "cyan");
+    run_function("coffers_render", [], "coffers");
+    return true;
+  },
+  withdraw: function (source, key) {
+    if (!source) return 0;
+    var src = String(source), k = (key === undefined || key === null) ? null : String(key);
+    var P = CO.proposals, n = 0;
+    for (var i = P.length - 1; i >= 0; i--) {
+      if (P[i].src === src && (k === null || P[i].key === k)) { P.splice(i, 1); n++; }
+    }
+    var dropped = false;
+    for (var dk in CO.dismissed) {
+      if (CO.dismissed.hasOwnProperty(dk) && (k === null ? dk.indexOf(src + "|") === 0 : dk === src + "|" + k)) { delete CO.dismissed[dk]; dropped = true; }
+    }
+    if (n || dropped) CO.saveProposals();
+    if (n) run_function("coffers_render", [], "coffers");
+    return n;
+  }
+};

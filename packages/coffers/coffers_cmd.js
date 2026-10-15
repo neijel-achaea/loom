@@ -23,6 +23,21 @@ function amt(s) {
 function lpad(s, n) { s = String(s); while (s.length < n) { s = " " + s; } return s; }
 function rpad(s, n) { s = String(s); while (s.length < n) { s = s + " "; } return s; }
 function render() { run_function("coffers_render", [], "coffers"); }
+// Set the goal: earn ga from the current fortune. src is the package that
+// proposed it ("" when set by hand); replaced, the goal it replaces.
+function setGoal(ga, src, replaced) {
+  var gw = curWealth();
+  if (!gw) { say("no reading of your purse yet, so there is nothing to count from. Try again after the next prompt.", "orange"); return false; }
+  CO.goal = ga;
+  CO.goalBase = gw[0] + gw[1];
+  CO.goalT = now;
+  CO.goalDone = false;
+  CO.goalSrc = src || "";
+  save("coffers_goal", String(ga)); save("coffers_goal_base", String(CO.goalBase)); save("coffers_goal_t", String(now)); save("coffers_goal_done", "0"); save("coffers_goal_src", CO.goalSrc);
+  say("goal set: earn " + F.n(ga) + " gold, counting from your current " + F.n(CO.goalBase) + (src ? " (proposed by " + src + ")" : "") + (replaced ? "; it replaces your goal of " + F.n(replaced) : "") + ".", "lime");
+  render();
+  return true;
+}
 function curWealth() {
   var L = CO.live || {};
   if (L.gold !== undefined && L.bank !== undefined) { return [L.gold, L.bank]; }
@@ -97,23 +112,39 @@ else if (c === "new") {
   render();
 }
 else if (c === "goal") {
-  if (p1 === "") { say(CO.goal > 0 ? "goal is to earn " + F.n(CO.goal) + " gold, counted from " + F.date(CO.goalT) + ". COFFERS GOAL OFF clears it." : "no goal set. Usage: COFFERS GOAL 50000 (or 50k, 1.5m): an amount to earn from now."); }
-  else if (p1 === "off" || p1 === "0") { CO.goal = 0; CO.goalBase = -1; save("coffers_goal", "0"); save("coffers_goal_base", "-1"); say("goal cleared.", "lime"); render(); }
+  if (p1 === "") { say(CO.goal > 0 ? "goal is to earn " + F.n(CO.goal) + " gold, counted from " + F.date(CO.goalT) + (CO.goalSrc ? " (proposed by " + CO.goalSrc + ")" : "") + ". COFFERS GOAL OFF clears it." : "no goal set. Usage: COFFERS GOAL 50000 (or 50k, 1.5m): an amount to earn from now."); }
+  else if (p1 === "off" || p1 === "0") { CO.goal = 0; CO.goalBase = -1; CO.goalSrc = ""; save("coffers_goal", "0"); save("coffers_goal_base", "-1"); save("coffers_goal_src", ""); say("goal cleared.", "lime"); render(); }
   else {
     var ga = amt(p1);
     if (ga <= 0) { say("could not read '" + p1 + "' as an amount. Try 50000, 50k or 1.5m.", "orange"); }
-    else {
-      var gw = curWealth();
-      if (!gw) { say("no reading of your purse yet, so there is nothing to count from. Try again after the next prompt.", "orange"); }
-      else {
-        CO.goal = ga;
-        CO.goalBase = gw[0] + gw[1];
-        CO.goalT = now;
-        CO.goalDone = false;
-        save("coffers_goal", String(ga)); save("coffers_goal_base", String(CO.goalBase)); save("coffers_goal_t", String(now)); save("coffers_goal_done", "0");
-        say("goal set: earn " + F.n(ga) + " gold, counting from your current " + F.n(CO.goalBase) + ".", "lime");
-        render();
-      }
+    else { setGoal(ga, ""); }
+  }
+}
+else if (c === "proposed" || c === "proposals") {
+  // Goals other packages proposed (#35), oldest first; the first is the one
+  // ACCEPT and DISMISS act on unless a number is given.
+  var PL = CO.proposals || [];
+  if (PL.length === 0) { say("no proposed goals."); }
+  for (var pi = 0; pi < PL.length; pi++) { say((pi + 1) + ". earn " + F.n(PL[pi].amount) + " gold" + (PL[pi].why ? " \u2014 " + PL[pi].why : "") + " (from " + PL[pi].src + ")"); }
+  if (PL.length) { say("COFFERS ACCEPT [n] makes one your goal, COFFERS DISMISS [n] drops it."); }
+}
+else if (c === "accept" || c === "dismiss") {
+  var PA = CO.proposals || [];
+  var pn = p1 === "" ? 1 : parseInt(p1, 10);
+  if (PA.length === 0) { say("no proposed goals.", "orange"); }
+  else if (isNaN(pn) || pn < 1 || pn > PA.length) { say("no proposal " + p1 + ". COFFERS PROPOSED lists them.", "orange"); }
+  else {
+    var pp = PA[pn - 1];
+    if (c === "accept") {
+      var had = CO.goal > 0 ? CO.goal : 0;
+      if (setGoal(pp.amount, pp.src, had)) { PA.splice(pn - 1, 1); CO.saveProposals(); render(); }
+    } else {
+      PA.splice(pn - 1, 1);
+      // Stays away until its source withdraws it, i.e. its condition clears.
+      CO.dismissed[pp.src + "|" + pp.key] = true;
+      CO.saveProposals();
+      say("dismissed: earn " + F.n(pp.amount) + " gold (from " + pp.src + ").", "lime");
+      render();
     }
   }
 }
