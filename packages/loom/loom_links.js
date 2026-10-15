@@ -144,3 +144,13 @@ client.loom.notify = function (src) {
 };
 
 // Integrations register below, one L.addLink each, as they land in 0.5.
+
+// #162 social -> room: players in the Here tab in their highlight colours.
+L.addLink({
+  id: "social-room", src: "social", dst: "room", issue: 162,
+  desc: "Players in the Here tab in their highlight colours",
+  answers: {
+    "person.colour": function (n) { var s = client.loom.social; return s && s.look ? s.look.colour(n) : undefined; },
+    "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; }
+  }
+});

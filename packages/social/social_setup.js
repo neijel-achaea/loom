@@ -4,7 +4,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.social) client.loom.social = {};
 // redraw: how loom redraws the Online tab when an integration's source changes (#159).
-client.loom.registry.social = { version: "0.3.2", keyword: "SOCIAL", desc: "{{description}}", redraw: function () { run_function("social_online", [], "social"); } };
+client.loom.registry.social = { version: "0.3.3", keyword: "SOCIAL", desc: "{{description}}", redraw: function () { run_function("social_online", [], "social"); } };
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.
@@ -113,6 +113,23 @@ if (client.wl) {
   client.wl = null;
 }
 S.timer = setInterval(function () { run_function("social_poll", [], "social"); }, S.interval);
+
+// The read-only look other tabs see through loom's display entry point
+// (#159): what social knows about a person, never its variables. Groups in
+// priority order, so a name in two groups takes the first one's colour, as
+// in the game's highlights. Every group counts here, watched or not.
+S.look = {
+  group: function (name) {
+    var n = String(name || "").trim().toLowerCase();
+    if (!n) return undefined;
+    for (var i = 0; i < S.groups.length; i++) { if (S.lists[S.groups[i]] && S.lists[S.groups[i]][n]) return S.groups[i]; }
+    return undefined;
+  },
+  colour: function (name) { var g = S.look.group(name); return g ? S.color[g] : undefined; }
+};
+// A reimport may change lists or colours: tell loom (guarded: social works
+// without it).
+if (client.loom.notify) client.loom.notify("social");
 
 // LEGACY: packages that haven't had their v0.2 pass read client.hl
 // (client.hl.groups, client.hl.color, client.hl[group]). Same objects, so
