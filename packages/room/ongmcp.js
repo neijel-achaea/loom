@@ -6,7 +6,7 @@ var rmM = "";
 var rmA = null;
 try { rmM = args.gmcp_method; rmA = args.gmcp_args; } catch (e) { rmM = ""; }
 if (typeof rmA === "string") { try { rmA = JSON.parse(rmA); } catch (e) { /* a bare name, as RemovePlayer may send */ } }
-var rmMine = /^Room\.(Info|Players|AddPlayer|RemovePlayer)$/.test(rmM) || rmM === "IRE.Target.Info" || rmM === "Char.Vitals" || (/^Char\.Items\.(List|Add|Remove|Update)$/.test(rmM) && rmA && rmA.location === "room") || rmM === "Char.Name" || rmM === "Char.Status";
+var rmMine = /^Room\.(Info|Players|AddPlayer|RemovePlayer)$/.test(rmM) || rmM === "IRE.Target.Info" || rmM === "IRE.Target.Set" || rmM === "Char.Vitals" || (/^Char\.Items\.(List|Add|Remove|Update)$/.test(rmM) && rmA && rmA.location === "room") || rmM === "Char.Name" || rmM === "Char.Status";
 if (rmMine) {
   if (!client.loom || !client.loom.room || !client.loom.room.raw) run_function("room_setup", [], "room");
   var R = client.loom.room;
@@ -23,12 +23,21 @@ if (rmMine) {
     delete R.players[typeof rmA === "string" ? rmA : rmA.name];
   } else if (rmM === "Char.Items.List") {
     R.items = {};
+    // R.order: the ids in the game's own order (Char.Items.List, then each
+    // Add at the end). R.items alone would iterate by id, since JavaScript
+    // walks number-like keys in ascending order, and the room's order is
+    // what targeting by name follows.
+    R.order = [];
     var rmL = rmA.items || [];
-    for (var rmJ = 0; rmJ < rmL.length; rmJ++) R.items[rmL[rmJ].id] = rmL[rmJ];
+    for (var rmJ = 0; rmJ < rmL.length; rmJ++) { R.items[rmL[rmJ].id] = rmL[rmJ]; R.order.push(String(rmL[rmJ].id)); }
   } else if ((rmM === "Char.Items.Add" || rmM === "Char.Items.Update") && rmA.item) {
+    if (!R.order) R.order = [];
+    if (!R.items[rmA.item.id]) R.order.push(String(rmA.item.id));
     R.items[rmA.item.id] = rmA.item;
   } else if (rmM === "Char.Items.Remove" && rmA.item !== undefined) {
-    delete R.items[typeof rmA.item === "object" ? rmA.item.id : rmA.item];
+    var rmRid = String(typeof rmA.item === "object" ? rmA.item.id : rmA.item);
+    delete R.items[rmRid];
+    if (R.order) { var rmAt = R.order.indexOf(rmRid); if (rmAt >= 0) R.order.splice(rmAt, 1); }
   } else if (rmM === "IRE.Target.Info" && rmA) {
     // Your target, for the glow on its mob: its id, and its health. Later
     // updates for the same target can carry only the health.
@@ -36,6 +45,12 @@ if (rmMine) {
     var rmTn = String(rmA.short_desc || "");
     if (!rmTn && R.target && R.target.id === rmTi) rmTn = R.target.name || "";
     R.target = { id: rmTi, name: rmTn, hp: String(rmA.hpperc || "").replace("%", ""), at: Date.now() };
+  } else if (rmM === "IRE.Target.Set") {
+    // The game announcing a new target (ST/SETTARGET; Ricardo, #205: a
+    // player stayed lit after ST RAT). The payload is the target as typed or
+    // an id, maybe quoted; empty means none. Health comes with Info later.
+    var rmTs = String(rmA === null || rmA === undefined ? "" : (typeof rmA === "object" ? (rmA.target || rmA.id || "") : rmA)).replace(/^"|"$/g, "").trim();
+    R.target = rmTs ? { id: rmTs, name: "", hp: "", at: Date.now() } : { id: "", name: "", hp: "", none: true, at: Date.now() };
   } else if (rmM === "Char.Vitals") {
     // Every prompt: redraw only if the tar variable changed (ST, or a
     // targeting alias), since that sends nothing of its own.

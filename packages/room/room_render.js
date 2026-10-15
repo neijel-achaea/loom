@@ -5,8 +5,9 @@
 //   - description folded to two lines; a click on it unfolds it (a class on the
 //     page body, as Online's offline section, so redraws never undo it)
 //   - PLAYERS (you left off, full title on hover, a targeted one glowing
-//     red), MOBS (your target first,
-//     glowing yellow with its health; dead ones greyed),
+//     red), MOBS (one row each, in the room's own order, so the next one a
+//     name would hit is the next row down; your target glows yellow in
+//     place, with its health; dead ones greyed),
 //     ITEMS (things you can take stand out, fixtures are muted), each as a
 //     table: quantity when more than one, the name, and a type column the
 //     integrations can fill (shrine, plant…)
@@ -42,16 +43,21 @@ function merge(list) {
   return out;
 }
 
-// Your target: whichever changed last, the id from IRE.Target.Info or the tar
-// variable (an id, or a word matched against the living mobs' names, first
-// match; also the fallback when the game's id isn't in the room). Its row
-// glows, as in the stock tab, with its health in the type column.
+// Your target: whichever changed last decides, alone. Either the game's
+// (IRE.Target.Info or IRE.Target.Set, in R.target: an id, or a word such as
+// a player's name or "rat"; an empty Set means no target) or the tar
+// variable (an id or a word). An id glows that mob; a word glows the player
+// of that name, else the first living mob whose name holds it. Info's
+// short_desc is the word when its id isn't in the room. The row glows, as in
+// the stock tab, with its health in the type column.
 var GLOW = "#ffd75e";
 var PGLOW = "#ff6a5e";
 var tarV = String(get_variable("tar") || "").trim();
-var useGmcp = !!(R.target && R.target.id && (!tarV || (R.target.at || 0) >= (R.tarAt || 0)));
-var tgtId = useGmcp ? String(R.target.id) : (/^\d+$/.test(tarV) ? tarV : "");
-var tgtWord = (tarV && !/^\d+$/.test(tarV)) ? tarV.toLowerCase() : "";
+var gm = R.target || null;
+var useGmcp = !!(gm && (gm.none || gm.id || gm.name) && (!tarV || (gm.at || 0) >= (R.tarAt || 0)));
+var tgtSrc = useGmcp ? (gm.none ? "" : String(gm.id || "")) : tarV;
+var tgtId = /^\d+$/.test(tgtSrc) ? tgtSrc : "";
+var tgtWord = (tgtSrc && !tgtId) ? tgtSrc.toLowerCase() : ((useGmcp && !gm.none && gm.name) ? String(gm.name).toLowerCase() : "");
 
 var I = R.info || {};
 var html = '<div id="loom-here" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#13110e;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
@@ -84,9 +90,9 @@ if (!R.info) {
   var tgtPl = "";
   for (var pt = 0; pt < pl.length; pt++) {
     var plL = pl[pt].toLowerCase();
-    if (useGmcp ? (String(R.target.id).toLowerCase() === plL || String(R.target.name || "").toLowerCase() === plL) : tgtWord === plL) { tgtPl = pl[pt]; break; }
+    if (tgtWord === plL) { tgtPl = pl[pt]; break; }
   }
-  if (tgtPl) { tgtWord = ""; if (useGmcp) tgtId = ""; }
+  if (tgtPl) { tgtWord = ""; tgtId = ""; }
   html += caps("players", pl.length);
   // Through loom's display entry point (#159): a player's highlight colour
   // and group from social (#162), when both are installed and the link is
@@ -103,29 +109,35 @@ if (!R.info) {
     html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>', pTitle, pHp, isT ? PGLOW : false);
   }
 
-  // Mobs and items.
-  var mobs = [], items = [];
-  for (var ik in R.items) {
-    if (!R.items.hasOwnProperty(ik)) continue;
-    var it = R.items[ik];
+  // Mobs and items, in the room's own order (R.order; ids not in it, which
+  // shouldn't happen, after them).
+  var mobs = [], items = [], seenId = {};
+  var ord = (R.order || []).slice();
+  for (var ik in R.items) { if (R.items.hasOwnProperty(ik) && ord.indexOf(String(ik)) < 0) ord.push(String(ik)); }
+  for (var oi = 0; oi < ord.length; oi++) {
+    var it = R.items[ord[oi]];
+    if (!it || seenId[ord[oi]]) continue;
+    seenId[ord[oi]] = true;
     if (/m/.test(it.attrib || "")) mobs.push(it); else items.push(it);
   }
-  // The target is split out of its merged group, so only that one glows.
+  // Mobs one row each (Ricardo: merging them, then splitting the target out
+  // and lifting it to the top, made it hard to see what comes next). The
+  // target glows where it stands: by id, or the first living mob whose name
+  // holds the tar word, as the game would pick it.
   var tgtMob = null;
   for (var ti = 0; ti < mobs.length && !tgtMob; ti++) { if (tgtId && String(mobs[ti].id) === tgtId) tgtMob = mobs[ti]; }
   for (var tj = 0; tj < mobs.length && !tgtMob && tgtWord; tj++) { if (!/d/.test(mobs[tj].attrib || "") && mobs[tj].name.toLowerCase().indexOf(tgtWord) >= 0) tgtMob = mobs[tj]; }
-  var rest = [];
-  for (var tk = 0; tk < mobs.length; tk++) { if (mobs[tk] !== tgtMob) rest.push(mobs[tk]); }
-  var mm = merge(rest);
   html += caps("mobs", mobs.length);
-  if (tgtMob) {
-    var tHp = (R.target && String(R.target.id) === String(tgtMob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
-    html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(tgtMob.name) + '</span>', "your target", tHp, GLOW);
-  }
-  for (var mi = 0; mi < mm.length; mi++) {
-    // Dead ones are greyed out; their name already says "the corpse of…".
-    var dead = /d/.test(mm[mi].it.attrib || "");
-    html += row(mm[mi].n, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (dead ? DIM : TXT) + ';">' + esc(mm[mi].it.name) + '</span>');
+  for (var mi = 0; mi < mobs.length; mi++) {
+    var mob = mobs[mi];
+    if (mob === tgtMob) {
+      var tHp = (R.target && String(R.target.id) === String(mob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target", tHp, GLOW);
+    } else {
+      // Dead ones are greyed out; their name already says "the corpse of…".
+      var dead = /d/.test(mob.attrib || "");
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (dead ? DIM : TXT) + ';">' + esc(mob.name) + '</span>');
+    }
   }
   var im = merge(items);
   html += caps("items", items.length);
