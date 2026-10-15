@@ -68,7 +68,7 @@ else if (W[0].toLowerCase() === "tags") {
 else if (W[0].toLowerCase() === "review" || W[0].toLowerCase() === "pending") {
   var P = DB.pending;
   if (P.length === 0) { say("nothing waiting for review."); }
-  for (var p = 0; p < P.length; p++) { say((p === 0 ? "next: " : "then: ") + P[p].who + " — " + P[p].why + " (suggested " + F.steps(P[p].step) + ")"); }
+  for (var p = 0; p < P.length; p++) { say((p === 0 ? "next: " : "then: ") + P[p].who + " — " + P[p].why + " (suggested " + F.steps(P[p].step) + (P[p].src ? ", from " + P[p].src : "") + ")"); }
   if (P.length > 0) { say("STANDINGS OK to record the first as suggested, STANDINGS OK ++ to choose the size, STANDINGS SKIP to dismiss it."); }
 }
 else if (W[0].toLowerCase() === "ok") {

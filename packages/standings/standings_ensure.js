@@ -130,7 +130,7 @@ function stSave() { try { set_variable("standings_db", JSON.stringify(client.loo
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "0.2.2", keyword: "STANDINGS", desc: "{{description}}" };
+client.loom.registry.standings = { version: "0.3.0", keyword: "STANDINGS", desc: "{{description}}" };
 var ST = client.loom.standings;
 
 // One-time migration from the pre-0.2 names: st_db/st_cal become
@@ -160,3 +160,56 @@ if (!ST.db) {
   ST.view = null;
   ST.cal = stLoad("standings_cal", null);
 }
+
+// The entry point other packages feed (#36), through loom's integrations:
+// a suggested dealing lands in the review list, tagged with its source, and
+// is never recorded until the player says STANDINGS OK. Defined on every
+// run, so a reimport replaces it.
+//   entry.suggest({ who, step, why, source }) -> true when queued or updated
+//     With a source, one pending item per source and person: a newer
+//     suggestion replaces the older one instead of piling up. Without one
+//     (this package's own triggers), the same who and why within two
+//     minutes queue once.
+//   entry.withdraw(source[, who]) -> how many were taken back; for a source
+//     whose condition cleared or whose link was switched off.
+ST.entry = {
+  suggest: function (sg) {
+    if (!sg || !sg.who) { return false; }
+    var F = ST.F;
+    var P = ST.db.pending;
+    var now = Math.floor(new Date().getTime() / 1000);
+    var who = F.proper(sg.who);
+    var why = String(sg.why || "something happened");
+    var step = parseInt(sg.step, 10) || 0;
+    var src = sg.source ? String(sg.source) : "";
+    for (var i = 0; i < P.length; i++) {
+      if (src && P[i].src === src && P[i].who === who) {
+        P[i].why = why; P[i].step = step; P[i].t = now; P[i].ic = F.ic(now);
+        F.save();
+        run_function("standings_render", [], "standings");
+        return true;
+      }
+      if (!src && !P[i].src && P[i].who === who && P[i].why === why && now - P[i].t < 120) { return false; }
+    }
+    var item = { t: now, ic: F.ic(now), who: who, why: why, step: step };
+    if (src) { item.src = src; }
+    P.push(item);
+    while (P.length > 20) { P.shift(); }
+    F.save();
+    display_notice("[standings] review: " + who + " \u2014 " + why + " (suggested " + F.steps(step) + (src ? ", from " + src : "") + "). STANDINGS OK to record, STANDINGS SKIP to dismiss.", "cyan");
+    run_function("standings_render", [], "standings");
+    return true;
+  },
+  withdraw: function (source, who) {
+    var P = ST.db.pending;
+    var src = String(source || "");
+    if (!src) { return 0; }
+    var wk = who ? ST.F.proper(who) : "";
+    var n = 0;
+    for (var i = P.length - 1; i >= 0; i--) {
+      if (P[i].src === src && (!wk || P[i].who === wk)) { P.splice(i, 1); n++; }
+    }
+    if (n) { ST.F.save(); run_function("standings_render", [], "standings"); }
+    return n;
+  }
+};
