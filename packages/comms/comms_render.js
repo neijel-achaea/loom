@@ -10,9 +10,9 @@
 //     made them hard to read, Ricardo)
 //   - a click on a talker's name puts "t <name> " in the input line
 //   - with social and loom installed (link social-comms, #160), talkers and
-//     the people in Tells in their highlight colours, the group on hover
+//     the people in Tells in their highlight colours
 //   - with standings too (link standings-comms, #161), your standing with
-//     them on hover (icon, band, score)
+//     them on hover (icon, band, score); the hover shows nothing else
 // Clicks go through window.loomComms (comms_setup): the tab's page can't
 // reach client. House style shared with Stats, Online, Here: ink panel,
 // serif small-caps headings, monospace rows. The accent is a soft violet.
@@ -44,13 +44,12 @@ function ago(t) {
 // group from social (#160), when the link is on; otherwise nothing.
 var LL = client.loom.loom;
 function ask(q, n) { return (LL && LL.answer) ? LL.answer("comms", q, n) : undefined; }
-// What to say on hover about a person: their social group (#160) and your
-// standing with them (#161, from standings: icon, band, score), whichever
-// links are on; "" when neither knows them.
+// What to say on hover about a person: your standing with them (#161, from
+// standings: icon, band, score); "" when nothing is known. Not "t Name" (the
+// click is clear) nor the social group (the colour shows it): Ricardo, so
+// the hover has room for what the eye can't see.
 function about(n) {
   var bits = [];
-  var g = ask("person.group", n);
-  if (g) bits.push(g);
   var st = ask("person.standing", n);
   if (st) bits.push((st.icon ? st.icon + "\ufe0e " : "") + st.band + " " + (st.score > 0 ? "+" : "") + (Math.round(st.score * 10) / 10).toFixed(1));
   return bits.join(" \u00b7 ");
@@ -69,7 +68,7 @@ function body(l) {
       var wCol = ask("person.colour", who);
       var wAbout = about(who);
       out += '<span' + st + '>' + esc(tx.slice(0, m.index)) +
-        '<span class="loom-cm-who" title="t ' + who + (wAbout ? ' \u00b7 ' + esc(wAbout) : '') + '"' + (wCol ? ' style="color:' + esc(wCol) + ';"' : '') + ' onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' +
+        '<span class="loom-cm-who"' + (wAbout ? ' title="' + esc(wAbout) + '"' : '') + (wCol ? ' style="color:' + esc(wCol) + ';"' : '') + ' onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' +
         esc(tx.slice(m.index + who.length)) + '</span>';
       whoRe = null;
     } else {
