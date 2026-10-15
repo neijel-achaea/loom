@@ -368,3 +368,38 @@ L.addLink({
     }
   }
 });
+
+// #42 sigils -> ledger (Ricardo): one "Sigil patrol" item, due the Achaean
+// day the earliest flagged monolith runs out (monoliths only; a room with
+// none is due at once). Withdrawn when nothing is flagged. A sigil month is
+// an Achaean month, 25 Achaean days; an Achaean day is about a real hour,
+// so a reading taken at real time t is dated back by the hours since then.
+// Each reading's day is worked out once and kept, so the due date doesn't
+// jitter as the hour turns. Waits until the ledger knows today's date.
+L.sigilDue = L.sigilDue || {};
+L.addLink({
+  id: "sigils-ledger", src: "sigils", dst: "ledger", issue: 42,
+  desc: "A sigil patrol in the ledger, due when the first flagged monolith runs out",
+  update: function () {
+    var s = client.loom.sigils, lg = client.loom.ledger;
+    if (!s || !s.look || !s.look.expiring || !lg || !lg.entry) return;
+    var rows = s.look.expiring();
+    if (!rows.length) { lg.entry.withdraw("sigils", "patrol"); return; }
+    if (!(lg.day > 0)) return;
+    var now = Date.now(), due = null, first = null, none = 0, seen = {};
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i], ck = r.id + "|" + r.t + "|" + r.months;
+      seen[ck] = true;
+      if (L.sigilDue[ck] === undefined) {
+        var read = lg.day - (r.t ? Math.max(0, Math.floor((now - r.t) / 3600000)) : 0);
+        L.sigilDue[ck] = read + Math.max(0, r.months) * 25;
+      }
+      if (r.months < 0) none++;
+      if (due === null || L.sigilDue[ck] < due) { due = L.sigilDue[ck]; first = r; }
+    }
+    for (var k in L.sigilDue) { if (L.sigilDue.hasOwnProperty(k) && !seen[k]) delete L.sigilDue[k]; }
+    var n = rows.length;
+    var text = "Sigil patrol: " + n + " monolith" + (n === 1 ? "" : "s") + " to renew" + (none ? " (" + none + " missing)" : "") + ", first " + first.name + " (" + first.id + ")";
+    lg.entry.upsert({ source: "sigils", key: "patrol", text: text, due: due });
+  }
+});

@@ -23,6 +23,7 @@ else if (sub === "check") {
 }
 else if (sub === "clear") {
   set_variable("sigils_flagged", {});
+  if (client.loom.notify) client.loom.notify("sigils");
   S.queue = [];
   S.await = null;
   display_notice("[sigils] list cleared.", "lime");
