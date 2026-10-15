@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.harvesting) client.loom.harvesting = {};
-client.loom.registry.harvesting = { version: "0.2.3", keyword: "HARVESTING", desc: "{{description}}" };
+client.loom.registry.harvesting = { version: "0.2.4", keyword: "HARVESTING", desc: "{{description}}" };
 var H = client.loom.harvesting;
 
 // Plants that grow in each environment (GMCP Room.Info environment, lower case).
@@ -59,7 +59,16 @@ if (H.quiet === undefined) H.quiet = false;
 // harvesting knows about your stock, never its variables.
 //   look.levels() -> [{ plant, stock, min }] for every plant whose stock has
 //     been seen in the rift (IR/INR), min being its own or the default.
+//   look.plant(name) -> { stock, min, tracked } for a plant: tracked when
+//     harvesting knows it (it grows in one of its environments), stock null
+//     when not seen in the rift yet (#166)
 H.look = {
+  plant: function (name) {
+    var pl = String(name || "").trim().toLowerCase(), tracked = false;
+    for (var env in H.plants) { if (H.plants.hasOwnProperty(env) && H.plants[env].indexOf(pl) >= 0) { tracked = true; break; } }
+    var st = H.stock[H.map[pl] || pl];
+    return { stock: (st === undefined || st === null) ? null : st, min: (H.min[pl] != null ? H.min[pl] : H.defMin), tracked: tracked };
+  },
   levels: function () {
     var out = [], seen = {};
     for (var env in H.plants) {

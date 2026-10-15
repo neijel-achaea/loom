@@ -421,3 +421,30 @@ L.addLink({
     }
   }
 });
+
+// #166 harvesting -> room (Ricardo): the plants that should grow in the
+// room's environment, in Here: green when here and stocked, yellow when here
+// but under the minimum (stock not seen counts as none, as harvesting does),
+// red when missing. The list and which plants are here come from patrolling
+// (its expected table, learnt from real PLANTS output, and its silent PLANTS
+// check with PATROLLING ON); stock and minimum from harvesting. Plants
+// harvesting doesn't track (fruit, grain…) are green when here. Until
+// patrolling has checked this room, nothing is shown. Display only.
+L.addLink({
+  id: "harvesting-room", src: "harvesting", dst: "room", issue: 166,
+  desc: "The environment's plants in Here: stocked, low or missing (needs PATROLLING ON)",
+  answers: {
+    "room.plants": function (ctx) {
+      var h = client.loom.harvesting, p = client.loom.patrolling;
+      if (!h || !h.look || !h.look.plant || !p || !p.look || !p.look.plants || !p.look.expected || !ctx) return undefined;
+      var here = p.look.plants(ctx.id), exp = p.look.expected(ctx.environment);
+      if (!here || !exp || !exp.length) return undefined;
+      var out = [];
+      for (var i = 0; i < exp.length; i++) {
+        var hp = h.look.plant(exp[i]);
+        out.push({ plant: exp[i], present: here.indexOf(exp[i]) >= 0, stock: hp.stock, min: hp.min, low: hp.tracked && (hp.stock === null ? 0 : hp.stock) < hp.min, tracked: hp.tracked });
+      }
+      return out;
+    }
+  }
+});

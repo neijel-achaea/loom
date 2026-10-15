@@ -11,8 +11,10 @@
 //     ITEMS (things you can take stand out, fixtures are muted), each as a
 //     table: quantity when more than one, the name, and a type column the
 //     integrations can fill (shrine, plant…)
+//   - the plants of the room's environment, under the description: here and
+//     stocked, here but low, or missing (#166, from harvesting and patrolling)
 // Integrations (0.5: #162 social colours (done), #163 hunting target, #164 shrines (done),
-// #165 sigils (done), #166 plants) will mark rows through the display entry point #159.
+// #165 sigils (done), #166 plants (done)) will mark rows through the display entry point #159.
 var R = client.loom.room;
 var AMBER = "#e0b46c";
 var DEEP = "#7a5f33";
@@ -103,6 +105,27 @@ if (!R.info) {
       }
     }
   }
+  // The plants of this environment (room.plants: [{ plant, present, low, stock,
+  // min }], #166, from harvesting and patrolling), small, one line (Ricardo):
+  // green when here and stocked, yellow when here but under its minimum, red
+  // when it isn't here at all, with a warning beside the details. Shown only
+  // once patrolling's PLANTS check has seen this room.
+  var rp = (LLi && LLi.answer) ? LLi.answer("room", "room.plants", { id: I.num, area: I.area, environment: I.environment }) : undefined;
+  var plantsHtml = "";
+  if (rp && rp.length) {
+    var PCOL = { ok: "#8fd694", low: "#e6c75a", gone: "#ff6a5e" };
+    var nfmt = function (v) { return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+    var pbits = [], gone = 0;
+    for (var pi = 0; pi < rp.length; pi++) {
+      var pp = rp[pi];
+      var pk2 = !pp.present ? "gone" : (pp.low ? "low" : "ok");
+      if (pk2 === "gone") gone++;
+      var ptitle = pp.plant + ": " + (pp.present ? "here" : "not here") + (pp.tracked === false ? "" : "; " + (pp.stock === null || pp.stock === undefined ? "not seen in your rift yet" : nfmt(pp.stock) + " in the rift") + ", minimum " + nfmt(pp.min));
+      pbits.push((pi ? ' ' : '') + '<span title="' + esc(ptitle) + '" style="white-space:nowrap;cursor:default;color:' + PCOL[pk2] + ';">' + esc(pp.plant) + (pi < rp.length - 1 ? '<span style="color:' + DIM + ';"> &middot;</span>' : '') + '</span>');
+    }
+    if (gone) alerts[gone === 1 ? "1 plant missing" : gone + " plants missing"] = true;
+    plantsHtml = '<div style="margin-top:3px;font-size:9px;line-height:1.5;">' + pbits.join('') + '</div>';
+  }
   for (var al in alerts) { if (alerts.hasOwnProperty(al)) tags += '<span style="display:inline-block;margin:0 4px 0 0;padding:0 4px;border:1px solid ' + FLAG.bad + ';color:' + FLAG.bad + ';">\u26a0 ' + esc(al) + '</span>'; }
   var ex = [];
   for (var ek in (I.exits || {})) { if (I.exits.hasOwnProperty(ek)) ex.push(ek); }
@@ -112,6 +135,7 @@ if (!R.info) {
   if (I.desc) {
     html += '<div onclick="document.body.classList.toggle(\'loom-room-desc-open\')" title="click to unfold or fold" class="loom-room-desc" style="cursor:pointer;margin-top:4px;font-family:' + SERIF + ';font-size:11px;line-height:1.35;color:' + MUTED + ';">' + esc(I.desc) + '</div>';
   }
+  html += plantsHtml;
 
   // Players, you left off. A player you target glows red: the tar name, or
   // the game's target info naming them, whichever changed last. A player

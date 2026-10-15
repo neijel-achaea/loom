@@ -12,7 +12,7 @@ if (paSub === "" || paSub === "status") {
   run_function("patrolling_help", [], "patrolling");
 } else if (paSub === "on" || paSub === "off") {
   set_variable("patrolling_on", paSub);
-  if (paSub === "off") { P.active = false; P.gag = false; }
+  if (paSub === "off") { P.active = false; P.gag = false; P.plantsHere = null; if (client.loom.notify) client.loom.notify("patrolling"); }
   display_notice("[patrolling] " + paSub.toUpperCase() + ".", "lime");
   if (paSub === "on") run_function("patrolling_check", [], "patrolling");
 } else if (paSub === "here") {

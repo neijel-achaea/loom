@@ -1,5 +1,8 @@
 var P = client.loom.patrolling;
 var paEnv = P.room.env || "unknown";
+// What PLANTS found here, for the look (#166); loom redraws Here.
+P.plantsHere = { id: P.room.id, env: paEnv, present: (P.present || []).slice() };
+if (client.loom.notify) client.loom.notify("patrolling");
 if (P.learn) {
   P.learn = false;
   display_notice('[patrolling] table entry ->  "' + paEnv + '": ' + JSON.stringify(P.present) + ',', "cyan");

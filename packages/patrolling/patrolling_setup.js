@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.patrolling) client.loom.patrolling = {};
-client.loom.registry.patrolling = { version: "0.3.0", keyword: "PATROLLING", desc: "{{description}}" };
+client.loom.registry.patrolling = { version: "0.3.1", keyword: "PATROLLING", desc: "{{description}}" };
 var P = client.loom.patrolling;
 
 // One-time migration: patrol_last -> patrolling_last; the old session object
@@ -43,7 +43,21 @@ P.saveGods = function () {
 //     or totem ("friendly", "hostile" or "neutral"), undefined otherwise.
 //     A listed god is found as a word anywhere in the name ("a shrine of
 //     Sartan", "a totem to Sartan"); god is "" when none is listed.
+//   look.plants(roomId) -> the plants PLANTS found in that room on its last
+//     check (["ginseng", ...]), or undefined when that room wasn't the last
+//     one checked (#166: Here colours the environment's plants by it)
+//   look.expected(env) -> the plants that should grow in that environment
+//     (GMCP's name, any case), from the expected table; undefined if unknown
 P.look = {
+  expected: function (env) {
+    var e = String(env || "").trim().toLowerCase();
+    for (var k in P.expected) { if (P.expected.hasOwnProperty(k) && k.toLowerCase() === e) return P.expected[k].slice(); }
+    return undefined;
+  },
+  plants: function (id) {
+    var ph = P.plantsHere;
+    return (ph && id !== undefined && id !== null && String(ph.id) === String(id)) ? ph.present.slice() : undefined;
+  },
   item: function (name) {
     var n = String(name || "");
     var km = n.match(/\b(shrine|totem)\b/i);
