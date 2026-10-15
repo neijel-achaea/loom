@@ -10,7 +10,7 @@ if (sfM && sfA !== null && sfA !== undefined) {
   if (!client.loom || !client.loom.self || !client.loom.self.keep) run_function("self_setup", [], "self");
   var S = client.loom.self;
   var sfNow = Math.floor(new Date().getTime() / 1000);
-  var sfDirty = false;
+  var sfDirty = false, sfExpl = false;
   var sfI;
   if (sfM === "Char.Afflictions.List") {
     S.affs = {};
@@ -51,7 +51,7 @@ if (sfM && sfA !== null && sfA !== undefined) {
     if (sfKey !== S.statsKey) { S.statsKey = sfKey; S.stats = sfA.charstats.slice(0); sfDirty = true; }
   } else if (sfM === "Char.Status") {
     var sfF = ["name", "fullname", "level", "class", "race", "city", "house", "specialisation", "age", "xprank", "explorerrank"];
-    for (sfI = 0; sfI < sfF.length; sfI++) { if (sfA[sfF[sfI]] !== undefined && sfA[sfF[sfI]] !== S.info[sfF[sfI]]) { S.info[sfF[sfI]] = sfA[sfF[sfI]]; sfDirty = true; } }
+    for (sfI = 0; sfI < sfF.length; sfI++) { if (sfA[sfF[sfI]] !== undefined && sfA[sfF[sfI]] !== S.info[sfF[sfI]]) { S.info[sfF[sfI]] = sfA[sfF[sfI]]; sfDirty = true; if (sfF[sfI] === "explorerrank") sfExpl = true; } }
   } else if (sfM === "Char.Name") {
     if (sfA.name) { S.info.name = sfA.name; }
     if (sfA.fullname) { S.info.fullname = sfA.fullname; }
@@ -66,4 +66,7 @@ if (sfM && sfA !== null && sfA !== undefined) {
     try { delete_variable("self_name"); } catch (e) {}
   }
   if (sfDirty) { try { run_function("self_render", [], "self"); } catch (e) {} }
+  // The explorer rank moved (after the render, which takes the page's first
+  // reading as the starting point): tell loom (#47).
+  if (sfExpl && client.loom.notify) client.loom.notify("self");
 }
