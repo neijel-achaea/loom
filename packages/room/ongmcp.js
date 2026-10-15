@@ -6,11 +6,11 @@ var rmM = "";
 var rmA = null;
 try { rmM = args.gmcp_method; rmA = args.gmcp_args; } catch (e) { rmM = ""; }
 if (typeof rmA === "string") { try { rmA = JSON.parse(rmA); } catch (e) { /* a bare name, as RemovePlayer may send */ } }
-var rmMine = /^Room\.(Info|Players|AddPlayer|RemovePlayer)$/.test(rmM) || (/^Char\.Items\.(List|Add|Remove|Update)$/.test(rmM) && rmA && rmA.location === "room") || rmM === "Char.Name" || rmM === "Char.Status";
+var rmMine = /^Room\.(Info|Players|AddPlayer|RemovePlayer)$/.test(rmM) || rmM === "IRE.Target.Info" || rmM === "Char.Vitals" || (/^Char\.Items\.(List|Add|Remove|Update)$/.test(rmM) && rmA && rmA.location === "room") || rmM === "Char.Name" || rmM === "Char.Status";
 if (rmMine) {
   if (!client.loom || !client.loom.room || !client.loom.room.raw) run_function("room_setup", [], "room");
   var R = client.loom.room;
-  if (rmM !== "Char.Status") R.raw[rmM] = rmA;
+  if (rmM !== "Char.Status" && rmM !== "Char.Vitals") R.raw[rmM] = rmA;
   var rmDraw = true;
   if (rmM === "Room.Info" && rmA) {
     R.info = rmA;
@@ -29,6 +29,17 @@ if (rmMine) {
     R.items[rmA.item.id] = rmA.item;
   } else if (rmM === "Char.Items.Remove" && rmA.item !== undefined) {
     delete R.items[typeof rmA.item === "object" ? rmA.item.id : rmA.item];
+  } else if (rmM === "IRE.Target.Info" && rmA) {
+    // Your target, for the glow on its mob: its id, and its health. Later
+    // updates for the same target can carry only the health.
+    var rmTi = String(rmA.id || "");
+    R.target = { id: rmTi, hp: String(rmA.hpperc || "").replace("%", ""), at: Date.now() };
+  } else if (rmM === "Char.Vitals") {
+    // Every prompt: redraw only if the tar variable changed (ST, or a
+    // targeting alias), since that sends nothing of its own.
+    rmDraw = false;
+    var rmTar = String(get_variable("tar") || "");
+    if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
   } else if ((rmM === "Char.Name" || rmM === "Char.Status") && rmA && rmA.name) {
     rmDraw = false;
     if (String(rmA.name) !== R.me) { R.me = String(rmA.name); try { set_variable("room_name", R.me); } catch (e) {} rmDraw = true; }
