@@ -4,11 +4,11 @@
 var hlTitle = "[basher] attended bashing on top of hunting: attacks your target on balance and equilibrium. Commands:";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
-  ["BASHER", "status: on or off, and why it isn't attacking right now"],
-  ["BASHER ON", "start: hunting's main attack (HUNTING MAIN) on tar, once per recovery"],
-  ["BASHER OFF", "stop at once (the kill switch); BASHER STOP does the same"],
+  ["BASHER", "status: off, primed or running, and why it isn't attacking"],
+  ["BASHER ON", "prime it: your next attack starts a run of hunting's main attack on tar"],
+  ["BASHER STOP", "stop at once and stand down (the kill switch); BASHER OFF does the same"],
   ["BASHER HEALTH [percent]", "hold attacks below this health (default 40), resume 10 above"],
-  ["It attacks only a living mob in the room (never a player), stops when the target dies or leaves, and sends nothing while pauseTriggers is on. It always loads OFF and never moves you."]
+  ["It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF and never moves you."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

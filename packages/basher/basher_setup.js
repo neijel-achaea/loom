@@ -17,7 +17,11 @@ if (!get_variable("basher_health")) set_variable("basher_health", "40");
 
 // Runtime state, kept across a reimport. ON is never remembered across a load:
 // the basher always starts OFF.
+// Ricardo: BASHER ON only primes it (B.on); your own attack starts a run
+// (B.run, from basher_attackline), which lasts until the room has no more of
+// your target or BASHER STOP. Then it waits primed for your next attack.
 if (B.on === undefined) B.on = false;
+if (B.run === undefined) B.run = false;
 if (!B.room) B.room = {};          // mobs and items here: { id: { name, attrib } }
 if (!B.players) B.players = {};    // players here, lowercase name -> true
 if (B.bal === undefined) { B.bal = false; B.eq = false; B.hp = 0; B.maxhp = 0; }
@@ -118,7 +122,14 @@ B.blocked = function () {
 // One look: attack once per recovery. Balance or equilibrium going (onGMCP)
 // clears sentAt; an attack that took neither within retryMs is a miss.
 B.tick = function () {
-  if (!B.on) return;
+  if (!B.on || !B.run) return;
+  // Out of targets: the run ends, still primed.
+  var t = B.target();
+  if (t.why) {
+    B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+    display_notice("[basher] " + t.why + ": run over, still primed. Attack something to start again.", "cyan");
+    return;
+  }
   B.why = B.blocked();
   if (B.why) return;
   var now = Date.now();
@@ -137,8 +148,32 @@ B.tick = function () {
   if (get_variable("debug") == "on") display_notice("[debug][basher] " + cmds.join(" | "), "cyan");
 };
 
+// Your own attack seen while primed: the run starts. That attack is the one
+// in flight, so the next goes out on the next recovery (balance and
+// equilibrium count as gone until Char.Vitals says otherwise, whichever of
+// the line and the vitals came first).
+B.begin = function () {
+  if (!B.on || B.run) return;
+  B.run = true;
+  B.sentAt = 0; B.misses = 0;
+  B.bal = false; B.eq = false;
+  var m = B.main();
+  display_notice("[basher] running: " + (m ? m.name.toUpperCase() : "attack") + " on " + (B.target().tar || "your target") + " until the room runs out of it. BASHER STOP stops it.", "lime");
+};
+
+// Your attack lines are hunting's (the class's "lines" and the shared ones),
+// read only. True when the line is one of them.
+B.isAttack = function (line) {
+  var hu = B.hunting();
+  var e = hu && hu.classes[hu.cls];
+  var rows = ((e && e.lines) || []).concat(hu ? (hu.sharedLines || []) : []);
+  for (var i = 0; i < rows.length; i++) if (rows[i][0].test(line)) return true;
+  return false;
+};
+
+// BASHER ON: primed, not attacking yet.
 B.start = function () {
-  B.on = true;
+  B.on = true; B.run = false;
   B.sentAt = 0; B.misses = 0; B.low = false;
   if (B.loop) clearInterval(B.loop);
   B.loop = setInterval(function () { client.loom.basher.tick(); }, B.tickMs);
@@ -147,7 +182,7 @@ B.start = function () {
 // The kill switch: stops at once; nothing it sent is left queued, since it
 // sends on recovery.
 B.stop = function (msg, colour) {
-  B.on = false;
+  B.on = false; B.run = false;
   if (B.loop) { clearInterval(B.loop); B.loop = null; }
   B.sentAt = 0; B.misses = 0; B.low = false; B.why = "";
   if (msg) display_notice(msg, colour || "lime");

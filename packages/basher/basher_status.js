@@ -7,11 +7,14 @@ var bsMin = get_variable("basher_health");
 var bsPct = B.maxhp > 0 ? Math.round(B.hp * 100 / B.maxhp) + "%" : "unknown";
 if (!bsHu) {
   display_notice("[basher] OFF: needs the hunting package, which isn't installed. BASHER HELP for commands.", "orange");
-} else if (B.on) {
+} else if (B.on && B.run) {
   var bsWhy = B.blocked();
-  display_notice("[basher] ON as " + (bsHu.cls || "?") + ": " + (bsMain || "no main attack") + " on " + (B.target().tar || "no target")
-    + " — " + (bsWhy || "attacking") + ". Holds below " + bsMin + "% health (now " + bsPct + "). BASHER OFF to stop.", "cyan");
+  display_notice("[basher] RUNNING as " + (bsHu.cls || "?") + ": " + (bsMain || "no main attack") + " on " + (B.target().tar || "no target")
+    + " — " + (bsWhy || "attacking") + ". Holds below " + bsMin + "% health (now " + bsPct + "). BASHER STOP to stop.", "cyan");
+} else if (B.on) {
+  display_notice("[basher] PRIMED as " + (bsHu.cls || "?") + ": attack something and it carries on with " + (bsMain || "no main attack")
+    + " until the room runs out of your target. Holds below " + bsMin + "% health. BASHER STOP to stand down.", "cyan");
 } else {
   display_notice("[basher] OFF. Attacks your target (tar) with hunting's main attack" + (bsMain ? " (" + bsMain + " as " + bsHu.cls + ")" : "")
-    + " on balance and equilibrium; holds below " + bsMin + "% health. BASHER ON to start, BASHER HELP for commands.", "cyan");
+    + " once you attack something, until the room runs out of your target; holds below " + bsMin + "% health. BASHER ON to prime it, BASHER HELP for commands.", "cyan");
 }

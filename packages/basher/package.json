@@ -46,6 +46,22 @@
       "code": "@file:basher_help.js"
     },
     {
+      "type": "trigger",
+      "name": "basher attack line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_attackline.js"
+        }
+      ],
+      "text": "^(.*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
       "type": "alias",
       "name": "",
       "enabled": true,

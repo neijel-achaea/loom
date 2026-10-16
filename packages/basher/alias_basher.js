@@ -15,9 +15,8 @@ if (bsSub === "" || bsSub === "status") {
     display_notice("[basher] no main attack for " + (bsHu.cls || "this class") + " in hunting. HUNTING MAIN lists them; nothing sent.", "orange");
   } else {
     B.start();
-    var bsT = B.target();
-    display_notice("[basher] ON: " + B.main().name.toUpperCase() + " on " + (bsT.tar || "your target")
-      + " whenever you have balance and equilibrium" + (bsT.why ? " (now: " + bsT.why + ")" : "") + ". BASHER OFF or BASHER STOP stops it.", "lime");
+    display_notice("[basher] primed: attack something to start. It then keeps attacking your target with " + B.main().name.toUpperCase()
+      + " on each recovery until the room runs out of it; BASHER STOP stops it.", "lime");
   }
 } else if (bsSub === "off" || bsSub === "stop") {
   var bsWas = B.on;
