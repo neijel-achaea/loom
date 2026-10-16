@@ -70,6 +70,7 @@ if (bsM === "Char.Vitals" && bsA) {
   for (var bsP = 0; bsP < bsA.length; bsP++) B.players[String(bsA[bsP].name || "").toLowerCase()] = true;
 } else if (bsM === "Room.AddPlayer" && bsA && bsA.name) {
   B.players[String(bsA.name).toLowerCase()] = true;
+  B.arrived(String(bsA.name));
 } else if (bsM === "Room.RemovePlayer" && bsA !== undefined) {
   delete B.players[String(typeof bsA === "object" ? bsA.name : bsA).toLowerCase()];
 }
