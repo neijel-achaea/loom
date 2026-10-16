@@ -7,12 +7,14 @@ var hlRows = [
   ["BASHER", "status: off, primed or running, and why it isn't attacking"],
   ["BASHER ON", "prime it: your next attack starts a run of hunting's main attack on tar"],
   ["BASHER STOP", "stop at once and stand down (the kill switch); BASHER OFF does the same"],
-  ["BASHER HEALTH [percent]", "hold attacks below this health (default 40), resume 10 above"],
+  ["BASHER WIMPY", "show when it flees"],
+  ["BASHER WIMPY HEALTH|MANA <1-90|OFF>", "during a run, flee below this health or mana (health 30, mana OFF by default)"],
+  ["BASHER WIMPY DIR <direction|OFF>", "where to flee when the way back isn't known"],
   ["BASHER RAGE [ON|OFF]", "battlerage during a run (default ON), in the class's order; no word: show it"],
   ["Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system."],
   ["A mob whose magical shield is up isn't attacked until the shield fades (razing comes later)."],
   ["While on, \"You are confused as to the effects of the venom.\" sends DIAGNOSE on the next recovery, once per confusion."],
-  ["It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF and never moves you."]
+  ["It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

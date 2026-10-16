@@ -1,6 +1,7 @@
 // The basher's own view of the room and of you, from GMCP (it reads nothing
-// of room's): balance, equilibrium and health from Char.Vitals; mobs and
-// items here from Char.Items; players here from Room.Players.
+// of room's): balance, equilibrium, health and mana from Char.Vitals; the
+// room and its exits from Room.Info; mobs and items here from Char.Items;
+// players here from Room.Players.
 if (!client.loom || !client.loom.basher) run_function("basher_setup", [], "basher");
 var B = client.loom.basher;
 var bsM = args.gmcp_method;
@@ -14,9 +15,17 @@ if (bsM === "Char.Vitals" && bsA) {
   B.eq = String(bsA.eq) == "1";
   B.hp = to_number(bsA.hp);
   B.maxhp = to_number(bsA.maxhp);
+  B.mp = to_number(bsA.mp);
+  B.maxmp = to_number(bsA.maxmp);
   // The attack went out: balance or equilibrium is gone. The next recovery
   // may attack again.
   if (!B.bal || !B.eq) { B.sentAt = 0; B.misses = 0; }
+} else if (bsM === "Room.Info" && bsA && bsA.num !== undefined) {
+  // Rooms, for wimpy's way back: the room before this one, and this room's
+  // exits ({ n: 1234, ... }). The item list is left alone (see below).
+  var bsNum = String(bsA.num);
+  if (bsNum !== B.roomNum) { B.prevNum = B.roomNum; B.roomNum = bsNum; }
+  B.exits = bsA.exits || {};
 } else if (/^Char\.Items\.(List|Add|Remove|Update)$/.test(bsM) && bsA && bsA.location === "room") {
   var bsIt = function (it) { return { name: String(it.name || ""), attrib: String(it.attrib || "") }; };
   if (bsM === "Char.Items.List") {
