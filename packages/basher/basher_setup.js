@@ -62,10 +62,10 @@ B.affLines = [
   [/^Frost blooms outwards from you, wreathing (.+) in frigid cold as clumsiness takes hold\.$/, "clumsiness", true],
   // Blue Dragon's Ague (Ricardo), yours or another player's: cold and clumsiness.
   [/^(?:You let|\w+ lets) loose a steady stream of cold air around (.+), who begins to shiver uncontrollably\.$/, "clumsiness", true],
-  // Magi's Dilation (Ricardo): aeon. Another player's version and the line
-  // when it wears off aren't known yet; until then it lasts until the mob
-  // dies or the room changes.
+  // Magi's Dilation (Ricardo): aeon, until the vortex shatters. Another
+  // player's version isn't known yet.
   [/^You summon a polar vortex in a tight field around (.+), chilling the small pocket so intensely that time itself begins to slow\.$/, "aeon", true],
+  [/^A sharp crack echoes through the air as the polar vortex surrounding (.+) shatters and \w+ movements return to normal speed\.$/, "aeon", false],
   [/^(.+) rallies, no longer plagued with clumsiness\.$/, "clumsiness", false],
   [/^(.+) shakes off the cold and clumsiness plaguing \w+\.$/, "clumsiness", false]
 ];
