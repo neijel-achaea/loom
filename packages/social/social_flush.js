@@ -9,6 +9,17 @@ function soMark(name) {
   var st = (LL && LL.answer) ? LL.answer("social", "notice.standing", name) : undefined;
   return (st && st.icon) ? " " + st.icon + "\ufe0e" : "";
 }
+// Your open ledger items about them (#197/#49, from ledger through loom's
+// link ledger-login), after the notice: " \u00b7 ledger: #12 pay back Ana
+// 5k (overdue 2d)". At most three, most urgent first, then how many more.
+function soLedger(name) {
+  var LL = client.loom.loom;
+  var its = (LL && LL.answer) ? LL.answer("social", "notice.ledger", name) : undefined;
+  if (!its || !its.length) return "";
+  var parts = [];
+  for (var i = 0; i < its.length && i < 3; i++) parts.push("#" + its[i].id + " " + its[i].text + (its[i].when ? " (" + its[i].when + ")" : ""));
+  return " \u00b7 ledger: " + parts.join("; ") + (its.length > 3 ? "; +" + (its.length - 3) + " more" : "");
+}
 var S = client.loom.social;
 S.capturing = false;
 clearTimeout(S.safetyT);
@@ -44,7 +55,7 @@ if (!soNames.length) {
       for (var soN in S.lists[soGr]) { if (!soIdx[soN]) soIdx[soN] = S.color[soGr]; }
     }
     for (var soA in soNow) {
-      if (!S.prev[soA]) { soUp++; S.since[soA] = Date.now(); S.flash[soA] = { kind: "in", at: Date.now() }; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + soMark(soA.charAt(0).toUpperCase() + soA.slice(1)) + " has awoken.", soIdx[soA]); }
+      if (!S.prev[soA]) { soUp++; S.since[soA] = Date.now(); S.flash[soA] = { kind: "in", at: Date.now() }; if (soIdx[soA]) display_notice("[social] " + soA.charAt(0).toUpperCase() + soA.slice(1) + soMark(soA.charAt(0).toUpperCase() + soA.slice(1)) + " has awoken." + soLedger(soA.charAt(0).toUpperCase() + soA.slice(1)), soIdx[soA]); }
     }
     for (var soB in S.prev) {
       if (!soNow[soB]) { soDown++; delete S.since[soB]; S.flash[soB] = { kind: "out", at: Date.now() }; if (soIdx[soB]) display_notice("[social] " + soB.charAt(0).toUpperCase() + soB.slice(1) + " has drifted into slumber.", soIdx[soB]); }

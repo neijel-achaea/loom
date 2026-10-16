@@ -504,3 +504,20 @@ L.addLink({
     }
   }
 });
+
+// #197 ledger -> social (with #49): open ledger items that name someone, as
+// a capitalised whole word ("pay back Ana 5k"). Online (ledger-online): a
+// quill on their row, with the count, in the ledger's warning colours. The
+// "has awoken" notice (ledger-login): the items after it. Two links, two
+// questions, so each switches on its own.
+function ledgerAbout(n) { var lg = client.loom.ledger; return (lg && lg.look && lg.look.about) ? lg.look.about(n) : undefined; }
+L.addLink({
+  id: "ledger-online", src: "ledger", dst: "social", issue: 197,
+  desc: "A quill in the Online tab on people your open ledger items name",
+  answers: { "person.ledger": function (n) { var a = ledgerAbout(n); return a && a.length ? a : undefined; } }
+});
+L.addLink({
+  id: "ledger-login", src: "ledger", dst: "social", issue: 197,
+  desc: "Your open ledger items about someone in their 'has awoken' notice",
+  answers: { "notice.ledger": function (n) { var a = ledgerAbout(n); return a && a.length ? a : undefined; } }
+});
