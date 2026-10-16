@@ -62,6 +62,22 @@
       "case_sensitive": true
     },
     {
+      "type": "trigger",
+      "name": "basher venom confusion",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_venom.js"
+        }
+      ],
+      "text": "^You are confused as to the effects of the venom\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
       "type": "alias",
       "name": "",
       "enabled": true,

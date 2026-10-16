@@ -39,6 +39,8 @@ if (B.bal === undefined) { B.bal = false; B.eq = false; B.hp = 0; B.maxhp = 0; }
 B.sentAt = B.sentAt || 0;          // when the last attack went out (0: none pending)
 B.misses = B.misses || 0;          // attacks sent without balance or equilibrium going
 B.low = !!B.low;                   // holding for health
+B.diag = !!B.diag;                 // a DIAGNOSE owed for venom confusion
+B.diagAt = B.diagAt || 0;          // when the last one went out
 B.why = B.why || "";               // why it isn't attacking right now (status)
 
 B.tickMs = 250;    // how often the loop looks
@@ -158,7 +160,18 @@ B.blocked = function () {
 // One look: attack once per recovery. Balance or equilibrium going (onGMCP)
 // clears sentAt; an attack that took neither within retryMs is a miss.
 B.tick = function () {
-  if (!B.on || !B.run) return;
+  if (!B.on) return;
+  // A DIAGNOSE owed for venom confusion goes first, on the first recovery,
+  // primed or running, even while holding for health (it helps the curing).
+  // In a run the attack follows in the same breath: if DIAGNOSE took the
+  // balance the attack just fails, and the loss clears sentAt either way.
+  if (B.diag && B.bal && B.eq && get_variable("pauseTriggers") != "on") {
+    send_command("diagnose", 1);
+    B.diag = false;
+    B.diagAt = Date.now();
+    if (get_variable("debug") == "on") display_notice("[debug][basher] diagnose", "cyan");
+  }
+  if (!B.run) return;
   // Out of targets: the run ends, still primed.
   var t = B.target();
   if (t.why) { B.end(t.why); return; }
@@ -178,6 +191,15 @@ B.tick = function () {
   for (var i = 0; i < cmds.length; i++) send_command(cmds[i], 1);
   B.sentAt = now;
   if (get_variable("debug") == "on") display_notice("[debug][basher] " + cmds.join(" | "), "cyan");
+};
+
+// "You are confused as to the effects of the venom.": curing can't see what
+// the venom did, so DIAGNOSE (Ricardo), unless one is already owed: lines
+// before the next recovery all share that one.
+B.confused = function () {
+  if (!B.on || B.diag) return;
+  B.diag = true;
+  display_notice("[basher] confused by venom: DIAGNOSE on the next recovery.", "orange");
 };
 
 // The run is over (no more targets here): still primed.
@@ -221,7 +243,7 @@ B.start = function () {
 // The kill switch: stops at once; nothing it sent is left queued, since it
 // sends on recovery.
 B.stop = function (msg, colour) {
-  B.on = false; B.run = false;
+  B.on = false; B.run = false; B.diag = false;
   if (B.loop) { clearInterval(B.loop); B.loop = null; }
   B.sentAt = 0; B.misses = 0; B.low = false; B.why = "";
   if (msg) display_notice(msg, colour || "lime");
