@@ -41,6 +41,11 @@ B.misses = B.misses || 0;          // attacks sent without balance or equilibriu
 B.low = !!B.low;                   // holding for health
 B.diag = !!B.diag;                 // a DIAGNOSE owed for venom confusion
 B.diagAt = B.diagAt || 0;          // when the last one went out
+// Mobs whose shield is up, by name as the game writes it ("a mist wraith"),
+// lowercase -> true. The lines name the mob, not its id, so a shield on one
+// of two same-name mobs holds attacks on both. Cleared by its fade line, a
+// new room list, or when no living mob of that name is left.
+if (!B.shields) B.shields = {};
 B.why = B.why || "";               // why it isn't attacking right now (status)
 
 B.tickMs = 250;    // how often the loop looks
@@ -125,6 +130,30 @@ B.target = function () {
   return { tar: tar, why: "no " + tar + " here" };
 };
 
+// The target's name, lowercase, for the shield lines: from the room list, else
+// the game's target info. "" when unknown.
+B.targetName = function (t) {
+  t = t || B.target();
+  var n = t.name || (B.game && B.game.name && String(B.game.id) === String(t.tar) ? B.game.name : "");
+  return String(n || "").toLowerCase();
+};
+
+// "A nearly invisible magical shield forms around X." (Ricardo): attacks on
+// X hold until "The magical shield surrounding X fades away." Razing comes
+// later (#125). A notice only when it's the target of a run.
+B.shieldUp = function (name) {
+  var n = String(name || "").toLowerCase();
+  if (!n || B.shields[n]) return;
+  B.shields[n] = true;
+  if (B.on && B.run && B.targetName() === n) display_notice("[basher] " + name + " is shielded: holding attacks until it fades.", "orange");
+};
+B.shieldDown = function (name) {
+  var n = String(name || "").toLowerCase();
+  if (!B.shields[n]) return;
+  delete B.shields[n];
+  if (B.on && B.run && B.targetName() === n) display_notice("[basher] " + name + "'s shield is gone: attacking again.", "lime");
+};
+
 // What the basher sees here, for status: "3 mobs here", or that it has no
 // room list yet.
 B.seen = function () {
@@ -153,6 +182,8 @@ B.blocked = function () {
   if (B.low) return "holding for health (" + pct + "%)";
   var t = B.target();
   if (t.why) return t.why;
+  var tn = B.targetName(t);
+  if (tn && B.shields[tn]) return tn + " is shielded";
   if (!B.bal || !B.eq) return "waiting for balance and equilibrium";
   return "";
 };

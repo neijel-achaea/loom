@@ -78,6 +78,38 @@
       "case_sensitive": true
     },
     {
+      "type": "trigger",
+      "name": "basher shield up",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_shield_up.js"
+        }
+      ],
+      "text": "^A nearly invisible magical shield forms around (.+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "basher shield down",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_shield_down.js"
+        }
+      ],
+      "text": "^The magical shield surrounding (.+) fades away\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
       "type": "alias",
       "name": "",
       "enabled": true,
