@@ -619,3 +619,16 @@ L.addLink({
     "person.enemy": function (n) { var s = client.loom.social; var k = String(n || "").trim().toLowerCase(); return s && s.lists && s.lists.enemies && s.lists.enemies[k] ? true : undefined; }
   }
 });
+
+// #163 basher -> room: Here shows the basher's kill order (Ricardo: as
+// visual as possible what happens next): each mob's place in the queue, the
+// next one, ignored types dimmed, the basher's state in the header. Answers
+// room's question room.queue (arg { area }); the basher notifies loom when
+// its queue or state changes, so Here redraws as mobs come and go.
+L.addLink({
+  id: "basher-room", src: "basher", dst: "room", issue: 163,
+  desc: "Here shows the basher's kill order and state",
+  answers: {
+    "room.queue": function () { var b = client.loom.basher; return b && b.look && b.look.queue ? b.look.queue() : undefined; }
+  }
+});

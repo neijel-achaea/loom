@@ -24,6 +24,7 @@ if (bsM === "Char.Vitals" && bsA) {
   // Rooms, for wimpy's way back: the room before this one, and this room's
   // exits ({ n: 1234, ... }). The item list is left alone (see below).
   var bsNum = String(bsA.num);
+  if (bsA.area !== undefined && String(bsA.area) !== B.area) { B.area = String(bsA.area); B.autoTop = ""; B.draw(); }
   if (bsNum !== B.roomNum) { B.prevNum = B.roomNum; B.roomNum = bsNum; }
   B.exits = bsA.exits || {};
 } else if (/^Char\.Items\.(List|Add|Remove|Update)$/.test(bsM) && bsA && bsA.location === "room") {
@@ -38,6 +39,7 @@ if (bsM === "Char.Vitals" && bsA) {
     B.affs = {};
     var bsL = bsA.items || [];
     for (var bsI = 0; bsI < bsL.length; bsI++) { B.room[String(bsL[bsI].id)] = bsIt(bsL[bsI]); B.order.push(String(bsL[bsI].id)); }
+    B.autoTop = "";
   } else if (bsM === "Char.Items.Remove" && bsA.item !== undefined) {
     var bsRid = String(typeof bsA.item === "object" ? bsA.item.id : bsA.item);
     var bsGone = B.room[bsRid];
@@ -57,10 +59,14 @@ if (bsM === "Char.Vitals" && bsA) {
     if (!B.room[bsId]) B.order.push(bsId);
     B.room[bsId] = bsIt(bsA.item);
   }
+  // Mobs came, went or changed: learn new types (#123), redraw the queue.
+  B.learn();
+  B.draw();
 } else if (bsM === "IRE.Target.Set") {
   // The game's target as typed or an id, maybe quoted; empty means none.
   var bsTs = String(bsA === null || bsA === undefined ? "" : (typeof bsA === "object" ? (bsA.target || bsA.id || "") : bsA)).replace(/^"|"$/g, "").trim();
   B.game = { id: bsTs, name: "", at: Date.now() };
+  B.draw();
 } else if (bsM === "IRE.Target.Info" && bsA && bsA.id !== undefined) {
   // Later updates for the same target carry only its health: keep its time.
   var bsTi = String(bsA.id || "");

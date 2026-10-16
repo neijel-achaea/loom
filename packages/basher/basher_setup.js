@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.3.1", keyword: "BASHER", desc: "{{description}}" };
+client.loom.registry.basher = { version: "0.4.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -46,6 +46,17 @@ B.sentAt = B.sentAt || 0;          // when the last attack went out (0: none pen
 B.misses = B.misses || 0;          // attacks sent without balance or equilibrium going
 B.fleeing = B.fleeing || null;     // { dir, from, at, sentAt, why } while fleeing
 B.lastFight = B.lastFight || null; // { why, id }: finish this mob, nothing after it (#122)
+
+// Priority lists per area (#123, Ricardo): { "Green Lake": [{ name, on, isNew }] },
+// in kill order. Every mob type met in an area joins its list ignored (on:
+// false, isNew) until you turn it active in the Basher tab. Saved in
+// basher_priorities; the area comes from Room.Info.
+if (!B.prios) {
+  try { B.prios = JSON.parse(get_variable("basher_priorities") || "{}") || {}; } catch (e) { B.prios = {}; }
+}
+if (B.area === undefined) B.area = "";
+B.autoTop = B.autoTop || "";       // the queue's top when the basher last set your target
+B.gagUntil = B.gagUntil || 0;      // hide the game's "Your target is now" for the basher's own settarget
 // Rooms from Room.Info, for the way back: this room's number and exits, and
 // the room before it.
 if (B.roomNum === undefined) { B.roomNum = ""; B.prevNum = ""; B.exits = {}; }
@@ -244,7 +255,7 @@ B.rageTick = function () {
 // #123). An id is found by id; a word is the first living mob whose name has
 // it as a whole word. Never a player: a word that is a player's name here
 // counts as no target, so the basher can't attack a person.
-B.target = function () {
+B.resolve = function () {
   var tv = String(get_variable("tar") || "").trim();
   if (tv !== B.tarSeen) { B.tarSeen = tv; B.tarAt = Date.now(); }
   var g = B.game;
@@ -281,6 +292,159 @@ B.target = function () {
     if (oit && mob(oit) && re.test(String(oit.name).toLowerCase())) return { tar: tar, id: B.order[oi], name: oit.name, why: "" };
   }
   return { tar: tar, why: "no " + tar + " here" };
+};
+
+// The target, with priorities (#123): your target while it's a living mob
+// here; in a run, once it's gone (dead, left, or the game cleared the target
+// after the kill), the next one: by the area's list when it has active mobs
+// (the basher sets your target to it), else the next mob with the same name
+// (0.1's carry-on). A finished last fight (#122) never chains.
+B.target = function () {
+  var r = B.resolve();
+  if (!r.why || !B.run || B.lastFight || !B.roomKnown) return r;
+  if (B.hasList()) {
+    var q = B.queue();
+    if (q.length) {
+      if (B.autoTop !== q[0].id || String((B.game || {}).id) !== q[0].id) B.setTarget(q[0].id);
+      return { tar: q[0].id, id: q[0].id, name: q[0].name, why: "" };
+    }
+    return { tar: r.tar, why: "no more listed mobs here" };
+  }
+  if (B.runName) {
+    for (var i = 0; i < B.order.length; i++) {
+      var it = B.room[B.order[i]];
+      if (it && /m/.test(it.attrib || "") && !/d/.test(it.attrib || "") && it.name === B.runName) return { tar: B.order[i], id: B.order[i], name: it.name, why: "" };
+    }
+    return { tar: r.tar, why: "no more " + B.runName.replace(/^(a|an|the|some)\s+/i, "") + " here" };
+  }
+  return r;
+};
+
+// --- Priority lists (#123) ---------------------------------------------------
+B.list = function (area) {
+  var a = area === undefined ? B.area : area;
+  if (!a) return [];
+  if (!B.prios[a]) B.prios[a] = [];
+  return B.prios[a];
+};
+B.savePrios = function () { try { set_variable("basher_priorities", JSON.stringify(B.prios)); } catch (e) {} };
+B.living = function (it) { return !!it && /m/.test(it.attrib || "") && !/d/.test(it.attrib || ""); };
+// Whether this area's list has an active mob: then targeting follows it.
+B.hasList = function () {
+  var l = B.list();
+  for (var i = 0; i < l.length; i++) if (l[i].on) return true;
+  return false;
+};
+// New mob types here join the list, ignored. True when one was added.
+B.learn = function () {
+  if (!B.area || !B.roomKnown) return false;
+  var l = B.list(), known = {}, added = false;
+  for (var i = 0; i < l.length; i++) known[l[i].name] = true;
+  for (var j = 0; j < B.order.length; j++) {
+    var it = B.room[B.order[j]];
+    if (B.living(it) && !known[it.name]) { l.push({ name: it.name, on: false, isNew: true }); known[it.name] = true; added = true; }
+  }
+  if (added) B.savePrios();
+  return added;
+};
+// The kill queue here: living mobs of active types, by the list's order,
+// then the room's own order. [{ id, name, rank }] (rank from 1).
+B.queue = function () {
+  var l = B.list(), pos = {}, n = 0;
+  for (var i = 0; i < l.length; i++) if (l[i].on) pos[l[i].name] = n++;
+  var q = [];
+  for (var j = 0; j < B.order.length; j++) {
+    var it = B.room[B.order[j]];
+    if (B.living(it) && pos[it.name] !== undefined) q.push({ id: B.order[j], name: it.name, p: pos[it.name], o: j });
+  }
+  q.sort(function (a, b) { return a.p - b.p || a.o - b.o; });
+  for (var k = 0; k < q.length; k++) q[k].rank = k + 1;
+  return q;
+};
+// Edits from the Basher tab: "up"/"down" among the active ones, "toggle"
+// (turning one active puts it at the end of the kill order). By index into
+// the area's list.
+B.prio = function (act, i) {
+  var l = B.list();
+  var e = l[i];
+  if (!e) return;
+  e.isNew = false;
+  if (act === "toggle") {
+    l.splice(i, 1);
+    e.on = !e.on;
+    if (e.on) {
+      var last = -1;
+      for (var a = 0; a < l.length; a++) if (l[a].on) last = a;
+      l.splice(last + 1, 0, e);
+    } else l.push(e);
+  } else if (act === "up" || act === "down") {
+    if (!e.on) return;
+    var step = act === "up" ? -1 : 1, j = i + step;
+    while (j >= 0 && j < l.length && !l[j].on) j += step;
+    if (j < 0 || j >= l.length) return;
+    l[i] = l[j]; l[j] = e;
+  }
+  B.savePrios();
+  B.autoTop = "";
+  B.draw();
+};
+
+// Set your target in the game (Ricardo: option a, as the Tab key does), the
+// game's "Your target is now" line hidden for this one. Remembered at once,
+// before the game's IRE.Target.Set comes back.
+B.setTarget = function (id) {
+  B.autoTop = String(id);
+  B.gagUntil = Date.now() + 2000;
+  B.game = { id: String(id), name: (B.room[id] || {}).name || "", at: Date.now() };
+  send_command("settarget " + id, 1);
+  B.draw();
+};
+
+// While primed: keep your target on the top of the queue, but only when the
+// top changes (a mob arrives, dies or leaves, or the list is edited), so a
+// target you pick yourself stays until then. Never attacks.
+B.autoTarget = function () {
+  if (!B.on || B.run || B.fleeing || !B.roomKnown || !B.hasList() || get_variable("pauseTriggers") == "on") return;
+  var q = B.queue();
+  var top = q.length ? q[0].id : "";
+  if (top === B.autoTop) return;
+  B.autoTop = top;
+  if (top && String((B.game || {}).id) !== top) B.setTarget(top);
+  else B.draw();
+};
+
+// Redraw the Basher tab and tell loom (Here shows the queue), soon and once.
+B.draw = function () {
+  if (B.drawT) return;
+  B.drawT = setTimeout(function () {
+    var b = client.loom.basher;
+    b.drawT = null;
+    try { run_function("basher_render", [], "basher"); } catch (e) {}
+    if (client.loom.notify) client.loom.notify("basher");
+  }, 60);
+};
+
+// Clicks in the Basher tab (the page shares window with package scripts but
+// can't reach client.*): window.loomBasher.act("up"|"down"|"toggle", i).
+try {
+  window.loomBasher = { act: function (act, i) { client.loom.basher.prio(String(act), Number(i)); } };
+} catch (e) {}
+
+// What other packages may read (through loom's links): the queue for Here.
+B.look = {
+  queue: function () {
+    var b = client.loom.basher;
+    var q = b.queue();
+    var order = {};
+    for (var i = 0; i < q.length; i++) order[q[i].id] = q[i].rank;
+    // resolve(), not target(): reading the queue must never set a target.
+    var tid = String((b.resolve() || {}).id || "");
+    var next = "";
+    for (var k = 0; k < q.length; k++) { if (q[k].id !== tid) { next = q[k].id; break; } }
+    var on = {}, l = b.list();
+    for (var j = 0; j < l.length; j++) on[l[j].name] = l[j].on;
+    return { state: !b.on ? "" : (b.fleeing ? "FLEEING" : (b.run ? "RUNNING" : "PRIMED")), listed: b.hasList(), order: order, target: tid, next: next, active: on };
+  }
 };
 
 // The target's name, lowercase, for the shield lines: from the room list, else
@@ -351,7 +515,7 @@ B.tick = function () {
     if (get_variable("debug") == "on") display_notice("[debug][basher] diagnose", "cyan");
   }
   if (B.fleeing) { B.fleeTick(); return; }
-  if (!B.run) return;
+  if (!B.run) { B.autoTarget(); return; }
   // Wimpy: health or mana too low, leave the room (before anything else).
   var wimp = B.wimpy();
   if (wimp) { B.flee(wimp); return; }
@@ -478,7 +642,7 @@ B.arrived = function (name) {
 };
 
 B.end = function (why) {
-  B.run = false; B.sentAt = 0; B.misses = 0; B.why = ""; B.lastFight = null;
+  B.run = false; B.sentAt = 0; B.misses = 0; B.why = ""; B.lastFight = null; B.autoTop = ""; B.draw();
   display_notice("[basher] " + why + ": run over, still primed. Attack something to start again.", "cyan");
 };
 
@@ -491,6 +655,7 @@ B.begin = function () {
   B.run = true;
   B.runName = "";
   B.lastFight = null;
+  B.draw();
   B.sentAt = 0; B.misses = 0;
   B.bal = false; B.eq = false;
   var m = B.main();
@@ -509,7 +674,7 @@ B.isAttack = function (line) {
 
 // BASHER ON: primed, not attacking yet.
 B.start = function () {
-  B.on = true; B.run = false;
+  B.on = true; B.run = false; B.autoTop = ""; B.draw();
   B.sentAt = 0; B.misses = 0; B.fleeing = null;
   if (B.loop) clearInterval(B.loop);
   B.loop = setInterval(function () { client.loom.basher.tick(); }, B.tickMs);
@@ -518,7 +683,7 @@ B.start = function () {
 // The kill switch: stops at once; nothing it sent is left queued, since it
 // sends on recovery.
 B.stop = function (msg, colour) {
-  B.on = false; B.run = false; B.diag = false; B.rageSent = null; B.fleeing = null; B.lastFight = null;
+  B.on = false; B.run = false; B.diag = false; B.rageSent = null; B.fleeing = null; B.lastFight = null; B.autoTop = ""; B.draw();
   if (B.loop) { clearInterval(B.loop); B.loop = null; }
   B.sentAt = 0; B.misses = 0; B.fleeing = null; B.why = "";
   if (msg) display_notice(msg, colour || "lime");
@@ -527,3 +692,6 @@ B.stop = function (msg, colour) {
 // A reimport keeps a running basher running, with the new helpers.
 if (B.loop) { clearInterval(B.loop); B.loop = null; }
 if (B.on) B.loop = setInterval(function () { client.loom.basher.tick(); }, B.tickMs);
+
+// The tab (and Here, through loom) drawn once on load.
+B.draw();
