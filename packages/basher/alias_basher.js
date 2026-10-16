@@ -17,6 +17,9 @@ if (bsSub === "" || bsSub === "status") {
     B.start();
     display_notice("[basher] primed: attack something to start. It then keeps attacking your target with " + B.main().name.toUpperCase()
       + " on each recovery until the room runs out of it; BASHER STOP stops it.", "lime");
+    // #120 (Ricardo): no check of the player's curing, which may be the
+    // game's or their own client-side system; just a reminder on each ON.
+    display_notice("[basher] reminder: Loom has no client-side curing. Turn on the game's server-side curing (CURING ON), or use your own curing system.", "cyan");
   }
 } else if (bsSub === "off" || bsSub === "stop") {
   var bsWas = B.on;

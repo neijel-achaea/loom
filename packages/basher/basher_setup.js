@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.1.0", keyword: "BASHER", desc: "{{description}}" };
+client.loom.registry.basher = { version: "0.1.1", keyword: "BASHER", desc: "{{description}}" };
 var B = client.loom.basher;
 
 // Health threshold: attacks hold below it and resume 10 points above it.
