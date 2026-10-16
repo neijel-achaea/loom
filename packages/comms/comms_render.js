@@ -44,6 +44,9 @@ function ago(t) {
 // group from social (#160), when the link is on; otherwise nothing.
 var LL = client.loom.loom;
 function ask(q, n) { return (LL && LL.answer) ? LL.answer("comms", q, n) : undefined; }
+// The newbie leaf (#242, from room through loom): a small green leaf after
+// the name of someone last seen with a newbie title; the title on hover.
+function leaf(title) { return '<span title="newbie (' + esc(title) + ')" style="margin-left:4px;cursor:default;"><svg width="10" height="10" viewBox="0 0 10 10" style="vertical-align:-1px;" xmlns="http://www.w3.org/2000/svg"><path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/></svg></span>'; }
 // What to say on hover about a person: your standing with them (#161, from
 // standings: icon, band, score); "" when nothing is known. Not "t Name" (the
 // click is clear) nor the social group (the colour shows it): Ricardo, so
@@ -68,7 +71,7 @@ function body(l) {
       var wCol = ask("person.colour", who);
       var wAbout = about(who);
       out += '<span' + st + '>' + esc(tx.slice(0, m.index)) +
-        '<span class="loom-cm-who"' + (wAbout ? ' title="' + esc(wAbout) + '"' : '') + (wCol ? ' style="color:' + esc(wCol) + ';"' : '') + ' onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' +
+        '<span class="loom-cm-who"' + (wAbout ? ' title="' + esc(wAbout) + '"' : '') + (wCol ? ' style="color:' + esc(wCol) + ';"' : '') + ' onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' + (ask("person.newbie", who) ? leaf(ask("person.newbie", who)) : '') +
         esc(tx.slice(m.index + who.length)) + '</span>';
       whoRe = null;
     } else {
@@ -132,7 +135,7 @@ if (C.view.indexOf("tell:") === 0) {
   var hw = C.convs[C.view.slice(5)];
   var hwCol = ask("person.colour", hw.name);
   var hwAbout = about(hw.name);
-  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span' + (hwAbout ? ' title="' + esc(hwAbout) + '"' : '') + ' style="font-family:' + SANS + ';font-size:13px;color:' + esc(hwCol || ACC) + ';">&middot; ' + esc(hw.name) + '</span>' +
+  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span' + (hwAbout ? ' title="' + esc(hwAbout) + '"' : '') + ' style="font-family:' + SANS + ';font-size:13px;color:' + esc(hwCol || ACC) + ';">&middot; ' + esc(hw.name) + (ask("person.newbie", hw.name) ? leaf(ask("person.newbie", hw.name)) : '') + '</span>' +
     ' <span class="loom-cm-who" onclick="window.loomComms&&window.loomComms.tell(\'' + hw.name.replace(/[^A-Za-z]/g, "") + '\')" style="color:' + MUTED + ';">(reply)</span></div>';
 }
 html += '<div style="border-bottom:1px solid ' + RULE + ';"></div></div><div style="padding-top:4px;">';
@@ -155,7 +158,7 @@ if (C.view === "tells") {
     // still says what's new); otherwise accent when unread, as before.
     var ccCol = ask("person.colour", cc.name);
     var ccAbout = about(cc.name);
-    html += '<span' + (ccAbout ? ' title="' + esc(ccAbout) + '"' : '') + ' style="flex:none;width:7em;font-family:' + SANS + ';font-size:13px;color:' + esc(ccCol || (cc.unread ? ACC : TXT)) + ';">' + esc(cc.name) + badge(cc.unread) + '</span>';
+    html += '<span' + (ccAbout ? ' title="' + esc(ccAbout) + '"' : '') + ' style="flex:none;width:7em;font-family:' + SANS + ';font-size:13px;color:' + esc(ccCol || (cc.unread ? ACC : TXT)) + ';">' + esc(cc.name) + (ask("person.newbie", cc.name) ? leaf(ask("person.newbie", cc.name)) : '') + badge(cc.unread) + '</span>';
     html += '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SANS + ';font-size:12px;color:' + MUTED + ';">' + esc(prev) + '</span>';
     html += '<span style="flex:none;color:' + DIM + ';">' + (cc.last ? ago(cc.last) : '') + '</span></div>';
   }

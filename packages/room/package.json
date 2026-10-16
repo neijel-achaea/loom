@@ -47,6 +47,38 @@
     },
     {
       "type": "trigger",
+      "name": "room cwho header",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_cwho_header.js"
+        }
+      ],
+      "text": "^Citizen\\s+Rank\\s+CT\\s+Class\\s*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "room cwho row",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_cwho_row.js"
+        }
+      ],
+      "text": "^(\\*?[A-Z].*?)\\s+\\d+\\s+(?:On|Off)\\s+[A-Z][A-Za-z ]+$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "room player arrives",
       "enabled": true,
       "actions": [

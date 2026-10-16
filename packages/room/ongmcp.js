@@ -16,9 +16,12 @@ if (rmMine) {
     R.info = rmA;
   } else if (rmM === "Room.Players" && rmA && rmA.length !== undefined) {
     R.players = {};
-    for (var rmI = 0; rmI < rmA.length; rmI++) { if (rmA[rmI] && rmA[rmI].name) R.players[rmA[rmI].name] = rmA[rmI].fullname || rmA[rmI].name; }
+    var rmNew = false;
+    for (var rmI = 0; rmI < rmA.length; rmI++) { if (rmA[rmI] && rmA[rmI].name) { R.players[rmA[rmI].name] = rmA[rmI].fullname || rmA[rmI].name; if (R.seen(rmA[rmI].name, rmA[rmI].fullname)) rmNew = true; } }
+    if (rmNew) { R.saveNewbies(); if (client.loom.notify) client.loom.notify("room"); }
   } else if (rmM === "Room.AddPlayer" && rmA && rmA.name) {
     R.players[rmA.name] = rmA.fullname || rmA.name;
+    if (R.seen(rmA.name, rmA.fullname)) { R.saveNewbies(); if (client.loom.notify) client.loom.notify("room"); }
   } else if (rmM === "Room.RemovePlayer" && rmA) {
     delete R.players[typeof rmA === "string" ? rmA : rmA.name];
   } else if (rmM === "Char.Items.List") {
