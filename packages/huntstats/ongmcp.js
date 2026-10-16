@@ -50,6 +50,9 @@ if (hsM === "Char.Status" && hsA && hsA.level !== undefined) {
 }
 
 if (hsM === "Char.Vitals" && hsA) {
+  // Max health, for HUNTSTATS TANK's colours (#59).
+  var hsMx = parseInt(hsA.maxhp, 10);
+  if (!isNaN(hsMx) && hsMx > 0) HS.maxhp = hsMx;
   var hsP = null;
   if (hsA.charstats) {
     for (var hsI = 0; hsI < hsA.charstats.length; hsI++) {

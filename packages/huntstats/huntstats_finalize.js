@@ -22,6 +22,12 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   var rec = { area: T.area, xp: T.xp, gold: T.gold, kills: T.kills || 0, ms: ms,
               xpHr: xpHr, goldHr: goldHr, dGain: dGain, players: players, at: Date.now() };
 
+  // Damage taken over the hunt, from dmgchart through loom (#59). Without
+  // it (link off, a reload mid-hunt) the hunt is filed without figures
+  // rather than wrong ones.
+  var dmg = HS.damage(T.firstXpAt);
+  if (dmg && dmg.combatMs >= 1000) { rec.dmgIn = dmg.dmg; rec.combatMs = dmg.combatMs; rec.maxHit = dmg.maxHit; }
+
   var log = [];
   try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }
   log.unshift(rec);
@@ -32,12 +38,19 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
   var a = areas[rec.area] || { xp: 0, gold: 0, kills: 0, ms: 0, sessions: 0 };
   a.xp += rec.xp; a.gold += rec.gold; a.kills += rec.kills; a.ms += rec.ms; a.sessions += 1;
+  if (rec.combatMs) {
+    // Per area: damage over combat time, summed over the hunts that have it.
+    a.dmgIn = (a.dmgIn || 0) + rec.dmgIn;
+    a.combatMs = (a.combatMs || 0) + rec.combatMs;
+    if (rec.maxHit > (a.maxHit || 0)) a.maxHit = rec.maxHit;
+  }
   a.last = rec.at; // when you last hunted here, for HUNTSTATS SUGGEST (#88)
   areas[rec.area] = a;
   set_variable("huntstats_areas", JSON.stringify(areas));
 
+  var dps = rec.combatMs ? HS.rate(rec.dmgIn, rec.combatMs) : null;
   var extra = (dGain !== null) ? (", " + (dGain < 0 ? "" : "+") + dGain.toFixed(3) + "% dragon") : "";
-  display_notice("[huntstats] " + rec.area + ": " + rec.xp.toLocaleString() + " xp (" + xpHr.toLocaleString() + "/hr), " + rec.gold.toLocaleString() + " gold, " + rec.kills + " kills, " + HS.dur(ms) + extra, "lime");
+  display_notice("[huntstats] " + rec.area + ": " + rec.xp.toLocaleString() + " xp (" + xpHr.toLocaleString() + "/hr), " + rec.gold.toLocaleString() + " gold, " + rec.kills + " kills, " + HS.dur(ms) + extra + (dps !== null ? ", took " + Math.round(dps).toLocaleString() + "/s (max hit " + rec.maxHit.toLocaleString() + ")" : ""), "lime");
   // The party's gold split (#89), and to party tell with SPLIT TELL ON.
   var spl = HS.split();
   if (spl) {

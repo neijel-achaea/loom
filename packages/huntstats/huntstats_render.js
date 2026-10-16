@@ -35,6 +35,16 @@ function box(inner, c) { return '<div style="flex:1 1 150px;min-width:150px;bord
 function section(title, inner) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title, MOSS) + inner + '</div>'; }
 function quiet(t) { return '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">' + t + '</div>'; }
 function byTime(x, y) { return y.ms - x.ms; }
+// Damage taken (#59): per combat second and the biggest hit, coloured
+// against HUNTSTATS TANK when max health is known; the hover says why.
+var HSr = client.loom.huntstats;
+function dmgTxt(dmg, combatMs, maxHit) {
+  var dps = HSr.rate(dmg, combatMs);
+  if (dps === null) return null;
+  var tone = HSr.tankTone(dps);
+  var tip = tone ? ' title="' + thou(dps) + '/s taken in combat, ' + tone.word + ' (tank ' + HSr.tank + '% = ' + thou(tone.cap) + '/s)"' : ' title="damage taken per second of combat"';
+  return '<span style="color:' + (tone ? tone.colour : TXT) + ';"' + tip + '>' + thou(dps) + '/s</span> <span style="color:' + MUTED + ';">&middot; max ' + thou(maxHit) + '</span>';
+}
 
 // Dragonhood, when the level is known this connection and you aren't a dragon yet.
 var dh = null;
@@ -52,7 +62,7 @@ for (var k in areas) {
   if (areas.hasOwnProperty(k)) {
     var a = areas[k];
     var hrs = a.ms / 3600000;
-    arr.push({ area: k, xpHr: hrs > 0 ? Math.round(a.xp / hrs) : 0, goldHr: hrs > 0 ? Math.round(a.gold / hrs) : 0, sessions: a.sessions, ms: a.ms });
+    arr.push({ area: k, xpHr: hrs > 0 ? Math.round(a.xp / hrs) : 0, goldHr: hrs > 0 ? Math.round(a.gold / hrs) : 0, sessions: a.sessions, ms: a.ms, dmg: dmgTxt(a.dmgIn, a.combatMs, a.maxHit || 0) });
     lt.xp += a.xp || 0; lt.gold += a.gold || 0; lt.kills += a.kills || 0; lt.ms += a.ms || 0; lt.sessions += a.sessions || 0;
   }
 }
@@ -92,6 +102,9 @@ if (live) {
   cb += row("experience", thou(C.xp));
   cb += row("gold", thou(C.gold || 0) + ' <span style="color:' + MUTED + ';">(' + thou((C.gold || 0) / cH) + '/hr)</span>', GOLD);
   cb += row("kills", String(C.kills || 0) + ' <span style="color:' + MUTED + ';">(' + Math.round((C.kills || 0) / cH) + '/hr)</span>');
+  var cD = HSr.damage(C.firstXpAt);
+  var cDt = cD ? dmgTxt(cD.dmg, cD.combatMs, cD.maxHit) : null;
+  if (cDt) cb += row("taken", cDt);
   var cP = [];
   for (var cK in (C.players || {})) { if (C.players.hasOwnProperty(cK)) cP.push(cK); }
   cb += row("party", cP.length ? esc(cP.join(", ")) : "alone");
@@ -115,6 +128,8 @@ if (log.length === 0) {
   lb += row("experience", thou(L.xp));
   lb += row("gold", thou(L.gold) + ' <span style="color:' + MUTED + ';">(' + thou(L.goldHr) + '/hr)</span>', GOLD);
   lb += row("kills", String(L.kills) + (L.ms > 0 ? ' <span style="color:' + MUTED + ';">(' + Math.round(L.kills / (L.ms / 3600000)) + '/hr)</span>' : ''));
+  var lDt = L.combatMs ? dmgTxt(L.dmgIn, L.combatMs, L.maxHit) : null;
+  if (lDt) lb += row("taken", lDt);
   if (L.dGain !== null && L.dGain !== undefined && L.dGain !== 0) { lb += row("dragonhood", '+' + L.dGain.toFixed(3) + '%', DRAGON); }
   cols += box(lb, MOSS);
   cols += lifeBox();
@@ -152,7 +167,7 @@ if (arr.length === 0) {
     ar += '<div style="display:flex;justify-content:space-between;gap:6px;"><span style="color:' + TXT + ';">' + esc(r.area) + (top ? ' <span style="color:' + MOSS + ';" title="best xp/hr">&#9733;</span>' : '') + '</span>';
     ar += '<span style="color:' + MOSS + ';white-space:nowrap;">' + thou(r.xpHr) + ' <span style="color:' + MUTED + ';">xp/hr</span></span></div>';
     ar += '<div style="background:' + TRACK + ';height:5px;margin:2px 0 1px;"><div style="background:' + (top ? MOSS : DEEP) + ';height:5px;width:' + pct + '%;"></div></div>';
-    ar += '<div style="color:' + MUTED + ';"><span style="color:' + GOLD + ';">' + thou(r.goldHr) + '</span> gold/hr &middot; ' + r.sessions + ' hunt' + (r.sessions === 1 ? '' : 's') + ' &middot; ' + fmtDur(r.ms) + '</div>';
+    ar += '<div style="color:' + MUTED + ';"><span style="color:' + GOLD + ';">' + thou(r.goldHr) + '</span> gold/hr &middot; ' + r.sessions + ' hunt' + (r.sessions === 1 ? '' : 's') + ' &middot; ' + fmtDur(r.ms) + '</div>' + (r.dmg ? '<div style="color:' + MUTED + ';">takes ' + r.dmg + '</div>' : '');
     ar += '</div>';
   }
 }

@@ -17,16 +17,43 @@ if (hsSub === "" || hsSub === "status") {
   for (var k in areas) {
     if (areas.hasOwnProperty(k)) {
       var a = areas[k]; var hrs = a.ms / 3600000;
-      arr.push({ area: k, xpHr: hrs > 0 ? Math.round(a.xp / hrs) : 0, goldHr: hrs > 0 ? Math.round(a.gold / hrs) : 0, sessions: a.sessions, ms: a.ms });
+      arr.push({ area: k, xpHr: hrs > 0 ? Math.round(a.xp / hrs) : 0, goldHr: hrs > 0 ? Math.round(a.gold / hrs) : 0, sessions: a.sessions, ms: a.ms, dps: HS.rate(a.dmgIn, a.combatMs), maxHit: a.maxHit || 0 });
     }
   }
   if (arr.length === 0) { hsSay("no area history yet", "cyan"); }
   else {
     arr.sort(function (x, y) { return y.ms - x.ms; });
     hsSay("areas by total time (lifetime):", "cyan");
+    // Damage taken per combat second and the biggest hit (#59), coloured
+    // against HUNTSTATS TANK when the page can print coloured lines and
+    // your max health is known.
+    var arHtml = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
+    function arEsc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
     for (var j = 0; j < arr.length; j++) {
       var r = arr[j];
-      display_notice("  " + r.area + " - " + r.xpHr.toLocaleString() + " xp/hr, " + r.goldHr.toLocaleString() + " gold/hr (" + r.sessions + " hunt" + (r.sessions === 1 ? "" : "s") + ", " + HS.dur(r.ms) + ")");
+      var arLine = "  " + r.area + " - " + r.xpHr.toLocaleString() + " xp/hr, " + r.goldHr.toLocaleString() + " gold/hr (" + r.sessions + " hunt" + (r.sessions === 1 ? "" : "s") + ", " + HS.dur(r.ms) + ")";
+      var arDmg = r.dps !== null ? "takes " + Math.round(r.dps).toLocaleString() + "/s, max hit " + r.maxHit.toLocaleString() : "";
+      var arTone = HS.tankTone(r.dps);
+      if (arHtml && arDmg) nexusclient.add_html_line('<span style="color:#c0c0c0">' + arEsc(arLine) + ', </span><span style="color:' + (arTone ? arTone.colour : "#c0c0c0") + '">' + arEsc(arDmg) + '</span>');
+      else display_notice(arLine + (arDmg ? ", " + arDmg : ""));
+    }
+  }
+} else if (hsSub === "tank") {
+  // HUNTSTATS TANK [percent] (#59): how much of your max health per second
+  // you can heal back. Areas that hit harder than half of it show yellow,
+  // harder than all of it red.
+  var tkCap = function () { return HS.maxhp ? " (" + Math.round(HS.tank / 100 * HS.maxhp).toLocaleString() + " health/s at your " + HS.maxhp.toLocaleString() + " max health)" : ""; };
+  if (hsP1 === "") {
+    hsSay("tank: " + HS.tank + "% of max health a second" + tkCap() + ". Areas that hit for under half of it show green, up to it yellow, more red. HUNTSTATS TANK <percent> to change it.", "cyan");
+  } else {
+    var tkV = parseFloat(hsP1);
+    if (isNaN(tkV) || tkV <= 0 || tkV > 100) {
+      hsSay("usage: HUNTSTATS TANK <percent>, the share of your max health you can heal back each second (default 3).", "orange");
+    } else {
+      HS.tank = tkV;
+      set_variable("huntstats_tank", String(tkV));
+      hsSay("tank set: " + tkV + "% of max health a second" + tkCap() + ".", "lime");
+      run_function("huntstats_render", [], "huntstats");
     }
   }
 } else if (hsSub === "suggest") {
@@ -98,7 +125,7 @@ if (hsSub === "" || hsSub === "status") {
       var s = log[i];
       var pl = (s.players && s.players.length) ? ("  party: " + s.players.join(", ")) : "";
       var dg = (s.dGain !== null && s.dGain !== undefined && s.dGain !== 0) ? ("  " + (s.dGain < 0 ? "" : "+") + s.dGain.toFixed(3) + "% dragon") : "";
-      display_notice("  " + s.area + " - " + HS.dur(s.ms) + ", " + s.xp.toLocaleString() + " xp (" + s.xpHr.toLocaleString() + "/hr), " + s.gold.toLocaleString() + " gold, " + s.kills + " kills" + dg + pl);
+      display_notice("  " + s.area + " - " + HS.dur(s.ms) + ", " + s.xp.toLocaleString() + " xp (" + s.xpHr.toLocaleString() + "/hr), " + s.gold.toLocaleString() + " gold, " + s.kills + " kills" + (s.combatMs ? ", took " + Math.round(HS.rate(s.dmgIn, s.combatMs)).toLocaleString() + "/s (max hit " + s.maxHit.toLocaleString() + ")" : "") + dg + pl);
     }
   }
 } else if (hsSub === "flush") {

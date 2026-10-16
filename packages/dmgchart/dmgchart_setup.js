@@ -5,7 +5,7 @@
 // state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "0.3.4", keyword: "DMGCHART", desc: "{{description}}" };
+client.loom.registry.dmgchart = { version: "0.3.5", keyword: "DMGCHART", desc: "{{description}}" };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};
 var DC = client.loom.dmgchart;
 
@@ -69,3 +69,33 @@ if (DC.sess === undefined) {
   try { var dcOpen = get_variable("dmgchart_open"); if (dcOpen && String(dcOpen).length) DC.sess = JSON.parse(dcOpen); } catch (e) { DC.sess = null; }
 }
 if (DC.sessSaved === undefined) DC.sessSaved = 0;
+
+// The rolling record of fights for other packages (#59), in memory only:
+// one segment per fight, as the session counts them (a fight ends after
+// DMGCHART GAP seconds without a hit either way; bleeding is no hit).
+// seg = { start, last, ms (combat time), dmg (incoming), max (biggest
+// incoming hit) }. recFrom is when the record begins: this page load, or
+// the oldest segment kept once the cap trims it, so a question about
+// earlier than that gets no answer rather than a short one.
+if (!DC.rec) { DC.rec = []; DC.recFrom = Date.now(); }
+DC.recCap = 3000;
+
+// The read-only look other packages see through loom: never its variables.
+//   look.since(t) -> { dmg, combatMs, maxHit, fights } for the fights that
+//                    were still going at t or started after it (the fight
+//                    that brought t counts whole), or undefined when the
+//                    record doesn't reach back to t (a reload since).
+DC.look = {
+  since: function (t) {
+    t = Number(t);
+    if (!t || t < DC.recFrom) return undefined;
+    var out = { dmg: 0, combatMs: 0, maxHit: 0, fights: 0 };
+    for (var i = DC.rec.length - 1; i >= 0; i--) {
+      var g = DC.rec[i];
+      if (g.last < t - 2000) break;
+      out.dmg += g.dmg; out.combatMs += g.ms; out.fights++;
+      if (g.max > out.maxHit) out.maxHit = g.max;
+    }
+    return out;
+  }
+};

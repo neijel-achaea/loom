@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.2.10", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.3.0", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -105,6 +105,36 @@ if (!HS.weights) {
   HS.weights = (hsWt.length === 3 && !isNaN(parseFloat(hsWt[0]))) ? [parseFloat(hsWt[0]), parseFloat(hsWt[1]), parseFloat(hsWt[2])] : [70, 25, 5];
 }
 if (HS.splitTell === undefined) HS.splitTell = (String(get_variable("huntstats_splittell") || "") === "on");
+// HUNTSTATS TANK (#59): how much of your max health per second you can heal
+// back, in percent (huntstats_tank, default 3: the health elixir alone gave
+// about 3.6% in Ricardo's measurements). An area's incoming damage per
+// combat second is held against it: green under half, yellow up to it,
+// red above.
+if (HS.tank === undefined) {
+  HS.tank = parseFloat(get_variable("huntstats_tank"));
+  if (isNaN(HS.tank) || HS.tank <= 0) HS.tank = 3;
+}
+// damage(from): what dmgchart saw from the fight that brought the time
+// `from` until now, through loom (link dmgchart-huntstats): { dmg, combatMs,
+// maxHit, fights }, or undefined (link off, dmgchart missing, or a reload
+// since, so the record doesn't reach back that far).
+HS.damage = function (from) {
+  var Lm = client.loom.loom;
+  if (!from || !Lm || typeof Lm.answer !== "function") return undefined;
+  var v = Lm.answer("huntstats", "hunt.damage", { from: from });
+  return (v && typeof v.dmg === "number") ? v : undefined;
+};
+// rate(dmg, combatMs): incoming damage per combat second, or null.
+HS.rate = function (dmg, combatMs) { return (combatMs >= 1000 && dmg >= 0) ? dmg / (combatMs / 1000) : null; };
+// tankTone(dps): { colour, word, cap } against HUNTSTATS TANK and your
+// current max health (GMCP), or null while max health is unknown.
+HS.tankTone = function (dps) {
+  if (dps === null || dps === undefined || !HS.maxhp) return null;
+  var cap = HS.tank / 100 * HS.maxhp;
+  if (dps < cap / 2) return { colour: "#8fd694", word: "under half of what you heal", cap: cap };
+  if (dps <= cap) return { colour: "#e8c65a", word: "up to what you heal", cap: cap };
+  return { colour: "#ff6a5e", word: "more than you heal", cap: cap };
+};
 HS.saveParty = function () { try { set_variable("huntstats_party", JSON.stringify(HS.party)); } catch (e) {} };
 // fresh(): empty accumulators for a new hunt, keeping the area; the party
 // carries over.
