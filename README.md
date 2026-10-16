@@ -39,7 +39,7 @@ their tab its own icon.
 | **room** | Here | A replacement for the stock Room tab, fed only by GMCP: the room's name, area and environment, details, exits and number; the description folded to two lines (click to unfold, or `ROOM DESC OPEN/FOLDED`); the players here (you left off, full title on hover; with **social** installed, in their highlight colours with the group on hover, link `social-room`), mobs (one row each in the room's own order, your target glowing in place so the next row is the next one a name would hit; dead ones greyed) and items (duplicates merged, things you can take stand out). `ROOM`, `ROOM DEBUG`, `ROOM HELP`. Reads nothing from other packages. With **sigils**, monoliths show with ▮, and the header warns of an urban room without one (unless `SIGILS IGNORE`d) or a monolith outside an urban room (link `sigils-room`); with **patrolling**, shrines of friendly and hostile gods are flagged (link `patrolling-room`); with **harvesting**, the environment's plants under the description (link `harvesting-room`). Newbies (Uaithne, Ithin, Tuqad in their title) get a green leaf; room remembers them from rooms and `CWHO` for **social** and **comms** (links `room-social`, `room-comms`). |
 | **roleplay** | — | A large set of custom emotes worded for your class (`custom_emotes` lists them; emotes, rituals and verses are lowercase), step-by-step rituals (including the Saiha `graduation <name> <step>` ceremony), the cairn verses, and ambient emotes (`ROLEPLAY AEM ON/OFF/NOW/RELOAD`), which follow class changes and keep running after a reload. `ROLEPLAY HELP`. The class comes from GMCP. Reads nothing from other packages. |
 | **security** | — | Antitheft (`SECURITY ANTITHEFT ON/OFF`: puts back watched worn items, the backpack and gold taken out of it), `GG`/`PG` to move gold out of and into the backpack, your backpack and watched items as settings (`SECURITY BACKPACK`, `SECURITY ITEM ADD/DEL`, `SECURITY ITEMS`), house state commands (`SECURITY HOUSE IN/OUT`), and give, sell, drop and offer wrappers that lift selfishness around the action (selfishness followed from GMCP). `SECURITY HELP`. Publishes the backpack id at `client.loom.security.backpack`. |
-| **self** | Self | Replacement for the stock character panel (see below). `SELF HELP`. Your name, class and level come from GMCP. Reads nothing from other packages. With **defcon**, it also watches what DEFCON keeps up (link `defcon-self`); with **ledger**, a drop in your explorer rank adds "Explore a new area" (link `self-ledger`). |
+| **self** | Self | Replacement for the stock character panel: name, class and level, character ranks, condition, afflictions (ones kept on purpose hidden with `SELF KEEP`) and defences (watched ones with `SELF WANT`, per class; missing ones marked, stripped ones linger). `SELF HELP`. Your name, class and level come from GMCP. Reads nothing from other packages. With **defcon**, it also watches what DEFCON keeps up (link `defcon-self`); with **ledger**, a drop in your explorer rank adds "Explore a new area" (link `self-ledger`). |
 | **sigils** | — | Monolith and flame sigil watcher for any city: probes the monolith in every room you enter and flags sigils running out; the report lists them with an estimated cost. `SIGILS HELP`. With **ledger**, a sigil patrol due the Achaean day the first flagged monolith runs out (link `sigils-ledger`); with **room**, monoliths and missing ones in Here (link `sigils-room`). |
 | **social** | Online | Name highlighting by group (family, enemies, order, house, city, allies, friends, and your own name), and online/offline notices for the groups you watch. The **Online** tab lists the watched people who are online, one row each, alphabetical, in their group's colour (the group on hover), with how long they've been on; arrivals glow and departures grey out for a few seconds. Below, the watched people who are offline and when they were last seen, folded with a click on its heading or `SOCIAL OFFLINE ON/OFF`. `SOCIAL ADD/DEL <group> <name>`, `LIST`, `COLOR`, `WATCH/UNWATCH`, `POLL ON/OFF/NOW`, `HELP`; your city's enemies list reloads itself from the game's list. Publishes the lists at `client.loom.social` (`groups`, `lists[group]`, `color[group]`), and still at `client.hl` for packages not yet updated. With **standings** installed, each row also shows your standing with that person (band in its colour, an arrow when it moved in the last few days; link `standings-online`). The "has awoken" notice carries your standing's icon too: "Ana ♥ has awoken" (link `standings-login`). `SOCIAL COLOURS GROUPS|STANDINGS` colours names by group or by standing band (link `standings-social`). With **ledger**, a quill on people your open items name (link `ledger-online`); with **room**, a green leaf on newbies (link `room-social`). |
 | **standings** | Standings | Standings with adventurers and organisations, kept per character. `STANDINGS HELP`. Reads **social**'s lists (chips on a person) and **ledger**'s Achaean date if present. Other packages can suggest dealings through loom's integrations (hunting together, gold gifts; marked with their source in the review list); nothing is recorded until `STANDINGS OK` (`STANDINGS SKIP` dismisses). Bands: Nemesis, Hostile, Strained, Neutral, Acquaintance, Friend, Soulmate, each with an icon. |
@@ -69,17 +69,6 @@ Since 0.5, packages installed together feed each other through **integrations** 
 | `dmgchart-huntstats` | Damage taken per combat second and the biggest hit, per hunt and per area |
 | `defcon-self` | The Self tab watches the defences DEFCON keeps up at its level |
 
-### Dependencies between packages
-
-The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a time. What remains:
-
-- **loom** no longer sets shared variables. hunting, defcon and roleplay each keep the class they last saw (seeded once from the old `activeClass`). **harvesting**, **sigils**, **civic**, **hunting** and **defcon** already follow GMCP themselves (hunting and defcon still borrow `activeClass` until the first class message of a session); **civic** checks the enemies list of **social**, and adds new citizens to its city list, only when it's installed.
-- **crystalism**, **vision** and **standings** read the lists of **social** at `client.loom.social`.
-- **patrolling** reads the Achaean date from **ledger** when it logs a replanting, and **standings** when it dates an entry.
-- **hunting** puts autogold into **security**'s backpack when it is set, uses **artificing**'s staff attack for the magi staff key, and shows a Stats key only when **huntstats** is installed.
-- **groves** and **reclamation** read the lists of **social**; both are exported disabled, since they belong to the druid days.
-- Many triggers respect the `pauseTriggers` flag, which **loom** toggles. Packages treat an unset flag as off.
-
 ### Installing a package
 
 1. Import `dist/<package>.nxs` in Nexus (Settings → Reflexes → Import).
@@ -87,25 +76,6 @@ The v0.2 work (see [ROADMAP.md](ROADMAP.md)) is removing these one package at a 
 3. Reload the page.
 
 Data (gold history, ledger items, standings, …) lives in Nexus variables, not in the package, so reimporting a newer version keeps it.
-
-### Self
-
-A replacement for the stock character panel: name, race, class and level in the title, then
-
-- **Character**: age, XP rank (with its change since the page loaded), explorer rank, city and house rank, soldier, and rest, hunger and sobriety, colour-coded.
-- **Condition**: bleeding (red from 50), rage (yellow from 14, green from 36), channels, resistances.
-- **Afflictions**: unwanted afflictions as red chips in a fixed row; a yellow **diag** chip when a venom's effects are unknown.
-- **Defences**: what's up; watched defences green when up and red under "missing" when not; stripped ones linger for two minutes. With **defcon** installed, the title names your DEFCON level and the defences it keeps up are watched too, missing ones in amber (your own `SELF WANT`s stay red and still announce a loss).
-
-After importing: `DEF`, `DIAG` and `SCORE` once.
-
-| Command | |
-|---|---|
-| `SELF` | Name, class, afflictions, and watched defences that are missing. `SELF HELP` for the commands. |
-| `SELF WANT <def> [...]` / `SELF UNWANT <def> [...]` | Watch defences. Each class keeps its own list, dragonform included. |
-| `SELF WANTS` | List watched defences for the current class. |
-| `SELF KEEP <aff> [...]` / `SELF UNKEEP <aff> [...]` | Hide afflictions kept on purpose (deafness, blindness, insomnia by default). `SELF KEEPS` lists them. |
-| `SELF NAME [<name>\|CLEAR]` | Show another name in the title; by default it's the game's. |
 
 ## Working on the packages
 
