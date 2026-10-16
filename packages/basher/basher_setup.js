@@ -13,12 +13,13 @@ client.loom.registry.basher = { version: "0.3.0", keyword: "BASHER", desc: "{{de
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
-// when health or mana falls below these percents ("0" = off), then stay
+// when health or mana falls below these percents (Ricardo: 40 and 20 by
+// default; "0" = off), then stay
 // primed. It replaces 0.1's hold below a health threshold (basher_health,
 // no longer read). BASHER WIMPY DIR is the way out when the way back isn't
 // known.
-if (!get_variable("basher_flee_health")) set_variable("basher_flee_health", "30");
-if (!get_variable("basher_flee_mana")) set_variable("basher_flee_mana", "0");
+if (!get_variable("basher_flee_health")) set_variable("basher_flee_health", "40");
+if (!get_variable("basher_flee_mana")) set_variable("basher_flee_mana", "20");
 
 // Runtime state, kept across a reimport. ON is never remembered across a load:
 // the basher always starts OFF.

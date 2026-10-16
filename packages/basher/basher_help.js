@@ -8,7 +8,7 @@ var hlRows = [
   ["BASHER ON", "prime it: your next attack starts a run of hunting's main attack on tar"],
   ["BASHER STOP", "stop at once and stand down (the kill switch); BASHER OFF does the same"],
   ["BASHER WIMPY", "show when it flees"],
-  ["BASHER WIMPY HEALTH|MANA <1-90|OFF>", "during a run, flee below this health or mana (health 30, mana OFF by default)"],
+  ["BASHER WIMPY HEALTH|MANA <1-90|OFF>", "during a run, flee below this health or mana (health 40, mana 20 by default)"],
   ["BASHER WIMPY DIR <direction|OFF>", "where to flee when the way back isn't known"],
   ["BASHER RAGE [ON|OFF]", "battlerage during a run (default ON), in the class's order; no word: show it"],
   ["Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system."],
