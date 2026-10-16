@@ -1,0 +1,67 @@
+{
+  "type": "group",
+  "name": "basher",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "basher_setup",
+      "enabled": true,
+      "code": "@file:basher_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "basher_status",
+      "enabled": true,
+      "code": "@file:basher_status.js"
+    },
+    {
+      "type": "function",
+      "name": "basher_help",
+      "enabled": true,
+      "code": "@file:basher_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_basher.js"
+        }
+      ],
+      "text": "^basher(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ],
+  "description": "Attended autobasher: attacks your target with hunting's main attack"
+}
