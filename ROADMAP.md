@@ -2,6 +2,7 @@
 
 **Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
 **Current release:** Loom 0.6 (Autobasher) · next: Loom 0.7 (Docs & Feedback)
+**Released:** 0.1 (2026-10-07) · 0.2 Standalone (10-09) · 0.3 Multiclass (10-15) · 0.4 Enhancements (10-15) · 0.5 Integrations (10-16) · 0.6 Autobasher (10-16)
 
 See the README for what each package does today.
 
@@ -224,6 +225,12 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 - Consistency sweep (colours, HELP, tabs, wording) and a docs accuracy pass.
 - One end-to-end regression run, built from every PR's in-game checklist, kept for future releases.
 
+## Loom 0.9 — Community Requests
+
+**Goal:** packages and features other players ask for, once they can install Loom and tell us what they need (0.7). New packages land here; their integrations with the rest of the suite follow the 0.5 conventions (a link in loom, off-switchable).
+
+- First request: **gathering** (#232), waiting on the game lines for gathering and storing.
+
 ## Loom 1.0
 
 **Commands and settings are stable.** Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered.
@@ -244,4 +251,4 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 ## Tracking
 
-GitHub issues grouped into milestones Loom 0.2 to Loom 0.8: one issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Player reports carry the `from-users` label.
+GitHub issues grouped into milestones Loom 0.2 to Loom 0.9, then Loom 1.1: one issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Closed milestones: 0.2 to 0.6. Player reports carry the `from-users` label.
