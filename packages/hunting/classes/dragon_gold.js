@@ -21,6 +21,8 @@ HU.classes["Gold Dragon"] = {
   rage: { Overwhelm: 14, Deaden: 24, Psishatter: 17, Psiblast: 36, Psistorm: 25, Psidaze: 31 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Psishatter"],
+  // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
+  razeAttack: "Blast",
   lines: [
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
   ]

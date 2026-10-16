@@ -20,6 +20,8 @@ HU.classes["Silver Dragon"] = {
   rage: { Overwhelm: 14, Sizzle: 25, Splinter: 17, Dragonspark: 36, Stormflare: 25, Galvanize: 18 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Splinter"],
+  // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
+  razeAttack: "Blast",
   lines: [
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
   ]

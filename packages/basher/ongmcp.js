@@ -1,7 +1,7 @@
 // The basher's own view of the room and of you, from GMCP (it reads nothing
 // of room's): balance, equilibrium, health and mana from Char.Vitals; the
 // room and its exits from Room.Info; mobs and items here from Char.Items;
-// players here from Room.Players.
+// players here from Room.Players; a dragon's breath from Char.Defences.
 if (!client.loom || !client.loom.basher) run_function("basher_setup", [], "basher");
 var B = client.loom.basher;
 var bsM = args.gmcp_method;
@@ -19,7 +19,7 @@ if (bsM === "Char.Vitals" && bsA) {
   B.maxmp = to_number(bsA.maxmp);
   // The attack went out: balance or equilibrium is gone. The next recovery
   // may attack again.
-  if (!B.bal || !B.eq) { B.sentAt = 0; B.misses = 0; }
+  if (!B.bal || !B.eq) { B.sentAt = 0; B.misses = 0; B.blasted(); }
 } else if (bsM === "Room.Info" && bsA && bsA.num !== undefined) {
   // Rooms, for wimpy's way back: the room before this one, and this room's
   // exits ({ n: 1234, ... }). The item list is left alone (see below).
@@ -78,10 +78,23 @@ if (bsM === "Char.Vitals" && bsA) {
   B.players[String(bsA.name).toLowerCase()] = true;
   B.arrived(String(bsA.name));
 } else if (bsM === "Comm.Channel.Text" && bsA && bsA.channel) {
-  B.heard(bsA.channel, bsA.talker);
+  B.heard(bsA.channel, bsA.talker, bsA.text);
 } else if ((bsM === "Char.Name" || bsM === "Char.Status") && bsA && bsA.name) {
   var bsMe = String(bsA.name).split(/\s+/)[0];
   if (bsMe && bsMe !== B.me) { B.me = bsMe; set_variable("basher_name", bsMe); }
+} else if (/^Char\.Defences\.(List|Add|Remove)$/.test(bsM) && bsA) {
+  // A dragon's dragonbreath, for Blast on a shield. Remove sends names.
+  // Exactly "dragonbreath" (Ricardo): heldbreath is another defence.
+  var bsBr = function (n) { return String(n || "").toLowerCase() === "dragonbreath"; };
+  if (bsM === "Char.Defences.List") {
+    B.breath = false;
+    for (var bsD = 0; bsD < bsA.length; bsD++) if (bsBr(bsA[bsD].name)) B.breath = true;
+  } else if (bsM === "Char.Defences.Add") {
+    if (bsBr(bsA.name)) B.breath = true;
+  } else {
+    var bsR = [].concat(bsA);
+    for (var bsE = 0; bsE < bsR.length; bsE++) if (bsBr(typeof bsR[bsE] === "object" ? bsR[bsE].name : bsR[bsE])) { B.breath = false; B.blasted(); }
+  }
 } else if (bsM === "Room.RemovePlayer" && bsA !== undefined) {
   delete B.players[String(typeof bsA === "object" ? bsA.name : bsA).toLowerCase()];
 }

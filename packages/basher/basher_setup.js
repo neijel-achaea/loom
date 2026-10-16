@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -82,6 +82,11 @@ if (!get_variable("basher_rage")) set_variable("basher_rage", "on");
 // Raze shielded targets (#125) on by default; BASHER RAZE OFF waits for fades.
 if (!get_variable("basher_raze")) set_variable("basher_raze", "on");
 B.razeAt = B.razeAt || 0;          // when the last raze went out
+// A dragon's dragonbreath defence (Blast uses it): true, false, or null when
+// no defence update has come since loading (breath raised before the import):
+// then Blast is tried once, and a Blast that takes no balance means no breath.
+if (B.breath === undefined) B.breath = null;
+B.blastAt = B.blastAt || 0;        // a Blast went out at a shield, not yet seen to land
 
 // Afflictions on a mob: [pattern (group 1 = the mob), affliction, on?].
 // Add rows as lines are captured; the names are what "when" lists use.
@@ -483,7 +488,7 @@ B.shieldDown = function (name) {
 // --- Raze (#125) --------------------------------------------------------------
 // The class's shieldbreak from hunting (its "razes" with a key, the rage cost
 // from "rage"): { name, cost, cmd }, or null (dragons, Alchemist, Runewarden
-// and Unnamable have no key for theirs yet: they keep waiting for the fade).
+// and Unnamable have no key for theirs yet; dragons Blast instead, below).
 B.razeCmd = function () {
   var hu = B.hunting();
   var e = hu && hu.classes[hu.cls];
@@ -497,6 +502,30 @@ B.razeCmd = function () {
   }
   return null;
 };
+// A balance attack that also breaks a shield (hunting's "razeAttack", by its
+// key's label: every dragon's Blast), used when there's no keyed raze above:
+// { name, cmd }, or null. Blast uses up the dragonbreath defence (Ricardo:
+// brought up as a defence, the basher never summons it), so it waits for one.
+B.razeAttack = function () {
+  var hu = B.hunting();
+  var e = hu && hu.classes[hu.cls];
+  if (!e || !e.razeAttack) return null;
+  var keys = e.keys || [];
+  for (var k = 0; k < keys.length; k++) if (keys[k][0] === e.razeAttack && keys[k][1]) return { name: e.razeAttack, cmd: keys[k][1] };
+  return null;
+};
+// The Blast went out at a shielded target (its breath used, or your balance
+// taken): the shield is down.
+B.blasted = function () {
+  if (!B.blastAt) return;
+  B.blastAt = 0;
+  var tn = B.targetName();
+  if (tn && B.shields[tn]) {
+    delete B.shields[tn];
+    if (B.on && B.run) display_notice("[basher] " + tn + "'s shield blasted: attacking again.", "lime");
+    B.draw();
+  }
+};
 // Whether the run's target is shielded right now.
 B.shieldedTarget = function () {
   var tn = B.targetName();
@@ -506,7 +535,11 @@ B.shieldedTarget = function () {
 B.razeNote = function () {
   if (get_variable("basher_raze") == "off") return " (BASHER RAZE is OFF: waiting for it to fade)";
   var r = B.razeCmd();
-  if (!r) return " (no raze key for this class: waiting for it to fade)";
+  if (!r) {
+    var ra = B.razeAttack();
+    if (!ra) return " (no raze key for this class: waiting for it to fade)";
+    return B.breath !== false ? " (razing with " + ra.name + ")" : " (no dragonbreath for " + ra.name + ": waiting for it to fade)";
+  }
   var rage = to_number((B.hunting() || {}).rage);
   return rage < r.cost ? " (" + r.name + " needs " + r.cost + " rage, you have " + rage + ")" : " (razing with " + r.name + ")";
 };
@@ -604,12 +637,26 @@ B.tick = function () {
   B.why = held || ((!B.bal || !B.eq) ? "waiting for balance and equilibrium" : "");
   // A shielded target (#125, Ricardo: raze only, swapping later): the class's
   // shieldbreak instead of waiting for the shield to fade.
-  if (held && B.shieldedTarget()) { B.razeTick(); return; }
-  if (held) return;
-  B.rageTick();
-  if (B.why) return;
+  // Dragons: Blast on recovery, while dragonbreath is up.
+  var blast = null;
+  if (held && B.shieldedTarget()) {
+    if (B.razeCmd()) { B.razeTick(); return; }
+    blast = B.razeAttack();
+    if (!blast || B.breath === false || get_variable("basher_raze") == "off" || !B.bal || !B.eq) return;
+  } else {
+    if (held) return;
+    B.rageTick();
+    if (B.why) return;
+  }
   var now = Date.now();
   if (B.sentAt && now - B.sentAt < B.retryMs) return;
+  // A Blast tried on unknown breath that took no balance: there's no breath.
+  // Not a miss; it waits for the fade (or for dragonbreath to come up).
+  if (B.sentAt && B.blastAt && B.breath === null) {
+    B.breath = false; B.blastAt = 0; B.sentAt = 0;
+    display_notice("[basher] Blast took no balance: no dragonbreath, waiting for the shield to fade.", "orange");
+    return;
+  }
   if (B.sentAt) {
     B.misses++;
     if (B.misses >= B.maxMisses) {
@@ -617,10 +664,11 @@ B.tick = function () {
       return;
     }
   }
-  var cmds = B.commands(B.target().tar);
+  var cmds = blast ? B.prep(blast.cmd, B.target().tar) : B.commands(B.target().tar);
   if (!cmds.length) return;
   for (var i = 0; i < cmds.length; i++) send_command(cmds[i], 1);
   B.sentAt = now;
+  B.blastAt = blast ? now : 0;
   if (get_variable("debug") == "on") display_notice("[debug][basher] " + cmds.join(" | "), "cyan");
 };
 
@@ -725,15 +773,16 @@ B.arrived = function (name) {
 };
 
 // A line on a channel (onGMCP Comm.Channel.Text): during a run, a tell to you
-// or a line on your city's channel (ct) makes this fight the last (#118,
-// Ricardo: only these for now; says naming you are left out, since denizens
-// call your name mid-fight). Your own lines don't count.
-B.heard = function (channel, talker) {
+// or a line on your city's channel (ct) that names you makes this fight the
+// last (#118, Ricardo: only these for now, and ct only when it mentions you;
+// says naming you are left out, since denizens call your name mid-fight).
+// Your own lines don't count.
+B.heard = function (channel, talker, text) {
   if (!B.on || !B.run || B.lastFight) return;
   var ch = String(channel || "").toLowerCase(), who = String(talker || "");
   if (!who || (B.me && who.toLowerCase() === B.me.toLowerCase())) return;
   if (/^tell\s/.test(ch)) B.finishOnly(who + " sent you a tell");
-  else if (ch === "ct") B.finishOnly(who + " spoke on the city channel");
+  else if (ch === "ct" && B.me && new RegExp("\\b" + B.me + "\\b", "i").test(String(text || ""))) B.finishOnly(who + " named you on the city channel");
 };
 
 B.end = function (why) {

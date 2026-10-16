@@ -12,6 +12,7 @@ HU.classes["Magi"] = {
   keys: [ ... ],    // F1 to F12
   rage: { ... },    // battlerage costs
   razes: [ ... ],   // the shieldbreak: no cooldown, no global cooldown
+  razeAttack: "...", // optional: a balance attack that also breaks a shield
   lines: [ ... ]    // your attack lines: highlighted, tagged, and cooldowns
 };
 ```
@@ -127,6 +128,13 @@ doesn't start the global battlerage cooldown: `razes: ["Disintegrate"]`. The
 game never says it is ready again, so its attack line only tags and
 highlights, and its key lights whenever the global cooldown is clear and you
 have the rage. Without this, using it would leave every rage key dark.
+
+## razeAttack
+
+Optional: a balance attack that also breaks a shield, named by its key's
+label: `razeAttack: "Blast"` (every dragon). Hunting itself doesn't use it.
+The **basher** sends it on recovery at a shielded target when the class has
+no shieldbreak in `razes` on a key.
 
 ## bash
 

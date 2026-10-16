@@ -45,11 +45,12 @@ if (bsSub === "" || bsSub === "status") {
 } else if (bsSub === "raze") {
   var bsZ = bsW[1];
   var bsRz = B.razeCmd();
+  if (!bsRz && B.razeAttack()) bsRz = { name: B.razeAttack().name + " (needs dragonbreath)", cost: 0 };
   if (bsZ === "on" || bsZ === "off") {
     set_variable("basher_raze", bsZ);
     display_notice("[basher] raze " + bsZ.toUpperCase() + (bsZ === "on" ? (bsRz ? ": " + bsRz.name + " on a shielded target." : ", but this class has no raze key: it waits for shields to fade.") : ": it waits for shields to fade."), "lime");
   } else {
-    display_notice("[basher] raze " + String(get_variable("basher_raze")).toUpperCase() + (bsRz ? " with " + bsRz.name + " (" + bsRz.cost + " rage)" : " (no raze key for this class)") + ". BASHER RAZE ON|OFF.", "cyan");
+    display_notice("[basher] raze " + String(get_variable("basher_raze")).toUpperCase() + (bsRz ? " with " + bsRz.name + (bsRz.cost ? " (" + bsRz.cost + " rage)" : "") : " (no raze key for this class)") + ". BASHER RAZE ON|OFF.", "cyan");
   }
 } else if (bsSub === "rage") {
   var bsR = bsW[1];
