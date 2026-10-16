@@ -5,6 +5,9 @@ if (!client.loom || !client.loom.basher) run_function("basher_setup", [], "bashe
 var B = client.loom.basher;
 var bsM = args.gmcp_method;
 var bsA = args.gmcp_args;
+// Some messages arrive as text: read them as room's Here tab does (a bare
+// name, as RemovePlayer may send, stays text).
+if (typeof bsA === "string") { try { bsA = JSON.parse(bsA); } catch (e) { /* a bare value */ } }
 
 if (bsM === "Char.Vitals" && bsA) {
   B.bal = String(bsA.bal) == "1";
@@ -14,21 +17,25 @@ if (bsM === "Char.Vitals" && bsA) {
   // The attack went out: balance or equilibrium is gone. The next recovery
   // may attack again.
   if (!B.bal || !B.eq) { B.sentAt = 0; B.misses = 0; }
-} else if (bsM === "Room.Info") {
-  // A new room: what was here is gone until its Char.Items.List.
-  B.room = {};
-  B.roomKnown = false;
 } else if (/^Char\.Items\.(List|Add|Remove|Update)$/.test(bsM) && bsA && bsA.location === "room") {
   var bsIt = function (it) { return { name: String(it.name || ""), attrib: String(it.attrib || "") }; };
   if (bsM === "Char.Items.List") {
+    // A room's list replaces the last one; Room.Info doesn't clear it, as
+    // the list can come before or after it (Here works the same way).
     B.room = {};
+    B.order = [];
     B.roomKnown = true;
     var bsL = bsA.items || [];
-    for (var bsI = 0; bsI < bsL.length; bsI++) B.room[String(bsL[bsI].id)] = bsIt(bsL[bsI]);
-  } else if (bsM === "Char.Items.Remove") {
-    delete B.room[String(typeof bsA.item === "object" ? bsA.item.id : bsA.item)];
+    for (var bsI = 0; bsI < bsL.length; bsI++) { B.room[String(bsL[bsI].id)] = bsIt(bsL[bsI]); B.order.push(String(bsL[bsI].id)); }
+  } else if (bsM === "Char.Items.Remove" && bsA.item !== undefined) {
+    var bsRid = String(typeof bsA.item === "object" ? bsA.item.id : bsA.item);
+    delete B.room[bsRid];
+    var bsAt = B.order.indexOf(bsRid);
+    if (bsAt >= 0) B.order.splice(bsAt, 1);
   } else if (bsA.item) {
-    B.room[String(bsA.item.id)] = bsIt(bsA.item);
+    var bsId = String(bsA.item.id);
+    if (!B.room[bsId]) B.order.push(bsId);
+    B.room[bsId] = bsIt(bsA.item);
   }
 } else if (bsM === "IRE.Target.Set") {
   // The game's target as typed or an id, maybe quoted; empty means none.

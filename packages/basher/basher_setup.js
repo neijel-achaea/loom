@@ -23,9 +23,10 @@ if (!get_variable("basher_health")) set_variable("basher_health", "40");
 if (B.on === undefined) B.on = false;
 if (B.run === undefined) B.run = false;
 if (!B.room) B.room = {};          // mobs and items here: { id: { name, attrib } }
-// Whether B.room is this room's list: only once a Char.Items.List came after
-// the last Room.Info. Installed or reimported mid-room it isn't (Ricardo's
-// first test: the bear was "not here"), and then the target counts as here.
+if (!B.order) B.order = [];        // their ids in the room's own order (targeting by name follows it)
+// Whether B.room holds a room's list: once any Char.Items.List came since
+// this package was set up. Before that (reimported mid-room) the target
+// counts as here, and your kill ends the run.
 if (B.roomKnown === undefined) B.roomKnown = false;
 // The game's own target (IRE.Target.Set/Info: { id, name, at }) and when the
 // tar variable last changed: whichever changed last is the target, as in
@@ -106,18 +107,29 @@ B.target = function () {
     // That one is dead or gone: during a run, the next living mob with the
     // same name (Ricardo: it goes on until the room runs out of targets).
     if (B.run && B.runName) {
-      for (var nx in B.room) {
-        if (B.room.hasOwnProperty(nx) && mob(B.room[nx]) && B.room[nx].name === B.runName) return { tar: nx, name: B.runName, why: "" };
+      for (var nx = 0; nx < B.order.length; nx++) {
+        var nit = B.room[B.order[nx]];
+        if (nit && mob(nit) && nit.name === B.runName) return { tar: B.order[nx], name: B.runName, why: "" };
       }
       return { tar: tar, why: "no more " + B.runName.replace(/^(a|an|the|some)\s+/i, "") + " here" };
     }
     return { tar: tar, why: "target " + tar + " isn't here" };
   }
   var re = new RegExp("\\b" + tar.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b");
-  for (var id in B.room) {
-    if (B.room.hasOwnProperty(id) && mob(B.room[id]) && re.test(String(B.room[id].name).toLowerCase())) return { tar: tar, name: B.room[id].name, why: "" };
+  for (var oi = 0; oi < B.order.length; oi++) {
+    var oit = B.room[B.order[oi]];
+    if (oit && mob(oit) && re.test(String(oit.name).toLowerCase())) return { tar: tar, name: oit.name, why: "" };
   }
   return { tar: tar, why: "no " + tar + " here" };
+};
+
+// What the basher sees here, for status: "3 mobs here", or that it has no
+// room list yet.
+B.seen = function () {
+  if (!B.roomKnown) return "no room list yet (move or LOOK)";
+  var n = 0;
+  for (var i = 0; i < B.order.length; i++) { var it = B.room[B.order[i]]; if (it && /m/.test(it.attrib || "") && !/d/.test(it.attrib || "")) n++; }
+  return n + (n == 1 ? " mob" : " mobs") + " here";
 };
 
 // Why it can't attack right now ("" when it can). Health is checked first,
