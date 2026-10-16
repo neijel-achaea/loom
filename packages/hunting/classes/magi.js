@@ -23,6 +23,15 @@ HU.classes["Magi"] = {
   rage: { Windlash: 14, Dilation: 35, Disintegrate: 17, Squeeze: 36, Firefall: 25, Stormbolt: 25 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Disintegrate"],
+  // The basher's battlerage order (#119, Ricardo): Firefall only on a clumsy
+  // target (FIREFALL++), then Squeeze, Windlash, and Stormbolt only while
+  // Squeeze stays affordable after it. See README, bash.
+  bash: [
+    ["Firefall", { when: ["clumsiness"] }],
+    ["Squeeze"],
+    ["Windlash"],
+    ["Stormbolt", { keep: "Squeeze" }]
+  ],
   lines: [
     [/^As you point an elemental staff at (.*), a scintilla of bright, burning light shoots out, striking (\w+) with focused elemental power\.$/, "STAFF"],
     [/^You draw upon the power of air to summon sharp gusts of wind which begin to whip across (.*)'s exposed flesh\.$/, "WINDLASH", "Windlash"],

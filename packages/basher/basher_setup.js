@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.1.1", keyword: "BASHER", desc: "{{description}}" };
+client.loom.registry.basher = { version: "0.2.0", keyword: "BASHER", desc: "{{description}}" };
 var B = client.loom.basher;
 
 // Health threshold: attacks hold below it and resume 10 points above it.
@@ -46,11 +46,47 @@ B.diagAt = B.diagAt || 0;          // when the last one went out
 // of two same-name mobs holds attacks on both. Cleared by its fade line, a
 // new room list, or when no living mob of that name is left.
 if (!B.shields) B.shields = {};
+// Afflictions seen on mobs, by name like the shields: { "a mist wraith":
+// { clumsiness: true } }, from the target's own lines (B.affLines), for the
+// rage rotation's "when" conditions. Cleared the same way as shields.
+if (!B.affs) B.affs = {};
+B.rageSent = B.rageSent || null;   // { name, at }: a rage ability sent, not yet seen used
+
+// Battlerage on by default (#119); BASHER RAGE OFF leaves it to you.
+if (!get_variable("basher_rage")) set_variable("basher_rage", "on");
+
+// Afflictions on a mob: [pattern (group 1 = the mob), affliction, on?].
+// Add rows as lines are captured; the names are what "when" lists use.
+B.affLines = [
+  [/^(.+) reels, flinching as clumsiness takes hold\.$/, "clumsiness", true],
+  [/^Frost blooms outwards from you, wreathing (.+) in frigid cold as clumsiness takes hold\.$/, "clumsiness", true],
+  // Blue Dragon's Ague (Ricardo), yours or another player's: cold and clumsiness.
+  [/^(?:You let|\w+ lets) loose a steady stream of cold air around (.+), who begins to shiver uncontrollably\.$/, "clumsiness", true],
+  // Magi's Dilation (Ricardo): aeon, until the vortex shatters. Another
+  // player's version isn't known yet.
+  [/^You summon a polar vortex in a tight field around (.+), chilling the small pocket so intensely that time itself begins to slow\.$/, "aeon", true],
+  [/^A sharp crack echoes through the air as the polar vortex surrounding (.+) shatters and \w+ movements return to normal speed\.$/, "aeon", false],
+  [/^(.+) rallies, no longer plagued with clumsiness\.$/, "clumsiness", false],
+  [/^(.+) shakes off the cold and clumsiness plaguing \w+\.$/, "clumsiness", false]
+];
+// A line about a mob's affliction: true when it was one.
+B.affLine = function (line) {
+  for (var i = 0; i < B.affLines.length; i++) {
+    var m = B.affLines[i][0].exec(line);
+    if (!m) continue;
+    var n = String(m[1]).toLowerCase();
+    if (B.affLines[i][2]) { if (!B.affs[n]) B.affs[n] = {}; B.affs[n][B.affLines[i][1]] = true; }
+    else if (B.affs[n]) delete B.affs[n][B.affLines[i][1]];
+    return true;
+  }
+  return false;
+};
 B.why = B.why || "";               // why it isn't attacking right now (status)
 
 B.tickMs = 250;    // how often the loop looks
 B.retryMs = 2500;  // an attack that took no balance by then is counted as a miss
 B.maxMisses = 3;   // that many in a row: the basher switches itself off
+B.rageRetryMs = 2500; // a rage ability not seen used by then may be sent again
 
 // Hunting, read only. Undefined when it isn't installed (or not set up yet).
 B.hunting = function () {
@@ -80,11 +116,17 @@ B.main = function () {
 // and @tar replaced by the target. A list, one command per part ("a | b").
 B.commands = function (tar) {
   var main = B.main();
-  if (!main) return [];
+  return main ? B.prep(main.cmd, tar) : [];
+};
+
+// A key's command made ready to send: "queue add <flags>" dropped,
+// placeholders filled as hunting's buttons fill them, @tar replaced; one
+// command per "|" part.
+B.prep = function (cmd, tar) {
   var staff = (client.loom.artificing && client.loom.artificing.staff) || get_variable("artificing_staff") || "scintilla";
   var dragon = get_variable("hunting_dragon_attack") || "gut";
   var party = get_variable("hunting_party_target") || "";
-  var parts = String(main.cmd).split("|");
+  var parts = String(cmd || "").split("|");
   var out = [];
   for (var i = 0; i < parts.length; i++) {
     var c = parts[i].trim().replace(/^queue\s+add\s+\S+\s+/i, "");
@@ -92,6 +134,99 @@ B.commands = function (tar) {
     if (c) out.push(c);
   }
   return out;
+};
+
+// The battlerage rotation (#119): the class's "bash" list in hunting, else a
+// default from its costs and keys (Ricardo: the 36 hit, the 14 hit, the 25
+// hit while the 36 stays affordable; ties to the lower F-key; razes never).
+// [{ name, cost, cmd, when, keep }], only abilities with a key and a cost.
+B.rotation = function () {
+  var hu = B.hunting();
+  var e = hu && hu.classes[hu.cls];
+  if (!e || !e.rage) return [];
+  var rz = e.razes || [];
+  var keyOf = {}, onKeys = [];
+  var keys = e.keys || [];
+  for (var k = 0; k < keys.length; k++) {
+    var ab = (keys[k][2] && keys[k][2] != "main") ? keys[k][2] : keys[k][0];
+    if (e.rage[ab] !== undefined && !keyOf[ab]) { keyOf[ab] = keys[k][1]; onKeys.push(ab); }
+  }
+  var rows = e.bash;
+  if (!rows) {
+    var first = function (cost) {
+      for (var i = 0; i < onKeys.length; i++) if (e.rage[onKeys[i]] === cost && rz.indexOf(onKeys[i]) < 0) return onKeys[i];
+      return "";
+    };
+    var big = first(36), small = first(14), mid = first(25);
+    rows = [];
+    if (big) rows.push([big]);
+    if (small) rows.push([small]);
+    if (mid) rows.push(big ? [mid, { keep: big }] : [mid]);
+  }
+  var out = [];
+  for (var r = 0; r < rows.length; r++) {
+    var nm = rows[r][0], opt = rows[r][1] || {};
+    if (!keyOf[nm] || rz.indexOf(nm) >= 0) continue;
+    out.push({ name: nm, cost: e.rage[nm], cmd: keyOf[nm], when: opt.when || null, keep: opt.keep || "" });
+  }
+  return out;
+};
+
+// The rotation in words, for status: "Firefall (clumsiness) > Squeeze > ...".
+B.rotationText = function () {
+  var rot = B.rotation();
+  var w = [];
+  for (var i = 0; i < rot.length; i++) {
+    w.push(rot[i].name + (rot[i].when ? " (" + rot[i].when.join("/") + ")" : "") + (rot[i].keep ? " (keep " + rot[i].keep + ")" : ""));
+  }
+  return w.length ? w.join(" > ") : "none for this class";
+};
+
+// The first rotation row that can go now, or null: off its cooldown and the
+// global one, affordable (hunting's own reading, as its keys light), its
+// "when" met on the target, and its "keep" still affordable after it.
+B.rageNext = function () {
+  var hu = B.hunting();
+  if (!hu || !hu.glob) return null;
+  var e = hu.classes[hu.cls] || {};
+  var rage = to_number(hu.rage);
+  var affs = B.affs[B.targetName()] || {};
+  var rot = B.rotation();
+  for (var i = 0; i < rot.length; i++) {
+    var r = rot[i];
+    if (hu.cd[r.name] === false || rage < r.cost) continue;
+    if (r.when) {
+      var ok = false;
+      for (var j = 0; j < r.when.length; j++) if (affs[r.when[j]]) ok = true;
+      if (!ok) continue;
+    }
+    if (r.keep && e.rage && e.rage[r.keep] !== undefined && rage - r.cost < e.rage[r.keep]) continue;
+    return r;
+  }
+  return null;
+};
+
+// Fire the next rage ability (#119). Battlerage needs no balance or
+// equilibrium (hunting queues it without), so this runs on its own clock.
+// One at a time: once sent, nothing more until hunting sees it used (its
+// attack line), or rageRetryMs passes without it.
+B.rageTick = function () {
+  if (get_variable("basher_rage") == "off") return;
+  var hu = B.hunting();
+  var now = Date.now();
+  if (B.rageSent) {
+    // Seen used: hunting put it (or the global cooldown) on cooldown from its
+    // line. The ability's own cooldown outlasts the global one, so this holds
+    // even if the global cooldown cleared between two looks.
+    if (!hu.glob || hu.cd[B.rageSent.name] === false || now - B.rageSent.at > B.rageRetryMs) B.rageSent = null;
+    else return;
+  }
+  var r = B.rageNext();
+  if (!r) return;
+  var cmds = B.prep(r.cmd, B.target().tar);
+  for (var i = 0; i < cmds.length; i++) send_command(cmds[i], 1);
+  B.rageSent = { name: r.name, at: now };
+  if (get_variable("debug") == "on") display_notice("[debug][basher] rage " + r.name + ": " + cmds.join(" | "), "cyan");
 };
 
 // The target is the tar variable (Ricardo: you pick it until auto-targeting,
@@ -166,6 +301,11 @@ B.seen = function () {
 // Why it can't attack right now ("" when it can). Health is checked first,
 // so the hold and the resume are announced even without balance.
 B.blocked = function () {
+  return B.held() || ((!B.bal || !B.eq) ? "waiting for balance and equilibrium" : "");
+};
+
+// Everything that holds both the attack and battlerage (balance aside).
+B.held = function () {
   if (!B.hunting()) return "hunting isn't installed";
   if (get_variable("pauseTriggers") == "on") return "paused (pauseTriggers)";
   var hu = B.hunting();
@@ -184,7 +324,6 @@ B.blocked = function () {
   if (t.why) return t.why;
   var tn = B.targetName(t);
   if (tn && B.shields[tn]) return tn + " is shielded";
-  if (!B.bal || !B.eq) return "waiting for balance and equilibrium";
   return "";
 };
 
@@ -206,7 +345,10 @@ B.tick = function () {
   // Out of targets: the run ends, still primed.
   var t = B.target();
   if (t.why) { B.end(t.why); return; }
-  B.why = B.blocked();
+  var held = B.held();
+  B.why = held || ((!B.bal || !B.eq) ? "waiting for balance and equilibrium" : "");
+  if (held) return;
+  B.rageTick();
   if (B.why) return;
   var now = Date.now();
   if (B.sentAt && now - B.sentAt < B.retryMs) return;
@@ -274,7 +416,7 @@ B.start = function () {
 // The kill switch: stops at once; nothing it sent is left queued, since it
 // sends on recovery.
 B.stop = function (msg, colour) {
-  B.on = false; B.run = false; B.diag = false;
+  B.on = false; B.run = false; B.diag = false; B.rageSent = null;
   if (B.loop) { clearInterval(B.loop); B.loop = null; }
   B.sentAt = 0; B.misses = 0; B.low = false; B.why = "";
   if (msg) display_notice(msg, colour || "lime");

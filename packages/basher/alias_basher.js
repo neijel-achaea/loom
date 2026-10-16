@@ -36,6 +36,15 @@ if (bsSub === "" || bsSub === "status") {
   } else {
     display_notice("[basher] BASHER HEALTH <0-90>: the health percent attacks hold below.", "orange");
   }
+} else if (bsSub === "rage") {
+  var bsR = bsW[1];
+  if (bsR === "on" || bsR === "off") {
+    set_variable("basher_rage", bsR);
+    B.rageSent = null;
+    display_notice("[basher] battlerage " + bsR.toUpperCase() + (bsR === "on" ? ": " + B.rotationText() + "." : ": the basher fires none; your keys still work."), "lime");
+  } else {
+    display_notice("[basher] battlerage " + String(get_variable("basher_rage")).toUpperCase() + ", in this order: " + B.rotationText() + ". BASHER RAGE ON|OFF.", "cyan");
+  }
 } else {
   display_notice("[basher] unknown command '" + bsW.join(" ") + "'. BASHER HELP for commands.", "orange");
 }

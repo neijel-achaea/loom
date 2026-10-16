@@ -128,6 +128,30 @@ game never says it is ready again, so its attack line only tags and
 highlights, and its key lights whenever the global cooldown is clear and you
 have the rage. Without this, using it would leave every rage key dark.
 
+## bash
+
+Optional: the order in which the **basher** package fires battlerage
+abilities. Hunting itself doesn't use it. Without it the basher builds a
+default from `rage` and `keys`: the 36-rage hit, then the 14-rage hit, then
+the 25-rage hit only while the 36 stays affordable after it (when two
+abilities share a cost, the one on the lower F-key; razes never). Write it
+only when the class needs something else:
+
+```js
+bash: [
+  ["Firefall", { when: ["clumsiness"] }],   // only on a target with one of these afflictions
+  ["Squeeze"],
+  ["Windlash"],
+  ["Stormbolt", { keep: "Squeeze" }]        // only if Squeeze is still affordable after it
+],
+```
+
+Each time the global battlerage cooldown clears, the basher fires the first
+row that is off cooldown, affordable and meets its condition. The command is
+the ability's own key, so an ability needs a key to be fired. Affliction
+names are the basher's (it knows `clumsiness` so far, from the target's
+lines; others are added as their lines are captured).
+
 ## lines
 
 One row per message you see when you hit with an attack:
