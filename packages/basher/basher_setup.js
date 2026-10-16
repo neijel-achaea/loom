@@ -23,6 +23,16 @@ if (!get_variable("basher_health")) set_variable("basher_health", "40");
 if (B.on === undefined) B.on = false;
 if (B.run === undefined) B.run = false;
 if (!B.room) B.room = {};          // mobs and items here: { id: { name, attrib } }
+// Whether B.room is this room's list: only once a Char.Items.List came after
+// the last Room.Info. Installed or reimported mid-room it isn't (Ricardo's
+// first test: the bear was "not here"), and then the target counts as here.
+if (B.roomKnown === undefined) B.roomKnown = false;
+// The game's own target (IRE.Target.Set/Info: { id, name, at }) and when the
+// tar variable last changed: whichever changed last is the target, as in
+// room's Here tab. Ricardo's test: tar went empty while the game still had
+// the bear targeted, and the staff hit it.
+if (B.game === undefined) B.game = null;
+if (B.tarSeen === undefined) { B.tarSeen = String(get_variable("tar") || "").trim(); B.tarAt = 0; }
 if (!B.players) B.players = {};    // players here, lowercase name -> true
 if (B.bal === undefined) { B.bal = false; B.eq = false; B.hp = 0; B.maxhp = 0; }
 B.sentAt = B.sentAt || 0;          // when the last attack went out (0: none pending)
@@ -81,13 +91,27 @@ B.commands = function (tar) {
 // it as a whole word. Never a player: a word that is a player's name here
 // counts as no target, so the basher can't attack a person.
 B.target = function () {
-  var tar = String(get_variable("tar") || "").trim();
-  if (!tar) return { tar: "", why: "no target (set tar)" };
+  var tv = String(get_variable("tar") || "").trim();
+  if (tv !== B.tarSeen) { B.tarSeen = tv; B.tarAt = Date.now(); }
+  var g = B.game;
+  var useGame = !!(g && (g.id || g.name) && (!tv || (g.at || 0) >= (B.tarAt || 0)));
+  var tar = useGame ? String(g.id || g.name) : tv;
+  if (!tar) return { tar: "", why: "no target" };
   if (B.players[tar.toLowerCase()]) return { tar: tar, why: tar + " is a player here: not attacking" };
+  if (!B.roomKnown) return { tar: tar, why: "" };
   var mob = function (it) { return /m/.test(it.attrib || "") && !/d/.test(it.attrib || ""); };
   if (/^\d+$/.test(tar)) {
     var it = B.room[tar];
-    return (it && mob(it)) ? { tar: tar, name: it.name, why: "" } : { tar: tar, why: "target " + tar + " isn't here" };
+    if (it && mob(it)) { if (B.run) B.runName = it.name; return { tar: tar, name: it.name, why: "" }; }
+    // That one is dead or gone: during a run, the next living mob with the
+    // same name (Ricardo: it goes on until the room runs out of targets).
+    if (B.run && B.runName) {
+      for (var nx in B.room) {
+        if (B.room.hasOwnProperty(nx) && mob(B.room[nx]) && B.room[nx].name === B.runName) return { tar: nx, name: B.runName, why: "" };
+      }
+      return { tar: tar, why: "no more " + B.runName.replace(/^(a|an|the|some)\s+/i, "") + " here" };
+    }
+    return { tar: tar, why: "target " + tar + " isn't here" };
   }
   var re = new RegExp("\\b" + tar.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b");
   for (var id in B.room) {
@@ -125,11 +149,7 @@ B.tick = function () {
   if (!B.on || !B.run) return;
   // Out of targets: the run ends, still primed.
   var t = B.target();
-  if (t.why) {
-    B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
-    display_notice("[basher] " + t.why + ": run over, still primed. Attack something to start again.", "cyan");
-    return;
-  }
+  if (t.why) { B.end(t.why); return; }
   B.why = B.blocked();
   if (B.why) return;
   var now = Date.now();
@@ -148,6 +168,12 @@ B.tick = function () {
   if (get_variable("debug") == "on") display_notice("[debug][basher] " + cmds.join(" | "), "cyan");
 };
 
+// The run is over (no more targets here): still primed.
+B.end = function (why) {
+  B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+  display_notice("[basher] " + why + ": run over, still primed. Attack something to start again.", "cyan");
+};
+
 // Your own attack seen while primed: the run starts. That attack is the one
 // in flight, so the next goes out on the next recovery (balance and
 // equilibrium count as gone until Char.Vitals says otherwise, whichever of
@@ -155,10 +181,11 @@ B.tick = function () {
 B.begin = function () {
   if (!B.on || B.run) return;
   B.run = true;
+  B.runName = "";
   B.sentAt = 0; B.misses = 0;
   B.bal = false; B.eq = false;
   var m = B.main();
-  display_notice("[basher] running: " + (m ? m.name.toUpperCase() : "attack") + " on " + (B.target().tar || "your target") + " until the room runs out of it. BASHER STOP stops it.", "lime");
+  display_notice("[basher] running: " + (m ? m.name.toUpperCase() : "attack") + " on " + (B.target().name || B.target().tar || "your target") + " until the room runs out of them. BASHER STOP stops it.", "lime");
 };
 
 // Your attack lines are hunting's (the class's "lines" and the shared ones),

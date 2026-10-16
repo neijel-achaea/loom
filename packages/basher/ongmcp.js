@@ -17,10 +17,12 @@ if (bsM === "Char.Vitals" && bsA) {
 } else if (bsM === "Room.Info") {
   // A new room: what was here is gone until its Char.Items.List.
   B.room = {};
+  B.roomKnown = false;
 } else if (/^Char\.Items\.(List|Add|Remove|Update)$/.test(bsM) && bsA && bsA.location === "room") {
   var bsIt = function (it) { return { name: String(it.name || ""), attrib: String(it.attrib || "") }; };
   if (bsM === "Char.Items.List") {
     B.room = {};
+    B.roomKnown = true;
     var bsL = bsA.items || [];
     for (var bsI = 0; bsI < bsL.length; bsI++) B.room[String(bsL[bsI].id)] = bsIt(bsL[bsI]);
   } else if (bsM === "Char.Items.Remove") {
@@ -28,6 +30,14 @@ if (bsM === "Char.Vitals" && bsA) {
   } else if (bsA.item) {
     B.room[String(bsA.item.id)] = bsIt(bsA.item);
   }
+} else if (bsM === "IRE.Target.Set") {
+  // The game's target as typed or an id, maybe quoted; empty means none.
+  var bsTs = String(bsA === null || bsA === undefined ? "" : (typeof bsA === "object" ? (bsA.target || bsA.id || "") : bsA)).replace(/^"|"$/g, "").trim();
+  B.game = { id: bsTs, name: "", at: Date.now() };
+} else if (bsM === "IRE.Target.Info" && bsA && bsA.id !== undefined) {
+  // Later updates for the same target carry only its health: keep its time.
+  var bsTi = String(bsA.id || "");
+  if (!(B.game && B.game.id === bsTi)) B.game = { id: bsTi, name: String(bsA.short_desc || ""), at: Date.now() };
 } else if (bsM === "Room.Players" && bsA) {
   B.players = {};
   for (var bsP = 0; bsP < bsA.length; bsP++) B.players[String(bsA[bsP].name || "").toLowerCase()] = true;
