@@ -20,6 +20,8 @@ HU.classes["Red Dragon"] = {
   rage: { Overwhelm: 14, Dragontaunt: 18, Melt: 17, Dragonblaze: 36, Flamebath: 25, Scorch: 18 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Melt"],
+  // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
+  razeAttack: "Blast",
   lines: [
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
   ]

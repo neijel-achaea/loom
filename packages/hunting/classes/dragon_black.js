@@ -19,6 +19,8 @@ HU.classes["Black Dragon"] = {
   rage: { Dragonspit: 14, Dragonsting: 25, Dissolve: 17, Override: 36, Corrode: 25, Dragonfear: 29, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Dissolve"],
+  // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
+  razeAttack: "Blast",
   lines: [
     [/^You rip into (.*) with your massive, deadly claws\.$/, "GUT"],
     [/^You spit a stream of acidic venom at (.*) who writhes in agony as the spittle seeps into (\w+) skin\.$/, "DRAGONSPIT", "Dragonspit"],

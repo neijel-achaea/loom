@@ -19,6 +19,8 @@ HU.classes["Blue Dragon"] = {
   rage: { Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14, Override: 36 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Frostrive"],
+  // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
+  razeAttack: "Blast",
   lines: [
     [/^You form small chunks of ice in your enormous maw, then spit them at (.*) in a barrage\.$/, "DRAGONCHILL", "Dragonchill"],
     [/^You breathe a wave of icy air at (.*)\.$/, "FROSTWAVE", "Frostwave"],

@@ -21,6 +21,8 @@ HU.classes["Green Dragon"] = {
   rage: { Dragonspit: 14, Scour: 18, Deteriorate: 17, Override: 36, Slaver: 25, Dragonsap: 22 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Deteriorate"],
+  // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
+  razeAttack: "Blast",
   lines: [
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
   ]
