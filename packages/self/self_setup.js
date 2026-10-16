@@ -6,7 +6,8 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.self) client.loom.self = {};
-client.loom.registry.self = { version: "0.2.5", keyword: "SELF", desc: "{{description}}" };
+// redraw: how loom redraws the Self tab when a source changes (#176).
+client.loom.registry.self = { version: "0.3.0", keyword: "SELF", desc: "{{description}}", redraw: function () { run_function("self_render", [], "self"); } };
 var SF = client.loom.self;
 
 // The old package kept its state in client.self, client.selfWant,
@@ -87,4 +88,17 @@ SF.look = {
     if (isNaN(now) || !(SF.explorerBase > 0)) return undefined;
     return { rank: now, base: SF.explorerBase, dropped: now > SF.explorerBase };
   }
+};
+
+// What DEFCON keeps up (#176, from defcon through loom's link defcon-self):
+// { level, defs: { name: true } }, or null when the link is off, defcon
+// isn't installed or no level is set. A separate layer from SELF WANT: it
+// never writes self_want_<class>, and its losses show only in the tab.
+SF.defconWant = function () {
+  var LL = client.loom.loom;
+  var w = (LL && LL.answer) ? LL.answer("self", "defences.wanted") : undefined;
+  if (!w || !w.defs) return null;
+  var set = {};
+  for (var i = 0; i < w.defs.length; i++) set[w.defs[i]] = true;
+  return { level: w.level, defs: set, n: w.defs.length };
 };

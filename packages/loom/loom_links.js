@@ -547,3 +547,17 @@ L.addLink({
     }
   }
 });
+
+// #176 defcon -> self (Ricardo): the Self tab watches what DEFCON keeps up
+// at its level, every defence of the effective table with a tier >= it, as
+// its own layer next to SELF WANT (never written into it). DEFCON's missing
+// defences show amber, yours red; DEFCON's losses only in the tab (its
+// curing puts them back); the Defences title and SELF's summary name the
+// level. A defence DEFCON relaxes on purpose isn't watched at that level.
+L.addLink({
+  id: "defcon-self", src: "defcon", dst: "self", issue: 176,
+  desc: "The Self tab watches the defences DEFCON keeps up at its level",
+  answers: {
+    "defences.wanted": function () { var d = client.loom.defcon; return (d && d.look && d.look.wanted) ? d.look.wanted() : undefined; }
+  }
+});

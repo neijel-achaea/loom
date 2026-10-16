@@ -33,10 +33,13 @@ if (verb === "" || verb === "status") {
   say(S.seenAffs ? (aff.length ? aff.length + " affliction" + (aff.length === 1 ? "" : "s") + ": " + aff.join(", ") + "." : "no afflictions.") : "afflictions not reported yet; DIAG fills them in.", aff.length ? "orange" : undefined);
   if (S.needDiag) say("a venom's effects are unknown: DIAG!", "orange");
   var wl = keysOf(S.want);
+  // DEFCON's wanted defences count as watched too (#176).
+  var dw = S.defconWant ? S.defconWant() : null;
+  if (dw) { for (var dk in dw.defs) { if (dw.defs.hasOwnProperty(dk) && !S.want[dk]) wl.push(dk); } wl.sort(); }
   var miss = [];
   for (var wi = 0; wi < wl.length; wi++) { if (!S.defs[wl[wi]]) miss.push(wl[wi]); }
   if (!S.seenDefs) say("defences not reported yet; DEF fills them in.");
-  else say(keysOf(S.defs).length + " defences up; watching " + wl.length + " as " + clsName() + (miss.length ? ", missing: " + miss.join(", ") + "." : (wl.length ? ", all up." : ".")), miss.length ? "orange" : undefined);
+  else say(keysOf(S.defs).length + " defences up; watching " + wl.length + " as " + clsName() + (dw ? " at DEFCON " + dw.level : "") + (miss.length ? ", missing: " + miss.join(", ") + "." : (wl.length ? ", all up." : ".")), miss.length ? "orange" : undefined);
   say("SELF HELP for commands.");
 } else if (verb === "help") {
   run_function("self_help", [], "self");

@@ -52,3 +52,5 @@ if (dcQueue.length === 0) {
   display_notice("[defcon] DEFCON " + dcLevel + ": applying " + dcQueue.length + " changes" + dcNote + "...", "cyan");
   run_function("defcon_drain", [], "defcon");
 }
+// The table or level may have changed: tell loom (#176, the Self tab).
+if (client.loom.notify) client.loom.notify("defcon");
