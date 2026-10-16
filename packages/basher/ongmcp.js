@@ -78,7 +78,7 @@ if (bsM === "Char.Vitals" && bsA) {
   B.players[String(bsA.name).toLowerCase()] = true;
   B.arrived(String(bsA.name));
 } else if (bsM === "Comm.Channel.Text" && bsA && bsA.channel) {
-  B.heard(bsA.channel, bsA.talker);
+  B.heard(bsA.channel, bsA.talker, bsA.text);
 } else if ((bsM === "Char.Name" || bsM === "Char.Status") && bsA && bsA.name) {
   var bsMe = String(bsA.name).split(/\s+/)[0];
   if (bsMe && bsMe !== B.me) { B.me = bsMe; set_variable("basher_name", bsMe); }

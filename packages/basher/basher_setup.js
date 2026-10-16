@@ -82,7 +82,10 @@ if (!get_variable("basher_rage")) set_variable("basher_rage", "on");
 // Raze shielded targets (#125) on by default; BASHER RAZE OFF waits for fades.
 if (!get_variable("basher_raze")) set_variable("basher_raze", "on");
 B.razeAt = B.razeAt || 0;          // when the last raze went out
-B.breath = !!B.breath;             // a dragon's dragonbreath defence is up (Blast uses it)
+// A dragon's dragonbreath defence (Blast uses it): true, false, or null when
+// no defence update has come since loading (breath raised before the import):
+// then Blast is tried once, and a Blast that takes no balance means no breath.
+if (B.breath === undefined) B.breath = null;
 B.blastAt = B.blastAt || 0;        // a Blast went out at a shield, not yet seen to land
 
 // Afflictions on a mob: [pattern (group 1 = the mob), affliction, on?].
@@ -535,7 +538,7 @@ B.razeNote = function () {
   if (!r) {
     var ra = B.razeAttack();
     if (!ra) return " (no raze key for this class: waiting for it to fade)";
-    return B.breath ? " (razing with " + ra.name + ")" : " (no dragonbreath for " + ra.name + ": waiting for it to fade)";
+    return B.breath !== false ? " (razing with " + ra.name + ")" : " (no dragonbreath for " + ra.name + ": waiting for it to fade)";
   }
   var rage = to_number((B.hunting() || {}).rage);
   return rage < r.cost ? " (" + r.name + " needs " + r.cost + " rage, you have " + rage + ")" : " (razing with " + r.name + ")";
@@ -639,7 +642,7 @@ B.tick = function () {
   if (held && B.shieldedTarget()) {
     if (B.razeCmd()) { B.razeTick(); return; }
     blast = B.razeAttack();
-    if (!blast || !B.breath || get_variable("basher_raze") == "off" || !B.bal || !B.eq) return;
+    if (!blast || B.breath === false || get_variable("basher_raze") == "off" || !B.bal || !B.eq) return;
   } else {
     if (held) return;
     B.rageTick();
@@ -647,6 +650,13 @@ B.tick = function () {
   }
   var now = Date.now();
   if (B.sentAt && now - B.sentAt < B.retryMs) return;
+  // A Blast tried on unknown breath that took no balance: there's no breath.
+  // Not a miss; it waits for the fade (or for dragonbreath to come up).
+  if (B.sentAt && B.blastAt && B.breath === null) {
+    B.breath = false; B.blastAt = 0; B.sentAt = 0;
+    display_notice("[basher] Blast took no balance: no dragonbreath, waiting for the shield to fade.", "orange");
+    return;
+  }
   if (B.sentAt) {
     B.misses++;
     if (B.misses >= B.maxMisses) {
@@ -763,15 +773,16 @@ B.arrived = function (name) {
 };
 
 // A line on a channel (onGMCP Comm.Channel.Text): during a run, a tell to you
-// or a line on your city's channel (ct) makes this fight the last (#118,
-// Ricardo: only these for now; says naming you are left out, since denizens
-// call your name mid-fight). Your own lines don't count.
-B.heard = function (channel, talker) {
+// or a line on your city's channel (ct) that names you makes this fight the
+// last (#118, Ricardo: only these for now, and ct only when it mentions you;
+// says naming you are left out, since denizens call your name mid-fight).
+// Your own lines don't count.
+B.heard = function (channel, talker, text) {
   if (!B.on || !B.run || B.lastFight) return;
   var ch = String(channel || "").toLowerCase(), who = String(talker || "");
   if (!who || (B.me && who.toLowerCase() === B.me.toLowerCase())) return;
   if (/^tell\s/.test(ch)) B.finishOnly(who + " sent you a tell");
-  else if (ch === "ct") B.finishOnly(who + " spoke on the city channel");
+  else if (ch === "ct" && B.me && new RegExp("\\b" + B.me + "\\b", "i").test(String(text || ""))) B.finishOnly(who + " named you on the city channel");
 };
 
 B.end = function (why) {
