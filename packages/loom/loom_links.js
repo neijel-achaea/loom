@@ -487,3 +487,20 @@ L.addLink({
     lg.entry.upsert({ source: "self", key: "explore", text: "Explore a new area (explorer rank " + e.base + " \u2192 " + e.rank + ")" });
   }
 });
+
+// #59 dmgchart -> huntstats (Ricardo): the damage a hunt took. dmgchart keeps
+// a rolling record of fights in memory; huntstats asks at filing (and while
+// the Stats tab shows the hunt under way) for the stretch since the hunt's
+// first experience, the fight that brought it included. Per area: incoming
+// damage per combat second and the biggest hit, coloured by HUNTSTATS TANK.
+L.addLink({
+  id: "dmgchart-huntstats", src: "dmgchart", dst: "huntstats", issue: 59,
+  desc: "Damage taken per combat second and the biggest hit, per hunt and per area",
+  answers: {
+    "hunt.damage": function (arg) {
+      var dc = client.loom.dmgchart;
+      if (!dc || !dc.look || !dc.look.since || !arg) return undefined;
+      return dc.look.since(arg.from);
+    }
+  }
+});

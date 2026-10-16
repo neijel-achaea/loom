@@ -16,6 +16,12 @@ if (li && li.type == "raw" && li.amt == amt && li.undo && Date.now() - li.t < 15
     if (f.hits) { f.hits.inc.n--; f.hits.inc.max = u.max || 0; }
     if (u.opened) { d.fight = u.fight; } else { f.last = u.last; }
   }
+  // The rolling record (#59): the raw line came off it too.
+  var ur = u.rec;
+  if (ur && d.rec && ur.seg && d.rec[d.rec.length - 1] === ur.seg) {
+    if (ur.opened) { d.rec.pop(); }
+    else { ur.seg.last = ur.last; ur.seg.ms = ur.ms; ur.seg.dmg = ur.dmg; ur.seg.max = ur.max; }
+  }
   var ss = d.sess;
   if (li.inSess && ss && (ss.inc.raw || 0) >= amt) {
     ss.inc.raw -= amt;

@@ -5,7 +5,8 @@ var hlTitle = "[huntstats] per-area hunting records: xp, gold and kills an hour,
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["HUNTSTATS", "the hunt under way: rates, next level, Dragonhood"],
-  ["HUNTSTATS AREAS", "every area hunted, by total time, with its rates"],
+  ["HUNTSTATS AREAS", "every area hunted, by total time, with its rates and the damage it deals"],
+  ["HUNTSTATS TANK [percent]", "how much of your max health a second you can heal back (default 3); colours the damage areas deal"],
   ["HUNTSTATS LOG", "the last five hunts"],
   ["HUNTSTATS SUGGEST", "the ten best areas to hunt next, by xp/hr, gold/hr and how long since you went"],
   ["HUNTSTATS SUGGEST WEIGHTS <x> <g> <v>", "how much xp, gold and variety count (default 70 25 5)"],

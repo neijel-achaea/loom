@@ -47,6 +47,26 @@ if (e && !isNaN(e.amt)) {
       f.last = now;
     }
   }
+  // The rolling record (#59): fights as segments, combat time as the
+  // session counts it, incoming damage and the biggest incoming hit.
+  if (!passive && d.rec) {
+    var rg = d.rec.length ? d.rec[d.rec.length - 1] : null;
+    undo.rec = { opened: false, seg: rg, last: rg ? rg.last : 0, ms: rg ? rg.ms : 0, dmg: rg ? rg.dmg : 0, max: rg ? rg.max : 0 };
+    if (!rg || now - rg.last > gapMs) {
+      rg = { start: now, last: now, ms: 0, dmg: 0, max: 0 };
+      d.rec.push(rg);
+      undo.rec.opened = true;
+      undo.rec.seg = rg;
+      if (d.rec.length > d.recCap) { d.rec.splice(0, d.rec.length - d.recCap); d.recFrom = d.rec[0].start; }
+    } else {
+      rg.ms += now - rg.last;
+      rg.last = now;
+    }
+    if (e.dir == "inc") {
+      rg.dmg += e.amt;
+      if (e.amt > rg.max) rg.max = e.amt;
+    }
+  }
   if (ss) {
     if (!passive) {
       if (ss.lastT && now - ss.lastT <= gapMs) { ss.combatMs += now - ss.lastT; } else { ss.fights++; }
