@@ -8,7 +8,7 @@ if (!client.loom.social) client.loom.social = {};
 // (#60), since it runs when standings changes or a link into social flips;
 // in standings mode it passes the change on to the tabs that show social's
 // colours (Here, Comms).
-client.loom.registry.social = { version: "0.4.1", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
+client.loom.registry.social = { version: "0.4.2", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
   var So = client.loom.social;
   if (So) { So.standCache = {}; So.standCacheN = 0; }
   run_function("social_online", [], "social");

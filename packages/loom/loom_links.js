@@ -590,3 +590,19 @@ L.addLink({
     }
   }
 });
+
+// #242 room -> social, comms (Ricardo): a green leaf on newbies, players
+// whose full name carries Uaithne, Ithin or Tuqad. Here reads the title
+// live (room's own); Online and Comms see no titles, so they ask for the
+// title someone was last seen with in a room (remembered by room).
+function roomNewbie(n) { var r = client.loom.room; return (r && r.look && r.look.newbie) ? r.look.newbie(n) : undefined; }
+L.addLink({
+  id: "room-social", src: "room", dst: "social", issue: 242,
+  desc: "A green leaf in the Online tab on people last seen with a newbie title",
+  answers: { "person.newbie": roomNewbie }
+});
+L.addLink({
+  id: "room-comms", src: "room", dst: "comms", issue: 242,
+  desc: "A green leaf on newbies' names in the Comms tab",
+  answers: { "person.newbie": roomNewbie }
+});

@@ -162,7 +162,7 @@ if (!R.info) {
     var pGrp = ask("person.group", pl[pi]);
     var pTitle = R.players[pl[pi]] || "";
     if (pGrp) pTitle = (pTitle ? pTitle + " \u00b7 " : "") + pGrp;
-    html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>', pTitle, pHp, isT ? PGLOW : false);
+    html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>' + (R.newbieTitle(pl[pi], R.players[pl[pi]]) ? R.leaf("newbie (" + R.newbieTitle(pl[pi], R.players[pl[pi]]) + ")") : ''), pTitle, pHp, isT ? PGLOW : false);
   }
 
   // Mobs and items, in the room's own order (R.order; ids not in it, which
