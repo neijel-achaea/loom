@@ -8,6 +8,7 @@ var hlRows = [
   ["BASHER ON", "prime it: your next attack starts a run of hunting's main attack on tar"],
   ["BASHER STOP", "stop at once and stand down (the kill switch); BASHER OFF does the same"],
   ["BASHER HEALTH [percent]", "hold attacks below this health (default 40), resume 10 above"],
+  ["Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system."],
   ["A mob whose magical shield is up isn't attacked until the shield fades (razing comes later)."],
   ["While on, \"You are confused as to the effects of the venom.\" sends DIAGNOSE on the next recovery, once per confusion."],
   ["It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF and never moves you."]
