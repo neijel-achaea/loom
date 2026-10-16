@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -82,6 +82,8 @@ if (!get_variable("basher_rage")) set_variable("basher_rage", "on");
 // Raze shielded targets (#125) on by default; BASHER RAZE OFF waits for fades.
 if (!get_variable("basher_raze")) set_variable("basher_raze", "on");
 B.razeAt = B.razeAt || 0;          // when the last raze went out
+B.breath = !!B.breath;             // a dragon's dragonbreath defence is up (Blast uses it)
+B.blastAt = B.blastAt || 0;        // a Blast went out at a shield, not yet seen to land
 
 // Afflictions on a mob: [pattern (group 1 = the mob), affliction, on?].
 // Add rows as lines are captured; the names are what "when" lists use.
@@ -483,7 +485,7 @@ B.shieldDown = function (name) {
 // --- Raze (#125) --------------------------------------------------------------
 // The class's shieldbreak from hunting (its "razes" with a key, the rage cost
 // from "rage"): { name, cost, cmd }, or null (dragons, Alchemist, Runewarden
-// and Unnamable have no key for theirs yet: they keep waiting for the fade).
+// and Unnamable have no key for theirs yet; dragons Blast instead, below).
 B.razeCmd = function () {
   var hu = B.hunting();
   var e = hu && hu.classes[hu.cls];
@@ -497,6 +499,30 @@ B.razeCmd = function () {
   }
   return null;
 };
+// A balance attack that also breaks a shield (hunting's "razeAttack", by its
+// key's label: every dragon's Blast), used when there's no keyed raze above:
+// { name, cmd }, or null. Blast uses up the dragonbreath defence (Ricardo:
+// brought up as a defence, the basher never summons it), so it waits for one.
+B.razeAttack = function () {
+  var hu = B.hunting();
+  var e = hu && hu.classes[hu.cls];
+  if (!e || !e.razeAttack) return null;
+  var keys = e.keys || [];
+  for (var k = 0; k < keys.length; k++) if (keys[k][0] === e.razeAttack && keys[k][1]) return { name: e.razeAttack, cmd: keys[k][1] };
+  return null;
+};
+// The Blast went out at a shielded target (its breath used, or your balance
+// taken): the shield is down.
+B.blasted = function () {
+  if (!B.blastAt) return;
+  B.blastAt = 0;
+  var tn = B.targetName();
+  if (tn && B.shields[tn]) {
+    delete B.shields[tn];
+    if (B.on && B.run) display_notice("[basher] " + tn + "'s shield blasted: attacking again.", "lime");
+    B.draw();
+  }
+};
 // Whether the run's target is shielded right now.
 B.shieldedTarget = function () {
   var tn = B.targetName();
@@ -506,7 +532,11 @@ B.shieldedTarget = function () {
 B.razeNote = function () {
   if (get_variable("basher_raze") == "off") return " (BASHER RAZE is OFF: waiting for it to fade)";
   var r = B.razeCmd();
-  if (!r) return " (no raze key for this class: waiting for it to fade)";
+  if (!r) {
+    var ra = B.razeAttack();
+    if (!ra) return " (no raze key for this class: waiting for it to fade)";
+    return B.breath ? " (razing with " + ra.name + ")" : " (no dragonbreath for " + ra.name + ": waiting for it to fade)";
+  }
   var rage = to_number((B.hunting() || {}).rage);
   return rage < r.cost ? " (" + r.name + " needs " + r.cost + " rage, you have " + rage + ")" : " (razing with " + r.name + ")";
 };
@@ -604,10 +634,17 @@ B.tick = function () {
   B.why = held || ((!B.bal || !B.eq) ? "waiting for balance and equilibrium" : "");
   // A shielded target (#125, Ricardo: raze only, swapping later): the class's
   // shieldbreak instead of waiting for the shield to fade.
-  if (held && B.shieldedTarget()) { B.razeTick(); return; }
-  if (held) return;
-  B.rageTick();
-  if (B.why) return;
+  // Dragons: Blast on recovery, while dragonbreath is up.
+  var blast = null;
+  if (held && B.shieldedTarget()) {
+    if (B.razeCmd()) { B.razeTick(); return; }
+    blast = B.razeAttack();
+    if (!blast || !B.breath || get_variable("basher_raze") == "off" || !B.bal || !B.eq) return;
+  } else {
+    if (held) return;
+    B.rageTick();
+    if (B.why) return;
+  }
   var now = Date.now();
   if (B.sentAt && now - B.sentAt < B.retryMs) return;
   if (B.sentAt) {
@@ -617,10 +654,11 @@ B.tick = function () {
       return;
     }
   }
-  var cmds = B.commands(B.target().tar);
+  var cmds = blast ? B.prep(blast.cmd, B.target().tar) : B.commands(B.target().tar);
   if (!cmds.length) return;
   for (var i = 0; i < cmds.length; i++) send_command(cmds[i], 1);
   B.sentAt = now;
+  B.blastAt = blast ? now : 0;
   if (get_variable("debug") == "on") display_notice("[debug][basher] " + cmds.join(" | "), "cyan");
 };
 
