@@ -26,6 +26,7 @@ if (bsM === "Char.Vitals" && bsA) {
     B.order = [];
     B.roomKnown = true;
     B.shields = {};
+    B.affs = {};
     var bsL = bsA.items || [];
     for (var bsI = 0; bsI < bsL.length; bsI++) { B.room[String(bsL[bsI].id)] = bsIt(bsL[bsI]); B.order.push(String(bsL[bsI].id)); }
   } else if (bsM === "Char.Items.Remove" && bsA.item !== undefined) {
@@ -34,11 +35,13 @@ if (bsM === "Char.Vitals" && bsA) {
     delete B.room[bsRid];
     var bsAt = B.order.indexOf(bsRid);
     if (bsAt >= 0) B.order.splice(bsAt, 1);
-    // The last living mob of a shielded name left or died: forget the shield.
-    if (bsGone && B.shields[String(bsGone.name).toLowerCase()]) {
+    // The last living mob of a name left or died: forget its shield and
+    // afflictions.
+    var bsGn = bsGone ? String(bsGone.name).toLowerCase() : "";
+    if (bsGn && (B.shields[bsGn] || B.affs[bsGn])) {
       var bsLeft = false;
-      for (var bsK in B.room) { if (B.room.hasOwnProperty(bsK) && String(B.room[bsK].name).toLowerCase() === String(bsGone.name).toLowerCase() && !/d/.test(B.room[bsK].attrib || "")) bsLeft = true; }
-      if (!bsLeft) delete B.shields[String(bsGone.name).toLowerCase()];
+      for (var bsK in B.room) { if (B.room.hasOwnProperty(bsK) && String(B.room[bsK].name).toLowerCase() === bsGn && !/d/.test(B.room[bsK].attrib || "")) bsLeft = true; }
+      if (!bsLeft) { delete B.shields[bsGn]; delete B.affs[bsGn]; }
     }
   } else if (bsA.item) {
     var bsId = String(bsA.item.id);
