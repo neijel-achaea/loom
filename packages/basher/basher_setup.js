@@ -60,6 +60,8 @@ if (!get_variable("basher_rage")) set_variable("basher_rage", "on");
 B.affLines = [
   [/^(.+) reels, flinching as clumsiness takes hold\.$/, "clumsiness", true],
   [/^Frost blooms outwards from you, wreathing (.+) in frigid cold as clumsiness takes hold\.$/, "clumsiness", true],
+  // Blue Dragon's Ague (Ricardo), yours or another player's: cold and clumsiness.
+  [/^(?:You let|\w+ lets) loose a steady stream of cold air around (.+), who begins to shiver uncontrollably\.$/, "clumsiness", true],
   [/^(.+) rallies, no longer plagued with clumsiness\.$/, "clumsiness", false],
   [/^(.+) shakes off the cold and clumsiness plaguing \w+\.$/, "clumsiness", false]
 ];
