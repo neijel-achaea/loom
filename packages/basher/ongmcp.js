@@ -77,6 +77,11 @@ if (bsM === "Char.Vitals" && bsA) {
 } else if (bsM === "Room.AddPlayer" && bsA && bsA.name) {
   B.players[String(bsA.name).toLowerCase()] = true;
   B.arrived(String(bsA.name));
+} else if (bsM === "Comm.Channel.Text" && bsA && bsA.channel) {
+  B.heard(bsA.channel, bsA.talker);
+} else if ((bsM === "Char.Name" || bsM === "Char.Status") && bsA && bsA.name) {
+  var bsMe = String(bsA.name).split(/\s+/)[0];
+  if (bsMe && bsMe !== B.me) { B.me = bsMe; set_variable("basher_name", bsMe); }
 } else if (bsM === "Room.RemovePlayer" && bsA !== undefined) {
   delete B.players[String(typeof bsA === "object" ? bsA.name : bsA).toLowerCase()];
 }

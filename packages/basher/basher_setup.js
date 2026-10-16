@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.4.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.4.2", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -55,6 +55,9 @@ if (!B.prios) {
   try { B.prios = JSON.parse(get_variable("basher_priorities") || "{}") || {}; } catch (e) { B.prios = {}; }
 }
 if (B.area === undefined) B.area = "";
+// Your name (GMCP Char.Name / Char.Status), so your own arrival and channel
+// lines are told apart; kept across loads, as GMCP sends it only at login.
+if (!B.me) B.me = String(get_variable("basher_name") || "");
 B.autoTop = B.autoTop || "";       // the queue's top when the basher last set your target
 B.gagUntil = B.gagUntil || 0;      // hide the game's "Your target is now" for the basher's own settarget
 // Rooms from Room.Info, for the way back: this room's number and exits, and
@@ -256,6 +259,16 @@ B.rageTick = function () {
 // it as a whole word. Never a player: a word that is a player's name here
 // counts as no target, so the basher can't attack a person.
 B.resolve = function () {
+  var mob = function (it) { return /m/.test(it.attrib || "") && !/d/.test(it.attrib || ""); };
+  // Finishing the last fight (B.lastFight: an enemy, another player, a tell
+  // or the city channel, #122/#118): only the mob being fought then,
+  // whatever the target says now (even when the game cleared it after the
+  // kill); nothing after it.
+  if (B.run && B.lastFight && B.lastFight.id && B.roomKnown) {
+    var lf = B.room[B.lastFight.id];
+    if (lf && mob(lf)) return { tar: B.lastFight.id, id: B.lastFight.id, name: lf.name, why: "" };
+    return { tar: B.lastFight.id, why: "fight over, not starting another (" + B.lastFight.why + ")" };
+  }
   var tv = String(get_variable("tar") || "").trim();
   if (tv !== B.tarSeen) { B.tarSeen = tv; B.tarAt = Date.now(); }
   var g = B.game;
@@ -264,14 +277,6 @@ B.resolve = function () {
   if (!tar) return { tar: "", why: "no target" };
   if (B.players[tar.toLowerCase()]) return { tar: tar, why: tar + " is a player here: not attacking" };
   if (!B.roomKnown) return { tar: tar, id: /^\d+$/.test(tar) ? tar : "", why: "" };
-  var mob = function (it) { return /m/.test(it.attrib || "") && !/d/.test(it.attrib || ""); };
-  // Finishing the last fight (B.lastFight: an enemy arrived, #122): only the
-  // mob being fought then, whatever the target says now; nothing after it.
-  if (B.run && B.lastFight && B.lastFight.id) {
-    var lf = B.room[B.lastFight.id];
-    if (lf && mob(lf)) return { tar: B.lastFight.id, id: B.lastFight.id, name: lf.name, why: "" };
-    return { tar: B.lastFight.id, why: "fight over, not starting another (" + B.lastFight.why + ")" };
-  }
   if (/^\d+$/.test(tar)) {
     var it = B.room[tar];
     if (it && mob(it)) { if (B.run) B.runName = it.name; return { tar: tar, id: tar, name: it.name, why: "" }; }
@@ -631,14 +636,28 @@ B.finishOnly = function (why) {
   display_notice("[basher] " + why + ": finishing " + (t.name || "this fight") + ", nothing new after it.", "orange");
 };
 
-// Someone arrived in the room (onGMCP Room.AddPlayer): during a run, an enemy
-// (social's enemies list, through loom's social-basher link) means this fight
-// is the last. Enemies already here when the run started don't count.
+// Someone arrived in the room (onGMCP Room.AddPlayer): during a run, any
+// other player means this fight is the last (#118, Ricardo); an enemy (social's
+// enemies list, through loom's social-basher link, #122) says so. Players
+// already here when the run started don't count.
 B.arrived = function (name) {
   if (!B.on || !B.run || B.lastFight) return;
+  if (B.me && String(name).toLowerCase() === B.me.toLowerCase()) return;
   var L = client.loom.loom;
   var enemy = L && L.answer ? L.answer("basher", "person.enemy", name) : undefined;
-  if (enemy) B.finishOnly(name + " (enemy) is here");
+  B.finishOnly(name + (enemy ? " (enemy)" : "") + " is here");
+};
+
+// A line on a channel (onGMCP Comm.Channel.Text): during a run, a tell to you
+// or a line on your city's channel (ct) makes this fight the last (#118,
+// Ricardo: only these for now; says naming you are left out, since denizens
+// call your name mid-fight). Your own lines don't count.
+B.heard = function (channel, talker) {
+  if (!B.on || !B.run || B.lastFight) return;
+  var ch = String(channel || "").toLowerCase(), who = String(talker || "");
+  if (!who || (B.me && who.toLowerCase() === B.me.toLowerCase())) return;
+  if (/^tell\s/.test(ch)) B.finishOnly(who + " sent you a tell");
+  else if (ch === "ct") B.finishOnly(who + " spoke on the city channel");
 };
 
 B.end = function (why) {
