@@ -25,16 +25,22 @@ if (bsSub === "" || bsSub === "status") {
   var bsWas = B.on;
   B.stop();
   display_notice(bsWas ? "[basher] OFF." : "[basher] already OFF.", bsWas ? "lime" : "cyan");
-} else if (bsSub === "health") {
-  var bsN = bsW[1];
-  if (bsN === undefined || bsN === "") {
-    display_notice("[basher] attacks hold below " + get_variable("basher_health") + "% health. BASHER HEALTH <0-90> to change it.", "cyan");
-  } else if (/^\d+$/.test(bsN) && to_number(bsN) <= 90) {
-    set_variable("basher_health", String(to_number(bsN)));
-    B.low = false;
-    display_notice("[basher] attacks hold below " + to_number(bsN) + "% health and resume at " + (to_number(bsN) + 10) + "%.", "lime");
+} else if (bsSub === "wimpy" || bsSub === "health") {
+  // BASHER HEALTH n (0.1) is read as BASHER WIMPY HEALTH n.
+  var bsK = bsSub === "health" ? "health" : (bsW[1] || "");
+  var bsV = bsSub === "health" ? (bsW[1] || "") : (bsW[2] || "");
+  var bsVars = { health: "basher_flee_health", mana: "basher_flee_mana" };
+  if (bsSub === "health") display_notice("[basher] BASHER HEALTH is now BASHER WIMPY HEALTH: the basher flees below it instead of holding.", "orange");
+  if (bsK === "" || (bsSub === "health" && bsV === "")) {
+    display_notice("[basher] wimpy: " + B.wimpyText() + ". BASHER WIMPY HEALTH|MANA <1-90|OFF>, BASHER WIMPY DIR <direction|OFF>.", "cyan");
+  } else if (bsVars[bsK] && (bsV === "off" || (/^\d+$/.test(bsV) && to_number(bsV) >= 1 && to_number(bsV) <= 90))) {
+    set_variable(bsVars[bsK], bsV === "off" ? "0" : String(to_number(bsV)));
+    display_notice("[basher] wimpy: " + B.wimpyText() + ".", "lime");
+  } else if (bsK === "dir" && /^[a-z]+$/.test(bsV)) {
+    set_variable("basher_flee_dir", bsV === "off" ? "" : bsV);
+    display_notice("[basher] wimpy: " + B.wimpyText() + ".", "lime");
   } else {
-    display_notice("[basher] BASHER HEALTH <0-90>: the health percent attacks hold below.", "orange");
+    display_notice("[basher] BASHER WIMPY HEALTH|MANA <1-90|OFF>, or BASHER WIMPY DIR <direction|OFF>.", "orange");
   }
 } else if (bsSub === "rage") {
   var bsR = bsW[1];

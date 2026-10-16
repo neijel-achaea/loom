@@ -9,11 +9,17 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.2.0", keyword: "BASHER", desc: "{{description}}" };
+client.loom.registry.basher = { version: "0.3.0", keyword: "BASHER", desc: "{{description}}" };
 var B = client.loom.basher;
 
-// Health threshold: attacks hold below it and resume 10 points above it.
-if (!get_variable("basher_health")) set_variable("basher_health", "40");
+// Wimpy (#121, Ricardo): during a run, flee one room back the way you came
+// when health or mana falls below these percents (Ricardo: 40 and 20 by
+// default; "0" = off), then stay
+// primed. It replaces 0.1's hold below a health threshold (basher_health,
+// no longer read). BASHER WIMPY DIR is the way out when the way back isn't
+// known.
+if (!get_variable("basher_flee_health")) set_variable("basher_flee_health", "40");
+if (!get_variable("basher_flee_mana")) set_variable("basher_flee_mana", "20");
 
 // Runtime state, kept across a reimport. ON is never remembered across a load:
 // the basher always starts OFF.
@@ -38,7 +44,11 @@ if (!B.players) B.players = {};    // players here, lowercase name -> true
 if (B.bal === undefined) { B.bal = false; B.eq = false; B.hp = 0; B.maxhp = 0; }
 B.sentAt = B.sentAt || 0;          // when the last attack went out (0: none pending)
 B.misses = B.misses || 0;          // attacks sent without balance or equilibrium going
-B.low = !!B.low;                   // holding for health
+B.fleeing = B.fleeing || null;     // { dir, from, at, sentAt, why } while fleeing
+// Rooms from Room.Info, for the way back: this room's number and exits, and
+// the room before it.
+if (B.roomNum === undefined) { B.roomNum = ""; B.prevNum = ""; B.exits = {}; }
+if (B.mp === undefined) { B.mp = 0; B.maxmp = 0; }
 B.diag = !!B.diag;                 // a DIAGNOSE owed for venom confusion
 B.diagAt = B.diagAt || 0;          // when the last one went out
 // Mobs whose shield is up, by name as the game writes it ("a mist wraith"),
@@ -310,16 +320,7 @@ B.held = function () {
   if (get_variable("pauseTriggers") == "on") return "paused (pauseTriggers)";
   var hu = B.hunting();
   if (!B.main()) return "no main attack for " + (hu.cls || "this class") + " (HUNTING MAIN)";
-  var min = to_number(get_variable("basher_health")) || 0;
-  var pct = B.maxhp > 0 ? Math.round(B.hp * 100 / B.maxhp) : 100;
-  if (!B.low && pct < min) {
-    B.low = true;
-    display_notice("[basher] health " + pct + "% is under " + min + "%: holding attacks until " + Math.min(100, min + 10) + "%.", "orange");
-  } else if (B.low && pct >= Math.min(100, min + 10)) {
-    B.low = false;
-    display_notice("[basher] health back to " + pct + "%: attacking again.", "lime");
-  }
-  if (B.low) return "holding for health (" + pct + "%)";
+  if (B.fleeing) return "fleeing " + B.fleeing.dir;
   var t = B.target();
   if (t.why) return t.why;
   var tn = B.targetName(t);
@@ -332,7 +333,7 @@ B.held = function () {
 B.tick = function () {
   if (!B.on) return;
   // A DIAGNOSE owed for venom confusion goes first, on the first recovery,
-  // primed or running, even while holding for health (it helps the curing).
+  // primed or running (it helps the curing).
   // In a run the attack follows in the same breath: if DIAGNOSE took the
   // balance the attack just fails, and the loss clears sentAt either way.
   if (B.diag && B.bal && B.eq && get_variable("pauseTriggers") != "on") {
@@ -341,7 +342,11 @@ B.tick = function () {
     B.diagAt = Date.now();
     if (get_variable("debug") == "on") display_notice("[debug][basher] diagnose", "cyan");
   }
+  if (B.fleeing) { B.fleeTick(); return; }
   if (!B.run) return;
+  // Wimpy: health or mana too low, leave the room (before anything else).
+  var wimp = B.wimpy();
+  if (wimp) { B.flee(wimp); return; }
   // Out of targets: the run ends, still primed.
   var t = B.target();
   if (t.why) { B.end(t.why); return; }
@@ -373,6 +378,74 @@ B.confused = function () {
   if (!B.on || B.diag) return;
   B.diag = true;
   display_notice("[basher] confused by venom: DIAGNOSE on the next recovery.", "orange");
+};
+
+// Health and mana as percents (null while unknown).
+B.pct = function (v, max) { return max > 0 ? Math.round(v * 100 / max) : null; };
+
+// The wimpy reason, or "": health or mana under its threshold.
+B.wimpy = function () {
+  var h = to_number(get_variable("basher_flee_health")) || 0;
+  var m = to_number(get_variable("basher_flee_mana")) || 0;
+  var hp = B.pct(B.hp, B.maxhp), mp = B.pct(B.mp, B.maxmp);
+  if (h > 0 && hp !== null && hp < h) return "health " + hp + "% is under " + h + "%";
+  if (m > 0 && mp !== null && mp < m) return "mana " + mp + "% is under " + m + "%";
+  return "";
+};
+
+// The settings in words, for status and BASHER WIMPY.
+B.wimpyText = function () {
+  var h = to_number(get_variable("basher_flee_health")) || 0;
+  var m = to_number(get_variable("basher_flee_mana")) || 0;
+  var d = String(get_variable("basher_flee_dir") || "");
+  var w = [];
+  if (h > 0) w.push("health under " + h + "%");
+  if (m > 0) w.push("mana under " + m + "%");
+  return w.length ? "flees on " + w.join(" or ") + ", back the way you came" + (d ? " (else " + d.toUpperCase() + ")" : "") : "never flees";
+};
+
+// The way back: the exit here that leads to the room you came from; else
+// BASHER WIMPY DIR; "" when neither is known.
+B.backDir = function () {
+  for (var d in B.exits) {
+    if (B.exits.hasOwnProperty(d) && B.prevNum !== "" && String(B.exits[d]) === String(B.prevNum)) return d;
+  }
+  return String(get_variable("basher_flee_dir") || "");
+};
+
+// Start fleeing: one step, the only move the basher ever makes. The step goes
+// out on the first balance and equilibrium (fleeTick).
+B.flee = function (why) {
+  var dir = B.backDir();
+  if (!dir) {
+    B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+    display_notice("[basher] " + why + ", but no way back is known (BASHER WIMPY DIR sets one): run over, not moving. Still primed.", "orange");
+    return;
+  }
+  B.fleeing = { dir: dir, from: B.roomNum, at: Date.now(), sentAt: 0, why: why };
+  display_notice("[basher] " + why + ": fleeing " + dir.toUpperCase() + ".", "orange");
+  B.fleeTick();
+};
+
+// While fleeing: done once the room changes; the step is sent on balance and
+// equilibrium, again every 1.5 s while still here; given up after 10 s.
+B.fleeTick = function () {
+  var f = B.fleeing;
+  var now = Date.now();
+  if (B.roomNum !== f.from) {
+    B.fleeing = null; B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+    display_notice("[basher] fled " + f.dir.toUpperCase() + ". Still primed: attack something to start again.", "lime");
+    return;
+  }
+  if (now - f.at > 10000) {
+    B.fleeing = null; B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+    display_notice("[basher] couldn't flee " + f.dir.toUpperCase() + " (still here after 10 s): run over. Still primed.", "orange");
+    return;
+  }
+  if (get_variable("pauseTriggers") == "on" || !B.bal || !B.eq) return;
+  if (f.sentAt && now - f.sentAt < 1500) return;
+  send_command(f.dir, 1);
+  f.sentAt = now;
 };
 
 // The run is over (no more targets here): still primed.
@@ -408,7 +481,7 @@ B.isAttack = function (line) {
 // BASHER ON: primed, not attacking yet.
 B.start = function () {
   B.on = true; B.run = false;
-  B.sentAt = 0; B.misses = 0; B.low = false;
+  B.sentAt = 0; B.misses = 0; B.fleeing = null;
   if (B.loop) clearInterval(B.loop);
   B.loop = setInterval(function () { client.loom.basher.tick(); }, B.tickMs);
 };
@@ -416,9 +489,9 @@ B.start = function () {
 // The kill switch: stops at once; nothing it sent is left queued, since it
 // sends on recovery.
 B.stop = function (msg, colour) {
-  B.on = false; B.run = false; B.diag = false; B.rageSent = null;
+  B.on = false; B.run = false; B.diag = false; B.rageSent = null; B.fleeing = null;
   if (B.loop) { clearInterval(B.loop); B.loop = null; }
-  B.sentAt = 0; B.misses = 0; B.low = false; B.why = "";
+  B.sentAt = 0; B.misses = 0; B.fleeing = null; B.why = "";
   if (msg) display_notice(msg, colour || "lime");
 };
 
