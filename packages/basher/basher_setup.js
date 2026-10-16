@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.4.2", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -79,6 +79,9 @@ B.rageSent = B.rageSent || null;   // { name, at }: a rage ability sent, not yet
 
 // Battlerage on by default (#119); BASHER RAGE OFF leaves it to you.
 if (!get_variable("basher_rage")) set_variable("basher_rage", "on");
+// Raze shielded targets (#125) on by default; BASHER RAZE OFF waits for fades.
+if (!get_variable("basher_raze")) set_variable("basher_raze", "on");
+B.razeAt = B.razeAt || 0;          // when the last raze went out
 
 // Afflictions on a mob: [pattern (group 1 = the mob), affliction, on?].
 // Add rows as lines are captured; the names are what "when" lists use.
@@ -467,13 +470,83 @@ B.shieldUp = function (name) {
   var n = String(name || "").toLowerCase();
   if (!n || B.shields[n]) return;
   B.shields[n] = true;
-  if (B.on && B.run && B.targetName() === n) display_notice("[basher] " + name + " is shielded: holding attacks until it fades.", "orange");
+  B.razeAt = 0;
+  if (B.on && B.run && B.targetName() === n) display_notice("[basher] " + name + " is shielded" + B.razeNote() + ".", "orange");
 };
 B.shieldDown = function (name) {
   var n = String(name || "").toLowerCase();
   if (!B.shields[n]) return;
   delete B.shields[n];
   if (B.on && B.run && B.targetName() === n) display_notice("[basher] " + name + "'s shield is gone: attacking again.", "lime");
+};
+
+// --- Raze (#125) --------------------------------------------------------------
+// The class's shieldbreak from hunting (its "razes" with a key, the rage cost
+// from "rage"): { name, cost, cmd }, or null (dragons, Alchemist, Runewarden
+// and Unnamable have no key for theirs yet: they keep waiting for the fade).
+B.razeCmd = function () {
+  var hu = B.hunting();
+  var e = hu && hu.classes[hu.cls];
+  if (!e || !e.razes) return null;
+  var keys = e.keys || [];
+  for (var r = 0; r < e.razes.length; r++) {
+    for (var k = 0; k < keys.length; k++) {
+      var ab = (keys[k][2] && keys[k][2] != "main") ? keys[k][2] : keys[k][0];
+      if (ab === e.razes[r] && keys[k][1]) return { name: ab, cost: (e.rage && e.rage[ab]) || 0, cmd: keys[k][1] };
+    }
+  }
+  return null;
+};
+// Whether the run's target is shielded right now.
+B.shieldedTarget = function () {
+  var tn = B.targetName();
+  return !!(tn && B.shields[tn]);
+};
+// Why it's waiting on a shield, for status: razing, short of rage, or no raze.
+B.razeNote = function () {
+  if (get_variable("basher_raze") == "off") return " (BASHER RAZE is OFF: waiting for it to fade)";
+  var r = B.razeCmd();
+  if (!r) return " (no raze key for this class: waiting for it to fade)";
+  var rage = to_number((B.hunting() || {}).rage);
+  return rage < r.cost ? " (" + r.name + " needs " + r.cost + " rage, you have " + rage + ")" : " (razing with " + r.name + ")";
+};
+// Fire the shieldbreak: no balance or equilibrium needed and no cooldown
+// (hunting queues it as battlerage), only its rage. Once, then again after
+// 2.5 s while the shield is still up (a missed or lost raze).
+B.razeTick = function () {
+  if (get_variable("basher_raze") == "off" || get_variable("pauseTriggers") == "on") return;
+  var r = B.razeCmd();
+  if (!r || to_number((B.hunting() || {}).rage) < r.cost) return;
+  var now = Date.now();
+  if (B.razeAt && now - B.razeAt < B.rageRetryMs) return;
+  var cmds = B.prep(r.cmd, B.target().tar);
+  for (var i = 0; i < cmds.length; i++) send_command(cmds[i], 1);
+  B.razeAt = now;
+  if (get_variable("debug") == "on") display_notice("[debug][basher] raze " + r.name + ": " + cmds.join(" | "), "cyan");
+};
+// A line saying the shield is gone without fading: your raze's own line (the
+// class's line for its "razes" ability: the target's shield), or "Your rage
+// is wasted as X is not protected by a shield." (X's). True when it was one.
+B.razeLine = function (line) {
+  var w = /^Your rage is wasted as (.+) is not protected by a shield\.$/.exec(line);
+  if (w) { B.razeAt = 0; B.shieldDown(w[1]); return true; }
+  var hu = B.hunting();
+  var e = hu && hu.classes[hu.cls];
+  if (!e || !e.razes || !e.lines) return false;
+  for (var i = 0; i < e.lines.length; i++) {
+    var row = e.lines[i];
+    if (row[2] && e.razes.indexOf(row[2]) >= 0 && row[0].test(line)) {
+      var tn = B.targetName();
+      B.razeAt = 0;
+      if (tn && B.shields[tn]) {
+        delete B.shields[tn];
+        if (B.on && B.run) display_notice("[basher] " + tn + "'s shield razed: attacking again.", "lime");
+        B.draw();
+      }
+      return true;
+    }
+  }
+  return false;
 };
 
 // What the basher sees here, for status: "3 mobs here", or that it has no
@@ -501,7 +574,7 @@ B.held = function () {
   var t = B.target();
   if (t.why) return t.why;
   var tn = B.targetName(t);
-  if (tn && B.shields[tn]) return tn + " is shielded";
+  if (tn && B.shields[tn]) return tn + " is shielded" + B.razeNote();
   return "";
 };
 
@@ -529,6 +602,9 @@ B.tick = function () {
   if (t.why) { B.end(t.why); return; }
   var held = B.held();
   B.why = held || ((!B.bal || !B.eq) ? "waiting for balance and equilibrium" : "");
+  // A shielded target (#125, Ricardo: raze only, swapping later): the class's
+  // shieldbreak instead of waiting for the shield to fade.
+  if (held && B.shieldedTarget()) { B.razeTick(); return; }
   if (held) return;
   B.rageTick();
   if (B.why) return;
