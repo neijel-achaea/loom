@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "0.3.2", keyword: "LEDGER", desc: "{{description}}" };
+client.loom.registry.ledger = { version: "0.3.3", keyword: "LEDGER", desc: "{{description}}" };
 var LG = client.loom.ledger;
 
 // One-time migration: lg_* -> ledger_*. A new variable that already holds
@@ -142,5 +142,44 @@ LG.entry = {
       run_function("ledger_render", [], "ledger");
     }
     return n;
+  }
+};
+
+// The read-only look other packages see through loom (#197): never its
+// variables. Defined on every run.
+//   look.about(name) -> the open items whose text names that person, as a
+//     capitalised whole word ("pay back Ana 5k" names Ana, "banana" and
+//     "ana" don't), most urgent first: [{ id, text, due, state, when }].
+//     state is "overdue", "soon" (due today or within 5 days, as the tab
+//     marks it), "later" or "standing" (no date); when is how the ledger
+//     says it ("overdue 2d", "today", "in 1mo 3d", "" for standing).
+LG.soonDays = 5;
+LG.span = function (d) { var m = Math.floor(d / 25), r = d % 25; return ((m ? m + "mo " : "") + (r || !m ? r + "d" : "")).trim(); };
+LG.look = {
+  about: function (name) {
+    name = String(name || "").trim();
+    if (!/^[A-Za-z]+$/.test(name)) return [];
+    name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    var re = new RegExp("(^|[^A-Za-z])" + name + "(?![A-Za-z])");
+    var items;
+    try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
+    var today = LG.day, out = [];
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (it.status && it.status !== "open") continue;
+      if (!re.test(String(it.text || ""))) continue;
+      var st = "standing", when = "";
+      if (it.due) {
+        var diff = today > 0 ? it.due - today : null;
+        if (diff === null) { st = "later"; }
+        else if (diff < 0) { st = "overdue"; when = "overdue " + LG.span(-diff); }
+        else if (diff === 0) { st = "soon"; when = "today"; }
+        else { st = diff <= LG.soonDays ? "soon" : "later"; when = "in " + LG.span(diff); }
+      }
+      out.push({ id: it.id, text: String(it.text), due: it.due || null, state: st, when: when });
+    }
+    var rank = { overdue: 0, soon: 1, later: 2, standing: 3 };
+    out.sort(function (a, b) { return (rank[a.state] - rank[b.state]) || ((a.due || 0) - (b.due || 0)) || (a.id - b.id); });
+    return out;
   }
 };

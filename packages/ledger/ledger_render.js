@@ -153,3 +153,6 @@ html += section("Standing", st, PARCH);
 
 html += '</div>';
 try { set_custom_tab_html("Ledger", html); } catch (e) {}
+// The items may have changed: tell loom (#197, the Online tab and the login
+// notice read them).
+if (client.loom.notify) client.loom.notify("ledger");

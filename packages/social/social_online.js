@@ -8,7 +8,7 @@
 //   - below, OFFLINE: the other watched people, last seen most recent first,
 //     folded or shown by clicking its heading or with SOCIAL OFFLINE ON/OFF
 //   - room on each row for columns other packages may add (#196 standings,
-//     #197 ledger, through the display entry point #159); none yet
+//     #197 ledger, through the display entry point #159)
 // Through loom's display entry point (#159): your standing with each person
 // (#196, from standings), when both are installed and the link is on.
 var LL = client.loom.loom;
@@ -25,6 +25,20 @@ function standCell(n) {
   var tip = st.band + " " + sc + (st.recent ? ", " + st.recent + " dealing" + (st.recent === 1 ? "" : "s") + " in the last few days" + (st.trend > 0 ? ", up" : (st.trend < 0 ? ", down" : "")) : "");
   var mark = st.icon ? '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:12px;">' + esc(st.icon) + '\ufe0e</span>' : esc(st.band);
   return '<span title="' + esc(tip) + '" style="flex:none;min-width:2.6em;text-align:right;white-space:nowrap;cursor:default;color:' + esc(st.colour) + ';">' + mark + '<span style="font-size:8px;">' + arrow + '</span></span>';
+}
+// The ledger column (#197, from ledger through loom's link ledger-online):
+// a quill when open items in the ledger name this person, with the count
+// when there are several; in the ledger's sealing-wax red when one is
+// overdue, amber when one is due within a few days, muted otherwise. The
+// items on hover. Empty, and no room taken, when there are none.
+function ledgerCell(n) {
+  var its = ask("person.ledger", cap(n));
+  if (!its || !its.length) return "";
+  var worst = its[0].state;
+  var c = worst === "overdue" ? "#d0604c" : (worst === "soon" ? "#e0a95a" : MUTED);
+  var tip = [];
+  for (var li = 0; li < its.length; li++) tip.push("#" + its[li].id + " " + its[li].text + (its[li].when ? " (" + its[li].when + ")" : ""));
+  return '<span title="' + esc(tip.join("\n")) + '" style="flex:none;white-space:nowrap;cursor:default;color:' + c + ';"><span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',sans-serif;font-size:11px;">\u270e\ufe0e</span>' + (its.length > 1 ? '<span style="font-size:9px;">' + its.length + '</span>' : '') + '</span>';
 }
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
 // small-caps headings, monospace rows. The accent is a moonlit teal.
@@ -115,6 +129,7 @@ if (!watchedN) {
     html += '<span title="' + esc(g2) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:12px;cursor:default;' + nameStyle + '">' + esc(cap(r.n)) + '</span>';
     // Integration columns go here, between the name and the time: standing
     // (#196), then ledger (#197).
+    html += ledgerCell(r.n);
     html += standCell(r.n);
     html += '<span style="min-width:5.5em;text-align:right;color:' + (r.out ? MUTED : (glow ? col : MUTED)) + ';white-space:nowrap;">' + right + '</span>';
     html += '</div>';
@@ -142,6 +157,7 @@ if (watchedN && S.prev !== null) {
       var o = off[oi];
       html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;opacity:0.55;">';
       html += '<span title="' + esc(grp[o.n]) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:11px;cursor:default;color:' + nameCol(o.n, grp[o.n]) + ';">' + esc(cap(o.n)) + '</span>';
+      html += ledgerCell(o.n);
       html += standCell(o.n);
       html += '<span style="min-width:5.5em;text-align:right;color:' + MUTED + ';white-space:nowrap;">' + (o.seen ? agoTxt(now - o.seen) : "not seen yet") + '</span>';
       html += '</div>';
