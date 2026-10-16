@@ -21,6 +21,15 @@ HU.classes["Black Dragon"] = {
   razes: ["Dissolve"],
   // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
   razeAttack: "Blast",
+  // The basher's battlerage order (Ricardo): Corrode on a clumsy target
+  // (CORRODE++), Override, Dragonspit, then Dragonsting only while Override
+  // stays affordable after it.
+  bash: [
+    ["Corrode", { when: ["clumsiness"] }],
+    ["Override"],
+    ["Dragonspit"],
+    ["Dragonsting", { keep: "Override" }]
+  ],
   lines: [
     [/^You rip into (.*) with your massive, deadly claws\.$/, "GUT"],
     [/^You spit a stream of acidic venom at (.*) who writhes in agony as the spittle seeps into (\w+) skin\.$/, "DRAGONSPIT", "Dragonspit"],
