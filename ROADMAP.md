@@ -1,7 +1,7 @@
 # Loom — Roadmap
 
 **Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
-**Current release:** Loom 0.4 (Enhancements) · next: Loom 0.5 (Integrations)
+**Current release:** Loom 0.6 (Autobasher) · next: Loom 0.7 (Docs & Feedback)
 
 See the README for what each package does today.
 
@@ -202,6 +202,8 @@ The integration code itself lives in the **loom** package, so neither side knows
 
 Steps, in order: package and core attack loop on balance/equilibrium → shield detection, presence checks, curing check → rage abilities → wimpy and the enemy-list integration → per-area target priorities, then learning them from huntstats → raze or swap → attacking the party leader's target → (maybe) defensive abilities in parties.
 
+**As shipped (2026-10-16, basher 0.5.0):** `BASHER ON` primes the basher and your own attack starts a run; it attacks on each recovery and fires battlerage on its own clock, by a rotation per class (default by rage cost, or a `bash:` list in hunting's class file); DIAGNOSE on venom confusion; razes shielded targets; flees one step back on low health or mana (wimpy), then stays primed; another player, an enemy, a tell or the city channel makes the fight in progress the last one. Targets come from a kill order per area, edited in the **Basher** tab (new mob types join ignored); while primed it keeps your target on the top one (`settarget`), and the Here tab numbers each mob in that order. Changes from the plan: the curing check became a reminder (server-side or your own curing are both fine); learning priority lists (#124) was dropped as unneeded; swapping targets and everything party-related moved to Loom 1.1.
+
 ## Loom 0.7 — Docs & Feedback
 
 **Goal:** other players can install Loom, understand it, and tell us what's wrong.
@@ -225,6 +227,15 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 ## Loom 1.0
 
 **Commands and settings are stable.** Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered.
+
+## Loom 1.1 — Advanced Autobasher
+
+**Goal:** party bashing and the advanced techniques left out of 0.6, built only once the 0.6 basher has been tested thoroughly, so a party problem is clearly either the basher's or an integration's.
+
+- Attack the party leader's target; defensive and support abilities in parties.
+- Swap targets mid-fight (a better target arriving, a shield with no rage to raze it).
+- Here shows shielded mobs and which party members target each mob.
+- Empowered (++) battlerage for every class, from affliction lines collected on alts.
 
 ## Out of scope
 
