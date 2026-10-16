@@ -47,6 +47,38 @@
   },
   {
    "type": "trigger",
+   "name": "room cwho header",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// CWHO's header (\"Citizen Rank CT Class\"): the citizen rows that follow\n// tell who carries a newbie title (#242). Rows count for two seconds after\n// it (CWHO arrives in one go); nothing is sent for it.\nif (!client.loom || !client.loom.room || !client.loom.room.raw) run_function(\"room_setup\", [], \"room\");\nclient.loom.room.cwhoAt = Date.now();\nclient.loom.room.cwhoDirty = false;\n"
+    }
+   ],
+   "text": "^Citizen\\s+Rank\\s+CT\\s+Class\\s*$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "room cwho row",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "// A CWHO row, e.g. \"*Ithin Mealla, of Eleusis 1 On Sylvan\" or \"Sapling\n// Kryssla, Tuqad of the Aureliana 1 On Druid\" (#242): the name is the last\n// word before the comma (titles come first), the newbie title may be on\n// either side. Remembered as a newbie with one, forgotten without one.\n// Only right after CWHO's header.\nvar R = client.loom && client.loom.room;\nif (R && R.cwhoAt && Date.now() - R.cwhoAt < 2000) {\n  var cwFull = String(args[1]).replace(/^\\*/, \"\").trim();\n  var cwWords = cwFull.split(\",\")[0].trim().split(/\\s+/);\n  var cwName = cwWords[cwWords.length - 1];\n  if (/^[A-Z][a-z]+$/.test(cwName) && R.seen(cwName, cwFull)) {\n    R.saveNewbies();\n    if (client.loom.notify) client.loom.notify(\"room\");\n    run_function(\"room_render\", [], \"room\");\n  }\n}\n"
+    }
+   ],
+   "text": "^(\\*?[A-Z].*?)\\s+\\d+\\s+(?:On|Off)\\s+[A-Z][A-Za-z ]+$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
    "name": "room player arrives",
    "enabled": true,
    "actions": [
