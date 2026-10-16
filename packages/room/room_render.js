@@ -71,7 +71,14 @@ if (!R.info) {
 } else {
   var name = String(I.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, "");
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
-  html += '<div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + '</div>';
+  // The basher's queue and state (#163, link basher-room): asked once a draw.
+  var BQ = (client.loom.loom && client.loom.loom.answer) ? client.loom.loom.answer("room", "room.queue", { area: I.area }) : undefined;
+  var bBadge = "";
+  if (BQ && BQ.state) {
+    var bCol = { PRIMED: "#c8bfae", RUNNING: AMBER, FLEEING: "#ff9a4c" }[BQ.state] || MUTED;
+    bBadge = ' <span title="the basher" style="display:inline-block;margin-left:6px;padding:0 5px;border:1px solid ' + DEEP + ';color:' + bCol + ';font-family:' + MONO + ';font-size:10px;letter-spacing:0.08em;vertical-align:middle;">&#9876;&#xfe0e; ' + BQ.state + '</span>';
+  }
+  html += '<div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + bBadge + '</div>';
   html += '<div style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:11px;white-space:nowrap;">' + esc(I.area || "") + (I.environment ? ' &middot; ' + esc(I.environment) : '') + '</div></div>';
   // Details as tags, exits, room number.
   var tags = "";
@@ -184,15 +191,29 @@ if (!R.info) {
   for (var ti = 0; ti < mobs.length && !tgtMob; ti++) { if (tgtId && String(mobs[ti].id) === tgtId) tgtMob = mobs[ti]; }
   for (var tj = 0; tj < mobs.length && !tgtMob && tgtWord; tj++) { if (!/d/.test(mobs[tj].attrib || "") && mobs[tj].name.toLowerCase().indexOf(tgtWord) >= 0) tgtMob = mobs[tj]; }
   html += caps("mobs", mobs.length);
+  // With the basher's queue (#163): each living mob's place in the kill
+  // order as a badge (filled on your target, outlined in gold on the next),
+  // ignored types dimmed. Only once the area's list has an active type.
+  var useQ = !!(BQ && BQ.listed);
+  var badge = function (n, fill, ring) {
+    return '<span style="display:inline-block;min-width:1.4em;text-align:center;border-radius:8px;font-size:10px;padding:0 3px;' + (fill ? 'background:' + GLOW + ';color:#13110e;' : 'border:1px solid ' + ring + ';color:' + ring + ';') + '">' + n + '</span>';
+  };
   for (var mi = 0; mi < mobs.length; mi++) {
     var mob = mobs[mi];
+    var mid = String(mob.id);
+    var rank = useQ ? BQ.order[mid] : undefined;
+    var isNext = useQ && BQ.next === mid;
+    var ignored = useQ && rank === undefined && !/d/.test(mob.attrib || "") && BQ.active && BQ.active[mob.name] === false;
     if (mob === tgtMob) {
       var tHp = (R.target && String(R.target.id) === String(mob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target", tHp, GLOW);
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target" + (rank ? " \u00b7 " + rank + " in the kill order" : ""), tHp, GLOW, false, rank ? badge(rank, true) : "");
+    } else if (ignored) {
+      html += '<div style="opacity:.45;">' + row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + TXT + ';">' + esc(mob.name) + '</span>', "ignored by the basher in this area", "ignored", false, false, '<span style="color:' + DIM + ';">&ndash;</span>') + '</div>';
     } else {
       // Dead ones are greyed out; their name already says "the corpse of…".
       var dead = /d/.test(mob.attrib || "");
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (dead ? DIM : TXT) + ';">' + esc(mob.name) + '</span>');
+      var bdg = rank ? badge(rank, false, isNext ? GLOW : DIM) : "";
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (dead ? DIM : TXT) + ';">' + esc(mob.name) + '</span>', rank ? (isNext ? "next for the basher" : rank + " in the kill order") : "", isNext ? "next" : "", isNext ? "#c8a94e" : false, isNext ? "transparent" : false, bdg);
     }
   }
   var im = merge(items);
