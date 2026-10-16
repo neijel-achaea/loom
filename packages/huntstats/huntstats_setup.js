@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.3.1", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.3.2", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -247,6 +247,14 @@ try { if (get_variable("huntstats_button") !== undefined && get_variable("huntst
 //                      filed hunt earned there (total gold / hunts), or
 //                      undefined when no hunt there is on record
 HS.look = {
+  // look.party() -> the party's names as kept with HUNTSTATS PARTY, plus
+  //   anyone who joined the hunt under way (#53 skips their gold).
+  party: function () {
+    var out = HS.party.slice();
+    var pl = (HS.cur && HS.cur.players) || {};
+    for (var k in pl) { if (pl.hasOwnProperty(k) && out.indexOf(k) < 0) out.push(k); }
+    return out;
+  },
   // look.filed() -> the last filed hunt, { area, ms, players, at }, or
   //   undefined; players are the party's names (#40).
   filed: function () {

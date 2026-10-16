@@ -561,3 +561,32 @@ L.addLink({
     "defences.wanted": function () { var d = client.loom.defcon; return (d && d.look && d.look.wanted) ? d.look.wanted() : undefined; }
   }
 });
+
+// #53 coffers -> standings (Ricardo): gold given to you, 5,000 or more at
+// once, suggests the smallest friendly dealing (+) with the giver, to review.
+// Gold from someone in your huntstats party is the split being settled, not
+// a gift, so it's skipped (read from huntstats' look when it's installed).
+// Gifts are kept in memory only and each is looked at once, so a reload or
+// a SKIP never brings one back. A newer gift replaces that person's pending
+// suggestion.
+L.giftMin = 5000;
+L.addLink({
+  id: "coffers-standings", src: "coffers", dst: "standings", issue: 53,
+  desc: "A small friendly dealing to review with whoever gives you 5,000 gold or more (party skipped, via huntstats)",
+  update: function () {
+    var co = client.loom.coffers, st = client.loom.standings, hs = client.loom.huntstats;
+    if (!co || !co.look || !co.look.gifts || !st || !st.entry) return;
+    var gifts = co.look.gifts(L.giftSeen || 0);
+    if (!gifts.length) return;
+    L.giftSeen = gifts[gifts.length - 1].t;
+    var party = (hs && hs.look && hs.look.party) ? hs.look.party() : [];
+    var inParty = {};
+    for (var p = 0; p < party.length; p++) inParty[String(party[p]).toLowerCase()] = true;
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+    for (var i = 0; i < gifts.length; i++) {
+      var g = gifts[i];
+      if (g.amount < L.giftMin || inParty[g.who.toLowerCase()]) continue;
+      st.entry.suggest({ who: g.who, step: 1, why: "gave you " + fmt(g.amount) + " gold", source: "coffers" });
+    }
+  }
+});

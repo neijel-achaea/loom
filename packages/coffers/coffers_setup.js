@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "0.3.0", keyword: "COFFERS", desc: "{{description}}" };
+client.loom.registry.coffers = { version: "0.3.1", keyword: "COFFERS", desc: "{{description}}" };
 var CO = client.loom.coffers;
 
 // One-time migration: gc_* -> coffers_*. A new variable that already holds
@@ -206,5 +206,19 @@ CO.entry = {
     if (n || dropped) CO.saveProposals();
     if (n) run_function("coffers_render", [], "coffers");
     return n;
+  }
+};
+
+// Gold given to you (#53): "Grulk gives 5,000 gold sovereigns to you."
+// Kept in memory only, newest last, the last 30: { who, amount, t }.
+if (!CO.gifts) CO.gifts = [];
+// The read-only look other packages see through loom: never its variables.
+//   look.gifts(since) -> copies of the gifts received after time `since`
+//     (all of this page load's with no argument), oldest first.
+CO.look = {
+  gifts: function (since) {
+    var out = [];
+    for (var i = 0; i < CO.gifts.length; i++) { if (!since || CO.gifts[i].t > since) out.push({ who: CO.gifts[i].who, amount: CO.gifts[i].amount, t: CO.gifts[i].t }); }
+    return out;
   }
 };
