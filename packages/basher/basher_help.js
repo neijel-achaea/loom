@@ -11,6 +11,7 @@ var hlRows = [
   ["BASHER WIMPY HEALTH|MANA <1-90|OFF>", "during a run, flee below this health or mana (health 40, mana 20 by default)"],
   ["BASHER WIMPY DIR <direction|OFF>", "where to flee when the way back isn't known"],
   ["BASHER RAGE [ON|OFF]", "battlerage during a run (default ON), in the class's order; no word: show it"],
+  ["With social installed, an enemy who arrives during a run makes the fight in progress the last: it finishes, nothing new starts (loom link social-basher)."],
   ["Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system."],
   ["A mob whose magical shield is up isn't attacked until the shield fades (razing comes later)."],
   ["While on, \"You are confused as to the effects of the venom.\" sends DIAGNOSE on the next recovery, once per confusion."],

@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.3.0", keyword: "BASHER", desc: "{{description}}" };
+client.loom.registry.basher = { version: "0.3.1", keyword: "BASHER", desc: "{{description}}" };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -45,6 +45,7 @@ if (B.bal === undefined) { B.bal = false; B.eq = false; B.hp = 0; B.maxhp = 0; }
 B.sentAt = B.sentAt || 0;          // when the last attack went out (0: none pending)
 B.misses = B.misses || 0;          // attacks sent without balance or equilibrium going
 B.fleeing = B.fleeing || null;     // { dir, from, at, sentAt, why } while fleeing
+B.lastFight = B.lastFight || null; // { why, id }: finish this mob, nothing after it (#122)
 // Rooms from Room.Info, for the way back: this room's number and exits, and
 // the room before it.
 if (B.roomNum === undefined) { B.roomNum = ""; B.prevNum = ""; B.exits = {}; }
@@ -251,17 +252,24 @@ B.target = function () {
   var tar = useGame ? String(g.id || g.name) : tv;
   if (!tar) return { tar: "", why: "no target" };
   if (B.players[tar.toLowerCase()]) return { tar: tar, why: tar + " is a player here: not attacking" };
-  if (!B.roomKnown) return { tar: tar, why: "" };
+  if (!B.roomKnown) return { tar: tar, id: /^\d+$/.test(tar) ? tar : "", why: "" };
   var mob = function (it) { return /m/.test(it.attrib || "") && !/d/.test(it.attrib || ""); };
+  // Finishing the last fight (B.lastFight: an enemy arrived, #122): only the
+  // mob being fought then, whatever the target says now; nothing after it.
+  if (B.run && B.lastFight && B.lastFight.id) {
+    var lf = B.room[B.lastFight.id];
+    if (lf && mob(lf)) return { tar: B.lastFight.id, id: B.lastFight.id, name: lf.name, why: "" };
+    return { tar: B.lastFight.id, why: "fight over, not starting another (" + B.lastFight.why + ")" };
+  }
   if (/^\d+$/.test(tar)) {
     var it = B.room[tar];
-    if (it && mob(it)) { if (B.run) B.runName = it.name; return { tar: tar, name: it.name, why: "" }; }
+    if (it && mob(it)) { if (B.run) B.runName = it.name; return { tar: tar, id: tar, name: it.name, why: "" }; }
     // That one is dead or gone: during a run, the next living mob with the
     // same name (Ricardo: it goes on until the room runs out of targets).
     if (B.run && B.runName) {
       for (var nx = 0; nx < B.order.length; nx++) {
         var nit = B.room[B.order[nx]];
-        if (nit && mob(nit) && nit.name === B.runName) return { tar: B.order[nx], name: B.runName, why: "" };
+        if (nit && mob(nit) && nit.name === B.runName) return { tar: B.order[nx], id: B.order[nx], name: B.runName, why: "" };
       }
       return { tar: tar, why: "no more " + B.runName.replace(/^(a|an|the|some)\s+/i, "") + " here" };
     }
@@ -270,7 +278,7 @@ B.target = function () {
   var re = new RegExp("\\b" + tar.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b");
   for (var oi = 0; oi < B.order.length; oi++) {
     var oit = B.room[B.order[oi]];
-    if (oit && mob(oit) && re.test(String(oit.name).toLowerCase())) return { tar: tar, name: oit.name, why: "" };
+    if (oit && mob(oit) && re.test(String(oit.name).toLowerCase())) return { tar: tar, id: B.order[oi], name: oit.name, why: "" };
   }
   return { tar: tar, why: "no " + tar + " here" };
 };
@@ -418,7 +426,7 @@ B.backDir = function () {
 B.flee = function (why) {
   var dir = B.backDir();
   if (!dir) {
-    B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+    B.run = false; B.sentAt = 0; B.misses = 0; B.why = ""; B.lastFight = null;
     display_notice("[basher] " + why + ", but no way back is known (BASHER WIMPY DIR sets one): run over, not moving. Still primed.", "orange");
     return;
   }
@@ -433,12 +441,12 @@ B.fleeTick = function () {
   var f = B.fleeing;
   var now = Date.now();
   if (B.roomNum !== f.from) {
-    B.fleeing = null; B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+    B.fleeing = null; B.run = false; B.sentAt = 0; B.misses = 0; B.why = ""; B.lastFight = null;
     display_notice("[basher] fled " + f.dir.toUpperCase() + ". Still primed: attack something to start again.", "lime");
     return;
   }
   if (now - f.at > 10000) {
-    B.fleeing = null; B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+    B.fleeing = null; B.run = false; B.sentAt = 0; B.misses = 0; B.why = ""; B.lastFight = null;
     display_notice("[basher] couldn't flee " + f.dir.toUpperCase() + " (still here after 10 s): run over. Still primed.", "orange");
     return;
   }
@@ -449,8 +457,28 @@ B.fleeTick = function () {
 };
 
 // The run is over (no more targets here): still primed.
+// Finish only the fight in progress (#122 an enemy arrived; #118 will use it
+// for players and tells too): the mob being fought now is the last one, then
+// the run ends and the basher waits primed. Nothing is cut short.
+B.finishOnly = function (why) {
+  if (!B.on || !B.run || B.lastFight) return;
+  var t = B.target();
+  B.lastFight = { why: why, id: t.id || "" };
+  display_notice("[basher] " + why + ": finishing " + (t.name || "this fight") + ", nothing new after it.", "orange");
+};
+
+// Someone arrived in the room (onGMCP Room.AddPlayer): during a run, an enemy
+// (social's enemies list, through loom's social-basher link) means this fight
+// is the last. Enemies already here when the run started don't count.
+B.arrived = function (name) {
+  if (!B.on || !B.run || B.lastFight) return;
+  var L = client.loom.loom;
+  var enemy = L && L.answer ? L.answer("basher", "person.enemy", name) : undefined;
+  if (enemy) B.finishOnly(name + " (enemy) is here");
+};
+
 B.end = function (why) {
-  B.run = false; B.sentAt = 0; B.misses = 0; B.why = "";
+  B.run = false; B.sentAt = 0; B.misses = 0; B.why = ""; B.lastFight = null;
   display_notice("[basher] " + why + ": run over, still primed. Attack something to start again.", "cyan");
 };
 
@@ -462,6 +490,7 @@ B.begin = function () {
   if (!B.on || B.run) return;
   B.run = true;
   B.runName = "";
+  B.lastFight = null;
   B.sentAt = 0; B.misses = 0;
   B.bal = false; B.eq = false;
   var m = B.main();
@@ -489,7 +518,7 @@ B.start = function () {
 // The kill switch: stops at once; nothing it sent is left queued, since it
 // sends on recovery.
 B.stop = function (msg, colour) {
-  B.on = false; B.run = false; B.diag = false; B.rageSent = null; B.fleeing = null;
+  B.on = false; B.run = false; B.diag = false; B.rageSent = null; B.fleeing = null; B.lastFight = null;
   if (B.loop) { clearInterval(B.loop); B.loop = null; }
   B.sentAt = 0; B.misses = 0; B.fleeing = null; B.why = "";
   if (msg) display_notice(msg, colour || "lime");

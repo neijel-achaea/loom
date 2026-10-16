@@ -606,3 +606,16 @@ L.addLink({
   desc: "A green leaf on newbies' names in the Comms tab",
   answers: { "person.newbie": roomNewbie }
 });
+
+// #122 social -> basher: an enemy arriving during a run makes the fight in
+// progress the last one (Ricardo: it finishes, nothing new starts; you can
+// always move by hand). The basher asks about each arrival.
+L.addLink({
+  id: "social-basher", src: "social", dst: "basher", issue: 122,
+  desc: "An enemy arriving ends the basher's run after the current fight",
+  answers: {
+    // The enemies list itself, not look.group (that gives only the first
+    // group in priority order, so family would hide an enemy).
+    "person.enemy": function (n) { var s = client.loom.social; var k = String(n || "").trim().toLowerCase(); return s && s.lists && s.lists.enemies && s.lists.enemies[k] ? true : undefined; }
+  }
+});
