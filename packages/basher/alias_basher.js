@@ -42,6 +42,15 @@ if (bsSub === "" || bsSub === "status") {
   } else {
     display_notice("[basher] BASHER WIMPY HEALTH|MANA <1-90|OFF>, or BASHER WIMPY DIR <direction|OFF>.", "orange");
   }
+} else if (bsSub === "raze") {
+  var bsZ = bsW[1];
+  var bsRz = B.razeCmd();
+  if (bsZ === "on" || bsZ === "off") {
+    set_variable("basher_raze", bsZ);
+    display_notice("[basher] raze " + bsZ.toUpperCase() + (bsZ === "on" ? (bsRz ? ": " + bsRz.name + " on a shielded target." : ", but this class has no raze key: it waits for shields to fade.") : ": it waits for shields to fade."), "lime");
+  } else {
+    display_notice("[basher] raze " + String(get_variable("basher_raze")).toUpperCase() + (bsRz ? " with " + bsRz.name + " (" + bsRz.cost + " rage)" : " (no raze key for this class)") + ". BASHER RAZE ON|OFF.", "cyan");
+  }
 } else if (bsSub === "rage") {
   var bsR = bsW[1];
   if (bsR === "on" || bsR === "off") {

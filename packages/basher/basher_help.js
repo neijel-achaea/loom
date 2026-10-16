@@ -10,11 +10,12 @@ var hlRows = [
   ["BASHER WIMPY", "show when it flees"],
   ["BASHER WIMPY HEALTH|MANA <1-90|OFF>", "during a run, flee below this health or mana (health 40, mana 20 by default)"],
   ["BASHER WIMPY DIR <direction|OFF>", "where to flee when the way back isn't known"],
+  ["BASHER RAZE [ON|OFF]", "raze a shielded target with your class's shieldbreak (default ON); no word: show it"],
   ["BASHER RAGE [ON|OFF]", "battlerage during a run (default ON), in the class's order; no word: show it"],
   ["The Basher tab (create a custom tab named Basher) keeps a kill order per area: new mob types join ignored; ACTIVE ones are targeted by priority, then room order. While primed the basher sets your target to the top one whenever that changes; in a run it takes the next after each kill and ends when none are left. With no active types in an area it follows your own target as before."],
   ["Another player arriving during a run, a tell to you, or a line on your city channel makes the fight in progress the last: it finishes, nothing new starts, the basher waits primed. With social, enemies are named as such (loom link social-basher)."],
   ["Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system."],
-  ["A mob whose magical shield is up isn't attacked until the shield fades (razing comes later)."],
+  ["A shielded target is razed with your class's shieldbreak when you have the rage (BASHER RAZE), otherwise attacks wait for the shield to fade."],
   ["While on, \"You are confused as to the effects of the venom.\" sends DIAGNOSE on the next recovery, once per confusion."],
   ["It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed."]
 ];
