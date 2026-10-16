@@ -521,3 +521,29 @@ L.addLink({
   desc: "Your open ledger items about someone in their 'has awoken' notice",
   answers: { "notice.ledger": function (n) { var a = ledgerAbout(n); return a && a.length ? a : undefined; } }
 });
+
+// #40 huntstats -> standings (Ricardo): a hunt of 30 minutes or more with
+// someone in the party suggests the smallest friendly dealing (+) with each
+// of them, to review (STANDINGS OK / SKIP). Acted on only right after the
+// hunt is filed (within a minute) and once per hunt, so a reload or a later
+// notice never brings it back. The party is huntstats' own (HUNTSTATS PARTY,
+// later filled from follow lines, #188). A newer hunt with the same person
+// replaces their pending suggestion.
+L.huntNudgeMs = 30 * 60000;
+L.addLink({
+  id: "huntstats-standings", src: "huntstats", dst: "standings", issue: 40,
+  desc: "A small friendly dealing to review with people you hunted with for 30 minutes or more",
+  update: function () {
+    var hs = client.loom.huntstats, st = client.loom.standings;
+    if (!hs || !hs.look || !hs.look.filed || !st || !st.entry) return;
+    var f = hs.look.filed();
+    if (!f || !f.at || f.at === L.huntNudged || Date.now() - f.at > 60000) return;
+    L.huntNudged = f.at;
+    if (!(f.ms >= L.huntNudgeMs) || !f.players || !f.players.length) return;
+    var mins = Math.round(f.ms / 60000);
+    var len = mins >= 60 ? Math.floor(mins / 60) + "h " + (mins % 60) + "m" : mins + "m";
+    for (var i = 0; i < f.players.length; i++) {
+      st.entry.suggest({ who: f.players[i], step: 1, why: "hunted together in " + f.area + " for " + len, source: "huntstats" });
+    }
+  }
+});
