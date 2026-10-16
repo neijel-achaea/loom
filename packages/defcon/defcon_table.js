@@ -82,3 +82,5 @@ if (dcOldLevel !== null && dcOldLevel !== undefined && D.cls) {
   delete_variable("defcon_level");
 }
 D.level = D.levels[D.tbl.name];
+// The table or level may have changed: tell loom (#176, the Self tab).
+if (client.loom.notify) client.loom.notify("defcon");

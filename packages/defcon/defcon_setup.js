@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.defcon) client.loom.defcon = {};
-client.loom.registry.defcon = { version: "0.4.2", keyword: "DEFCON", desc: "{{description}}" };
+client.loom.registry.defcon = { version: "0.4.3", keyword: "DEFCON", desc: "{{description}}" };
 
 var D = client.loom.defcon;
 
@@ -27,3 +27,18 @@ if (dcAu !== null && dcAu !== undefined) {
   delete_variable("defcon_autoup");
 }
 if (!get_variable("defcon_autoinit")) set_variable("defcon_autoinit", "on");
+
+// The read-only look other packages see through loom (#176): never its
+// variables. Defined on every run.
+//   look.wanted() -> { level, table, defs } at the current class's DEFCON
+//     level: defs are the defences of the effective table (defaults plus
+//     your changes) with a tier >= the level, the ones DEFCON keeps up.
+//     undefined while no table is loaded or no level is set in this class.
+D.look = {
+  wanted: function () {
+    if (!D.tbl || !D.tbl.defs || D.level === undefined || D.level === null) return undefined;
+    var out = [];
+    for (var i = 0; i < D.tbl.defs.length; i++) { if (D.tbl.defs[i][1] >= D.level) out.push(String(D.tbl.defs[i][0]).toLowerCase()); }
+    return { level: D.level, table: D.tbl.name, defs: out };
+  }
+};

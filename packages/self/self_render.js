@@ -166,23 +166,31 @@ html += section("Afflictions", af);
 
 // Defences: watched-but-missing first, then what is up, then what fell
 // recently, so a stripped defence is noticed rather than just absent.
+// DEFCON's wanted defences (#176) are watched too, as their own layer: their
+// missing chips are amber, yours (SELF WANT) red.
+var DW = S.defconWant ? S.defconWant() : null;
+var DWANT = DW ? DW.defs : {};
 var defs = keys(S.defs);
 var missing = [];
 for (var w in WANT) { if (WANT.hasOwnProperty(w) && !S.defs[w]) { missing.push(w); } }
+var dmissing = [];
+for (var w2 in DWANT) { if (DWANT.hasOwnProperty(w2) && !WANT[w2] && !S.defs[w2]) { dmissing.push(w2); } }
 missing.sort();
+dmissing.sort();
 var lost = [];
-for (var l in S.lost) { if (S.lost.hasOwnProperty(l)) { if (now - S.lost[l] <= LOST_SECS && !S.defs[l] && !WANT[l]) { lost.push(l); } else if (now - S.lost[l] > LOST_SECS) { delete S.lost[l]; } } }
+for (var l in S.lost) { if (S.lost.hasOwnProperty(l)) { if (now - S.lost[l] <= LOST_SECS && !S.defs[l] && !WANT[l] && !DWANT[l]) { lost.push(l); } else if (now - S.lost[l] > LOST_SECS) { delete S.lost[l]; } } }
 lost.sort();
 var db = "";
-if (missing.length) {
-  db += '<div style="margin-bottom:3px;"><span style="color:' + AFF + ';margin-right:6px;">missing</span>';
+if (missing.length || dmissing.length) {
+  db += '<div style="margin-bottom:3px;"><span style="color:' + (missing.length ? AFF : WARN) + ';margin-right:6px;">missing</span>';
   for (var m = 0; m < missing.length; m++) { db += chip(missing[m], AFF, AFF, "", "watched, not up"); }
+  for (var m2 = 0; m2 < dmissing.length; m2++) { db += chip(dmissing[m2], WARN, WARN, "", "DEFCON " + DW.level + " wants it, not up"); }
   db += '</div>';
 }
 if (defs.length) {
   db += '<div>';
   for (var d = 0; d < defs.length; d++) {
-    var wanted = !!WANT[defs[d]];
+    var wanted = !!WANT[defs[d]] || !!DWANT[defs[d]];
     db += chip(defs[d], wanted ? "#101a12" : CYAN, wanted ? OK : "#3d6b75", wanted ? OK : "", S.defs[defs[d]].desc);
   }
   db += '</div>';
@@ -194,7 +202,7 @@ if (lost.length) {
   for (var lo = 0; lo < lost.length; lo++) { db += chip(lost[lo], MUTED, RULE, "", "lost " + (now - S.lost[lost[lo]]) + "s ago", "text-decoration:line-through;"); }
   db += '</div>';
 }
-html += section("Defences" + (defs.length ? ' <span style="font-variant:normal;letter-spacing:0;color:' + MUTED + ';">' + defs.length + ' up</span>' : ''), db);
+html += section("Defences" + (DW ? ' <span style="font-variant:normal;letter-spacing:0;color:' + MUTED + ';">&middot; DEFCON ' + DW.level + '</span>' : '') + (defs.length ? ' <span style="font-variant:normal;letter-spacing:0;color:' + MUTED + ';">' + (DW ? '&middot; ' : '') + defs.length + ' up</span>' : ''), db);
 html += '<div style="color:' + MUTED + ';margin-top:6px;font-family:' + SERIF + ';font-style:italic;">DIAG, DEF and SCORE refresh the lists. SELF WANT &lt;defence&gt; watches a defence; SELF KEEP &lt;affliction&gt; hides one you keep on purpose.</div>';
 html += '</div>';
 try { set_custom_tab_html("Self", html); } catch (e) {}
