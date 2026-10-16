@@ -1,7 +1,8 @@
-// Tab icon (Basher, #123): crossed swords in the suite's amber; pure CSS
+// Tab icon (Basher, #123): a training dummy with a target on its chest
+// (Ricardo; crossed swords were too close to DmgChart's); pure CSS
 // keyed on the tab button's title, as Here's, so Nexus's own redraws can't
 // undo it. Injected once per page: a changed icon needs a page reload.
-var tiTabs = [["Basher", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17"><g stroke-linecap="round"><line x1="2.5" y1="2.5" x2="11" y2="11" stroke="#ffffff" stroke-width="2.4"/><line x1="14.5" y1="2.5" x2="6" y2="11" stroke="#ffffff" stroke-width="2.4"/><line x1="2.5" y1="2.5" x2="11" y2="11" stroke="#e0b46c" stroke-width="1.4"/><line x1="14.5" y1="2.5" x2="6" y2="11" stroke="#e0b46c" stroke-width="1.4"/><line x1="9" y1="13" x2="13" y2="9" stroke="#e0b46c" stroke-width="1.6"/><line x1="4" y1="9" x2="8" y2="13" stroke="#e0b46c" stroke-width="1.6"/><line x1="11.4" y1="11.4" x2="14.4" y2="14.4" stroke="#a5824a" stroke-width="1.8"/><line x1="5.6" y1="11.4" x2="2.6" y2="14.4" stroke="#a5824a" stroke-width="1.8"/></g></svg>']];
+var tiTabs = [["Basher", '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17"><line x1="8.5" y1="9" x2="8.5" y2="16.2" stroke="#a5824a" stroke-width="1.8" stroke-linecap="round"/><line x1="5.6" y1="16.2" x2="11.4" y2="16.2" stroke="#a5824a" stroke-width="1.4" stroke-linecap="round"/><line x1="1.8" y1="7.2" x2="15.2" y2="7.2" stroke="#e0b46c" stroke-width="1.8" stroke-linecap="round"/><circle cx="8.5" cy="2.9" r="2.1" fill="#e0b46c"/><rect x="5.2" y="5" width="6.6" height="7.4" rx="2.4" fill="#e0b46c"/><circle cx="8.5" cy="8.7" r="2.3" fill="#ffffff"/><circle cx="8.5" cy="8.7" r="1.15" fill="#c0392b"/></svg>']];
 try {
   for (var tiI = 0; tiI < tiTabs.length; tiI++) {
     var tiId = "tabicon-" + tiTabs[tiI][0].toLowerCase();
