@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.3.0", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.3.1", keyword: "HUNTSTATS", desc: "{{description}}" };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds
@@ -240,12 +240,21 @@ HS.save = function (force) {
 try { if (get_variable("huntstats_button") !== undefined && get_variable("huntstats_button") !== null) delete_variable("huntstats_button"); } catch (e) {}
 
 // The read-only look other packages see through loom (#39): never its variables.
+//   look.filed()    -> the last filed hunt: { area, ms, players, at }
 //   look.hunt()     -> { area } while a hunt is under way (experience earned
 //                      in this area), undefined otherwise
 //   look.average(area) -> { gold, hunts } for that area: the average gold one
 //                      filed hunt earned there (total gold / hunts), or
 //                      undefined when no hunt there is on record
 HS.look = {
+  // look.filed() -> the last filed hunt, { area, ms, players, at }, or
+  //   undefined; players are the party's names (#40).
+  filed: function () {
+    var lg = [];
+    try { lg = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { lg = []; }
+    var r = lg[0];
+    return r ? { area: r.area, ms: r.ms, players: (r.players || []).slice(), at: r.at } : undefined;
+  },
   hunt: function () {
     var c = HS.cur;
     return (c && c.area !== undefined && c.firstXpAt && c.xp > 0) ? { area: c.area } : undefined;
