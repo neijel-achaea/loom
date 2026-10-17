@@ -26,6 +26,8 @@ HU.classes["Blue Dragon"] = {
     // the basher starts a run on them.
     [/^You rip into (.*) with your massive, deadly claws\.$/, "GUT"],
     [/^Drawing from the well of your puissance, you invoke a dramatic chant in the dragon tongue. Your voice resonates with each word, culminating in a wave of magical energy that you bend to your will and thrust towards (.*), bombarding (\w+) with the ancient power\.$/, "INCANTATION"],
+    // Override, as Black Dragon's (a shared dragon ability).
+    [/^You barrel into (.*) and knock (\w+) to the ground before stomping over (\w+) prone form\.$/, "OVERRIDE", "Override"],
     [/^You form small chunks of ice in your enormous maw, then spit them at (.*) in a barrage\.$/, "DRAGONCHILL", "Dragonchill"],
     [/^You breathe a wave of icy air at (.*)\.$/, "FROSTWAVE", "Frostwave"],
     [/^You let loose a steady stream of cold air around (.*), who begins to shiver uncontrollably\.$/, "AGUE", "Ague"],

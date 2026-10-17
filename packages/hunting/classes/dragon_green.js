@@ -28,6 +28,8 @@ HU.classes["Green Dragon"] = {
     // the basher starts a run on them.
     [/^You rip into (.*) with your massive, deadly claws\.$/, "GUT"],
     [/^Drawing from the well of your puissance, you invoke a dramatic chant in the dragon tongue. Your voice resonates with each word, culminating in a wave of magical energy that you bend to your will and thrust towards (.*), bombarding (\w+) with the ancient power\.$/, "INCANTATION"],
+    // Override, as Black Dragon's (a shared dragon ability).
+    [/^You barrel into (.*) and knock (\w+) to the ground before stomping over (\w+) prone form\.$/, "OVERRIDE", "Override"],
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
   ]
 };
