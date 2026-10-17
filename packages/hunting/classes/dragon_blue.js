@@ -22,6 +22,10 @@ HU.classes["Blue Dragon"] = {
   // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
   razeAttack: "Blast",
   lines: [
+    // Gut and Incantation, every dragon's main attacks (as Black Dragon's);
+    // the basher starts a run on them.
+    [/^You rip into (.*) with your massive, deadly claws\.$/, "GUT"],
+    [/^Drawing from the well of your puissance, you invoke a dramatic chant in the dragon tongue. Your voice resonates with each word, culminating in a wave of magical energy that you bend to your will and thrust towards (.*), bombarding (\w+) with the ancient power\.$/, "INCANTATION"],
     [/^You form small chunks of ice in your enormous maw, then spit them at (.*) in a barrage\.$/, "DRAGONCHILL", "Dragonchill"],
     [/^You breathe a wave of icy air at (.*)\.$/, "FROSTWAVE", "Frostwave"],
     [/^You let loose a steady stream of cold air around (.*), who begins to shiver uncontrollably\.$/, "AGUE", "Ague"],
