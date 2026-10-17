@@ -141,7 +141,7 @@
               "script": "@file:multiclass__trigger_with_a_grimness_born_of_determination.js"
             }
           ],
-          "text": "^With a grimness born of determination\\, you begin to unleash the Dragon that is now so much a part of the fabric of your soul\\. A black light begins to shine through from within you\\.$",
+          "text": "^(?:With a grimness born of determination\\, you begin to unleash the Dragon that is now so much a part of the fabric of your soul\\. An? \\w+ light begins to shine through from within you|Invoking the power that the line of \\w+ grants you\\, you will forth the Dragon within\\, and an? \\w+ light begins to emanate from your very soul)\\.$",
           "matching": "regexp",
           "whole_words": true,
           "case_sensitive": true
