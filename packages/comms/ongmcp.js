@@ -11,7 +11,13 @@ if (cmM === "Comm.Channel.Text" || cmM === "Comm.Channel.List" || cmM === "Char.
   if (!client.loom || !client.loom.comms || !client.loom.comms.chans) run_function("comms_setup", [], "comms");
   var CM = client.loom.comms;
   if (cmM !== "Char.Status") CM.raw[cmM] = cmA;
-  if (cmM === "Comm.Channel.Text" && cmA && cmA.channel) {
+  // partycomms' reports (#286) are data for the party tab, not talk: they
+  // are left out, yours and everyone else's. Matched on the whole report
+  // shape (as partycomms' trigger), so "[PARTY]" typed by hand still shows.
+  var cmParty = /\[PARTY\] \w+ \S+ \d+\/\d+ \d+\/\d+ \d+\/\d+ \d+\/\d+ \d+ [\d.]+ ~ \d+ \S+ /;
+  if (cmM === "Comm.Channel.Text" && cmA && cmA.channel && cmParty.test(String(cmA.text || "").replace(/\u001b\[[0-9;]*m/g, ""))) {
+    // left out
+  } else if (cmM === "Comm.Channel.Text" && cmA && cmA.channel) {
     run_function("comms_add", cmA, "comms");
   } else if (cmM === "Comm.Channel.List" && cmA && cmA.length) {
     for (var cmI = 0; cmI < cmA.length; cmI++) {
