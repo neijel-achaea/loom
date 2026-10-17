@@ -23,6 +23,10 @@ HU.classes["Silver Dragon"] = {
   // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
   razeAttack: "Blast",
   lines: [
+    // Gut and Incantation, every dragon's main attacks (as Black Dragon's);
+    // the basher starts a run on them.
+    [/^You rip into (.*) with your massive, deadly claws\.$/, "GUT"],
+    [/^Drawing from the well of your puissance, you invoke a dramatic chant in the dragon tongue. Your voice resonates with each word, culminating in a wave of magical energy that you bend to your will and thrust towards (.*), bombarding (\w+) with the ancient power\.$/, "INCANTATION"],
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
   ]
 };
