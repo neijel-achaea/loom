@@ -3,7 +3,7 @@
 *The Self tab: your afflictions and defences live, the defences you care about watched, and your character at a glance.*
 
 <!-- loom:version self -->
-*This page describes self 0.3.0.*
+*This page describes self 0.3.1.*
 <!-- /loom:version -->
 
 ## What it is

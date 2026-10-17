@@ -7,7 +7,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.self) client.loom.self = {};
 // redraw: how loom redraws the Self tab when a source changes (#176).
-client.loom.registry.self = { version: "0.3.0", keyword: "SELF", desc: "{{description}}", redraw: function () { run_function("self_render", [], "self"); } };
+client.loom.registry.self = { version: "0.3.1", keyword: "SELF", desc: "{{description}}", redraw: function () { run_function("self_render", [], "self"); } };
 var SF = client.loom.self;
 
 // The old package kept its state in client.self, client.selfWant,
