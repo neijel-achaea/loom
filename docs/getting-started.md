@@ -61,8 +61,7 @@ Loom's own commands:
 | `LOOM DEBUG ON\|OFF` | debug notices |
 | `LOOM ROOM` | current room id, name, area and environment |
 | `LOOM LINKS` | integrations between packages, on, off or waiting for a package |
-| `LOOM LINK <id> ON\|OFF` | switch one integration; new ones start on |
-| **Packages appear in the list once they have had their v0.2 update.** | |
+| `LOOM LINK <id> ON\|OFF` | switch one integration |
 <!-- /loom:commands -->
 
 Type `LOOM` first: it lists the packages it can see, with their versions.
