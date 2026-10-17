@@ -72,7 +72,7 @@ When two packages that can work together are both installed, their integration (
 
 Integrations only suggest. Ledger reminders can be marked done or dropped, coffers goals wait for `COFFERS ACCEPT`, standings dealings wait for `STANDINGS OK`.
 
-Each package's page has a "Working with other packages" section listing its links.
+Each package's page has a "Working with other packages" section listing its links, and the [loom page](loom.md#integrations) lists them all.
 
 ## 6. Keeping up to date
 
