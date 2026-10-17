@@ -60,6 +60,16 @@ for (var huK = 1; huK <= 12; huK++) {
     huLabel = (huTogDef.label || huTog[1]) + (huTogOn ? " ON" : " OFF");
     huCmd = "hunting toggle " + huTog[1];
   }
+  // While the basher is running, F1 is STOP (Ricardo): lit, sending BASHER
+  // END, which ends the run and leaves the basher primed. Primed or off, F1
+  // is the class's own key again; the basher redraws these keys when its run
+  // starts or ends.
+  if (huK == 1 && client.loom.basher && client.loom.basher.run) {
+    buttons_set_label(1, "STOP");
+    buttons_set_commands(1, "basher end");
+    buttons_set_highlight(1, 1);
+    continue;
+  }
   huLabel = huLabel.replace("{DRAGON}", huDragon == "gut" ? "Gut" : "Incantation").replace("{MODE}", huMode);
   huCmd = huCmd.replace("{dragon}", huDragon).replace("{staff}", huStaff).replace("{target}", huTarget).replace(/\s+$/, "");
   buttons_set_label(huK, huLabel);

@@ -25,6 +25,12 @@ if (bsSub === "" || bsSub === "status") {
   var bsWas = B.on;
   B.stop();
   display_notice(bsWas ? "[basher] OFF." : "[basher] already OFF.", bsWas ? "lime" : "cyan");
+} else if (bsSub === "end") {
+  // End the run at once but stay primed (F1's STOP key while a run lasts,
+  // Ricardo): nothing more is sent until your next attack starts a new run.
+  if (!B.on) display_notice("[basher] OFF: no run to end.", "cyan");
+  else if (!B.run) display_notice("[basher] primed, no run to end.", "cyan");
+  else { B.fleeing = null; B.rageSent = null; B.diag = false; B.end("run ended by hand"); }
 } else if (bsSub === "wimpy" || bsSub === "health") {
   // BASHER HEALTH n (0.1) is read as BASHER WIMPY HEALTH n.
   var bsK = bsSub === "health" ? "health" : (bsW[1] || "");

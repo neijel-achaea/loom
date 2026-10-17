@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 0.5.2.*
+*This page describes basher 0.5.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -32,6 +32,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 | `BASHER` | status: off, primed or running, and why it isn't attacking |
 | `BASHER ON` | prime it: your next attack starts a run of hunting's main attack on tar |
 | `BASHER STOP` | stop at once and stand down (the kill switch); BASHER OFF does the same |
+| `BASHER END` | end the run in progress at once, staying primed (F1 during a run) |
 | `BASHER WIMPY` | show when it flees |
 | `BASHER WIMPY HEALTH\|MANA <1-90\|OFF>` | during a run, flee below this health or mana (health 40, mana 20 by default) |
 | `BASHER WIMPY DIR <direction\|OFF>` | where to flee when the way back isn't known |
@@ -52,7 +53,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 
 When the room runs out of targets the run ends and the basher stays primed: "run over, still primed. Attack something to start again."
 
-`BASHER STOP` (or `BASHER OFF`) stops everything at once. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…).
+`BASHER STOP` (or `BASHER OFF`) stops everything at once. While a run lasts, **F1 becomes a lit STOP key** that sends `BASHER END`: the run ends at once and the basher stays primed, so your next attack starts a new one. When the run ends, however it ends, F1 goes back to your main attack. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…).
 
 The basher also switches itself off after 3 attacks in a row that took no balance: something is wrong (no target, a wrong command), and it won't keep sending blindly. It sends nothing at all while `pauseTriggers` is on (`LOOM PAUSE ON`).
 
