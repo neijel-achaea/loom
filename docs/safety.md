@@ -9,7 +9,7 @@ Achaea's rules on triggers and automation are in its help file **[15.8 Triggers,
 - Triggers are allowed in most cases.
 - **Automating anything you use to gain gold or experience is not**: the help file names auto ratting, fishing, questing, prospecting and hunting among its examples.
 - Triggered actions that **someone else can call on you to perform** are not allowed either.
-- Its test: if your character can carry on after you walk away from the computer, there's a problem.
+- Summary: if your character can carry on after you walk away from the computer, there's a problem.
 - Breaking these rules is treated as a very serious violation, and can cost you your character for good.
 
 Loom can't decide for you what the game allows. The help file is the authority, and the game's administrators are the ones to ask when you're unsure. **You are responsible for how you use these packages.**
