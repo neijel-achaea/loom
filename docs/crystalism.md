@@ -3,7 +3,7 @@
 *For Crystalism users: refine stored facets evenly across your crystal shapes, pick up pearls, and open sonic portals for your city.*
 
 <!-- loom:version crystalism -->
-*This page describes crystalism 0.3.0.*
+*This page describes crystalism 0.3.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -52,6 +52,7 @@ When facets have piled up, `CRYSTALISM REFINE` and let it work through them; `CR
 | --- | --- |
 | social | Its city list decides who gets a sonic portal. Without social, nobody does. |
 | ledger | Link `crystalism-ledger`: when a shape falls below 90% of its minimum, the ledger gets "Collect N pearls" (one pearl per 9 crystals short). It goes once every shape is back at its minimum. `LOOM LINK crystalism-ledger OFF` stops it. |
+| room | Link `crystalism-room`: in the Here tab, barnacle encrusted oysters (the denizens that drop pearls) and glistening iridescent pearls lying in the room show with a green name and a green ◉. Corpses stay grey, and your target's glow still wins. `LOOM LINK crystalism-room OFF` stops it. |
 
 ## Troubleshooting
 

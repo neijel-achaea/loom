@@ -633,3 +633,23 @@ L.addLink({
     "room.queue": function () { var b = client.loom.basher; return b && b.look && b.look.queue ? b.look.queue() : undefined; }
   }
 });
+
+// #299 crystalism -> room (Ricardo): the oysters that drop pearls and the
+// pearls themselves stand out in Here, always, as a green name with a green
+// pearl icon. Pearls answer item.flags like shrines and monoliths; oysters
+// answer mob.flags, the same shape for the mobs list. Corpses don't count,
+// and your target's glow still wins.
+L.addLink({
+  id: "crystalism-room", src: "crystalism", dst: "room", issue: 299,
+  desc: "Pearl-dropping oysters and pearls shown green in Here",
+  answers: {
+    "item.flags": function (name) {
+      var c = client.loom.crystalism;
+      return (c && c.look && c.look.pearl && c.look.pearl(name)) ? { label: "pearl", tone: "good", icon: "\u25c9", title: "a pearl: crystalism refines it" } : undefined;
+    },
+    "mob.flags": function (name) {
+      var c = client.loom.crystalism;
+      return (c && c.look && c.look.pearlMob && c.look.pearlMob(name)) ? { label: "pearls", tone: "good", icon: "\u25c9", title: "drops pearls (crystalism)" } : undefined;
+    }
+  }
+});
