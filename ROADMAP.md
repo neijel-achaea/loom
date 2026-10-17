@@ -32,7 +32,7 @@ These apply to every package touched from v0.2 onwards.
 | **Command** | One alias, `^<keyword>(?:\s+(.*))?$`, case-insensitive, with `HELP` and a bare call that shows status. |
 | **Help** | `<package>_help` prints a `[command, description]` table in a monospace block through `nexusclient.add_html_line`, falling back to `display_notice` when a client doesn't have it. Each package carries its own copy. |
 | **Notice colours** | `display_notice` uses three colours, so the colour alone says what kind of message it is: **cyan** information (status, HELP, lists), **orange** bad (errors, usage, warnings, something lost or wiped), **lime** good (a setting saved, something done or gained). **Red** only for alarms that need acting on at once (security's potential theft). Data printed as data (CSV, report tables, DEFCON EXPORT) and highlight colours (social groups, standings bands) keep their own. |
-| **Version** | Semantic version per package, set in its registry line and shown by `LOOM`. Packages move independently; only **loom** follows the suite releases. See *Versioning* in the README. |
+| **Version** | Semantic version per package, set in its registry line and shown by `LOOM`. Packages move independently; only **loom** follows the suite releases. See [Conventions → Versions](docs/dev/conventions.md#versions). |
 | **Shared flag** | `pauseTriggers` stays a plain variable. Packages treat "unset" as off, so they don't need the package that toggles it. |
 | **Suite package** | One package, **loom**, holds the `LOOM` command, the shared settings and all integrations. Nothing requires it. |
 
