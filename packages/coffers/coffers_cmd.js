@@ -126,7 +126,7 @@ else if (c === "proposed" || c === "proposals") {
   var PL = CO.proposals || [];
   if (PL.length === 0) { say("no proposed goals."); }
   for (var pi = 0; pi < PL.length; pi++) { say((pi + 1) + ". earn " + F.n(PL[pi].amount) + " gold" + (PL[pi].why ? " \u2014 " + PL[pi].why : "") + " (from " + PL[pi].src + ")"); }
-  if (PL.length) { say("COFFERS ACCEPT [n] makes one your goal, COFFERS DISMISS [n] drops it."); }
+  if (PL.length) { say("COFFERS ACCEPT [n] adds one to your goal (or starts one), COFFERS DISMISS [n] drops it."); }
 }
 else if (c === "accept" || c === "dismiss") {
   var PA = CO.proposals || [];
@@ -136,8 +136,20 @@ else if (c === "accept" || c === "dismiss") {
   else {
     var pp = PA[pn - 1];
     if (c === "accept") {
-      var had = CO.goal > 0 ? CO.goal : 0;
-      if (setGoal(pp.amount, pp.src, had)) { PA.splice(pn - 1, 1); CO.saveProposals(); render(); }
+      // A goal under way grows by the proposal (#297, Ricardo): the start
+      // point stays, so what's already earned counts. A reached goal (or
+      // none) makes way for a fresh one counted from now.
+      var aw = curWealth();
+      var aEarned = (aw && CO.goal > 0 && CO.goalBase >= 0) ? aw[0] + aw[1] - CO.goalBase : 0;
+      if (aw && CO.goal > 0 && CO.goalBase >= 0 && !CO.goalDone && aEarned < CO.goal) {
+        CO.goal += pp.amount;
+        var aSrc = CO.goalSrc ? CO.goalSrc.split(" + ") : [];
+        if (aSrc.indexOf(pp.src) < 0) aSrc.push(pp.src);
+        CO.goalSrc = aSrc.join(" + ");
+        save("coffers_goal", String(CO.goal)); save("coffers_goal_src", CO.goalSrc);
+        say("added " + F.n(pp.amount) + " gold (from " + pp.src + ") to your goal: now " + F.n(CO.goal) + ", " + F.n(Math.max(0, aEarned)) + " earned since " + F.date(CO.goalT) + ", " + F.n(CO.goal - Math.max(0, aEarned)) + " to go.", "lime");
+        PA.splice(pn - 1, 1); CO.saveProposals(); render();
+      } else if (setGoal(pp.amount, pp.src, 0)) { PA.splice(pn - 1, 1); CO.saveProposals(); render(); }
     } else {
       PA.splice(pn - 1, 1);
       // Stays away until its source withdraws it, i.e. its condition clears.

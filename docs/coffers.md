@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 0.3.2.*
+*This page describes coffers 0.3.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -33,7 +33,7 @@ Everything goes through one command, `COFFERS`. Commands aren't case-sensitive. 
 | `COFFERS GAP <5-240>` | minutes without a prompt that close a session |
 | `COFFERS GOAL <amount\|OFF>` | earn this much from now (50000, 50k, 1.5m) |
 | `COFFERS PROPOSED` | goals other packages proposed, numbered |
-| `COFFERS ACCEPT [n]` | make a proposed goal yours (the first by default) |
+| `COFFERS ACCEPT [n]` | add a proposed goal to yours, or make it your goal (the first by default) |
 | `COFFERS DISMISS [n]` | drop it; it stays away until its reason clears |
 | `COFFERS BIGCOIN <amount\|OFF>` | announce single gains or losses this large |
 | `COFFERS GRAPH [SESSION\|LONG] [ON\|OFF]` | show or hide the graphs |
@@ -91,7 +91,7 @@ Other packages can suggest a goal through Loom's integrations (see [Working with
 | Command | What it does |
 | --- | --- |
 | `COFFERS PROPOSED` | Lists the proposed goals, numbered, with the amount, the reason and the package that proposed it. |
-| `COFFERS ACCEPT [n]` | Makes proposal *n* your goal (the first if no number is given). Coffers tells you which goal it replaces, if any. |
+| `COFFERS ACCEPT [n]` | Takes proposal *n* (the first if no number is given). With a goal under way, its amount is **added** to that goal: the start stays, so what you've earned so far counts (goal 10k, 4k earned, accept 5k → goal 15k, 11k to go). With no goal, or one already reached, it becomes a new goal counted from now. |
 | `COFFERS DISMISS [n]` | Drops proposal *n*. It stays away until the reason behind it clears; after that, the package may propose it again. |
 
 ### Notices
@@ -184,7 +184,7 @@ How proposals behave:
 
 - A proposal shows in the main window ("huntstats proposes a goal: earn 26,800 gold — …"), in the **Proposed goals** section of the tab, and in `COFFERS PROPOSED`.
 - Each package has at most one proposal per reason, so a newer one replaces the older quietly. Coffers keeps at most 10.
-- **Accepting** makes it your goal. The tab shows where it came from ("· huntstats"). From then on it's yours: the hunt ending or the link going off doesn't remove it.
+- **Accepting** adds it to your goal, or makes it your goal when there's none under way. The tab shows where it came from ("· huntstats", or "· huntstats + coffers" when several added to it). From then on it's yours: the hunt ending or the link going off doesn't remove it.
 - **Dismissing** keeps it away until its reason clears.
 - **Switching a link off** takes back that package's pending proposals.
 
