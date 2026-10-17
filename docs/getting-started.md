@@ -4,6 +4,8 @@ Loom is a set of packages for Achaea's web client, [Nexus](https://play.achaea.c
 
 You pick the packages you want. Nothing needs all of them.
 
+Some packages act for you once started (the basher, fishing, harvesting). Before using them, read **[Safety and fair play](safety.md)**: the game has firm rules on automation.
+
 ## 1. Download
 
 Get the packages from the [releases page](https://github.com/neijel-achaea/loom/releases). The latest release has a zip, `loom-X.Y.Z.zip`, with one `.nxs` file per package. Unzip it anywhere.
@@ -80,11 +82,11 @@ Each package's page has a "Working with other packages" section listing its link
 
 ## 7. Stopping everything
 
-`LOOM PAUSE ON` stops the packages from sending commands to the game; `LOOM PAUSE OFF` lets them carry on. The basher has its own kill switch, `BASHER STOP`.
+`LOOM PAUSE ON` stops the packages from sending commands to the game; `LOOM PAUSE OFF` lets them carry on. The basher has its own kill switch, `BASHER STOP`. Stop them whenever you step away from the keyboard.
 
 ## Something wrong?
 
-Report it with the [bug report form](https://github.com/neijel-achaea/loom/issues/new/choose): which package and version (`LOOM` shows it), what you did, what you expected, and the lines the game showed. Ideas are welcome there too.
+[Troubleshooting](troubleshooting.md) covers the common problems. For anything else, use the [bug report form](https://github.com/neijel-achaea/loom/issues/new/choose): which package and version (`LOOM` shows it), what you did, what you expected, and the lines the game showed. Ideas are welcome there too.
 
 ## The packages
 
