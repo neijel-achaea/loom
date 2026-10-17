@@ -70,16 +70,20 @@ if (!R.info) {
   html += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">Waiting for the room… (move, or LOOK)</div>';
 } else {
   var name = String(I.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, "");
-  html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
+  // Title (#275): the room name on the top left, the basher's chip on the top
+  // right, the area and environment on a second line under the name; so the
+  // chip doesn't slide down when a long name or area wraps.
   // The basher's queue and state (#163, link basher-room): asked once a draw.
   var BQ = (client.loom.loom && client.loom.loom.answer) ? client.loom.loom.answer("room", "room.queue", { area: I.area }) : undefined;
   var bBadge = "";
   if (BQ && BQ.state) {
     var bCol = { PRIMED: "#c8bfae", RUNNING: AMBER, FLEEING: "#ff9a4c" }[BQ.state] || MUTED;
-    bBadge = ' <span title="the basher" style="display:inline-block;margin-left:6px;padding:0 5px;border:1px solid ' + DEEP + ';color:' + bCol + ';font-family:' + MONO + ';font-size:10px;letter-spacing:0.08em;vertical-align:middle;">&#9876;&#xfe0e; ' + BQ.state + '</span>';
+    bBadge = '<span title="the basher" style="flex:none;margin-top:3px;padding:0 5px;border:1px solid ' + DEEP + ';color:' + bCol + ';font-family:' + MONO + ';font-size:10px;letter-spacing:0.08em;white-space:nowrap;">&#9876;&#xfe0e; ' + BQ.state + '</span>';
   }
-  html += '<div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + bBadge + '</div>';
-  html += '<div style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:11px;white-space:nowrap;">' + esc(I.area || "") + (I.environment ? ' &middot; ' + esc(I.environment) : '') + '</div></div>';
+  html += '<div style="border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
+  html += '<div style="min-width:0;font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + '</div>' + bBadge + '</div>';
+  html += '<div style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:11px;">' + esc(I.area || "") + (I.environment ? ' &middot; ' + esc(I.environment) : '') + '</div></div>';
   // Details as tags, exits, room number.
   var tags = "";
   var det = I.details || [];
