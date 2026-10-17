@@ -18,7 +18,11 @@ var pcE = {
 };
 if (pcE.cls === "-") pcE.cls = "";
 if (pcE.tname === "-") pcE.tname = "";
+var pcWas = PC.members[args[1]];
 PC.members[args[1]] = pcE;
+// A new member or a changed target: tell loom, so Here shows who targets what
+// (#256). Health-only updates don't redraw anything.
+if ((!pcWas || pcWas.tid !== pcE.tid) && client.loom.notify) client.loom.notify("partycomms");
 gag_current_line();
 PC.lastRender = 0;
 run_function("partycomms_render", [], "partycomms");

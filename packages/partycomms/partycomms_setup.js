@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.partycomms) client.loom.partycomms = {};
-client.loom.registry.partycomms = { version: "0.2.3", keyword: "PARTYCOMMS", desc: "{{description}}" };
+client.loom.registry.partycomms = { version: "0.2.4", keyword: "PARTYCOMMS", desc: "{{description}}" };
 var PC = client.loom.partycomms;
 
 // One-time migration. party_on becomes partycomms_on; the rest were working
@@ -68,3 +68,19 @@ if (!PC.ih) PC.ih = { on: false, at: 0, tail: 0, id: "" };
 if (!PC.members) PC.members = {};
 if (!PC.sent) PC.sent = { at: 0, hp: -1, mp: -1, tid: "", tname: "", thp: "" };
 if (PC.lastRender === undefined) PC.lastRender = 0;
+// The read-only look other packages see through loom (#256).
+//   look.targeting(id) -> names of the party members (you left out) whose
+//     latest report, under PC.lookMs old, has the mob numbered id as target.
+PC.lookMs = 30000;
+PC.look = {
+  targeting: function (id) {
+    var out = [], want = String(id || ""), now = Date.now() / 1000;
+    if (!want) return out;
+    for (var n in PC.members) {
+      if (!PC.members.hasOwnProperty(n) || n === PC.me.name) continue;
+      var m = PC.members[n];
+      if (m && String(m.tid) === want && now - m.t <= PC.lookMs / 1000) out.push(n);
+    }
+    return out.sort();
+  }
+};

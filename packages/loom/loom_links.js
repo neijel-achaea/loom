@@ -653,3 +653,18 @@ L.addLink({
     }
   }
 });
+
+// #256 partycomms -> room (Ricardo): each mob row in Here names the party
+// members whose latest report (under 30 s old) targets it, so you see who's
+// on what. Answers mob.party (arg: the mob's id) -> [names], you left out.
+L.addLink({
+  id: "partycomms-room", src: "partycomms", dst: "room", issue: 256,
+  desc: "Party members' targets shown on the mobs in Here",
+  answers: {
+    "mob.party": function (id) {
+      var p = client.loom.partycomms;
+      var a = (p && p.look && p.look.targeting) ? p.look.targeting(id) : [];
+      return a.length ? a : undefined;
+    }
+  }
+});

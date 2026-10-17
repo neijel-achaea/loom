@@ -3,7 +3,7 @@
 *Shares your vitals, rage and target with your party, and shows everyone's in the Party tab.*
 
 <!-- loom:version partycomms -->
-*This page describes partycomms 0.2.3.*
+*This page describes partycomms 0.2.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -54,7 +54,7 @@ Nothing is sent while triggers are paused (`LOOM PAUSE ON`).
 
 ## Working with other packages
 
-PartyComms reads nothing from other packages and no other package reads it. For the party's gold split, see [huntstats](huntstats.md#hunting-with-a-party).
+PartyComms reads nothing from other packages. With **room** installed, the Here tab shows each party member's target: link `partycomms-room` puts their names (◂ Filune · Ojec) after the mob they're targeting, from reports under 30 seconds old; you're left out (your own target glows). `LOOM LINK partycomms-room OFF` stops it. For the party's gold split, see [huntstats](huntstats.md#hunting-with-a-party).
 
 ## Troubleshooting
 
