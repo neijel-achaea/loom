@@ -14,7 +14,9 @@ if (pcA && (pcM === "Char.Vitals" || pcM === "Char.Status" || pcM === "Char.Name
     if (pcA.name && String(pcA.name) !== ME.name) { ME.name = String(pcA.name); set_variable("partycomms_name", ME.name); }
     if (pcA["class"] && String(pcA["class"]) !== ME.cls) { ME.cls = String(pcA["class"]); set_variable("partycomms_class", ME.cls); }
     // level: "91 (52.41%)" or "91" (#288)
-    if (pcA.level !== undefined) { var pcLv = String(pcA.level).match(/^\s*(\d+)/); if (pcLv) ME.lvl = parseInt(pcLv[1], 10); }
+    // The game sends it at login only (unless CONFIG puts Level in the vitals'
+    // charstats), so the last one seen is kept in partycomms_level.
+    if (pcA.level !== undefined) { var pcLv = String(pcA.level).match(/^\s*(\d+)/); if (pcLv) PC.setLevel(parseInt(pcLv[1], 10)); }
   } else if (pcM === "IRE.Target.Info") {
     // Later updates for the same target can carry only its health, so a name
     // already known for that id is kept.
@@ -33,7 +35,7 @@ if (pcA && (pcM === "Char.Vitals" || pcM === "Char.Status" || pcM === "Char.Name
         var pcR = String(pcA.charstats[pcJ]).match(/^Rage:\s*(\d+)/);
         if (pcR) ME.rage = parseInt(pcR[1], 10);
         var pcP = String(pcA.charstats[pcJ]).match(/Level:\s*(\d+)\s*\(([\d.]+)%\)/);
-        if (pcP) { ME.lvl = parseInt(pcP[1], 10); ME.nl = parseFloat(pcP[2]); }
+        if (pcP) { PC.setLevel(parseInt(pcP[1], 10)); ME.nl = parseFloat(pcP[2]); }
       }
     }
     run_function("partycomms_send", [], "partycomms");
