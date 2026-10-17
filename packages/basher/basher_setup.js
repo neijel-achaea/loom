@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.2", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.3", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -432,7 +432,19 @@ B.autoTarget = function () {
 };
 
 // Redraw the Basher tab and tell loom (Here shows the queue), soon and once.
+// F1 is the kill switch while a run lasts (Ricardo): hunting lays out STOP
+// there whenever client.loom.basher.run is true, so when the run starts or
+// ends, hunting's keys are laid out again. Checked on every draw and tick,
+// since some paths (fleeing) end the run without drawing.
+B.syncKeys = function () {
+  var r = !!B.run;
+  if (B.keysRun === r) return;
+  B.keysRun = r;
+  if (client.loom.registry && client.loom.registry.hunting) { try { run_function("hunting_buttons", [], "hunting"); } catch (e) {} }
+};
+
 B.draw = function () {
+  B.syncKeys();
   if (B.drawT) return;
   B.drawT = setTimeout(function () {
     var b = client.loom.basher;
@@ -619,6 +631,7 @@ B.held = function () {
 // One look: attack once per recovery. Balance or equilibrium going (onGMCP)
 // clears sentAt; an attack that took neither within retryMs is a miss.
 B.tick = function () {
+  B.syncKeys();
   if (!B.on) return;
   // A DIAGNOSE owed for venom confusion goes first, on the first recovery,
   // primed or running (it helps the curing).

@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 0.5.2.*
+*This page describes basher 0.5.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -52,7 +52,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 
 When the room runs out of targets the run ends and the basher stays primed: "run over, still primed. Attack something to start again."
 
-`BASHER STOP` (or `BASHER OFF`) stops everything at once. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…).
+`BASHER STOP` (or `BASHER OFF`) stops everything at once. While a run lasts, **F1 becomes a lit STOP key** that sends `BASHER STOP`; when the run ends (primed again, or stopped), F1 goes back to your main attack. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…).
 
 The basher also switches itself off after 3 attacks in a row that took no balance: something is wrong (no target, a wrong command), and it won't keep sending blindly. It sends nothing at all while `pauseTriggers` is on (`LOOM PAUSE ON`).
 
