@@ -1,8 +1,8 @@
 # Loom — Roadmap
 
 **Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
-**Current release:** Loom 0.6 (Autobasher) · next: Loom 0.7 (Docs & Feedback)
-**Released:** 0.1 (2026-10-07) · 0.2 Standalone (10-09) · 0.3 Multiclass (10-15) · 0.4 Enhancements (10-15) · 0.5 Integrations (10-16) · 0.6 Autobasher (10-16)
+**Current release:** Loom 0.7 (Documentation) · next: Loom 0.8 (Hardening)
+**Released:** 0.1 (2026-10-07) · 0.2 Standalone (10-09) · 0.3 Multiclass (10-15) · 0.4 Enhancements (10-15) · 0.5 Integrations (10-16) · 0.6 Autobasher (10-16) · 0.7 Documentation (10-17)
 
 See the README for what each package does today.
 
@@ -205,18 +205,19 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 **As shipped (2026-10-16, basher 0.5.0):** `BASHER ON` primes the basher and your own attack starts a run; it attacks on each recovery and fires battlerage on its own clock, by a rotation per class (default by rage cost, or a `bash:` list in hunting's class file); DIAGNOSE on venom confusion; razes shielded targets; flees one step back on low health or mana (wimpy), then stays primed; another player, an enemy, a tell or the city channel makes the fight in progress the last one. Targets come from a kill order per area, edited in the **Basher** tab (new mob types join ignored); while primed it keeps your target on the top one (`settarget`), and the Here tab numbers each mob in that order. Changes from the plan: the curing check became a reminder (server-side or your own curing are both fine); learning priority lists (#124) was dropped as unneeded; swapping targets and everything party-related moved to Loom 1.1.
 
-## Loom 0.7 — Docs & Feedback
+## Loom 0.7 — Documentation
 
-**Goal:** other players can install Loom, understand it, and tell us what's wrong.
+**Goal:** a player can install Loom and understand it; a contributor can change it.
 
 - **Player docs**: getting started, one page per package, integrations, classes, troubleshooting.
 - **Contributor docs**: repo layout and build, conventions, Nexus scripting gotchas, adding a class, the PR test-checklist rule.
-- **Public beta release**, with issue templates for bugs and ideas (labelled `from-users`).
-- **A feedback window**, time-boxed: every report gets a decision (this milestone, a later one, or wontfix), and bugs in what exists outrank new features.
+- ~~Public beta release~~ and ~~a feedback window~~: dropped (Ricardo, 2026-10-17). Loom is shared here and there and tested by Ricardo with a few selected players, so there's no public launch to plan around. Reports go straight into their milestone, labelled `from-users`.
+
+**As shipped (2026-10-17):** `docs/` holds a getting-started page, a page per package (generated command lists and versions from each package's HELP, by `tools/docs.py`, plus the full list of integrations), and pages on safety and fair play ("reflexes, not a bot"), classes and troubleshooting. `CONTRIBUTING.md` and `docs/dev/` cover the workflow, layout and build, conventions with their reasons, Nexus scripting, integrations, testing and adding a class; `tools/check.py` syntax-checks every built script as Nexus runs it. Also: issue forms, a code of conduct, and the roleplay package removed (its successor, built by players for their own characters, is #262).
 
 ## Loom 0.8 — Hardening
 
-**Goal:** make what players actually use solid. Comes after feedback, so it hardens the right things.
+**Goal:** make what players actually use solid. Tested while it's built by Ricardo and a few selected players; their reports land here as they come, bugs first.
 
 - Fresh-install test of every package, alone and all together, on clean profiles.
 - Upgrades keep settings: a one-time migration for every renamed or reshaped variable.
@@ -227,7 +228,7 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 ## Loom 0.9 — Community Requests
 
-**Goal:** packages and features other players ask for, once they can install Loom and tell us what they need (0.7). New packages land here; their integrations with the rest of the suite follow the 0.5 conventions (a link in loom, off-switchable).
+**Goal:** packages and features other players ask for, as the players who try Loom tell us what they need. New packages land here; their integrations with the rest of the suite follow the 0.5 conventions (a link in loom, off-switchable).
 
 - First request: **gathering** (#232), waiting on the game lines for gathering and storing.
 
@@ -251,4 +252,4 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 ## Tracking
 
-GitHub issues grouped into milestones Loom 0.2 to Loom 0.9, then Loom 1.1: one issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Closed milestones: 0.2 to 0.6. Player reports carry the `from-users` label.
+GitHub issues grouped into milestones Loom 0.2 to Loom 0.9, then Loom 1.1: one issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Closed milestones: 0.2 to 0.7. Player reports carry the `from-users` label.
