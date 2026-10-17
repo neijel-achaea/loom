@@ -1,7 +1,7 @@
 {
  "packages": {
   "artificing": "0.2.2",
-  "basher": "0.5.2",
+  "basher": "0.5.3",
   "civic": "0.2.4",
   "coffers": "0.3.3",
   "comms": "0.1.10",
@@ -13,7 +13,7 @@
   "fishing": "0.2.2",
   "fishingstats": "0.2.2",
   "harvesting": "0.2.4",
-  "hunting": "0.4.50",
+  "hunting": "0.4.51",
   "huntstats": "0.3.2",
   "ledger": "0.3.3",
   "levelgraph": "0.2.2",
