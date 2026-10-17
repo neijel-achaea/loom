@@ -109,3 +109,5 @@ For tabs with clicks, load the whole package into the page and click through it 
 2. Reimporting runs the package's setup again, keeping its saved settings, so no restart is needed. A new tab needs its custom tab created; a changed tab icon needs a page reload.
 3. Walk through the checklist in your pull request, ticking each step.
 4. Check the package still works **alone**, and with the packages it integrates with.
+
+Before a release, run the whole [regression checklist](regression.md). When your pull request's in-game checklist has steps worth repeating at every release, add them there in the same PR.
