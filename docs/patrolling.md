@@ -87,7 +87,7 @@ Patrolling reads **ledger**'s Achaean date, for the replanting log, when it's in
 
 | Link | With | What it does |
 | --- | --- | --- |
-| `patrolling-room` | room | Shrines and totems in the Here tab flagged by their god's stance: friendly green, hostile orange with a tinted row and a "⚠ hostile shrine" warning in the header. |
+| `patrolling-room` | room | Shrines and totems in the Here tab coloured by their god's stance: friendly green, hostile orange with a tinted row and a "⚠ hostile shrine" warning in the header, neutral in the plain colour with the shrine icon. |
 | `harvesting-room` | room and harvesting | After a check, the environment's plants on a small line under Here's description: green here and stocked, yellow here but low in your rift, red missing. Shown only for the room just checked. |
 
 ## Troubleshooting

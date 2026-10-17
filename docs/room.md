@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 0.1.18.*
+*This page describes room 0.1.19.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,7 +18,7 @@ What you see, top to bottom:
 - **The description**, folded to two lines. Click it to unfold it, click again to fold it.
 - **Players** here, yourself left out, alphabetical. Hover a name for the player's full title. Your target glows red.
 - **Mobs**, one row each in the room's own order: the order the game uses when you target by name, so the next row down is the next mob `kill rat` would hit. Your target glows yellow in place, with its health. Dead ones are greyed out.
-- **Items**, duplicates on one row with their count. Things you can pick up stand out; fixtures are muted.
+- **Items**, duplicates on one row with their count: fixtures first, muted, then the things you can pick up, each in the room's order.
 
 ## Commands
 
@@ -59,7 +59,7 @@ Room reads nothing from other packages on its own. With others installed, Loom's
 | Link | With | What it does in Here |
 | --- | --- | --- |
 | `social-room` | social | Players in their social group's colour, the group added to the hover. |
-| `patrolling-room` | patrolling | Shrines and totems of gods you've sorted with `PATROLLING GODS` are flagged: friendly ones green, hostile ones orange with a tinted row and a "⚠ hostile shrine" warning in the header. Neutral gods get no flag. |
+| `patrolling-room` | patrolling | Shrines and totems are coloured by their god's stance (`PATROLLING GODS`): friendly ones green, hostile ones orange with a tinted row and a "⚠ hostile shrine" warning in the header, neutral ones in the plain colour with the shrine icon. |
 | `sigils-room` | sigils | Monoliths marked ▮. In a city (Targossas, Cyrene, Hashan, Ashtan, Mhaldor, Eleusis), a room without one gets "⚠ no monolith" in the header, unless you told sigils to ignore it (`SIGILS IGNORE`). A monolith outside a city is flagged too. |
 | `harvesting-room` | harvesting and patrolling | A small line under the description with the plants this environment should hold: **green** here and stocked, **yellow** here but below your minimum, **red** missing, with a "⚠ N plants missing" warning. It appears once patrolling's plant check has seen the room (with `PATROLLING ON`). Hover a plant for its stock and minimum. |
 | `basher-room` | basher | Each living mob's place in the basher's kill order as a numbered badge (filled on your target, outlined in gold on the next one), types the basher ignores in this area dimmed, and the basher's state beside the room name (⚔ PRIMED, RUNNING or FLEEING). |

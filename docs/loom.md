@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 0.7.0.*
+*This page describes loom 0.7.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -54,7 +54,7 @@ Every link:
 | `standings-online` | [standings](standings.md) | [social](social.md) | Your standing with each person in the Online tab |
 | `standings-comms` | [standings](standings.md) | [comms](comms.md) | Your standing with a talker, on hover in the Comms tab |
 | `standings-login` | [standings](standings.md) | [social](social.md) | Your standing's icon in the 'has awoken' notice |
-| `patrolling-room` | [patrolling](patrolling.md) | [room](room.md) | Friendly and hostile gods' shrines and totems flagged in Here |
+| `patrolling-room` | [patrolling](patrolling.md) | [room](room.md) | Shrines and totems in Here coloured by their god's stance |
 | `harvesting-ledger` | [harvesting](harvesting.md) | [ledger](ledger.md) | A harvest run reminder in the ledger when plant stock runs low |
 | `talpieces-ledger` | [talpieces](talpieces.md) | [ledger](ledger.md) | Ledger reminders for complete talisman sets and spare pieces |
 | `crystalism-ledger` | [crystalism](crystalism.md) | [ledger](ledger.md) | A collect pearls reminder in the ledger when crystals run low |

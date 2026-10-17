@@ -187,6 +187,11 @@ if (!R.info) {
     seenId[ord[oi]] = true;
     if (/m/.test(it.attrib || "")) mobs.push(it); else items.push(it);
   }
+  // Items you can't pick up first, then the ones you can (#280), each in the
+  // room's order.
+  var fixedIt = [], takeIt = [];
+  for (var si = 0; si < items.length; si++) (/t/.test(items[si].attrib || "") ? takeIt : fixedIt).push(items[si]);
+  items = fixedIt.concat(takeIt);
   // Mobs one row each (Ricardo: merging them, then splitting the target out
   // and lifting it to the top, made it hard to see what comes next). The
   // target glows where it stands: by id, or the first living mob whose name
@@ -229,7 +234,7 @@ if (!R.info) {
       var fc = FLAG[fl.tone] || MUTED;
       // The flag as an icon left of the name, the words on hover (Ricardo).
       var ficon = fl.icon ? '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:13px;color:' + fc + ';margin-left:3px;">' + esc(fl.icon) + '\ufe0e</span>' : '';
-      html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (fl.tone === "bad" ? fc : (take ? TXT : MUTED)) + ';">' + esc(im[ii].it.name) + '</span>', fl.title || fl.label || "", fl.icon ? "" : fl.label, fc, fl.tone === "bad" ? "rgba(255,154,76,0.09)" : "transparent", ficon);
+      html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (fl.tone === "bad" || fl.tone === "good" ? fc : (take ? TXT : MUTED)) + ';">' + esc(im[ii].it.name) + '</span>', fl.title || fl.label || "", fl.icon ? "" : fl.label, fc, fl.tone === "bad" ? "rgba(255,154,76,0.09)" : "transparent", ficon);
     } else {
       html += row(im[ii].n, '<span style="font-family:' + SERIF + ';font-size:13px;color:' + (take ? TXT : MUTED) + ';">' + esc(im[ii].it.name) + '</span>', take ? "you can take this" : "");
     }
