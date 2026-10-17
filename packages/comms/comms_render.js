@@ -206,26 +206,32 @@ try {
   if (cmSt.textContent !== cmCss) cmSt.textContent = cmCss;
 } catch (e) {}
 
-// Newest at the bottom: stay there if you were there (or the view changed);
-// leave the scroll alone while you read back.
-var cmSc = null, cmBottom = true;
-try {
-  var cmEl = document.getElementById("loom-comms");
-  for (var cmP = cmEl ? cmEl.parentElement : null; cmP; cmP = cmP.parentElement) {
-    if (cmP.scrollHeight > cmP.clientHeight + 2 && /auto|scroll/.test(getComputedStyle(cmP).overflowY)) { cmSc = cmP; break; }
-  }
-  if (cmSc) cmBottom = cmSc.scrollHeight - cmSc.scrollTop - cmSc.clientHeight < 40;
-} catch (e) {}
-var cmJump = C.jump || cmBottom;
+// Newest at the bottom (#273). C.follow says whether you're following the
+// newest lines: on by default, off only when you scroll up yourself, on again
+// at the bottom or when the view changes. The scroller (the first parent that
+// scrolls) gets, once, a scroll listener that keeps C.follow and a
+// ResizeObserver that goes back to the bottom whenever the tab gets its size:
+// after a reload the tab is drawn while hidden or unsized, so a jump made at
+// draw time alone was lost and the tab stayed at the top.
+if (C.follow === undefined) C.follow = true;
+if (C.jump) C.follow = true;
 C.jump = false;
 try { set_custom_tab_html(C.tab, html); } catch (e) {}
-if (cmJump) {
-  setTimeout(function () {
-    try {
-      var el = document.getElementById("loom-comms");
-      for (var p = el ? el.parentElement : null; p; p = p.parentElement) {
-        if (p.scrollHeight > p.clientHeight + 2 && /auto|scroll/.test(getComputedStyle(p).overflowY)) { p.scrollTop = p.scrollHeight; break; }
-      }
-    } catch (e) {}
-  }, 20);
-}
+setTimeout(function () {
+  try {
+    var el = document.getElementById("loom-comms");
+    var sc = null;
+    for (var p = el ? el.parentElement : null; p; p = p.parentElement) {
+      if (/auto|scroll/.test(getComputedStyle(p).overflowY)) { sc = p; break; }
+    }
+    if (!sc) return;
+    if (!sc.loomCommsFollow) {
+      sc.loomCommsFollow = true;
+      sc.addEventListener("scroll", function () {
+        if (sc.clientHeight > 0) C.follow = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40;
+      });
+      if (window.ResizeObserver) new ResizeObserver(function () { if (C.follow) sc.scrollTop = sc.scrollHeight; }).observe(sc);
+    }
+    if (C.follow) sc.scrollTop = sc.scrollHeight;
+  } catch (e) {}
+}, 20);
