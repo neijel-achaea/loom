@@ -207,10 +207,15 @@ else if (c === "csv") {
   }
 }
 else if (c === "wipe") {
-  if (p1 !== "confirm") { say("this burns the whole ledger: buffers, sessions, records. Type COFFERS WIPE CONFIRM to proceed.", "orange"); }
+  if (p1 !== "confirm") { say("this burns the whole ledger: buffers, sessions, records, the goal and every proposal. Type COFFERS WIPE CONFIRM to proceed.", "orange"); }
   else {
     CO.min = []; CO.days = []; CO.sessions = []; CO.rec = {}; CO.sess = null;
     save("coffers_min", "[]"); save("coffers_days", "[]"); save("coffers_sessions", "[]"); save("coffers_rec", "{}"); save("coffers_sess", "");
+    // Everything goes: the goal, pending proposals and dismissals. A source
+    // whose reason still holds may propose again later.
+    CO.goal = 0; CO.goalBase = -1; CO.goalT = 0; CO.goalDone = false; CO.goalSrc = "";
+    save("coffers_goal", "0"); save("coffers_goal_base", "-1"); save("coffers_goal_t", "0"); save("coffers_goal_done", "0"); save("coffers_goal_src", "");
+    CO.proposals = []; CO.dismissed = {}; CO.saveProposals();
     CO.force = true;
     say("ledger burned. Fresh books open at the next prompt.", "orange");
     render();
