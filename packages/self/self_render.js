@@ -34,7 +34,7 @@ var glyph = '<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-ali
   '<circle cx="8" cy="5" r="3.3" fill="' + ROSE + '"/><path d="M1.5 15.5 C2 10.5 5 9.2 8 9.2 C11 9.2 14 10.5 14.5 15.5 Z" fill="' + DEEP + '" stroke="' + ROSE + '" stroke-width="0.8"/></svg>';
 
 var I = S.info || {};
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#141012;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-self" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#141012;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 // The title is the character's name: the game's (Char.Name / Char.Status),
 // unless SELF NAME set another.
@@ -55,7 +55,7 @@ html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-sp
 function cell(label, value, warn, extra) {
   var vc = value ? (typeof warn === "string" ? warn : (warn ? WARN : TXT)) : MUTED;
   return '<span style="color:' + MUTED + ';white-space:nowrap;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' + label + '</span>' +
-    '<span style="color:' + vc + ';text-align:right;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' + (value ? esc(value) + (extra || '') : '&mdash;') + '</span>';
+    '<span style="color:' + vc + ';text-align:right;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' + (value ? esc(value) : '&mdash;') + (extra || '') + '</span>';
 }
 function column(cells) { return '<div style="display:grid;grid-template-columns:auto auto;column-gap:10px;align-content:start;min-width:0;">' + cells + '</div>'; }
 function columns(cols) {
@@ -106,13 +106,18 @@ function rankDelta(raws, baseKey) {
   if (!isNaN(now) && S[baseKey] !== undefined && now !== S[baseKey]) {
     var d = now - S[baseKey];
     // Up the ranking (a lower number) is an up arrow; down is a down arrow.
-    html = ' <span style="color:' + (d < 0 ? OK : AFF) + ';">' + (d < 0 ? "&#9650;" : "&#9660;") + Math.abs(d) + '</span>';
+    html = '<span style="color:' + (d < 0 ? OK : AFF) + ';">' + (d < 0 ? "&#9650;" : "&#9660;") + Math.abs(d) + '</span>';
   }
-  return [none ? "-" : (isNaN(now) ? "" : String(now)), html];
+  // [value, delta html, delta width in characters]
+  return [none ? "-" : (isNaN(now) ? "" : String(now)), html, html ? 1 + String(Math.abs(d)).length : 0];
 }
 var xpR = rankDelta([I.xprank, C.xprank], "xpBase");
 var exR = rankDelta([I.explorerrank, C.explorer], "explorerBase");
-var chA = cell("age", I.age || C.age || "") + cell("xp rank", xpR[0], false, xpR[1]) + cell("explorer", exR[0], false, exR[1]);
+// The deltas sit in a slot of the same width after every value of this
+// column, so the numbers stay aligned whether a delta shows or not.
+var dW = Math.max(xpR[2], exR[2]);
+function slot(h) { return dW ? '<span style="display:inline-block;width:' + (dW + 1.5) + 'ch;text-align:left;padding-left:0.7ch;box-sizing:border-box;">' + (h || '') + '</span>' : ''; }
+var chA = cell("age", I.age || C.age || "", false, slot()) + cell("xp rank", xpR[0], false, slot(xpR[1])) + cell("explorer", exR[0], false, slot(exR[1]));
 var chB = cell("city rank", C.cityRank || "") +
   cell("house rank", C.houseRank || "") +
   cell("soldier", C.soldier ? C.soldier.toLowerCase() : "");
@@ -128,10 +133,11 @@ if (C.t) {
 }
 html += section("Character", ch);
 
-// Condition, from Char.Vitals: general stats on the left, the elemental
-// resistances together on the right.
+// Condition, from Char.Vitals: every item spread evenly over three columns,
+// filled top to bottom, general stats first and the elemental resistances
+// last (#271; until there's a layout per class).
 if (S.stats && S.stats.length) {
-  var gen = "", res = "";
+  var gen = [], res = [];
   for (var s = 0; s < S.stats.length; s++) {
     var part = String(S.stats[s]);
     var ci = part.indexOf(":");
@@ -145,9 +151,13 @@ if (S.stats && S.stats.length) {
     if (/^rage$/i.test(lab) && num >= 36) { vcol = OK; } else if (/^rage$/i.test(lab) && num >= 14) { vcol = WARN; }
     var c2 = '<span style="color:' + MUTED + ';white-space:nowrap;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' + esc(lab) + '</span>' +
       '<span style="color:' + vcol + ';text-align:right;white-space:nowrap;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' + esc(val || "none") + '</span>';
-    if (/^r(air|earth|fire|water)$/i.test(lab)) { res += c2; } else { gen += c2; }
+    if (/^r(air|earth|fire|water)$/i.test(lab)) { res.push(c2); } else { gen.push(c2); }
   }
-  html += section("Condition", columns([gen, res]));
+  var cells = gen.concat(res);
+  var per = Math.ceil(cells.length / 3);
+  var cc = ["", "", ""];
+  for (var k = 0; k < cells.length; k++) cc[Math.floor(k / per)] += cells[k];
+  html += section("Condition", columns(cc));
 }
 
 // Afflictions: only the unwanted ones, as red chips. Ones kept on purpose
@@ -205,4 +215,12 @@ if (lost.length) {
 html += section("Defences" + (DW ? ' <span style="font-variant:normal;letter-spacing:0;color:' + MUTED + ';">&middot; DEFCON ' + DW.level + '</span>' : '') + (defs.length ? ' <span style="font-variant:normal;letter-spacing:0;color:' + MUTED + ';">' + (DW ? '&middot; ' : '') + defs.length + ' up</span>' : ''), db);
 html += '<div style="color:' + MUTED + ';margin-top:6px;font-family:' + SERIF + ';font-style:italic;">DIAG, DEF and SCORE refresh the lists. SELF WANT &lt;defence&gt; watches a defence; SELF KEEP &lt;affliction&gt; hides one you keep on purpose.</div>';
 html += '</div>';
+// The whole tab in the panel's colour (#269), as Comms and Online do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var sfSt = document.getElementById("loom-self-style");
+  if (!sfSt) { sfSt = document.createElement("style"); sfSt.id = "loom-self-style"; document.head.appendChild(sfSt); }
+  var sfCss = '.flexlayout__tab:has(#loom-self) { background: #141012 !important; } .flexlayout__tab:has(#loom-self) > * { min-height: 100%; }';
+  if (sfSt.textContent !== sfCss) sfSt.textContent = sfCss;
+} catch (e) {}
 try { set_custom_tab_html("Self", html); } catch (e) {}
