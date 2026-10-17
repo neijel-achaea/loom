@@ -1,11 +1,11 @@
 // partycomms_setup -- run from onLoad and onInstall, and by any reflex that
 // finds the namespace missing. Namespace, registry, one-time migration of the
 // party_* variables, then the state, each part built if missing.
-// Saved: partycomms_on, and the last name and class the game sent.
+// Saved: partycomms_on, and the last name, class and level the game sent.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.partycomms) client.loom.partycomms = {};
-client.loom.registry.partycomms = { version: "0.2.2", keyword: "PARTYCOMMS", desc: "{{description}}" };
+client.loom.registry.partycomms = { version: "0.2.3", keyword: "PARTYCOMMS", desc: "{{description}}" };
 var PC = client.loom.partycomms;
 
 // One-time migration. party_on becomes partycomms_on; the rest were working
@@ -49,6 +49,16 @@ if (!PC.me) {
   try { pcCls = get_variable("partycomms_class"); } catch (e) { pcCls = ""; }
   PC.me = { name: (pcName && ("" + pcName) !== "undefined") ? "" + pcName : "", cls: (pcCls && ("" + pcCls) !== "undefined") ? "" + pcCls : "", hp: 0, maxhp: 0, mp: 0, maxmp: 0, ep: 0, maxep: 0, wp: 0, maxwp: 0, rage: 0, nl: 0 };
 }
+// The level, kept like the name and class (#288): the game sends it at login.
+// Helpers are rebuilt every run; only the data is kept.
+if (PC.me.lvl === undefined) {
+  var pcLvl;
+  try { pcLvl = parseInt(get_variable("partycomms_level"), 10); } catch (e) { pcLvl = 0; }
+  PC.me.lvl = pcLvl > 0 ? pcLvl : 0;
+}
+PC.setLevel = function (n) {
+  if (n > 0 && n !== PC.me.lvl) { PC.me.lvl = n; set_variable("partycomms_level", String(n)); }
+};
 // The target: IRE.Target.Info when the game sends it, the tar variable and
 // an IH lookup otherwise.
 if (!PC.tInfo) PC.tInfo = { id: "", name: "", hp: "" };
