@@ -228,17 +228,18 @@ L.addLink({
 // flagged in the Here tab's items. item.flags answers { label, tone, icon,
 // title }: the tab owns the colours ("bad" = alert, "good" = reassuring),
 // the icon says what the thing is (Ricardo: an icon left of the name, other
-// icons for other things later). Neutral gods' shrines get no flag. Sigils
+// icons for other things later). Neutral gods' shrines get the icon in the
+// plain colour, so a shrine still stands out (#277). Sigils
 // (#165) will answer the same question.
 L.addLink({
   id: "patrolling-room", src: "patrolling", dst: "room", issue: 164,
-  desc: "Friendly and hostile gods' shrines and totems flagged in Here",
+  desc: "Shrines and totems in Here coloured by their god's stance",
   answers: {
     "item.flags": function (name) {
       var p = client.loom.patrolling;
       var it = p && p.look ? p.look.item(name) : undefined;
-      if (!it || it.stance === "neutral") return undefined;
-      return { label: it.stance + " " + it.kind, tone: it.stance === "hostile" ? "bad" : "good", icon: it.kind === "totem" ? "\u2625" : "\u26ea", title: (it.god ? it.god.charAt(0).toUpperCase() + it.god.slice(1) + ": " : "") + it.stance + " " + it.kind };
+      if (!it) return undefined;
+      return { label: it.stance + " " + it.kind, tone: it.stance === "hostile" ? "bad" : (it.stance === "friendly" ? "good" : "info"), icon: it.kind === "totem" ? "\u2625" : "\u26ea", title: (it.god ? it.god.charAt(0).toUpperCase() + it.god.slice(1) + ": " : "") + it.stance + " " + it.kind };
     }
   }
 });
