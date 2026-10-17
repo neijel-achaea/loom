@@ -13,7 +13,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | [social](social.md) | Online | Name highlights by group; who you watch, online in the Online tab |
 | [standings](standings.md) | Standings | Standings with adventurers and organisations, kept per character |
 | [self](self.md) | Self | Character panel: afflictions, defences you watch, and SCORE details |
-| vision *(page to come)* | — | Alertness filter: hides city members, flags and reports enemies |
+| [vision](vision.md) | — | Alertness filter: hides city members, flags and reports enemies |
 
 ## Hunting and combat
 
@@ -26,7 +26,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | [huntstats](huntstats.md) | Stats | Per-area hunting records: xp, gold and kills an hour, Dragonhood |
 | [levelgraph](levelgraph.md) | Level | Level progress graphs per minute and per day, time to next level |
 | [partycomms](partycomms.md) | Party | Share vitals, rage and target with your party; party chips tab |
-| security *(page to come)* | — | Antitheft for worn items and gold, backpack gold, selfish wrappers |
+| [security](security.md) | — | Antitheft for worn items and gold, backpack gold, selfish wrappers |
 
 ## Money and items
 
@@ -34,7 +34,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | --- | --- | --- |
 | [coffers](coffers.md) | Coffers | Gold tracker: fortune, income and spending by session and day, goals |
 | [talpieces](talpieces.md) | Talismans | Dragon talisman piece tracker with history and a projected finish |
-| vials *(page to come)* | — | Refill your vials from the rift by elixir |
+| [vials](vials.md) | — | Refill your vials from the rift by elixir |
 | [crystalism](crystalism.md) | — | Even crystal refining, pearl pickup, and sonic portals for the city |
 | [harvesting](harvesting.md) | — | Harvests the plants your rift is short of as you walk the rooms |
 
@@ -42,10 +42,10 @@ Each package has one page, in the same order: what it is, its commands, setting 
 
 | Package | Tab | What it does |
 | --- | --- | --- |
-| civic *(page to come)* | — | City duties by ministry: the ambassador aide, greetings, new citizens |
+| [civic](civic.md) | — | City duties by ministry: the ambassador aide, greetings, new citizens |
 | [patrolling](patrolling.md) | — | Checks each room's plants and shrines, and suggests areas to patrol |
 | [sigils](sigils.md) | — | Monolith and flame sigil watcher, with the cost of what's running out |
-| conjuration *(page to come)* | — | Sigil creation rituals, one step at a time as the game is ready |
+| [conjuration](conjuration.md) | — | Sigil creation rituals, one step at a time as the game is ready |
 | artificing *(page to come)* | — | Staff attack for STAFF CAST, and elemental treaties formed safely |
 | elementalism *(page to come)* | — | Illusions and set pieces, with your name and pronouns |
 
