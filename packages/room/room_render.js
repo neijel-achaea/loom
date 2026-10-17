@@ -207,22 +207,37 @@ if (!R.info) {
   var badge = function (n, fill, ring) {
     return '<span style="display:inline-block;min-width:1.4em;text-align:center;border-radius:8px;font-size:10px;padding:0 3px;' + (fill ? 'background:' + GLOW + ';color:#13110e;' : 'border:1px solid ' + ring + ';color:' + ring + ';') + '">' + n + '</span>';
   };
+  // Mobs flagged through loom (mob.flags: { label, tone, icon, title }), e.g.
+  // the oysters that drop pearls (#299, from crystalism): the name in the
+  // tone's colour and the icon after any kill-order badge. Living mobs only;
+  // your target's glow still wins.
+  var mobFlag = function (m) {
+    if (/d/.test(m.attrib || "") || !LLi || !LLi.answers) return undefined;
+    var a = LLi.answers("room", "mob.flags", m.name);
+    return a.length ? a[0].value : undefined;
+  };
+  var flagIcon = function (f) {
+    return (f && f.icon) ? '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:13px;color:' + (FLAG[f.tone] || MUTED) + ';margin-left:3px;">' + esc(f.icon) + '\ufe0e</span>' : '';
+  };
   for (var mi = 0; mi < mobs.length; mi++) {
     var mob = mobs[mi];
+    var mf = mobFlag(mob);
+    var mfCol = mf ? (FLAG[mf.tone] || TXT) : TXT;
+    var mfTitle = mf ? (mf.title || mf.label || "") : "";
     var mid = String(mob.id);
     var rank = useQ ? BQ.order[mid] : undefined;
     var isNext = useQ && BQ.next === mid;
     var ignored = useQ && rank === undefined && !/d/.test(mob.attrib || "") && BQ.active && BQ.active[mob.name] === false;
     if (mob === tgtMob) {
       var tHp = (R.target && String(R.target.id) === String(mob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target" + (rank ? " \u00b7 " + rank + " in the kill order" : ""), tHp, GLOW, false, rank ? badge(rank, true) : "");
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>', "your target" + (rank ? " \u00b7 " + rank + " in the kill order" : "") + (mfTitle ? " \u00b7 " + mfTitle : ""), tHp, GLOW, false, (rank ? badge(rank, true) : "") + flagIcon(mf));
     } else if (ignored) {
-      html += '<div style="opacity:.45;">' + row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + TXT + ';">' + esc(mob.name) + '</span>', "ignored by the basher in this area", "ignored", false, false, '<span style="color:' + DIM + ';">&ndash;</span>') + '</div>';
+      html += '<div style="opacity:.45;">' + row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + mfCol + ';">' + esc(mob.name) + '</span>', "ignored by the basher in this area" + (mfTitle ? " \u00b7 " + mfTitle : ""), "ignored", false, false, '<span style="color:' + DIM + ';">&ndash;</span>' + flagIcon(mf)) + '</div>';
     } else {
       // Dead ones are greyed out; their name already says "the corpse of…".
       var dead = /d/.test(mob.attrib || "");
       var bdg = rank ? badge(rank, false, isNext ? GLOW : DIM) : "";
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (dead ? DIM : TXT) + ';">' + esc(mob.name) + '</span>', rank ? (isNext ? "next for the basher" : rank + " in the kill order") : "", isNext ? "next" : "", isNext ? "#c8a94e" : false, isNext ? "transparent" : false, bdg);
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (dead ? DIM : mfCol) + ';">' + esc(mob.name) + '</span>', [rank ? (isNext ? "next for the basher" : rank + " in the kill order") : "", mfTitle].filter(Boolean).join(" \u00b7 "), isNext ? "next" : "", isNext ? "#c8a94e" : false, isNext ? "transparent" : false, bdg + flagIcon(mf));
     }
   }
   var im = merge(items);

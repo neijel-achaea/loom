@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.crystalism) client.loom.crystalism = {};
-client.loom.registry.crystalism = { version: "0.3.0", keyword: "CRYSTALISM", desc: "{{description}}" };
+client.loom.registry.crystalism = { version: "0.3.1", keyword: "CRYSTALISM", desc: "{{description}}" };
 var CR = client.loom.crystalism;
 
 CR.shapes = ["cube", "cylinder", "diamond", "disc", "egg", "pentagon", "polyhedron", "pyramid", "sphere", "spiral", "torus"];
@@ -26,7 +26,22 @@ CR.facetsPerPearl = 9;
 // The read-only look other packages see through loom (#159, #44).
 //   look.levels() -> [{ shape, have, min }] for every shape with a count
 //     read from the rift; empty when none has been read yet.
+//   look.pearlMob(name) -> true for a denizen that drops pearls (#299).
+//   look.pearl(name) -> true for a pearl lying in the room (#299).
+CR.pearlMobs = [/\bbarnacle[- ]encrusted oysters?\b/i];
+CR.pearlItems = [/\bglistening iridescent pearls?\b/i];
 CR.look = {
+  pearlMob: function (name) {
+    var n = String(name || "");
+    if (/^the corpse of\b/i.test(n)) return false;
+    for (var i = 0; i < CR.pearlMobs.length; i++) { if (CR.pearlMobs[i].test(n)) return true; }
+    return false;
+  },
+  pearl: function (name) {
+    var n = String(name || "");
+    for (var i = 0; i < CR.pearlItems.length; i++) { if (CR.pearlItems[i].test(n)) return true; }
+    return false;
+  },
   levels: function () {
     var out = [];
     for (var i = 0; i < CR.shapes.length; i++) {
