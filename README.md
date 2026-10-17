@@ -85,40 +85,13 @@ The player documentation lives in [`docs/`](docs/README.md): [getting started](d
 
 ## Working on the packages
 
-Source lives in `packages/<name>/`: one `.js` file per function and per alias or trigger script, and a `package.json` with everything else (names, patterns, options, order), pointing at those files with `@file:` references. The `.nxs` files in `dist/` are built from them.
+Source lives in `packages/<name>/` (one `.js` file per function and per alias or trigger script, and a `package.json` with the rest); `dist/` holds the built `.nxs` files.
 
 ```sh
-python tools/build.py              # rebuild every package into dist/
-python tools/build.py self ledger  # rebuild only these
-python tools/extract.py Export.nxs --name self   # bring an in-game export back into packages/self/
+python3 tools/build.py vials     # build a package into dist/ (no name: all of them)
+python3 tools/check.py vials     # syntax-check its scripts as Nexus runs them
+python3 tools/docs.py            # refresh the generated parts of docs/
+python3 tools/extract.py Export.nxs --name vials   # bring a Nexus export back into packages/vials/
 ```
 
-After changing a package in Nexus, export it, run `extract.py` over it and commit: the diff shows exactly what changed. After changing source files, run `build.py` and import the result.
-
-The pages in `docs/` carry generated blocks (each package's `HELP` table and its version, and the loom page's list of integrations) between `<!-- loom:... -->` markers. After changing a package's HELP or version, or adding a link, run `python3 tools/docs.py` to refresh them (`--check` only reports stale pages); the rest of each page is written by hand.
-
-### Versioning
-
-`dist/versions.json` lists every built package's version on main. A workflow rewrites it on every push to main, so branches leave it alone; `python3 tools/versions.py` regenerates it locally and `--check` tests it.
-
-Two kinds of version live in this repository.
-
-- **Loom releases** follow the milestones: Loom 0.3 is milestone *Loom 0.3 · Multiclass*, released on GitHub with the tag `loom-v0.3.0`. The release notes list every package's version at that point. A release is cut when its milestone closes; if main has already moved on, it is cut from the commit where the milestone ended, on a `release/X.Y` branch.
-- **Packages** each keep their own [semantic version](https://semver.org), set in the registry line of their setup code and shown by `LOOM`. They move independently of each other and of the milestones:
-  - a fix bumps the last number: 0.2.1 → 0.2.2
-  - new behaviour bumps the middle one: 0.2.2 → 0.3.0
-  - before 1.0, a change that breaks existing use (a renamed command, a changed variable) also bumps the middle one
-
-  So during Loom 0.3 a package that only got fixes can stay at 0.2.x, while one that gained features moves to 0.3.0 or beyond.
-- **The loom package is the exception:** it carries the suite's version. Between releases it takes patch bumps like any other package; when Loom X.Y is released it becomes X.Y.0.
-
-Every PR that changes a package bumps that package's version once.
-
-### Nexus scripting rules these packages follow
-
-- No top-level `return` (use an if block, or a function on the package's namespace). Function expressions, arrow functions and `setTimeout` all work.
-- `run_function(name, [], "package")` passes no arguments to a function; data passes through `client.*` or `set_variable`.
-- Packages never read each other's variables: what one package offers another goes through its published `look` (read) or `entry` (write), and the integration between them lives in **loom**.
-- Trigger option "Match whole words only" must be off.
-- Tab content is static HTML/SVG; injected `<script>` does not run.
-- Tab icons are pure CSS keyed on the tab button's `title`, injected from each package's `onLoad`.
+Start with **[CONTRIBUTING.md](CONTRIBUTING.md)**, then the [contributor docs](docs/dev/README.md): layout and build, conventions, Nexus scripting, integrations, testing, and adding a class. The longer-term plan is in [ROADMAP.md](ROADMAP.md).
