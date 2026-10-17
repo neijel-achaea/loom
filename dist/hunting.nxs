@@ -106,10 +106,10 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\n// Dragonform is up (the roar, or an elder dragon's \"Reveling in your total\n// mastery of the form…\"): fresh rage cooldowns, resume packages, after-form command.\nHU.cd = {};\nset_variable(\"pauseTriggers\", \"off\");\nvar huAf = get_variable(\"hunting_after_form\");\nif (huAf) send_command(huAf);\n"
+       "script": "if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function(\"hunting_setup\", [], \"hunting\");\nvar HU = client.loom.hunting;\n// Dragonform is up (the roar, or the end of an elder dragon's \"Reveling in\n// your total mastery of the form… You are Dragon!\", matched on its last\n// words because the game may wrap the long line): fresh rage cooldowns, resume packages, after-form command.\nHU.cd = {};\nset_variable(\"pauseTriggers\", \"off\");\nvar huAf = get_variable(\"hunting_after_form\");\nif (huAf) send_command(huAf);\n"
       }
      ],
-     "text": "^(?:With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.|Reveling in your total mastery of the form\\, you beat your mighty wings\\, throw your massive head back\\, and roar your challenge to the world\\. You are Dragon!)$",
+     "text": "^With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.$|You are Dragon!$",
      "matching": "regexp",
      "whole_words": true,
      "case_sensitive": true

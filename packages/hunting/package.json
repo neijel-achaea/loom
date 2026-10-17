@@ -109,7 +109,7 @@
               "script": "@file:multiclass__trigger_with_an_ear_splitting_roar_you_rear.js"
             }
           ],
-          "text": "^(?:With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.|Reveling in your total mastery of the form\\, you beat your mighty wings\\, throw your massive head back\\, and roar your challenge to the world\\. You are Dragon!)$",
+          "text": "^With an ear-splitting roar\\, you rear back your draconic head and scream out your triumph\\.$|You are Dragon!$",
           "matching": "regexp",
           "whole_words": true,
           "case_sensitive": true
