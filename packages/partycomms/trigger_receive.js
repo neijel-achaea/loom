@@ -2,8 +2,10 @@
 // by name and hidden. See partycomms_send for the format.
 if (!client.loom || !client.loom.partycomms || !client.loom.partycomms.members) run_function("partycomms_setup", [], "partycomms");
 var PC = client.loom.partycomms;
+var pcCl = String(args[2]).split(":");
 var pcE = {
-  cls: String(args[2]).replace(/_/g, " "),
+  cls: pcCl[0].replace(/_/g, " "),
+  lvl: pcCl.length > 1 ? parseInt(pcCl[1], 10) || 0 : 0,
   hp: parseInt(args[3], 10), maxhp: parseInt(args[4], 10),
   mp: parseInt(args[5], 10), maxmp: parseInt(args[6], 10),
   ep: parseInt(args[7], 10), maxep: parseInt(args[8], 10),

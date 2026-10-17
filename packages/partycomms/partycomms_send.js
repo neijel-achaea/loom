@@ -6,7 +6,9 @@
 // The message, one line, fields separated by spaces; "~" splits the vitals
 // from the target ("|" would split the command in Nexus, "@" can expand as
 // a variable). A class with spaces is sent with underscores.
-//   [PARTY] Name Class hp/maxhp mp/maxmp ep/maxep wp/maxwp rage nl ~ tid thp target name
+// The class carries the level after a colon when known ("Druid:91", #288),
+// so copies of partycomms that predate it still match the line.
+//   [PARTY] Name Class[:level] hp/maxhp mp/maxmp ep/maxep wp/maxwp rage nl ~ tid thp target name
 // tid is 0 and thp and the name are "-" when unknown.
 var PC = client.loom.partycomms;
 var ME = PC.me;
@@ -57,7 +59,7 @@ if (!PC.why) {
     (!isNaN(pcThpN) && (S0.thp === "" || Math.abs(pcThpN - parseInt(S0.thp, 10)) >= 10)) ||
     pcNow - S0.at >= 10;
   if (pcMoved && pcNow - S0.at >= 1) {
-    var pcCls = (ME.cls || "-").replace(/\s+/g, "_");
+    var pcCls = (ME.cls || "-").replace(/\s+/g, "_") + (ME.lvl > 0 ? ":" + ME.lvl : "");
     var pcMsg = "pt [PARTY] " + ME.name + " " + pcCls +
       " " + ME.hp + "/" + ME.maxhp + " " + ME.mp + "/" + ME.maxmp +
       " " + ME.ep + "/" + ME.maxep + " " + ME.wp + "/" + ME.maxwp +

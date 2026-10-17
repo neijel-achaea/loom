@@ -1,5 +1,5 @@
 // Everything partycomms broadcasts comes from GMCP: Char.Status for your
-// name and class, Char.Vitals for health, mana, endurance, willpower, rage
+// name, class and level, Char.Vitals for health, mana, endurance, willpower, rage
 // (its charstats line) and level progress, IRE.Target.Info for your target.
 // Each Char.Vitals is also the moment to broadcast.
 var pcM = "";
@@ -13,6 +13,8 @@ if (pcA && (pcM === "Char.Vitals" || pcM === "Char.Status" || pcM === "Char.Name
   if (pcM === "Char.Status" || pcM === "Char.Name") {
     if (pcA.name && String(pcA.name) !== ME.name) { ME.name = String(pcA.name); set_variable("partycomms_name", ME.name); }
     if (pcA["class"] && String(pcA["class"]) !== ME.cls) { ME.cls = String(pcA["class"]); set_variable("partycomms_class", ME.cls); }
+    // level: "91 (52.41%)" or "91" (#288)
+    if (pcA.level !== undefined) { var pcLv = String(pcA.level).match(/^\s*(\d+)/); if (pcLv) ME.lvl = parseInt(pcLv[1], 10); }
   } else if (pcM === "IRE.Target.Info") {
     // Later updates for the same target can carry only its health, so a name
     // already known for that id is kept.
@@ -30,8 +32,8 @@ if (pcA && (pcM === "Char.Vitals" || pcM === "Char.Status" || pcM === "Char.Name
       for (var pcJ = 0; pcJ < pcA.charstats.length; pcJ++) {
         var pcR = String(pcA.charstats[pcJ]).match(/^Rage:\s*(\d+)/);
         if (pcR) ME.rage = parseInt(pcR[1], 10);
-        var pcP = String(pcA.charstats[pcJ]).match(/Level:\s*\d+\s*\(([\d.]+)%\)/);
-        if (pcP) ME.nl = parseFloat(pcP[1]);
+        var pcP = String(pcA.charstats[pcJ]).match(/Level:\s*(\d+)\s*\(([\d.]+)%\)/);
+        if (pcP) { ME.lvl = parseInt(pcP[1], 10); ME.nl = parseFloat(pcP[2]); }
       }
     }
     run_function("partycomms_send", [], "partycomms");

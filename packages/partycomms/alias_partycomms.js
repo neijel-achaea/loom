@@ -8,7 +8,7 @@ function pcRedraw() { PC.lastRender = 0; run_function("partycomms_render", [], "
 
 if (pcSub === "" || pcSub === "status") {
   var ME = PC.me;
-  pcSay((PC.on ? "sharing your vitals and target over party tell" : "not sharing (PARTYCOMMS ON to start)") + (ME.name ? ", as " + ME.name + (ME.cls ? " (" + ME.cls + ")" : "") : ", once the game sends your name") + ".");
+  pcSay((PC.on ? "sharing your vitals and target over party tell" : "not sharing (PARTYCOMMS ON to start)") + (ME.name ? ", as " + ME.name + (ME.cls ? " (" + ME.cls + (ME.lvl > 0 ? " " + ME.lvl : "") + ")" : "") : ", once the game sends your name") + ".");
   if (PC.why) pcSay("nothing is going out: " + PC.why + ".", "orange");
   var T = PC.target || {};
   pcSay("your target: " + (T.id || T.name ? (T.name || "?") + (T.id ? " #" + T.id : "") + (T.hp ? " " + T.hp + "%" : "") : "none") + ".");
@@ -48,8 +48,8 @@ if (pcSub === "" || pcSub === "status") {
 } else if (pcSub === "test") {
   // Two sample members, so the tab can be checked solo.
   var tNow = Date.now() / 1000;
-  PC.members["Testalpha"] = { cls: "Druid", hp: 3200, maxhp: 4784, mp: 4646, maxmp: 5096, ep: 18000, maxep: 21685, wp: 18870, maxwp: 23170, rage: 24, nl: 28.12, tid: (PC.target && PC.target.id) || "12345", thp: "62", tname: "a plague rat", t: tNow };
-  PC.members["Testbeta"] = { cls: "Black Dragon", hp: 900, maxhp: 4100, mp: 2000, maxmp: 4800, ep: 9000, maxep: 20000, wp: 11000, maxwp: 21000, rage: 41, nl: 92.4, tid: "", thp: "", tname: "", t: tNow - 30 };
+  PC.members["Testalpha"] = { cls: "Druid", lvl: 91, hp: 3200, maxhp: 4784, mp: 4646, maxmp: 5096, ep: 18000, maxep: 21685, wp: 18870, maxwp: 23170, rage: 24, nl: 28.12, tid: (PC.target && PC.target.id) || "12345", thp: "62", tname: "a plague rat", t: tNow };
+  PC.members["Testbeta"] = { cls: "Black Dragon", lvl: 99, hp: 900, maxhp: 4100, mp: 2000, maxmp: 4800, ep: 9000, maxep: 20000, wp: 11000, maxwp: 21000, rage: 41, nl: 92.4, tid: "", thp: "", tname: "", t: tNow - 30 };
   pcSay("two sample members added; PARTYCOMMS CLEAR removes them.", "lime");
   pcRedraw();
 } else if (pcSub === "debug") {
