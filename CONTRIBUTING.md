@@ -39,6 +39,10 @@ And it doesn't touch `dist/versions.json`: a workflow rewrites that on `main` af
 
 Pull requests that change different packages can be merged in any order. Two that change the same package conflict on its `.nxs`, so the second is opened against the first's branch and merged after it.
 
+## Code of conduct
+
+Everyone taking part is expected to follow the [code of conduct](CODE_OF_CONDUCT.md).
+
 ## Security issues
 
 Security issues (anything that could make a package act for someone else, leak private data or bypass the security package) go through the private reporting described in [SECURITY.md](SECURITY.md), not public issues.

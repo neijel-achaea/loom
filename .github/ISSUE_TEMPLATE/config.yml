@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
   - name: What each package does
-    url: https://github.com/rlopgr-ux/loom#readme
-    about: Read the README before asking how something works.
+    url: https://github.com/neijel-achaea/loom/blob/main/docs/README.md
+    about: Each package's page explains how it works; check it before asking.
+  - name: Troubleshooting
+    url: https://github.com/neijel-achaea/loom/blob/main/docs/troubleshooting.md
+    about: Common problems (tabs, pausing, updates) and what to include in a bug report.
