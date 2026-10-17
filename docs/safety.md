@@ -14,17 +14,31 @@ Achaea's rules on triggers and automation are in its help file **[15.8 Triggers,
 
 Loom can't decide for you what the game allows. The help file is the authority, and the game's administrators are the ones to ask when you're unsure. **You are responsible for how you use these packages.**
 
-## How Loom is built
+## Where Loom stops, and why
 
-Loom's packages are meant for a player at the keyboard:
+Loom is reflexes, not a bot. Every package answers something **you** started, finishes that one thing, and stops. Nothing in Loom keeps you earning gold or experience while you're away from the keyboard, and that's deliberate: it's the line the game draws, and Loom is built to stay on the right side of it.
 
-- Nothing walks for you. No package moves your character, except the basher's single step back when you're hurt.
-- Nothing starts a fight for you. The basher waits for your own first attack.
-- Things that run on their own stop: the basher when the room has no more targets or someone arrives, fishing when the fish is landed, a ritual when it's done.
+What that means in practice:
+
+| Loom does | Loom never does |
+| --- | --- |
+| Reels in the fish you cast for, then stops | Cast again on its own, or fish on in a loop |
+| Keeps attacking in the room where **you** started the fight, then stops | Start a fight, walk to the next room, or clear an area on its own |
+| Takes one step back when you're badly hurt | Walk anywhere else |
+| Harvests in the rooms **you** walk into | Walk a route for you |
+| Runs a ritual or a refine you asked for, then stops | Start one again on its own |
+
+On top of that:
+
+- The basher finishes the fight in progress and starts no new one when another player arrives, tells you something, or names you on your city channel: someone may want your attention.
 - Everything that sends commands stops at once with `LOOM PAUSE ON`; the basher has its own kill switch, `BASHER STOP`.
-- The basher and harvesting always load **off**.
+- The basher and harvesting always load **off**, so a reload never leaves them running.
 
-Being designed this way doesn't make every use of a package allowed. Weigh each one against the help file.
+### Don't take it further
+
+**Please don't extend Loom past these limits**: no recasting loop for fishing, no walking route for the basher or harvesting, no restart that keeps a run going on its own, no trigger that turns a single action into an endless one. Each of those turns a reflex into a bot, which is exactly what the game forbids and what Loom is built not to be. A modified package that does any of this is no longer Loom, and the risk to your character is yours alone.
+
+The same goes for using the packages as they are: stay at the keyboard while the basher, fishing or harvesting is on, and switch them off when you step away.
 
 ## What acts on its own
 
@@ -47,7 +61,7 @@ The packages below send commands without you typing each one. Check them against
 | [vision](vision.md), [partycomms](partycomms.md) | Tell your party about enemies nearby; share your vitals | `VISION ALERT OFF`, `PARTYCOMMS OFF` |
 | [loom](loom.md) | Agrees to convert up to 100 bound credits into lessons when you ask the game to | — |
 
-The two marked in bold respond to **other people's requests**, which is what the help file's rule on triggered actions others can call on you is about. Read it before turning them on.
+The two marked in bold answer **other people's requests** (a portal for someone who asks, a lesson someone requests), much like the "tap me" requests city channels already share. They do one thing per request and nothing more.
 
 ## Good habits
 
