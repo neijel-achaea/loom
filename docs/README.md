@@ -19,10 +19,10 @@ Each package has one page, in the same order: what it is, its commands, setting 
 
 | Package | Tab | What it does |
 | --- | --- | --- |
-| hunting *(page to come)* | — | Class F-keys with battlerage cooldowns, dragon attacks, autogold |
-| basher *(page to come)* | Basher | Attended autobasher: attacks your target with hunting's main attack |
-| defcon *(page to come)* | — | Defence readiness for any class: five tiers, raised on login |
-| dmgchart *(page to come)* | DmgChart | Damage dealt and taken by type per fight, health lasts, recorded sessions |
+| [hunting](hunting.md) | — | Class F-keys with battlerage cooldowns, dragon attacks, autogold |
+| [basher](basher.md) | Basher | Attended autobasher: attacks your target with hunting's main attack |
+| [defcon](defcon.md) | — | Defence readiness for any class: five tiers, raised on login |
+| [dmgchart](dmgchart.md) | DmgChart | Damage dealt and taken by type per fight, health lasts, recorded sessions |
 | [huntstats](huntstats.md) | Stats | Per-area hunting records: xp, gold and kills an hour, Dragonhood |
 | levelgraph *(page to come)* | Level | Level progress graphs per minute and per day, time to next level |
 | partycomms *(page to come)* | Party | Share vitals, rage and target with your party; party chips tab |
@@ -60,7 +60,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 
 | Package | Tab | What it does |
 | --- | --- | --- |
-| ledger *(page to come)* | Ledger | Reminders and standing items on the Achaean calendar |
+| [ledger](ledger.md) | Ledger | Reminders and standing items on the Achaean calendar |
 
 ## The suite
 
