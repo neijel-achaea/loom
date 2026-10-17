@@ -7,6 +7,7 @@ var hlRows = [
   ["BASHER", "status: off, primed or running, and why it isn't attacking"],
   ["BASHER ON", "prime it: your next attack starts a run of hunting's main attack on tar"],
   ["BASHER STOP", "stop at once and stand down (the kill switch); BASHER OFF does the same"],
+  ["BASHER END", "end the run in progress at once, staying primed (F1 during a run)"],
   ["BASHER WIMPY", "show when it flees"],
   ["BASHER WIMPY HEALTH|MANA <1-90|OFF>", "during a run, flee below this health or mana (health 40, mana 20 by default)"],
   ["BASHER WIMPY DIR <direction|OFF>", "where to flee when the way back isn't known"],

@@ -10,7 +10,7 @@
 
 Hunting lays out Nexus's F-key buttons for the class you're in, and keeps them honest:
 
-- **F1 is your main attack**, lit whenever you have balance and equilibrium. While the basher is running, F1 is its STOP key instead.
+- **F1 is your main attack**, lit whenever you have balance and equilibrium. While the basher is running, F1 is its STOP key instead (ends the run, stays primed).
 - **Battlerage abilities** sit on the next keys, each lit only when it's ready: off its own cooldown, the shared battlerage cooldown clear, and enough rage.
 - **Extras** on F8 to F12: your class's utility (a mode, a panic key, a heal), the Stats key (with huntstats), `DIAGNOSE` and `TOUCH SHIELD`.
 

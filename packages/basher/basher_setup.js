@@ -432,7 +432,7 @@ B.autoTarget = function () {
 };
 
 // Redraw the Basher tab and tell loom (Here shows the queue), soon and once.
-// F1 is the kill switch while a run lasts (Ricardo): hunting lays out STOP
+// F1 ends the run while one lasts (Ricardo): hunting lays out STOP (BASHER END)
 // there whenever client.loom.basher.run is true, so when the run starts or
 // ends, hunting's keys are laid out again. Checked on every draw and tick,
 // since some paths (fleeing) end the run without drawing.
