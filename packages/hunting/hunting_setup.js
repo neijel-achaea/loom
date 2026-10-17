@@ -64,11 +64,16 @@ for (var huJ = 0; huJ < huGone.length; huJ++) {
   if (huGv !== null && huGv !== undefined) { huLegacy = true; delete_variable(huGone[huJ]); }
 }
 
-// Command sent when dragonform rises or falls. A profile that used hunting
-// before 0.2 always sent INITDEF there, so it keeps doing so; a fresh profile
-// sends nothing until HUNTING AFTERFORM sets one.
+// Command sent when dragonform rises or falls: nothing until HUNTING AFTERFORM
+// sets one. Profiles from before 0.2 were given INITDEF here, the old
+// defences package's alias; it no longer exists (DEFCON needs nothing on a
+// class change), so a stored INITDEF is cleared, once, with a notice.
 var huAf = get_variable("hunting_after_form");
-if (huAf === null || huAf === undefined) set_variable("hunting_after_form", huLegacy ? "initdef" : "");
+if (huAf === null || huAf === undefined) set_variable("hunting_after_form", "");
+else if (String(huAf).trim().toLowerCase() === "initdef") {
+  set_variable("hunting_after_form", "");
+  display_notice("[hunting] the after-dragonform command was INITDEF, from the old defences package: cleared. HUNTING AFTERFORM <command> sets another.", "cyan");
+}
 
 if (!get_variable("hunting_dragon_mode")) set_variable("hunting_dragon_mode", "auto");
 if (!get_variable("hunting_dragon_attack")) set_variable("hunting_dragon_attack", "gut");
