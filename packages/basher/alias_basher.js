@@ -52,6 +52,14 @@ if (bsSub === "" || bsSub === "status") {
   } else {
     display_notice("[basher] raze " + String(get_variable("basher_raze")).toUpperCase() + (bsRz ? " with " + bsRz.name + (bsRz.cost ? " (" + bsRz.cost + " rage)" : "") : " (no raze key for this class)") + ". BASHER RAZE ON|OFF.", "cyan");
   }
+} else if (bsSub === "interrupt" || bsSub === "interruptions") {
+  var bsI = bsW[1];
+  if (bsI === "on" || bsI === "off") {
+    set_variable("basher_interrupt", bsI);
+    display_notice("[basher] interruptions " + bsI.toUpperCase() + (bsI === "on" ? ": another player arriving, a tell to you or your city channel naming you makes the fight in progress the last." : ": players arriving, tells and your city channel no longer stop a run" + (client.loom.loom && client.loom.loom.linkOn && client.loom.loom.linkOn("social-basher") ? "; enemies still do (LOOM LINK social-basher)." : ".")), "lime");
+  } else {
+    display_notice("[basher] interruptions " + (B.interrupts() ? "ON: another player arriving, a tell to you or your city channel naming you makes the fight in progress the last." : "OFF: players arriving, tells and your city channel don't stop a run.") + " BASHER INTERRUPT ON|OFF.", "cyan");
+  }
 } else if (bsSub === "rage") {
   var bsR = bsW[1];
   if (bsR === "on" || bsR === "off") {

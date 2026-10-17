@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 0.5.1.*
+*This page describes basher 0.5.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -15,7 +15,7 @@ It is **attended by design**:
 - It never starts a fight on its own. You attack first; it carries on.
 - It never walks. Its only move is a single step back the way you came when your health or mana runs low.
 - It attacks only living mobs in your room, never a player.
-- It stands down when someone turns up: another player arriving, a tell to you, or your city channel naming you makes the fight in progress the last one.
+- It stands down when someone turns up: another player arriving, a tell to you, or your city channel naming you makes the fight in progress the last one. `BASHER INTERRUPT OFF` turns that off (remembered across loads); enemies still count while the `social-basher` link is on.
 - It always loads switched off, and `BASHER STOP` stops it at once.
 
 Along the way it fires battlerage on its own clock, razes a shielded target, asks for a `DIAGNOSE` when a venom confuses you, and keeps a kill order for each area in the **Basher** tab.
@@ -37,8 +37,9 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 | `BASHER WIMPY DIR <direction\|OFF>` | where to flee when the way back isn't known |
 | `BASHER RAZE [ON\|OFF]` | raze a shielded target with your class's shieldbreak (default ON); no word: show it |
 | `BASHER RAGE [ON\|OFF]` | battlerage during a run (default ON), in the class's order; no word: show it |
+| `BASHER INTERRUPT [ON\|OFF]` | players arriving, tells and your city channel end the run after this fight (default ON, remembered); no word: show it |
 | **The Basher tab (create a custom tab named Basher) keeps a kill order per area: new mob types join ignored; ACTIVE ones are targeted by priority, then room order. While primed the basher sets your target to the top one whenever that changes; in a run it takes the next after each kill and ends when none are left. With no active types in an area it follows your own target as before.** | |
-| **Another player arriving during a run, a tell to you, or a line on your city channel that names you makes the fight in progress the last: it finishes, nothing new starts, the basher waits primed. With social, enemies are named as such (loom link social-basher).** | |
+| **Another player arriving during a run, a tell to you, or a line on your city channel that names you makes the fight in progress the last: it finishes, nothing new starts, the basher waits primed. BASHER INTERRUPT OFF turns all three off. With social, enemies are named as such and still count with interruptions off (loom link social-basher).** | |
 | **Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system.** | |
 | **A shielded target is razed with your class's shieldbreak when you have the rage (BASHER RAZE); dragons Blast it on recovery while their dragonbreath is up; otherwise attacks wait for the shield to fade.** | |
 | **While on, "You are confused as to the effects of the venom." sends DIAGNOSE on the next recovery, once per confusion.** | |
@@ -133,5 +134,5 @@ Each link is on as soon as both packages are installed; `LOOM LINKS` lists them,
 - **`BASHER ON` but nothing happens.** It waits for your own first attack. `BASHER` says why it isn't attacking.
 - **It switched itself off.** Three attacks took no balance in a row: check your target is a mob here and `HUNTING MAIN` is the right attack.
 - **It never razes.** Check `BASHER RAZE`, your rage, and whether your class has a shieldbreak key (see above).
-- **It stopped after someone arrived.** That's the design: it finishes the fight in progress and waits primed. Attack again to carry on.
+- **It stopped after someone arrived.** That's the design: it finishes the fight in progress and waits primed. Attack again to carry on. If you'd rather it kept going (a busy hunting ground, a long tell conversation), `BASHER INTERRUPT OFF`; `BASHER` reminds you while it's off.
 - **A mob type isn't targeted.** New types join ignored; switch them ACTIVE in the Basher tab.

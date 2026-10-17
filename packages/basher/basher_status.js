@@ -9,11 +9,11 @@ if (!bsHu) {
 } else if (B.on && B.run) {
   var bsWhy = B.blocked();
   display_notice("[basher] RUNNING as " + (bsHu.cls || "?") + ": " + (bsMain || "no main attack") + " on " + (B.target().tar || "no target")
-    + " — " + (bsWhy || "attacking") + (B.lastFight ? ", last fight (" + B.lastFight.why + ")" : "") + (B.diag ? ", DIAGNOSE owed" : "") + " (sees " + B.seen() + "). Health " + bsPct + ", " + B.wimpyText() + ". Rage " + (get_variable("basher_rage") == "off" ? "OFF" : (bsHu.rage || 0) + ": " + B.rotationText()) + ". BASHER STOP to stop.", "cyan");
+    + " — " + (bsWhy || "attacking") + (B.lastFight ? ", last fight (" + B.lastFight.why + ")" : "") + (B.diag ? ", DIAGNOSE owed" : "") + " (sees " + B.seen() + "). Health " + bsPct + ", " + B.wimpyText() + ". Rage " + (get_variable("basher_rage") == "off" ? "OFF" : (bsHu.rage || 0) + ": " + B.rotationText()) + "." + (B.interrupts() ? "" : " Interruptions OFF.") + " BASHER STOP to stop.", "cyan");
 } else if (B.on) {
   display_notice("[basher] PRIMED as " + (bsHu.cls || "?") + ": attack something and it carries on with " + (bsMain || "no main attack")
-    + " until the room runs out of your target. Sees " + B.seen() + ", target " + (B.target().name || B.target().tar || "none") + ". " + B.wimpyText().charAt(0).toUpperCase() + B.wimpyText().substring(1) + ". Rage " + (get_variable("basher_rage") == "off" ? "OFF" : B.rotationText()) + ". BASHER STOP to stand down.", "cyan");
+    + " until the room runs out of your target. Sees " + B.seen() + ", target " + (B.target().name || B.target().tar || "none") + ". " + B.wimpyText().charAt(0).toUpperCase() + B.wimpyText().substring(1) + ". Rage " + (get_variable("basher_rage") == "off" ? "OFF" : B.rotationText()) + "." + (B.interrupts() ? "" : " Interruptions OFF (BASHER INTERRUPT).") + " BASHER STOP to stand down.", "cyan");
 } else {
   display_notice("[basher] OFF. Attacks your target (tar) with hunting's main attack" + (bsMain ? " (" + bsMain + " as " + bsHu.cls + ")" : "")
-    + " once you attack something, until the room runs out of your target; " + B.wimpyText() + ". BASHER ON to prime it, BASHER HELP for commands.", "cyan");
+    + " once you attack something, until the room runs out of your target; " + B.wimpyText() + "." + (B.interrupts() ? "" : " Interruptions are OFF (BASHER INTERRUPT).") + " BASHER ON to prime it, BASHER HELP for commands.", "cyan");
 }

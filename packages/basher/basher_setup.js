@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.2", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -81,6 +81,11 @@ B.rageSent = B.rageSent || null;   // { name, at }: a rage ability sent, not yet
 if (!get_variable("basher_rage")) set_variable("basher_rage", "on");
 // Raze shielded targets (#125) on by default; BASHER RAZE OFF waits for fades.
 if (!get_variable("basher_raze")) set_variable("basher_raze", "on");
+// Interruptions (#278, Ricardo): one switch for all three (a player arriving,
+// a tell, ct naming you), remembered across loads (basher_interrupt). Enemies
+// keep their own switch: LOOM LINK social-basher.
+if (!get_variable("basher_interrupt")) set_variable("basher_interrupt", "on");
+B.interrupts = function () { return get_variable("basher_interrupt") != "off"; };
 B.razeAt = B.razeAt || 0;          // when the last raze went out
 // A dragon's dragonbreath defence (Blast uses it): true, false, or null when
 // no defence update has come since loading (breath raised before the import):
@@ -769,6 +774,8 @@ B.arrived = function (name) {
   if (B.me && String(name).toLowerCase() === B.me.toLowerCase()) return;
   var L = client.loom.loom;
   var enemy = L && L.answer ? L.answer("basher", "person.enemy", name) : undefined;
+  // With BASHER INTERRUPT OFF only an enemy (link social-basher) still counts.
+  if (!enemy && !B.interrupts()) return;
   B.finishOnly(name + (enemy ? " (enemy)" : "") + " is here");
 };
 
@@ -778,7 +785,7 @@ B.arrived = function (name) {
 // says naming you are left out, since denizens call your name mid-fight).
 // Your own lines don't count.
 B.heard = function (channel, talker, text) {
-  if (!B.on || !B.run || B.lastFight) return;
+  if (!B.on || !B.run || B.lastFight || !B.interrupts()) return;
   var ch = String(channel || "").toLowerCase(), who = String(talker || "");
   if (!who || (B.me && who.toLowerCase() === B.me.toLowerCase())) return;
   if (/^tell\s/.test(ch)) B.finishOnly(who + " sent you a tell");

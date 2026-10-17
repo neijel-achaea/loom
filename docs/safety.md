@@ -30,7 +30,7 @@ What that means in practice:
 
 On top of that:
 
-- The basher finishes the fight in progress and starts no new one when another player arrives, tells you something, or names you on your city channel: someone may want your attention.
+- The basher finishes the fight in progress and starts no new one when another player arrives, tells you something, or names you on your city channel: someone may want your attention. You can turn this off with `BASHER INTERRUPT OFF`; the basher still needs you there, since every run starts with your own attack and ends when the room is empty. `BASHER` says when interruptions are off.
 - Everything that sends commands stops at once with `LOOM PAUSE ON`; the basher has its own kill switch, `BASHER STOP`.
 - The basher and harvesting always load **off**, so a reload never leaves them running.
 
@@ -46,7 +46,7 @@ The packages below send commands without you typing each one. Check them against
 
 | Package | What it does by itself | When it stops |
 | --- | --- | --- |
-| [basher](basher.md) | After your first attack: attacks on each recovery, fires battlerage, razes shields, picks the next target in the room, flees one step when hurt, asks for `DIAGNOSE` | room empty of targets; after the current fight when someone arrives, tells you or names you; at once with `BASHER STOP` |
+| [basher](basher.md) | After your first attack: attacks on each recovery, fires battlerage, razes shields, picks the next target in the room, flees one step when hurt, asks for `DIAGNOSE` | room empty of targets; after the current fight when someone arrives, tells you or names you (unless `BASHER INTERRUPT OFF`); at once with `BASHER STOP` |
 | [fishing](fishing.md) | After your cast: teases, jerks and reels on the game's cues | the fish is landed or lost |
 | [harvesting](harvesting.md) | While on: harvests and stores what's short in each room you enter | `HARVESTING OFF` |
 | [hunting](hunting.md) | Autogold picks up gold from your kills (if set) | `HUNTING AUTOGOLD OFF` |
