@@ -25,6 +25,34 @@ if (soSub === "" || soSub === "status") {
   } else {
     display_notice("[social] " + soW[2] + " is not in " + soGroup + ".", "orange");
   }
+} else if (soSub === "clear") {
+  // SOCIAL CLEAR <group> CONFIRM: empty a group in one go.
+  if (!soIsGroup) {
+    display_notice("[social] SOCIAL CLEAR <group> CONFIRM. Groups: " + S.groups.join(", ") + ".", "orange");
+  } else {
+    var soCnt = Object.keys(S.lists[soGroup]).length;
+    if (!soCnt) {
+      display_notice("[social] " + soGroup + " is already empty.", "cyan");
+    } else if (soW[2] !== "confirm") {
+      display_notice("[social] this removes all " + soCnt + " names from " + soGroup + ". SOCIAL CLEAR " + soGroup.toUpperCase() + " CONFIRM to do it.", "orange");
+    } else {
+      for (var soCk in S.lists[soGroup]) delete S.lists[soGroup][soCk];
+      run_function("social_save", [], "social");
+      display_notice("[social] cleared " + soGroup + " (" + soCnt + " names removed)." + (soGroup === "enemies" && S.syncEnemies ? " Your city's list refills it the next time the game shows it (SOCIAL SYNC OFF to stop that)." : ""), "lime");
+    }
+  }
+} else if (soSub === "sync") {
+  // SOCIAL SYNC [ON|OFF]: load the enemies group from your city's enemies
+  // list whenever the game shows it (saved; on by default).
+  if (soGroup === "on" || soGroup === "off") {
+    S.syncEnemies = soGroup === "on";
+    set_variable("social_sync_enemies", soGroup);
+    display_notice("[social] enemies sync " + soGroup.toUpperCase() + ": " + (S.syncEnemies ? "your city's enemies list replaces the enemies group whenever the game shows it." : "the enemies group is yours alone; CITY ENEMIES no longer changes it."), "lime");
+  } else if (soGroup === "") {
+    display_notice("[social] enemies sync is " + (S.syncEnemies ? "ON" : "OFF") + ". SOCIAL SYNC ON|OFF.", "cyan");
+  } else {
+    display_notice("[social] SOCIAL SYNC [ON|OFF].", "orange");
+  }
 } else if (soSub === "list") {
   if (soGroup === "") {
     for (var soI = 0; soI < S.groups.length; soI++) display_notice("  " + S.groups[soI] + ": " + Object.keys(S.lists[S.groups[soI]]).length, S.color[S.groups[soI]]);
@@ -122,7 +150,7 @@ if (soSub === "" || soSub === "status") {
   display_notice("[social] unknown command '" + soSub + "'. SOCIAL HELP for commands.", "orange");
 }
 // Lists, colours, watches and polling all show on the Online tab (#76).
-if (["add", "del", "color", "colour", "colours", "colors", "watch", "unwatch", "poll", "reset", "offline"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
+if (["add", "del", "clear", "color", "colour", "colours", "colors", "watch", "unwatch", "poll", "reset", "offline"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
 // Lists and colours are what social's look reports (#159): tell loom, so the
 // tabs showing them redraw (guarded: social works without loom).
-if (["add", "del", "color", "colour", "colours", "colors"].indexOf(soSub) >= 0 && client.loom.notify) client.loom.notify("social");
+if (["add", "del", "clear", "color", "colour", "colours", "colors"].indexOf(soSub) >= 0 && client.loom.notify) client.loom.notify("social");

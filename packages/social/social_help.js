@@ -7,6 +7,7 @@ var hlRows = [
   ["SOCIAL", "status: list sizes, polling, watched groups"],
   ["SOCIAL ADD <group> <name>", "add a name to a group"],
   ["SOCIAL DEL <group> <name>", "remove it"],
+  ["SOCIAL CLEAR <group> CONFIRM", "remove every name from a group"],
   ["SOCIAL LIST [group]", "names in a group (no group: counts)"],
   ["SOCIAL COLOR <group|self> [#rrggbb]", "highlight colour (no colour: back to the default)"],
   ["SOCIAL COLOURS [GROUPS|STANDINGS]", "colour names by group (default) or by standing band"],
@@ -15,10 +16,11 @@ var hlRows = [
   ["SOCIAL UNWATCH <group>", "stop announcing it"],
   ["SOCIAL POLL ON|OFF|NOW", "the QW poll behind the announcements"],
   ["SOCIAL POLL EVERY [seconds]", "time between polls, 3 to 600 (default 5; no number: show)"],
+  ["SOCIAL SYNC [ON|OFF]", "load the enemies group from your city's enemies list (default on; no word: show)"],
   ["SOCIAL RESET", "reload the lists, re-prime the watchlist"],
   ["SOCIAL DEBUG [ON|OFF]", "internal state; ON shows each poll"],
   ["Groups, highest priority first: family, enemies, order, house, city, allies, friends."],
-  ["Your city's enemies list reloads itself whenever the game shows it (e.g. CITY ENEMIES)."]
+  ["With SYNC on, your city's enemies list replaces the enemies group whenever the game shows it (e.g. CITY ENEMIES)."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

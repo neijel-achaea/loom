@@ -7,7 +7,9 @@ var S = client.loom.social;
 var soHeaders = { cyrene: "thalassan empire" };
 var soHead = args[1].toLowerCase();
 var soMine = S.city && (soHead.indexOf(S.city) >= 0 || (soHeaders[S.city] && soHead.indexOf(soHeaders[S.city]) >= 0));
-if (soMine) {
+if (soMine && S.syncEnemies === false) {
+  if (S.debug) display_notice("[social] enemies list not loaded: SOCIAL SYNC is off.", "cyan");
+} else if (soMine) {
   S.loadEnemies = {};
 } else if (S.debug) {
   display_notice("[social] enemies list not loaded: '" + args[1] + "' isn't " + (S.city || "your city (none known yet)") + ".", "cyan");

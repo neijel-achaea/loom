@@ -8,7 +8,7 @@ if (!client.loom.social) client.loom.social = {};
 // (#60), since it runs when standings changes or a link into social flips;
 // in standings mode it passes the change on to the tabs that show social's
 // colours (Here, Comms).
-client.loom.registry.social = { version: "0.4.3", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
+client.loom.registry.social = { version: "0.4.4", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
   var So = client.loom.social;
   if (So) { So.standCache = {}; So.standCacheN = 0; }
   run_function("social_online", [], "social");
@@ -111,6 +111,9 @@ if (!S.seen) {
 if (S.seenSaved === undefined) S.seenSaved = 0;
 // Offline section shown or folded (social_offline on/off, default on).
 S.showOffline = get_variable("social_offline") != "off";
+// Enemies sync (SOCIAL SYNC): your city's enemies list replaces the enemies
+// group whenever the game shows it. Saved; on unless set off.
+S.syncEnemies = get_variable("social_sync_enemies") != "off";
 if (S.lastPoll === undefined) S.lastPoll = 0;
 S.buf = [];
 if (!S.lastCount) S.lastCount = 0;
