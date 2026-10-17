@@ -11,7 +11,7 @@ var hlRows = [
   ["LOOM DEBUG ON|OFF", "debug notices"],
   ["LOOM ROOM", "current room id, name, area and environment"],
   ["LOOM LINKS", "integrations between packages, on, off or waiting for a package"],
-  ["LOOM LINK <id> ON|OFF", "switch one integration; new ones start on"]
+  ["LOOM LINK <id> ON|OFF", "switch one integration"]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {
