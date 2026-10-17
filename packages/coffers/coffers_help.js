@@ -10,7 +10,7 @@ var hlRows = [
   ["COFFERS GAP <5-240>", "minutes without a prompt that close a session"],
   ["COFFERS GOAL <amount|OFF>", "earn this much from now (50000, 50k, 1.5m)"],
   ["COFFERS PROPOSED", "goals other packages proposed, numbered"],
-  ["COFFERS ACCEPT [n]", "make a proposed goal yours (the first by default)"],
+  ["COFFERS ACCEPT [n]", "add a proposed goal to yours, or make it your goal (the first by default)"],
   ["COFFERS DISMISS [n]", "drop it; it stays away until its reason clears"],
   ["COFFERS BIGCOIN <amount|OFF>", "announce single gains or losses this large"],
   ["COFFERS GRAPH [SESSION|LONG] [ON|OFF]", "show or hide the graphs"],

@@ -155,7 +155,7 @@ if (g === undefined) {
       pin += '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="color:' + MUTED + ';min-width:1.4em;">' + (pq + 1) + '.</span>' +
         '<span style="flex:1 1 auto;min-width:0;color:' + TXT + ';">earn <span style="color:' + GOLD + ';">' + F.n(PR[pq].amount) + '</span>' + (PR[pq].why ? ' &mdash; ' + esc(PR[pq].why) : '') + ' <span style="color:' + MUTED + ';">&middot; ' + esc(PR[pq].src) + '</span></span></div>';
     }
-    pin += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">COFFERS ACCEPT makes the first your goal, COFFERS DISMISS drops it.</div>';
+    pin += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">COFFERS ACCEPT adds the first to your goal, COFFERS DISMISS drops it.</div>';
     html += section("Proposed goals", pin);
   }
 
