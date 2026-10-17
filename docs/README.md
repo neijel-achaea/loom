@@ -11,7 +11,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | [room](room.md) | Here | A Here tab replacing the stock Room tab: exits, players, mobs and items |
 | [comms](comms.md) | Comms | A Comms tab replacing the stock comm window: channels, tells, unread, mute |
 | [social](social.md) | Online | Name highlights by group; who you watch, online in the Online tab |
-| standings *(page to come)* | Standings | Standings with adventurers and organisations, kept per character |
+| [standings](standings.md) | Standings | Standings with adventurers and organisations, kept per character |
 | [self](self.md) | Self | Character panel: afflictions, defences you watch, and SCORE details |
 | vision *(page to come)* | — | Alertness filter: hides city members, flags and reports enemies |
 
@@ -24,8 +24,8 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | [defcon](defcon.md) | — | Defence readiness for any class: five tiers, raised on login |
 | [dmgchart](dmgchart.md) | DmgChart | Damage dealt and taken by type per fight, health lasts, recorded sessions |
 | [huntstats](huntstats.md) | Stats | Per-area hunting records: xp, gold and kills an hour, Dragonhood |
-| levelgraph *(page to come)* | Level | Level progress graphs per minute and per day, time to next level |
-| partycomms *(page to come)* | Party | Share vitals, rage and target with your party; party chips tab |
+| [levelgraph](levelgraph.md) | Level | Level progress graphs per minute and per day, time to next level |
+| [partycomms](partycomms.md) | Party | Share vitals, rage and target with your party; party chips tab |
 | security *(page to come)* | — | Antitheft for worn items and gold, backpack gold, selfish wrappers |
 
 ## Money and items
@@ -33,7 +33,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | Package | Tab | What it does |
 | --- | --- | --- |
 | [coffers](coffers.md) | Coffers | Gold tracker: fortune, income and spending by session and day, goals |
-| talpieces *(page to come)* | Talismans | Dragon talisman piece tracker with history and a projected finish |
+| [talpieces](talpieces.md) | Talismans | Dragon talisman piece tracker with history and a projected finish |
 | vials *(page to come)* | — | Refill your vials from the rift by elixir |
 | crystalism *(page to come)* | — | Even crystal refining, pearl pickup, and sonic portals for the city |
 | harvesting *(page to come)* | — | Harvests the plants your rift is short of as you walk the rooms |
@@ -54,7 +54,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | Package | Tab | What it does |
 | --- | --- | --- |
 | fishing *(page to come)* | — | Bait, cast, tease and reel on the game's cues; yearly record calls |
-| fishingstats *(page to come)* | fishingstats, fishinglog | Casts, catches and weights per angler and species, with a fishing log |
+| [fishingstats](fishingstats.md) | fishingstats, fishinglog | Casts, catches and weights per angler and species, with a fishing log |
 
 ## Calendar
 
