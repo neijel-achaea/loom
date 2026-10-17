@@ -2,6 +2,12 @@
 
 Start with **[Getting started](getting-started.md)**: downloading, importing, tabs, integrations and updates.
 
+Then, for everyone:
+
+- **[Safety and fair play](safety.md)**: the game's rules on automation, and what each package does on its own. Read it before using the basher, fishing or harvesting.
+- **[Classes](classes.md)**: which classes Loom knows, and what's still missing for some.
+- **[Troubleshooting](troubleshooting.md)**: tabs, pausing, updates, your data, and how to report a bug.
+
 Each package has one page, in the same order: what it is, its commands, setting it up, daily use, and how it works with other packages. The command lists come from each package's own `HELP`, so they match the version the page names.
 
 Every integration between packages is listed on the [loom page](loom.md#integrations).
