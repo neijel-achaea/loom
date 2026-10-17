@@ -4,6 +4,8 @@
 
 **Version 0.6** (Autobasher): `BASHER ON` primes an attended basher that attacks your target with your class's main attack on balance and equilibrium, fires battlerage, razes shields, flees on low health, keeps a kill order per area in the **Basher** tab, and finishes its fight without starting a new one when someone turns up (a player arriving, a tell, your city channel). Built on 0.5 (25 integrations between packages, each on as soon as both its packages are installed and switchable with `LOOM LINK`; see [Integrations](#integrations)), 0.4 (custom tabs: **Online**, **Here**, **Comms**), 0.3 (every class) and 0.2 (every package standalone). See the [releases](https://github.com/neijel-achaea/loom/releases) and the [player documentation](docs/README.md). v0.7 (Docs & Feedback) is next: see [ROADMAP.md](ROADMAP.md).
 
+> **Reflexes, not a bot.** Every Loom package answers something you started, finishes it and stops: nothing fishes, bashes or gathers on while you're away from the keyboard, and nothing walks for you. Please keep it that way, and read [Safety and fair play](docs/safety.md) and the game's [HELP 15.8](https://achaea.com/game/helpview?id=490) before using the basher, fishing or harvesting.
+
 Loom is a suite of reflex packages for the [Nexus](https://play.achaea.com) client of Achaea. Each
 package is self-contained: it can be dropped onto any character without
 bringing the others along, and does more when its neighbours are there. The tab packages share one house style (ink panel,

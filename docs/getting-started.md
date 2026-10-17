@@ -4,7 +4,7 @@ Loom is a set of packages for Achaea's web client, [Nexus](https://play.achaea.c
 
 You pick the packages you want. Nothing needs all of them.
 
-Some packages act for you once started (the basher, fishing, harvesting). Before using them, read **[Safety and fair play](safety.md)**: the game has firm rules on automation.
+Some packages act for you once you've started them (the basher, fishing, harvesting), and stop when that one thing is done: Loom is reflexes, not a bot. Before using them, read **[Safety and fair play](safety.md)**: the game has firm rules on automation, and the page explains where Loom stops and why.
 
 ## 1. Download
 
