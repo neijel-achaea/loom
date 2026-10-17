@@ -8,11 +8,11 @@ Each package has one page, in the same order: what it is, its commands, setting 
 
 | Package | Tab | What it does |
 | --- | --- | --- |
-| room *(page to come)* | Here | A Here tab replacing the stock Room tab: exits, players, mobs and items |
-| comms *(page to come)* | Comms | A Comms tab replacing the stock comm window: channels, tells, unread, mute |
-| social *(page to come)* | Online | Name highlights by group; who you watch, online in the Online tab |
+| [room](room.md) | Here | A Here tab replacing the stock Room tab: exits, players, mobs and items |
+| [comms](comms.md) | Comms | A Comms tab replacing the stock comm window: channels, tells, unread, mute |
+| [social](social.md) | Online | Name highlights by group; who you watch, online in the Online tab |
 | standings *(page to come)* | Standings | Standings with adventurers and organisations, kept per character |
-| self *(page to come)* | Self | Character panel: afflictions, defences you watch, and SCORE details |
+| [self](self.md) | Self | Character panel: afflictions, defences you watch, and SCORE details |
 | vision *(page to come)* | — | Alertness filter: hides city members, flags and reports enemies |
 
 ## Hunting and combat
@@ -23,7 +23,7 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | basher *(page to come)* | Basher | Attended autobasher: attacks your target with hunting's main attack |
 | defcon *(page to come)* | — | Defence readiness for any class: five tiers, raised on login |
 | dmgchart *(page to come)* | DmgChart | Damage dealt and taken by type per fight, health lasts, recorded sessions |
-| huntstats *(page to come)* | Stats | Per-area hunting records: xp, gold and kills an hour, Dragonhood |
+| [huntstats](huntstats.md) | Stats | Per-area hunting records: xp, gold and kills an hour, Dragonhood |
 | levelgraph *(page to come)* | Level | Level progress graphs per minute and per day, time to next level |
 | partycomms *(page to come)* | Party | Share vitals, rage and target with your party; party chips tab |
 | security *(page to come)* | — | Antitheft for worn items and gold, backpack gold, selfish wrappers |
