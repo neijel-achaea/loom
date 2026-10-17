@@ -18,7 +18,7 @@ var hlRows = [
   ["COFFERS SPAN SESSION <15-720>", "minutes the session graph covers"],
   ["COFFERS SPAN LONG <7-365>", "days the day-by-day graph covers"],
   ["COFFERS CSV [DAYS|SESSION|SESSIONS]", "the books as CSV lines"],
-  ["COFFERS WIPE CONFIRM", "burn the whole ledger"],
+  ["COFFERS WIPE CONFIRM", "burn the whole ledger, goal and proposals too"],
   ["COFFERS REBUILD / DEBUG", "rebuild helpers and rank table / internal state"]
 ];
 var hlW = 0;
