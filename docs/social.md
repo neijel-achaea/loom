@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 0.4.3.*
+*This page describes social 0.4.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,7 +14,7 @@ Social keeps your lists of people (family, enemies, order, house, city, allies, 
 - **Tells you when they log in or out**: "Ana has awoken." and "Ana has drifted into slumber.", in their group's colour.
 - **Draws the Online tab**: the people you watch who are online, how long they've been on, and below, the ones who are offline with when you last saw them.
 
-It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POLL EVERY` changes that) and hiding the reply, so the main window stays clean. Your city's enemies list fills itself from the game's own list.
+It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POLL EVERY` changes that) and hiding the reply, so the main window stays clean. Your city's enemies list fills itself from the game's own list (`SOCIAL SYNC` switches that).
 
 ## Commands
 
@@ -24,6 +24,7 @@ It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POL
 | `SOCIAL` | status: list sizes, polling, watched groups |
 | `SOCIAL ADD <group> <name>` | add a name to a group |
 | `SOCIAL DEL <group> <name>` | remove it |
+| `SOCIAL CLEAR <group> CONFIRM` | remove every name from a group |
 | `SOCIAL LIST [group]` | names in a group (no group: counts) |
 | `SOCIAL COLOR <group\|self> [#rrggbb]` | highlight colour (no colour: back to the default) |
 | `SOCIAL COLOURS [GROUPS\|STANDINGS]` | colour names by group (default) or by standing band |
@@ -32,10 +33,11 @@ It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POL
 | `SOCIAL UNWATCH <group>` | stop announcing it |
 | `SOCIAL POLL ON\|OFF\|NOW` | the QW poll behind the announcements |
 | `SOCIAL POLL EVERY [seconds]` | time between polls, 3 to 600 (default 5; no number: show) |
+| `SOCIAL SYNC [ON\|OFF]` | load the enemies group from your city's enemies list (default on; no word: show) |
 | `SOCIAL RESET` | reload the lists, re-prime the watchlist |
 | `SOCIAL DEBUG [ON\|OFF]` | internal state; ON shows each poll |
 | **Groups, highest priority first: family, enemies, order, house, city, allies, friends.** | |
-| **Your city's enemies list reloads itself whenever the game shows it (e.g. CITY ENEMIES).** | |
+| **With SYNC on, your city's enemies list replaces the enemies group whenever the game shows it (e.g. CITY ENEMIES).** | |
 <!-- /loom:commands -->
 
 ### Lists
@@ -44,7 +46,9 @@ Names go in a group with `SOCIAL ADD <group> <name>`, for example `SOCIAL ADD fr
 
 `SOCIAL LIST` gives the size of each group; `SOCIAL LIST friends` lists its names.
 
-**The enemies list** is reloaded from the game whenever it shows your city's enemies (`CITY ENEMIES`, for instance): the list is replaced with what the game sent, and Social says how many it loaded. Only your own city's list counts; house, order and other cities' lists are left alone.
+**The enemies list** is reloaded from the game whenever it shows your city's enemies (`CITY ENEMIES`, for instance): the list is replaced with what the game sent, and Social says how many it loaded. Only your own city's list counts; house, order and other cities' lists are left alone. `SOCIAL SYNC OFF` stops this, so the enemies group holds only the names you add yourself (`SOCIAL SYNC ON` brings it back; the setting is saved).
+
+**Emptying a group.** `SOCIAL CLEAR <group> CONFIRM` removes every name from it at once; without `CONFIRM` it only says how many names would go. Clearing enemies while sync is on lasts until the game next shows your city's list.
 
 ### Colours
 

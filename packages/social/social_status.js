@@ -9,4 +9,4 @@ for (var soI = 0; soI < S.groups.length; soI++) {
 display_notice("[social] lists: " + soCounts.join(", ") + ".", "cyan");
 display_notice("[social] polling " + String(get_variable("social_poll")).toUpperCase() + " every " + (S.interval / 1000) + "s"
   + (S.prev ? " (" + Object.keys(S.prev).length + " online)" : " (not primed yet)")
-  + ", watching " + (soWatch.length ? soWatch.join(", ") : "nothing") + ". SOCIAL HELP for commands.", "cyan");
+  + ", watching " + (soWatch.length ? soWatch.join(", ") : "nothing") + ", enemies sync " + (S.syncEnemies === false ? "OFF" : "ON") + ". SOCIAL HELP for commands.", "cyan");
