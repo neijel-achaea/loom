@@ -27,7 +27,7 @@ This code covers Loom's spaces on GitHub: issues, pull requests, discussions, re
 
 If something here makes you uncomfortable, or you see someone being treated badly:
 
-- **For a private report**, contact the maintainer at **<!-- CONTACT: to be decided -->**. Reports are read only by the maintainer and kept confidential.
+- **For a private report**, send an in-game message to the maintainer, **Neijel**, in Achaea: `MSG Neijel <your message>`. Messages wait if he's offline. Say it's about Loom's code of conduct, and include links to what happened if you can. Reports are read only by the maintainer and kept confidential.
 - **For abusive content** (harassment, spam), you can also use GitHub's own *Report content* option, from the "…" menu of any issue, comment or pull request. That goes to GitHub's staff.
 
 Please don't report conduct problems in a public issue.
