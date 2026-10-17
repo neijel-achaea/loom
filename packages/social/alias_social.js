@@ -64,11 +64,23 @@ if (soSub === "" || soSub === "status") {
   if (soGroup === "on" || soGroup === "off") {
     set_variable("social_poll", soGroup);
     display_notice("[social] polling " + soGroup.toUpperCase() + ".", C);
+  } else if (soGroup === "every") {
+    var soSec = Number(soW[2]);
+    if (soW[2] === undefined) {
+      display_notice("[social] polling every " + (S.interval / 1000) + "s. SOCIAL POLL EVERY <seconds> (" + S.minEvery + " to " + S.maxEvery + ", default 5).", C);
+    } else if (!(soSec % 1 === 0) || soSec < S.minEvery || soSec > S.maxEvery) {
+      display_notice("[social] SOCIAL POLL EVERY <seconds>: a whole number from " + S.minEvery + " to " + S.maxEvery + " (default 5).", "orange");
+    } else {
+      S.interval = soSec * 1000;
+      if (soSec === 5) delete_variable("social_poll_every"); else set_variable("social_poll_every", String(soSec));
+      S.restart();
+      display_notice("[social] polling every " + soSec + "s.", "lime");
+    }
   } else if (soGroup === "now") {
     S.reportOnce = true;
     run_function("social_poll", [], "social");
   } else {
-    display_notice("[social] polling is " + String(get_variable("social_poll")).toUpperCase() + ". SOCIAL POLL ON|OFF|NOW.", C);
+    display_notice("[social] polling is " + String(get_variable("social_poll")).toUpperCase() + ", every " + (S.interval / 1000) + "s. SOCIAL POLL ON|OFF|NOW|EVERY <seconds>.", C);
   }
 } else if (soSub === "offline") {
   // SOCIAL OFFLINE [ON|OFF]: show or fold the Online tab's Offline section.

@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 0.4.2.*
+*This page describes social 0.4.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,7 +14,7 @@ Social keeps your lists of people (family, enemies, order, house, city, allies, 
 - **Tells you when they log in or out**: "Ana has awoken." and "Ana has drifted into slumber.", in their group's colour.
 - **Draws the Online tab**: the people you watch who are online, how long they've been on, and below, the ones who are offline with when you last saw them.
 
-It finds out who's online by asking the game's `QW` every 5 seconds and hiding the reply, so the main window stays clean. Your city's enemies list fills itself from the game's own list.
+It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POLL EVERY` changes that) and hiding the reply, so the main window stays clean. Your city's enemies list fills itself from the game's own list.
 
 ## Commands
 
@@ -30,7 +30,8 @@ It finds out who's online by asking the game's `QW` every 5 seconds and hiding t
 | `SOCIAL WATCH [group]` | announce when that group's names log in or out (no group: show) |
 | `SOCIAL OFFLINE [ON\|OFF]` | show or fold the Online tab's offline section (clicking its heading flips it too) |
 | `SOCIAL UNWATCH <group>` | stop announcing it |
-| `SOCIAL POLL ON\|OFF\|NOW` | the QW poll behind the announcements (every 5s) |
+| `SOCIAL POLL ON\|OFF\|NOW` | the QW poll behind the announcements |
+| `SOCIAL POLL EVERY [seconds]` | time between polls, 3 to 600 (default 5; no number: show) |
 | `SOCIAL RESET` | reload the lists, re-prime the watchlist |
 | `SOCIAL DEBUG [ON\|OFF]` | internal state; ON shows each poll |
 | **Groups, highest priority first: family, enemies, order, house, city, allies, friends.** | |
@@ -66,7 +67,7 @@ Names go in a group with `SOCIAL ADD <group> <name>`, for example `SOCIAL ADD fr
 
 Every group is watched by default. `SOCIAL UNWATCH city` stops the login and logout notices for your city (useful in a big city), and its people leave the Online tab; their names are still coloured. `SOCIAL WATCH city` brings them back; `SOCIAL WATCH` alone shows which groups are watched.
 
-`SOCIAL POLL OFF` stops the `QW` poll altogether: no notices, no Online updates. `SOCIAL POLL NOW` polls once right away and reports what it found.
+`SOCIAL POLL OFF` stops the `QW` poll altogether: no notices, no Online updates. `SOCIAL POLL NOW` polls once right away and reports what it found. `SOCIAL POLL EVERY 10` polls every 10 seconds instead of 5 (3 to 600; remembered across loads; `SOCIAL POLL EVERY 5` goes back to the default). A longer gap means arrivals and departures show up a little later.
 
 ## Setting it up
 

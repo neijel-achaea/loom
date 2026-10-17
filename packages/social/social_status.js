@@ -7,6 +7,6 @@ for (var soI = 0; soI < S.groups.length; soI++) {
   if (S.watch[S.groups[soI]]) soWatch.push(S.groups[soI]);
 }
 display_notice("[social] lists: " + soCounts.join(", ") + ".", "cyan");
-display_notice("[social] polling " + String(get_variable("social_poll")).toUpperCase()
+display_notice("[social] polling " + String(get_variable("social_poll")).toUpperCase() + " every " + (S.interval / 1000) + "s"
   + (S.prev ? " (" + Object.keys(S.prev).length + " online)" : " (not primed yet)")
   + ", watching " + (soWatch.length ? soWatch.join(", ") : "nothing") + ". SOCIAL HELP for commands.", "cyan");
