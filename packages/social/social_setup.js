@@ -8,7 +8,7 @@ if (!client.loom.social) client.loom.social = {};
 // (#60), since it runs when standings changes or a link into social flips;
 // in standings mode it passes the change on to the tabs that show social's
 // colours (Here, Comms).
-client.loom.registry.social = { version: "0.4.2", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
+client.loom.registry.social = { version: "0.4.3", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
   var So = client.loom.social;
   if (So) { So.standCache = {}; So.standCacheN = 0; }
   run_function("social_online", [], "social");
@@ -81,7 +81,15 @@ S.watch = {};
 var soW = String(get_variable("social_watch") || "").split(",");
 for (var soWi = 0; soWi < soW.length; soWi++) { if (soW[soWi].trim()) S.watch[soW[soWi].trim()] = true; }
 S.debug = get_variable("social_debug") == "on";
-S.interval = 5000;
+// Time between QW polls (#290): SOCIAL POLL EVERY <seconds>, saved in
+// social_poll_every, 5s by default. S.restart() puts the timer on it.
+S.minEvery = 3; S.maxEvery = 600;
+var soEv = parseInt(get_variable("social_poll_every"), 10);
+S.interval = (soEv >= S.minEvery && soEv <= S.maxEvery ? soEv : 5) * 1000;
+S.restart = function () {
+  if (S.timer) clearInterval(S.timer);
+  S.timer = setInterval(function () { run_function("social_poll", [], "social"); }, S.interval);
+};
 if (S.prev === undefined) S.prev = null;
 S.capturing = false;
 // The Online tab (#76): when each online person was first seen, recent
@@ -121,7 +129,7 @@ if (client.wl) {
   client.wl.enabled = false;
   client.wl = null;
 }
-S.timer = setInterval(function () { run_function("social_poll", [], "social"); }, S.interval);
+S.restart();
 
 // The read-only look other tabs see through loom's display entry point
 // (#159): what social knows about a person, never its variables. Groups in

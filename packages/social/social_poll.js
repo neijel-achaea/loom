@@ -1,4 +1,4 @@
-// social_poll -- every 5s: send QW and capture its lines (trigger_line).
+// social_poll -- every S.interval (5s unless SOCIAL POLL EVERY): send QW and capture its lines (trigger_line).
 // The capture ends on QW's own last line, "Plus another N whose presence you
 // cannot fully sense (M total)." (#75), so a lagged reply is still gagged.
 // While a capture is open no new QW is sent; a reply that never comes (a
