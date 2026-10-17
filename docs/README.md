@@ -4,6 +4,8 @@ Start with **[Getting started](getting-started.md)**: downloading, importing, ta
 
 Each package has one page, in the same order: what it is, its commands, setting it up, daily use, and how it works with other packages. The command lists come from each package's own `HELP`, so they match the version the page names.
 
+Every integration between packages is listed on the [loom page](loom.md#integrations).
+
 ## Around you
 
 | Package | Tab | What it does |
@@ -46,8 +48,8 @@ Each package has one page, in the same order: what it is, its commands, setting 
 | [patrolling](patrolling.md) | — | Checks each room's plants and shrines, and suggests areas to patrol |
 | [sigils](sigils.md) | — | Monolith and flame sigil watcher, with the cost of what's running out |
 | [conjuration](conjuration.md) | — | Sigil creation rituals, one step at a time as the game is ready |
-| artificing *(page to come)* | — | Staff attack for STAFF CAST, and elemental treaties formed safely |
-| elementalism *(page to come)* | — | Illusions and set pieces, with your name and pronouns |
+| [artificing](artificing.md) | — | Staff attack for STAFF CAST, and elemental treaties formed safely |
+| [elementalism](elementalism.md) | — | Illusions and set pieces, with your name and pronouns |
 
 ## Fishing
 
@@ -66,8 +68,8 @@ Each package has one page, in the same order: what it is, its commands, setting 
 
 | Package | Tab | What it does |
 | --- | --- | --- |
-| loom *(page to come)* | — | The suite: package list, shared pause and debug flags, quit wrapper |
-| numpad_movement *(page to come)* | — | Move with the number pad; look, score and inventory keys |
+| [loom](loom.md) | — | The suite: package list, shared pause and debug flags, quit wrapper |
+| [numpad_movement](numpad_movement.md) | — | Move with the number pad; look, score and inventory keys |
 
 ## Retired
 

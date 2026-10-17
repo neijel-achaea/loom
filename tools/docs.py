@@ -12,6 +12,10 @@ hand and left alone.
     (one line: which version of the package the page describes)
     <!-- /loom:version -->
 
+    <!-- loom:links all -->
+    (every integration in packages/loom/loom_links.js: id, from, to, what it does)
+    <!-- /loom:links -->
+
 The HELP table is the `hlRows` literal in packages/<pkg>/<pkg>_help.js:
 [command, what it does] rows, and one-element rows for section lines. The
 version is the one the package registers (`registry.<pkg> = { version: ...`).
@@ -28,7 +32,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 PACKAGES = os.path.join(ROOT, "packages")
 
-BLOCK = re.compile(r"(<!-- loom:(commands|version) (\w+) -->\n)(.*?)(<!-- /loom:\2 -->)", re.S)
+BLOCK = re.compile(r"(<!-- loom:(commands|version|links) (\w+) -->\n)(.*?)(<!-- /loom:\2 -->)", re.S)
 
 READ_ROWS = r"""
 const s = require("fs").readFileSync(process.argv[1], "utf8");
@@ -80,10 +84,33 @@ def commands_md(pkg):
 def version_md(pkg):
     return "*This page describes %s %s.*\n" % (pkg, version(pkg))
 
+LINK = re.compile(r'id:\s*"([a-z_-]+)",\s*src:\s*"(\w+)",\s*dst:\s*"(\w+)"[\s\S]*?desc:\s*"((?:[^"\\\\]|\\\\.)*)"')
+
+def pkg_link(pkg):
+    # The package's page when it has one, else its name in bold.
+    if os.path.exists(os.path.join(DOCS, pkg + ".md")):
+        return "[%s](%s.md)" % (pkg, pkg)
+    return "**%s**" % pkg
+
+def links_md():
+    src = open(os.path.join(PACKAGES, "loom", "loom_links.js"), encoding="utf-8").read()
+    rows = LINK.findall(src)
+    if not rows:
+        sys.exit("loom_links.js: no links found")
+    lines = ["| Link | From | To | What it does |", "|---|---|---|---|"]
+    for lid, s_, d_, desc in rows:
+        lines.append("| `%s` | %s | %s | %s |" % (lid, pkg_link(s_), pkg_link(d_), cell(desc.replace("\\'", "'"))))
+    return "\n".join(lines) + "\n"
+
 def fill(text):
     def repl(m):
         kind, pkg = m.group(2), m.group(3)
-        body = commands_md(pkg) if kind == "commands" else version_md(pkg)
+        if kind == "commands":
+            body = commands_md(pkg)
+        elif kind == "links":
+            body = links_md()
+        else:
+            body = version_md(pkg)
         return m.group(1) + body + m.group(5)
     return BLOCK.sub(repl, text)
 

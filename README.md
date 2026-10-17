@@ -79,7 +79,7 @@ Since 0.5, packages installed together feed each other through **integrations** 
 
 Data (gold history, ledger items, standings, …) lives in Nexus variables, not in the package, so reimporting a newer version keeps it.
 
-The player documentation lives in [`docs/`](docs/README.md): [getting started](docs/getting-started.md) and one page per package (being written in Loom 0.7).
+The player documentation lives in [`docs/`](docs/README.md): [getting started](docs/getting-started.md) and one page per package.
 
 ## Working on the packages
 
@@ -93,7 +93,7 @@ python tools/extract.py Export.nxs --name self   # bring an in-game export back 
 
 After changing a package in Nexus, export it, run `extract.py` over it and commit: the diff shows exactly what changed. After changing source files, run `build.py` and import the result.
 
-The pages in `docs/` carry generated blocks (each package's `HELP` table and its version) between `<!-- loom:... -->` markers. After changing a package's HELP or version, run `python3 tools/docs.py` to refresh them (`--check` only reports stale pages); the rest of each page is written by hand.
+The pages in `docs/` carry generated blocks (each package's `HELP` table and its version, and the loom page's list of integrations) between `<!-- loom:... -->` markers. After changing a package's HELP or version, or adding a link, run `python3 tools/docs.py` to refresh them (`--check` only reports stale pages); the rest of each page is written by hand.
 
 ### Versioning
 
