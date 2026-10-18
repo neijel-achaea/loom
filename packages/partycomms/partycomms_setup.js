@@ -5,7 +5,9 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.partycomms) client.loom.partycomms = {};
-client.loom.registry.partycomms = { version: "0.2.4", keyword: "PARTYCOMMS", desc: "{{description}}" };
+client.loom.registry.partycomms = { version: "0.2.5", keyword: "PARTYCOMMS", desc: "{{description}}",
+  // Redrawn by loom when the tab theme changes (#310).
+  redraw: function () { if (client.loom.partycomms) client.loom.partycomms.lastRender = 0; run_function("partycomms_render", [], "partycomms"); } };
 var PC = client.loom.partycomms;
 
 // One-time migration. party_on becomes partycomms_on; the rest were working

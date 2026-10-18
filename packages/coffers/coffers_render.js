@@ -3,11 +3,16 @@
 if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
 var CO = client.loom.coffers;
 var F = CO.f;
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
 var GOLD = "#e2bd5a";
-var BRONZE = "#9c7330";
-var TXT = "#e9dfc6";
-var MUTED = "#8c8170";
-var RULE = "#3a3122";
+var BRONZE = TH.deep || "#9c7330";
+var COIN = "#9c7330"; // the coin icon's rims stay bronze
+var TXT = TH.txt || "#e9dfc6";
+var MUTED = TH.muted || "#8c8170";
+var RULE = TH.rule || "#3a3122";
+var TRACK = TH.track || "#2a2318";
+var BG = TH.bg || "#16120b";
 var UP = "#93cf8a";
 var DOWN = "#de8a72";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
@@ -97,15 +102,15 @@ function row(label, value, col) {
 }
 function bar(pct, col, h) {
   pct = Math.max(0, Math.min(100, pct));
-  return '<div style="background:#2a2318;height:' + h + 'px;width:100%;margin:2px 0;"><div style="background:' + col + ';height:' + h + 'px;width:' + n1(pct) + '%;"></div></div>';
+  return '<div style="background:' + TRACK + ';height:' + h + 'px;width:100%;margin:2px 0;"><div style="background:' + col + ';height:' + h + 'px;width:' + n1(pct) + '%;"></div></div>';
 }
 function box(inner) { return '<div style="flex:1 1 130px;min-width:130px;border-top:2px solid ' + BRONZE + ';padding:3px 2px 0;">' + inner + '</div>'; }
 function section(title, inner) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title) + inner + '</div>'; }
 
 var coins = '<svg width="20" height="17" viewBox="0 0 20 17" style="vertical-align:-3px;margin-right:6px;" xmlns="http://www.w3.org/2000/svg">' +
-  '<ellipse cx="10" cy="13.5" rx="8.5" ry="2.8" fill="' + BRONZE + '"/><ellipse cx="10" cy="12" rx="8.5" ry="2.8" fill="' + GOLD + '" stroke="' + BRONZE + '" stroke-width="0.6"/>' +
-  '<ellipse cx="10" cy="9" rx="8.5" ry="2.8" fill="' + BRONZE + '"/><ellipse cx="10" cy="7.5" rx="8.5" ry="2.8" fill="' + GOLD + '" stroke="' + BRONZE + '" stroke-width="0.6"/>' +
-  '<ellipse cx="10" cy="4.5" rx="8.5" ry="2.8" fill="' + BRONZE + '"/><ellipse cx="10" cy="3" rx="8.5" ry="2.8" fill="#f3d781" stroke="' + BRONZE + '" stroke-width="0.6"/></svg>';
+  '<ellipse cx="10" cy="13.5" rx="8.5" ry="2.8" fill="' + COIN + '"/><ellipse cx="10" cy="12" rx="8.5" ry="2.8" fill="' + GOLD + '" stroke="' + COIN + '" stroke-width="0.6"/>' +
+  '<ellipse cx="10" cy="9" rx="8.5" ry="2.8" fill="' + COIN + '"/><ellipse cx="10" cy="7.5" rx="8.5" ry="2.8" fill="' + GOLD + '" stroke="' + COIN + '" stroke-width="0.6"/>' +
+  '<ellipse cx="10" cy="4.5" rx="8.5" ry="2.8" fill="' + COIN + '"/><ellipse cx="10" cy="3" rx="8.5" ry="2.8" fill="#f3d781" stroke="' + COIN + '" stroke-width="0.6"/></svg>';
 
 var mins = CO.min || [];
 var days = CO.days || [];
@@ -115,7 +120,7 @@ if (L.gold !== undefined && L.bank !== undefined) { g = L.gold; b = L.bank; }
 else if (mins.length > 0) { g = mins[mins.length - 1][1]; b = mins[mins.length - 1][2]; }
 else if (days.length > 0) { g = days[days.length - 1][1]; b = days[days.length - 1][2]; }
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#16120b;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + BRONZE + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + GOLD + ';font-size:14px;letter-spacing:0.22em;">' + coins + 'COFFERS</div>';
 
@@ -131,7 +136,7 @@ if (g === undefined) {
   html += '<div style="margin:6px 0 1px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + GOLD + ';letter-spacing:0.02em;">' + F.n(W) + '</span>';
   html += ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">gold sovereigns</span></div>';
   var handPct = W > 0 ? g / W * 100 : 0;
-  html += '<div style="display:flex;height:6px;width:100%;margin:2px 0 1px;background:#2a2318;"><div style="background:' + GOLD + ';width:' + n1(handPct) + '%;"></div><div style="background:' + BRONZE + ';width:' + n1(100 - handPct) + '%;"></div></div>';
+  html += '<div style="display:flex;height:6px;width:100%;margin:2px 0 1px;background:' + TRACK + ';"><div style="background:' + GOLD + ';width:' + n1(handPct) + '%;"></div><div style="background:' + BRONZE + ';width:' + n1(100 - handPct) + '%;"></div></div>';
   html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span><span style="color:' + GOLD + ';">&#9632;</span> ' + F.n(g) + ' in the purse</span><span>' + F.n(b) + ' in the bank <span style="color:' + BRONZE + ';">&#9632;</span></span></div>';
 
   // Next tier, and the personal goal if one is set.

@@ -46,11 +46,14 @@ function leaf(title) { return '<span title="newbie (' + esc(title) + ')" style="
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
 // small-caps headings, monospace rows. The accent is a moonlit teal.
 var S = client.loom.social;
-var TEAL = "#7fd6c8";
-var DEEP = "#3f6f69";
-var TXT = "#e2e8e6";
-var MUTED = "#86908e";
-var RULE = "#232b2a";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var TEAL = TH.acc || "#7fd6c8";
+var DEEP = TH.deep || "#3f6f69";
+var TXT = TH.txt || "#e2e8e6";
+var MUTED = TH.muted || "#86908e";
+var RULE = TH.rule || "#232b2a";
+var BG = TH.bg || "#0f1312";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 var now = Date.now();
@@ -104,7 +107,7 @@ rows.sort(function (a, b) { return a.n < b.n ? -1 : (a.n > b.n ? 1 : 0); });
 
 var dt = S.lastPoll ? new Date(S.lastPoll) : null;
 var polling = get_variable("social_poll") == "on";
-var html = '<div id="loom-online" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0f1312;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
+var html = '<div id="loom-online" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + TEAL + ';font-size:14px;letter-spacing:0.22em;">ONLINE</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;"><span style="color:' + TEAL + ';">' + onN + '</span> of ' + watchedN + ' watched</div></div>';
@@ -185,7 +188,7 @@ try {
     document.body.classList.toggle("loom-ofl-fold", S.showOffline === false);
   }
   var oflCss = 'body.loom-ofl-fold .loom-ofl-list { display: none; } .loom-ofl-arrow::before { content: "\\25BE  "; } body.loom-ofl-fold .loom-ofl-arrow::before { content: "\\25B8  "; }' +
-    ' .flexlayout__tab:has(#loom-online) { background: #0f1312 !important; } .flexlayout__tab:has(#loom-online) > * { min-height: 100%; }';
+    ' .flexlayout__tab:has(#loom-online) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-online) > * { min-height: 100%; }';
   if (oflSt.textContent !== oflCss) oflSt.textContent = oflCss;
 } catch (e) {}
 try { set_custom_tab_html("Online", html); } catch (e) {}

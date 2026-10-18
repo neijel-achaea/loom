@@ -41,6 +41,12 @@
     },
     {
       "type": "function",
+      "name": "loom_theme",
+      "enabled": true,
+      "code": "@file:loom_theme.js"
+    },
+    {
+      "type": "function",
       "name": "loom_updates",
       "enabled": true,
       "code": "@file:loom_updates.js"

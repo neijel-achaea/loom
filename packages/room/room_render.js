@@ -16,12 +16,15 @@
 // Integrations (0.5: #162 social colours (done), #163 hunting target, #164 shrines (done),
 // #165 sigils (done), #166 plants (done)) will mark rows through the display entry point #159.
 var R = client.loom.room;
-var AMBER = "#e0b46c";
-var DEEP = "#7a5f33";
-var TXT = "#e8e2d6";
-var MUTED = "#8f877a";
-var DIM = "#6d665b";
-var RULE = "#2b2620";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var AMBER = TH.acc || "#e0b46c";
+var DEEP = TH.deep || "#7a5f33";
+var TXT = TH.txt || "#e8e2d6";
+var MUTED = TH.muted || "#8f877a";
+var DIM = TH.dim || "#6d665b";
+var RULE = TH.rule || "#2b2620";
+var BG = TH.bg || "#13110e";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
@@ -65,7 +68,7 @@ var tgtId = /^\d+$/.test(tgtSrc) ? tgtSrc : "";
 var tgtWord = (tgtSrc && !tgtId) ? tgtSrc.toLowerCase() : ((useGmcp && !gm.none && gm.name) ? String(gm.name).toLowerCase() : "");
 
 var I = R.info || {};
-var html = '<div id="loom-here" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#13110e;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
+var html = '<div id="loom-here" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 if (!R.info) {
   html += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">Waiting for the room… (move, or LOOK)</div>';
 } else {
@@ -209,7 +212,7 @@ if (!R.info) {
   // ignored types dimmed. Only once the area's list has an active type.
   var useQ = !!(BQ && BQ.listed);
   var badge = function (n, fill, ring) {
-    return '<span style="display:inline-block;min-width:1.4em;text-align:center;border-radius:8px;font-size:10px;padding:0 3px;' + (fill ? 'background:' + GLOW + ';color:#13110e;' : 'border:1px solid ' + ring + ';color:' + ring + ';') + '">' + n + '</span>';
+    return '<span style="display:inline-block;min-width:1.4em;text-align:center;border-radius:8px;font-size:10px;padding:0 3px;' + (fill ? 'background:' + GLOW + ';color:' + BG + ';' : 'border:1px solid ' + ring + ';color:' + ring + ';') + '">' + n + '</span>';
   };
   // Mobs flagged through loom (mob.flags: { label, tone, icon, title }), e.g.
   // the oysters that drop pearls (#299, from crystalism): the name in the
@@ -284,16 +287,18 @@ if (!R.info) {
 html += '</div>';
 // The description's fold: a style once per page, the body class from the setting.
 try {
-  if (!document.getElementById("loom-room-style")) {
-    var rmSt = document.createElement("style");
+  var rmSt = document.getElementById("loom-room-style");
+  if (!rmSt) {
+    rmSt = document.createElement("style");
     rmSt.id = "loom-room-style";
-    // The fold, and the tab the same size whatever the room holds: the panel
-    // fills the tab, and the tab's own container takes the panel's ink in
-    // case Nexus doesn't pass its height down.
-    rmSt.textContent = 'body:not(.loom-room-desc-open) .loom-room-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } ' +
-      '.flexlayout__tab:has(#loom-here) { background: #13110e !important; } .flexlayout__tab:has(#loom-here) > * { min-height: 100%; }';
     document.head.appendChild(rmSt);
     document.body.classList.toggle("loom-room-desc-open", R.descOpen === true);
   }
+  // The fold, and the tab the same size whatever the room holds: the panel
+  // fills the tab, and the tab's own container takes the panel's ink in
+  // case Nexus doesn't pass its height down. Rewritten on every draw, so a
+  // theme change (#310) reaches it.
+  rmSt.textContent = 'body:not(.loom-room-desc-open) .loom-room-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } ' +
+    '.flexlayout__tab:has(#loom-here) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-here) > * { min-height: 100%; }';
 } catch (e) {}
 try { set_custom_tab_html(R.tab, html); } catch (e) {}

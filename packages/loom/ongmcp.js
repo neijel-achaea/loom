@@ -24,3 +24,9 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
     display_notice("[loom] class: " + cls, "cyan");
   }
 }
+
+// The city, for tab themes (#310). Char.Status carries it at login.
+if (args.gmcp_method == "Char.Status" && args.gmcp_args.city !== undefined) {
+  if (!L.themeSeeCity) run_function("loom_theme", [], "loom");
+  L.themeSeeCity(args.gmcp_args.city);
+}

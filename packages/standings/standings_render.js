@@ -6,11 +6,15 @@ run_function("standings_ensure", [], "standings");
 var F = client.loom.standings.F;
 var DB = client.loom.standings.db;
 var view = client.loom.standings.view;
-var STEEL = "#b8c4d6";
-var DEEP = "#5a6478";
-var TXT = "#e2e5ea";
-var MUTED = "#868c97";
-var RULE = "#262b33";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var STEEL = TH.acc || "#b8c4d6";
+var DEEP = TH.deep || "#5a6478";
+var TXT = TH.txt || "#e2e5ea";
+var MUTED = TH.muted || "#868c97";
+var RULE = TH.rule || "#262b33";
+var BG = TH.bg || "#101216";
+var HI = TH.hi || "#ffffff";
 var KIND = "#8fd0a0";
 var UNKIND = "#e08a78";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
@@ -27,7 +31,7 @@ function box(inner) { return '<div style="flex:1 1 150px;min-width:150px;border-
 function section(title, inner) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title) + inner + '</div>'; }
 function quiet(t) { return '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">' + t + '</div>'; }
 function chip(t, c, filled) {
-  return '<span style="display:inline-block;margin:0 4px 3px 0;padding:0 5px;border:1px solid ' + c + ';' + (filled ? 'background:' + c + ';color:#101216;' : 'color:' + c + ';') + 'white-space:nowrap;">' + esc(t) + '</span>';
+  return '<span style="display:inline-block;margin:0 4px 3px 0;padding:0 5px;border:1px solid ' + c + ';' + (filled ? 'background:' + c + ';color:' + BG + ';' : 'color:' + c + ';') + 'white-space:nowrap;">' + esc(t) + '</span>';
 }
 function when(e) { return e[1] > 0 ? F.icTxt(e[1]) : F.realTxt(e[0]); }
 function stepTxt(st) {
@@ -50,7 +54,7 @@ function scale(s) {
     lo = hi;
   }
   var pct = (s + 10) / 20 * 100;
-  out += '<div style="position:absolute;top:-3px;left:calc(' + n1(pct) + '% - 1.5px);width:3px;height:14px;background:#ffffff;"></div></div>';
+  out += '<div style="position:absolute;top:-3px;left:calc(' + n1(pct) + '% - 1.5px);width:3px;height:14px;background:' + HI + ';"></div></div>';
   out += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>-10</span><span>neutral</span><span>+10</span></div>';
   return out;
 }
@@ -126,7 +130,7 @@ var people = [];
 var orgsN = 0;
 for (var k in DB.e) { if (DB.e.hasOwnProperty(k)) { if (DB.e[k].org) { orgsN++; } else { people.push(DB.e[k]); } } }
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#101216;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + STEEL + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'STANDINGS</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + people.length + ' on the books' + (DB.pending.length ? ' &middot; <span style="color:' + STEEL + ';">' + DB.pending.length + ' to review</span>' : '') + '</div></div>';

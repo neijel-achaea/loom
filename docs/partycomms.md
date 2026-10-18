@@ -3,7 +3,7 @@
 *Shares your vitals, rage and target with your party, and shows everyone's in the Party tab.*
 
 <!-- loom:version partycomms -->
-*This page describes partycomms 0.2.4.*
+*This page describes partycomms 0.2.5.*
 <!-- /loom:version -->
 
 ## What it is

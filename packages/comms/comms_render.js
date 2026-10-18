@@ -17,12 +17,16 @@
 // reach client. House style shared with Stats, Online, Here: ink panel,
 // serif small-caps headings, monospace rows. The accent is a soft violet.
 var C = client.loom.comms;
-var ACC = "#b9a4e6";
-var TXT = "#e6e2ec";
-var MUTED = "#8c8796";
-var DIM = "#5f5a68";
-var RULE = "#26222e";
-var INK = "#121016";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var ACC = TH.acc || "#b9a4e6";
+// The accent, see-through: mention rows and hovered conversations.
+function ACCA(a) { var h = ACC.replace("#", ""); return "rgba(" + parseInt(h.slice(0, 2), 16) + "," + parseInt(h.slice(2, 4), 16) + "," + parseInt(h.slice(4, 6), 16) + "," + a + ")"; }
+var TXT = TH.txt || "#e6e2ec";
+var MUTED = TH.muted || "#8c8796";
+var DIM = TH.dim || "#5f5a68";
+var RULE = TH.rule || "#26222e";
+var INK = TH.bg || "#121016";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 // The lines themselves in a plain sans: the serif was hard to read at chat
 // size (Ricardo). Only this tab; the heading keeps the house serif.
@@ -85,7 +89,7 @@ function firstCol(l) {
   return MUTED;
 }
 function lineRow(l, tag) {
-  var bg = l.mention ? 'background:rgba(185,164,230,0.10);border-left:2px solid ' + ACC + ';padding-left:4px;' : 'border-left:2px solid transparent;padding-left:4px;';
+  var bg = l.mention ? 'background:' + ACCA("0.10") + ';border-left:2px solid ' + ACC + ';padding-left:4px;' : 'border-left:2px solid transparent;padding-left:4px;';
   var h = '<div style="display:flex;gap:6px;align-items:baseline;padding:1px 0;' + bg + '">';
   h += '<span title="' + esc(hms(l.t)) + '" style="flex:none;width:2.9em;color:' + DIM + ';">' + hm(l.t) + '</span>';
   if (tag) {
@@ -202,7 +206,7 @@ try {
   if (!cmSt) { cmSt = document.createElement("style"); cmSt.id = "loom-comms-style"; document.head.appendChild(cmSt); }
   var cmCss = '.flexlayout__tab:has(#loom-comms) { background: ' + INK + ' !important; } .flexlayout__tab:has(#loom-comms) > * { min-height: 100%; }' +
     ' .loom-cm-chip, .loom-cm-tag, .loom-cm-conv, .loom-cm-who { cursor: pointer; } .loom-cm-chip:hover, .loom-cm-tag:hover { color: ' + TXT + ' !important; }' +
-    ' .loom-cm-conv:hover { background: rgba(185,164,230,0.06); } .loom-cm-who { text-decoration: underline dotted rgba(255,255,255,0.35); text-underline-offset: 2px; } .loom-cm-who:hover { text-decoration-color: currentColor; }';
+    ' .loom-cm-conv:hover { background: ' + ACCA("0.06") + '; } .loom-cm-who { text-decoration: underline dotted rgba(255,255,255,0.35); text-underline-offset: 2px; } .loom-cm-who:hover { text-decoration-color: currentColor; }';
   if (cmSt.textContent !== cmCss) cmSt.textContent = cmCss;
 } catch (e) {}
 

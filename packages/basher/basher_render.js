@@ -3,16 +3,19 @@
 // ones (new types marked NEW). Clicks go through window.loomBasher, set up in
 // basher_setup (a tab page can't reach client.*).
 var B = client.loom.basher;
-var AMBER = "#e0b46c", DEEP = "#7a5f33", TXT = "#e8e2d6", MUTED = "#8f877a", DIM = "#6d665b", RULE = "#2b2620", GREEN = "#8fd694";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var AMBER = TH.acc || "#e0b46c", DEEP = TH.deep || "#7a5f33", TXT = TH.txt || "#e8e2d6", MUTED = TH.muted || "#8f877a", DIM = TH.dim || "#6d665b", RULE = TH.rule || "#2b2620", GREEN = "#8fd694";
+var BG = TH.bg || "#13110e", PANEL = TH.panel || "#1c1915", EDGE = TH.edge || "#3a332a", BTN = TH.txt || "#c8bfae";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 function esc(t) { return String(t === undefined || t === null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function caps(t, n, c) { return '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + (c || AMBER) + ';margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">' + t + ' <span style="color:' + MUTED + ';">' + n + '</span></div>'; }
 function btn(label, act, i, on) {
-  return '<span ' + (on ? 'onclick="window.loomBasher&&window.loomBasher.act(\'' + act + '\',' + i + ')" ' : '') + 'style="flex:0 0 auto;border:1px solid #3a332a;background:#1c1915;color:' + (on ? "#c8bfae" : "#3a332a") + ';font-size:11px;width:20px;height:18px;line-height:16px;text-align:center;border-radius:3px;cursor:' + (on ? "pointer" : "default") + ';user-select:none;">' + label + '</span>';
+  return '<span ' + (on ? 'onclick="window.loomBasher&&window.loomBasher.act(\'' + act + '\',' + i + ')" ' : '') + 'style="flex:0 0 auto;border:1px solid ' + EDGE + ';background:' + PANEL + ';color:' + (on ? BTN : EDGE) + ';font-size:11px;width:20px;height:18px;line-height:16px;text-align:center;border-radius:3px;cursor:' + (on ? "pointer" : "default") + ';user-select:none;">' + label + '</span>';
 }
 function tog(i, on) {
-  return '<span onclick="window.loomBasher&&window.loomBasher.act(\'toggle\',' + i + ')" title="click to ' + (on ? "ignore" : "make active") + '" style="flex:0 0 auto;font-size:10px;padding:1px 6px;border-radius:9px;border:1px solid ' + (on ? "#4e7a52" : "#3a332a") + ';color:' + (on ? GREEN : DIM) + ';' + (on ? "background:rgba(143,214,148,.08);" : "") + 'cursor:pointer;letter-spacing:.05em;user-select:none;">' + (on ? "ACTIVE" : "IGNORED") + '</span>';
+  return '<span onclick="window.loomBasher&&window.loomBasher.act(\'toggle\',' + i + ')" title="click to ' + (on ? "ignore" : "make active") + '" style="flex:0 0 auto;font-size:10px;padding:1px 6px;border-radius:9px;border:1px solid ' + (on ? "#4e7a52" : EDGE) + ';color:' + (on ? GREEN : DIM) + ';' + (on ? "background:rgba(143,214,148,.08);" : "") + 'cursor:pointer;letter-spacing:.05em;user-select:none;">' + (on ? "ACTIVE" : "IGNORED") + '</span>';
 }
 
 // How many living mobs of each type are in this room.
@@ -30,7 +33,7 @@ var hu = B.hunting();
 var h = to_number(get_variable("basher_flee_health")) || 0, mn = to_number(get_variable("basher_flee_mana")) || 0;
 var flee = (h || mn) ? "flees under " + [h ? h + "% health" : "", mn ? mn + "% mana" : ""].filter(function (x) { return x; }).join(" / ") : "never flees";
 
-var html = '<div id="loom-basher" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#13110e;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
+var html = '<div id="loom-basher" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">Basher</div>';
 html += '<span style="font-size:10px;letter-spacing:.08em;padding:0 5px;border:1px solid ' + (state === "OFF" ? RULE : DEEP) + ';color:' + sc + ';">' + state + (m && state !== "OFF" ? ' &middot; ' + esc(m.name.toUpperCase()) : '') + '</span></div>';
@@ -63,11 +66,13 @@ if (!B.area) {
 }
 html += '</div>';
 try {
-  if (!document.getElementById("loom-basher-style")) {
-    var bsSt = document.createElement("style");
+  var bsSt = document.getElementById("loom-basher-style");
+  if (!bsSt) {
+    bsSt = document.createElement("style");
     bsSt.id = "loom-basher-style";
-    bsSt.textContent = '.flexlayout__tab:has(#loom-basher) { background: #13110e !important; } .flexlayout__tab:has(#loom-basher) > * { min-height: 100%; }';
     document.head.appendChild(bsSt);
   }
+  // Rewritten on every draw, so a theme change (#310) reaches it.
+  bsSt.textContent = '.flexlayout__tab:has(#loom-basher) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-basher) > * { min-height: 100%; }';
 } catch (e) {}
 try { set_custom_tab_html("Basher", html); } catch (e) {}

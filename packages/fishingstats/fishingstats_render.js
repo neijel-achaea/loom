@@ -3,13 +3,17 @@ var FS = client.loom.fishingstats;
 // Draws the 'fishingstats' tab: the live session.
 // House style shared in spirit with Coffers, Level and Ledger: ink panel,
 // serif small-caps headings, one large figure, monospace ledger rows.
-var WATER = "#7fd0c0";
-var DEEP = "#3f7a72";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var WATER = TH.acc || "#7fd0c0";
+var DEEP = TH.deep || "#3f7a72";
 var CATCH = "#e6d27a";
-var TXT = "#dbe8e4";
-var MUTED = "#7f8f8b";
-var RULE = "#20312d";
-var TRACK = "#17241f";
+var TXT = TH.txt || "#dbe8e4";
+var MUTED = TH.muted || "#7f8f8b";
+var RULE = TH.rule || "#20312d";
+var TRACK = TH.track || "#17241f";
+var BG = TH.bg || "#0d1514";
+var HI = TH.hi || "#ffffff";
 var RECORD = "#b8d88a";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
@@ -44,7 +48,7 @@ function swatch(c) { return '<span style="display:inline-block;width:8px;height:
 // A small leaping fish over a ripple, the fishing tabs' counterpart of the coin stack.
 var glyph = '<svg width="20" height="16" viewBox="0 0 20 16" style="vertical-align:-3px;margin-right:6px;" xmlns="http://www.w3.org/2000/svg">' +
   '<path d="M3 9 C6 3.5 12 3 15.5 6.5 C12 9.5 6 10 3 9 Z" fill="' + WATER + '"/>' +
-  '<path d="M15 6.3 L19 3.5 L18.2 7 L19 10 Z" fill="' + WATER + '"/><circle cx="6" cy="7.2" r="0.8" fill="#0d1514"/>' +
+  '<path d="M15 6.3 L19 3.5 L18.2 7 L19 10 Z" fill="' + WATER + '"/><circle cx="6" cy="7.2" r="0.8" fill="' + BG + '"/>' +
   '<path d="M1 13.5 Q4 12 7 13.5 T13 13.5 T19 13.5" fill="none" stroke="' + DEEP + '" stroke-width="1"/></svg>';
 function header(title, right) {
   return '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">' +
@@ -55,7 +59,7 @@ function hero(num, tail) {
   return '<div style="margin:6px 0 2px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + WATER + ';">' + num + '</span> ' +
     '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">' + tail + '</span></div>';
 }
-var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1514;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 
 var s = FS.session;
 var pal = FS.palette;
@@ -76,7 +80,7 @@ function barRow(label, right, note, value, max, colour, me) {
   var pct = max > 0 ? Math.round((value / max) * 100) : 0;
   if (pct < 1 && value > 0) { pct = 1; }
   var out = '<div style="margin:0 0 5px;">';
-  out += '<div style="display:flex;justify-content:space-between;"><span style="color:' + (me ? "#ffffff" : TXT) + ';">' + swatch(colour) + esc(label) + (me ? ' <span style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">(you)</span>' : '') + '</span>';
+  out += '<div style="display:flex;justify-content:space-between;"><span style="color:' + (me ? HI : TXT) + ';">' + swatch(colour) + esc(label) + (me ? ' <span style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">(you)</span>' : '') + '</span>';
   out += '<span style="color:' + TXT + ';">' + right + '</span></div>';
   out += '<div style="background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;"><div style="background:' + colour + ';height:6px;width:' + pct + '%;"></div></div>';
   if (note) { out += '<div style="color:' + MUTED + ';">' + note + '</div>'; }
@@ -154,7 +158,7 @@ if (s.n === 0 && names.length === 0) {
   if (bestOz > 0) {
     bb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + CATCH + ';">' + wt(bestOz) + '</div>';
     bb += row("species", esc(bestSp));
-    bb += row("by", esc(bestWho), bestWho === FS.me ? "#ffffff" : TXT);
+    bb += row("by", esc(bestWho), bestWho === FS.me ? HI : TXT);
   } else {
     bb += quiet("Nothing weighed yet.");
   }

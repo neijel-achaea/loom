@@ -7,13 +7,18 @@ var items = [];
 try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
 var today = client.loom.ledger.day;
 
-var PARCH = "#e6d5ac";
-var SEPIA = "#8b6b47";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var PARCH = TH.acc || "#e6d5ac";
+var SEPIA = TH.deep || "#8b6b47";
 var WAX = "#d0604c";
 var AMBER = "#e0a95a";
-var TXT = "#e4dccb";
-var MUTED = "#8c8272";
-var RULE = "#352c22";
+var TXT = TH.txt || "#e4dccb";
+var MUTED = TH.muted || "#8c8272";
+var RULE = TH.rule || "#352c22";
+var PAST = TH.edge || "#2a231b";
+var AHEAD = TH.track || "#1f1a14";
+var BG = TH.bg || "#15120e";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 var SOON = 5;
@@ -73,7 +78,7 @@ var quill = '<svg width="16" height="17" viewBox="0 0 16 17" style="vertical-ali
   '<path d="M14.5 1 C10.5 4 7.5 8 5 12.8" fill="none" stroke="' + SEPIA + '" stroke-width="0.7"/>' +
   '<path d="M3.5 12.5 L2.2 15.8" stroke="' + PARCH + '" stroke-width="1.1"/><circle cx="2" cy="16" r="0.9" fill="' + WAX + '"/></svg>';
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#15120e;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + SEPIA + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + PARCH + ';font-size:14px;letter-spacing:0.22em;">' + quill + 'LEDGER</div>';
 var tally = [];
@@ -101,10 +106,10 @@ if (today > 0) {
   }
   var strip = '<div style="display:flex;gap:2px;margin:3px 0 1px;">';
   for (var c = 1; c <= 25; c++) {
-    var bg = c < dd ? "#2a231b" : (c === dd ? PARCH : "#1f1a14");
-    var bd = c === dd ? PARCH : (c < dd ? "#2a231b" : RULE);
+    var bg = c < dd ? PAST : (c === dd ? PARCH : AHEAD);
+    var bd = c === dd ? PARCH : (c < dd ? PAST : RULE);
     strip += '<div style="flex:1 1 0;height:9px;background:' + bg + ';border:1px solid ' + bd + ';position:relative;">';
-    if (marks[c]) { strip += '<div style="position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:' + (c === dd ? "#15120e" : marks[c]) + ';"></div>'; }
+    if (marks[c]) { strip += '<div style="position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:' + (c === dd ? BG : marks[c]) + ';"></div>'; }
     strip += '</div>';
   }
   strip += '</div>';
