@@ -668,3 +668,19 @@ L.addLink({
     }
   }
 });
+
+// Loyals (Ricardo) room -> basher: room probes each new mob once and learns
+// whose loyal it is ("He is loyal to Falau."). The basher never queues or
+// auto-targets someone's loyal, even when its name is active in the area.
+// Answers mob.loyal (arg: the mob's id) -> the owner, or undefined.
+L.addLink({
+  id: "room-basher", src: "room", dst: "basher",
+  desc: "The basher skips mobs that are someone's loyal (found by Here's probe)",
+  answers: {
+    "mob.loyal": function (id) {
+      var r = client.loom.room;
+      var o = (r && r.look && r.look.loyal) ? r.look.loyal(id) : undefined;
+      return o ? o : undefined;
+    }
+  }
+});

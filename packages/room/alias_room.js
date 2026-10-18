@@ -23,6 +23,26 @@ if (rmSub === "" || rmSub === "status") {
   } else {
     rmSay("the description starts " + (R.descOpen ? "open" : "folded") + ". ROOM DESC OPEN or FOLDED to change it; clicking it flips it too.");
   }
+} else if (rmSub === "probe") {
+  var rmPv = rmW[1] || "";
+  if (rmPv === "debug") {
+    var rmPl = R.probeLast;
+    if (!rmPl) rmSay("no probe has ended yet.");
+    else {
+      rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden:", "orange");
+      for (var rmPd = 0; rmPd < rmPl.lines.length; rmPd++) rmSay("  " + rmPl.lines[rmPd], "orange");
+    }
+  } else if (rmPv === "on" || rmPv === "off") {
+    R.probeOn = rmPv === "on";
+    set_variable("room_probe", rmPv);
+    if (!R.probeOn) R.probeQ = [];
+    rmSay(R.probeOn ? "new mobs are probed (silently) for whose loyal they are." : "no more probing; loyals already found stay marked.", "lime");
+    if (R.probeOn) { for (var rmPi in R.items) { if (R.items.hasOwnProperty(rmPi)) R.probeAdd(R.items[rmPi]); } R.probeHold = ""; R.probeNext(); }
+  } else {
+    var rmLy = [];
+    for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.loyal[rmLi]) rmLy.push(rmLi + " (" + R.loyal[rmLi] + ")"); }
+    rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs probed, loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : "") : "") + ". ROOM PROBE ON|OFF to change it.");
+  }
 } else if (rmSub === "debug") {
   // The last payload of each GMCP message the tab reads, as JSON.
   var rmK = Object.keys(R.raw);

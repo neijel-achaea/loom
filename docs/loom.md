@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 0.7.3.*
+*This page describes loom 0.7.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -76,6 +76,7 @@ Every link:
 | `basher-room` | [basher](basher.md) | [room](room.md) | Here shows the basher's kill order and state |
 | `crystalism-room` | [crystalism](crystalism.md) | [room](room.md) | Pearl-dropping oysters and pearls shown green in Here |
 | `partycomms-room` | [partycomms](partycomms.md) | [room](room.md) | Party members' targets shown on the mobs in Here |
+| `room-basher` | [room](room.md) | [basher](basher.md) | The basher skips mobs that are someone's loyal (found by Here's probe) |
 <!-- /loom:links -->
 
 Each package's page explains its links in more detail.

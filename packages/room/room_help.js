@@ -6,6 +6,8 @@ var hlTitle = "[room] the Here tab: the room you are in, its exits, players, mob
 var hlRows = [
   ["ROOM", "the room in a line, and how the description starts"],
   ["ROOM DESC OPEN|FOLDED", "show the description in full, or folded to two lines (clicking it flips it too)"],
+  ["ROOM PROBE [ON|OFF]", "loyals: probe each new mob once, silently, and mark the ones loyal to someone (default on)"],
+  ["ROOM PROBE DEBUG", "the lines the last probe hid, and what ended it"],
   ["ROOM DEBUG", "the last room GMCP payloads, as they came"],
   ["The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like."]
 ];

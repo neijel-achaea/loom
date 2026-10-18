@@ -136,6 +136,38 @@
       "case_sensitive": true
     },
     {
+      "type": "trigger",
+      "name": "room exits line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_exits_line.js"
+        }
+      ],
+      "text": "^(?:You see (?:a single exit|exits) leading .*\\.|There are no obvious exits\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "room probe line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_probe_line.js"
+        }
+      ],
+      "text": "^",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
       "type": "alias",
       "name": "room",
       "enabled": true,
