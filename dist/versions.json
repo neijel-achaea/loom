@@ -1,7 +1,7 @@
 {
  "packages": {
   "artificing": "0.2.2",
-  "basher": "0.5.3",
+  "basher": "0.5.4",
   "civic": "0.2.4",
   "coffers": "0.3.3",
   "comms": "0.1.10",
@@ -17,11 +17,11 @@
   "huntstats": "0.3.2",
   "ledger": "0.3.3",
   "levelgraph": "0.2.2",
-  "loom": "0.7.3",
+  "loom": "0.7.4",
   "numpad_movement": "0.2.2",
   "partycomms": "0.2.4",
   "patrolling": "0.3.1",
-  "room": "0.1.21",
+  "room": "0.2.7",
   "security": "0.2.2",
   "self": "0.3.1",
   "sigils": "0.2.5",
