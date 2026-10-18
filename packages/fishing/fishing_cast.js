@@ -7,10 +7,16 @@ var FI = client.loom.fishing;
 var fiBait = get_variable("fishing_bait");
 if (!FI.dir) {
   display_notice("[fishing] cast where? FISHING CAST <direction> (or CL <direction>).", "orange");
-} else if (!fiBait && !FI.baited) {
+} else if (!fiBait && !FI.baited && !FI.rebaiting) {
   display_notice("[fishing] no bait set. FISHING BAIT <bait> first.", "orange");
 } else {
-  if (!FI.baited) send_command("queue add bal bait hook with " + fiBait);
+  // A re-bait already queued after the catch (FISHING REBAIT) counts as
+  // baited: the cast queues behind it.
+  var fiHas = FI.baited || FI.rebaiting;
+  if (!fiHas) send_command("queue add bal bait hook with " + fiBait);
   send_command("queue add bal cast line " + FI.dir);
+  // With LOOM DEBUG ON: what CL decided about the bait.
+  if (get_variable("debug") === "on") display_notice("[fishing] CL: " + (FI.baited ? "hook already baited, casting only." : (FI.rebaiting ? "re-bait already queued, casting after it." : (FI.baited === false ? "hook bare, baiting with " : "hook unknown (since load), baiting with ") + fiBait + ", then casting.")), "cyan");
+  FI.rebaiting = false;
 }
 FI.dir = "";

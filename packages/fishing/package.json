@@ -93,6 +93,22 @@
       {
        "type": "script",
        "enabled": true,
+       "script": "@file:trigger_line_snapped.js"
+      }
+     ],
+     "text": "^As the fish strains your line beyond its breaking point, it snaps suddenly, costing you your fish and bait\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
        "script": "@file:trigger_bait_on.js"
       }
      ],

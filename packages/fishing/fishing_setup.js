@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.fishing) client.loom.fishing = {};
-client.loom.registry.fishing = { version: "0.2.4", keyword: "FISHING", desc: "{{description}}" };
+client.loom.registry.fishing = { version: "0.2.5", keyword: "FISHING", desc: "{{description}}" };
 
 // One-time migration: bait -> fishing_bait.
 var fiOld = get_variable("bait");
@@ -29,6 +29,27 @@ FI.later = function (cmd, ms) {
 FI.cancel = function () {
   for (var i = 0; i < FI.timers.length; i++) clearTimeout(FI.timers[i]);
   FI.timers = [];
+};
+// The hook is bare (a fish landed, or the line snapped): drop anything still
+// waiting, and with FISHING REBAIT ON bait it again on balance, so the next CL
+// only casts; the game's "You carefully thread …" line then marks it baited.
+// Always says which, so the rebait can be followed. Never casts.
+FI.bare = function (why) {
+  FI.cancel();
+  FI.baited = false;
+  FI.rebaiting = false;
+  var bait = get_variable("fishing_bait");
+  if (get_variable("fishing_rebait") !== "on") {
+    display_notice("[fishing] hook bare (" + why + "); REBAIT is off, so CL will bait it.", "cyan");
+  } else if (!bait) {
+    display_notice("[fishing] hook bare (" + why + "); not re-baiting: no bait set (FISHING BAIT <bait>).", "orange");
+  } else if (get_variable("pauseTriggers") === "on") {
+    display_notice("[fishing] hook bare (" + why + "); paused (LOOM PAUSE): not re-baiting.", "orange");
+  } else {
+    send_command("queue add bal bait hook with " + bait);
+    FI.rebaiting = true;
+    display_notice("[fishing] hook bare (" + why + "); re-baiting with " + bait + " on balance.", "lime");
+  }
 };
 // Bait the hook again after landing a fish (FISHING REBAIT); off unless chosen.
 if (!get_variable("fishing_rebait")) set_variable("fishing_rebait", "off");
