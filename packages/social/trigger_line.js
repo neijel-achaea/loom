@@ -17,7 +17,8 @@ if (soLine) {
     if (soCol) colorize_current_line(soM.index, soM[0].length, soCol, "");
   }
 }
-// The capture ends on QW's last line, "Plus another N ... (M total)." (#75),
+// The capture ends on QW's last line, "Plus another N ... (M total)." or, with
+// nobody hidden, "(M total)." (#75),
 // not on a timer; only QW-shaped lines are gagged.
 if (S.capturing) {
   if (soLine === "qw") {

@@ -24,10 +24,16 @@ var S = client.loom.social;
 S.capturing = false;
 clearTimeout(S.safetyT);
 clearTimeout(S.flushT);
-// QW's last line: "Plus another N whose presence you cannot fully sense (M total)."
-var soFoot = S.buf.join(" ").match(/Plus another (\d+)[\s\S]*?\((\d+) total\)/);
-if (soFoot) { S.qwHidden = parseInt(soFoot[1], 10); S.qwTotal = parseInt(soFoot[2], 10); }
-var soText = S.buf.join(" ").replace(/Plus another[\s\S]*$/, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
+// QW's last line: "Plus another N whose presence you cannot fully sense (M
+// total)." or, with nobody hidden, only "(M total)."
+var soAll = S.buf.join(" ");
+var soTot = soAll.match(/\((\d+) total\)/);
+if (soTot) {
+  var soHid = soAll.match(/Plus another (\d+)/);
+  S.qwHidden = soHid ? parseInt(soHid[1], 10) : 0;
+  S.qwTotal = parseInt(soTot[1], 10);
+}
+var soText = soAll.replace(/Plus another[\s\S]*$/, "").replace(/\(\d+ total\)[\s\S]*$/, "").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1");
 S.buf = [];
 var soParts = soText.split(/,|\band\b/);
 var soNames = [];
