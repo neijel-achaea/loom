@@ -10,6 +10,7 @@ var hlRows = [
   ["CL <direction>", "the same, shorter"],
   ["FISHING REBAIT ON|OFF", "bait the hook again after a catch, so CL only casts"],
   ["FISHING DING ON|OFF", "tell the party \"Ding fish!\" on a new yearly record"],
+  ["Without a pole in hand, the game's \"You must be wielding a pole\" line makes it wield one; cast again."],
   ["Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it."]
 ];
 var hlW = 0;

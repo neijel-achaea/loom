@@ -93,6 +93,22 @@
       {
        "type": "script",
        "enabled": true,
+       "script": "@file:trigger_no_pole.js"
+      }
+     ],
+     "text": "^You must be wielding a pole to do that\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
        "script": "@file:trigger_nibble.js"
       },
       {

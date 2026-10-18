@@ -42,7 +42,7 @@
      "type": "function",
      "name": "fishing_help",
      "enabled": true,
-     "code": "// fishing_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[fishing] baits, casts and plays the line on the game's cues. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"FISHING\", \"bait, ding, rebait and pause state\"],\n  [\"FISHING BAIT <bait>\", \"the bait to put on the hook\"],\n  [\"FISHING CAST <direction>\", \"bait the hook and cast\"],\n  [\"CL <direction>\", \"the same, shorter\"],\n  [\"FISHING REBAIT ON|OFF\", \"bait the hook again after a catch, so CL only casts\"],\n  [\"FISHING DING ON|OFF\", \"tell the party \\\"Ding fish!\\\" on a new yearly record\"],\n  [\"Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+     "code": "// fishing_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[fishing] baits, casts and plays the line on the game's cues. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"FISHING\", \"bait, ding, rebait and pause state\"],\n  [\"FISHING BAIT <bait>\", \"the bait to put on the hook\"],\n  [\"FISHING CAST <direction>\", \"bait the hook and cast\"],\n  [\"CL <direction>\", \"the same, shorter\"],\n  [\"FISHING REBAIT ON|OFF\", \"bait the hook again after a catch, so CL only casts\"],\n  [\"FISHING DING ON|OFF\", \"tell the party \\\"Ding fish!\\\" on a new yearly record\"],\n  [\"Without a pole in hand, the game's \\\"You must be wielding a pole\\\" line makes it wield one; cast again.\"],\n  [\"Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
     },
     {
      "type": "alias",
@@ -85,6 +85,22 @@
    "name": "line",
    "enabled": true,
    "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// \"You must be wielding a pole to do that.\": wield one, unless Loom is\n// paused. The cast isn't repeated: cast again once the pole is in hand.\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  send_command(\"wield pole\");\n  display_notice(\"[fishing] no pole in hand: wielding one. Cast again.\", \"lime\");\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending wield pole.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^You must be wielding a pole to do that\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
     {
      "type": "trigger",
      "name": "",
