@@ -10,7 +10,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.2.4", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+client.loom.registry.room = { version: "0.2.5", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
@@ -68,7 +68,8 @@ R.seen = function (name, full) {
 R.saveNewbies = function () { try { set_variable("room_newbies", JSON.stringify(R.newbies)); } catch (e) {} };
 R.leaf = function (title) { return '<span title="' + String(title || "newbie").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;") + '" style="margin-left:4px;cursor:default;"><svg width="10" height="10" viewBox="0 0 10 10" style="vertical-align:-1px;" xmlns="http://www.w3.org/2000/svg"><path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/></svg></span>'; };
 // Loyals (Ricardo): GMCP says nothing about whose a mob is (a loyal is
-// attrib "m" like any other), but PROBE does: "He is loyal to Falau." So every
+// attrib "m" like any other), but PROBE does: "He is loyal to Falau." (and
+// "You see nothing in it." in place of a holding list on some). So every
 // living mob id seen for the first time is probed once, silently: one probe
 // at a time, every line gagged from the send until the probe's answer ends:
 // the line after "<mob> is holding:", "What do you wish to examine?" (gone),
@@ -121,6 +122,14 @@ R.probeNext = function () {
     }
   }
 };
+// Whom "loyal to X" names, when X is a player: one capitalised word that
+// isn't a city. Wild mobs are loyal to their home too ("He is loyal to Gnoll
+// fortress.", Ricardo), and city denizens to their city: those are nobody's.
+R.loyalNot = ["Ashtan", "Cyrene", "Eleusis", "Hashan", "Mhaldor", "Targossas"];
+R.loyalOwner = function (x) {
+  x = String(x || "").trim();
+  return (/^[A-Z][a-z]+$/.test(x) && R.loyalNot.indexOf(x) < 0) ? x : "";
+};
 // Every line while a probe is out: gagged, and read.
 R.probeLine = function (line) {
   var p = R.probing;
@@ -130,7 +139,7 @@ R.probeLine = function (line) {
   if (p.lines.length < 20) p.lines.push(line);
   if (/^What do you wish to examine\?$/.test(line)) { p.how = "gone"; R.probeEnd(false); return; }
   var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
-  if (m) { p.owner = m[1]; return; }
+  if (m) { p.owner = R.loyalOwner(m[1]); return; }
   if (p.holding) { p.how = "holding"; R.probeEnd(true); return; }
   if (/ (?:is|are) holding:$/.test(line)) p.holding = true;
 };
