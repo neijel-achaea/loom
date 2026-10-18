@@ -4,12 +4,17 @@ var TP = client.loom.talpieces;
 // Ledger, Fishing and DmgChart: ink panel, serif small-caps headings, one
 // large figure, monospace ledger rows. The tab accent is amethyst; each dragon keeps its own colour.
 var t = TP;
-var AME = "#b99be0";
-var DEEP = "#5f4c80";
-var TXT = "#e2ddea";
-var MUTED = "#8a8496";
-var RULE = "#2c2638";
-var TRACK = "#1d1926";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var AME = TH.acc || "#b99be0";
+var DEEP = TH.deep || "#5f4c80";
+var TXT = TH.txt || "#e2ddea";
+var MUTED = TH.muted || "#8a8496";
+var RULE = TH.rule || "#2c2638";
+var TRACK = TH.track || "#1d1926";
+var BG = TH.bg || "#121018";
+var HI = TH.hi || "#f1e8ff";
+var EDGE = TH.edge || "#3a3446";
 var DONE = "#7fdca0";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
@@ -51,7 +56,7 @@ function header(title, right) {
     '<div style="font-family:' + SERIF + ';color:' + AME + ';font-size:14px;letter-spacing:0.22em;">' + glyph + title + '</div>' +
     '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + right + '</div></div>';
 }
-var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#121018;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 
 // ------------------------------------------------------------ the numbers ---
 // Owned is capped per piece type, so 100 black claws still scores 64.
@@ -152,7 +157,7 @@ function talChart(W, H) {
     svg += '<path d="M' + n1(sx(lastP[0])) + ',' + n1(sy(lastT)) + 'L' + n1(sx(pEndT)) + ',' + n1(sy(pEndV)) + '" fill="none" stroke="' + DEEP + '" stroke-width="1.1" stroke-dasharray="3,3"/>';
   }
   svg += '<path d="' + line + '" fill="none" stroke="' + AME + '" stroke-width="1.5" stroke-linejoin="round"/>';
-  svg += '<circle cx="' + n1(sx(lastP[0])) + '" cy="' + n1(sy(lastT)) + '" r="' + 2.4 + '" fill="#f1e8ff"/>';
+  svg += '<circle cx="' + n1(sx(lastP[0])) + '" cy="' + n1(sy(lastT)) + '" r="' + 2.4 + '" fill="' + HI + '"/>';
   // X labels: start on the left, projected finish on the right, latest in the
   // middle only when there is room for it without collisions.
   var lblGap = fs * 5;
@@ -180,7 +185,7 @@ function headline() {
   for (var b = 0; b < t.colors.length; b++) {
     var c = t.colors[b];
     var fp = Math.min(100, perColour[c].own / perColourGoal * 100);
-    out += '<div title="' + c + ' ' + Math.floor(fp) + '%" style="flex:1 1 0;background:' + TRACK + ';' + (c === "black" ? 'outline:1px solid #3a3446;' : '') + '"><div style="height:7px;width:' + n1(fp) + '%;background:' + swCol[c] + ';' + (c === "black" ? 'background:#4a4556;' : '') + '"></div></div>';
+    out += '<div title="' + c + ' ' + Math.floor(fp) + '%" style="flex:1 1 0;background:' + TRACK + ';' + (c === "black" ? 'outline:1px solid ' + EDGE + ';' : '') + '"><div style="height:7px;width:' + n1(fp) + '%;background:' + swCol[c] + ';' + (c === "black" ? 'background:#4a4556;' : '') + '"></div></div>';
   }
   out += '</div>';
   out += '<div style="display:flex;gap:2px;color:' + MUTED + ';">';

@@ -142,7 +142,9 @@ function stSave() {
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "0.3.2", keyword: "STANDINGS", desc: "{{description}}" };
+client.loom.registry.standings = { version: "0.3.3", keyword: "STANDINGS", desc: "{{description}}",
+  // Redrawn by loom when the tab theme changes (#310).
+  redraw: function () { run_function("standings_render", [], "standings"); } };
 var ST = client.loom.standings;
 
 // One-time migration from the pre-0.2 names: st_db/st_cal become

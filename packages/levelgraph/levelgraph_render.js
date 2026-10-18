@@ -5,13 +5,17 @@
 if (!client.loom || !client.loom.levelgraph || !client.loom.levelgraph.day) run_function("levelgraph_setup", [], "levelgraph");
 var LG = client.loom.levelgraph;
 var MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-var ACC = "#8fbfe0";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var ACC = TH.acc || "#8fbfe0";
 var ACC2 = "#c8a2d8";
-var DEEP = "#4d6f86";
-var BRIGHT = "#e8f3fb";
-var TXT = "#dde8ee";
-var MUTED = "#7d8c96";
-var RULE = "#26353e";
+var DEEP = TH.deep || "#4d6f86";
+var BRIGHT = TH.hi || "#e8f3fb";
+var TXT = TH.txt || "#dde8ee";
+var MUTED = TH.muted || "#7d8c96";
+var RULE = TH.rule || "#26353e";
+var TRACK = TH.track || "#1a252c";
+var BG = TH.bg || "#0f1418";
 var UP = "#8fe0c8";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
@@ -116,7 +120,7 @@ var cur = null;
 if (mins.length > 0) { cur = mins[mins.length - 1]; }
 else if (days.length > 0) { cur = days[days.length - 1]; }
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0f1418;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + ACC + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'LEVEL</div>';
 
@@ -158,7 +162,7 @@ if (!cur) {
     else { atLvl = nDays > 0 ? (nDays + "+ days at this level") : "at this level since tracking began"; }
   }
   html += ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">' + atLvl + '</span></div>';
-  html += '<div style="background:#1a252c;height:6px;width:100%;margin:2px 0 1px;"><div style="background:' + ACC + ';height:6px;width:' + n1(cur[2]) + '%;"></div></div>';
+  html += '<div style="background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;"><div style="background:' + ACC + ';height:6px;width:' + n1(cur[2]) + '%;"></div></div>';
   html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>' + cur[2].toFixed(2) + '% done</span><span>' + (100 - cur[2]).toFixed(2) + '% to go</span></div>';
 
   var cols = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';

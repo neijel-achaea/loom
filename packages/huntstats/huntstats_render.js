@@ -7,14 +7,17 @@ try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log =
 var areas = {};
 try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
 
-var MOSS = "#a9c46c";
-var DEEP = "#56693a";
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
+var MOSS = TH.acc || "#a9c46c";
+var DEEP = TH.deep || "#56693a";
 var GOLD = "#e2bd5a";
 var DRAGON = "#b99be0";
-var TXT = "#e4e6da";
-var MUTED = "#878c7a";
-var RULE = "#272d1f";
-var TRACK = "#1a1f14";
+var TXT = TH.txt || "#e4e6da";
+var MUTED = TH.muted || "#878c7a";
+var RULE = TH.rule || "#272d1f";
+var TRACK = TH.track || "#1a1f14";
+var BG = TH.bg || "#11130d";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 
@@ -68,7 +71,7 @@ for (var k in areas) {
 }
 arr.sort(byTime);
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#11130d;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + MOSS + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'HUNTING</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + (dh !== null ? 'dragonhood <span style="color:' + DRAGON + ';">' + dh.toFixed(2) + '%</span>' : arr.length + ' area' + (arr.length === 1 ? '' : 's')) + '</div></div>';

@@ -11,7 +11,9 @@ var hlRows = [
   ["LOOM DEBUG ON|OFF", "debug notices"],
   ["LOOM ROOM", "current room id, name, area and environment"],
   ["LOOM LINKS", "integrations between packages, on, off or waiting for a package"],
-  ["LOOM LINK <id> ON|OFF", "switch one integration"]
+  ["LOOM LINK <id> ON|OFF", "switch one integration"],
+  ["LOOM THEME", "the tabs' colour theme and the cities to choose from"],
+  ["LOOM THEME <city>|AUTO|OFF", "one city's colours, your own city's (default) or each tab's own"]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

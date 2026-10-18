@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 0.7.4.*
+*This page describes loom 0.7.5.*
 <!-- /loom:version -->
 
 ## What it is
@@ -30,6 +30,8 @@ Every other package works on its own. The **loom** package is what ties them tog
 | `LOOM ROOM` | current room id, name, area and environment |
 | `LOOM LINKS` | integrations between packages, on, off or waiting for a package |
 | `LOOM LINK <id> ON\|OFF` | switch one integration |
+| `LOOM THEME` | the tabs' colour theme and the cities to choose from |
+| `LOOM THEME <city>\|AUTO\|OFF` | one city's colours, your own city's (default) or each tab's own |
 <!-- /loom:commands -->
 
 `LOOM DEBUG ON` shows the debug notices packages print about what they send. `LOOM ROOM` prints the current room's number, name, area and environment, handy for reports.
@@ -81,6 +83,25 @@ Every link:
 
 Each package's page explains its links in more detail.
 
+## Tab themes
+
+Every custom tab can take one city's colours, so the tabs read as one family. By default the theme follows your city: Loom notes it at login, and a cityless character keeps each tab's own colours.
+
+| City | Colours |
+| --- | --- |
+| Ashtan | purples |
+| Cyrene | blues |
+| Eleusis | forest greens |
+| Hashan | steel greys |
+| Mhaldor | oxblood reds |
+| Targossas | golds |
+
+- `LOOM THEME <city>` uses that city's colours whatever your city is.
+- `LOOM THEME AUTO` goes back to following your city.
+- `LOOM THEME OFF` gives each tab its own colours, as before themes existed.
+
+A theme changes each tab's accent, headings, text, rules, bar tracks and background. Colours that mean something never change: good, warning and bad states, standings bands, social group colours, the target glow, gold, damage dealt and taken, dragon colours. The tabs redraw as soon as the theme changes.
+
 ## Setting it up
 
 1. **Import `loom.nxs`** first (see [Getting started](getting-started.md)).
@@ -95,3 +116,4 @@ Mostly nothing: Loom works in the background. Use `LOOM PAUSE ON` before anythin
 - **A package is missing from `LOOM`.** It may predate the registry: the retired **groves** and **reclamation** don't register, so `LOOM` and `LOOM UPDATES` don't see them.
 - **Nothing is being sent.** Loom may be paused: `LOOM PAUSE OFF`. It pauses itself while you sleep or meditate.
 - **An integration does nothing.** `LOOM LINKS` shows whether it's on, off or waiting for a package.
+- **The tab theme isn't your city's.** Loom learns your city at login, so log in again once after installing it, or choose one by hand with `LOOM THEME <city>`. `LOOM THEME` says which theme is in use and why.

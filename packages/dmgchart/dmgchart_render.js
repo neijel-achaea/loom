@@ -4,12 +4,17 @@ if (!client.loom || !client.loom.dmgchart || !client.loom.dmgchart.saved) run_fu
 // figures set large, donuts for the chosen source, then the session list.
 // Accents are ember for damage dealt and crimson for damage taken.
 var d = client.loom.dmgchart;
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
 var EMBER = "#eaa25c";
 var CRIMSON = "#e0605a";
-var DEEP = "#7a3f30";
-var TXT = "#ecdfd9";
-var MUTED = "#90807a";
-var RULE = "#33231f";
+var DEEP = TH.deep || "#7a3f30";
+var TXT = TH.txt || "#ecdfd9";
+var MUTED = TH.muted || "#90807a";
+var RULE = TH.rule || "#33231f";
+var BG = TH.bg || "#150f0d";
+var SEL = TH.sel || "#2a1a16";
+var HI = TH.hi || "#ffffff";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 
@@ -66,7 +71,7 @@ var glyph = '<svg width="17" height="17" viewBox="0 0 17 17" style="vertical-ali
   '<path d="M10 13.5 L13.5 10 M3.5 10 L7 13.5" stroke="' + TXT + '" stroke-width="1.2"/>' +
   '<path d="M12.5 12.5 L15 15 M4.5 12.5 L2 15" stroke="' + DEEP + '" stroke-width="1.8"/></svg>';
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#150f0d;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + EMBER + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'DAMAGE</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + (label || (d.sess ? REC + ' recording' : 'waiting')) + '</div></div>';
@@ -175,9 +180,9 @@ if (d.saved.length) {
     var sd = new Date(sv.start);
     var sdur = Math.max(1, sv.combatMs / 1000);
     var sel = String(d.view) == String(sv.id);
-    list += '<div style="display:flex;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;' + (sel ? 'background:#2a1a16;' : '') + '">';
+    list += '<div style="display:flex;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;' + (sel ? 'background:' + SEL + ';' : '') + '">';
     list += '<span style="min-width:2.2em;color:' + DEEP + ';">' + sv.id + '</span>';
-    list += '<span style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + (sel ? '#ffffff' : TXT) + ';">' + esc(sv.name) + '</span>';
+    list += '<span style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + (sel ? HI : TXT) + ';">' + esc(sv.name) + '</span>';
     list += '<span style="min-width:6.5em;color:' + MUTED + ';">' + md(sd) + ' ' + hm(sd) + '</span>';
     list += '<span style="min-width:3em;text-align:right;">' + sv.fights + '</span>';
     list += '<span style="min-width:3.5em;text-align:right;">' + Math.round(sdur / 60) + 'm</span>';

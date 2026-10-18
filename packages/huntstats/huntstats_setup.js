@@ -5,7 +5,9 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.3.2", keyword: "HUNTSTATS", desc: "{{description}}" };
+client.loom.registry.huntstats = { version: "0.3.3", keyword: "HUNTSTATS", desc: "{{description}}",
+  // Redrawn by loom when the tab theme changes (#310).
+  redraw: function () { run_function("huntstats_render", [], "huntstats"); } };
 var HS = client.loom.huntstats;
 
 // One-time migration: hs_* -> huntstats_*. A new variable that already holds

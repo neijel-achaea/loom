@@ -8,13 +8,16 @@ var PC = client.loom.partycomms;
 var now = Date.now() / 1000;
 if (now - PC.lastRender >= 1) {
   PC.lastRender = now;
-  var SEA = "#7cc4b0";
-  var DEEP = "#3f6b60";
-  var TXT = "#dfe8e5";
-  var MUTED = "#82918d";
-  var RULE = "#1f2b2a";
-  var TRACK = "#1c2423";
-  var CHIP = "#111817";
+  // Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+  var TH = (client.loom && client.loom.theme) || {};
+  var SEA = TH.acc || "#7cc4b0";
+  var DEEP = TH.deep || "#3f6b60";
+  var TXT = TH.txt || "#dfe8e5";
+  var MUTED = TH.muted || "#82918d";
+  var RULE = TH.rule || "#1f2b2a";
+  var TRACK = TH.track || "#1c2423";
+  var CHIP = TH.panel || "#111817";
+  var BG = TH.bg || "#0d1211";
   var WARN = "#e6c25a";
   var OK = "#8fd0a0";
   var LOW = "#e0605a";
@@ -52,7 +55,7 @@ if (now - PC.lastRender >= 1) {
     '<circle cx="14" cy="5" r="2.2" fill="' + DEEP + '"/><path d="M10.5 14 C11 10 12.5 8.8 14 8.8 C15.5 8.8 17 10 17.5 14 Z" fill="' + DEEP + '"/>' +
     '<circle cx="9" cy="3.6" r="2.6" fill="' + SEA + '"/><path d="M4.8 14 C5.3 9.4 7.2 7.9 9 7.9 C10.8 7.9 12.7 9.4 13.2 14 Z" fill="' + SEA + '"/></svg>';
 
-  var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#0d1211;border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+  var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
   html += '<div style="font-family:' + SERIF + ';color:' + SEA + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'PARTY</div>';
   var right = names.length + ' member' + (names.length === 1 ? '' : 's');

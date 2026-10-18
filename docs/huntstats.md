@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 0.3.2.*
+*This page describes huntstats 0.3.3.*
 <!-- /loom:version -->
 
 ## What it is

@@ -6,12 +6,15 @@ if (!client.loom || !client.loom.self || !client.loom.self.keep) run_function("s
 var S = client.loom.self;
 var WANT = S.want;
 var KEEP = S.keep;
+// Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
+var TH = (client.loom && client.loom.theme) || {};
 var WARN = "#e6c25a";
-var ROSE = "#e0a0a8";
-var DEEP = "#7a4a52";
-var TXT = "#ebe2e3";
-var MUTED = "#8f8587";
-var RULE = "#30262a";
+var ROSE = TH.acc || "#e0a0a8";
+var DEEP = TH.deep || "#7a4a52";
+var TXT = TH.txt || "#ebe2e3";
+var MUTED = TH.muted || "#8f8587";
+var RULE = TH.rule || "#30262a";
+var BG = TH.bg || "#141012";
 var AFF = "#e07a6e";
 var OK = "#8fd0a0";
 var CYAN = "#7fc8d8";
@@ -34,7 +37,7 @@ var glyph = '<svg width="16" height="16" viewBox="0 0 16 16" style="vertical-ali
   '<circle cx="8" cy="5" r="3.3" fill="' + ROSE + '"/><path d="M1.5 15.5 C2 10.5 5 9.2 8 9.2 C11 9.2 14 10.5 14.5 15.5 Z" fill="' + DEEP + '" stroke="' + ROSE + '" stroke-width="0.8"/></svg>';
 
 var I = S.info || {};
-var html = '<div id="loom-self" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:#141012;border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
+var html = '<div id="loom-self" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 // The title is the character's name: the game's (Char.Name / Char.Status),
 // unless SELF NAME set another.
@@ -220,7 +223,7 @@ html += '</div>';
 try {
   var sfSt = document.getElementById("loom-self-style");
   if (!sfSt) { sfSt = document.createElement("style"); sfSt.id = "loom-self-style"; document.head.appendChild(sfSt); }
-  var sfCss = '.flexlayout__tab:has(#loom-self) { background: #141012 !important; } .flexlayout__tab:has(#loom-self) > * { min-height: 100%; }';
+  var sfCss = '.flexlayout__tab:has(#loom-self) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-self) > * { min-height: 100%; }';
   if (sfSt.textContent !== sfCss) sfSt.textContent = sfCss;
 } catch (e) {}
 try { set_custom_tab_html("Self", html); } catch (e) {}

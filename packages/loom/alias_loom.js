@@ -1,4 +1,4 @@
-// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM|LINKS|LINK <id> [on/off]]
+// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM|LINKS|LINK <id> [on/off]|THEME [<city>|auto|off]]
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
@@ -102,6 +102,32 @@ if (sub === "" || sub === "list") {
     var lnMsg = "[loom] " + val + " is " + (lnTo ? "now " : "") + (lnSt === "waiting" ? "on" : lnSt);
     if (lnMiss.length) lnMsg += (lnSt === "off" ? "" : ", waiting for ") + (lnSt === "off" ? " (and needs " + lnMiss.join(" and ") + ")" : lnMiss.join(" and ") + " to be installed");
     display_notice(lnMsg + ".", lnTo ? "lime" : C);
+  }
+} else if (sub === "theme") {
+  // LOOM THEME [<city>|AUTO|OFF]: the tabs' colours (#310).
+  if (!client.loom.loom.themeApply) run_function("loom_theme", [], "loom");
+  var TM = client.loom.loom;
+  var tmCities = Object.keys(TM.themes).sort();
+  var tmCap = function (t) { return t.charAt(0).toUpperCase() + t.slice(1); };
+  var tmSay = function (changed) {
+    var ch = TM.themeChoice();
+    var nm = TM.themeName();
+    var city = String(get_variable("loom_city") || "");
+    var msg;
+    if (ch === "off") msg = "off: each tab keeps its own colours";
+    else if (ch === "auto") msg = "following your city: " + (nm ? TM.themes[nm].label : (city === "none" ? "you have no city, so each tab keeps its own colours" : (city ? tmCap(city) + " has no theme, so each tab keeps its own colours" : "no city seen yet (it comes at login), so each tab keeps its own colours")));
+    else msg = TM.themes[nm].label;
+    display_notice("[loom] tab theme " + (changed ? "now " : "") + msg + ".", changed ? "lime" : C);
+  };
+  if (val === "") {
+    tmSay(false);
+    display_notice("[loom] LOOM THEME " + tmCities.map(function (c) { return c.toUpperCase(); }).join("|") + "|AUTO|OFF", C);
+  } else if (val === "auto" || val === "off" || TM.themes[val]) {
+    if (val === "auto") delete_variable("loom_theme"); else set_variable("loom_theme", val);
+    TM.themeApply();
+    tmSay(true);
+  } else {
+    display_notice("[loom] no theme '" + val + "'. Themes: " + tmCities.map(tmCap).join(", ") + ", or AUTO or OFF.", "orange");
   }
 } else if (sub === "help") {
   run_function("loom_help", [], "loom");
