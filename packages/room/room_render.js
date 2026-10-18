@@ -96,7 +96,7 @@ if (!R.info) {
   var FLAG = { bad: "#ff9a4c", good: "#8fd694", info: "#c8bfae" };
   // Party members' names on the mobs they target (#256).
   var PARTY = "#8fc3d8";
-  var LOYAL = "#d9a066";
+  var LOYAL = "#c8bfae";
   var flagOf = {}, alerts = {};
   for (var fk in R.items) {
     if (!R.items.hasOwnProperty(fk) || /m/.test(R.items[fk].attrib || "")) continue;
@@ -232,11 +232,12 @@ if (!R.info) {
     var pty = (!/d/.test(mob.attrib || "") && LLi && LLi.answer) ? LLi.answer("room", "mob.party", String(mob.id)) : undefined;
     var ptyTag = (pty && pty.length) ? ' <span style="font-family:sans-serif;font-size:11px;color:' + PARTY + ';white-space:nowrap;text-shadow:none;">&#9666; ' + esc(pty.join(" \u00b7 ")) + '</span>' : '';
     if (pty && pty.length) mfTitle = (mfTitle ? mfTitle + " \u00b7 " : "") + "targeted by " + pty.join(", ");
-    // Someone's loyal (found by PROBE): a small flag and the owner after the
-    // name, and in the hover.
+    // Someone's loyal (found by PROBE): the owner in brackets after the name,
+    // in their Social group colour when they have one (Ricardo: not to be
+    // confused with party members' targets), and in the hover.
     var loy = /d/.test(mob.attrib || "") ? "" : (R.loyal[String(mob.id)] || "");
     if (loy) {
-      ptyTag = ' <span style="font-family:sans-serif;font-size:11px;color:' + LOYAL + ';white-space:nowrap;text-shadow:none;">&#9873;&#xfe0e; ' + esc(loy) + '</span>' + ptyTag;
+      ptyTag = ' <span style="font-family:' + SERIF + ';font-size:13px;color:' + (ask("person.colour", loy) || LOYAL) + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
       mfTitle = "loyal to " + loy + (mfTitle ? " \u00b7 " + mfTitle : "");
     }
     var mid = String(mob.id);
