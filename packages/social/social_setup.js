@@ -8,7 +8,7 @@ if (!client.loom.social) client.loom.social = {};
 // (#60), since it runs when standings changes or a link into social flips;
 // in standings mode it passes the change on to the tabs that show social's
 // colours (Here, Comms).
-client.loom.registry.social = { version: "0.4.5", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
+client.loom.registry.social = { version: "0.4.6", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
   var So = client.loom.social;
   if (So) { So.standCache = {}; So.standCacheN = 0; }
   run_function("social_online", [], "social");
@@ -119,7 +119,10 @@ S.buf = [];
 if (!S.lastCount) S.lastCount = 0;
 // A line of QW names: wrapped lines end in "," or "and", or start with "and" (#75).
 S.reNames = /^(?:and\s+)?[A-Z][a-z]+(?:(?:,\s*(?:and\s+)?|\s+and\s+)[A-Z][a-z]+)*(?:,|,?\s+and|\.)?$/;
-S.reFooter = /^Plus another \d+/;
+// QW's last line: "Plus another N whose presence you cannot fully sense (M
+// total)." when someone is hidden, else just "(M total)." on its own or after
+// the last names.
+S.reFooter = /^Plus another \d+|\(\d+ total\)\.?\s*$/;
 S.reWord = /[A-Z][a-z]+/g;
 if (S.timer) clearInterval(S.timer);
 // The pre-0.2 package kept its own 5s QW timer on client.wl. After importing

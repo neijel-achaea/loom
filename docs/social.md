@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 0.4.5.*
+*This page describes social 0.4.6.*
 <!-- /loom:version -->
 
 ## What it is
