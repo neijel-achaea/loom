@@ -10,7 +10,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.2.6", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+client.loom.registry.room = { version: "0.2.7", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
@@ -72,9 +72,9 @@ R.leaf = function (title) { return '<span title="' + String(title || "newbie").r
 // "You see nothing in it." in place of a holding list on some). So every
 // living mob id seen for the first time is probed once, silently: one probe
 // at a time, every line gagged from the send until the probe's answer ends:
-// the line after "<mob> is holding:", "What do you wish to examine?" (gone),
-// or the first prompt after any of its lines, whatever the wording (the
-// answer comes in one go, prompt last). 2 s safety timeout. Probes wait while the basher has a run (a gagged combat line
+// the line after "<mob> is holding:", "You see nothing in it.", "What do you
+// wish to examine?" (gone), or a prompt after its health line. A 2 s safety
+// timeout only for an answer that never comes. Probes wait while the basher has a run (a gagged combat line
 // would be lost) and while triggers are paused. PROBE is free (Ricardo).
 //   R.loyal    id -> owner, "" = loyal to nobody; in memory only (ids are
 //              per mob, so a reload just probes again)
@@ -100,18 +100,14 @@ R.probeBusy = function () {
   var q = (LL && LL.answer) ? LL.answer("room", "room.queue", {}) : undefined;
   return !!(q && (q.state === "RUNNING" || q.state === "FLEEING"));
 };
-// Probes go out 300 ms after the last mob news, never at once: the room you
-// walked into arrives alongside its mob list, and a probe sent then took the
-// room's text for its answer (Ricardo: the real answer then showed).
-R.probeDelay = 300;
-// soft (from prompts): leave a probe already waiting to go alone, so a stream
-// of prompts never keeps pushing it back.
-R.probeKick = function (soft) {
-  if (soft && R.probeKOn) return;
-  clearTimeout(R.probeK);
-  R.probeKOn = true;
-  R.probeK = setTimeout(function () { R.probeKOn = false; R.probeNext(); }, R.probeDelay);
-};
+// When probes may go out, by the game's own text, never a timer (Ricardo:
+// lag breaks time gates). The room you walk into arrives with its mob list,
+// and a probe sent then took the room's text for its answer. So after a move
+// (Room.Info) probes wait for the room's exits line, its last line; a mob
+// arriving where you stand is probed at the next prompt.
+//   R.probeHold  "room" while a moved-into room's text is still coming;
+//                lifted by its exits line, or by the second prompt after it
+R.probeExits = /^(?:You see (?:a single exit|exits) leading .*\.|There are no obvious exits\.)$/;
 // Send the next probe, if nothing is in the way. Called on room changes and
 // every prompt, so a wait ends by itself.
 R.probeNext = function () {
@@ -119,13 +115,13 @@ R.probeNext = function () {
     if (Date.now() - R.probing.at > R.probeMs) R.probeEnd(false);
     else return;
   }
-  if (!R.probeOn || !R.probeQ.length) return;
+  if (!R.probeOn || !R.probeQ.length || R.probeHold) return;
   if (get_variable("pauseTriggers") == "on" || R.probeBusy()) return;
   while (R.probeQ.length) {
     var id = R.probeQ.shift();
     var it = R.items[id];
     if (it && !/d/.test(it.attrib || "")) {
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, lines: [], how: "" };
+      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "" };
       R.probing = p;
       clearTimeout(R.probeT);
       R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
@@ -146,9 +142,11 @@ R.loyalOwner = function (x) {
 R.probeLine = function (line) {
   var p = R.probing;
   if (!p) return;
+  if (p.start !== undefined && !p.lines.length && line === p.start) { p.start = undefined; return; }
   gag_current_line();
   line = String(line || "").trim();
   if (p.lines.length < 20) p.lines.push(line);
+  if (/ health remaining\.$/.test(line)) p.health = true;
   if (/^What do you wish to examine\?$/.test(line)) { p.how = "gone"; R.probeEnd(false); return; }
   var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
   if (m) { p.owner = R.loyalOwner(m[1]); return; }
@@ -156,15 +154,14 @@ R.probeLine = function (line) {
   if (/^You see nothing in it\.$/.test(line)) { p.how = "nothing"; R.probeEnd(true); return; }
   if (/ (?:is|are) holding:$/.test(line)) p.holding = true;
 };
-// The prompt after a probe's lines: its answer is over, whatever it said.
-// It counts as read when a health line came ("He has 95% health remaining.").
+// A prompt after the answer's health line ("He has 95% health remaining.")
+// ends a probe whose last lines were worded some other way. A prompt before
+// it (GMCP can come ahead of a packet's text) doesn't.
 R.probePrompt = function () {
   var p = R.probing;
-  if (!p || !p.lines.length) return false;
-  var read = false;
-  for (var i = 0; i < p.lines.length; i++) if (/ health remaining\.$/.test(p.lines[i])) read = true;
+  if (!p || !p.health) return false;
   p.how = "prompt";
-  R.probeEnd(read);
+  R.probeEnd(true);
   return true;
 };
 // A probe's end: ok = the whole output was read. A loyal gets one notice.
@@ -184,7 +181,7 @@ R.probeEnd = function (ok) {
       R.drawT = setTimeout(function () { run_function("room_render", [], "room"); }, 50);
     }
   }
-  R.probeKick();
+  R.probeNext();
 };
 // The read-only look other packages see through loom: never its variables.
 //   look.newbie(name) -> the newbie title ("Ithin") someone was last seen

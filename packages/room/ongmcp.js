@@ -14,6 +14,9 @@ if (rmMine) {
   var rmDraw = true;
   if (rmM === "Room.Info" && rmA) {
     R.info = rmA;
+    // A move: probes wait for this room's exits line (trigger room exits line).
+    R.probeHold = "room";
+    R.probeHoldN = 0;
   } else if (rmM === "Room.Players" && rmA && rmA.length !== undefined) {
     R.players = {};
     var rmNew = false;
@@ -33,13 +36,11 @@ if (rmMine) {
     R.order = [];
     var rmL = rmA.items || [];
     for (var rmJ = 0; rmJ < rmL.length; rmJ++) { R.items[rmL[rmJ].id] = rmL[rmJ]; R.order.push(String(rmL[rmJ].id)); R.probeAdd(rmL[rmJ]); }
-    R.probeKick();
   } else if ((rmM === "Char.Items.Add" || rmM === "Char.Items.Update") && rmA.item) {
     if (!R.order) R.order = [];
     if (!R.items[rmA.item.id]) R.order.push(String(rmA.item.id));
     R.items[rmA.item.id] = rmA.item;
     R.probeAdd(rmA.item);
-    R.probeKick();
   } else if (rmM === "Char.Items.Remove" && rmA.item !== undefined) {
     var rmRid = String(typeof rmA.item === "object" ? rmA.item.id : rmA.item);
     delete R.items[rmRid];
@@ -61,9 +62,13 @@ if (rmMine) {
     // Every prompt: redraw only if the tar variable changed (ST, or a
     // targeting alias), since that sends nothing of its own.
     rmDraw = false;
-    // A probe's answer ends at the first prompt after its lines; otherwise a
-    // waiting probe may go now.
-    if (!R.probePrompt() && !R.probing && R.probeQ.length) R.probeKick(true);
+    // A probe whose answer is past its health line ends here; otherwise a
+    // mob that arrived where you stand may be probed now (a moved-into room
+    // waits for its exits line instead).
+    // The second prompt after a move lifts the hold too (no exits line seen:
+    // blind, or a display that leaves it out).
+    if (R.probeHold && ++R.probeHoldN >= 2) R.probeHold = "";
+    if (!R.probePrompt()) R.probeNext();
     var rmTar = String(get_variable("tar") || "");
     if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
   } else if ((rmM === "Char.Name" || rmM === "Char.Status") && rmA && rmA.name) {

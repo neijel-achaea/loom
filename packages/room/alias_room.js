@@ -37,7 +37,7 @@ if (rmSub === "" || rmSub === "status") {
     set_variable("room_probe", rmPv);
     if (!R.probeOn) R.probeQ = [];
     rmSay(R.probeOn ? "new mobs are probed (silently) for whose loyal they are." : "no more probing; loyals already found stay marked.", "lime");
-    if (R.probeOn) { for (var rmPi in R.items) { if (R.items.hasOwnProperty(rmPi)) R.probeAdd(R.items[rmPi]); } R.probeKick(); }
+    if (R.probeOn) { for (var rmPi in R.items) { if (R.items.hasOwnProperty(rmPi)) R.probeAdd(R.items[rmPi]); } R.probeHold = ""; R.probeNext(); }
   } else {
     var rmLy = [];
     for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.loyal[rmLi]) rmLy.push(rmLi + " (" + R.loyal[rmLi] + ")"); }
