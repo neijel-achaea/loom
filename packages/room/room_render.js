@@ -236,14 +236,18 @@ if (!R.info) {
     // Someone's loyal (found by PROBE), Ricardo: a knight on the left (in the
     // badge column: loyals never get a kill-order number) and the owner in
     // brackets after the name, not to be confused with party members'
-    // targets. Your own loyals green, others in the owner's Social group
-    // colour when they have one; the owner in the hover too.
+    // targets. Your own loyals: the knight and the name green, no owner;
+    // others in the owner's Social group colour when they have one. The
+    // owner in the hover either way.
     var loy = /d/.test(mob.attrib || "") ? "" : (R.loyal[String(mob.id)] || "");
     var loyIcon = "";
     if (loy) {
-      var loyCol = (R.me && loy.toLowerCase() === String(R.me).toLowerCase()) ? OWNLOYAL : (ask("person.colour", loy) || LOYAL);
+      var loyMine = !!R.me && loy.toLowerCase() === String(R.me).toLowerCase();
+      var loyCol = loyMine ? OWNLOYAL : (ask("person.colour", loy) || LOYAL);
       loyIcon = '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:13px;color:' + loyCol + ';">&#9822;&#xfe0e;</span>';
-      ptyTag = ' <span style="font-family:' + SERIF + ';font-size:13px;color:' + loyCol + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
+      // Yours: the mob's own name in green, no owner (Ricardo).
+      if (loyMine) mfCol = OWNLOYAL;
+      else ptyTag = ' <span style="font-family:' + SERIF + ';font-size:13px;color:' + loyCol + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
       mfTitle = "loyal to " + loy + (mfTitle ? " \u00b7 " + mfTitle : "");
     }
     var mid = String(mob.id);
