@@ -8,7 +8,7 @@ if (!client.loom.social) client.loom.social = {};
 // (#60), since it runs when standings changes or a link into social flips;
 // in standings mode it passes the change on to the tabs that show social's
 // colours (Here, Comms).
-client.loom.registry.social = { version: "0.4.4", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
+client.loom.registry.social = { version: "0.4.5", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
   var So = client.loom.social;
   if (So) { So.standCache = {}; So.standCacheN = 0; }
   run_function("social_online", [], "social");
@@ -169,7 +169,10 @@ S.look = {
     for (var i = 0; i < S.groups.length; i++) { if (S.lists[S.groups[i]] && S.lists[S.groups[i]][n]) return S.groups[i]; }
     return undefined;
   },
-  colour: function (name) { return S.nameColour(name); }
+  colour: function (name) { return S.nameColour(name); },
+  // Your own name and its colour (the self group's), as game lines show it;
+  // e.g. Here's loyals: (Neijel) for your own.
+  me: function () { return S.me ? { name: S.me, colour: S.color.self } : undefined; }
 };
 // A reimport may change lists or colours: tell loom (guarded: social works
 // without it).
