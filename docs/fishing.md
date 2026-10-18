@@ -3,7 +3,7 @@
 *Baits and casts with one command, then teases, jerks and reels on the game's cues until the fish is landed.*
 
 <!-- loom:version fishing -->
-*This page describes fishing 0.2.4.*
+*This page describes fishing 0.2.5.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,7 +14,9 @@ Fishing in Achaea is a sequence of answers to the game's cues: tease the line wh
 2. **A nibble** ("You feel a fish nibbling on your hook."): it teases the line after a short wait.
 3. **A strike**, small, medium or large: it jerks the pole.
 4. **Hooked** ("…feel the line go taut."): it reels, and reels again whenever the tension lets it.
-5. **Landed**: done. Cast again. With `FISHING REBAIT ON`, the hook is baited again as soon as you have balance, so the next `CL` only casts.
+5. **Landed** (either "…and land <fish>!" or "…your struggle is over. You've landed <fish>."): done. Cast again. With `FISHING REBAIT ON`, the hook is baited again as soon as you have balance, so the next `CL` only casts. A **snapped line** ("…it snaps suddenly, costing you your fish and bait.") leaves the hook bare too, and is re-baited the same way.
+
+After each catch or snapped line it says whether it re-baits ("hook bare (fish landed); re-baiting with crab on balance."). With `LOOM DEBUG ON`, `CL` also says whether it baits or only casts.
 
 `CL` baits only a bare hook: it follows the game's own lines, so after you reel in by hand ("You reel your line in completely.") the bait stays on and the next `CL` just casts. Bait and cast both wait for balance, since baiting takes it. Reeling in by hand also drops any tease or jerk still waiting.
 
@@ -35,6 +37,7 @@ Nothing is sent while Loom is paused (`LOOM PAUSE ON`).
 | `CL <direction>` | the same, shorter |
 | `FISHING REBAIT ON\|OFF` | bait the hook again after a catch, so CL only casts |
 | `FISHING DING ON\|OFF` | tell the party "Ding fish!" on a new yearly record |
+| **After each catch or a snapped line it says whether it re-baits. LOOM DEBUG ON also shows whether CL baits or only casts.** | |
 | **Without a pole in hand, the game's "You must be wielding a pole" line makes it wield one; cast again.** | |
 | **Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it.** | |
 <!-- /loom:commands -->
