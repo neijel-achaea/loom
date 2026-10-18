@@ -37,6 +37,7 @@ HU.classes["Apostate"] = {
   lines: [
     // Pierce: the rage shieldbreak (in razes, so no cooldown starts).
     [/^Your daegger flings itself at (.*)'s translucent shield, piercing through it and causing it to fade\.$/, "PIERCE", "Pierce"],
+    [/^You point at (.*) and your daegger flies towards (\w+), burrowing into (\w+) body and emerging out the other side\.$/, "BURROW", "Burrow"],
     [/^You stare at (.*), giving (\w+) the evil eye\. Blood begins to flow from (\w+) pores\.$/, "BLEED"],
     [/^You stare at (.*), giving (\w+) the evil eye\. (\w+) limbs begin to convulse\.$/, "CONVULSIONS", "Convulsions"],
     [/^You stare at (.*), giving (\w+) the evil eye\. Terror floods (.*)'s features as (\w+) begins to run about in a panic\.$/, "HORRIFY", "Horrify"]
