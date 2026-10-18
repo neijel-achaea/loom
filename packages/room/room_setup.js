@@ -10,7 +10,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.2.5", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+client.loom.registry.room = { version: "0.2.6", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
@@ -100,6 +100,18 @@ R.probeBusy = function () {
   var q = (LL && LL.answer) ? LL.answer("room", "room.queue", {}) : undefined;
   return !!(q && (q.state === "RUNNING" || q.state === "FLEEING"));
 };
+// Probes go out 300 ms after the last mob news, never at once: the room you
+// walked into arrives alongside its mob list, and a probe sent then took the
+// room's text for its answer (Ricardo: the real answer then showed).
+R.probeDelay = 300;
+// soft (from prompts): leave a probe already waiting to go alone, so a stream
+// of prompts never keeps pushing it back.
+R.probeKick = function (soft) {
+  if (soft && R.probeKOn) return;
+  clearTimeout(R.probeK);
+  R.probeKOn = true;
+  R.probeK = setTimeout(function () { R.probeKOn = false; R.probeNext(); }, R.probeDelay);
+};
 // Send the next probe, if nothing is in the way. Called on room changes and
 // every prompt, so a wait ends by itself.
 R.probeNext = function () {
@@ -116,7 +128,7 @@ R.probeNext = function () {
       var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, lines: [], how: "" };
       R.probing = p;
       clearTimeout(R.probeT);
-      R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); R.probeNext(); } }, R.probeMs);
+      R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
       send_command("probe " + id, 1);
       return;
     }
@@ -141,6 +153,7 @@ R.probeLine = function (line) {
   var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
   if (m) { p.owner = R.loyalOwner(m[1]); return; }
   if (p.holding) { p.how = "holding"; R.probeEnd(true); return; }
+  if (/^You see nothing in it\.$/.test(line)) { p.how = "nothing"; R.probeEnd(true); return; }
   if (/ (?:is|are) holding:$/.test(line)) p.holding = true;
 };
 // The prompt after a probe's lines: its answer is over, whatever it said.
@@ -171,7 +184,7 @@ R.probeEnd = function (ok) {
       R.drawT = setTimeout(function () { run_function("room_render", [], "room"); }, 50);
     }
   }
-  setTimeout(function () { R.probeNext(); }, 0);
+  R.probeKick();
 };
 // The read-only look other packages see through loom: never its variables.
 //   look.newbie(name) -> the newbie title ("Ithin") someone was last seen

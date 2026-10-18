@@ -33,13 +33,13 @@ if (rmMine) {
     R.order = [];
     var rmL = rmA.items || [];
     for (var rmJ = 0; rmJ < rmL.length; rmJ++) { R.items[rmL[rmJ].id] = rmL[rmJ]; R.order.push(String(rmL[rmJ].id)); R.probeAdd(rmL[rmJ]); }
-    R.probeNext();
+    R.probeKick();
   } else if ((rmM === "Char.Items.Add" || rmM === "Char.Items.Update") && rmA.item) {
     if (!R.order) R.order = [];
     if (!R.items[rmA.item.id]) R.order.push(String(rmA.item.id));
     R.items[rmA.item.id] = rmA.item;
     R.probeAdd(rmA.item);
-    R.probeNext();
+    R.probeKick();
   } else if (rmM === "Char.Items.Remove" && rmA.item !== undefined) {
     var rmRid = String(typeof rmA.item === "object" ? rmA.item.id : rmA.item);
     delete R.items[rmRid];
@@ -63,7 +63,7 @@ if (rmMine) {
     rmDraw = false;
     // A probe's answer ends at the first prompt after its lines; otherwise a
     // waiting probe may go now.
-    if (!R.probePrompt()) R.probeNext();
+    if (!R.probePrompt() && !R.probing && R.probeQ.length) R.probeKick(true);
     var rmTar = String(get_variable("tar") || "");
     if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
   } else if ((rmM === "Char.Name" || rmM === "Char.Status") && rmA && rmA.name) {
