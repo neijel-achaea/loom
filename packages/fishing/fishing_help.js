@@ -4,10 +4,11 @@
 var hlTitle = "[fishing] baits, casts and plays the line on the game's cues. Commands:";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
-  ["FISHING", "bait, ding and pause state"],
+  ["FISHING", "bait, ding, rebait and pause state"],
   ["FISHING BAIT <bait>", "the bait to put on the hook"],
   ["FISHING CAST <direction>", "bait the hook and cast"],
   ["CL <direction>", "the same, shorter"],
+  ["FISHING REBAIT ON|OFF", "bait the hook again after a catch, so CL only casts"],
   ["FISHING DING ON|OFF", "tell the party \"Ding fish!\" on a new yearly record"],
   ["Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it."]
 ];
