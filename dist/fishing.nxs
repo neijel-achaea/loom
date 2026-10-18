@@ -30,19 +30,19 @@
      "type": "function",
      "name": "fishing_setup",
      "enabled": true,
-     "code": "// fishing_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.fishing) client.loom.fishing = {};\nclient.loom.registry.fishing = { version: \"0.2.3\", keyword: \"FISHING\", desc: \"Bait, cast, tease and reel on the game's cues; yearly record calls\" };\n\n// One-time migration: bait -> fishing_bait.\nvar fiOld = get_variable(\"bait\");\nif (fiOld !== null && fiOld !== undefined) {\n  if (!get_variable(\"fishing_bait\")) set_variable(\"fishing_bait\", fiOld);\n  delete_variable(\"bait\");\n}\nif (get_variable(\"fishing_bait\") === null || get_variable(\"fishing_bait\") === undefined) set_variable(\"fishing_bait\", \"\");\n// Tell the party \"Ding fish!\" on a new yearly record.\nif (!get_variable(\"fishing_ding\")) set_variable(\"fishing_ding\", \"on\");\n// Bait the hook again after landing a fish (FISHING REBAIT); off unless chosen.\nif (!get_variable(\"fishing_rebait\")) set_variable(\"fishing_rebait\", \"off\");\n"
+     "code": "// fishing_setup -- run from onLoad and onInstall, and by any reflex that\n// finds the namespace missing. Namespace, registry, one-time migration.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.fishing) client.loom.fishing = {};\nclient.loom.registry.fishing = { version: \"0.2.4\", keyword: \"FISHING\", desc: \"Bait, cast, tease and reel on the game's cues; yearly record calls\" };\n\n// One-time migration: bait -> fishing_bait.\nvar fiOld = get_variable(\"bait\");\nif (fiOld !== null && fiOld !== undefined) {\n  if (!get_variable(\"fishing_bait\")) set_variable(\"fishing_bait\", fiOld);\n  delete_variable(\"bait\");\n}\nif (get_variable(\"fishing_bait\") === null || get_variable(\"fishing_bait\") === undefined) set_variable(\"fishing_bait\", \"\");\n// Tell the party \"Ding fish!\" on a new yearly record.\nif (!get_variable(\"fishing_ding\")) set_variable(\"fishing_ding\", \"on\");\n// Delayed sends (tease, jerk, reel) go through FI.later, so FI.cancel can drop\n// the ones still waiting when the line comes in by hand. Helpers are rebuilt\n// every run; only the timers' list is kept.\nvar FI = client.loom.fishing;\nFI.timers = FI.timers || [];\nFI.later = function (cmd, ms) {\n  var t = setTimeout(function () {\n    FI.timers = FI.timers.filter(function (x) { return x !== t; });\n    send_command(cmd);\n  }, ms);\n  FI.timers.push(t);\n};\nFI.cancel = function () {\n  for (var i = 0; i < FI.timers.length; i++) clearTimeout(FI.timers[i]);\n  FI.timers = [];\n};\n// Bait the hook again after landing a fish (FISHING REBAIT); off unless chosen.\nif (!get_variable(\"fishing_rebait\")) set_variable(\"fishing_rebait\", \"off\");\n"
     },
     {
      "type": "function",
      "name": "fishing_cast",
      "enabled": true,
-     "code": "// fishing_cast -- bait the hook with the bait set and cast in the direction\n// left in client.loom.fishing.dir (FISHING CAST and CL). When FISHING REBAIT\n// already baited the hook after the last catch, it only casts.\nvar FI = client.loom.fishing;\nvar fiBait = get_variable(\"fishing_bait\");\nif (!FI.dir) {\n  display_notice(\"[fishing] cast where? FISHING CAST <direction> (or CL <direction>).\", \"orange\");\n} else if (!fiBait) {\n  display_notice(\"[fishing] no bait set. FISHING BAIT <bait> first.\", \"orange\");\n} else {\n  if (!FI.baited) send_command(\"bait hook with \" + fiBait);\n  send_command(\"cast line \" + FI.dir);\n  FI.baited = false;\n}\nFI.dir = \"\";\n"
+     "code": "// fishing_cast -- bait the hook with the bait set and cast in the direction\n// left in client.loom.fishing.dir (FISHING CAST and CL). Baiting takes\n// balance, so both go through the game's balance queue: the cast waits for\n// the bait. A hook already baited (the game's \"You carefully thread …\" line,\n// still on after a hand reel-in) is only cast, so no bait is thrown away.\nvar FI = client.loom.fishing;\nvar fiBait = get_variable(\"fishing_bait\");\nif (!FI.dir) {\n  display_notice(\"[fishing] cast where? FISHING CAST <direction> (or CL <direction>).\", \"orange\");\n} else if (!fiBait && !FI.baited) {\n  display_notice(\"[fishing] no bait set. FISHING BAIT <bait> first.\", \"orange\");\n} else {\n  if (!FI.baited) send_command(\"queue add bal bait hook with \" + fiBait);\n  send_command(\"queue add bal cast line \" + FI.dir);\n}\nFI.dir = \"\";\n"
     },
     {
      "type": "function",
      "name": "fishing_help",
      "enabled": true,
-     "code": "// fishing_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[fishing] baits, casts and plays the line on the game's cues. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"FISHING\", \"bait, ding, rebait and pause state\"],\n  [\"FISHING BAIT <bait>\", \"the bait to put on the hook\"],\n  [\"FISHING CAST <direction>\", \"bait the hook and cast\"],\n  [\"CL <direction>\", \"the same, shorter\"],\n  [\"FISHING REBAIT ON|OFF\", \"bait the hook again after a catch, so CL only casts\"],\n  [\"FISHING DING ON|OFF\", \"tell the party \\\"Ding fish!\\\" on a new yearly record\"],\n  [\"Without a pole in hand, the game's \\\"You must be wielding a pole\\\" line makes it wield one; cast again.\"],\n  [\"Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+     "code": "// fishing_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[fishing] baits, casts and plays the line on the game's cues. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"FISHING\", \"bait, ding, rebait and pause state\"],\n  [\"FISHING BAIT <bait>\", \"the bait to put on the hook\"],\n  [\"FISHING CAST <direction>\", \"bait the hook (unless it already is) and cast, both on balance\"],\n  [\"CL <direction>\", \"the same, shorter\"],\n  [\"FISHING REBAIT ON|OFF\", \"bait the hook again after a catch, so CL only casts\"],\n  [\"FISHING DING ON|OFF\", \"tell the party \\\"Ding fish!\\\" on a new yearly record\"],\n  [\"Without a pole in hand, the game's \\\"You must be wielding a pole\\\" line makes it wield one; cast again.\"],\n  [\"Then it teases, jerks and reels on the game's cues, marking the stages [1/4] to [4/4]. LOOM PAUSE stops it.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
     },
     {
      "type": "alias",
@@ -52,7 +52,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// FISHING [subcommand ...]: the one command for this package. Only its own\n// subcommands match the alias; any other word after FISHING goes to the game.\nif (!client.loom || !client.loom.fishing) run_function(\"fishing_setup\", [], \"fishing\");\nvar FI = client.loom.fishing;\nvar fiSub = String(args[1] || \"\").toLowerCase();\nvar fiArg = String(args[2] || \"\").trim();\nvar C = \"cyan\";\nif (fiSub === \"\" || fiSub === \"status\") {\n  display_notice(\"[fishing] bait \" + (get_variable(\"fishing_bait\") || \"not set\")\n    + \", ding \" + (get_variable(\"fishing_ding\") === \"off\" ? \"off\" : \"on\")\n    + \", rebait \" + (get_variable(\"fishing_rebait\") === \"on\" ? \"on\" : \"off\")\n    + (get_variable(\"pauseTriggers\") === \"on\" ? \", PAUSED (LOOM PAUSE)\" : \"\")\n    + \". FISHING HELP for commands.\", C);\n} else if (fiSub === \"help\") {\n  run_function(\"fishing_help\", [], \"fishing\");\n} else if (fiSub === \"bait\") {\n  if (fiArg !== \"\") set_variable(\"fishing_bait\", fiArg.toLowerCase());\n  display_notice(\"[fishing] bait: \" + (get_variable(\"fishing_bait\") || \"not set\") + \".\", fiArg !== \"\" ? \"lime\" : C);\n} else if (fiSub === \"cast\") {\n  FI.dir = fiArg.toLowerCase();\n  run_function(\"fishing_cast\", [], \"fishing\");\n} else if (fiSub === \"ding\") {\n  var fiD = fiArg.toLowerCase();\n  if (fiD === \"on\" || fiD === \"off\") set_variable(\"fishing_ding\", fiD);\n  display_notice(\"[fishing] ding \" + (get_variable(\"fishing_ding\") === \"off\" ? \"OFF: new records stay quiet.\" : \"ON: a new yearly record tells the party \\\"Ding fish!\\\".\"), (fiD === \"on\" || fiD === \"off\") ? \"lime\" : C);\n} else if (fiSub === \"rebait\") {\n  var fiR = fiArg.toLowerCase();\n  if (fiR === \"on\" || fiR === \"off\") set_variable(\"fishing_rebait\", fiR);\n  if (fiR === \"off\") FI.baited = false;\n  display_notice(\"[fishing] rebait \" + (get_variable(\"fishing_rebait\") === \"on\" ? \"ON: after a catch the hook is baited again, so CL only casts.\" : \"OFF: CL baits the hook each time you cast.\"), (fiR === \"on\" || fiR === \"off\") ? \"lime\" : C);\n}\n"
+       "script": "// FISHING [subcommand ...]: the one command for this package. Only its own\n// subcommands match the alias; any other word after FISHING goes to the game.\nif (!client.loom || !client.loom.fishing) run_function(\"fishing_setup\", [], \"fishing\");\nvar FI = client.loom.fishing;\nvar fiSub = String(args[1] || \"\").toLowerCase();\nvar fiArg = String(args[2] || \"\").trim();\nvar C = \"cyan\";\nif (fiSub === \"\" || fiSub === \"status\") {\n  display_notice(\"[fishing] bait \" + (get_variable(\"fishing_bait\") || \"not set\")\n    + \", ding \" + (get_variable(\"fishing_ding\") === \"off\" ? \"off\" : \"on\")\n    + \", rebait \" + (get_variable(\"fishing_rebait\") === \"on\" ? \"on\" : \"off\")\n    + (get_variable(\"pauseTriggers\") === \"on\" ? \", PAUSED (LOOM PAUSE)\" : \"\")\n    + \". FISHING HELP for commands.\", C);\n} else if (fiSub === \"help\") {\n  run_function(\"fishing_help\", [], \"fishing\");\n} else if (fiSub === \"bait\") {\n  if (fiArg !== \"\") set_variable(\"fishing_bait\", fiArg.toLowerCase());\n  display_notice(\"[fishing] bait: \" + (get_variable(\"fishing_bait\") || \"not set\") + \".\", fiArg !== \"\" ? \"lime\" : C);\n} else if (fiSub === \"cast\") {\n  FI.dir = fiArg.toLowerCase();\n  run_function(\"fishing_cast\", [], \"fishing\");\n} else if (fiSub === \"ding\") {\n  var fiD = fiArg.toLowerCase();\n  if (fiD === \"on\" || fiD === \"off\") set_variable(\"fishing_ding\", fiD);\n  display_notice(\"[fishing] ding \" + (get_variable(\"fishing_ding\") === \"off\" ? \"OFF: new records stay quiet.\" : \"ON: a new yearly record tells the party \\\"Ding fish!\\\".\"), (fiD === \"on\" || fiD === \"off\") ? \"lime\" : C);\n} else if (fiSub === \"rebait\") {\n  var fiR = fiArg.toLowerCase();\n  if (fiR === \"on\" || fiR === \"off\") set_variable(\"fishing_rebait\", fiR);\n  display_notice(\"[fishing] rebait \" + (get_variable(\"fishing_rebait\") === \"on\" ? \"ON: after a catch the hook is baited again, so CL only casts.\" : \"OFF: CL baits the hook when it is bare, then casts.\"), (fiR === \"on\" || fiR === \"off\") ? \"lime\" : C);\n}\n"
       }
      ],
      "text": "^fishing(?:\\s+(status|help|bait|cast|ding|rebait)(?:\\s+(.*?))?)?\\s*$",
@@ -93,6 +93,38 @@
       {
        "type": "script",
        "enabled": true,
+       "script": "// \"You carefully thread <bait> onto the hook of <pole>.\" (also after\n// \"Throwing away your existing bait, \"): the hook is baited, so CL only casts.\nif (!client.loom || !client.loom.fishing) run_function(\"fishing_setup\", [], \"fishing\");\nclient.loom.fishing.baited = true;\n"
+      }
+     ],
+     "text": "^(?:Throwing away your existing bait, y|Y)ou carefully thread .+ onto the hook of .+\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// \"You reel your line in completely.\": the line is in by hand. The bait stays\n// on the hook (CL won't bait again), and any tease or jerk still waiting is\n// dropped so it doesn't go out to an empty line.\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.cancel) run_function(\"fishing_setup\", [], \"fishing\");\nclient.loom.fishing.cancel();\n"
+      }
+     ],
+     "text": "^You reel your line in completely\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
        "script": "// \"You must be wielding a pole to do that.\": wield one, unless Loom is\n// paused. The cast isn't repeated: cast again once the pole is in hand.\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  send_command(\"wield pole\");\n  display_notice(\"[fishing] no pole in hand: wielding one. Cast again.\", \"lime\");\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending wield pole.\", \"orange\");\n}\n"
       }
      ],
@@ -109,7 +141,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// Sends \"tease line\" after 2.1s, unless Loom is paused (an unset flag counts as off).\n// A nibble means a baited line is out, so a re-baited hook (FISHING REBAIT) has\n// been used, even if the cast was typed by hand: the next CL baits again.\nif (client.loom && client.loom.fishing) client.loom.fishing.baited = false;\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"tease line\"), 2100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
+       "script": "// Sends \"tease line\" after 2.1s, unless Loom is paused (an unset flag counts as off).\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.later) run_function(\"fishing_setup\", [], \"fishing\");\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  client.loom.fishing.later(\"tease line\", 2100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
       },
       {
        "type": "rewrite",
@@ -136,7 +168,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// Sends \"tease line\" after 2.1s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"tease line\"), 2100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
+       "script": "// Sends \"tease line\" after 2.1s, unless Loom is paused (an unset flag counts as off).\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.later) run_function(\"fishing_setup\", [], \"fishing\");\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  client.loom.fishing.later(\"tease line\", 2100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
       },
       {
        "type": "rewrite",
@@ -163,7 +195,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
+       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.later) run_function(\"fishing_setup\", [], \"fishing\");\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  client.loom.fishing.later(\"jerk pole\", 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
       },
       {
        "type": "rewrite",
@@ -190,7 +222,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
+       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.later) run_function(\"fishing_setup\", [], \"fishing\");\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  client.loom.fishing.later(\"jerk pole\", 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
       },
       {
        "type": "rewrite",
@@ -217,7 +249,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"jerk pole\"), 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
+       "script": "// Sends \"jerk pole\" after 1.8s, unless Loom is paused (an unset flag counts as off).\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.later) run_function(\"fishing_setup\", [], \"fishing\");\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  client.loom.fishing.later(\"jerk pole\", 1800);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending jerk pole.\", \"orange\");\n}\n"
       },
       {
        "type": "rewrite",
@@ -271,7 +303,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// Sends \"reel line\" after 0.1s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"reel line\"), 100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending reel line.\", \"orange\");\n}\n"
+       "script": "// Sends \"reel line\" after 0.1s, unless Loom is paused (an unset flag counts as off).\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.later) run_function(\"fishing_setup\", [], \"fishing\");\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  client.loom.fishing.later(\"reel line\", 100);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending reel line.\", \"orange\");\n}\n"
       }
      ],
      "text": "^Relaxing the tension on your line\\, you are able to reel again\\.$",
@@ -287,7 +319,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// A fish landed. With FISHING REBAIT ON, bait the hook again (on balance) so\n// the next CL only has to cast. Never casts: the next cast stays the player's.\nif (!client.loom || !client.loom.fishing) run_function(\"fishing_setup\", [], \"fishing\");\nvar FI = client.loom.fishing;\nvar fiBait = get_variable(\"fishing_bait\");\nif (get_variable(\"fishing_rebait\") === \"on\" && fiBait) {\n  if (get_variable(\"pauseTriggers\") !== \"on\") {\n    send_command(\"queue add bal bait hook with \" + fiBait);\n    FI.baited = true;\n  } else {\n    display_notice(\"[fishing] paused (LOOM PAUSE): not re-baiting the hook.\", \"orange\");\n  }\n}\n"
+       "script": "// A fish landed: the bait is gone and nothing still waiting should go out.\n// With FISHING REBAIT ON, bait the hook again (on balance) so the next CL only\n// casts; the game's \"You carefully thread …\" line then marks the hook baited.\n// Never casts: the next cast stays the player's.\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.cancel) run_function(\"fishing_setup\", [], \"fishing\");\nvar FI = client.loom.fishing;\nFI.cancel();\nFI.baited = false;\nvar fiBait = get_variable(\"fishing_bait\");\nif (get_variable(\"fishing_rebait\") === \"on\" && fiBait) {\n  if (get_variable(\"pauseTriggers\") !== \"on\") {\n    send_command(\"queue add bal bait hook with \" + fiBait);\n  } else {\n    display_notice(\"[fishing] paused (LOOM PAUSE): not re-baiting the hook.\", \"orange\");\n  }\n}\n"
       },
       {
        "type": "rewrite",
@@ -316,6 +348,11 @@
      "name": "",
      "enabled": true,
      "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// \"You reel in the last bit of line and your struggle is over.\": the fight is\n// over and the bait gone; drop anything still waiting.\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.cancel) run_function(\"fishing_setup\", [], \"fishing\");\nclient.loom.fishing.cancel();\nclient.loom.fishing.baited = false;\n"
+      },
       {
        "type": "rewrite",
        "enabled": true,
@@ -346,7 +383,7 @@
       {
        "type": "script",
        "enabled": true,
-       "script": "// Sends \"tease line\" after 3.0s, unless Loom is paused (an unset flag counts as off).\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  setTimeout(() => send_command(\"tease line\"), 3000);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
+       "script": "// Sends \"tease line\" after 3.0s, unless Loom is paused (an unset flag counts as off).\nif (!client.loom || !client.loom.fishing || !client.loom.fishing.later) run_function(\"fishing_setup\", [], \"fishing\");\nif (get_variable(\"pauseTriggers\") !== \"on\") {\n  client.loom.fishing.later(\"tease line\", 3000);\n} else {\n  display_notice(\"[fishing] paused (LOOM PAUSE): not sending tease line.\", \"orange\");\n}\n"
       },
       {
        "type": "rewrite",

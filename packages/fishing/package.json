@@ -93,6 +93,38 @@
       {
        "type": "script",
        "enabled": true,
+       "script": "@file:trigger_bait_on.js"
+      }
+     ],
+     "text": "^(?:Throwing away your existing bait, y|Y)ou carefully thread .+ onto the hook of .+\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_reeled_in.js"
+      }
+     ],
+     "text": "^You reel your line in completely\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
        "script": "@file:trigger_no_pole.js"
       }
      ],
@@ -316,6 +348,11 @@
      "name": "",
      "enabled": true,
      "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "@file:trigger_struggle_over.js"
+      },
       {
        "type": "rewrite",
        "enabled": true,
