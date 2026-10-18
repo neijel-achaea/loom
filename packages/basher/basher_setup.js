@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.3", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.4", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -367,13 +367,19 @@ B.learn = function () {
 };
 // The kill queue here: living mobs of active types, by the list's order,
 // then the room's own order. [{ id, name, rank }] (rank from 1).
+// Someone's loyal (room's probe, through the room-basher link): its owner,
+// or undefined. Loyals never enter the queue, so they're never auto-targeted.
+B.loyalTo = function (id) {
+  var LL = client.loom.loom;
+  return (LL && LL.answer) ? LL.answer("basher", "mob.loyal", String(id)) : undefined;
+};
 B.queue = function () {
   var l = B.list(), pos = {}, n = 0;
   for (var i = 0; i < l.length; i++) if (l[i].on) pos[l[i].name] = n++;
   var q = [];
   for (var j = 0; j < B.order.length; j++) {
     var it = B.room[B.order[j]];
-    if (B.living(it) && pos[it.name] !== undefined) q.push({ id: B.order[j], name: it.name, p: pos[it.name], o: j });
+    if (B.living(it) && pos[it.name] !== undefined && !B.loyalTo(B.order[j])) q.push({ id: B.order[j], name: it.name, p: pos[it.name], o: j });
   }
   q.sort(function (a, b) { return a.p - b.p || a.o - b.o; });
   for (var k = 0; k < q.length; k++) q[k].rank = k + 1;

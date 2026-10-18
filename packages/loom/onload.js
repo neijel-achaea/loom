@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
-client.loom.registry.loom = { version: "0.7.3", keyword: "LOOM", desc: "{{description}}" };
+client.loom.registry.loom = { version: "0.7.4", keyword: "LOOM", desc: "{{description}}" };
 
 // The legacy room variables loom used to set have no readers left: delete
 // them once. activeClass is left for hunting and defcon to seed

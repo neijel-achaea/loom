@@ -32,11 +32,14 @@ if (rmMine) {
     // what targeting by name follows.
     R.order = [];
     var rmL = rmA.items || [];
-    for (var rmJ = 0; rmJ < rmL.length; rmJ++) { R.items[rmL[rmJ].id] = rmL[rmJ]; R.order.push(String(rmL[rmJ].id)); }
+    for (var rmJ = 0; rmJ < rmL.length; rmJ++) { R.items[rmL[rmJ].id] = rmL[rmJ]; R.order.push(String(rmL[rmJ].id)); R.probeAdd(rmL[rmJ]); }
+    R.probeNext();
   } else if ((rmM === "Char.Items.Add" || rmM === "Char.Items.Update") && rmA.item) {
     if (!R.order) R.order = [];
     if (!R.items[rmA.item.id]) R.order.push(String(rmA.item.id));
     R.items[rmA.item.id] = rmA.item;
+    R.probeAdd(rmA.item);
+    R.probeNext();
   } else if (rmM === "Char.Items.Remove" && rmA.item !== undefined) {
     var rmRid = String(typeof rmA.item === "object" ? rmA.item.id : rmA.item);
     delete R.items[rmRid];
@@ -58,6 +61,10 @@ if (rmMine) {
     // Every prompt: redraw only if the tar variable changed (ST, or a
     // targeting alias), since that sends nothing of its own.
     rmDraw = false;
+    // A probe whose "is holding:" came and whose last line didn't (a prompt
+    // straight after) ends here; otherwise a waiting probe may go now.
+    if (R.probing && R.probing.holding) R.probeEnd(true);
+    else R.probeNext();
     var rmTar = String(get_variable("tar") || "");
     if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
   } else if ((rmM === "Char.Name" || rmM === "Char.Status") && rmA && rmA.name) {

@@ -10,7 +10,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.1.21", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+client.loom.registry.room = { version: "0.2.0", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
@@ -67,9 +67,94 @@ R.seen = function (name, full) {
 };
 R.saveNewbies = function () { try { set_variable("room_newbies", JSON.stringify(R.newbies)); } catch (e) {} };
 R.leaf = function (title) { return '<span title="' + String(title || "newbie").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;") + '" style="margin-left:4px;cursor:default;"><svg width="10" height="10" viewBox="0 0 10 10" style="vertical-align:-1px;" xmlns="http://www.w3.org/2000/svg"><path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/></svg></span>'; };
+// Loyals (Ricardo): GMCP says nothing about whose a mob is (a loyal is
+// attrib "m" like any other), but PROBE does: "He is loyal to Falau." So every
+// living mob id seen for the first time is probed once, silently: one probe
+// at a time, every line gagged from the send until the line after "<mob> is
+// holding:" (or "What do you wish to examine?" when it's gone), with a 5 s
+// safety timeout. Probes wait while the basher has a run (a gagged combat line
+// would be lost) and while triggers are paused. PROBE is free (Ricardo).
+//   R.loyal    id -> owner, "" = loyal to nobody; in memory only (ids are
+//              per mob, so a reload just probes again)
+//   R.probeQ   ids waiting; R.probing {id, name, at, owner, holding}
+// ROOM PROBE ON|OFF (room_probe, default on).
+R.probeOn = get_variable("room_probe") != "off";
+if (!R.loyal) R.loyal = {};
+if (!R.probeQ) R.probeQ = [];
+if (R.probing === undefined) R.probing = null;
+R.probeMs = 5000;
+R.loyalCap = 3000;
+// Queue a mob from Char.Items, unless it's dead, known, queued or being probed.
+R.probeAdd = function (it) {
+  if (!it || !/m/.test(it.attrib || "") || /d/.test(it.attrib || "")) return;
+  var id = String(it.id);
+  if (R.loyal.hasOwnProperty(id) || R.probeQ.indexOf(id) >= 0 || (R.probing && R.probing.id === id)) return;
+  R.probeQ.push(id);
+};
+// Whether the basher is fighting (its run, read through the basher-room link).
+R.probeBusy = function () {
+  var LL = client.loom.loom;
+  var q = (LL && LL.answer) ? LL.answer("room", "room.queue", {}) : undefined;
+  return !!(q && (q.state === "RUNNING" || q.state === "FLEEING"));
+};
+// Send the next probe, if nothing is in the way. Called on room changes and
+// every prompt, so a wait ends by itself.
+R.probeNext = function () {
+  if (R.probing) {
+    if (Date.now() - R.probing.at > R.probeMs) R.probeEnd(false);
+    else return;
+  }
+  if (!R.probeOn || !R.probeQ.length) return;
+  if (get_variable("pauseTriggers") == "on" || R.probeBusy()) return;
+  while (R.probeQ.length) {
+    var id = R.probeQ.shift();
+    var it = R.items[id];
+    if (it && !/d/.test(it.attrib || "")) {
+      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false };
+      R.probing = p;
+      clearTimeout(R.probeT);
+      R.probeT = setTimeout(function () { if (R.probing === p) { R.probeEnd(false); R.probeNext(); } }, R.probeMs);
+      send_command("probe " + id, 1);
+      return;
+    }
+  }
+};
+// Every line while a probe is out: gagged, and read.
+R.probeLine = function (line) {
+  var p = R.probing;
+  if (!p) return;
+  gag_current_line();
+  line = String(line || "").trim();
+  if (/^What do you wish to examine\?$/.test(line)) { R.probeEnd(false); return; }
+  var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
+  if (m) { p.owner = m[1]; return; }
+  if (p.holding) { R.probeEnd(true); return; }
+  if (/ (?:is|are) holding:$/.test(line)) p.holding = true;
+};
+// A probe's end: ok = the whole output was read. A loyal gets one notice.
+R.probeEnd = function (ok) {
+  var p = R.probing;
+  R.probing = null;
+  clearTimeout(R.probeT);
+  if (!p) return;
+  if (ok) {
+    if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
+    R.loyal[p.id] = p.owner;
+    if (p.owner) {
+      display_notice("[room] " + p.name + " (" + p.id + ") is loyal to " + p.owner + ".", "cyan");
+      if (client.loom.notify) client.loom.notify("room");
+      clearTimeout(R.drawT);
+      R.drawT = setTimeout(function () { run_function("room_render", [], "room"); }, 50);
+    }
+  }
+  setTimeout(function () { R.probeNext(); }, 0);
+};
 // The read-only look other packages see through loom: never its variables.
 //   look.newbie(name) -> the newbie title ("Ithin") someone was last seen
 //     with, or undefined.
+//   look.loyal(id) -> the owner's name when that mob is someone's loyal, ""
+//     when probed and loyal to nobody, undefined when not probed yet.
 R.look = {
-  newbie: function (name) { var e = R.newbies[String(name || "").toLowerCase()]; return e ? e.title : undefined; }
+  newbie: function (name) { var e = R.newbies[String(name || "").toLowerCase()]; return e ? e.title : undefined; },
+  loyal: function (id) { var k = String(id); return R.loyal.hasOwnProperty(k) ? R.loyal[k] : undefined; }
 };

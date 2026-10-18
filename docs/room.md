@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 0.1.21.*
+*This page describes room 0.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -27,6 +27,7 @@ What you see, top to bottom:
 |---|---|
 | `ROOM` | the room in a line, and how the description starts |
 | `ROOM DESC OPEN\|FOLDED` | show the description in full, or folded to two lines (clicking it flips it too) |
+| `ROOM PROBE [ON\|OFF]` | loyals: probe each new mob once, silently, and mark the ones loyal to someone (default on) |
 | `ROOM DEBUG` | the last room GMCP payloads, as they came |
 | **The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like.** | |
 <!-- /loom:commands -->
@@ -48,6 +49,7 @@ Keep Here open beside the main window and glance at it instead of reading the ro
 - **Targeting.** The glow follows whatever changed last: the `tar` variable (your targeting keys and aliases), the game's own target (`ST`, `SETTARGET`), or the line "Your target is now: …". If you target a word, the glow sits on the first living mob whose name holds it, as the game would pick it, so you can see who your next attack lands on. A player whose name matches wins over a mob that merely contains the word.
 - **What's next.** Because mobs keep the room's order, one row each, the row under your target is the next one a name would hit after it dies.
 - **Who's here.** A player arriving or leaving updates the list at once, flying ones included.
+- **Loyals.** Each living mob is probed once, silently, the first time Room sees it (`PROBE` is free). One that is someone's loyal gets a small flag and its owner after its name (⚑ Falau), and one notice in the main window. The basher never queues a loyal. Probes wait while the basher is fighting, since every line is hidden while one is out. `ROOM PROBE OFF` stops it; `ROOM PROBE` lists the loyals found.
 - **Newbies.** Players carrying a newbie title (Uaithne, Ithin or Tuqad) get a small green leaf after their name; hover it for the title.
 
 Room also remembers who it has seen with a newbie title, in rooms and in `CWHO`'s citizen list, and forgets them once it sees them without one. The Online and Comms tabs use that list for their own leaves (see below).
@@ -80,4 +82,5 @@ With a link switched off, Here simply goes without that part; nothing else chang
 - **The tab is empty.** No room has been reported yet: move, or type `LOOK`.
 - **The tab doesn't appear at all.** The custom tab must be named exactly `Here`. Reset the UI layout if it still doesn't show.
 - **Someone is listed who has left (or missing who's there).** A few ways of arriving or leaving send nothing Room can see. The next room you enter puts it right; if you can name the line the game showed, report it so Room learns it.
+- **A line went missing.** While a probe is out, every line is hidden until the probe's output ends (at most 5 seconds). If something you needed was hidden, report it, or turn probing off with `ROOM PROBE OFF`.
 - **The wrong mob glows.** Room glows the first living mob whose name holds your target word, as the game picks it. If the game hit a different one, report it with `ROOM DEBUG` and the line that named the target.
