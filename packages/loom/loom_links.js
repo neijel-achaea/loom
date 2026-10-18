@@ -179,14 +179,7 @@ L.addLink({
   id: "social-room", src: "social", dst: "room", issue: 162,
   desc: "Players in the Here tab in their highlight colours",
   answers: {
-    // Your own name too (in the self colour), for Here's loyals: (Neijel).
-    "person.colour": function (n) {
-      var s = client.loom.social;
-      if (!s || !s.look) return undefined;
-      var me = s.look.me ? s.look.me() : undefined;
-      if (me && String(n || "").toLowerCase() === String(me.name).toLowerCase()) return me.colour;
-      return s.look.colour(n);
-    },
+    "person.colour": function (n) { var s = client.loom.social; return s && s.look ? s.look.colour(n) : undefined; },
     "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; }
   }
 });

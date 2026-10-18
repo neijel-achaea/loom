@@ -97,6 +97,7 @@ if (!R.info) {
   // Party members' names on the mobs they target (#256).
   var PARTY = "#8fc3d8";
   var LOYAL = "#c8bfae";
+  var OWNLOYAL = "#8fd694";
   var flagOf = {}, alerts = {};
   for (var fk in R.items) {
     if (!R.items.hasOwnProperty(fk) || /m/.test(R.items[fk].attrib || "")) continue;
@@ -232,12 +233,17 @@ if (!R.info) {
     var pty = (!/d/.test(mob.attrib || "") && LLi && LLi.answer) ? LLi.answer("room", "mob.party", String(mob.id)) : undefined;
     var ptyTag = (pty && pty.length) ? ' <span style="font-family:sans-serif;font-size:11px;color:' + PARTY + ';white-space:nowrap;text-shadow:none;">&#9666; ' + esc(pty.join(" \u00b7 ")) + '</span>' : '';
     if (pty && pty.length) mfTitle = (mfTitle ? mfTitle + " \u00b7 " : "") + "targeted by " + pty.join(", ");
-    // Someone's loyal (found by PROBE): the owner in brackets after the name,
-    // in their Social group colour when they have one (Ricardo: not to be
-    // confused with party members' targets), and in the hover.
+    // Someone's loyal (found by PROBE), Ricardo: a knight on the left (in the
+    // badge column: loyals never get a kill-order number) and the owner in
+    // brackets after the name, not to be confused with party members'
+    // targets. Your own loyals green, others in the owner's Social group
+    // colour when they have one; the owner in the hover too.
     var loy = /d/.test(mob.attrib || "") ? "" : (R.loyal[String(mob.id)] || "");
+    var loyIcon = "";
     if (loy) {
-      ptyTag = ' <span style="font-family:' + SERIF + ';font-size:13px;color:' + (ask("person.colour", loy) || LOYAL) + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
+      var loyCol = (R.me && loy.toLowerCase() === String(R.me).toLowerCase()) ? OWNLOYAL : (ask("person.colour", loy) || LOYAL);
+      loyIcon = '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:13px;color:' + loyCol + ';">&#9822;&#xfe0e;</span>';
+      ptyTag = ' <span style="font-family:' + SERIF + ';font-size:13px;color:' + loyCol + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
       mfTitle = "loyal to " + loy + (mfTitle ? " \u00b7 " + mfTitle : "");
     }
     var mid = String(mob.id);
@@ -246,14 +252,14 @@ if (!R.info) {
     var ignored = useQ && rank === undefined && !/d/.test(mob.attrib || "") && BQ.active && BQ.active[mob.name] === false;
     if (mob === tgtMob) {
       var tHp = (R.target && String(R.target.id) === String(mob.id) && R.target.hp !== "") ? R.target.hp + "%" : "target";
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>' + ptyTag, "your target" + (rank ? " \u00b7 " + rank + " in the kill order" : "") + (mfTitle ? " \u00b7 " + mfTitle : ""), tHp, GLOW, false, (rank ? badge(rank, true) : "") + flagIcon(mf));
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + GLOW + ';text-shadow:0 0 6px ' + GLOW + ',0 0 2px ' + GLOW + ';">' + esc(mob.name) + '</span>' + ptyTag, "your target" + (rank ? " \u00b7 " + rank + " in the kill order" : "") + (mfTitle ? " \u00b7 " + mfTitle : ""), tHp, GLOW, false, loyIcon + (rank ? badge(rank, true) : "") + flagIcon(mf));
     } else if (ignored) {
-      html += '<div style="opacity:.45;">' + row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + mfCol + ';">' + esc(mob.name) + '</span>' + ptyTag, "ignored by the basher in this area" + (mfTitle ? " \u00b7 " + mfTitle : ""), "ignored", false, false, '<span style="color:' + DIM + ';">&ndash;</span>' + flagIcon(mf)) + '</div>';
+      html += '<div style="opacity:.45;">' + row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + mfCol + ';">' + esc(mob.name) + '</span>' + ptyTag, "ignored by the basher in this area" + (mfTitle ? " \u00b7 " + mfTitle : ""), "ignored", false, false, (loyIcon || '<span style="color:' + DIM + ';">&ndash;</span>') + flagIcon(mf)) + '</div>';
     } else {
       // Dead ones are greyed out; their name already says "the corpse of…".
       var dead = /d/.test(mob.attrib || "");
       var bdg = rank ? badge(rank, false, isNext ? GLOW : DIM) : "";
-      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (dead ? DIM : mfCol) + ';">' + esc(mob.name) + '</span>' + ptyTag, [rank ? (isNext ? "next for the basher" : rank + " in the kill order") : "", mfTitle].filter(Boolean).join(" \u00b7 "), isNext ? "next" : "", isNext ? "#c8a94e" : false, isNext ? "transparent" : false, bdg + flagIcon(mf));
+      html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (dead ? DIM : mfCol) + ';">' + esc(mob.name) + '</span>' + ptyTag, [rank ? (isNext ? "next for the basher" : rank + " in the kill order") : "", mfTitle].filter(Boolean).join(" \u00b7 "), isNext ? "next" : "", isNext ? "#c8a94e" : false, isNext ? "transparent" : false, loyIcon + bdg + flagIcon(mf));
     }
   }
   var im = merge(items);
