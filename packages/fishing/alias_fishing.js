@@ -26,6 +26,5 @@ if (fiSub === "" || fiSub === "status") {
 } else if (fiSub === "rebait") {
   var fiR = fiArg.toLowerCase();
   if (fiR === "on" || fiR === "off") set_variable("fishing_rebait", fiR);
-  if (fiR === "off") FI.baited = false;
-  display_notice("[fishing] rebait " + (get_variable("fishing_rebait") === "on" ? "ON: after a catch the hook is baited again, so CL only casts." : "OFF: CL baits the hook each time you cast."), (fiR === "on" || fiR === "off") ? "lime" : C);
+  display_notice("[fishing] rebait " + (get_variable("fishing_rebait") === "on" ? "ON: after a catch the hook is baited again, so CL only casts." : "OFF: CL baits the hook when it is bare, then casts."), (fiR === "on" || fiR === "off") ? "lime" : C);
 }

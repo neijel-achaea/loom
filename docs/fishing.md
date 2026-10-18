@@ -3,7 +3,7 @@
 *Baits and casts with one command, then teases, jerks and reels on the game's cues until the fish is landed.*
 
 <!-- loom:version fishing -->
-*This page describes fishing 0.2.3.*
+*This page describes fishing 0.2.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -15,6 +15,8 @@ Fishing in Achaea is a sequence of answers to the game's cues: tease the line wh
 3. **A strike**, small, medium or large: it jerks the pole.
 4. **Hooked** ("…feel the line go taut."): it reels, and reels again whenever the tension lets it.
 5. **Landed**: done. Cast again. With `FISHING REBAIT ON`, the hook is baited again as soon as you have balance, so the next `CL` only casts.
+
+`CL` baits only a bare hook: it follows the game's own lines, so after you reel in by hand ("You reel your line in completely.") the bait stays on and the next `CL` just casts. Bait and cast both wait for balance, since baiting takes it. Reeling in by hand also drops any tease or jerk still waiting.
 
 Each cue line is marked with its stage, **[1/4]** to **[4/4]**, so you can follow the fight at a glance. If the hook pulls free, it teases again and waits for the next bite.
 
@@ -29,7 +31,7 @@ Nothing is sent while Loom is paused (`LOOM PAUSE ON`).
 |---|---|
 | `FISHING` | bait, ding, rebait and pause state |
 | `FISHING BAIT <bait>` | the bait to put on the hook |
-| `FISHING CAST <direction>` | bait the hook and cast |
+| `FISHING CAST <direction>` | bait the hook (unless it already is) and cast, both on balance |
 | `CL <direction>` | the same, shorter |
 | `FISHING REBAIT ON\|OFF` | bait the hook again after a catch, so CL only casts |
 | `FISHING DING ON\|OFF` | tell the party "Ding fish!" on a new yearly record |

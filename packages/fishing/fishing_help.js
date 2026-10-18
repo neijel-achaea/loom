@@ -6,7 +6,7 @@ var hlTitle = "[fishing] baits, casts and plays the line on the game's cues. Com
 var hlRows = [
   ["FISHING", "bait, ding, rebait and pause state"],
   ["FISHING BAIT <bait>", "the bait to put on the hook"],
-  ["FISHING CAST <direction>", "bait the hook and cast"],
+  ["FISHING CAST <direction>", "bait the hook (unless it already is) and cast, both on balance"],
   ["CL <direction>", "the same, shorter"],
   ["FISHING REBAIT ON|OFF", "bait the hook again after a catch, so CL only casts"],
   ["FISHING DING ON|OFF", "tell the party \"Ding fish!\" on a new yearly record"],
