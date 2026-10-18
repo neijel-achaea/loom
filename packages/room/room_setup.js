@@ -10,7 +10,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.2.3", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+client.loom.registry.room = { version: "0.2.4", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
@@ -70,19 +70,21 @@ R.leaf = function (title) { return '<span title="' + String(title || "newbie").r
 // Loyals (Ricardo): GMCP says nothing about whose a mob is (a loyal is
 // attrib "m" like any other), but PROBE does: "He is loyal to Falau." So every
 // living mob id seen for the first time is probed once, silently: one probe
-// at a time, every line gagged from the send until the line after "<mob> is
-// holding:" (or "What do you wish to examine?" when it's gone), with a 5 s
-// safety timeout. Probes wait while the basher has a run (a gagged combat line
+// at a time, every line gagged from the send until the probe's answer ends:
+// the line after "<mob> is holding:", "What do you wish to examine?" (gone),
+// or the first prompt after any of its lines, whatever the wording (the
+// answer comes in one go, prompt last). 2 s safety timeout. Probes wait while the basher has a run (a gagged combat line
 // would be lost) and while triggers are paused. PROBE is free (Ricardo).
 //   R.loyal    id -> owner, "" = loyal to nobody; in memory only (ids are
 //              per mob, so a reload just probes again)
-//   R.probeQ   ids waiting; R.probing {id, name, at, owner, holding}
+//   R.probeQ   ids waiting; R.probing {id, name, at, owner, holding, lines}
+//   R.probeLast  the last probe's lines and how it ended, for ROOM PROBE DEBUG
 // ROOM PROBE ON|OFF (room_probe, default on).
 R.probeOn = get_variable("room_probe") != "off";
 if (!R.loyal) R.loyal = {};
 if (!R.probeQ) R.probeQ = [];
 if (R.probing === undefined) R.probing = null;
-R.probeMs = 5000;
+R.probeMs = 2000;
 R.loyalCap = 3000;
 // Queue a mob from Char.Items, unless it's dead, known, queued or being probed.
 R.probeAdd = function (it) {
@@ -110,10 +112,10 @@ R.probeNext = function () {
     var id = R.probeQ.shift();
     var it = R.items[id];
     if (it && !/d/.test(it.attrib || "")) {
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false };
+      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, lines: [], how: "" };
       R.probing = p;
       clearTimeout(R.probeT);
-      R.probeT = setTimeout(function () { if (R.probing === p) { R.probeEnd(false); R.probeNext(); } }, R.probeMs);
+      R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); R.probeNext(); } }, R.probeMs);
       send_command("probe " + id, 1);
       return;
     }
@@ -125,11 +127,23 @@ R.probeLine = function (line) {
   if (!p) return;
   gag_current_line();
   line = String(line || "").trim();
-  if (/^What do you wish to examine\?$/.test(line)) { R.probeEnd(false); return; }
+  if (p.lines.length < 20) p.lines.push(line);
+  if (/^What do you wish to examine\?$/.test(line)) { p.how = "gone"; R.probeEnd(false); return; }
   var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
   if (m) { p.owner = m[1]; return; }
-  if (p.holding) { R.probeEnd(true); return; }
+  if (p.holding) { p.how = "holding"; R.probeEnd(true); return; }
   if (/ (?:is|are) holding:$/.test(line)) p.holding = true;
+};
+// The prompt after a probe's lines: its answer is over, whatever it said.
+// It counts as read when a health line came ("He has 95% health remaining.").
+R.probePrompt = function () {
+  var p = R.probing;
+  if (!p || !p.lines.length) return false;
+  var read = false;
+  for (var i = 0; i < p.lines.length; i++) if (/ health remaining\.$/.test(p.lines[i])) read = true;
+  p.how = "prompt";
+  R.probeEnd(read);
+  return true;
 };
 // A probe's end: ok = the whole output was read. A loyal gets one notice.
 R.probeEnd = function (ok) {
@@ -137,6 +151,7 @@ R.probeEnd = function (ok) {
   R.probing = null;
   clearTimeout(R.probeT);
   if (!p) return;
+  R.probeLast = { id: p.id, name: p.name, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at };
   if (ok) {
     if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
     R.loyal[p.id] = p.owner;

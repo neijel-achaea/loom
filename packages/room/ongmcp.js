@@ -61,10 +61,9 @@ if (rmMine) {
     // Every prompt: redraw only if the tar variable changed (ST, or a
     // targeting alias), since that sends nothing of its own.
     rmDraw = false;
-    // A probe whose "is holding:" came and whose last line didn't (a prompt
-    // straight after) ends here; otherwise a waiting probe may go now.
-    if (R.probing && R.probing.holding) R.probeEnd(true);
-    else R.probeNext();
+    // A probe's answer ends at the first prompt after its lines; otherwise a
+    // waiting probe may go now.
+    if (!R.probePrompt()) R.probeNext();
     var rmTar = String(get_variable("tar") || "");
     if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
   } else if ((rmM === "Char.Name" || rmM === "Char.Status") && rmA && rmA.name) {

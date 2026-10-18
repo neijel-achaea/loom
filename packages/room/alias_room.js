@@ -25,7 +25,14 @@ if (rmSub === "" || rmSub === "status") {
   }
 } else if (rmSub === "probe") {
   var rmPv = rmW[1] || "";
-  if (rmPv === "on" || rmPv === "off") {
+  if (rmPv === "debug") {
+    var rmPl = R.probeLast;
+    if (!rmPl) rmSay("no probe has ended yet.");
+    else {
+      rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden:", "orange");
+      for (var rmPd = 0; rmPd < rmPl.lines.length; rmPd++) rmSay("  " + rmPl.lines[rmPd], "orange");
+    }
+  } else if (rmPv === "on" || rmPv === "off") {
     R.probeOn = rmPv === "on";
     set_variable("room_probe", rmPv);
     if (!R.probeOn) R.probeQ = [];

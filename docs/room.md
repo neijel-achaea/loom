@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 0.2.3.*
+*This page describes room 0.2.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -28,6 +28,7 @@ What you see, top to bottom:
 | `ROOM` | the room in a line, and how the description starts |
 | `ROOM DESC OPEN\|FOLDED` | show the description in full, or folded to two lines (clicking it flips it too) |
 | `ROOM PROBE [ON\|OFF]` | loyals: probe each new mob once, silently, and mark the ones loyal to someone (default on) |
+| `ROOM PROBE DEBUG` | the lines the last probe hid, and what ended it |
 | `ROOM DEBUG` | the last room GMCP payloads, as they came |
 | **The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like.** | |
 <!-- /loom:commands -->
@@ -82,5 +83,5 @@ With a link switched off, Here simply goes without that part; nothing else chang
 - **The tab is empty.** No room has been reported yet: move, or type `LOOK`.
 - **The tab doesn't appear at all.** The custom tab must be named exactly `Here`. Reset the UI layout if it still doesn't show.
 - **Someone is listed who has left (or missing who's there).** A few ways of arriving or leaving send nothing Room can see. The next room you enter puts it right; if you can name the line the game showed, report it so Room learns it.
-- **A line went missing.** While a probe is out, every line is hidden until the probe's output ends (at most 5 seconds). If something you needed was hidden, report it, or turn probing off with `ROOM PROBE OFF`.
+- **A line went missing.** While a probe is out, every line is hidden until the probe's answer ends (at the next prompt, at most 2 seconds). If something you needed was hidden, report it with `ROOM PROBE DEBUG` (the lines the last probe hid), or turn probing off with `ROOM PROBE OFF`.
 - **The wrong mob glows.** Room glows the first living mob whose name holds your target word, as the game picks it. If the game hit a different one, report it with `ROOM DEBUG` and the line that named the target.
