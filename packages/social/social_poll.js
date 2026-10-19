@@ -11,6 +11,7 @@ if (S && (get_variable("social_poll") == "on" || S.reportOnce) && get_variable("
     if (S.debug) display_notice("[social] tick -> qw", "cyan");
     S.buf = [];
     S.capturing = true;
+    S.capAt = Date.now();
     clearTimeout(S.safetyT);
     S.safetyT = setTimeout(function () { run_function("social_flush", [], "social"); }, 30000);
     send_command("qw");

@@ -8,7 +8,12 @@ if (!client.loom.social) client.loom.social = {};
 // (#60), since it runs when standings changes or a link into social flips;
 // in standings mode it passes the change on to the tabs that show social's
 // colours (Here, Comms).
-client.loom.registry.social = { version: "0.4.6", keyword: "SOCIAL", desc: "{{description}}", redraw: function () {
+// busy (#318): true while a QW poll's answer is still coming, so Here's
+// loyal probe waits its turn. A capture open for 5 s no longer counts.
+client.loom.registry.social = { version: "0.4.7", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+  var Sq = client.loom.social;
+  return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
+}, redraw: function () {
   var So = client.loom.social;
   if (So) { So.standCache = {}; So.standCacheN = 0; }
   run_function("social_online", [], "social");

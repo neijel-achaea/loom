@@ -10,7 +10,10 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
 // redraw: how loom redraws the Here tab when an integration's source changes (#159).
-client.loom.registry.room = { version: "0.2.8", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); } };
+// busy (#318): true while a loyal probe's answer is still coming. Every
+// package that sends a command and reads its answer says so through its
+// registry entry's busy(), so others can wait their turn.
+client.loom.registry.room = { version: "0.2.9", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); }, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
@@ -75,7 +78,8 @@ R.leaf = function (title) { return '<span title="' + String(title || "newbie").r
 // the line after "<mob> is holding:", "You see nothing in it.", "What do you
 // wish to examine?" (gone), or a prompt after its health line. A 2 s safety
 // timeout only for an answer that never comes. Probes wait while the basher has a run (a gagged combat line
-// would be lost) and while triggers are paused. PROBE is free (Ricardo).
+// would be lost), while triggers are paused, and while another package's answer
+// is still coming (R.probeOthers, #318). PROBE is free (Ricardo).
 //   R.loyal    id -> owner, "" = loyal to nobody; in memory only (ids are
 //              per mob, so a reload just probes again)
 //   R.probeQ   ids waiting; R.probing {id, name, at, owner, holding, lines}
@@ -108,6 +112,23 @@ R.probeBusy = function () {
 //   R.probeHold  "room" while a moved-into room's text is still coming;
 //                lifted by its exits line, or by the second prompt after it
 R.probeExits = /^(?:You see (?:a single exit|exits) leading .*\.|There are no obvious exits\.)$/;
+// Which other packages still have an answer coming to something they sent
+// (their registry entry's busy(), #318): sigils' monolith probe, patrolling's
+// PLANTS and INFO HERE, a room being harvested, social's QW. A probe sent
+// before those answers arrive would gag them (Ricardo: SIGILS WATCH and the
+// first harvest went missing), and their lines could end the probe early.
+// The game answers in order, so a probe waits for them, never the other way.
+//   R.probeWaitOn  the names it waited on last, for ROOM PROBE
+R.probeOthers = function () {
+  var out = [], reg = client.loom.registry || {};
+  for (var k in reg) {
+    if (!reg.hasOwnProperty(k) || k === "room" || !reg[k] || typeof reg[k].busy !== "function") continue;
+    var b = false;
+    try { b = reg[k].busy(); } catch (e) { b = false; }
+    if (b) out.push(k);
+  }
+  return out;
+};
 // Send the next probe, if nothing is in the way. Called on room changes and
 // every prompt, so a wait ends by itself.
 R.probeNext = function () {
@@ -117,6 +138,8 @@ R.probeNext = function () {
   }
   if (!R.probeOn || !R.probeQ.length || R.probeHold) return;
   if (get_variable("pauseTriggers") == "on" || R.probeBusy()) return;
+  R.probeWaitOn = R.probeOthers();
+  if (R.probeWaitOn.length) return;
   while (R.probeQ.length) {
     var id = R.probeQ.shift();
     var it = R.items[id];

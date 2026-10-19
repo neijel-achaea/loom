@@ -41,7 +41,7 @@ if (rmSub === "" || rmSub === "status") {
   } else {
     var rmLy = [];
     for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.loyal[rmLi]) rmLy.push(rmLi + " (" + R.loyal[rmLi] + ")"); }
-    rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs probed, loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : "") : "") + ". ROOM PROBE ON|OFF to change it.");
+    rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs probed, loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : (R.probeOthers().length ? " (after " + R.probeOthers().join(", ") + ")" : "")) : "") + ". ROOM PROBE ON|OFF to change it.");
   }
 } else if (rmSub === "debug") {
   // The last payload of each GMCP message the tab reads, as JSON.
