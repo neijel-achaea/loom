@@ -3,7 +3,7 @@
 *Puts back what thieves take, keeps your gold in your backpack, and lets selfishness stay up without getting in the way of giving and selling.*
 
 <!-- loom:version security -->
-*This page describes security 0.2.2.*
+*This page describes security 0.2.3.*
 <!-- /loom:version -->
 
 ## What it is

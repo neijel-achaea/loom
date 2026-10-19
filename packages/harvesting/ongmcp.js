@@ -3,7 +3,7 @@ var H = client.loom.harvesting;
 // Harvesting follows the room itself: remember the environment and check what
 // needs harvesting here.
 if (args.gmcp_method == "Room.Info") {
-  H.here = String(args.gmcp_args.environment || "").toLowerCase();
+  H.here = String((args.gmcp_args && args.gmcp_args.environment) || "").toLowerCase();
   // First room of the session with harvesting on: read the rift first. The
   // room is checked again once the listing ends (trigger_rift_rule).
   if (!H.started) {

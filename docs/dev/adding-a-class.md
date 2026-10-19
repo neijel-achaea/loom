@@ -15,7 +15,7 @@ The commonest fix: a battlerage key stays lit after use, never goes dark, or an 
 2. **Write the pattern**: replace the target's name with `(.*)` and pronouns with `(\w+)`, escape full stops (`\.`), anchor it (`^…$`). Lines that start "You …" must be anchored at `^You`, so other players' versions never match.
 3. **Add the row** to the class's `lines`: `[/pattern/, "TAG", "Ability"]`, with the ability named exactly as the game names it in "You can use Windlash again".
 4. **If the ability has a ++ version** (a different line when the target already has certain afflictions), add a second row after it matching only the line's opening words, with the same tag and ability. The first match wins, so the plain line comes first.
-5. **Test the pattern** against the real line, and against a line that must not match ([Testing](testing.md#2-test-patterns-against-real-lines)).
+5. **Test the pattern** against the real line, and against a line that must not match ([Testing](testing.md#3-test-patterns-against-real-lines)).
 6. **Bump hunting's patch version**, build, check, and test in game: use the ability and watch its key go dark, then light again.
 
 Can't code it? Send the line with a [bug report](https://github.com/neijel-achaea/loom/issues/new/choose), with your class and level; that's the hard part done.

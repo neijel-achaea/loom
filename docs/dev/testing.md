@@ -13,7 +13,27 @@ python3 tools/check.py vials
 
 If you changed a HELP table, a version or an integration, also run `python3 tools/docs.py --check`.
 
-## 2. Test patterns against real lines
+## 2. Smoke-test
+
+```sh
+python3 tools/smoke.py            # every package
+python3 tools/smoke.py vials      # one package (others load where a scenario needs them)
+python3 tools/smoke.py -v vials   # with the first lines of each stack
+```
+
+Packages must degrade, never throw: a script that throws in Nexus stops halfway, often leaving state half-changed, and the player sees nothing. `smoke.py` runs the built packages in node (`tools/smoke.js`, with the Nexus calls stubbed) through the situations that cause that:
+
+- each package alone: installed fresh, fed ordinary GMCP, every command run with the usual subcommands, every tab drawn, every trigger fired; then reloaded and uninstalled;
+- each package with loom only (its integrations waiting on the other side), and every package together but one, for each one;
+- no GMCP at all, and commands, tabs and triggers before the first GMCP (login order shuffled);
+- every package together with odd GMCP payloads: `{}`, `null`, `""`, `[]`, text, a number;
+- every saved variable a package reads set to one bad value at a time: empty, broken JSON, `null`, a list, a number, a newer shape.
+
+It lists each script that throws, with the scenarios it threw in, and two softer problems: an orange notice repeated on prompt after prompt (one notice per problem, never one per prompt), and calls into a package that isn't installed (listed only: Nexus logs those and carries on). It exits 1 if anything throws, so run it with `check.py` after building, over everything when a change touches several packages.
+
+The usual fixes are in [Conventions](conventions.md#the-rules) (*GMCP payloads*, *Saved tables*).
+
+## 3. Test patterns against real lines
 
 Before relying on a trigger, test its pattern, as built, against the game's actual lines: the ones it must match and some it must not (another player's version of the same line, say). In node:
 
@@ -28,7 +48,7 @@ console.log(re.exec("You feel a fish nibbling on your hook."));
 
 Test the pattern from the built `.nxs`, not the source: escaping in `package.json` is where patterns usually go wrong.
 
-## 3. Simulate in node
+## 4. Simulate in node
 
 Package code is plain JavaScript that calls a handful of Nexus functions. Stub those, and a package runs in node: you can call its setup, send it GMCP messages, feed it game lines and look at what it sends and draws.
 
@@ -84,7 +104,7 @@ Things that help:
 - **For integrations**, load loom and both packages into one harness, and test with each of the two missing too.
 - **Run harnesses from a scratch folder**, not inside the repository, so files they write don't end up in a commit.
 
-## 4. Preview a tab
+## 5. Preview a tab
 
 A tab's HTML can be checked by eye before going in game: capture it from `set_custom_tab_html` in a simulation, wrap it in a page the width of a tab, and screenshot it with a headless browser:
 
@@ -103,7 +123,7 @@ const { chromium } = require("playwright");
 
 For tabs with clicks, load the whole package into the page and click through it there.
 
-## 5. Test in game
+## 6. Test in game
 
 1. Import the built `.nxs` from your branch (the raw link to `dist/<name>.nxs` at your commit).
 2. Reimporting runs the package's setup again, keeping its saved settings, so no restart is needed. A new tab needs its custom tab created; a changed tab icon needs a page reload.

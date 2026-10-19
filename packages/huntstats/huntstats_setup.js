@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "0.3.3", keyword: "HUNTSTATS", desc: "{{description}}",
+client.loom.registry.huntstats = { version: "0.3.4", keyword: "HUNTSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("huntstats_render", [], "huntstats"); } };
 var HS = client.loom.huntstats;
@@ -99,6 +99,7 @@ HS.dur = function (ms) { var m = Math.floor(ms / 60000); return Math.floor(m / 6
 if (!HS.party) {
   HS.party = [];
   try { HS.party = JSON.parse(get_variable("huntstats_party") || "[]") || []; } catch (e) { HS.party = []; }
+  if (!Array.isArray(HS.party)) HS.party = [];
 }
 if (!HS.me) { try { HS.me = String(get_variable("huntstats_name") || ""); } catch (e) { HS.me = ""; } }
 // HUNTSTATS SUGGEST weights (#88): xp, gold, variety (huntstats_weights).
@@ -261,7 +262,7 @@ HS.look = {
   //   undefined; players are the party's names (#40).
   filed: function () {
     var lg = [];
-    try { lg = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { lg = []; }
+    try { lg = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { lg = []; } if (!Array.isArray(lg)) lg = [];
     var r = lg[0];
     return r ? { area: r.area, ms: r.ms, players: (r.players || []).slice(), at: r.at } : undefined;
   },
@@ -271,7 +272,7 @@ HS.look = {
   },
   average: function (area) {
     var areas = {};
-    try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
+    try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; } if (!areas || typeof areas != "object" || Array.isArray(areas)) areas = {};
     var a = areas[area];
     return (a && a.sessions > 0 && a.gold > 0) ? { gold: Math.round(a.gold / a.sessions), hunts: a.sessions } : undefined;
   }

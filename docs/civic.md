@@ -3,7 +3,7 @@
 *City duties, one ministry at a time: for now, the ambassador's aide, who welcomes new citizens and teaches novices.*
 
 <!-- loom:version civic -->
-*This page describes civic 0.2.4.*
+*This page describes civic 0.2.5.*
 <!-- /loom:version -->
 
 ## What it is

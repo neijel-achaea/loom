@@ -3,9 +3,9 @@
 // Talismans: ink panel, serif small-caps headings, one large figure, monospace
 // ledger rows. The accent is a hunter's moss green.
 var log = [];
-try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }
+try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; } if (!Array.isArray(log)) log = [];
 var areas = {};
-try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
+try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; } if (!areas || typeof areas != "object" || Array.isArray(areas)) areas = {};
 
 // Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
 var TH = (client.loom && client.loom.theme) || {};
