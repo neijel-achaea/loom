@@ -1,8 +1,11 @@
 if (!client.loom || !client.loom.defcon || !client.loom.defcon.classes) run_function("defcon_setup", [], "defcon");
 var D = client.loom.defcon;
-if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
+// A payload that came empty or as something other than an object reads as
+// an empty one (#135).
+var dcG = (args.gmcp_args && typeof args.gmcp_args == "object") ? args.gmcp_args : {};
+if (args.gmcp_method == "Char.Status" && dcG.class) {
   var dcWas = D.cls;
-  D.cls = args.gmcp_args.class;
+  D.cls = dcG.class;
   if (get_variable("defcon_class") !== D.cls) set_variable("defcon_class", D.cls);
   // A class change (dragonform included): the game has already loaded that
   // class's curing list, so just say what level it was left at.
@@ -20,8 +23,8 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
 
 // Morph (Druid, Sentinel), from charstats: a change completes a pending
 // DEFCON UP morph (defcon_aftermorph).
-if (args.gmcp_method == "Char.Vitals" && args.gmcp_args.charstats) {
-  var dcStats = args.gmcp_args.charstats, dcMorph = null;
+if (args.gmcp_method == "Char.Vitals" && dcG.charstats) {
+  var dcStats = Array.isArray(dcG.charstats) ? dcG.charstats : [], dcMorph = null;
   for (var dcS = 0; dcS < dcStats.length; dcS++) {
     var dcMs = String(dcStats[dcS]).match(/^Morph:\s*(.+)$/);
     if (dcMs) dcMorph = dcMs[1];

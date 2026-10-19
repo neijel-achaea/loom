@@ -6,7 +6,7 @@ if (!client.loom.sigils) client.loom.sigils = {};
 // busy (#318): true while a monolith probe sigils sent has had no answer
 // yet, so Here's loyal probe waits its turn instead of gagging the answer.
 // An answer lost for 5 s no longer counts (sigils_take drops it at 15 s).
-client.loom.registry.sigils = { version: "0.2.6", keyword: "SIGILS", desc: "{{description}}", busy: function () {
+client.loom.registry.sigils = { version: "0.2.7", keyword: "SIGILS", desc: "{{description}}", busy: function () {
   var Sb = client.loom.sigils, q = (Sb && Sb.queue) || [], now = Date.now();
   for (var i = 0; i < q.length; i++) if (now - q[i].t < 5000) return true;
   return false;

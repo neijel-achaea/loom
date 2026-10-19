@@ -12,7 +12,7 @@ if (hsSub === "" || hsSub === "status") {
   run_function("huntstats_help", [], "huntstats");
 } else if (hsSub === "areas") {
   var areas = {};
-  try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
+  try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; } if (!areas || typeof areas != "object" || Array.isArray(areas)) areas = {};
   var arr = [];
   for (var k in areas) {
     if (areas.hasOwnProperty(k)) {
@@ -76,7 +76,7 @@ if (hsSub === "" || hsSub === "status") {
     }
   } else {
     var sgA = {};
-    try { sgA = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { sgA = {}; }
+    try { sgA = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { sgA = {}; } if (!sgA || typeof sgA != "object" || Array.isArray(sgA)) sgA = {};
     var sgL = [], sgBx = 0, sgBg = 0;
     for (var sgK in sgA) {
       if (!sgA.hasOwnProperty(sgK)) continue;
@@ -117,7 +117,7 @@ if (hsSub === "" || hsSub === "status") {
   }
 } else if (hsSub === "log") {
   var log = [];
-  try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }
+  try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; } if (!Array.isArray(log)) log = [];
   if (log.length === 0) { hsSay("no hunts logged yet", "cyan"); }
   else {
     hsSay("last " + log.length + " hunt" + (log.length === 1 ? "" : "s") + ":", "cyan");

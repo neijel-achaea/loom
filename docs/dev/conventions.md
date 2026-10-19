@@ -30,6 +30,8 @@ The rules every package follows, and why. They're what lets a player drop any on
 | **Other packages** | Never read another package's variables or call its functions. What one offers another goes through its `look` (read) or `entry` (write), and the integration lives in **loom** ([Integrations](integrations.md)) | Packages can change their insides freely |
 | **Tabs** | A custom tab with the package's own name (never one of Nexus's own names), house style (ink panel, serif small-caps headings, monospace rows), an icon as CSS keyed on the tab button's title | Players recognise a Loom tab, and nothing clashes with Nexus's tabs |
 | **Captures** | Capturing game output (a listing, `QW`) ends on the output's own last line, never on a timer; a long safety timeout only for a reply that never comes. Captures run only when the package asked for the output | A typed command's output is never eaten, and lag never cuts a capture short |
+| **GMCP payloads** | Read each message's arguments through a local that is an object whatever came: `var xG = (args.gmcp_args && typeof args.gmcp_args == "object") ? args.gmcp_args : {};` | A message that comes empty, or as text, changes nothing instead of stopping the handler |
+| **Saved tables** | A saved table or list is checked for its shape after reading (`typeof`, `Array.isArray`), and anything else starts afresh; `JSON.parse` is always inside `try` | A broken or newer-format variable never stops setup, which would break every reflex of the package |
 | **Room state** | Anything read from a check of the room belongs to that room: clear it on the next `Room.Info` | A tab never shows one room's results in another |
 | **Patterns** | Lines starting "You …" are anchored at `^You`; weapons, pronouns and names left open (`(.*)`, `(\w+)`) | Other people's versions of the line never match, and every weapon and pronoun does |
 
@@ -61,5 +63,5 @@ A package (or a change to one) is done when:
 - [ ] its state is under `client.loom.<package>`, its variables prefixed, old ones migrated;
 - [ ] it has one command with `HELP`, and registers itself;
 - [ ] names and items specific to a player are in configuration, not code;
-- [ ] its version is bumped, it's built, and it's tested without the game and in it;
+- [ ] its version is bumped, it's built, `check.py` and `smoke.py` pass, and it's tested in the game;
 - [ ] its page in `docs/` describes what it does now.

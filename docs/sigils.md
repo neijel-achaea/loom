@@ -3,7 +3,7 @@
 *A watcher for your city's monoliths and flame sigils: which rooms are running out, and what renewing them will cost.*
 
 <!-- loom:version sigils -->
-*This page describes sigils 0.2.6.*
+*This page describes sigils 0.2.7.*
 <!-- /loom:version -->
 
 ## What it is

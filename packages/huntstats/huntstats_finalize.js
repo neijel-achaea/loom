@@ -29,13 +29,13 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   if (dmg && dmg.combatMs >= 1000) { rec.dmgIn = dmg.dmg; rec.combatMs = dmg.combatMs; rec.maxHit = dmg.maxHit; }
 
   var log = [];
-  try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; }
+  try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; } if (!Array.isArray(log)) log = [];
   log.unshift(rec);
   if (log.length > 5) log = log.slice(0, 5);
   set_variable("huntstats_log", JSON.stringify(log));
 
   var areas = {};
-  try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; }
+  try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; } if (!areas || typeof areas != "object" || Array.isArray(areas)) areas = {};
   var a = areas[rec.area] || { xp: 0, gold: 0, kills: 0, ms: 0, sessions: 0 };
   a.xp += rec.xp; a.gold += rec.gold; a.kills += rec.kills; a.ms += rec.ms; a.sessions += 1;
   if (rec.combatMs) {

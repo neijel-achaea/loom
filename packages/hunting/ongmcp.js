@@ -1,11 +1,14 @@
 if (!client.loom || !client.loom.hunting || !client.loom.hunting.classes) run_function("hunting_setup", [], "hunting");
 var HU = client.loom.hunting;
+// A payload that came empty or as something other than an object reads as
+// an empty one (#135).
+var huG = (args.gmcp_args && typeof args.gmcp_args == "object") ? args.gmcp_args : {};
 
 // Class: hunting follows it itself. On a change: that class's keys and costs,
 // and fresh cooldowns, since ability names can repeat across classes.
-if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
-  if (args.gmcp_args.class != HU.cls) {
-    HU.cls = args.gmcp_args.class;
+if (args.gmcp_method == "Char.Status" && huG.class) {
+  if (huG.class != HU.cls) {
+    HU.cls = huG.class;
     HU.cd = {};
     set_variable("hunting_class", HU.cls);
     run_function("hunting_buttons", [], "hunting");
@@ -13,9 +16,9 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
 }
 
 // Your own name, so autogold only treats "X has been slain by <you>." as your kill.
-if ((args.gmcp_method == "Char.Name" || args.gmcp_method == "Char.Status") && args.gmcp_args.name) {
-  if (String(args.gmcp_args.name) !== HU.name) {
-    HU.name = String(args.gmcp_args.name);
+if ((args.gmcp_method == "Char.Name" || args.gmcp_method == "Char.Status") && huG.name) {
+  if (String(huG.name) !== HU.name) {
+    HU.name = String(huG.name);
     set_variable("hunting_name", HU.name);
   }
 }
@@ -26,7 +29,7 @@ if (args.gmcp_method == "Char.Vitals") {
   var huStaffNow = client.loom.artificing && client.loom.artificing.staff;
   if (huStaffNow && HU.staffDrawn && huStaffNow !== HU.staffDrawn) run_function("hunting_buttons", [], "hunting");
 
-  var v = args.gmcp_args;
+  var v = huG;
   HU.bal = String(v.bal) == "1";
   HU.eq = String(v.eq) == "1";
   HU.ep = to_number(v.ep); HU.maxep = to_number(v.maxep);
@@ -39,7 +42,7 @@ if (args.gmcp_method == "Char.Vitals") {
     if (get_variable("hunting_dragon_attack") != huBefore) run_function("hunting_buttons", [], "hunting");
   }
 
-  var stats = args.gmcp_args.charstats;
+  var stats = huG.charstats;
   var rage = null;
   if (stats) {
     for (var i = 0; i < stats.length; i++) {

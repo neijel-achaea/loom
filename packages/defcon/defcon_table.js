@@ -16,6 +16,10 @@ if (!D.custom) {
   var dcCr = get_variable("defcon_custom");
   if (dcCr && typeof dcCr == "object") D.custom = dcCr;
   else if (dcCr) { try { D.custom = JSON.parse(dcCr) || {}; } catch (e) { D.custom = {}; } }
+  // Anything but a table of tables (a number, a list, broken JSON) starts
+  // afresh rather than breaking every DEFCON command (#135).
+  if (!D.custom || typeof D.custom != "object" || Array.isArray(D.custom)) D.custom = {};
+  for (var dcCk in D.custom) { if (D.custom.hasOwnProperty(dcCk) && (!D.custom[dcCk] || typeof D.custom[dcCk] != "object" || Array.isArray(D.custom[dcCk]))) delete D.custom[dcCk]; }
 }
 var dcKey = D.alias[D.cls] || D.cls;
 var dcEntry = D.classes[dcKey];
@@ -72,6 +76,7 @@ if (!D.levels) {
   D.levels = {};
   if (dcRaw && typeof dcRaw == "object") D.levels = dcRaw;
   else if (dcRaw) { try { D.levels = JSON.parse(dcRaw); } catch (e) { D.levels = {}; } }
+  if (!D.levels || typeof D.levels != "object" || Array.isArray(D.levels)) D.levels = {};
 }
 // One-time migration: the old single defcon_level belongs to the class you
 // are in when it is first seen with a class known, then is cleared.

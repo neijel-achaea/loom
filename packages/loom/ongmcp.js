@@ -1,9 +1,12 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.loom) client.loom.loom = {};
 var L = client.loom.loom;
+// A payload that came empty or as something other than an object reads as
+// an empty one (#135).
+var lmG = (args.gmcp_args && typeof args.gmcp_args == "object") ? args.gmcp_args : {};
 
 if (args.gmcp_method == "Room.Info") {
-  var g = args.gmcp_args;
+  var g = lmG;
   L.room = { id: g.num, name: g.name, area: g.area, environment: g.environment };
 }
 
@@ -17,8 +20,8 @@ if (args.gmcp_method == "Char.Status" && !L.updatesChecked) {
   }
 }
 
-if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
-  var cls = args.gmcp_args.class;
+if (args.gmcp_method == "Char.Status" && lmG.class) {
+  var cls = lmG.class;
   if (cls != L.cls) {
     L.cls = cls;
     display_notice("[loom] class: " + cls, "cyan");
@@ -26,7 +29,7 @@ if (args.gmcp_method == "Char.Status" && args.gmcp_args.class) {
 }
 
 // The city, for tab themes (#310). Char.Status carries it at login.
-if (args.gmcp_method == "Char.Status" && args.gmcp_args.city !== undefined) {
+if (args.gmcp_method == "Char.Status" && lmG.city !== undefined) {
   if (!L.themeSeeCity) run_function("loom_theme", [], "loom");
-  L.themeSeeCity(args.gmcp_args.city);
+  L.themeSeeCity(lmG.city);
 }

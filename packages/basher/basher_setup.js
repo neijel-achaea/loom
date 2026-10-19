@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.5", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.6", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -53,6 +53,10 @@ B.lastFight = B.lastFight || null; // { why, id }: finish this mob, nothing afte
 // basher_priorities; the area comes from Room.Info.
 if (!B.prios) {
   try { B.prios = JSON.parse(get_variable("basher_priorities") || "{}") || {}; } catch (e) { B.prios = {}; }
+  // Only areas with a list are kept: anything else saved there (a number,
+  // a list, a newer shape) is dropped rather than breaking the tab (#135).
+  if (!B.prios || typeof B.prios != "object" || Array.isArray(B.prios)) B.prios = {};
+  for (var bsPa in B.prios) { if (B.prios.hasOwnProperty(bsPa) && !Array.isArray(B.prios[bsPa])) delete B.prios[bsPa]; }
 }
 if (B.area === undefined) B.area = "";
 // Your name (GMCP Char.Name / Char.Status), so your own arrival and channel

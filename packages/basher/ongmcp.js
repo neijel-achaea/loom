@@ -95,6 +95,6 @@ if (bsM === "Char.Vitals" && bsA) {
     var bsR = [].concat(bsA);
     for (var bsE = 0; bsE < bsR.length; bsE++) if (bsBr(typeof bsR[bsE] === "object" ? bsR[bsE].name : bsR[bsE])) { B.breath = false; B.blasted(); }
   }
-} else if (bsM === "Room.RemovePlayer" && bsA !== undefined) {
+} else if (bsM === "Room.RemovePlayer" && bsA !== undefined && bsA !== null) {
   delete B.players[String(typeof bsA === "object" ? bsA.name : bsA).toLowerCase()];
 }
