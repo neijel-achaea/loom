@@ -10,6 +10,7 @@ if (args.gmcp_method == "Room.Info") {
     H.started = true;
     if (get_variable("harvesting_on") == "on" && get_variable("pauseTriggers") != "on") {
       H.quiet = true;
+      H.sentAt = Date.now();
       send_command("ir herbs");
     }
   }

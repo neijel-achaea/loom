@@ -3,7 +3,14 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.harvesting) client.loom.harvesting = {};
-client.loom.registry.harvesting = { version: "0.2.4", keyword: "HARVESTING", desc: "{{description}}" };
+// busy (#318): true while the session's first rift reading is coming, or
+// while a room's harvest is under way (from the first HARVEST until the
+// queue is empty), so Here's loyal probe waits until the room is
+// harvested. 10 s without a send from harvesting no longer counts.
+client.loom.registry.harvesting = { version: "0.2.5", keyword: "HARVESTING", desc: "{{description}}", busy: function () {
+  var Hb = client.loom.harvesting;
+  return !!(Hb && (Hb.quiet || Hb.current) && Date.now() - (Hb.sentAt || 0) < 10000);
+} };
 var H = client.loom.harvesting;
 
 // Plants that grow in each environment (GMCP Room.Info environment, lower case).

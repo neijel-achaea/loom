@@ -3,6 +3,7 @@ if (get_variable("pauseTriggers") != "on" && client.loom && client.loom.harvesti
   if (H.current) {
     H.inrFor = H.current;
     H.waitBal = true;
+    H.sentAt = Date.now();
     send_command("queue add be inr " + H.current);
   }
 }

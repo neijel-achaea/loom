@@ -10,6 +10,7 @@ if (hvA[0] === "" || hvA[0] === "status") {
 } else if (hvA[0] === "on") {
   set_variable("harvesting_on", "on");
   H.quiet = true;
+  H.sentAt = Date.now();
   send_command("ir herbs");
   display_notice("[harvesting] ON: reading your rift stock.", "lime");
 } else if (hvA[0] === "off") {

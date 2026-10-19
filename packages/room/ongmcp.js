@@ -69,6 +69,13 @@ if (rmMine) {
     // blind, or a display that leaves it out).
     if (R.probeHold && ++R.probeHoldN >= 2) R.probeHold = "";
     if (!R.probePrompt()) R.probeNext();
+    // GMCP can come ahead of its packet's text: an answer another package
+    // was waiting for may be in this same packet, so look again once the
+    // packet's lines are read (not a time gate: busy() decides).
+    if (!R.probing && R.probeQ.length && R.probeWaitOn && R.probeWaitOn.length) {
+      clearTimeout(R.probeLater);
+      R.probeLater = setTimeout(function () { R.probeNext(); }, 0);
+    }
     var rmTar = String(get_variable("tar") || "");
     if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
   } else if ((rmM === "Char.Name" || rmM === "Char.Status") && rmA && rmA.name) {
