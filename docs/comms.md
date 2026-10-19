@@ -3,14 +3,14 @@
 *The Comms tab: every channel, tell and say in one place, in the game's own colours, with unread counts.*
 
 <!-- loom:version comms -->
-*This page describes comms 0.1.11.*
+*This page describes comms 0.2.0.*
 <!-- /loom:version -->
 
 ## What it is
 
-Comms draws a tab called **Comms** that replaces Nexus's stock communication window. Every line the game sends on a channel (says, tells, party, your city, clan, house, order, newbie…) lands there, timestamped, newest at the bottom, in the colours your game uses for that channel (so your `CONFIG COLOUR` choices carry over).
+Comms draws a tab called **Comms** that replaces Nexus's stock communication window. Every line the game sends on a channel (says, tells, party, your city, clan, house, order, newbie…) lands there, newest at the bottom, in the colours your game uses for that channel (so your `CONFIG COLOUR` choices carry over, the 256-colour ones included). Hover a line to see when it came.
 
-Across the top, a row of **filters**: All, Tells, Say, Party, then every other channel in the order you first heard it, each with its count of unread lines. Click one to show only that channel.
+Across the top, a row of **filters**: All, Tells, Say, Party, then every other channel in the order you first heard it, each with its count of unread lines. Every clan channel sits under one **Clans** filter. Click one to show only that channel.
 
 Everything comes from the game (GMCP): there are no triggers, and the main window is left exactly as it was.
 
@@ -20,12 +20,12 @@ Everything comes from the game (GMCP): there are no triggers, and the main windo
 | Command | What it does |
 |---|---|
 | `COMMS` | the channels heard, what's muted, how many lines are kept |
-| `COMMS VIEW <channel\|name\|ALL>` | what the tab shows: a channel (TELLS, SAY, PARTY...), a tell conversation, or All |
+| `COMMS VIEW <channel\|name\|CLANS\|ALL>` | what the tab shows: a channel (TELLS, SAY, PARTY...), a tell conversation, every clan together, or All |
 | `COMMS MUTE\|UNMUTE <channel>` | leave a channel out of All and its unread count (still kept); the tab's mute link too |
 | `COMMS CAP <50-2000>` | lines kept per channel (default 300) |
 | `COMMS CLEAR [channel]` | forget every line, or one channel's |
 | `COMMS DEBUG` | the last comms GMCP payloads, and the input line tells go to |
-| **In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them.** | |
+| **In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them. Hover a line for its time.** | |
 | **The Comms tab replaces the stock communication window: create a custom tab named Comms, then close the stock one from the layout if you like.** | |
 <!-- /loom:commands -->
 
@@ -41,7 +41,8 @@ Channel names can be shortened: `COMMS VIEW cl` finds the first channel heard wh
 
 ## Daily use
 
-- **All** shows every channel that isn't muted, each line tagged with its channel. Click a tag to open that channel.
+- **All** shows every channel that isn't muted, each line starting with a small tag naming its channel. Click a tag to open that channel.
+- **Clans** shows every clan you're in together, tagged by clan. Click a tag to read one clan alone (← clans goes back); the mute link then mutes just that clan.
 - **Tells** lists the people you've been telling, most recent first, with unread counts. Click one to open the conversation, both sides of it.
 - **Lines that name you** are marked with a violet bar, so they stand out when you scroll back.
 - **Click a name** to start a tell: `t Ana ` appears in the input line, ready for your message.
@@ -63,5 +64,6 @@ Comms reads nothing from other packages on its own. With others installed, Loom'
 ## Troubleshooting
 
 - **Clicking a name doesn't put a tell in the input line.** `COMMS DEBUG` shows whether Comms found Nexus's input line. Report it with that output.
+- **Lines show in plain white instead of their channel's colour.** Send `COMMS DEBUG` after one arrives: it shows the line as the game sent it, colour codes and all. Report it with that output.
 - **A channel shows under a strange name.** Comms names a channel from the prefix on its lines ("(Party): ") or the game's channel list. Report the line if it gets it wrong.
 - **Old lines are gone.** Only the newest 300 per channel are kept, and fewer survive a page reload. `COMMS CAP 1000` keeps more.

@@ -17,7 +17,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.comms) client.loom.comms = {};
 // redraw: how loom redraws the Comms tab when an integration's source changes (#159).
-client.loom.registry.comms = { version: "0.1.11", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
+client.loom.registry.comms = { version: "0.2.0", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
 var C = client.loom.comms;
 C.tab = "Comms";
 if (!C.chans) C.chans = {};
@@ -48,6 +48,15 @@ C.name = function (k) {
   if (cc.short[k]) return cc.short[k];
   if (cc.captions[k]) return cc.captions[k].replace(/^the\s+(?:clan\s+of\s+)?/i, "");
   return k.charAt(0).toUpperCase() + k.slice(1);
+};
+
+// Clan channels, shown together under one Clans filter (Ricardo,
+// 2026-10-19): Comm.Channel.List captions them "the Clan of <name>"; a
+// clt<N> key counts too, for a clan heard before the list came.
+C.isClan = function (k) {
+  var cc = client.loom.comms;
+  k = String(k || "");
+  return /^clt\d+$/i.test(k) || /^the\s+clan\s+of\b/i.test(String(cc.captions[k] || ""));
 };
 
 // The latest lines from before the reload, when nothing has come in yet.

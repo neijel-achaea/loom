@@ -45,7 +45,7 @@ if (cmSub === "" || cmSub === "status") {
   }
 } else if (cmSub === "view" || cmSub === "show") {
   var cmV = cmW[1] || "all";
-  var cmT = cmV === "all" ? "all" : (C.convs[cmV] ? "tell:" + cmV : cmFind(cmRest));
+  var cmT = cmV === "all" ? "all" : cmV === "clans" ? "clans" : (C.convs[cmV] ? "tell:" + cmV : cmFind(cmRest));
   if (!cmT) { cmSay("no channel or tell matches '" + cmRest + "'.", "orange"); cmDraw = false; }
   else { run_function("comms_view", { key: cmT }, "comms"); cmDraw = false; }
 } else if (cmSub === "cap") {

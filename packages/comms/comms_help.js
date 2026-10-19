@@ -5,12 +5,12 @@ var hlTitle = "[comms] the Comms tab: every channel, tell and say, in the game's
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["COMMS", "the channels heard, what's muted, how many lines are kept"],
-  ["COMMS VIEW <channel|name|ALL>", "what the tab shows: a channel (TELLS, SAY, PARTY...), a tell conversation, or All"],
+  ["COMMS VIEW <channel|name|CLANS|ALL>", "what the tab shows: a channel (TELLS, SAY, PARTY...), a tell conversation, every clan together, or All"],
   ["COMMS MUTE|UNMUTE <channel>", "leave a channel out of All and its unread count (still kept); the tab's mute link too"],
   ["COMMS CAP <50-2000>", "lines kept per channel (default 300)"],
   ["COMMS CLEAR [channel]", "forget every line, or one channel's"],
   ["COMMS DEBUG", "the last comms GMCP payloads, and the input line tells go to"],
-  ["In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them."],
+  ["In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them. Hover a line for its time."],
   ["The Comms tab replaces the stock communication window: create a custom tab named Comms, then close the stock one from the layout if you like."]
 ];
 var hlW = 0;
