@@ -1,7 +1,8 @@
 // comms_render -- the Comms tab (#157): channel traffic from GMCP, in the
 // game's own colours, newest at the bottom.
 //   - a row of filters: All, Tells, Say, Party, then every other channel in
-//     the order first heard, each with its unread count; muted ones dimmed
+//     the order first heard, each with its unread count; muted ones dimmed;
+//     every clan channel under one Clans filter (a line's tag opens one clan)
 //   - All: every channel that isn't muted, each line tagged with its channel
 //     (a click on the tag opens that channel)
 //   - Tells: the people you've been telling, newest first; a click opens the
@@ -88,32 +89,47 @@ function firstCol(l) {
   for (var i = 0; i < l.segs.length; i++) { if (l.segs[i][1]) return l.segs[i][1]; }
   return MUTED;
 }
+// One line. Its time is on hover, and in All and Clans the channel's tag
+// starts the line, small, in the line's colour, with the text wrapping under
+// it at full width (Ricardo, 2026-10-19: the time and tag columns took room
+// the text needs on a narrow tab). A click on the tag opens that channel.
 function lineRow(l, tag) {
   var bg = l.mention ? 'background:' + ACCA("0.10") + ';border-left:2px solid ' + ACC + ';padding-left:4px;' : 'border-left:2px solid transparent;padding-left:4px;';
-  var h = '<div style="display:flex;gap:6px;align-items:baseline;padding:1px 0;' + bg + '">';
-  h += '<span title="' + esc(hms(l.t)) + '" style="flex:none;width:2.9em;color:' + DIM + ';">' + hm(l.t) + '</span>';
+  var t = "";
   if (tag) {
     var tk = l.ch;
     var tn = l.conv ? l.conv : C.name(tk);
     var tv = l.conv ? "tell:" + l.conv.toLowerCase() : tk;
-    h += '<span class="loom-cm-tag" title="' + esc(C.name(tk)) + '" onclick="window.loomComms&&window.loomComms.view(\'' + esc(tv).replace(/'/g, "") + '\')" style="flex:none;width:6.5em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + firstCol(l) + ';opacity:0.8;">' + esc(tn) + '</span>';
+    t = '<span class="loom-cm-tag" title="' + esc(C.name(tk)) + '" onclick="window.loomComms&&window.loomComms.view(\'' + esc(tv).replace(/'/g, "") + '\')" style="font-family:' + MONO + ';font-size:10px;margin-right:6px;' +
+      'color:' + firstCol(l) + ';opacity:0.8;">' + esc(tn.length > 14 ? tn.slice(0, 13) + "…" : tn) + '</span>';
   }
-  h += '<span style="flex:1;min-width:0;font-family:' + SANS + ';font-size:13px;line-height:1.4;">' + body(l) + '</span></div>';
-  return h;
+  return '<div title="' + esc(hms(l.t)) + '" style="padding:1px 0;font-family:' + SANS + ';font-size:13px;line-height:1.4;' + bg + '">' + t + body(l) + '</div>';
 }
 
-// The filters: All, Tells, Say, Party, then the rest as first heard.
+// The filters: All, Tells, Say, Party, then the rest as first heard; every
+// clan channel under one Clans filter, where the first clan was heard.
 var keys = [];
 for (var k in C.chans) { if (C.chans.hasOwnProperty(k)) keys.push(k); }
+var clans = [];
 var pin = { tells: 1, says: 2, party: 3 };
 keys.sort(function (a, b) { return (pin[a] || 9) - (pin[b] || 9) || C.chans[a].first - C.chans[b].first; });
+for (var kq = 0; kq < keys.length; kq++) { if (C.isClan(keys[kq])) clans.push(keys[kq]); }
+var clanUnread = 0;
+for (var kr = 0; kr < clans.length; kr++) { if (!C.muted[clans[kr]]) clanUnread += C.chans[clans[kr]].unread; }
+var inClans = C.view === "clans" || (C.chans[C.view] && C.isClan(C.view));
 var tellUnread = 0;
 for (var cv in C.convs) { if (C.convs.hasOwnProperty(cv)) tellUnread += C.convs[cv].unread; }
-if (C.view !== "all" && C.view !== "tells" && C.view.indexOf("tell:") !== 0 && !C.chans[C.view]) C.view = "all";
+if (C.view !== "all" && C.view !== "tells" && C.view.indexOf("tell:") !== 0 && !C.chans[C.view] && !(C.view === "clans" && clans.length)) C.view = "all";
 if (C.view.indexOf("tell:") === 0 && !C.convs[C.view.slice(5)]) C.view = "tells";
 var allUnread = 0;
 for (var ku = 0; ku < keys.length; ku++) { if (!C.muted[keys[ku]]) allUnread += keys[ku] === "tells" ? tellUnread : C.chans[keys[ku]].unread; }
-C.chips = ["all"].concat(keys);
+// The chips' keys in order (a click passes its index): clans as one, "clans".
+C.chips = ["all"];
+var clanChip = false;
+for (var kc2 = 0; kc2 < keys.length; kc2++) {
+  if (C.isClan(keys[kc2])) { if (!clanChip) { clanChip = true; C.chips.push("clans"); } }
+  else C.chips.push(keys[kc2]);
+}
 function chip(i, label, n, on, muted) {
   return '<span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.chip(' + i + ')" title="' + esc(label) + (muted ? ' (muted)' : '') + '" style="color:' + (on ? ACC : (muted ? DIM : MUTED)) + ';border-bottom:1px solid ' + (on ? ACC : 'transparent') + ';' + (muted ? 'text-decoration:line-through;' : '') + '">' + esc(label.length > 16 ? label.slice(0, 15) + "…" : label) + badge(n) + '</span>';
 }
@@ -130,9 +146,10 @@ if (C.chans[C.view] && C.view !== "all") {
 html += '</div>';
 html += '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;margin:5px 0 4px;">';
 html += chip(0, "All", allUnread, C.view === "all", false);
-for (var ci = 0; ci < keys.length; ci++) {
-  var ck = keys[ci];
-  html += chip(ci + 1, C.name(ck), C.muted[ck] ? 0 : (ck === "tells" ? tellUnread : C.chans[ck].unread), C.view === ck || (ck === "tells" && inTells), !!C.muted[ck]);
+for (var ci = 1; ci < C.chips.length; ci++) {
+  var ck = C.chips[ci];
+  if (ck === "clans") { html += chip(ci, "Clans", clanUnread, inClans, false); continue; }
+  html += chip(ci, C.name(ck), C.muted[ck] ? 0 : (ck === "tells" ? tellUnread : C.chans[ck].unread), C.view === ck || (ck === "tells" && inTells), !!C.muted[ck]);
 }
 html += '</div>';
 if (C.view.indexOf("tell:") === 0) {
@@ -141,6 +158,9 @@ if (C.view.indexOf("tell:") === 0) {
   var hwAbout = about(hw.name);
   html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span' + (hwAbout ? ' title="' + esc(hwAbout) + '"' : '') + ' style="font-family:' + SANS + ';font-size:13px;color:' + esc(hwCol || ACC) + ';">&middot; ' + esc(hw.name) + (ask("person.newbie", hw.name) ? leaf(ask("person.newbie", hw.name)) : '') + '</span>' +
     ' <span class="loom-cm-who" onclick="window.loomComms&&window.loomComms.tell(\'' + hw.name.replace(/[^A-Za-z]/g, "") + '\')" style="color:' + MUTED + ';">(reply)</span></div>';
+}
+if (C.chans[C.view] && C.isClan(C.view)) {
+  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'clans\')" style="color:' + MUTED + ';">&larr; clans</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(C.name(C.view)) + '</span></div>';
 }
 html += '<div style="border-bottom:1px solid ' + RULE + ';"></div></div><div style="padding-top:4px;">';
 
@@ -169,10 +189,11 @@ if (C.view === "tells") {
 } else {
   var rows = [];
   var tag = false;
-  if (C.view === "all") {
+  if (C.view === "all" || C.view === "clans") {
     tag = true;
     for (var ak = 0; ak < keys.length; ak++) {
       if (C.muted[keys[ak]]) continue;
+      if (C.view === "clans" && !C.isClan(keys[ak])) continue;
       var al = C.chans[keys[ak]].lines;
       for (var ai = Math.max(0, al.length - 200); ai < al.length; ai++) rows.push(al[ai]);
     }

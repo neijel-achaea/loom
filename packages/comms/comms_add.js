@@ -10,11 +10,23 @@ var caCh = String(args.channel || "");
 var caTalker = String(args.talker || "");
 var caRaw = String(args.text || "");
 
-// ANSI -> segments. Bold (1) or the 90s give the bright shade.
+// ANSI -> segments. Bold (1) or the 90s give the bright shade. Colours set
+// with xterm's 256-colour codes (38;5;N) or as RGB (38;2;r;g;b) are read too:
+// some players' lines come that way, and were left plain (Ricardo, 2026-10-19).
+// Backgrounds (40s, 100s, 48;...) are skipped.
 var caPal = {
   n: { 30: "#6d6d6d", 31: "#d0504a", 32: "#3fae4a", 33: "#c8a63a", 34: "#5a78d8", 35: "#b45ab4", 36: "#3fb2b2", 37: "#c8c8c8" },
   b: { 30: "#9a9a9a", 31: "#ff6b62", 32: "#6fe07a", 33: "#f2e15e", 34: "#7d9cff", 35: "#f07af0", 36: "#62e6e6", 37: "#f4f4f4" }
 };
+// xterm's 256 colours: 0-15 the palette above, 16-231 a 6x6x6 cube, 232-255 greys.
+function caX(n) {
+  if (n < 8) return caPal.n[30 + n];
+  if (n < 16) return caPal.b[30 + n - 8];
+  function hx(v) { return (v < 16 ? "0" : "") + v.toString(16); }
+  if (n < 232) { var c = n - 16, lv = [0, 95, 135, 175, 215, 255]; return "#" + hx(lv[Math.floor(c / 36)]) + hx(lv[Math.floor(c / 6) % 6]) + hx(lv[c % 6]); }
+  var g = 8 + (n - 232) * 10;
+  return "#" + hx(g) + hx(g) + hx(g);
+}
 var caSegs = [];
 var caBold = false, caFg = null;
 var caParts = caRaw.split(/\u001b\[([0-9;]*)m/);
@@ -29,9 +41,18 @@ for (var caI = 0; caI < caParts.length; caI++) {
       else if (caC >= 30 && caC <= 37) caFg = { c: caC, br: false };
       else if (caC >= 90 && caC <= 97) caFg = { c: caC - 60, br: true };
       else if (caC === 39) caFg = null;
+      else if ((caC === 38 || caC === 48) && caCodes[caJ + 1] === "5") {
+        var caN = parseInt(caCodes[caJ + 2], 10);
+        if (caC === 38 && caN >= 0 && caN <= 255) caFg = { hex: caX(caN) };
+        caJ += 2;
+      } else if ((caC === 38 || caC === 48) && caCodes[caJ + 1] === "2") {
+        var caR = parseInt(caCodes[caJ + 2], 10), caG = parseInt(caCodes[caJ + 3], 10), caB = parseInt(caCodes[caJ + 4], 10);
+        if (caC === 38 && caR >= 0 && caG >= 0 && caB >= 0) caFg = { hex: "#" + [caR, caG, caB].map(function (v) { v = Math.min(255, v); return (v < 16 ? "0" : "") + v.toString(16); }).join("") };
+        caJ += 4;
+      }
     }
   } else if (caParts[caI] !== "") {
-    var caCol = caFg ? caPal[(caBold || caFg.br) ? "b" : "n"][caFg.c] : "";
+    var caCol = !caFg ? "" : (caFg.hex ? caFg.hex : caPal[(caBold || caFg.br) ? "b" : "n"][caFg.c]);
     var caLast = caSegs[caSegs.length - 1];
     if (caLast && caLast[1] === caCol) caLast[0] += caParts[caI];
     else caSegs.push([caParts[caI], caCol]);
@@ -77,7 +98,7 @@ if (caConv) {
 
 // Unread: a line from someone else that the tab isn't showing right now.
 // Muted channels count nothing.
-var caSeen = (C.view === "all" && !C.muted[caKey]) || C.view === caKey || (caConv && C.view === "tell:" + caConv.toLowerCase());
+var caSeen = (C.view === "all" && !C.muted[caKey]) || (C.view === "clans" && C.isClan && C.isClan(caKey) && !C.muted[caKey]) || C.view === caKey || (caConv && C.view === "tell:" + caConv.toLowerCase());
 if (!caMe && !caSeen && !C.muted[caKey]) {
   if (caConv) C.convs[caConv.toLowerCase()].unread++;
   else caChan.unread++;
