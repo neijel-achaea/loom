@@ -242,7 +242,7 @@ if (!R.info) {
     // targets. Your own loyals: the knight and the name green, no owner;
     // others in the owner's Social group colour when they have one. The
     // owner in the hover either way.
-    var loy = /d/.test(mob.attrib || "") ? "" : (R.loyal[String(mob.id)] || "");
+    var loy = /d/.test(mob.attrib || "") ? "" : (R.ownerOf(mob.id) || "");
     var loyIcon = "";
     if (loy) {
       var loyMine = !!R.me && loy.toLowerCase() === String(R.me).toLowerCase();
