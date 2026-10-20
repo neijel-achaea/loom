@@ -56,6 +56,8 @@ It also names the settings no release saved while being set up (the run says not
 
 **When you add, rename or reshape a variable**, add its row to [Saved variables](variables.md) in the same pull request: a rename keeps the old name as a *legacy* row, names it under *Was* on the new row, and the package copies it across once on load, then deletes it.
 
+**Measuring cost.** `tools/sim.js` caches compiled scripts by default. `nexusCompile(true)` compiles every call behind a ~100-line prelude, as Nexus does, and `COMPILED` counts the scripts run and characters compiled. Use it to compare two builds of a busy session before trusting a speed-up, then confirm with `LOOM PERF` in game.
+
 ## 4. Test patterns against real lines
 
 Before relying on a trigger, test its pattern, as built, against the game's actual lines: the ones it must match and some it must not (another player's version of the same line, say). In node:
