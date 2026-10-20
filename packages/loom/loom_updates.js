@@ -41,8 +41,8 @@ luL.report = (data, manual) => {
   }
   if (manual && ahead.length) display_notice("[loom] newer than main (a branch build): " + ahead.join(", ") + ".", "cyan");
   if (manual && missing.length) display_notice("[loom] not installed here: " + missing.join(", ") + ".", "cyan");
-  // Retired packages still installed: named every time, they still run.
-  (luL.retiredHere ? luL.retiredHere() : []).forEach((r) => {
+  // Retired packages still installed: named when asked, not at login.
+  if (manual) (luL.retiredHere ? luL.retiredHere() : []).forEach((r) => {
     display_notice("[loom] " + r.name + " is retired: uninstall it" + (r.by ? " (" + r.by + " replaces it)" : "") + ".", "orange");
   });
 };
