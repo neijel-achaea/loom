@@ -4,8 +4,8 @@ var who = args[1];
 var skill = args[2];
 
 if (get_variable("pauseTriggers") != "on") {
-  var hl = client.hl;
-  if (hl && hl.enemies && hl.enemies[String(who).toLowerCase()]) {
+  var cvLook = client.loom.social && client.loom.social.look;
+  if (cvLook && cvLook.inGroup && cvLook.inGroup(who, "enemies")) {
     display_notice("[civic] " + who + " is an enemy: not teaching.", "orange");
   } else {
     send_command("ok");

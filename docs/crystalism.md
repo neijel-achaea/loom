@@ -3,7 +3,7 @@
 *For Crystalism users: refine stored facets evenly across your crystal shapes, pick up pearls, and open sonic portals for your city.*
 
 <!-- loom:version crystalism -->
-*This page describes crystalism 0.3.1.*
+*This page describes crystalism 0.3.2.*
 <!-- /loom:version -->
 
 ## What it is

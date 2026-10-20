@@ -5,13 +5,14 @@ if (!client.loom || !client.loom.vision) run_function("vision_setup", [], "visio
 if (get_variable("vision_on") == "on") {
   var viWho = args[1];
   var viKey = viWho.toLowerCase();
-  var viSoc = client.loom.social;
-  var viCity = (viSoc && viSoc.lists && viSoc.lists.city) || (client.hl && client.hl.city) || null;
-  var viEnem = (viSoc && viSoc.lists && viSoc.lists.enemies) || (client.hl && client.hl.enemies) || null;
-  if (viCity && viCity[viKey]) {
+  var viLook = client.loom.social && client.loom.social.look;
+  var viIn = function (g) { return !!(viLook && viLook.inGroup && viLook.inGroup(viKey, g)); };
+  if (viIn("city")) {
     if (get_variable("vision_hide") == "on") gag_current_line();
-  } else if (viEnem && viEnem[viKey]) {
-    colorize_current_line(0, args[0].length, (viSoc && viSoc.color && viSoc.color.enemies) || "#ff5f5f", "");
+  } else if (viIn("enemies")) {
+    var viCol = "#ff5f5f", viGs = (viLook && viLook.groups) ? viLook.groups(viKey) : [];
+    for (var viG = 0; viG < viGs.length; viG++) { if (viGs[viG].group === "enemies" && viGs[viG].colour) viCol = viGs[viG].colour; }
+    colorize_current_line(0, args[0].length, viCol, "");
     if (get_variable("vision_alert") == "on" && get_variable("pauseTriggers") != "on") {
       send_command(get_variable("vision_channel") + " ENEMY ALERT: " + viWho + " is " + args[3] + " of me, at " + args[2]);
     }
