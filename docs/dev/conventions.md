@@ -18,7 +18,7 @@ The rules every package follows, and why. They're what lets a player drop any on
 | --- | --- | --- |
 | **Runtime state** | Everything under `client.loom.<package>`, with the full package name | One place per package; nothing collides |
 | **Creating the namespace** | `if (!client.loom) client.loom = {};`, then the same for the package's own object. Never assign `client.loom` outright | One package assigning it wipes every other package's state |
-| **Variables** | Prefixed with the package name (`coffers_days`, `ledger_items`). Old names are migrated once on load, then deleted | Nexus variables are one flat list per character |
+| **Variables** | Prefixed with the package name (`coffers_days`, `ledger_items`), and listed in [Saved variables](variables.md). Old names are migrated once on load, then deleted | Nexus variables are one flat list per character |
 | **Setup** | Data is kept across a rerun of setup; helper functions and tables are rebuilt every time | A reimport brings in changed code at once, without a page reload, and without losing the player's data |
 | **Registration** | `client.loom.registry.<package> = { version, keyword, desc }` in setup | `LOOM` and `LOOM UPDATES` list what they find there |
 | **Command** | One alias, `^<keyword>(?:\s+(.*))?$`, case-insensitive | See principle 4 |
@@ -60,8 +60,8 @@ A package (or a change to one) is done when:
 
 - [ ] it imports into a fresh profile and works with no manual steps and no other Loom package installed;
 - [ ] it gets its own GMCP data, and reads anything shared defensively;
-- [ ] its state is under `client.loom.<package>`, its variables prefixed, old ones migrated;
+- [ ] its state is under `client.loom.<package>`, its variables prefixed and listed in [Saved variables](variables.md), old ones migrated;
 - [ ] it has one command with `HELP`, and registers itself;
 - [ ] names and items specific to a player are in configuration, not code;
-- [ ] its version is bumped, it's built, `check.py` and `smoke.py` pass, and it's tested in the game;
+- [ ] its version is bumped, it's built, `check.py`, `smoke.py` and `upgrade.py` pass, and it's tested in the game;
 - [ ] its page in `docs/` describes what it does now.

@@ -21,7 +21,7 @@ python3 tools/smoke.py vials      # one package (others load where a scenario ne
 python3 tools/smoke.py -v vials   # with the first lines of each stack
 ```
 
-Packages must degrade, never throw: a script that throws in Nexus stops halfway, often leaving state half-changed, and the player sees nothing. `smoke.py` runs the built packages in node (`tools/smoke.js`, with the Nexus calls stubbed) through the situations that cause that:
+Packages must degrade, never throw: a script that throws in Nexus stops halfway, often leaving state half-changed, and the player sees nothing. `smoke.py` runs the built packages in node (`tools/smoke.js`, on the stubbed Nexus page in `tools/sim.js`) through the situations that cause that:
 
 - each package alone: installed fresh, fed ordinary GMCP, every command run with the usual subcommands, every tab drawn, every trigger fired; then reloaded and uninstalled;
 - each package with loom only (its integrations waiting on the other side), and every package together but one, for each one;
@@ -33,7 +33,30 @@ It lists each script that throws, with the scenarios it threw in, and two softer
 
 The usual fixes are in [Conventions](conventions.md#the-rules) (*GMCP payloads*, *Saved tables*).
 
-## 3. Test patterns against real lines
+## 3. Upgrade test
+
+```sh
+python3 tools/upgrade.py                 # every release since 0.2
+python3 tools/upgrade.py loom-v0.7.0     # one release
+python3 tools/upgrade.py -v              # also the commands typed and the settings saved
+```
+
+Players import new versions over old ones, and nothing they set up may be lost. `upgrade.py` takes each release since 0.2 from its git tag (fetching the tag into a shallow clone if needed) and runs it in node with the same stubbed Nexus page as `smoke.py` (`tools/sim.js`):
+
+1. the release is installed and set up: every command its HELP lists that sets something is typed once, with a value that isn't the default (commands that wipe, stop, undo or act in the game are skipped);
+2. the current build is imported over it, one package at a time in the same page, so new packages meet old ones mid-way;
+3. the next login runs the current build in a fresh page with the same variables;
+4. the release is loaded again over that (a downgrade).
+
+All of it runs twice: alphabetically with the first of each `ON|OFF`-style choice, then in reverse order with the last one and every optional value filled in, so a setting gets changed whichever way its default goes.
+
+It checks every saved variable against **[Saved variables](variables.md)**: a *setting* keeps its value or is migrated into the row that names it under *Was*; *data* is still there; nothing still saved is left unread by the current build (a rename without a migration); every variable the current build uses is listed, and every listed one is used; nothing in the current build throws while it's imported; and the downgraded release doesn't throw (it may start fresh). It exits 1 on any problem.
+
+It also names the settings no release saved while being set up (the run says nothing about those) and the ones new since the last release, which it checks from the next release on.
+
+**When you add, rename or reshape a variable**, add its row to [Saved variables](variables.md) in the same pull request: a rename keeps the old name as a *legacy* row, names it under *Was* on the new row, and the package copies it across once on load, then deletes it.
+
+## 4. Test patterns against real lines
 
 Before relying on a trigger, test its pattern, as built, against the game's actual lines: the ones it must match and some it must not (another player's version of the same line, say). In node:
 
@@ -48,7 +71,7 @@ console.log(re.exec("You feel a fish nibbling on your hook."));
 
 Test the pattern from the built `.nxs`, not the source: escaping in `package.json` is where patterns usually go wrong.
 
-## 4. Simulate in node
+## 5. Simulate in node
 
 Package code is plain JavaScript that calls a handful of Nexus functions. Stub those, and a package runs in node: you can call its setup, send it GMCP messages, feed it game lines and look at what it sends and draws.
 
@@ -104,7 +127,7 @@ Things that help:
 - **For integrations**, load loom and both packages into one harness, and test with each of the two missing too.
 - **Run harnesses from a scratch folder**, not inside the repository, so files they write don't end up in a commit.
 
-## 5. Preview a tab
+## 6. Preview a tab
 
 A tab's HTML can be checked by eye before going in game: capture it from `set_custom_tab_html` in a simulation, wrap it in a page the width of a tab, and screenshot it with a headless browser:
 
@@ -123,7 +146,7 @@ const { chromium } = require("playwright");
 
 For tabs with clicks, load the whole package into the page and click through it there.
 
-## 6. Test in game
+## 7. Test in game
 
 1. Import the built `.nxs` from your branch (the raw link to `dist/<name>.nxs` at your commit).
 2. Reimporting runs the package's setup again, keeping its saved settings, so no restart is needed. A new tab needs its custom tab created; a changed tab icon needs a page reload.

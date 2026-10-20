@@ -49,6 +49,7 @@ All of them run from the repository's root with Python 3. `docs.py` also needs `
 | `python3 tools/extract.py Export.nxs --name self` | Splits an `.nxs` exported from Nexus back into `packages/self/`, so a change made in game becomes a readable diff |
 | `python3 tools/check.py` | Compiles every script of the built packages as Nexus runs them (a top-level `return` or an unclosed brace fails here) |
 | `python3 tools/smoke.py` | Runs every built package in node against missing, late, odd and corrupt data, and lists every script that throws ([Testing](testing.md#2-smoke-test)) |
+| `python3 tools/upgrade.py` | Imports the current build over every release since 0.2 in node, and checks no setting was lost and every saved variable is in [Saved variables](variables.md) ([Testing](testing.md#3-upgrade-test)) |
 | `python3 tools/versions.py` | Writes `dist/versions.json`, the version of every built package (`--check` only tests it) |
 | `python3 tools/docs.py` | Fills the generated blocks in `docs/` (`--check` only reports stale pages) |
 
