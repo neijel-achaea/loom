@@ -24,9 +24,12 @@ luL.newer = (a, b) => {
 luL.report = (data, manual) => {
   var latest = (data && data.packages) || {};
   var reg = client.loom.registry;
+  // Installed now (the registry keeps uninstalled packages until a reload).
+  var inst = {};
+  (luL.installed ? luL.installed() : Object.keys(reg)).forEach((n) => { inst[n] = true; });
   var old = [], ahead = [], missing = [];
   Object.keys(latest).sort().forEach((n) => {
-    var have = reg[n] && reg[n].version;
+    var have = inst[n] && reg[n] && reg[n].version;
     if (!have) missing.push(n);
     else if (luL.newer(latest[n], have)) old.push(n + " " + have + " → " + latest[n]);
     else if (luL.newer(have, latest[n])) ahead.push(n + " " + have);
@@ -38,6 +41,10 @@ luL.report = (data, manual) => {
   }
   if (manual && ahead.length) display_notice("[loom] newer than main (a branch build): " + ahead.join(", ") + ".", "cyan");
   if (manual && missing.length) display_notice("[loom] not installed here: " + missing.join(", ") + ".", "cyan");
+  // Retired packages still installed: named every time, they still run.
+  (luL.retiredHere ? luL.retiredHere() : []).forEach((r) => {
+    display_notice("[loom] " + r.name + " is retired: uninstall it" + (r.by ? " (" + r.by + " replaces it)" : "") + ".", "orange");
+  });
 };
 
 if (luManual) display_notice("[loom] checking package versions...", "cyan");

@@ -14,7 +14,10 @@ if (sub === "" || sub === "list") {
   // nexusclient.add_html_line when this Nexus has it, so the columns line
   // up; otherwise as plain notices.
   var reg = client.loom.registry;
-  var names = Object.keys(reg).sort();
+  // Only what is really installed: the registry keeps an uninstalled
+  // package until the next load, and retired ones are named apart below.
+  var lpL = client.loom.loom || {};
+  var names = lpL.installed ? lpL.installed() : Object.keys(reg).sort();
   var html = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
   var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
   var rows = [];
@@ -38,6 +41,10 @@ if (sub === "" || sub === "list") {
     }
   }
   if (html && rows.length) nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + rows.join("\n") + '</span>');
+  var lpOld = lpL.retiredHere ? lpL.retiredHere() : [];
+  for (var lpI = 0; lpI < lpOld.length; lpI++) {
+    display_notice("[loom] " + lpOld[lpI].name + " is retired: uninstall it" + (lpOld[lpI].by ? " (" + lpOld[lpI].by + " replaces it)" : "") + ".", "orange");
+  }
   display_notice("[loom] pause " + (get_variable("pauseTriggers") || "off") + ", debug " + (get_variable("debug") || "off") + ". LOOM HELP for commands.", C);
 } else if (sub === "updates") {
   // LOOM UPDATES: check now. LOOM UPDATES AUTO ON|OFF: the check at login.

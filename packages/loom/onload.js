@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
-client.loom.registry.loom = { version: "0.7.11", keyword: "LOOM", desc: "{{description}}" };
+client.loom.registry.loom = { version: "0.7.12", keyword: "LOOM", desc: "{{description}}" };
 
 // The legacy room variables loom used to set have no readers left: delete
 // them once. activeClass is left for hunting and defcon to seed
@@ -17,6 +17,8 @@ for (var lmI = 0; lmI < lmOld.length; lmI++) {
 
 set_variable("pauseTriggers", "off");
 
+// Which packages are really installed (LOOM, LOOM UPDATES).
+run_function("loom_packages", [], "loom");
 // The integrations catalogue and the LOOM LINK switches.
 run_function("loom_links", [], "loom");
 // City themes for the tabs (#310): after the links, so redraws can run.
