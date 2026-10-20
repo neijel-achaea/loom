@@ -3,14 +3,14 @@
 *The Comms tab: every channel, tell and say in one place, in the game's own colours, with unread counts.*
 
 <!-- loom:version comms -->
-*This page describes comms 0.2.1.*
+*This page describes comms 0.2.2.*
 <!-- /loom:version -->
 
 ## What it is
 
 Comms draws a tab called **Comms** that replaces Nexus's stock communication window. Every line the game sends on a channel (says, tells, party, your city, clan, house, order, newbie…) lands there, newest at the bottom, in the colours your game uses for that channel (so your `CONFIG COLOUR` choices carry over, the 256-colour ones included). Hover a line to see when it came.
 
-Across the top, a row of **filters**: All, Tells, Say, Party, then every other channel in the order you first heard it, each with its count of unread lines. Every clan channel sits under one **Clans** filter. Click one to show only that channel.
+Across the top, a row of **filters** in a fixed order: All, Say, Tell, Party, Yell, Shout, City, House, HNT, Clans, then every other channel alphabetically, each with its count of unread lines. Every clan channel sits under one **Clans** filter. Click one to show only that channel. Emotes and Deathsight carry the gods' roleplay rather than talk: they stay in the main window and never reach the tab.
 
 Everything comes from the game (GMCP): there are no triggers, and the main window is left exactly as it was.
 
@@ -25,6 +25,7 @@ Everything comes from the game (GMCP): there are no triggers, and the main windo
 | `COMMS CAP <50-2000>` | lines kept per channel (default 300) |
 | `COMMS CLEAR [channel]` | forget every line, or one channel's |
 | `COMMS DEBUG` | the last comms GMCP payloads, and the input line tells go to |
+| **Filters run All, Say, Tell, Party, Yell, Shout, City, House, HNT, Clans, then the rest alphabetically. Emotes and Deathsight (the gods' roleplay) stay in the main window only.** | |
 | **In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them. Hover a line for its time.** | |
 | **The Comms tab replaces the stock communication window: create a custom tab named Comms, then close the stock one from the layout if you like.** | |
 <!-- /loom:commands -->
@@ -57,7 +58,7 @@ Comms reads nothing from other packages on its own. With others installed, Loom'
 
 | Link | With | What it does |
 | --- | --- | --- |
-| `social-comms` | social | Talkers' names, the people in Tells and the open conversation's header in their social group colour (or their standing's colour, with `SOCIAL COLOURS STANDINGS`). |
+| `social-comms` | social | Talkers' names, every other name social knows anywhere in a line, the people in Tells and the open conversation's header in their social group colour (or their standing's colour, with `SOCIAL COLOURS STANDINGS`). |
 | `standings-comms` | standings | Your standing with a talker on hover over their name: icon, band and score ("☠ Nemesis -7.0"). |
 | `room-comms` | room | A green leaf after the names of people last seen with a newbie title (Uaithne, Ithin, Tuqad). |
 

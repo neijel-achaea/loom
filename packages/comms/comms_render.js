@@ -75,15 +75,29 @@ function body(l) {
     if (m) {
       var wCol = ask("person.colour", who);
       var wAbout = about(who);
-      out += '<span' + st + '>' + esc(tx.slice(0, m.index)) +
+      out += '<span' + st + '>' + names(tx.slice(0, m.index), who) +
         '<span class="loom-cm-who"' + (wAbout ? ' title="' + esc(wAbout) + '"' : '') + (wCol ? ' style="color:' + esc(wCol) + ';"' : '') + ' onclick="window.loomComms&&window.loomComms.tell(\'' + who + '\')">' + who + '</span>' + (ask("person.newbie", who) ? leaf(ask("person.newbie", who)) : '') +
-        esc(tx.slice(m.index + who.length)) + '</span>';
+        names(tx.slice(m.index + who.length), who) + '</span>';
       whoRe = null;
     } else {
-      out += '<span' + st + '>' + esc(tx) + '</span>';
+      out += '<span' + st + '>' + names(tx, who) + '</span>';
     }
   }
   return out;
+}
+// Every other name social knows, anywhere in a line's text (#333, Ricardo:
+// as the main window does): a capitalised word in that person's colour.
+// Answers are kept for this draw only.
+var nameCache = {};
+function names(tx, skip) {
+  return String(tx).split(/\b([A-Z][a-z]+)\b/).map(function (p, i) {
+    if (i % 2 === 0 || p === skip) return esc(p);
+    var k = p.toLowerCase();
+    if (!nameCache.hasOwnProperty(k)) nameCache[k] = ask("person.colour", p) || "";
+    if (!nameCache[k]) return esc(p);
+    var ab = about(p);
+    return '<span' + (ab ? ' title="' + esc(ab) + '"' : '') + ' style="color:' + esc(nameCache[k]) + ';">' + esc(p) + '</span>';
+  }).join("");
 }
 function firstCol(l) {
   for (var i = 0; i < l.segs.length; i++) { if (l.segs[i][1]) return l.segs[i][1]; }
@@ -106,13 +120,17 @@ function lineRow(l, tag) {
   return '<div title="' + esc(hms(l.t)) + '" style="padding:1px 0;font-family:' + SANS + ';font-size:13px;line-height:1.4;' + bg + '">' + t + body(l) + '</div>';
 }
 
-// The filters: All, Tells, Say, Party, then the rest as first heard; every
-// clan channel under one Clans filter, where the first clan was heard.
+// The filters (#334): All, Say, Tell, Party, Yell, Shout, City, House, HNT,
+// Clans (every clan channel under one filter), then the rest alphabetically.
 var keys = [];
 for (var k in C.chans) { if (C.chans.hasOwnProperty(k)) keys.push(k); }
 var clans = [];
-var pin = { tells: 1, says: 2, party: 3 };
-keys.sort(function (a, b) { return (pin[a] || 9) - (pin[b] || 9) || C.chans[a].first - C.chans[b].first; });
+keys.sort(function (a, b) {
+  var ra = C.rank(a), rb = C.rank(b);
+  if (ra !== rb) return ra - rb;
+  var na = C.name(a).toLowerCase(), nb = C.name(b).toLowerCase();
+  return na < nb ? -1 : (na > nb ? 1 : C.chans[a].first - C.chans[b].first);
+});
 for (var kq = 0; kq < keys.length; kq++) { if (C.isClan(keys[kq])) clans.push(keys[kq]); }
 var clanUnread = 0;
 for (var kr = 0; kr < clans.length; kr++) { if (!C.muted[clans[kr]]) clanUnread += C.chans[clans[kr]].unread; }
