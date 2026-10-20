@@ -47,6 +47,12 @@
     },
     {
       "type": "function",
+      "name": "loom_perf",
+      "enabled": true,
+      "code": "@file:loom_perf.js"
+    },
+    {
+      "type": "function",
       "name": "loom_updates",
       "enabled": true,
       "code": "@file:loom_updates.js"

@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
-client.loom.registry.loom = { version: "0.7.6", keyword: "LOOM", desc: "{{description}}" };
+client.loom.registry.loom = { version: "0.7.7", keyword: "LOOM", desc: "{{description}}" };
 
 // The legacy room variables loom used to set have no readers left: delete
 // them once. activeClass is left for hunting and defcon to seed
@@ -21,5 +21,7 @@ set_variable("pauseTriggers", "off");
 run_function("loom_links", [], "loom");
 // City themes for the tabs (#310): after the links, so redraws can run.
 run_function("loom_theme", [], "loom");
+// LOOM PERF (#209): ends any sample an earlier copy left running.
+run_function("loom_perf", [], "loom");
 // Integrations that write (ledger reminders, …) look at their source once.
 client.loom.loom.updateAll();
