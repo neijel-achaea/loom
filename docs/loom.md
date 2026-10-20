@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 0.7.6.*
+*This page describes loom 0.7.7.*
 <!-- /loom:version -->
 
 ## What it is
@@ -32,6 +32,9 @@ Every other package works on its own. The **loom** package is what ties them tog
 | `LOOM LINK <id> ON\|OFF` | switch one integration |
 | `LOOM THEME` | the tabs' colour theme and the cities to choose from |
 | `LOOM THEME <city>\|AUTO\|OFF` | one city's colours, your own city's (default) or each tab's own |
+| `LOOM PERF [seconds]` | measure what each package costs while you play (default 60 s), then report |
+| `LOOM PERF STOP` | end the sample now and report |
+| `LOOM PERF DATA` | how much saved data each package keeps |
 <!-- /loom:commands -->
 
 `LOOM DEBUG ON` shows the debug notices packages print about what they send. `LOOM ROOM` prints the current room's number, name, area and environment, handy for reports.
@@ -102,6 +105,18 @@ Every custom tab can take one city's colours, so the tabs read as one family. By
 
 A theme changes each tab's accent, headings, text, rules, bar tracks and background. Colours that mean something never change: good, warning and bad states, standings bands, social group colours, the target glow, gold, damage dealt and taken, dragon colours. The tabs redraw as soon as the theme changes.
 
+## Measuring what packages cost
+
+If the client ever feels slow, `LOOM PERF` shows where the time goes. It measures for a minute (`LOOM PERF 120` for longer, `LOOM PERF STOP` to end early) while you play as usual, hunting or walking, then prints a report:
+
+- **The totals:** game lines and GMCP messages seen, and how much of the time package scripts and trigger patterns took. A game line's time is split into the patterns tried, the trigger scripts they ran and the client's own work.
+- **Per package:** time in its scripts, how many ran, time its trigger patterns took to test against every line, and its slowest single call.
+- **The costliest scripts:** function, trigger or alias, with count, total, average and worst.
+- **GMCP:** the costliest message types, counting the client's own handling and every package's `onGMCP`.
+- **Saved data:** how much each package keeps, and its largest variable. `LOOM PERF DATA` shows just this, at once.
+
+A call over 16 ms (one frame at 60 fps) shows in yellow. Times count each script on its own: a function called from another counts under its own name. Nothing is measured outside a sample, so `LOOM PERF` costs nothing the rest of the time; during one, measuring adds a little to every figure.
+
 ## Setting it up
 
 1. **Import `loom.nxs`** first (see [Getting started](getting-started.md)).
@@ -116,4 +131,5 @@ Mostly nothing: Loom works in the background. Use `LOOM PAUSE ON` before anythin
 - **A package is missing from `LOOM`.** It may predate the registry: the retired **groves** and **reclamation** don't register, so `LOOM` and `LOOM UPDATES` don't see them.
 - **Nothing is being sent.** Loom may be paused: `LOOM PAUSE OFF`. It pauses itself while you sleep or meditate.
 - **An integration does nothing.** `LOOM LINKS` shows whether it's on, off or waiting for a package.
+- **The client feels slow.** `LOOM PERF` while it happens, then report the package at the top with a [bug report](https://github.com/neijel-achaea/loom/issues/new/choose).
 - **The tab theme isn't your city's.** Loom learns your city at login, so log in again once after installing it, or choose one by hand with `LOOM THEME <city>`. `LOOM THEME` says which theme is in use and why.

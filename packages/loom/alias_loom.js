@@ -1,4 +1,4 @@
-// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM|LINKS|LINK <id> [on/off]|THEME [<city>|auto|off]]
+// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM|LINKS|LINK <id> [on/off]|THEME [<city>|auto|off]|PERF [<seconds>|STOP|DATA]]
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
@@ -138,6 +138,31 @@ if (sub === "" || sub === "list") {
     display_notice("[loom] " + sub + " " + val, "lime");
   } else {
     display_notice("[loom] " + sub + " is " + (get_variable(vname) || "off") + ". Use LOOM " + sub.toUpperCase() + " ON or OFF.", C);
+  }
+} else if (sub === "perf") {
+  var PL = client.loom.loom;
+  if (!PL.perfStart) run_function("loom_perf", [], "loom");
+  if (val === "stop") {
+    if (!PL.perfStop()) display_notice("[loom] no sample running. LOOM PERF [seconds] starts one.", C);
+  } else if (val === "data") {
+    var pfRows = [];
+    PL.perfDataRows(pfRows);
+    if (pfRows.length) PL.perfPrint("[loom] PERF: saved data by package", pfRows.slice(1));
+    else display_notice("[loom] this client doesn't show its variables, so there's nothing to size.", "orange");
+  } else if (PL.perfState) {
+    var pfLeft = Math.max(0, Math.round(PL.perfState.secs - (Date.now() - PL.perfState.wall0) / 1000));
+    display_notice("[loom] a sample is running, " + pfLeft + " s left. LOOM PERF STOP ends it now.", C);
+  } else if (val !== "" && !/^\d+$/.test(val)) {
+    display_notice("[loom] usage: LOOM PERF [" + PL.perfMin + "-" + PL.perfMax + "] | STOP | DATA.", "orange");
+  } else {
+    var pfSecs = val === "" ? PL.perfDefault : parseInt(val, 10);
+    if (pfSecs < PL.perfMin || pfSecs > PL.perfMax) {
+      display_notice("[loom] a sample lasts " + PL.perfMin + " to " + PL.perfMax + " seconds.", "orange");
+    } else {
+      var pfRes = PL.perfStart(pfSecs);
+      if (pfRes === "missing") display_notice("[loom] this client doesn't run scripts the way LOOM PERF expects (no " + PL.perfMissing().join(", ") + "), so it can't measure here.", "orange");
+      else display_notice("[loom] measuring for " + pfSecs + " s: play as usual. The report prints when it ends (LOOM PERF STOP to end sooner).", "lime");
+    }
   }
 } else if (sub === "room") {
   var rm = client.loom.loom.room;

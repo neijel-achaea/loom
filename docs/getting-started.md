@@ -66,6 +66,9 @@ Loom's own commands:
 | `LOOM LINK <id> ON\|OFF` | switch one integration |
 | `LOOM THEME` | the tabs' colour theme and the cities to choose from |
 | `LOOM THEME <city>\|AUTO\|OFF` | one city's colours, your own city's (default) or each tab's own |
+| `LOOM PERF [seconds]` | measure what each package costs while you play (default 60 s), then report |
+| `LOOM PERF STOP` | end the sample now and report |
+| `LOOM PERF DATA` | how much saved data each package keeps |
 <!-- /loom:commands -->
 
 Type `LOOM` first: it lists the packages it can see, with their versions.

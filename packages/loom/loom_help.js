@@ -13,7 +13,10 @@ var hlRows = [
   ["LOOM LINKS", "integrations between packages, on, off or waiting for a package"],
   ["LOOM LINK <id> ON|OFF", "switch one integration"],
   ["LOOM THEME", "the tabs' colour theme and the cities to choose from"],
-  ["LOOM THEME <city>|AUTO|OFF", "one city's colours, your own city's (default) or each tab's own"]
+  ["LOOM THEME <city>|AUTO|OFF", "one city's colours, your own city's (default) or each tab's own"],
+  ["LOOM PERF [seconds]", "measure what each package costs while you play (default 60 s), then report"],
+  ["LOOM PERF STOP", "end the sample now and report"],
+  ["LOOM PERF DATA", "how much saved data each package keeps"]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {
