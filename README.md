@@ -93,6 +93,7 @@ Source lives in `packages/<name>/` (one `.js` file per function and per alias or
 python3 tools/build.py vials     # build a package into dist/ (no name: all of them)
 python3 tools/check.py vials     # syntax-check its scripts as Nexus runs them
 python3 tools/smoke.py vials     # run it against missing, odd and corrupt data
+python3 tools/upgrade.py         # import it over every release and check no setting is lost
 python3 tools/docs.py            # refresh the generated parts of docs/
 python3 tools/extract.py Export.nxs --name vials   # bring a Nexus export back into packages/vials/
 ```

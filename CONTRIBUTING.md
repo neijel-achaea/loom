@@ -22,7 +22,7 @@ There are many ways to help, and most don't need code:
 3. **Bump the package's version** once per pull request: the last number for a fix, the middle one for new behaviour ([Conventions](docs/dev/conventions.md#versions)).
 4. **Build it**: `python3 tools/build.py <name>`. Commit the rebuilt `dist/<name>.nxs` with your source changes.
 5. **Refresh the docs** if you changed a HELP table, a version or an integration: `python3 tools/docs.py`, and update the package's page in `docs/` by hand where the behaviour changed.
-6. **Test it**: without the game first (`python3 tools/check.py <name>` and `python3 tools/smoke.py <name>`, then whatever else [Testing](docs/dev/testing.md) suggests), then in game.
+6. **Test it**: without the game first (`python3 tools/check.py <name>`, `python3 tools/smoke.py <name>` and `python3 tools/upgrade.py`, then whatever else [Testing](docs/dev/testing.md) suggests), then in game.
 7. **Open a pull request** against `main`.
 
 ## What a pull request carries
