@@ -17,7 +17,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.comms) client.loom.comms = {};
 // redraw: how loom redraws the Comms tab when an integration's source changes (#159).
-client.loom.registry.comms = { version: "0.2.3", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
+client.loom.registry.comms = { version: "0.2.4", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
 var C = client.loom.comms;
 C.tab = "Comms";
 if (!C.chans) C.chans = {};

@@ -197,6 +197,10 @@ html += hd + '</div><div id="loom-comms-rows" data-v="' + C.drawSeq + '" style="
 // rebuilt the tab from the last full HTML), gets the full draw.
 //   C.newLines  lines added since the last draw (comms_add)
 //   C.drawn     {sig, kids, lastOld, head}: what the last draw left in the page
+// Nexus keeps the HTML it was last given and may draw the tab again from it
+// (and may hold more than one copy of the tab), so an append alone can be
+// lost (#349): every copy on the page gets the new rows, and once the lines
+// stop for a moment one full draw hands Nexus the page as it now is.
 var cmNew = C.newLines || [];
 C.newLines = [];
 var cmMutedK = [];
@@ -214,24 +218,40 @@ function cmInView(l) {
 var cmAppended = false;
 if (args && args.append && C.view !== "tells" && C.drawn && C.drawn.sig === cmSig && C.drawn.kids > 0 && !C.drawn.lastOld) {
   try {
-    var cmHeadEl = document.getElementById("loom-comms-head");
-    var cmRowsEl = document.getElementById("loom-comms-rows");
-    if (cmHeadEl && cmRowsEl && cmRowsEl.childElementCount === C.drawn.kids && cmRowsEl.getAttribute("data-v") === String(C.drawn.v)) {
+    var cmHeads = document.querySelectorAll('[id="loom-comms-head"]');
+    var cmRowsAll = document.querySelectorAll('[id="loom-comms-rows"]');
+    var cmOk = cmRowsAll.length > 0 && cmHeads.length === cmRowsAll.length;
+    for (var cmC = 0; cmOk && cmC < cmRowsAll.length; cmC++) {
+      if (cmRowsAll[cmC].childElementCount !== C.drawn.kids || cmRowsAll[cmC].getAttribute("data-v") !== String(C.drawn.v)) cmOk = false;
+    }
+    C.copies = cmRowsAll.length;
+    if (cmOk) {
       var cmAdd = "", cmN = 0;
       for (var cmI = 0; cmI < cmNew.length; cmI++) { if (cmInView(cmNew[cmI])) { cmAdd += lineRow(cmNew[cmI], cmTag); cmN++; } }
-      if (C.drawn.head !== hd) { cmHeadEl.innerHTML = hd; C.drawn.head = hd; }
-      if (cmN) cmRowsEl.insertAdjacentHTML("beforeend", cmAdd);
-      var cmRowsN = cmRowsEl.getElementsByClassName("loom-cm-row").length;
-      while (cmRowsN > cmLimit && cmRowsEl.firstElementChild) {
-        if (/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsN--;
-        cmRowsEl.removeChild(cmRowsEl.firstElementChild);
+      var cmHeadNew = C.drawn.head !== hd;
+      var cmKidsAfter = 0;
+      for (var cmD = 0; cmD < cmRowsAll.length; cmD++) {
+        var cmRowsEl = cmRowsAll[cmD];
+        if (cmHeadNew) cmHeads[cmD].innerHTML = hd;
+        if (cmN) cmRowsEl.insertAdjacentHTML("beforeend", cmAdd);
+        var cmRowsN = cmRowsEl.getElementsByClassName("loom-cm-row").length;
+        while (cmRowsN > cmLimit && cmRowsEl.firstElementChild) {
+          if (/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsN--;
+          cmRowsEl.removeChild(cmRowsEl.firstElementChild);
+        }
+        while (cmRowsEl.firstElementChild && !/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsEl.removeChild(cmRowsEl.firstElementChild);
+        cmKidsAfter = cmRowsEl.childElementCount;
+        cmRowsEl.setAttribute("data-v", String(C.drawSeq));
       }
-      while (cmRowsEl.firstElementChild && !/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsEl.removeChild(cmRowsEl.firstElementChild);
-      C.drawn.kids = cmRowsEl.childElementCount;
-      cmRowsEl.setAttribute("data-v", String(C.drawSeq));
+      C.drawn.head = hd;
+      C.drawn.kids = cmKidsAfter;
       C.drawn.v = C.drawSeq;
       C.appends = (C.appends || 0) + 1;
       cmAppended = true;
+      // Once the lines stop for a moment, one full draw gives Nexus the page
+      // as it now is (it would otherwise draw the tab again from older HTML).
+      if (C.syncT) clearTimeout(C.syncT);
+      C.syncT = setTimeout(function () { client.loom.comms.syncT = null; run_function("comms_render", [], "comms"); }, C.syncMs || 1500);
     }
   } catch (e) { cmAppended = false; }
 }
@@ -318,6 +338,7 @@ try {
 if (C.follow === undefined) C.follow = true;
 if (C.jump) C.follow = true;
 C.jump = false;
+if (C.syncT) { clearTimeout(C.syncT); C.syncT = null; }
 try { set_custom_tab_html(C.tab, html); } catch (e) {}
 C.drawn = { sig: cmSig, kids: C.view === "tells" ? 0 : cmKids, lastOld: cmLastOld, head: hd, v: C.drawSeq };
 C.fulls = (C.fulls || 0) + 1;
