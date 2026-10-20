@@ -59,6 +59,12 @@
     },
     {
       "type": "function",
+      "name": "loom_packages",
+      "enabled": true,
+      "code": "@file:loom_packages.js"
+    },
+    {
+      "type": "function",
       "name": "loom_updates",
       "enabled": true,
       "code": "@file:loom_updates.js"
