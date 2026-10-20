@@ -1,7 +1,8 @@
 // comms_render -- the Comms tab (#157): channel traffic from GMCP, in the
 // game's own colours, newest at the bottom.
-//   - a row of filters: All, Tells, Say, Party, then every other channel in
-//     the order first heard, each with its unread count; muted ones dimmed;
+//   - a row of filters: All, Say, Tell, Party, Yell, Shout, City, House, HNT,
+//     Clans, then the rest alphabetically (#334), each with its unread count;
+//     muted ones dimmed;
 //     every clan channel under one Clans filter (a line's tag opens one clan)
 //   - All: every channel that isn't muted, each line tagged with its channel
 //     (a click on the tag opens that channel)
@@ -117,7 +118,7 @@ function lineRow(l, tag) {
     t = '<span class="loom-cm-tag" title="' + esc(C.name(tk)) + '" onclick="window.loomComms&&window.loomComms.view(\'' + esc(tv).replace(/'/g, "") + '\')" style="font-family:' + MONO + ';font-size:10px;margin-right:6px;' +
       'color:' + firstCol(l) + ';opacity:0.8;">' + esc(tn.length > 14 ? tn.slice(0, 13) + "…" : tn) + '</span>';
   }
-  return '<div title="' + esc(hms(l.t)) + '" style="padding:1px 0;font-family:' + SANS + ';font-size:13px;line-height:1.4;' + bg + '">' + t + body(l) + '</div>';
+  return '<div class="loom-cm-row" title="' + esc(hms(l.t)) + '" style="padding:1px 0;font-family:' + SANS + ';font-size:13px;line-height:1.4;' + bg + '">' + t + body(l) + '</div>';
 }
 
 // The filters (#334): All, Say, Tell, Party, Yell, Shout, City, House, HNT,
@@ -155,40 +156,94 @@ var inTells = C.view === "tells" || C.view.indexOf("tell:") === 0;
 var html = '<div id="loom-comms" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + INK + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 // The header (title, mute link, filters, and a conversation's own line) stays
 // put at the top of the tab while the lines scroll under it (Ricardo).
-html += '<div style="position:sticky;top:0;z-index:2;background:' + INK + ';margin:-7px -8px 0;padding:7px 8px 0;">';
-html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DIM + ';padding-bottom:3px;">';
-html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + ACC + ';">Comms</span>';
+html += '<div id="loom-comms-head" style="position:sticky;top:0;z-index:2;background:' + INK + ';margin:-7px -8px 0;padding:7px 8px 0;">';
+var hd = "";
+hd += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DIM + ';padding-bottom:3px;">';
+hd += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + ACC + ';">Comms</span>';
 if (C.chans[C.view] && C.view !== "all") {
-  html += '<span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.mute()" style="color:' + (C.muted[C.view] ? ACC : MUTED) + ';">' + (C.muted[C.view] ? 'unmute ' : 'mute ') + esc(C.name(C.view)) + '</span>';
+  hd += '<span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.mute()" style="color:' + (C.muted[C.view] ? ACC : MUTED) + ';">' + (C.muted[C.view] ? 'unmute ' : 'mute ') + esc(C.name(C.view)) + '</span>';
 }
-html += '</div>';
-html += '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;margin:5px 0 4px;">';
-html += chip(0, "All", allUnread, C.view === "all", false);
+hd += '</div>';
+hd += '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;margin:5px 0 4px;">';
+hd += chip(0, "All", allUnread, C.view === "all", false);
 for (var ci = 1; ci < C.chips.length; ci++) {
   var ck = C.chips[ci];
-  if (ck === "clans") { html += chip(ci, "Clans", clanUnread, inClans, false); continue; }
-  html += chip(ci, C.name(ck), C.muted[ck] ? 0 : (ck === "tells" ? tellUnread : C.chans[ck].unread), C.view === ck || (ck === "tells" && inTells), !!C.muted[ck]);
+  if (ck === "clans") { hd += chip(ci, "Clans", clanUnread, inClans, false); continue; }
+  hd += chip(ci, C.name(ck), C.muted[ck] ? 0 : (ck === "tells" ? tellUnread : C.chans[ck].unread), C.view === ck || (ck === "tells" && inTells), !!C.muted[ck]);
 }
-html += '</div>';
+hd += '</div>';
 if (C.view.indexOf("tell:") === 0) {
   var hw = C.convs[C.view.slice(5)];
   var hwCol = ask("person.colour", hw.name);
   var hwAbout = about(hw.name);
-  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span' + (hwAbout ? ' title="' + esc(hwAbout) + '"' : '') + ' style="font-family:' + SANS + ';font-size:13px;color:' + esc(hwCol || ACC) + ';">&middot; ' + esc(hw.name) + (ask("person.newbie", hw.name) ? leaf(ask("person.newbie", hw.name)) : '') + '</span>' +
+  hd += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'tells\')" style="color:' + MUTED + ';">&larr; tells</span> <span' + (hwAbout ? ' title="' + esc(hwAbout) + '"' : '') + ' style="font-family:' + SANS + ';font-size:13px;color:' + esc(hwCol || ACC) + ';">&middot; ' + esc(hw.name) + (ask("person.newbie", hw.name) ? leaf(ask("person.newbie", hw.name)) : '') + '</span>' +
     ' <span class="loom-cm-who" onclick="window.loomComms&&window.loomComms.tell(\'' + hw.name.replace(/[^A-Za-z]/g, "") + '\')" style="color:' + MUTED + ';">(reply)</span></div>';
 }
 if (C.chans[C.view] && C.isClan(C.view)) {
-  html += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'clans\')" style="color:' + MUTED + ';">&larr; clans</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(C.name(C.view)) + '</span></div>';
+  hd += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'clans\')" style="color:' + MUTED + ';">&larr; clans</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(C.name(C.view)) + '</span></div>';
 }
-html += '<div style="border-bottom:1px solid ' + RULE + ';"></div></div><div style="padding-top:4px;">';
+hd += '<div style="border-bottom:1px solid ' + RULE + ';"></div>';
+// Each draw stamps the rows' container (data-v), so a page Nexus rebuilt from
+// an older draw's HTML is told apart from the one drawn last (#210).
+C.drawSeq = (C.drawSeq || 0) + 1;
+html += hd + '</div><div id="loom-comms-rows" data-v="' + C.drawSeq + '" style="padding-top:4px;">';
 
+// New lines (#210): on a busy night every message used to rebuild the whole
+// view. comms_add asks for {append: true}: when nothing but the new lines and
+// the header changed since the last full draw (same view, filters, mutes,
+// colours), the header is replaced and only the new rows are added to the
+// page, the oldest past the view's limit dropped. Anything else, or a page
+// that isn't the one drawn last (its row count differs: Nexus may have
+// rebuilt the tab from the last full HTML), gets the full draw.
+//   C.newLines  lines added since the last draw (comms_add)
+//   C.drawn     {sig, kids, lastOld, head}: what the last draw left in the page
+var cmNew = C.newLines || [];
+C.newLines = [];
+var cmMutedK = [];
+for (var cmMk in C.muted) { if (C.muted.hasOwnProperty(cmMk)) cmMutedK.push(cmMk); }
+var cmSig = [C.view, C.chips.join(","), cmMutedK.sort().join(","), C.cap, ACC, TXT, INK].join("|");
+var cmLimit = (C.view === "all" || C.view === "clans") ? 200 : C.cap;
+var cmTag = C.view === "all" || C.view === "clans";
+function cmInView(l) {
+  if (!l || C.muted[l.ch] && (C.view === "all" || C.view === "clans")) return false;
+  if (C.view === "all") return true;
+  if (C.view === "clans") return C.isClan(l.ch);
+  if (C.view.indexOf("tell:") === 0) return l.ch === "tells" && !!l.conv && l.conv.toLowerCase().replace(/[^a-z]/g, "") === C.view.slice(5);
+  return l.ch === C.view;
+}
+var cmAppended = false;
+if (args && args.append && C.view !== "tells" && C.drawn && C.drawn.sig === cmSig && C.drawn.kids > 0 && !C.drawn.lastOld) {
+  try {
+    var cmHeadEl = document.getElementById("loom-comms-head");
+    var cmRowsEl = document.getElementById("loom-comms-rows");
+    if (cmHeadEl && cmRowsEl && cmRowsEl.childElementCount === C.drawn.kids && cmRowsEl.getAttribute("data-v") === String(C.drawn.v)) {
+      var cmAdd = "", cmN = 0;
+      for (var cmI = 0; cmI < cmNew.length; cmI++) { if (cmInView(cmNew[cmI])) { cmAdd += lineRow(cmNew[cmI], cmTag); cmN++; } }
+      if (C.drawn.head !== hd) { cmHeadEl.innerHTML = hd; C.drawn.head = hd; }
+      if (cmN) cmRowsEl.insertAdjacentHTML("beforeend", cmAdd);
+      var cmRowsN = cmRowsEl.getElementsByClassName("loom-cm-row").length;
+      while (cmRowsN > cmLimit && cmRowsEl.firstElementChild) {
+        if (/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsN--;
+        cmRowsEl.removeChild(cmRowsEl.firstElementChild);
+      }
+      while (cmRowsEl.firstElementChild && !/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsEl.removeChild(cmRowsEl.firstElementChild);
+      C.drawn.kids = cmRowsEl.childElementCount;
+      cmRowsEl.setAttribute("data-v", String(C.drawSeq));
+      C.drawn.v = C.drawSeq;
+      C.appends = (C.appends || 0) + 1;
+      cmAppended = true;
+    }
+  } catch (e) { cmAppended = false; }
+}
+if (!cmAppended) {
+var cmKids = 0, cmLastOld = false;
 if (C.view === "tells") {
   // The conversations, newest first.
   var cl = [];
   for (var cn in C.convs) { if (C.convs.hasOwnProperty(cn)) cl.push(C.convs[cn]); }
   cl.sort(function (a, b) { return b.last - a.last; });
   var tl = C.chans.tells ? C.chans.tells.lines : [];
-  if (!cl.length) html += '<div style="color:' + MUTED + ';padding:6px 0;">no tells yet.</div>';
+  if (!cl.length) { html += '<div style="color:' + MUTED + ';padding:6px 0;">no tells yet.</div>'; cmKids++; }
   for (var cj = 0; cj < cl.length; cj++) {
     var cc = cl[cj];
     var lastL = null;
@@ -203,6 +258,7 @@ if (C.view === "tells") {
     html += '<span' + (ccAbout ? ' title="' + esc(ccAbout) + '"' : '') + ' style="flex:none;width:7em;font-family:' + SANS + ';font-size:13px;color:' + esc(ccCol || (cc.unread ? ACC : TXT)) + ';">' + esc(cc.name) + (ask("person.newbie", cc.name) ? leaf(ask("person.newbie", cc.name)) : '') + badge(cc.unread) + '</span>';
     html += '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SANS + ';font-size:12px;color:' + MUTED + ';">' + esc(prev) + '</span>';
     html += '<span style="flex:none;color:' + DIM + ';">' + (cc.last ? ago(cc.last) : '') + '</span></div>';
+    cmKids++;
   }
 } else {
   var rows = [];
@@ -224,13 +280,16 @@ if (C.view === "tells") {
   } else {
     rows = C.chans[C.view].lines;
   }
+  // An empty view leaves kids at 0, so the next line gets a full draw.
   if (!rows.length) html += '<div style="color:' + MUTED + ';padding:6px 0;">' + (keys.length ? 'nothing here yet.' : 'nothing heard yet: channel lines show up here as they come.') + '</div>';
   var oldSeen = false;
   for (var ri = 0; ri < rows.length; ri++) {
     if (rows[ri].old) oldSeen = true;
-    else if (oldSeen) { html += '<div style="text-align:center;color:' + DIM + ';margin:3px 0;border-top:1px dotted ' + RULE + ';">before the reload &uarr;</div>'; oldSeen = false; }
+    else if (oldSeen) { html += '<div style="text-align:center;color:' + DIM + ';margin:3px 0;border-top:1px dotted ' + RULE + ';">before the reload &uarr;</div>'; oldSeen = false; cmKids++; }
     html += lineRow(rows[ri], tag);
+    cmKids++;
   }
+  cmLastOld = rows.length > 0 && !!rows[rows.length - 1].old;
 }
 html += '</div>';
 var mutedL = [];
@@ -260,6 +319,9 @@ if (C.follow === undefined) C.follow = true;
 if (C.jump) C.follow = true;
 C.jump = false;
 try { set_custom_tab_html(C.tab, html); } catch (e) {}
+C.drawn = { sig: cmSig, kids: C.view === "tells" ? 0 : cmKids, lastOld: cmLastOld, head: hd, v: C.drawSeq };
+C.fulls = (C.fulls || 0) + 1;
+}
 setTimeout(function () {
   try {
     var el = document.getElementById("loom-comms");
