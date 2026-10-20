@@ -86,6 +86,10 @@ client.loom.registry.room = { version: "0.1.17", keyword: "ROOM", desc: "…",
   redraw: function () { run_function("room_render", [], "room"); } };
 ```
 
+A destination whose `redraw` already gathers a burst into one draw adds `soon: true` (room does). Loom then calls it at once instead of 50 ms later, so a change that arrives in the same GMCP packet as the destination's own joins the draw already pending, rather than causing a second one.
+
+Call `notify` as soon as the state changes, not after your own tab's delayed redraw. A notify sent from inside a timer reaches other tabs a draw too late.
+
 Always guard the call (`if (client.loom.notify)`): the source must work without loom.
 
 ## Switching

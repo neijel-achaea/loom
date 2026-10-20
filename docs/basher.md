@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 0.5.6.*
+*This page describes basher 0.5.7.*
 <!-- /loom:version -->
 
 ## What it is

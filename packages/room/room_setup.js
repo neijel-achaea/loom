@@ -9,12 +9,21 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.room) client.loom.room = {};
-// redraw: how loom redraws the Here tab when an integration's source changes (#159).
+// redraw: how loom redraws the Here tab when an integration's source changes (#159);
+// soon: that redraw gathers bursts itself, so loom calls it at once (#136).
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "0.2.9", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); }, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "0.2.10", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
+// One draw for a burst of changes: a room step brings Room.Info, the players
+// and the items, and loom's integrations (basher, patrolling…) ask for a
+// redraw of their own right after. All of them land here, so the tab draws
+// once, 50 ms after the last (it drew twice per step before, #136).
+R.drawSoon = function () {
+  clearTimeout(R.drawT);
+  R.drawT = setTimeout(function () { R.drawT = null; run_function("room_render", [], "room"); }, 50);
+};
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};
 if (!R.items) R.items = {};
@@ -200,8 +209,7 @@ R.probeEnd = function (ok) {
     if (p.owner) {
       display_notice("[room] " + p.name + " (" + p.id + ") is loyal to " + p.owner + ".", "cyan");
       if (client.loom.notify) client.loom.notify("room");
-      clearTimeout(R.drawT);
-      R.drawT = setTimeout(function () { run_function("room_render", [], "room"); }, 50);
+      R.drawSoon();
     }
   }
   R.probeNext();

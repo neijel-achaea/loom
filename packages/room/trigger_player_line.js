@@ -10,6 +10,5 @@ for (var plI = 1; plI < args.length; plI++) { if (args[plI]) { plName = String(a
 if (plName && plName.toLowerCase() !== String(R.me).toLowerCase()) {
   if (R.lineKind === "in") { if (!R.players[plName]) R.players[plName] = plName; }
   else delete R.players[plName];
-  clearTimeout(R.drawT);
-  R.drawT = setTimeout(function () { run_function("room_render", [], "room"); }, 50);
+  R.drawSoon();
 }
