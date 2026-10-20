@@ -127,14 +127,10 @@ html += '<div style="font-family:' + SERIF + ';color:' + ACC + ';font-size:14px;
 if (!cur) {
   html += '</div><div style="color:' + MUTED + ';margin-top:8px;font-family:' + SERIF + ';font-style:italic;">No samples yet. Play a little, or use LEVELGRAPH MARK.</div></div>';
 } else {
-  // Session figures: gain across the minute buffer, rate, and time to level.
-  var sSpan = 0, sGain = 0, perHour = 0, togo = -1;
-  if (mins.length >= 2) {
-    sSpan = mins[mins.length - 1][0] - mins[0][0];
-    sGain = prog(mins[mins.length - 1]) - prog(mins[0]);
-    if (sSpan > 0) { perHour = sGain / (sSpan / 3600); }
-    if (perHour > 0) { togo = (1 - cur[2] / 100) / perHour * 3600; }
-  }
+  // Session figures (#335): gain since the session started, rate, and time
+  // to level; the graph below keeps its own span.
+  var sF = LG.sessFigures ? LG.sessFigures(cur) : null;
+  var sSpan = sF ? sF.span : 0, sGain = sF ? sF.gain : 0, perHour = sF ? sF.perHour : 0, togo = sF ? sF.togo : -1;
   // Long-term figures: gain across the daily buffer.
   var lSpan = 0, lGain = 0, perDay = 0;
   if (days.length >= 2) {
@@ -167,13 +163,13 @@ if (!cur) {
 
   var cols = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';
   var sb = caps("This session", ACC);
-  if (sSpan > 0) {
+  if (sF && sSpan >= 60) {
     sb += big((sGain >= 0 ? "+" : "") + (Math.round(sGain * 10000) / 100) + "%", sGain > 0 ? UP : MUTED);
-    sb += row("window", dur(sSpan));
+    sb += row("length", dur(sSpan));
     sb += row("per hour", perHour > 0 ? (Math.round(perHour * 10000) / 100) + "%" : "&hellip;", perHour > 0 ? UP : MUTED);
-    sb += row("started at", prog(mins[0]).toFixed(2));
+    sb += row("started at", sF.p0.toFixed(2));
   } else {
-    sb += quiet("Collecting; a point lands every minute.");
+    sb += quiet("Just started; figures after a minute. LEVELGRAPH NEW starts a new session.");
   }
   cols += box(sb, ACC);
 

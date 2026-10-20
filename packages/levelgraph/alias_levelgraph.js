@@ -17,6 +17,25 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
   run_function("levelgraph_sample", [], "levelgraph");
   if (!(LG.level > 0)) lgSay("no level reading yet, so nothing was recorded. It arrives with the next prompt.", "orange");
   else lgSay("sample recorded. Session buffer " + LG.min.length + " point(s), long term " + LG.day.length + " day(s).", "lime");
+} else if (lgSub === "new") {
+  // Close this session and open a new one now (#335), as COFFERS NEW.
+  var lgNow = Math.floor(Date.now() / 1000);
+  var lgLv = parseFloat(LG.level), lgNl = parseFloat(LG.nl);
+  if (lgLv > 0) {
+    if (isNaN(lgNl) || lgNl < 0) lgNl = 0;
+    if (lgNl > 100) lgNl = 100;
+    LG.sess = { s: lgNow, last: lgNow, p0: lgLv + Math.round(lgNl * 100) / 10000 };
+  } else {
+    LG.sess = null;
+  }
+  LG.saveSess();
+  run_function("levelgraph_render", [], "levelgraph");
+  lgSay("new session started" + (lgLv > 0 ? " at " + LG.sess.p0.toFixed(2) + "." : "; it opens with the next prompt."), "lime");
+} else if (lgSub === "gap") {
+  var lgG = parseInt(lgP1, 10) || 0;
+  if (!lgG) { lgSay("a session closes after " + LG.gap + " minutes without a prompt. LEVELGRAPH GAP 5-240 to change it; LEVELGRAPH NEW starts one now."); }
+  else if (lgG < 5 || lgG > 240) { lgSay("gap must be 5-240 minutes.", "orange"); }
+  else { LG.gap = lgG; set_variable("levelgraph_gap", String(lgG)); lgSay("sessions now close after " + lgG + " silent minutes.", "lime"); }
 } else if (lgSub === "graph") {
   var which = lgP1;
   var mode = lgP2;
@@ -68,15 +87,17 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
   if (lgP1 === "confirm") {
     LG.min = [];
     LG.day = [];
+    LG.sess = null;
+    LG.saveSess();
     set_variable("levelgraph_min", "[]");
     set_variable("levelgraph_day", "[]");
     run_function("levelgraph_render", [], "levelgraph");
-    lgSay("both level buffers cleared.", "orange");
+    lgSay("both level buffers and the session cleared.", "orange");
   } else {
-    lgSay("this clears BOTH the session and long-term buffers. LEVELGRAPH WIPE CONFIRM to proceed.", "orange");
+    lgSay("this clears BOTH the minute and long-term buffers, and the session. LEVELGRAPH WIPE CONFIRM to proceed.", "orange");
   }
 } else if (lgSub === "debug") {
-  lgSay("level=" + LG.level + " nl=" + LG.nl + " min=" + LG.min.length + " day=" + LG.day.length + " graphs " + LG.graphSess + "/" + LG.graphLong + " height " + LG.chartH + " spans " + LG.mins + "m/" + LG.days + "d");
+  lgSay("level=" + LG.level + " nl=" + LG.nl + " min=" + LG.min.length + " day=" + LG.day.length + " graphs " + LG.graphSess + "/" + LG.graphLong + " height " + LG.chartH + " spans " + LG.mins + "m/" + LG.days + "d gap " + LG.gap + "m session " + JSON.stringify(LG.sess));
 } else {
   lgSay("unknown command '" + lgSub + "'. LEVELGRAPH HELP for commands.", "orange");
 }

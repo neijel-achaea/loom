@@ -3,7 +3,7 @@
 *Your progress through the levels as graphs, per minute and per day, with rates and the time to your next level.*
 
 <!-- loom:version levelgraph -->
-*This page describes levelgraph 0.2.4.*
+*This page describes levelgraph 0.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -11,8 +11,9 @@
 LevelGraph follows your level and how far you are into it, and draws them in the **Level** tab:
 
 - **Your level** as the big figure, with how far into it you are.
-- **Rates**: how much of a level you gain per hour this session ("+38% = 19%/hr") and per day over the long term, and how long the next level will take at the session's rate.
-- **A session graph**: one point per minute over the last 2 hours.
+- **This session**: how much of a level you've gained since the session started, per hour ("+38% = 19%/hr"), and how long the next level will take at that rate. A session starts with your first prompt, and ends when you start a new one with `LEVELGRAPH NEW` or after 30 minutes without a prompt (`LEVELGRAPH GAP`), as in Coffers.
+- **The long term**: levels gained per day.
+- **A minute-by-minute graph** over the last 2 hours. Its span is separate from the session: a 3-hour session still counts from its start.
 - **A long-term graph**: one point per day over the last 100 days.
 
 It reads your level from the game (GMCP) once per prompt, whatever your prompt looks like, so there's nothing to set up. When the game's character stats carry the precise figure ("Level: 54 (23.45%)"), it uses that rather than the whole percent.
@@ -24,16 +25,18 @@ It reads your level from the game (GMCP) once per prompt, whatever your prompt l
 |---|---|
 | `LEVELGRAPH` | level, session and long-term rates, time to the next level |
 | `LEVELGRAPH MARK` | record a sample now |
+| `LEVELGRAPH NEW` | close this session and start a new one now |
+| `LEVELGRAPH GAP <5-240>` | minutes without a prompt that close a session (default 30) |
 | `LEVELGRAPH GRAPH [SESSION\|LONG] [ON\|OFF]` | show or hide the graphs in the Level tab |
 | `LEVELGRAPH SIZE <40-400>` | graph height (default 105) |
-| `LEVELGRAPH SPAN SESSION <15-720>` | minutes the session graph covers |
+| `LEVELGRAPH SPAN SESSION <15-720>` | minutes the minute-by-minute graph covers (the session's figures don't depend on it) |
 | `LEVELGRAPH SPAN LONG <7-365>` | days the long-term graph covers |
 | `LEVELGRAPH CSV [SESSION\|LONG]` | a buffer as CSV lines |
-| `LEVELGRAPH WIPE CONFIRM` | clear both buffers |
+| `LEVELGRAPH WIPE CONFIRM` | clear both buffers and the session |
 | `LEVELGRAPH DEBUG` | internal state |
 <!-- /loom:commands -->
 
-`LEVELGRAPH` sums it up in the main window. `LEVELGRAPH MARK` records a point now, without waiting for the next minute.
+`LEVELGRAPH` sums it up in the main window. `LEVELGRAPH MARK` records a point now, without waiting for the next minute. `LEVELGRAPH NEW` closes the session and starts a new one at your current level, for example when you move to another area and want its rate on its own; `LEVELGRAPH GAP 60` lets a session survive longer breaks (5–240 minutes, default 30).
 
 The graphs can be hidden (`LEVELGRAPH GRAPH LONG OFF` keeps only the session graph), made taller or shorter (`LEVELGRAPH SIZE 150`), and set to cover more or less time:
 
@@ -54,7 +57,7 @@ If you used the older level graph (`lvl_*` variables), its history moves over th
 
 ## Daily use
 
-Glance at the session graph while hunting: a steep line is a good area. The long-term graph shows your pace over weeks, and the time to next level tells you whether one more hour gets you there.
+Start a session with `LEVELGRAPH NEW` when you start hunting, and glance at the graph while you do: a steep line is a good area. The long-term graph shows your pace over weeks, and the time to next level tells you whether one more hour gets you there.
 
 ## Working with other packages
 

@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.levelgraph) client.loom.levelgraph = {};
-client.loom.registry.levelgraph = { version: "0.2.4", keyword: "LEVELGRAPH", desc: "{{description}}",
+client.loom.registry.levelgraph = { version: "0.3.0", keyword: "LEVELGRAPH", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("levelgraph_render", [], "levelgraph"); } };
 var LG = client.loom.levelgraph;
@@ -90,3 +90,31 @@ if (LG.graphSess === undefined) {
 if (LG.chartH === undefined) { LG.chartH = lvlNum("levelgraph_graph_h", 105, 40, 400); }
 if (LG.days === undefined) { LG.days = lvlNum("levelgraph_span_days", 100, 7, 365); }
 if (LG.mins === undefined) { LG.mins = lvlNum("levelgraph_span_mins", 120, 15, 720); }
+
+// The session (#335, Ricardo: as COFFERS does, independent of the graph's
+// span): opened by the first sample, closed by LEVELGRAPH NEW or by a silence
+// longer than the gap (LEVELGRAPH GAP, levelgraph_gap, default 30 minutes).
+// Its gain, rate and time to the next level count from its start.
+//   LG.sess  {s, last, p0}: start and last sample (unix seconds), progress at
+//            the start (level + percent/100); saved as levelgraph_sess
+if (LG.gap === undefined) { LG.gap = lvlNum("levelgraph_gap", 30, 5, 240); }
+if (LG.sess === undefined) {
+  var lgSs = null;
+  try { lgSs = JSON.parse(get_variable("levelgraph_sess") || "null"); } catch (e) { lgSs = null; }
+  if (!lgSs || typeof lgSs !== "object" || !(lgSs.s > 0) || !(lgSs.last >= lgSs.s) || typeof lgSs.p0 !== "number" || isNaN(lgSs.p0)) lgSs = null;
+  LG.sess = lgSs;
+}
+LG.saveSess = function () {
+  try { if (LG.sess) set_variable("levelgraph_sess", JSON.stringify(LG.sess)); else delete_variable("levelgraph_sess"); } catch (e) {}
+  LG.sessSaved = Math.floor(Date.now() / 1000);
+};
+// The open session's figures, or null: {span (s), gain (levels), perHour, togo (s, -1 unknown), p0, s}.
+LG.sessFigures = function (cur) {
+  var S = LG.sess;
+  if (!S || !cur) return null;
+  var span = S.last - S.s;
+  var gain = (cur[1] + cur[2] / 100) - S.p0;
+  var perHour = span >= 60 ? gain / (span / 3600) : 0;
+  var togo = perHour > 0 ? (1 - cur[2] / 100) / perHour * 3600 : -1;
+  return { span: span, gain: gain, perHour: perHour, togo: togo, p0: S.p0, s: S.s };
+};
