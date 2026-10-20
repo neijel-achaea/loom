@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.security) client.loom.security = {};
-client.loom.registry.security = { version: "0.2.3", keyword: "SECURITY", desc: "{{description}}" };
+client.loom.registry.security = { version: "0.2.4", keyword: "SECURITY", desc: "{{description}}" };
 var SE = client.loom.security;
 
 // One-time migration from the pre-0.2 names, then cleared.
@@ -33,6 +33,14 @@ if (!get_variable("security_items")) set_variable("security_items", []);
 if (!get_variable("security_house")) set_variable("security_house", { "in": "", "out": "" });
 
 SE.items = get_variable("security_items");
+// GG marks its own withdrawal so antitheft lets it through (trigger_gold_out);
+// the mark lasts this long if the game's line never comes.
+SE.ownGoldMs = 5000;
+// Busy while that answer is still coming (room's probes wait, #318).
+client.loom.registry.security.busy = function () {
+  var o = client.loom.security && client.loom.security.ownGold;
+  return !!o && Date.now() - o.at < client.loom.security.ownGoldMs;
+};
 // Published for other packages (hunting puts autogold into it).
 SE.backpack = get_variable("security_backpack");
 // Selfishness: followed from GMCP defences (onGMCP) and its two messages. The

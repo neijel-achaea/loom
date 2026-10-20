@@ -85,7 +85,7 @@
               "script": "@file:alias_gg.js"
             }
           ],
-          "text": "^gg$",
+          "text": "^gg(?:\\s+(\\d+))?$",
           "matching": "regexp",
           "whole_words": false,
           "case_sensitive": false,
@@ -135,7 +135,7 @@
               "script": "@file:trigger_gold_out.js"
             }
           ],
-          "text": "^You get (\\d+) gold sovereigns from (.+)\\.$",
+          "text": "^You get (\\d+) gold sovereigns? from (.+)\\.$",
           "matching": "regexp",
           "whole_words": false,
           "case_sensitive": true

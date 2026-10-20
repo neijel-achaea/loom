@@ -3,7 +3,7 @@
 *Puts back what thieves take, keeps your gold in your backpack, and lets selfishness stay up without getting in the way of giving and selling.*
 
 <!-- loom:version security -->
-*This page describes security 0.2.3.*
+*This page describes security 0.2.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -11,7 +11,7 @@
 Security does three things:
 
 - **Antitheft.** With `SECURITY ANTITHEFT ON`, a watched item that comes off ("You remove a silver ring.") is worn again at once, with a red "WARNING: potential theft" in the main window, and gold taken out of your backpack is put straight back in.
-- **Gold in the backpack.** `GG` takes gold out of the backpack (and turns antitheft off, so it isn't put back); `PG` puts it back in and turns antitheft on. Hunting's autogold puts the gold it picks up into the backpack too.
+- **Gold in the backpack.** `GG` takes all your gold out of the backpack, `GG 500` just 500 sovereigns. Antitheft stays on: it knows that withdrawal is yours and lets it through. `PG` puts the gold back in and turns antitheft on. Hunting's autogold puts the gold it picks up into the backpack too.
 - **Selfishness without the hassle.** Selfishness stops others taking your things, but it also stops you giving them. `GIVE`, `SELL`, `DROP` and `OFFER` go through Security: when selfishness is up, it's lowered (generosity), the action is done, and selfishness is raised again, all queued on equilibrium.
 
 ## Commands
@@ -21,7 +21,8 @@ Security does three things:
 |---|---|
 | `SECURITY` | status |
 | `SECURITY ANTITHEFT ON\|OFF` | put back worn items and gold that get taken |
-| `GG / PG` | get gold out of / put gold into the backpack (antitheft off / on) |
+| `GG [amount]` | get gold out of the backpack: all of it, or that many sovereigns |
+| `PG` | put gold back into the backpack and turn antitheft on |
 | `SECURITY BACKPACK <id> = <desc>` | your backpack: its id, and how it reads in "You remove ..." |
 | `SECURITY ITEMS` | worn items antitheft watches |
 | `SECURITY ITEM ADD <wear> = <desc>` | watch an item, e.g. wear ring123 = a silver ring |
@@ -59,7 +60,7 @@ If you used the older antitheft reflexes, Security carries their settings over t
 
 ## Daily use
 
-Keep antitheft on and your gold in the backpack. Before buying something, `GG`; afterwards, `PG`. Give, sell, drop and offer as usual.
+Keep antitheft on and your gold in the backpack. Before buying something, `GG` (or `GG 2000` for just what you need); afterwards, `PG` for the change. Give, sell, drop and offer as usual.
 
 ## Working with other packages
 
@@ -72,4 +73,4 @@ Keep antitheft on and your gold in the backpack. Before buying something, `GG`; 
 
 - **A watched item isn't put back.** The text after "You remove " must match what you gave as its description, exactly. Check the game's line.
 - **`GIVE` doesn't lower selfishness.** Security doesn't know selfishness is up yet: `DEF` tells it.
-- **Gold keeps going back into the pack.** Antitheft is on; `GG` turns it off while you spend.
+- **Gold keeps going back into the pack.** Antitheft is on and the gold came out some other way than `GG` (typing the game's `GET` yourself, say). Use `GG`, or `SECURITY ANTITHEFT OFF` while you sort things out.
