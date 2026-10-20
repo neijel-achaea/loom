@@ -19,7 +19,7 @@ if (dcM === "Char.Vitals" && dcA) {
       if (dcChanged || !DC.recent || !DC.recent.length) run_function("dmgchart_recent", { t: dcNow, hp: dcHp }, "dmgchart");
       if (DC.fight && dcNow - DC.fight.last <= DC.gap * 1000) {
         run_function("dmgchart_lasts", [], "dmgchart");
-        if (!DC.view) run_function("dmgchart_render", [], "dmgchart");
+        if (!DC.view) { if (DC.drawSoon) DC.drawSoon(); else run_function("dmgchart_render", [], "dmgchart"); }
       }
     }
   }

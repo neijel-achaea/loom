@@ -5,11 +5,18 @@
 // state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "0.3.6", keyword: "DMGCHART", desc: "{{description}}",
+client.loom.registry.dmgchart = { version: "0.3.7", keyword: "DMGCHART", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("dmgchart_render", [], "dmgchart"); } };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};
 var DC = client.loom.dmgchart;
+// One draw per prompt in a fight: each damage line and the prompt's vitals
+// asked for one of their own (#136: twice a prompt, ~4 a second). They now
+// share a 50 ms timer, so a hit and the health that follows draw together.
+DC.drawSoon = function () {
+  clearTimeout(DC.drawT);
+  DC.drawT = setTimeout(function () { DC.drawT = null; run_function("dmgchart_render", [], "dmgchart"); }, 50);
+};
 
 // One-time migration: dc_* -> dmgchart_*. A new variable that already holds
 // data wins; the old one is deleted either way.
