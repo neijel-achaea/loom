@@ -2,11 +2,11 @@
  "packages": {
   "artificing": "0.2.2",
   "basher": "0.5.8",
-  "civic": "0.2.5",
+  "civic": "0.2.6",
   "coffers": "0.3.5",
   "comms": "0.2.2",
   "conjuration": "0.2.4",
-  "crystalism": "0.3.1",
+  "crystalism": "0.3.2",
   "defcon": "0.4.5",
   "dmgchart": "0.3.8",
   "elementalism": "0.2.2",
@@ -25,10 +25,10 @@
   "security": "0.2.4",
   "self": "0.3.3",
   "sigils": "0.2.7",
-  "social": "0.4.10",
-  "standings": "0.3.3",
+  "social": "0.4.11",
+  "standings": "0.3.4",
   "talpieces": "0.2.4",
   "vials": "0.2.3",
-  "vision": "0.2.2"
+  "vision": "0.2.3"
  }
 }
