@@ -53,7 +53,13 @@ All of them run from the repository's root with Python 3. `docs.py` also needs `
 | `python3 tools/versions.py` | Writes `dist/versions.json`, the version of every built package (`--check` only tests it) |
 | `python3 tools/docs.py` | Fills the generated blocks in `docs/` (`--check` only reports stale pages) |
 
-**Build** checks each description and resolves every `@file:` and `@cat:` reference. `extract.py` and `build.py` round-trip exactly: extracting a built package and building it again gives the same file.
+**Build** checks each description and resolves every `@file:` and `@cat:` reference, then turns the package's longer scripts into stubs (below). `extract.py` and `build.py` round-trip exactly: extracting a built package and building it again gives the same file.
+
+### Hot scripts
+
+Nexus compiles every script afresh each time it runs, and the cost grows with the script's length ([Nexus scripting](nexus-scripting.md#scripts-and-functions)). So in the built package, every function and every trigger or alias script of 600 characters or more (except `onInstall`, `onLoad` and `onUninstall`) becomes a three-line stub. Its body moves into a generated function, `<package>__hot`, which makes each body once per load as a plain JavaScript function under `client.loom.__hot["<package>"]`. The stub calls that function, and runs `<package>__hot` first when the functions are missing or from another build (each build stamps its bodies), so a reimport never runs stale code. A body made inside a script keeps every API name in scope, so the source needs nothing special.
+
+Nothing to do when writing a package: write the source as usual, comments and all. Only `dist/` has stubs. `extract.py` puts each body back in place and drops the generated function, so an export from Nexus comes back as ordinary source. In the sim (`tools/sim.js`), `nexusCompile(true)` compiles every call the way Nexus does, to measure what scripts cost.
 
 **Versions.** `dist/versions.json` is what `LOOM UPDATES` reads in game to tell players which packages are out of date. A workflow (`.github/workflows/versions.yml`) rewrites it on `main` after every push that changes a built package, so branches leave it alone.
 

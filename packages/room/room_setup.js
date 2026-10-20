@@ -13,7 +13,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "0.2.9", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); }, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "0.2.10", keyword: "ROOM", desc: "{{description}}", redraw: function () { run_function("room_render", [], "room"); }, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 if (!R.info) R.info = null;
 if (!R.players) R.players = {};

@@ -3,7 +3,7 @@
 *Ready-made illusions for roleplay: a scent drifting in, a tattoo fading, and longer set pieces cast one line at a time.*
 
 <!-- loom:version elementalism -->
-*This page describes elementalism 0.2.2.*
+*This page describes elementalism 0.2.3.*
 <!-- /loom:version -->
 
 ## What it is

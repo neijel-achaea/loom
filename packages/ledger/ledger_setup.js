@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "0.3.4", keyword: "LEDGER", desc: "{{description}}",
+client.loom.registry.ledger = { version: "0.3.5", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;

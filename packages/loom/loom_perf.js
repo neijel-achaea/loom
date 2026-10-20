@@ -34,14 +34,24 @@ L.perfMissing = function () {
 
 // Which script ran: "Function [name]" labels name themselves; trigger and
 // alias scripts are often unnamed, so their first comment line stands in.
-L.perfWhat = function (code, label, trig) {
+L.perfWhat = function (code, label, trig, pkg) {
   var lb = String(label || "");
   var m = /^(\w+)\s*\[(.*)\]\s*$/.exec(lb);
   var kind = m ? m[1].toLowerCase() : (lb ? lb.split(/\s/)[0].toLowerCase() : "script");
   var name = m ? m[2] : "";
+  // A built stub (#136): its body lives in the package's __hot functions.
+  var src = String(code || "");
+  var hm = /^\/\*loom-hot (\S+) (\S+) /.exec(src);
+  if (hm) {
+    try {
+      var hs = client.loom.__hot, hb = null;
+      for (var hp in hs) if (hs[hp] && hs[hp].f && hs[hp].f[hm[2]] && (hp === pkg || !hb)) hb = hs[hp].f[hm[2]];
+      if (hb) src = String(hb).replace(/^[^\n]*\n\/\/@hot-begin[^\n]*\n/, "");
+    } catch (e) {}
+  }
   // Unnamed: the script's opening comment says what it is (house style);
   // failing that, a trigger's pattern; failing that, its first line.
-  var first = String(code || "").replace(/^\s+/, "").split("\n")[0];
+  var first = src.replace(/^\s+/, "").split("\n")[0];
   if (!name && /^\/\//.test(first)) name = first.replace(/^\/\/\s*/, "");
   if (!name && kind === "trigger" && trig) {
     var pat = trig.text !== undefined ? trig.text : trig.regexp;
@@ -90,7 +100,7 @@ L.perfStart = function (secs) {
         var d = now() - fr.t, self = d - fr.child;
         if (st.stack.length) st.stack[st.stack.length - 1].child += d;
         else if (st.inLine) st.execInLines += d;
-        var pn = pkgOf(p), w = L.perfWhat(code, label, st.lastTrig), key = pn + "\u0000" + w.kind + "\u0000" + w.name;
+        var pn = pkgOf(p), w = L.perfWhat(code, label, st.lastTrig, p), key = pn + "\u0000" + w.kind + "\u0000" + w.name;
         var r = st.scripts[key] || (st.scripts[key] = { pkg: pn, kind: w.kind, name: w.name, calls: 0, self: 0, max: 0 });
         r.calls++; r.self += self; if (d > r.max) r.max = d;
         var P = pk(pn); P.self += self; P.calls++;

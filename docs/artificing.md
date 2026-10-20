@@ -3,7 +3,7 @@
 *For Magi: chooses the attack your staff casts, and forms elemental treaties without anything interrupting them.*
 
 <!-- loom:version artificing -->
-*This page describes artificing 0.2.2.*
+*This page describes artificing 0.2.3.*
 <!-- /loom:version -->
 
 ## What it is

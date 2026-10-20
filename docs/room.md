@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 0.2.9.*
+*This page describes room 0.2.10.*
 <!-- /loom:version -->
 
 ## What it is

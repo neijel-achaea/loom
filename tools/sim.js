@@ -18,7 +18,9 @@ function loadDist(dir, names) {
   const out = {};
   for (const name of names) {
     const raw = JSON.parse(fs.readFileSync(path.join(dir, name + ".nxs"), "utf8"));
-    const p = { name, fns: {}, reflexes: [], vars: new Set() };
+    // `nexusName`: the name Nexus knows it by (run_function's third argument),
+    // which can differ from the file's ("numpad movement").
+    const p = { name, nexusName: raw.name || name, fns: {}, reflexes: [], vars: new Set() };
     (function walk(items) {
       for (const it of items || []) {
         if (it.type === "function") p.fns[it.name] = it.code;
@@ -69,9 +71,18 @@ const STACK = []; // package of the script running now
 
 function where(pkg, kind, name) { return kind + " " + name; }
 
-// Compile once per text.
+// Compile once per text. With nexusCompile(true), every call compiles afresh
+// behind a prelude of ~100 declarations, as Nexus's exec_script does (no
+// cache: #136), so timings reflect what scripts cost in the client.
 const CACHE = new Map();
+let PER_CALL = false;
+const COMPILED = { n: 0, chars: 0 };
+const API_STUB = {};
+for (let i = 0; i < 99; i++) API_STUB["nexus_api_" + i] = null;
+const PRELUDE = Object.keys(API_STUB).map(k => "var " + k + " = NexusAPI." + k + "; ").join("");
+function nexusCompile(on) { PER_CALL = !!on; }
 function compiled(code) {
+  if (PER_CALL) { COMPILED.n++; COMPILED.chars += code.length; const f = new Function("args", "current_package", "NexusAPI", PRELUDE + code); return a => f(a, undefined, API_STUB); }
   let f = CACHE.get(code);
   if (!f) { f = new Function("args", code); CACHE.set(code, f); }
   return f;
@@ -142,6 +153,7 @@ function newWorld(installed, vars) {
   Date.now = () => W.now;
   G.run_function = (name, args, pkg) => {
     const caller = STACK[STACK.length - 1];
+    if (pkg && !PKGS[pkg]) for (const k of Object.keys(PKGS)) if (PKGS[k].nexusName === pkg) { pkg = k; break; }
     let owner = pkg || caller;
     let code = owner && W.installed.includes(owner) ? PKGS[owner] && PKGS[owner].fns[name] : undefined;
     if (code === undefined && !pkg) {
@@ -329,7 +341,7 @@ function promptsQuiet() {
 }
 
 module.exports = {
-  loadDist, use, watchVars, scenario,
+  loadDist, use, watchVars, scenario, nexusCompile, COMPILED,
   get PKGS() { return PKGS; }, get W() { return W; }, get VARLOG() { return VARLOG; },
   FIND, STATS, STACK, GOOD, ODD_ARGS, METHODS, SUBS, ME,
   finding, exec, newWorld, flush, advance, gmcp, prompt, line, match,

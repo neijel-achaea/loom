@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.levelgraph) client.loom.levelgraph = {};
-client.loom.registry.levelgraph = { version: "0.2.3", keyword: "LEVELGRAPH", desc: "{{description}}",
+client.loom.registry.levelgraph = { version: "0.2.4", keyword: "LEVELGRAPH", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("levelgraph_render", [], "levelgraph"); } };
 var LG = client.loom.levelgraph;
