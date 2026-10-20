@@ -81,6 +81,9 @@ if (cmSub === "" || cmSub === "status") {
     cmSay(cmRk[cmX] + " " + (cmS.length > 600 ? cmS.slice(0, 600) + "…" : cmS), "orange");
   }
   cmSay("channels: " + (Object.keys(C.chans).join(", ") || "none") + "; me=" + (C.me || "?"), "orange");
+  var cmCopies = 0;
+  try { cmCopies = document.querySelectorAll('[id="loom-comms-rows"]').length; } catch (e) {}
+  cmSay("draws: " + (C.fulls || 0) + " full, " + (C.appends || 0) + " appended; copies of the tab on the page: " + cmCopies, "orange");
   var cmIn = null;
   try { cmIn = window.loomComms && window.loomComms.input(); } catch (e) {}
   cmSay("input line for tells: " + (cmIn ? cmIn.tagName.toLowerCase() + (cmIn.id ? "#" + cmIn.id : "") + (cmIn.className ? "." + String(cmIn.className).split(" ").join(".") : "") : "not found"), "orange");
