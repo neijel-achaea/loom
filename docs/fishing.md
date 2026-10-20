@@ -3,7 +3,7 @@
 *Baits and casts with one command, then teases, jerks and reels on the game's cues until the fish is landed.*
 
 <!-- loom:version fishing -->
-*This page describes fishing 0.2.5.*
+*This page describes fishing 0.2.6.*
 <!-- /loom:version -->
 
 ## What it is
@@ -55,6 +55,8 @@ If you used the older fishing reflex (`bait` variable), the bait moves over the 
 ## Daily use
 
 `CL <direction>`, watch the stages tick through, `CL` again. The lines about how plentiful the fish are here stand out, so you know when to move on.
+
+Common bait decaying in your inventory ("You are dismayed as a shrimp turns to dust in your hands.") is hidden: shrimp, worm, octopus, minnow, clam, sand flea, crab and mudsucker. Anything else that turns to dust still shows.
 
 ## Working with other packages
 
