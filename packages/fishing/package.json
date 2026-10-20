@@ -446,6 +446,21 @@
      "matching": "substring",
      "whole_words": true,
      "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "fishing bait dust gag",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "gag",
+       "enabled": true
+      }
+     ],
+     "text": "^You are dismayed as .+ turns to dust in your hands\\.$",
+     "matching": "regexp",
+     "whole_words": true,
+     "case_sensitive": true
     }
    ]
   },
