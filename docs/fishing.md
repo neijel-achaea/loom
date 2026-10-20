@@ -56,7 +56,7 @@ If you used the older fishing reflex (`bait` variable), the bait moves over the 
 
 `CL <direction>`, watch the stages tick through, `CL` again. The lines about how plentiful the fish are here stand out, so you know when to move on.
 
-Bait that decays in your inventory ("You are dismayed as a shrimp turns to dust in your hands.") is hidden: nothing to act on.
+Common bait decaying in your inventory ("You are dismayed as a shrimp turns to dust in your hands.") is hidden: shrimp, worm, octopus, minnow, clam, sand flea, crab and mudsucker. Anything else that turns to dust still shows.
 
 ## Working with other packages
 
