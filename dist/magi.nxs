@@ -1,0 +1,278 @@
+{
+ "type": "group",
+ "name": "magi",
+ "enabled": true,
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "run_function(\"magi_setup\", [], \"magi\");\ndisplay_notice(\"[magi] installed. MAGI HELP for commands.\", \"lime\");\nclient.loom.magi.warnOld();\n"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "// Nothing to tear down; the magi_* settings are left intact.\n"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "run_function(\"magi_setup\", [], \"magi\");\nclient.loom.magi.warnOld();\n"
+  },
+  {
+   "type": "group",
+   "name": "core",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "magi_setup",
+     "enabled": true,
+     "code": "// magi_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, one-time migration of the\n// settings of crystalism and artificing (merged into magi in 0.1.0), then\n// the class's helpers.\n//\n// Publishes the staff attack (the ability STAFF CAST uses: scintilla,\n// horripilation or lightning) at client.loom.magi.staff and in the\n// magi_staff variable; hunting and the basher read it for the staff key.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.magi) client.loom.magi = {};\nclient.loom.registry.magi = { version: \"0.1.0\", keyword: \"MAGI\", desc: \"Magi helpers: even crystal refining, pearls, portals, staff attack, treaties\" };\nvar MG = client.loom.magi;\n\nfunction mgGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || (\"\" + v) === \"undefined\") ? \"\" : \"\" + v; }\n\n// crystalism or artificing still installed next to magi: their triggers\n// would answer the same lines twice. Read from Nexus's package list when it\n// has one, else from the registry (which keeps an uninstalled package until\n// the next load).\nMG.replaces = [\"crystalism\", \"artificing\"];\nMG.oldInstalled = function () {\n  var out = [], names = null;\n  try {\n    var pls = client._packages.list();\n    names = {};\n    for (var i = 0; i < pls.length; i++) names[String(pls[i].name).toLowerCase()] = true;\n  } catch (e) { names = null; }\n  var reg = client.loom.registry || {};\n  for (var j = 0; j < MG.replaces.length; j++) {\n    var p = MG.replaces[j];\n    if (names ? names[p] : reg[p]) out.push(p);\n  }\n  return out;\n};\n// The warning, printed at each load while they are there.\nMG.warnOld = function () {\n  var o = MG.oldInstalled();\n  if (!o.length) return;\n  var two = o.length > 1;\n  display_notice(\"[magi] \" + o.join(\" and \") + (two ? \" are\" : \" is\") + \" still installed: uninstall \" + (two ? \"them\" : \"it\") + \", magi replaces \" + (two ? \"both\" : \"it\") + \" (your settings have been copied to it). Until then magi leaves pearls and portals to the old package.\", \"orange\");\n};\n\n// One-time migration: the old packages' settings move to magi_*. A value\n// already under the new name wins. The old names are deleted once the old\n// packages are gone (while installed they still read them).\n// (staffAttack is artificing's own pre-0.2 name.)\nvar mgStill = MG.oldInstalled().length > 0;\nvar mgMoves = [\n  [\"crystalism_pearls\", \"magi_pearls\"], [\"crystalism_portal\", \"magi_portal\"],\n  [\"crystalism_min\", \"magi_min\"], [\"crystalism_default_min\", \"magi_default_min\"],\n  [\"crystalism_rift\", \"magi_rift\"], [\"artificing_staff\", \"magi_staff\"], [\"staffAttack\", \"magi_staff\"]\n];\nfor (var mgI = 0; mgI < mgMoves.length; mgI++) {\n  var mgOld = mgGet(mgMoves[mgI][0]);\n  if (mgOld === \"\") continue;\n  if (mgGet(mgMoves[mgI][1]) === \"\") set_variable(mgMoves[mgI][1], mgOld);\n  if (!mgStill) delete_variable(mgMoves[mgI][0]);\n}\n\n// ---- Crystalism: even refining, pearls, portals ---------------------------\nMG.shapes = [\"cube\", \"cylinder\", \"diamond\", \"disc\", \"egg\", \"pentagon\", \"polyhedron\", \"pyramid\", \"sphere\", \"spiral\", \"torus\"];\nMG.hardCap = 200;         // most crystals refined in one run\nMG.maxPerCommand = 10;    // REFINE takes at most this many at once\nMG.facetsPerCrystal = 1;\nif (!MG.state) MG.state = \"idle\";\nif (!MG.queue) MG.queue = [];\n// Crystals in the rift per shape, as last read by MAGI REFINE's IR CRYSTAL;\n// saved (magi_rift), so a reload doesn't forget them.\nfunction mgTable(n) {\n  var t;\n  try { t = JSON.parse(mgGet(n) || \"{}\"); } catch (e) { t = {}; }\n  return (t && typeof t == \"object\" && !Array.isArray(t)) ? t : {};\n}\nif (!MG.rift || typeof MG.rift != \"object\" || !Object.keys(MG.rift).length) MG.rift = mgTable(\"magi_rift\");\n// Minimum stock per shape (#44, as harvesting's): magi_min = { torus: 80 },\n// any other shape at magi_default_min.\nMG.min = mgTable(\"magi_min\");\nif (!to_number(mgGet(\"magi_default_min\"))) set_variable(\"magi_default_min\", 50);\nMG.defMin = to_number(mgGet(\"magi_default_min\"));\nMG.facetsPerPearl = 9;\nif (!mgGet(\"magi_pearls\")) set_variable(\"magi_pearls\", \"on\");\nif (!mgGet(\"magi_portal\")) set_variable(\"magi_portal\", \"off\");\n\n// ---- Artificing: the staff attack and treaties ----------------------------\n// Staff attacks by element, and the elementals a treaty can be formed with.\nMG.staffs = { fire: \"scintilla\", frost: \"horripilation\", lightning: \"lightning\" };\nMG.elementals = [\"waterweird\", \"djinn\", \"sandling\", \"efreeti\", \"stoneback\", \"breath\", \"mistfiend\", \"ashbeast\"];\nMG.staff = mgGet(\"magi_staff\") || \"scintilla\";\n// The treaty being formed, if any: { elemental, at }.\nif (MG.treaty === undefined) MG.treaty = null;\n\n// The read-only look other packages see through loom (#159, #44, #299).\n//   look.levels() -> [{ shape, have, min }] for every shape with a count\n//     read from the rift; empty when none has been read yet.\n//   look.pearlMob(name) -> true for a denizen that drops pearls.\n//   look.pearl(name) -> true for a pearl lying in the room.\nMG.pearlMobs = [/\\bbarnacle[- ]encrusted oysters?\\b/i];\nMG.pearlItems = [/\\bglistening iridescent pearls?\\b/i];\nMG.look = {\n  pearlMob: function (name) {\n    var n = String(name || \"\");\n    if (/^the corpse of\\b/i.test(n)) return false;\n    for (var i = 0; i < MG.pearlMobs.length; i++) { if (MG.pearlMobs[i].test(n)) return true; }\n    return false;\n  },\n  pearl: function (name) {\n    var n = String(name || \"\");\n    for (var i = 0; i < MG.pearlItems.length; i++) { if (MG.pearlItems[i].test(n)) return true; }\n    return false;\n  },\n  levels: function () {\n    var out = [];\n    for (var i = 0; i < MG.shapes.length; i++) {\n      var s = MG.shapes[i];\n      if (MG.rift[s] === undefined || MG.rift[s] === null) continue;\n      out.push({ shape: s, have: MG.rift[s], min: (MG.min[s] != null ? MG.min[s] : MG.defMin) });\n    }\n    return out;\n  }\n};\n\n// The pre-0.2 autorefine kept its state on window.nj.ar.\nif (window.nj && window.nj.ar) window.nj.ar = null;\n"
+    },
+    {
+     "type": "function",
+     "name": "magi_status",
+     "enabled": true,
+     "code": "if (!client.loom || !client.loom.magi || !client.loom.magi.shapes) run_function(\"magi_setup\", [], \"magi\");\nvar MG = client.loom.magi;\nvar mgEl = \"\";\nfor (var mgK in MG.staffs) { if (MG.staffs.hasOwnProperty(mgK) && MG.staffs[mgK] === MG.staff) mgEl = mgK; }\ndisplay_notice(\"[magi] staff attack \" + (mgEl || MG.staff) + \" (\" + MG.staff + \"); refine \" + (MG.state === \"idle\" ? \"idle\" : MG.state + (MG.queue.length ? \" (\" + MG.queue.length + \" commands left)\" : \"\"))\n  + \", pearl pickup \" + String(get_variable(\"magi_pearls\")).toUpperCase()\n  + \", portal for city members \" + String(get_variable(\"magi_portal\")).toUpperCase() + \", minimum \" + MG.defMin + \" a shape. MAGI HELP for commands.\", \"cyan\");\nif (MG.treaty) {\n  display_notice(\"[magi] forming a treaty with the \" + MG.treaty.elemental + \" since \" + Math.round((Date.now() - MG.treaty.at) / 1000) + \"s ago: triggers paused, sipping off. MAGI RESUME if it was interrupted.\", \"orange\");\n} else if (get_variable(\"pauseTriggers\") === \"on\") {\n  display_notice(\"[magi] triggers are paused. MAGI RESUME unpauses them and turns sipping back on.\", \"orange\");\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "magi_help",
+     "enabled": true,
+     "code": "// magi_help -- the HELP screen. Printed in a monospace block through\n// nexusclient.add_html_line when this Nexus has it, so the columns line up;\n// otherwise as plain notices.\nvar hlTitle = \"[magi] Magi helpers: crystals, pearls, portals, the staff attack and treaties. Commands:\";\n// [command, what it does]; a one-element row is a note or section line.\nvar hlRows = [\n  [\"MAGI\", \"status\"],\n  [\"MAGI REFINE [n]\", \"refine stored facets into the shapes you have fewest of (at most n crystals, 200 a run)\"],\n  [\"MAGI REFINE STOP\", \"cancel a refine run\"],\n  [\"MAGI MIN [<n> | <shape> <n|DEFAULT>]\", \"minimum stock per shape (default for all, or one shape)\"],\n  [\"MAGI PEARLS ON|OFF\", \"pick up pearls that drop from corpses\"],\n  [\"MAGI PORTAL ON|OFF\", \"open a sonic portal for city members who tell you \\\"Gate.\\\" (needs social's city list)\"],\n  [\"MAGI STAFF FIRE|FROST|LIGHTNING\", \"the attack STAFF CAST uses (scintilla, horripilation, lightning)\"],\n  [\"MAGI TREATY <elemental>\", \"form a treaty (also MAGI TF): pauses triggers and sipping until it's written\"],\n  [\"MAGI RESUME\", \"unpause triggers and turn sipping back on, if a treaty was interrupted\"],\n  [\"MAGI DEBUG\", \"internal state\"],\n  [\"Elementals: waterweird, djinn, sandling, efreeti, stoneback, breath, mistfiend, ashbeast.\"],\n  [\"Triggers pause while you attune to the Master Crystal and resume when it calls you.\"]\n];\nvar hlW = 0;\nfor (var hlI = 0; hlI < hlRows.length; hlI++) {\n  if (hlRows[hlI].length > 1 && hlRows[hlI][0].length > hlW) hlW = hlRows[hlI][0].length;\n}\nvar hlPad = \"                                                            \";\nvar hlHtml = (typeof nexusclient != \"undefined\" && nexusclient && typeof nexusclient.add_html_line == \"function\");\nvar hlOut = [];\nif (!hlHtml) display_notice(hlTitle, \"cyan\");\nfor (var hlJ = 0; hlJ < hlRows.length; hlJ++) {\n  var hlR = hlRows[hlJ];\n  var hlCmd = hlR.length > 1 ? hlR[0] : \"\";\n  var hlText = hlR.length > 1 ? hlR[1] : hlR[0];\n  if (hlR.length > 1) hlCmd = (hlCmd + hlPad).substring(0, hlW + 3);\n  if (hlHtml) {\n    hlCmd = hlCmd.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlText = hlText.replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\");\n    hlOut.push(\"  \" + (hlR.length > 1 ? '<span style=\"color:#00ffff\">' + hlCmd + '</span>' + '<span style=\"color:#9fc9c9\">' + hlText + '</span>' : '<span style=\"color:#9fc9c9\">' + hlText + '</span>'));\n  } else {\n    display_notice(\"  \" + hlCmd + hlText, \"cyan\");\n  }\n}\nif (hlHtml) {\n  display_notice(hlTitle, \"cyan\");\n  nexusclient.add_html_line('<span style=\"font-family:\\'Courier New\\',monospace;white-space:pre\">' + hlOut.join(\"\\n\") + '</span>');\n}\n"
+    },
+    {
+     "type": "alias",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// MAGI [subcommand ...]: the one command for this package.\nif (!client.loom || !client.loom.magi || !client.loom.magi.shapes) run_function(\"magi_setup\", [], \"magi\");\nvar MG = client.loom.magi;\nvar mgW = String(args[1] || \"\").trim().toLowerCase().split(/\\s+/);\nvar mgSub = mgW[0];\nvar mgVal = mgW[1] || \"\";\nfunction mgSay(t, c) { display_notice(\"[magi] \" + t, c || \"cyan\"); }\nfunction mgElement(ab) { for (var k in MG.staffs) { if (MG.staffs.hasOwnProperty(k) && MG.staffs[k] === ab) return k; } return ab; }\n\nif (mgSub === \"\" || mgSub === \"status\") {\n  run_function(\"magi_status\", [], \"magi\");\n} else if (mgSub === \"help\") {\n  run_function(\"magi_help\", [], \"magi\");\n\n// ---- Crystalism ----------------------------------------------------------\n} else if (mgSub === \"refine\" && mgVal === \"stop\") {\n  if (MG.state === \"idle\") mgSay(\"no refine run going.\");\n  else run_function(\"magi_abort\", [], \"magi\");\n} else if (mgSub === \"refine\") {\n  if (mgVal !== \"\" && !/^\\d+$/.test(mgVal)) {\n    mgSay(\"MAGI REFINE [n]: n is how many crystals at most. MAGI REFINE STOP cancels a run.\", \"orange\");\n  } else {\n    MG.askCap = mgVal ? parseInt(mgVal, 10) : Infinity;\n    run_function(\"magi_refine\", [], \"magi\");\n  }\n} else if (mgSub === \"pearls\" || mgSub === \"portal\") {\n  if (mgVal === \"on\" || mgVal === \"off\") {\n    set_variable(\"magi_\" + mgSub, mgVal);\n    mgSay((mgSub === \"pearls\" ? \"pearl pickup \" : \"portal for city members \") + mgVal.toUpperCase() + \".\", \"lime\");\n  } else {\n    mgSay(\"MAGI \" + mgSub.toUpperCase() + \" ON or OFF.\", \"orange\");\n  }\n} else if (mgSub === \"min\") {\n  // MAGI MIN <n> | MIN <shape> <n|default> | MIN (show) (#44)\n  var mgArg2 = mgW[2] || \"\";\n  if (mgVal === \"\") {\n    var mgMs = [];\n    for (var mgMi = 0; mgMi < MG.shapes.length; mgMi++) { var mgSh = MG.shapes[mgMi]; mgMs.push(mgSh + \" \" + (MG.min[mgSh] != null ? MG.min[mgSh] : MG.defMin) + (MG.rift[mgSh] != null ? \" (have \" + MG.rift[mgSh] + \")\" : \"\")); }\n    mgSay(\"default minimum \" + MG.defMin + \"; \" + mgMs.join(\", \") + \".\");\n  } else if (/^\\d+$/.test(mgVal) && mgArg2 === \"\") {\n    MG.defMin = parseInt(mgVal, 10);\n    set_variable(\"magi_default_min\", MG.defMin);\n    if (client.loom.notify) client.loom.notify(\"magi\");\n    mgSay(\"default minimum: \" + MG.defMin + \".\", \"lime\");\n  } else if (MG.shapes.indexOf(mgVal) >= 0 && (mgArg2 === \"default\" || /^\\d+$/.test(mgArg2))) {\n    if (mgArg2 === \"default\") delete MG.min[mgVal]; else MG.min[mgVal] = parseInt(mgArg2, 10);\n    set_variable(\"magi_min\", JSON.stringify(MG.min));\n    if (client.loom.notify) client.loom.notify(\"magi\");\n    mgSay(\"minimum for \" + mgVal + \": \" + (MG.min[mgVal] != null ? MG.min[mgVal] : MG.defMin + \" (default)\") + \".\", \"lime\");\n  } else {\n    mgSay(\"MAGI MIN <n>, or MAGI MIN <shape> <n|default>. Shapes: \" + MG.shapes.join(\", \") + \".\", \"orange\");\n  }\n\n// ---- Artificing ----------------------------------------------------------\n} else if (mgSub === \"staff\") {\n  if (!mgVal) {\n    mgSay(\"staff attack: \" + mgElement(MG.staff) + \" (\" + MG.staff + \"). MAGI STAFF FIRE, FROST or LIGHTNING.\");\n  } else if (!MG.staffs[mgVal]) {\n    mgSay(\"pick FIRE, FROST or LIGHTNING.\", \"orange\");\n  } else {\n    MG.staff = MG.staffs[mgVal];\n    set_variable(\"magi_staff\", MG.staff);\n    // hunting, when installed, puts it on its staff key with the next prompt.\n    mgSay(\"staff attack: \" + mgVal + \" (\" + MG.staff + \").\", \"lime\");\n  }\n} else if (mgSub === \"treaty\" || mgSub === \"tf\") {\n  if (MG.elementals.indexOf(mgVal) < 0) {\n    mgSay(\"a treaty can be formed with: \" + MG.elementals.join(\", \").toUpperCase() + \". MAGI TREATY <elemental>.\", \"orange\");\n  } else {\n    // The communion breaks if anything else is sent, so everything that\n    // follows pauseTriggers holds back, and curing stops sipping.\n    MG.treaty = { elemental: mgVal, at: Date.now() };\n    set_variable(\"pauseTriggers\", \"on\");\n    send_command(\"curing sipping off\");\n    send_command(\"treaty form \" + mgVal);\n  }\n} else if (mgSub === \"resume\") {\n  run_function(\"magi_resume\", [], \"magi\");\n  mgSay(\"triggers unpaused and sipping on.\", \"lime\");\n\n} else if (mgSub === \"debug\") {\n  mgSay(\"refine state=\" + MG.state + \" facets=\" + MG.facets + \" rift=\" + JSON.stringify(MG.rift) + \" queue=\" + JSON.stringify(MG.queue)\n    + \" staff=\" + MG.staff + \" treaty=\" + JSON.stringify(MG.treaty) + \" pause=\" + (get_variable(\"pauseTriggers\") || \"unset\")\n    + \" old packages=\" + (MG.oldInstalled().join(\",\") || \"none\"));\n} else {\n  mgSay(\"unknown command '\" + mgSub + \"'. MAGI HELP for commands.\", \"orange\");\n}\n"
+      }
+     ],
+     "text": "^magi(?:\\s+(.*))?$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": false,
+     "prefix_suffix": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "crystalism",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "magi_refine",
+     "enabled": true,
+     "code": "// magi_refine -- start a run: read the rift (IR CRYSTAL), then the\n// stored facets (TOUCH CRYSTAL), then plan. MG.askCap is set by the command.\nvar MG = client.loom.magi;\nif (MG.state !== \"idle\") {\n  display_notice(\"[magi] a refine run is already going (\" + MG.state + \"). MAGI REFINE STOP to cancel it.\", \"orange\");\n} else {\n  MG.state = \"ir\";\n  MG.rift = {};\n  MG.facets = 0;\n  MG.queue = [];\n  clearTimeout(MG.watchdog);\n  MG.watchdog = setTimeout(function () { run_function(\"magi_watchdog\", [], \"magi\"); }, 8000);\n  send_command(\"ir crystal\");\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "magi_watchdog",
+     "enabled": true,
+     "code": "var MG = client.loom.magi;\nif (MG.state === \"ir\" || MG.state === \"touch\") {\n  MG.abortWhy = \"no answer from the game while waiting for \" + (MG.state === \"ir\" ? \"the rift listing\" : \"the facet count\");\n  run_function(\"magi_abort\", [], \"magi\");\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "magi_touch",
+     "enabled": true,
+     "code": "var MG = client.loom.magi;\nif (MG.state === \"ir\") {\n  // The rift's counts are settled: keep them, and tell loom (#44).\n  try { set_variable(\"magi_rift\", JSON.stringify(MG.rift)); } catch (e) {}\n  if (client.loom.notify) client.loom.notify(\"magi\");\n  MG.state = \"touch\";\n  send_command(\"touch crystal\");\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "magi_plan",
+     "enabled": true,
+     "code": "// magi_plan -- water-fill: give each crystal to the shape with the\n// fewest so far, then queue REFINE commands, lowest shapes first.\nvar MG = client.loom.magi;\nvar mgCounts = {}, mgAdd = {};\nfor (var mgI = 0; mgI < MG.shapes.length; mgI++) { mgCounts[MG.shapes[mgI]] = MG.rift[MG.shapes[mgI]] || 0; mgAdd[MG.shapes[mgI]] = 0; }\nvar mgBudget = Math.min(Math.floor(MG.facets / MG.facetsPerCrystal), MG.hardCap, MG.askCap);\nif (mgBudget < 1) {\n  display_notice(\"[magi] nothing to refine (\" + MG.facets + \" facets stored).\", \"cyan\");\n  MG.state = \"idle\";\n} else {\n  for (var mgB = 0; mgB < mgBudget; mgB++) {\n    var mgBest = null, mgVal = Infinity;\n    for (var mgJ = 0; mgJ < MG.shapes.length; mgJ++) {\n      var mgS = MG.shapes[mgJ];\n      if (mgCounts[mgS] + mgAdd[mgS] < mgVal) { mgVal = mgCounts[mgS] + mgAdd[mgS]; mgBest = mgS; }\n    }\n    mgAdd[mgBest] += 1;\n  }\n  var mgOrder = MG.shapes.slice();\n  mgOrder.sort(function (a, b) { return mgCounts[a] - mgCounts[b]; });\n  MG.queue = [];\n  var mgParts = [];\n  for (var mgK = 0; mgK < mgOrder.length; mgK++) {\n    var mgN = mgAdd[mgOrder[mgK]];\n    if (mgN > 0) mgParts.push(mgOrder[mgK] + \" +\" + mgN);\n    while (mgN > 0) {\n      var mgStep = Math.min(mgN, MG.maxPerCommand);\n      MG.queue.push(\"refine \" + mgStep + \" \" + mgOrder[mgK]);\n      mgN -= mgStep;\n    }\n  }\n  display_notice(\"[magi] refining \" + mgBudget + \" crystals in \" + MG.queue.length + \" commands (\" + mgParts.join(\", \") + \").\", \"cyan\");\n  MG.state = \"refining\";\n  run_function(\"magi_pump\", [], \"magi\");\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "magi_pump",
+     "enabled": true,
+     "code": "// magi_pump -- one REFINE every 1.5s; waits while triggers are paused.\nvar MG = client.loom.magi;\nif (MG.state === \"refining\") {\n  if (get_variable(\"pauseTriggers\") == \"on\") {\n    MG.pumpT = setTimeout(function () { run_function(\"magi_pump\", [], \"magi\"); }, 1500);\n  } else if (!MG.queue.length) {\n    send_command(\"inr all\");\n    display_notice(\"[magi] refine done.\", \"lime\");\n    MG.state = \"idle\";\n  } else {\n    send_command(MG.queue.shift());\n    MG.pumpT = setTimeout(function () { run_function(\"magi_pump\", [], \"magi\"); }, 1500);\n  }\n}\n"
+    },
+    {
+     "type": "function",
+     "name": "magi_abort",
+     "enabled": true,
+     "code": "var MG = client.loom.magi;\nclearTimeout(MG.watchdog);\nclearTimeout(MG.settle);\nclearTimeout(MG.pumpT);\ndisplay_notice(\"[magi] refine stopped: \" + (MG.abortWhy || \"cancelled\") + \".\", \"orange\");\nMG.abortWhy = null;\nMG.state = \"idle\";\nMG.queue = [];\n"
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// IR CRYSTAL rows while a run is reading the rift; TOUCH CRYSTAL once the\n// listing has been quiet for 0.4s.\nif (!client.loom || !client.loom.magi || !client.loom.magi.shapes) run_function(\"magi_setup\", [], \"magi\");\nvar MG = client.loom.magi;\nif (MG.state === \"ir\") {\n  var mgRe = /\\[\\s*(\\d+)\\]\\s*crystal\\s+([a-z]+)/g;\n  var mgM = mgRe.exec(args[1]);\n  while (mgM !== null) {\n    if (MG.shapes.indexOf(mgM[2]) !== -1) MG.rift[mgM[2]] = parseInt(mgM[1], 10);\n    mgM = mgRe.exec(args[1]);\n  }\n  clearTimeout(MG.settle);\n  MG.settle = setTimeout(function () { run_function(\"magi_touch\", [], \"magi\"); }, 400);\n}\n"
+      }
+     ],
+     "text": "^(.*\\[\\s*\\d+\\]\\s*crystal\\s+\\w+.*)$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "if (!client.loom || !client.loom.magi || !client.loom.magi.shapes) run_function(\"magi_setup\", [], \"magi\");\nvar MG = client.loom.magi;\nif (MG.state === \"touch\") {\n  MG.facets = parseInt(args[1], 10);\n  clearTimeout(MG.watchdog);\n  run_function(\"magi_plan\", [], \"magi\");\n}\n"
+      }
+     ],
+     "text": "^You have stored (\\d+) facets? for refinement\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// A pearl drops from a corpse: pick it up (left to crystalism while it's\n// still installed, so it isn't picked up twice).\nif (!client.loom || !client.loom.magi || !client.loom.magi.shapes) run_function(\"magi_setup\", [], \"magi\");\nif (get_variable(\"magi_pearls\") == \"on\" && get_variable(\"pauseTriggers\") != \"on\" && !client.loom.magi.oldInstalled().length) send_command(\"queue add eb get pearl\");\n"
+      }
+     ],
+     "text": "^A glistening iridescent pearl tumbles out of the corpse of (.*)\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// \"<name> tells you, \\\"Gate.\\\"\": open a sonic portal for city members (from\n// social's city list, when social is installed). Left to crystalism while\n// it's still installed, so the portal isn't opened twice.\nif (!client.loom || !client.loom.magi || !client.loom.magi.shapes) run_function(\"magi_setup\", [], \"magi\");\nvar MG = client.loom.magi;\nif (get_variable(\"magi_portal\") == \"on\" && !MG.oldInstalled().length) {\n  var mgWho = args[1];\n  var mgLook = client.loom.social && client.loom.social.look;\n  if (!mgLook || !mgLook.inGroup) {\n    display_notice(\"[magi] \" + mgWho + \" asked for a portal, but no city list is available (social isn't installed).\", \"orange\");\n  } else if (get_variable(\"pauseTriggers\") == \"on\") {\n    display_notice(\"[magi] \" + mgWho + \" asked for a portal; not sent while triggers are paused.\", \"orange\");\n  } else if (!mgLook.inGroup(mgWho, \"city\")) {\n    send_command(\"tell \" + mgWho + \" Sorry, you're not in my allowed list.\");\n  } else {\n    send_command(\"embed sonicportal \" + mgWho);\n    display_notice(\"[magi] portal opened for \" + mgWho + \".\", \"lime\");\n  }\n}\n"
+      }
+     ],
+     "text": "^(\\w+) tells you(.*)\\, \\\"Gate\\.\\\"$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// Attuning to the Master Crystal is interrupted by anything sent: pause.\nset_variable(\"pauseTriggers\", \"on\");\n"
+      }
+     ],
+     "text": "^You relax your muscles and attune yourself to your Master Crystal\\, feeling its vibrations draw your soul\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "set_variable(\"pauseTriggers\", \"off\");\n"
+      }
+     ],
+     "text": "^The call of the Master Crystal is irresistible and you are drawn to it\\.$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "artificing",
+   "enabled": true,
+   "items": [
+    {
+     "type": "function",
+     "name": "magi_resume",
+     "enabled": true,
+     "code": "// magi_resume -- after a treaty: triggers unpaused and sipping back on.\n// Run by the treaty's closing lines and by MAGI RESUME.\nif (!client.loom || !client.loom.magi || !client.loom.magi.shapes) run_function(\"magi_setup\", [], \"magi\");\nclient.loom.magi.treaty = null;\nset_variable(\"pauseTriggers\", \"off\");\nsend_command(\"curing sipping on\");\n"
+    },
+    {
+     "type": "trigger",
+     "name": "magi treaty done (calm)",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// \"At last, the communion ends, ... Thus is our treaty written.\"\nrun_function(\"magi_resume\", [], \"magi\");\n"
+      }
+     ],
+     "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    },
+    {
+     "type": "trigger",
+     "name": "magi treaty done (glad)",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "script",
+       "enabled": true,
+       "script": "// \"At last you are let go, ... Thus is our treaty written!\"\nrun_function(\"magi_resume\", [], \"magi\");\n"
+      }
+     ],
+     "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
+     "matching": "regexp",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  },
+  {
+   "type": "group",
+   "name": "elementalism",
+   "enabled": true,
+   "items": [
+    {
+     "type": "trigger",
+     "name": "",
+     "enabled": true,
+     "actions": [
+      {
+       "type": "highlight",
+       "enabled": true,
+       "highlight_fg": "#00e9ff",
+       "highlight_bg": "#000000",
+       "highlight": "match",
+       "highlight_backref": ""
+      }
+     ],
+     "text": "This area is unnaturally flooded with water.",
+     "matching": "substring",
+     "whole_words": false,
+     "case_sensitive": true
+    }
+   ]
+  }
+ ],
+ "description": "Magi helpers: even crystal refining, pearls, portals, staff attack, treaties"
+}

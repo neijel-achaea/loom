@@ -92,7 +92,7 @@ If you used the older highlight and watchlist reflexes (`hl*` and `wl*` variable
 
 ## Working with other packages
 
-Social works on its own. Other packages read its lists when they're installed: **vision** (to hide city members and flag enemies), **crystalism** (whose portal answers your city) and **standings**. Through Loom's integrations it also shows what other packages know. Each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
+Social works on its own. Other packages read its lists when they're installed: **vision** (to hide city members and flag enemies), **magi** (whose portal answers your city) and **standings**. Through Loom's integrations it also shows what other packages know. Each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
 
 | Link | With | What it does |
 | --- | --- | --- |

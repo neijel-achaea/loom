@@ -48,6 +48,11 @@ L.runUpdate = function (id) {
 };
 L.updateAll = function () { for (var i = 0; i < L.linkOrder.length; i++) L.runUpdate(L.linkOrder[i]); };
 
+// Links whose id changed (old id -> new), so a link switched off under its
+// old name stays off: crystalism's became magi's when magi 0.1.0 replaced
+// crystalism and artificing.
+L.renamedLinks = { "crystalism-ledger": "magi-ledger", "crystalism-room": "magi-room" };
+
 // The switched-off ids, as a set. Read once per load and kept in step by
 // L.setLink, so the hot path (L.linkOn) never parses the variable.
 L.linksOff = {};
@@ -55,7 +60,13 @@ L.linksOff = {};
   var raw;
   try { raw = JSON.parse(get_variable("loom_links_off") || "[]"); } catch (e) { raw = []; }
   if (!Array.isArray(raw)) raw = [];
-  for (var i = 0; i < raw.length; i++) L.linksOff[String(raw[i]).toLowerCase()] = true;
+  var moved = false;
+  for (var i = 0; i < raw.length; i++) {
+    var id = String(raw[i]).toLowerCase();
+    if (L.renamedLinks[id]) { id = L.renamedLinks[id]; moved = true; }
+    L.linksOff[id] = true;
+  }
+  if (moved) set_variable("loom_links_off", JSON.stringify(Object.keys(L.linksOff).sort()));
 })();
 
 // The packages a link still needs, as a list of names (empty when both
@@ -317,18 +328,22 @@ L.addLink({
   }
 });
 
-// #44 crystalism -> ledger: one "collect pearls" reminder, as harvesting's
+// #44 magi -> ledger (crystalism's until magi 0.1.0): one "collect pearls"
+// reminder, as harvesting's
 // (Ricardo): it appears when any shape falls below 90% of its minimum, goes
 // when all are back at it, and says how many pearls to fetch: the crystals
 // short in all (each low shape up to its minimum), 9 facets to a pearl
 // folded into the master crystal, one crystal refined from each facet.
-// Nothing happens until the rift has been read (CRYSTALISM REFINE).
+// Nothing happens until the rift has been read (MAGI REFINE).
 L.addLink({
-  id: "crystalism-ledger", src: "crystalism", dst: "ledger", issue: 44,
+  id: "magi-ledger", src: "magi", dst: "ledger", issue: 44,
   desc: "A collect pearls reminder in the ledger when crystals run low",
   update: function () {
-    var c = client.loom.crystalism, lg = client.loom.ledger;
+    var c = client.loom.magi, lg = client.loom.ledger;
     if (!c || !c.look || !lg || !lg.entry) return;
+    // The reminder used to come from crystalism: withdraw that one once, so
+    // magi's takes its place instead of sitting next to it.
+    if (!L.crystalismGone) { L.crystalismGone = true; lg.entry.withdraw("crystalism"); }
     var lv = c.look.levels();
     if (!lv.length) return;
     var under = [], urgent = false, short = 0;
@@ -336,12 +351,12 @@ L.addLink({
       if (lv[i].have < lv[i].min) { under.push(lv[i]); short += lv[i].min - lv[i].have; }
       if (lv[i].have < lv[i].min * L.harvestTrigger) urgent = true;
     }
-    if (!under.length) { lg.entry.withdraw("crystalism", "pearls"); return; }
-    if (!urgent && !lg.entry.get("crystalism", "pearls")) return;
+    if (!under.length) { lg.entry.withdraw("magi", "pearls"); return; }
+    if (!urgent && !lg.entry.get("magi", "pearls")) return;
     // Just the pearls (Ricardo: REFINE fills the shapes evenly, so they top
-    // up together; the shapes' detail is in CRYSTALISM MIN).
+    // up together; the shapes' detail is in MAGI MIN).
     var pearls = Math.ceil(short / (c.facetsPerPearl || 9));
-    lg.entry.upsert({ source: "crystalism", key: "pearls", text: "Collect " + pearls + " pearl" + (pearls === 1 ? "" : "s") });
+    lg.entry.upsert({ source: "magi", key: "pearls", text: "Collect " + pearls + " pearl" + (pearls === 1 ? "" : "s") });
   }
 });
 
@@ -642,22 +657,22 @@ L.addLink({
   }
 });
 
-// #299 crystalism -> room (Ricardo): the oysters that drop pearls and the
-// pearls themselves stand out in Here, always, as a green name with a green
-// pearl icon. Pearls answer item.flags like shrines and monoliths; oysters
-// answer mob.flags, the same shape for the mobs list. Corpses don't count,
-// and your target's glow still wins.
+// #299 magi -> room (crystalism's until magi 0.1.0; Ricardo): the oysters
+// that drop pearls and the pearls themselves stand out in Here, always, as a
+// green name with a green pearl icon. Pearls answer item.flags like shrines
+// and monoliths; oysters answer mob.flags, the same shape for the mobs list.
+// Corpses don't count, and your target's glow still wins.
 L.addLink({
-  id: "crystalism-room", src: "crystalism", dst: "room", issue: 299,
+  id: "magi-room", src: "magi", dst: "room", issue: 299,
   desc: "Pearl-dropping oysters and pearls shown green in Here",
   answers: {
     "item.flags": function (name) {
-      var c = client.loom.crystalism;
-      return (c && c.look && c.look.pearl && c.look.pearl(name)) ? { label: "pearl", tone: "good", icon: "\u25c9", title: "a pearl: crystalism refines it" } : undefined;
+      var c = client.loom.magi;
+      return (c && c.look && c.look.pearl && c.look.pearl(name)) ? { label: "pearl", tone: "good", icon: "\u25c9", title: "a pearl: refine it into crystals (magi)" } : undefined;
     },
     "mob.flags": function (name) {
-      var c = client.loom.crystalism;
-      return (c && c.look && c.look.pearlMob && c.look.pearlMob(name)) ? { label: "pearls", tone: "good", icon: "\u25c9", title: "drops pearls (crystalism)" } : undefined;
+      var c = client.loom.magi;
+      return (c && c.look && c.look.pearlMob && c.look.pearlMob(name)) ? { label: "pearls", tone: "good", icon: "\u25c9", title: "drops pearls (magi)" } : undefined;
     }
   }
 });

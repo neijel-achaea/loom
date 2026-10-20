@@ -1,1 +1,0 @@
-send_command("cast illusion A soft wind sighs down the stair, smelling of heather and bayberry, and carries with it the lonely cry of a circling hawk.");

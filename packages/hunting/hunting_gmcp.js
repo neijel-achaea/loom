@@ -33,9 +33,9 @@ client.loom.hooks.hunting.gmcp = function (args) {
   }
 
   if (args.gmcp_method == "Char.Vitals") {
-    // A staff attack changed in artificing since the keys were drawn: redraw,
+    // A staff attack changed in magi since the keys were drawn: redraw,
     // so the staff key casts the new one. Read only, never called into.
-    var huStaffNow = client.loom.artificing && client.loom.artificing.staff;
+    var huStaffNow = client.loom.magi && client.loom.magi.staff;
     if (huStaffNow && HU.staffDrawn && huStaffNow !== HU.staffDrawn) run_function("hunting_buttons", [], "hunting");
 
     var v = huG;

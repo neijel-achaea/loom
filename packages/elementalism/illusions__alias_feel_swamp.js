@@ -1,1 +1,0 @@
-send_command("cast illusion A rich smell of peat and still water rises from the floor, and somewhere in the dark a frog croaks once.");

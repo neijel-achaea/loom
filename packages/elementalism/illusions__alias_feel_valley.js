@@ -1,1 +1,0 @@
-send_command("cast illusion A mild, sheltered warmth settles over the chamber, sweet with the scent of blossoming orchards.");

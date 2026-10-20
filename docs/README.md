@@ -43,7 +43,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [coffers](coffers.md) | Coffers | Gold tracker: fortune, income and spending by session and day, goals |
 | [talpieces](talpieces.md) | Talismans | Dragon talisman piece tracker with history and a projected finish |
 | [vials](vials.md) | — | Refill your vials from the rift by elixir |
-| [crystalism](crystalism.md) | — | Even crystal refining, pearl pickup, and sonic portals for the city |
+| [magi](magi.md) | — | Magi helpers: even crystal refining, pearls, portals, staff attack, treaties |
 | [harvesting](harvesting.md) | — | Harvests the plants your rift is short of as you walk the rooms |
 
 ## City and duties
@@ -54,8 +54,6 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [patrolling](patrolling.md) | — | Checks each room's plants and shrines, and suggests areas to patrol |
 | [sigils](sigils.md) | — | Monolith and flame sigil watcher, with the cost of what's running out |
 | [conjuration](conjuration.md) | — | Sigil creation rituals, one step at a time as the game is ready |
-| [artificing](artificing.md) | — | Staff attack for STAFF CAST, and elemental treaties formed safely |
-| [elementalism](elementalism.md) | — | Illusions and set pieces, with your name and pronouns |
 
 ## Fishing
 

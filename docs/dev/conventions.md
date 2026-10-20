@@ -39,7 +39,6 @@ The rules every package follows, and why. They're what lets a player drop any on
 
 - **Wrappers around game commands** keep the game's word: `QUIT`/`QQ`, and `GIVE`/`SELL`/`DROP`/`OFFER` in security. Their whole point is to replace the game command.
 - **Everyday shortcuts** stay short: `GG` and `PG` (security), `CL` (fishing).
-- **Illusion content** (elementalism's set pieces) is content, not commands.
 
 ## Versions
 

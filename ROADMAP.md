@@ -40,7 +40,6 @@ These apply to every package touched from v0.2 onwards.
 
 - **Wrappers around game commands** keep the game's word: `QUIT`/`QQ`, and `GIVE`/`SELL`/`DROP`/`OFFER` in security. Their whole point is to replace the game command.
 - **Everyday shortcuts** stay short: `GG` and `PG` in security (gold out of / into the backpack) are typed too often to live under `SECURITY`.
-- **Illusion content** (elementalism's set pieces) is content, not commands, and stays as it is for now. Revisit later if it becomes a problem for other players. (roleplay's emote aliases fell under this until the package was removed; its player-built successor is #262.)
 
 ## Loom 0.2 — Standalone
 
@@ -225,6 +224,7 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 - Performance of everything that runs per prompt or per GMCP message.
 - Consistency sweep (colours, HELP, tabs, wording) and a docs accuracy pass.
 - One end-to-end regression run, built from every PR's in-game checklist, kept for future releases.
+- Package names settled before 1.0 freezes them: **crystalism** and **artificing** merged into **magi**, the first class package (#350); **elementalism** retired (its illusions were one player's roleplay content; its flood highlight moved to magi).
 
 ## Loom 0.9 — Community Requests
 
@@ -244,6 +244,19 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 - Swap targets mid-fight (a better target arriving, a shield with no rage to raze it).
 - Here shows shielded mobs and which party members target each mob.
 - Empowered (++) battlerage for every class, from affliction lines collected on alts.
+
+## Loom 2.x — PvP
+
+**Goal:** make each class's win paths visible while fighting (Ricardo, 2026-10-20): what the opponent has (seen or likely), how far each route has got, and the next spell with its reason. Suggestions and state only, never firing offence. Magi first.
+
+- **2.0 · PvP Tracker** (#341, #342, #343): a tracker package with a `look` API (afflictions, defences, ASSESS health with its age), generic cure lines, a plain Target view, a capture mode for unmatched combat lines; `PK ON|OFF` swaps hunting's keys for the class's PK layout; class packages register their lines, routes and keys with the engine.
+- **2.1 · Duel Tab** (#344): the Duel tab, the fire route (ablaze → Conflagrate → ASSESS → Destroy), PK keys lit for the suggested spell.
+- **2.2 · Magi Complete** (#345): freeze, Earth Emanation, Convergence; resonance per element.
+- **2.3 · Combat Spam** (#346): opt-in short lines, never a full gag.
+- **2.4 · Second Class** (#347): one alt's class as data and lines only.
+- **2.5 · Group PvP** (#348): party afflictions and assesses through partycomms.
+
+Class data lives in one package per class (`magi` first), so a character carries only its own classes' per-line triggers.
 
 ## Out of scope
 

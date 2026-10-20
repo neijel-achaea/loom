@@ -12,6 +12,11 @@ const S = require("./sim.js");
 const OPT = JSON.parse(process.argv[2] || "{}");
 const CUR = S.loadDist(OPT.current);
 const CURNAMES = Object.keys(CUR).sort();
+// Packages merged into another: old name -> the package that replaced it.
+// They're set up like any release package, and uninstalled when their
+// successor is imported, as the player is told to; the successor migrates
+// their settings (their names are *Was* rows in variables.md).
+const MERGED = { crystalism: "magi", artificing: "magi" };
 
 // ---- The inventory ------------------------------------------------------
 // docs/dev/variables.md: one table row per saved variable,
@@ -223,7 +228,7 @@ function remember() {
 
 function upgradeFrom(rel, pass) {
   const OLD = S.loadDist(rel.dist, rel.packages);
-  const oldNames = Object.keys(OLD).filter(n => CUR[n]).sort(); // retired ones aren't upgraded
+  const oldNames = Object.keys(OLD).filter(n => CUR[n] || CUR[MERGED[n]]).sort(); // retired ones aren't upgraded
   const tag = rel.tag + (pass ? " (second pass)" : "");
   PICK = pass;
   S.scenario(tag);
@@ -256,6 +261,10 @@ function upgradeFrom(rel, pass) {
   S.use(mixed);
   const order = pass ? CURNAMES.slice().reverse() : CURNAMES.slice();
   for (const p of order) {
+    for (const o of Object.keys(MERGED)) {
+      const at = S.W.installed.indexOf(o);
+      if (MERGED[o] === p && at >= 0) { S.W.installed.splice(at, 1); delete mixed[o]; }
+    }
     mixed[p] = CUR[p];
     if (S.W.installed.indexOf(p) < 0) S.W.installed.push(p);
     S.scenario(tag + ", importing " + p);

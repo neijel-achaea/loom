@@ -11,8 +11,9 @@ HU.costs = (huEntry && huEntry.rage) || {};
 var huDragon = get_variable("hunting_dragon_attack") || "gut";
 var huModes = { physical: "PHY", magical: "MAG", auto: "AUT" };
 var huMode = huModes[get_variable("hunting_dragon_mode")] || "AUT";
-// The staff attack is artificing's setting when it's installed.
-var huStaff = (client.loom.artificing && client.loom.artificing.staff) || get_variable("artificing_staff") || get_variable("staffAttack") || "scintilla";
+// The staff attack is magi's setting when it's installed (artificing's
+// before magi 0.1.0, whose names are read until magi has moved them).
+var huStaff = (client.loom.magi && client.loom.magi.staff) || get_variable("magi_staff") || get_variable("artificing_staff") || get_variable("staffAttack") || "scintilla";
 // Remembered so a new staff attack redraws the keys (see onGMCP).
 HU.staffDrawn = huStaff;
 var huTarget = get_variable("hunting_party_target") || "";

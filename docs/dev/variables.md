@@ -25,13 +25,6 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `debug` | setting | 0.1 | "on" for extra notices from loom, hunting, fishing and basher |  |
 | `activeClass` | legacy | 0.1 | the class before hunting_class; still read when hunting_class is empty |  |
 
-## artificing
-
-| Variable | Kind | Since | Holds | Was |
-|---|---|---|---|---|
-| `artificing_staff` | setting | 0.2 | the staff attack STAFF CAST uses | `staffAttack` |
-| `staffAttack` | legacy | 0.1 | old name of artificing_staff |  |
-
 ## basher
 
 | Variable | Kind | Since | Holds | Was |
@@ -109,16 +102,6 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `conjuration_ouroboros` | setting | 0.2 | the ouroboros the reagents go into |  |
 | `conjuration_sigil_from` | setting | 0.2 | the ouroboros the sigil is taken from |  |
 
-## crystalism
-
-| Variable | Kind | Since | Holds | Was |
-|---|---|---|---|---|
-| `crystalism_pearls` | setting | 0.2 | pick up pearls (CRYSTALISM PEARLS) |  |
-| `crystalism_portal` | setting | 0.2 | open portals on request (CRYSTALISM PORTAL) |  |
-| `crystalism_min` | setting | 0.5 | minimum per shape (CRYSTALISM MIN) |  |
-| `crystalism_default_min` | setting | 0.5 | default minimum |  |
-| `crystalism_rift` | data | 0.5 | rift counts last read |  |
-
 ## defcon
 
 | Variable | Kind | Since | Holds | Was |
@@ -143,13 +126,6 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `dc_gap` | legacy | 0.1 | old name of dmgchart_gap |  |
 | `dc_sessions` | legacy | 0.1 | old name of dmgchart_sessions |  |
 | `dc_open` | legacy | 0.1 | old name of dmgchart_open |  |
-
-## elementalism
-
-| Variable | Kind | Since | Holds | Was |
-|---|---|---|---|---|
-| `elementalism_pronouns` | setting | 0.2 | pronouns the set pieces use |  |
-| `elementalism_name` | state | 0.2 | your name, from GMCP or ELEMENTALISM NAME |  |
 
 ## fishing
 
@@ -281,6 +257,26 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `currentRoomName` | legacy | 0.1 | pre-Loom room tracking, deleted |  |
 | `currentArea` | legacy | 0.1 | pre-Loom room tracking, deleted |  |
 | `currentEnvironment` | legacy | 0.1 | pre-Loom room tracking, deleted |  |
+
+## magi
+
+Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names are migrated once the old packages are uninstalled).
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `magi_staff` | setting | 0.8 | the staff attack STAFF CAST uses | `artificing_staff` `staffAttack` |
+| `magi_pearls` | setting | 0.8 | pick up pearls (MAGI PEARLS) | `crystalism_pearls` |
+| `magi_portal` | setting | 0.8 | open portals on request (MAGI PORTAL) | `crystalism_portal` |
+| `magi_min` | setting | 0.8 | minimum per shape (MAGI MIN) | `crystalism_min` |
+| `magi_default_min` | setting | 0.8 | default minimum | `crystalism_default_min` |
+| `magi_rift` | data | 0.8 | rift counts last read | `crystalism_rift` |
+| `artificing_staff` | legacy | 0.2 | old name of magi_staff; hunting and the basher still read it while magi isn't installed |  |
+| `staffAttack` | legacy | 0.1 | artificing's pre-0.2 name of the staff attack; hunting still reads it while magi isn't installed |  |
+| `crystalism_pearls` | legacy | 0.2 | old name of magi_pearls |  |
+| `crystalism_portal` | legacy | 0.2 | old name of magi_portal |  |
+| `crystalism_min` | legacy | 0.5 | old name of magi_min |  |
+| `crystalism_default_min` | legacy | 0.5 | old name of magi_default_min |  |
+| `crystalism_rift` | legacy | 0.5 | old name of magi_rift |  |
 
 ## partycomms
 

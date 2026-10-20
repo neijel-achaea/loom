@@ -1,0 +1,278 @@
+{
+  "type": "group",
+  "name": "magi",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "group",
+      "name": "core",
+      "enabled": true,
+      "items": [
+        {
+          "type": "function",
+          "name": "magi_setup",
+          "enabled": true,
+          "code": "@file:magi_setup.js"
+        },
+        {
+          "type": "function",
+          "name": "magi_status",
+          "enabled": true,
+          "code": "@file:magi_status.js"
+        },
+        {
+          "type": "function",
+          "name": "magi_help",
+          "enabled": true,
+          "code": "@file:magi_help.js"
+        },
+        {
+          "type": "alias",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:alias_magi.js"
+            }
+          ],
+          "text": "^magi(?:\\s+(.*))?$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": false,
+          "prefix_suffix": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "crystalism",
+      "enabled": true,
+      "items": [
+        {
+          "type": "function",
+          "name": "magi_refine",
+          "enabled": true,
+          "code": "@file:magi_refine.js"
+        },
+        {
+          "type": "function",
+          "name": "magi_watchdog",
+          "enabled": true,
+          "code": "@file:magi_watchdog.js"
+        },
+        {
+          "type": "function",
+          "name": "magi_touch",
+          "enabled": true,
+          "code": "@file:magi_touch.js"
+        },
+        {
+          "type": "function",
+          "name": "magi_plan",
+          "enabled": true,
+          "code": "@file:magi_plan.js"
+        },
+        {
+          "type": "function",
+          "name": "magi_pump",
+          "enabled": true,
+          "code": "@file:magi_pump.js"
+        },
+        {
+          "type": "function",
+          "name": "magi_abort",
+          "enabled": true,
+          "code": "@file:magi_abort.js"
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_rift_row.js"
+            }
+          ],
+          "text": "^(.*\\[\\s*\\d+\\]\\s*crystal\\s+\\w+.*)$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_facets.js"
+            }
+          ],
+          "text": "^You have stored (\\d+) facets? for refinement\\.$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_pearl.js"
+            }
+          ],
+          "text": "^A glistening iridescent pearl tumbles out of the corpse of (.*)\\.$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_gate.js"
+            }
+          ],
+          "text": "^(\\w+) tells you(.*)\\, \\\"Gate\\.\\\"$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_attune.js"
+            }
+          ],
+          "text": "^You relax your muscles and attune yourself to your Master Crystal\\, feeling its vibrations draw your soul\\.$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_master_call.js"
+            }
+          ],
+          "text": "^The call of the Master Crystal is irresistible and you are drawn to it\\.$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "artificing",
+      "enabled": true,
+      "items": [
+        {
+          "type": "function",
+          "name": "magi_resume",
+          "enabled": true,
+          "code": "@file:magi_resume.js"
+        },
+        {
+          "type": "trigger",
+          "name": "magi treaty done (calm)",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_treaty_done_calm.js"
+            }
+          ],
+          "text": "^At last\\, the communion ends\\, and a tranquil voice murmurs\\, \\\"Thus is our treaty written\\.\\\"$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "magi treaty done (glad)",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:trigger_treaty_done_glad.js"
+            }
+          ],
+          "text": "^At last you are let go\\, and a delighted voice exclaims\\, \\\"Thus is our treaty written\\!\\\"$",
+          "matching": "regexp",
+          "whole_words": false,
+          "case_sensitive": true
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "elementalism",
+      "enabled": true,
+      "items": [
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "highlight",
+              "enabled": true,
+              "highlight_fg": "#00e9ff",
+              "highlight_bg": "#000000",
+              "highlight": "match",
+              "highlight_backref": ""
+            }
+          ],
+          "text": "This area is unnaturally flooded with water.",
+          "matching": "substring",
+          "whole_words": false,
+          "case_sensitive": true
+        }
+      ]
+    }
+  ],
+  "description": "Magi helpers: even crystal refining, pearls, portals, staff attack, treaties"
+}
