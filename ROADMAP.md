@@ -202,7 +202,7 @@ The integration code itself lives in the **loom** package, so neither side knows
 
 Steps, in order: package and core attack loop on balance/equilibrium → shield detection, presence checks, curing check → rage abilities → wimpy and the enemy-list integration → per-area target priorities, then learning them from huntstats → raze or swap → attacking the party leader's target → (maybe) defensive abilities in parties.
 
-**As shipped (2026-10-16, basher 0.5.0):** `BASHER ON` primes the basher and your own attack starts a run; it attacks on each recovery and fires battlerage on its own clock, by a rotation per class (default by rage cost, or a `bash:` list in hunting's class file); DIAGNOSE on venom confusion; razes shielded targets; flees one step back on low health or mana (wimpy), then stays primed; another player, an enemy, a tell or the city channel makes the fight in progress the last one. Targets come from a kill order per area, edited in the **Basher** tab (new mob types join ignored); while primed it keeps your target on the top one (`settarget`), and the Here tab numbers each mob in that order. Changes from the plan: the curing check became a reminder (server-side or your own curing are both fine); learning priority lists (#124) was dropped as unneeded; swapping targets and everything party-related moved to Loom 1.1.
+**As shipped (2026-10-16, basher 0.5.0):** `BASHER ON` primes the basher and your own attack starts a run; it attacks on each recovery and fires battlerage on its own clock, by a rotation per class (default by rage cost, or a `bash:` list in hunting's class file); DIAGNOSE on venom confusion; razes shielded targets; flees one step back on low health or mana (wimpy), then stays primed; another player, an enemy, a tell or the city channel makes the fight in progress the last one. Targets come from a kill order per area, edited in the **Basher** tab (new mob types join ignored); while primed it keeps your target on the top one (`settarget`), and the Here tab numbers each mob in that order. Changes from the plan: the curing check became a reminder (server-side or your own curing are both fine); learning priority lists (#124) was dropped as unneeded; swapping targets and everything party-related moved to Loom 1.2.
 
 ## Loom 0.7 — Documentation
 
@@ -226,19 +226,23 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 - One end-to-end regression run, built from every PR's in-game checklist, kept for future releases.
 - Package names settled before 1.0 freezes them: **crystalism** and **artificing** merged into **magi**, the first class package (#350); **elementalism** retired (its illusions were one player's roleplay content; its flood highlight moved to magi).
 
-## Loom 0.9 — Community Requests
+## Loom 1.0
 
-**Goal:** packages and features other players ask for, as the players who try Loom tell us what they need. New packages land here; their integrations with the rest of the suite follow the 0.5 conventions (a link in loom, off-switchable).
+**A stable product.** Hardening (0.8) ends straight in 1.0: commands and settings are stable from here. Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered.
+
+## Loom 1.x — Enhancements
+
+**Goal:** general enhancements on the stable 1.0, release by release, until the suite feels complete enough to start on PvP (Ricardo, 2026-10-20). New packages, features and requests land in 1.x milestones; class packages (one per class, `magi` first) collect each class's lines and data as they come in from alts.
+
+### Loom 1.1 — Community Requests
+
+Packages and features other players ask for, as the players who try Loom tell us what they need. New packages land here; their integrations with the rest of the suite follow the 0.5 conventions (a link in loom, off-switchable).
 
 - First request: **gathering** (#232), waiting on the game lines for gathering and storing.
 
-## Loom 1.0
+### Loom 1.2 — Advanced Autobasher
 
-**Commands and settings are stable.** Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered.
-
-## Loom 1.1 — Advanced Autobasher
-
-**Goal:** party bashing and the advanced techniques left out of 0.6, built only once the 0.6 basher has been tested thoroughly, so a party problem is clearly either the basher's or an integration's.
+Party bashing and the advanced techniques left out of 0.6, built only once the 0.6 basher has been tested thoroughly, so a party problem is clearly either the basher's or an integration's.
 
 - Attack the party leader's target; defensive and support abilities in parties.
 - Swap targets mid-fight (a better target arriving, a shield with no rage to raze it).
@@ -246,6 +250,8 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 - Empowered (++) battlerage for every class, from affliction lines collected on alts.
 
 ## Loom 2.x — PvP
+
+Starts once 1.x feels complete enough.
 
 **Goal:** make each class's win paths visible while fighting (Ricardo, 2026-10-20): what the opponent has (seen or likely), how far each route has got, and the next spell with its reason. Suggestions and state only, never firing offence. Magi first.
 
@@ -265,4 +271,4 @@ Class data lives in one package per class (`magi` first), so a character carries
 
 ## Tracking
 
-GitHub issues grouped into milestones Loom 0.2 to Loom 0.9, then Loom 1.1: one issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Closed milestones: 0.2 to 0.7. Player reports carry the `from-users` label.
+GitHub issues grouped into milestones, one per release: Loom 0.2 to 0.8, then Loom 1.1, 1.2 … and Loom 2.0 to 2.5 (PvP). One issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Closed milestones: 0.2 to 0.7. 1.0 has no milestone of its own: it's cut when 0.8 closes (#140). Player reports carry the `from-users` label; PvP work the `pvp` label.
