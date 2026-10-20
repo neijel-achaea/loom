@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "0.2.11", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "0.2.12", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -170,6 +170,30 @@ R.loyalOwner = function (x) {
   x = String(x || "").trim();
   return (/^[A-Z][a-z]+$/.test(x) && R.loyalNot.indexOf(x) < 0) ? x : "";
 };
+// Places named in one word look like players ("He is loyal to Qurnok.",
+// Ricardo): the player adds them by hand, ROOM PROBE IGNORE <name>.
+//   R.loyalIgnore  lowercased names, saved in room_loyal_ignore (JSON list)
+// R.loyal keeps what the probe read; the list is applied when read, so
+// UNIGNORE brings the marks back without probing again.
+R.loyalIgnore = [];
+try {
+  var rmIg = JSON.parse(get_variable("room_loyal_ignore") || "[]");
+  if (Object.prototype.toString.call(rmIg) === "[object Array]") {
+    for (var rmIgI = 0; rmIgI < rmIg.length; rmIgI++) { if (typeof rmIg[rmIgI] == "string" && rmIg[rmIgI]) R.loyalIgnore.push(rmIg[rmIgI].toLowerCase()); }
+  }
+} catch (e) { R.loyalIgnore = []; }
+R.saveLoyalIgnore = function () {
+  try { if (R.loyalIgnore.length) set_variable("room_loyal_ignore", JSON.stringify(R.loyalIgnore)); else delete_variable("room_loyal_ignore"); } catch (e) {}
+};
+R.loyalIgnored = function (x) { return R.loyalIgnore.indexOf(String(x || "").toLowerCase()) >= 0; };
+// The owner of mob id as shown: "" when nobody's or ignored, undefined when
+// not probed yet.
+R.ownerOf = function (id) {
+  var k = String(id);
+  if (!R.loyal.hasOwnProperty(k)) return undefined;
+  var o = R.loyal[k] || "";
+  return (o && !R.loyalIgnored(o)) ? o : "";
+};
 // Every line while a probe is out: gagged, and read.
 R.probeLine = function (line) {
   var p = R.probing;
@@ -206,7 +230,7 @@ R.probeEnd = function (ok) {
   if (ok) {
     if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
     R.loyal[p.id] = p.owner;
-    if (p.owner) {
+    if (p.owner && !R.loyalIgnored(p.owner)) {
       display_notice("[room] " + p.name + " (" + p.id + ") is loyal to " + p.owner + ".", "cyan");
       if (client.loom.notify) client.loom.notify("room");
       R.drawSoon();
@@ -221,5 +245,5 @@ R.probeEnd = function (ok) {
 //     when probed and loyal to nobody, undefined when not probed yet.
 R.look = {
   newbie: function (name) { var e = R.newbies[String(name || "").toLowerCase()]; return e ? e.title : undefined; },
-  loyal: function (id) { var k = String(id); return R.loyal.hasOwnProperty(k) ? R.loyal[k] : undefined; }
+  loyal: function (id) { return R.ownerOf(id); }
 };

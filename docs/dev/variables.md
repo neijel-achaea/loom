@@ -317,6 +317,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 |---|---|---|---|---|
 | `room_desc` | setting | 0.4 | description folded or open |  |
 | `room_probe` | setting | 0.8 | probe each new mob once for loyals |  |
+| `room_loyal_ignore` | setting | 0.8 | owners that are places, not loyals |  |
 | `room_newbies` | data | 0.5 | players seen with newbie titles |  |
 | `room_name` | state | 0.4 | your name, from GMCP |  |
 

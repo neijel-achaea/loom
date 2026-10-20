@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 0.2.11.*
+*This page describes room 0.2.12.*
 <!-- /loom:version -->
 
 ## What it is
@@ -28,6 +28,8 @@ What you see, top to bottom:
 | `ROOM` | the room in a line, and how the description starts |
 | `ROOM DESC OPEN\|FOLDED` | show the description in full, or folded to two lines (clicking it flips it too) |
 | `ROOM PROBE [ON\|OFF]` | loyals: probe each new mob once, silently, and mark the ones loyal to someone (default on) |
+| `ROOM PROBE IGNORE [name]` | places read as owners ("loyal to Qurnok"): mobs loyal to them aren't marked; no name lists them |
+| `ROOM PROBE UNIGNORE <name>` | take a name off that list |
 | `ROOM PROBE DEBUG` | the lines the last probe hid, and what ended it |
 | `ROOM DEBUG` | the last room GMCP payloads, as they came |
 | **The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like.** | |
@@ -50,7 +52,7 @@ Keep Here open beside the main window and glance at it instead of reading the ro
 - **Targeting.** The glow follows whatever changed last: the `tar` variable (your targeting keys and aliases), the game's own target (`ST`, `SETTARGET`), or the line "Your target is now: …". If you target a word, the glow sits on the first living mob whose name holds it, as the game would pick it, so you can see who your next attack lands on. A player whose name matches wins over a mob that merely contains the word.
 - **What's next.** Because mobs keep the room's order, one row each, the row under your target is the next one a name would hit after it dies.
 - **Who's here.** A player arriving or leaving updates the list at once, flying ones included.
-- **Loyals.** Each living mob is probed once, silently, the first time Room sees it (`PROBE` is free). One that is someone's loyal gets a knight (♞) on the left and its owner in brackets after its name, (Falau), in the owner's Social group colour when they have one; your own loyals show the knight and their name in green instead, and one notice in the main window. The basher never queues a loyal. Probes go out after a room's exits line (or at the next prompt for a mob walking in), never by a timer, and wait while the basher is fighting, since every line is hidden while one is out. They also wait their turn behind other packages' checks on the same move (Sigils' monolith reading, Patrolling's PLANTS and INFO HERE, Harvesting while it harvests the room, Social's QW), so those answers are never hidden; `ROOM PROBE` says whom probes are waiting after. `ROOM PROBE OFF` stops it; `ROOM PROBE` lists the loyals found.
+- **Loyals.** Each living mob is probed once, silently, the first time Room sees it (`PROBE` is free). One that is someone's loyal gets a knight (♞) on the left and its owner in brackets after its name, (Falau), in the owner's Social group colour when they have one; your own loyals show the knight and their name in green instead, and one notice in the main window. The basher never queues a loyal. Probes go out after a room's exits line (or at the next prompt for a mob walking in), never by a timer, and wait while the basher is fighting, since every line is hidden while one is out. They also wait their turn behind other packages' checks on the same move (Sigils' monolith reading, Patrolling's PLANTS and INFO HERE, Harvesting while it harvests the room, Social's QW), so those answers are never hidden; `ROOM PROBE` says whom probes are waiting after. `ROOM PROBE OFF` stops it; `ROOM PROBE` lists the loyals found. Some areas' mobs are loyal to a place named in one word ("He is loyal to Qurnok."), which reads like a player: `ROOM PROBE IGNORE Qurnok` stops marking them (at once, no new probe needed), `ROOM PROBE UNIGNORE Qurnok` undoes it, and `ROOM PROBE IGNORE` alone lists the names. City names are left out already.
 - **Newbies.** Players carrying a newbie title (Uaithne, Ithin or Tuqad) get a small green leaf after their name; hover it for the title.
 
 Room also remembers who it has seen with a newbie title, in rooms and in `CWHO`'s citizen list, and forgets them once it sees them without one. The Online and Comms tabs use that list for their own leaves (see below).

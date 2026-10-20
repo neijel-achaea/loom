@@ -32,6 +32,23 @@ if (rmSub === "" || rmSub === "status") {
       rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden:", "orange");
       for (var rmPd = 0; rmPd < rmPl.lines.length; rmPd++) rmSay("  " + rmPl.lines[rmPd], "orange");
     }
+  } else if (rmPv === "ignore" || rmPv === "unignore") {
+    // Names the probe reads as owners that are places (Qurnok): not loyals.
+    var rmNm = rmW.slice(2).join(" ").trim();
+    if (!rmNm) {
+      rmSay("not loyals, whoever they're loyal to: " + (R.loyalIgnore.length ? R.loyalIgnore.map(function (n) { return n.charAt(0).toUpperCase() + n.slice(1); }).join(", ") : "none") + ". ROOM PROBE IGNORE <name> to add one, UNIGNORE <name> to take it off.");
+    } else {
+      var rmNl = rmNm.toLowerCase(), rmNc = rmNl.charAt(0).toUpperCase() + rmNl.slice(1);
+      var rmAt = R.loyalIgnore.indexOf(rmNl);
+      if (rmPv === "ignore") {
+        if (rmAt >= 0) rmSay("mobs loyal to " + rmNc + " are already not marked.");
+        else { R.loyalIgnore.push(rmNl); R.saveLoyalIgnore(); rmSay("mobs loyal to " + rmNc + " are no longer marked as loyals.", "lime"); }
+      } else {
+        if (rmAt < 0) rmSay(rmNc + " isn't on the list. ROOM PROBE IGNORE lists it.", "orange");
+        else { R.loyalIgnore.splice(rmAt, 1); R.saveLoyalIgnore(); rmSay("mobs loyal to " + rmNc + " are marked as loyals again.", "lime"); }
+      }
+      if (client.loom.notify) client.loom.notify("room");
+    }
   } else if (rmPv === "on" || rmPv === "off") {
     R.probeOn = rmPv === "on";
     set_variable("room_probe", rmPv);
@@ -40,7 +57,7 @@ if (rmSub === "" || rmSub === "status") {
     if (R.probeOn) { for (var rmPi in R.items) { if (R.items.hasOwnProperty(rmPi)) R.probeAdd(R.items[rmPi]); } R.probeHold = ""; R.probeNext(); }
   } else {
     var rmLy = [];
-    for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.loyal[rmLi]) rmLy.push(rmLi + " (" + R.loyal[rmLi] + ")"); }
+    for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.ownerOf(rmLi)) rmLy.push(rmLi + " (" + R.ownerOf(rmLi) + ")"); }
     rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs probed, loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : (R.probeOthers().length ? " (after " + R.probeOthers().join(", ") + ")" : "")) : "") + ". ROOM PROBE ON|OFF to change it.");
   }
 } else if (rmSub === "debug") {
