@@ -158,11 +158,11 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 - [ ] **Harvesting:** walk a forest with `HARVESTING ON`: harvests and stores only what's short; rift totals update; `HARVESTING MIN 500` shrinks the list; reload: stays as left.
 - [ ] **Patrolling:** `PATROLLING ON`, walk: one report per room, `PLANTS`/`INFO HERE` hidden; a hostile god's shrine reported, a friendly one not; `SUGGEST`, `STAMP`; replanting logged to the clan with the date.
 - [ ] **Sigils:** `SIGILS WATCH ON` in your city: low monoliths flagged with their months, a missing one "no monolith"; walking back in doesn't repeat it; `SIGILS REPORT` with costs; `IGNORE HERE` silences a room; `CLEAR`.
-- [ ] **Crystalism:** `CRYSTALISM REFINE 10`: plan line, a REFINE every 1.5 s, rift put away at the end; `STOP` mid-run; a pearl from a corpse picked up; with `PORTAL ON`, a city member's "Gate." gets a portal, someone else the polite no; attuning pauses Loom until the crystal calls.
+- [ ] **Magi (crystals):** `MAGI REFINE 10`: plan line, a REFINE every 1.5 s, rift put away at the end; `REFINE STOP` mid-run; a pearl from a corpse picked up; with `PORTAL ON`, a city member's "Gate." gets a portal, someone else the polite no; attuning pauses Loom until the crystal calls.
 - [ ] **Conjuration:** `CONJURATION FLAME`: no "must regain balance" spam, the sigil ends in your inventory; `CONJURATION` shows progress; `STOP` abandons.
 - [ ] **Civic:** `CIVIC AIDE ON`/`OFF` sends the duty commands and the clan line; `CIVIC GREET <name>` (and `CT`/`CLT`); a lesson request accepted (not from an enemy); a new citizen escaping is added to social's city group.
-- [ ] **Artificing:** `ARTIFICING STAFF FROST`: the staff key casts horripilation after the next prompt; a treaty pauses and resumes with sipping back on.
-- [ ] **Elementalism:** `PINK_DRAGON` five lines two seconds apart with your name; a `FEEL_` and `ILLUSION MOSSTATTOO` cast.
+- [ ] **Magi (staff and treaties):** `MAGI STAFF FROST`: the staff key casts horripilation after the next prompt; a treaty pauses and resumes with sipping back on.
+- [ ] **Magi (upgrade):** a flooded room's line is highlighted cyan; with crystalism or artificing still installed, the warning at load and no pearl picked up twice; after uninstalling them and reloading, `MAGI` shows the old settings.
 - [ ] **Numpad movement:** walk on the number pad; 5 goes up, 0 down.
 
 ## 10. Integrations
@@ -184,7 +184,7 @@ With every package installed, each link does its part, and switching it off (`LO
 - [ ] `social-basher`: an enemy arriving mid-run is named as one.
 - [ ] `harvesting-ledger`: "Harvest run" when a plant is under 90% of its minimum; gone when all are back. `DROP` keeps it away until then.
 - [ ] `talpieces-ledger`: a complete colour, and spares at 16+; no flicker during a listing.
-- [ ] `crystalism-ledger`: "Collect N pearls" below 90%; `LEDGER DISMISSED` / `RESTORE crystalism`.
+- [ ] `magi-ledger`: "Collect N pearls" below 90%; `LEDGER DISMISSED` / `RESTORE magi`.
 - [ ] `sigils-ledger`: one "Sigil patrol" item with a due date; a monolith closer to expiry moves the date; `SIGILS CLEAR` takes it back.
 - [ ] `self-ledger`: an explorer rank drop adds "Explore a new area"; it stays after recovery and reload; a later drop brings a new one.
 - [ ] `huntstats-coffers`: starting a hunt in a known area proposes a goal (~10% over the average); `COFFERS ACCEPT` keeps it after the hunt; not accepted, leaving takes it back; a new area: none.

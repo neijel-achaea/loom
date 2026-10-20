@@ -50,7 +50,7 @@ The packages below send commands without you typing each one. Check them against
 | [fishing](fishing.md) | After your cast: teases, jerks and reels on the game's cues | the fish is landed or lost |
 | [harvesting](harvesting.md) | While on: harvests and stores what's short in each room you enter | `HARVESTING OFF` |
 | [hunting](hunting.md) | Autogold picks up gold from your kills (if set) | `HUNTING AUTOGOLD OFF` |
-| [crystalism](crystalism.md) | Picks up pearls; a refine run sends `REFINE` until done; **opens a sonic portal when a city member tells you "Gate."** (off by default) | `CRYSTALISM PEARLS OFF`, `STOP`, `PORTAL OFF` |
+| [magi](magi.md) | Picks up pearls; a refine run sends `REFINE` until done; **opens a sonic portal when a city member tells you "Gate."** (off by default) | `MAGI PEARLS OFF`, `REFINE STOP`, `PORTAL OFF` |
 | [civic](civic.md) | **Accepts lesson requests** from others (not enemies) | `LOOM PAUSE ON` |
 | [conjuration](conjuration.md) | A ritual's steps, one after another | the ritual ends, `CONJURATION STOP` |
 | [talpieces](talpieces.md) | Queues `TALISMAN COMBINE` for each row of your listing (on by default) | `TALPIECES COMBINE OFF` |

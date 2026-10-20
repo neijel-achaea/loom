@@ -3,7 +3,7 @@
 *Your class's attacks on the F-keys, lit when they're ready, with battlerage cooldowns, attack lines tagged, dragon attacks and gold pickup.*
 
 <!-- loom:version hunting -->
-*This page describes hunting 0.4.56.*
+*This page describes hunting 0.4.57.*
 <!-- /loom:version -->
 
 ## What it is
@@ -112,7 +112,7 @@ Hunting works on its own. It reads a few packages when they're installed:
 | Package | What hunting takes from it |
 | --- | --- |
 | huntstats | the F9 key, which shows the hunt under way |
-| artificing | the staff attack (`ARTIFICING STAFF`) for the staff key |
+| [magi](magi.md) | the staff attack (`MAGI STAFF`) for the staff key |
 | security | your backpack, where autogold puts the gold |
 
 And one package builds on it:

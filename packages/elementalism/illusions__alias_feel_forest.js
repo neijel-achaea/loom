@@ -1,1 +1,0 @@
-send_command("cast illusion The scent of wet bark and moss drifts down the stair, as if carried from the woods above.");

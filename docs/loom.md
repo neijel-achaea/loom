@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 0.7.10.*
+*This page describes loom 0.7.11.*
 <!-- /loom:version -->
 
 ## What it is
@@ -62,7 +62,7 @@ Every link:
 | `patrolling-room` | [patrolling](patrolling.md) | [room](room.md) | Shrines and totems in Here coloured by their god's stance |
 | `harvesting-ledger` | [harvesting](harvesting.md) | [ledger](ledger.md) | A harvest run reminder in the ledger when plant stock runs low |
 | `talpieces-ledger` | [talpieces](talpieces.md) | [ledger](ledger.md) | Ledger reminders for complete talisman sets and spare pieces |
-| `crystalism-ledger` | [crystalism](crystalism.md) | [ledger](ledger.md) | A collect pearls reminder in the ledger when crystals run low |
+| `magi-ledger` | [magi](magi.md) | [ledger](ledger.md) | A collect pearls reminder in the ledger when crystals run low |
 | `sigils-room` | [sigils](sigils.md) | [room](room.md) | Monoliths in Here; warns of a city room without one, or one outside the city |
 | `sigils-ledger` | [sigils](sigils.md) | [ledger](ledger.md) | A sigil patrol in the ledger, due when the first flagged monolith runs out |
 | `standings-social` | [standings](standings.md) | [social](social.md) | Names coloured by standing band, when SOCIAL COLOURS STANDINGS is chosen |
@@ -79,7 +79,7 @@ Every link:
 | `room-comms` | [room](room.md) | [comms](comms.md) | A green leaf on newbies' names in the Comms tab |
 | `social-basher` | [social](social.md) | [basher](basher.md) | An enemy arriving ends the basher's run after the current fight |
 | `basher-room` | [basher](basher.md) | [room](room.md) | Here shows the basher's kill order and state |
-| `crystalism-room` | [crystalism](crystalism.md) | [room](room.md) | Pearl-dropping oysters and pearls shown green in Here |
+| `magi-room` | [magi](magi.md) | [room](room.md) | Pearl-dropping oysters and pearls shown green in Here |
 | `partycomms-room` | [partycomms](partycomms.md) | [room](room.md) | Party members' targets shown on the mobs in Here |
 | `room-basher` | [room](room.md) | [basher](basher.md) | The basher skips mobs that are someone's loyal (found by Here's probe) |
 <!-- /loom:links -->

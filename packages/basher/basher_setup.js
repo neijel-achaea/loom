@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.8", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.9", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -165,7 +165,7 @@ B.commands = function (tar) {
 // placeholders filled as hunting's buttons fill them, @tar replaced; one
 // command per "|" part.
 B.prep = function (cmd, tar) {
-  var staff = (client.loom.artificing && client.loom.artificing.staff) || get_variable("artificing_staff") || "scintilla";
+  var staff = (client.loom.magi && client.loom.magi.staff) || get_variable("magi_staff") || get_variable("artificing_staff") || "scintilla";
   var dragon = get_variable("hunting_dragon_attack") || "gut";
   var party = get_variable("hunting_party_target") || "";
   var parts = String(cmd || "").split("|");

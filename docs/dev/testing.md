@@ -54,6 +54,8 @@ It checks every saved variable against **[Saved variables](variables.md)**: a *s
 
 It also names the settings no release saved while being set up (the run says nothing about those) and the ones new since the last release, which it checks from the next release on.
 
+**When packages merge** (crystalism and artificing into magi), name them in `MERGED` at the top of `tools/upgrade.js`: the old packages are set up from each release like any other, uninstalled when their successor is imported, and their settings are checked through the successor's *Was* rows.
+
 **When you add, rename or reshape a variable**, add its row to [Saved variables](variables.md) in the same pull request: a rename keeps the old name as a *legacy* row, names it under *Was* on the new row, and the package copies it across once on load, then deletes it.
 
 **Measuring cost.** `tools/sim.js` caches compiled scripts by default. `nexusCompile(true)` compiles every call behind a ~100-line prelude, as Nexus does, and `COMPILED` counts the scripts run and characters compiled. Use it to compare two builds of a busy session before trusting a speed-up, then confirm with `LOOM PERF` in game.

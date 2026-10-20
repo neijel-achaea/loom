@@ -16,7 +16,7 @@ Each package's page ends with its own troubleshooting. Start here when the troub
 
 ## Nothing is being sent
 
-**Check the pause.** `LOOM PAUSE OFF`. Loom pauses itself while you sleep, meditate or wade into the Mnemosyne, and a treaty (artificing) or Master Crystal attunement (crystalism) pauses it until they finish. If one of those was interrupted, the pause may still be on: `LOOM PAUSE OFF`, or `ARTIFICING RESUME` after a treaty.
+**Check the pause.** `LOOM PAUSE OFF`. Loom pauses itself while you sleep, meditate or wade into the Mnemosyne, and a treaty or Master Crystal attunement (magi) pauses it until they finish. If one of those was interrupted, the pause may still be on: `LOOM PAUSE OFF`, or `ARTIFICING RESUME` after a treaty.
 
 The pause is the Nexus variable `pauseTriggers`; your own reflexes can use it too.
 

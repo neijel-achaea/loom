@@ -90,7 +90,7 @@ Installed together, other packages add items to your ledger through Loom's integ
 | --- | --- | --- |
 | `harvesting-ledger` | harvesting | "Harvest run", when any plant falls below 90% of its minimum stock; gone once all are back at their minimum. |
 | `talpieces-ledger` | talpieces | One when a colour's set is complete, and one listing spare pieces to trade once you hold 16 or more. |
-| `crystalism-ledger` | crystalism | "Collect N pearls", when a crystal shape falls below 90% of its minimum. |
+| `magi-ledger` | [magi](magi.md) | "Collect N pearls", when a crystal shape falls below 90% of its minimum. |
 | `sigils-ledger` | sigils | "Sigil patrol: N monoliths to renew (M missing), first …", due on the day the first flagged monolith runs out. |
 | `self-ledger` | self | "Explore a new area", when your explorer rank drops while you play. Stays until you mark it done. |
 
