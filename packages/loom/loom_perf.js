@@ -39,16 +39,16 @@ L.perfWhat = function (code, label, trig) {
   var m = /^(\w+)\s*\[(.*)\]\s*$/.exec(lb);
   var kind = m ? m[1].toLowerCase() : (lb ? lb.split(/\s/)[0].toLowerCase() : "script");
   var name = m ? m[2] : "";
-  // An unnamed trigger goes by its pattern (the trigger that just matched).
+  // Unnamed: the script's opening comment says what it is (house style);
+  // failing that, a trigger's pattern; failing that, its first line.
+  var first = String(code || "").replace(/^\s+/, "").split("\n")[0];
+  if (!name && /^\/\//.test(first)) name = first.replace(/^\/\/\s*/, "");
   if (!name && kind === "trigger" && trig) {
     var pat = trig.text !== undefined ? trig.text : trig.regexp;
-    if (pat) name = String(pat);
-    if (name.length > 44) name = name.substring(0, 43) + "…";
+    if (pat) name = "/" + String(pat) + "/";
   }
-  if (!name) {
-    var first = String(code || "").replace(/^\s+/, "").split("\n")[0].replace(/^\/\/\s*/, "");
-    name = first.length > 44 ? first.substring(0, 43) + "…" : first;
-  }
+  if (!name) name = first;
+  if (name.length > 44) name = name.substring(0, 43) + "…";
   return { kind: kind, name: name || "(unnamed)" };
 };
 
