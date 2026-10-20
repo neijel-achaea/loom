@@ -85,6 +85,6 @@ if (e && !isNaN(e.amt)) {
     d.lastInc = { type: e.type, amt: e.amt, t: now, inSess: !!ss, undo: undo };
     run_function("dmgchart_lasts", [], "dmgchart");
   }
-  run_function("dmgchart_render", [], "dmgchart");
+  if (d.drawSoon) d.drawSoon(); else run_function("dmgchart_render", [], "dmgchart");
 }
 d.ev = null;

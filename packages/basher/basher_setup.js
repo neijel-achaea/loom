@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "0.5.6", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "0.5.7", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -453,14 +453,17 @@ B.syncKeys = function () {
   if (client.loom.registry && client.loom.registry.hunting) { try { run_function("hunting_buttons", [], "hunting"); } catch (e) {} }
 };
 
+// Other tabs (Here) hear of a change at once, so they can fold it into the
+// draw the same GMCP packet already started; the Basher tab itself redraws
+// once per burst (#136: Here drew twice per room step).
 B.draw = function () {
   B.syncKeys();
+  if (client.loom.notify) client.loom.notify("basher");
   if (B.drawT) return;
   B.drawT = setTimeout(function () {
     var b = client.loom.basher;
     b.drawT = null;
     try { run_function("basher_render", [], "basher"); } catch (e) {}
-    if (client.loom.notify) client.loom.notify("basher");
   }, 60);
 };
 

@@ -85,7 +85,6 @@ if (rmMine) {
     rmDraw = false;
   }
   if (rmDraw) {
-    clearTimeout(R.drawT);
-    R.drawT = setTimeout(function () { run_function("room_render", [], "room"); }, 50);
+    R.drawSoon();
   }
 }

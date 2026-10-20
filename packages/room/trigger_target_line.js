@@ -9,6 +9,5 @@ var R = client.loom.room;
 var tlName = String(args[1] || "").trim();
 if (tlName) {
   R.target = { id: tlName, name: "", hp: "", at: Date.now(), line: String(args[2] || "") };
-  clearTimeout(R.drawT);
-  R.drawT = setTimeout(function () { run_function("room_render", [], "room"); }, 50);
+  R.drawSoon();
 }

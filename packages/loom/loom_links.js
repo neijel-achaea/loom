@@ -149,6 +149,14 @@ L.answer = function (dst, q, arg) {
 L.redrawT = L.redrawT || {};
 L.redraw = function (dst) {
   if (!dst) return;
+  // A destination whose redraw already gathers a burst into one draw says so
+  // (registry `soon: true`, room): asked at once, it joins the draw already
+  // pending instead of adding one 50 ms later (#136).
+  var rs = (client.loom.registry || {})[dst];
+  if (rs && rs.soon && typeof rs.redraw === "function") {
+    try { rs.redraw(); } catch (e) { display_notice("[loom] redraw of " + dst + " failed: " + e, "orange"); }
+    return;
+  }
   if (L.redrawT[dst]) clearTimeout(L.redrawT[dst]);
   L.redrawT[dst] = setTimeout(function () {
     L.redrawT[dst] = null;

@@ -147,7 +147,8 @@ function newWorld(installed, vars) {
     addEventListener() {},
   };
   G.setTimeout = (f, ms) => { const t = { f, at: W.now + (Number(ms) || 0), pkg: STACK[STACK.length - 1] || "" }; W.timers.push(t); return t; };
-  G.clearTimeout = t => { W.timers = W.timers.filter(x => x !== t); };
+  // As in a browser, a cleared timer never runs, even one already due.
+  G.clearTimeout = t => { if (t) t.cancelled = true; W.timers = W.timers.filter(x => x !== t); };
   G.setInterval = (f, ms) => { const t = { f, ms: Number(ms) || 1000, pkg: STACK[STACK.length - 1] || "" }; W.intervals.push(t); return t; };
   G.clearInterval = t => { W.intervals = W.intervals.filter(x => x !== t); };
   Date.now = () => W.now;
@@ -176,6 +177,7 @@ function flush(rounds) {
     if (!due.length) break;
     W.timers = W.timers.filter(t => t.at > W.now);
     for (const t of due) {
+      if (t.cancelled) continue;
       STACK.push(t.pkg);
       try { t.f(); }
       catch (e) { finding(t.pkg, "timer", "throws", String(e && e.message || e).split("\n")[0], SCEN, String(e && e.stack || "").split("\n").slice(0, 3).join(" | ")); }
@@ -183,6 +185,8 @@ function flush(rounds) {
     }
   }
 }
+// Moves the clock on, running timers in time order as it goes, as a browser
+// does (a timer set while another runs waits for its own time, not the end).
 function advance(ms) {
   const end = W.now + ms;
   // intervals fire once per advance (enough to run their code)
@@ -190,6 +194,18 @@ function advance(ms) {
     STACK.push(t.pkg);
     try { t.f(); }
     catch (e) { finding(t.pkg, "interval", "throws", String(e && e.message || e).split("\n")[0], SCEN); }
+    finally { STACK.pop(); }
+  }
+  for (let guard = 0; guard < 20000; guard++) {
+    let next = null;
+    for (const t of W.timers) if (t.at <= end && (!next || t.at < next.at)) next = t;
+    if (!next) break;
+    W.timers = W.timers.filter(x => x !== next);
+    if (next.at > W.now) W.now = next.at;
+    if (next.cancelled) continue;
+    STACK.push(next.pkg);
+    try { next.f(); }
+    catch (e) { finding(next.pkg, "timer", "throws", String(e && e.message || e).split("\n")[0], SCEN, String(e && e.stack || "").split("\n").slice(0, 3).join(" | ")); }
     finally { STACK.pop(); }
   }
   W.now = end;

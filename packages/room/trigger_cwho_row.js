@@ -11,6 +11,6 @@ if (R && R.cwhoAt && Date.now() - R.cwhoAt < 2000) {
   if (/^[A-Z][a-z]+$/.test(cwName) && R.seen(cwName, cwFull)) {
     R.saveNewbies();
     if (client.loom.notify) client.loom.notify("room");
-    run_function("room_render", [], "room");
+    if (R.drawSoon) R.drawSoon(); else run_function("room_render", [], "room");
   }
 }
