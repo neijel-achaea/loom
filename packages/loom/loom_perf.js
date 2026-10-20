@@ -34,11 +34,17 @@ L.perfMissing = function () {
 
 // Which script ran: "Function [name]" labels name themselves; trigger and
 // alias scripts are often unnamed, so their first comment line stands in.
-L.perfWhat = function (code, label) {
+L.perfWhat = function (code, label, trig) {
   var lb = String(label || "");
   var m = /^(\w+)\s*\[(.*)\]\s*$/.exec(lb);
   var kind = m ? m[1].toLowerCase() : (lb ? lb.split(/\s/)[0].toLowerCase() : "script");
   var name = m ? m[2] : "";
+  // An unnamed trigger goes by its pattern (the trigger that just matched).
+  if (!name && kind === "trigger" && trig) {
+    var pat = trig.text !== undefined ? trig.text : trig.regexp;
+    if (pat) name = String(pat);
+    if (name.length > 44) name = name.substring(0, 43) + "…";
+  }
   if (!name) {
     var first = String(code || "").replace(/^\s+/, "").split("\n")[0].replace(/^\/\/\s*/, "");
     name = first.length > 44 ? first.substring(0, 43) + "…" : first;
@@ -51,7 +57,13 @@ L.perfStart = function (secs) {
   var miss = L.perfMissing();
   if (miss.length) return "missing";
   var now = L.perfNow;
+  // The clock's step: Firefox, for one, rounds to whole milliseconds.
+  var g0 = now(), g1 = g0, gN = 0;
+  while (g1 === g0 && gN < 5000000) { g1 = now(); gN++; }
+  var g2 = g1; gN = 0;
+  while (g2 === g1 && gN < 5000000) { g2 = now(); gN++; }
   var st = {
+    grain: Math.max(0, g2 - g1),
     t0: now(), wall0: Date.now(), secs: secs, done: false,
     stack: [], scripts: {}, pkgs: {}, gmcp: {}, lines: 0, lineMs: 0, execInLines: 0,
     matchPkg: {}, gmcpCount: 0, inLine: false,
@@ -78,7 +90,7 @@ L.perfStart = function (secs) {
         var d = now() - fr.t, self = d - fr.child;
         if (st.stack.length) st.stack[st.stack.length - 1].child += d;
         else if (st.inLine) st.execInLines += d;
-        var pn = pkgOf(p), w = L.perfWhat(code, label), key = pn + "\u0000" + w.kind + "\u0000" + w.name;
+        var pn = pkgOf(p), w = L.perfWhat(code, label, st.lastTrig), key = pn + "\u0000" + w.kind + "\u0000" + w.name;
         var r = st.scripts[key] || (st.scripts[key] = { pkg: pn, kind: w.kind, name: w.name, calls: 0, self: 0, max: 0 });
         r.calls++; r.self += self; if (d > r.max) r.max = d;
         var P = pk(pn); P.self += self; P.calls++;
@@ -101,18 +113,32 @@ L.perfStart = function (secs) {
   var trig = null;
   try { var al = RX && RX.get_active_list ? RX.get_active_list("trigger") : []; trig = al && al.length ? Object.getPrototypeOf(al[0]) : null; } catch (e) { trig = null; }
   var owner = typeof WeakMap != "undefined" ? new WeakMap() : null;
+  // The package a trigger belongs to: its top group, reached through `p`
+  // (the client's own package_for_reflex climbs a field these don't have).
+  var pkgNames = {};
+  try { var pls = client._packages.list(); for (var pi = 0; pi < pls.length; pi++) pkgNames[pls[pi].name] = true; } catch (e) {}
   var ownerOf = function (rx) {
     if (owner && owner.has(rx)) return owner.get(rx);
-    var n = "(yours)";
-    try { var po = RX.package_for_reflex(rx); if (po) n = String(po.name || po); } catch (e) {}
+    var n = "(yours)", x = rx;
+    try {
+      for (var d = 0; x && d < 30; d++) {
+        if (x.is_package || (!x.p && x !== rx)) { if (x.is_package || pkgNames[x.name]) n = String(x.name); break; }
+        x = x.p;
+      }
+    } catch (e) {}
     if (owner) owner.set(rx, n);
     return n;
   };
   if (trig) wrap(trig, "do_matching", function (orig) {
     return function () {
-      var t = now();
-      try { return orig.apply(this, arguments); }
-      finally { var n = ownerOf(this); st.matchPkg[n] = (st.matchPkg[n] || 0) + (now() - t); }
+      var t = now(), m = null;
+      try { m = orig.apply(this, arguments); return m; }
+      finally {
+        var n = ownerOf(this);
+        st.matchPkg[n] = (st.matchPkg[n] || 0) + (now() - t);
+        // The trigger whose script runs next, for its label.
+        if (m) st.lastTrig = this;
+      }
     };
   });
   wrap(client._datahandler, "handle_GMCP", function (orig) {
@@ -193,14 +219,18 @@ L.perfPad = function (s, w, right) {
 };
 
 L.perfReport = function (st) {
-  var pad = L.perfPad, ms = L.perfFmtMs, n = L.perfFmtN;
+  var pad = L.perfPad, n = L.perfFmtN;
+  // A coarse clock (a step of half a millisecond or more) shows whole ms:
+  // decimals would only be noise. Totals over many calls stay fair.
+  var coarse = st.grain >= 0.5;
+  var ms = coarse ? function (v) { return (v < 1 && v > 0 ? "<1" : String(Math.round(v))) + " ms"; } : L.perfFmtMs;
   var H = "#00ffff", T = "#9fc9c9", W = "#e6c25a";
   var secs = st.elapsed / 1000;
   var scriptMs = 0, k;
   for (k in st.pkgs) scriptMs += st.pkgs[k].self;
   var matchMs = 0;
   for (k in st.matchPkg) { matchMs += st.matchPkg[k]; (st.pkgs[k] || (st.pkgs[k] = { self: 0, calls: 0, worst: 0, worstWhat: "", match: 0 })).match = st.matchPkg[k]; }
-  // Trigger matching with no per-pattern figures: the lines' time less the scripts they ran.
+  // No per-pattern figures (no trigger to hook): the lines' time less the scripts they ran.
   if (!matchMs && st.lines) matchMs = Math.max(0, st.lineMs - st.execInLines);
   var busy = scriptMs + matchMs;
   var rows = [];
@@ -257,6 +287,7 @@ L.perfReport = function (st) {
   }
   L.perfDataRows(rows);
   rows.push([[""]]);
+  if (coarse) rows.push([["This browser's clock ticks every " + (Math.round(st.grain * 10) / 10) + " ms, so a single call reads as 0, 1, 2 ms…; totals over many calls even out.", T]]);
   rows.push([["Times are the scripts' own (a function called from another counts under itself). Measuring adds a little to every figure. Yellow: one call over " + L.perfSlow + " ms, a frame at 60 fps.", T]]);
   L.perfPrint("[loom] PERF: " + (secs < 10 ? secs.toFixed(1) : Math.round(secs)) + " s sample", rows);
 };
