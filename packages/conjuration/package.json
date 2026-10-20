@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "conjuration_gmcp",
+      "enabled": true,
+      "code": "@file:conjuration_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "conjuration_setup",
       "enabled": true,
       "code": "@file:conjuration_setup.js"

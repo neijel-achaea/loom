@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
-client.loom.registry.loom = { version: "0.7.8", keyword: "LOOM", desc: "{{description}}" };
+client.loom.registry.loom = { version: "0.7.9", keyword: "LOOM", desc: "{{description}}" };
 
 // The legacy room variables loom used to set have no readers left: delete
 // them once. activeClass is left for hunting and defcon to seed
@@ -25,3 +25,5 @@ run_function("loom_theme", [], "loom");
 run_function("loom_perf", [], "loom");
 // Integrations that write (ledger reminders, …) look at their source once.
 client.loom.loom.updateAll();
+// The two-line scripts' work (#136): made afresh, so a reimport replaces it.
+run_function("loom_gmcp", [], "loom");

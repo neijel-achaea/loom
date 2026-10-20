@@ -24,6 +24,12 @@
     },
     {
       "type": "function",
+      "name": "self_gmcp",
+      "enabled": true,
+      "code": "@file:self_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

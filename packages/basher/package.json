@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "basher_gmcp",
+      "enabled": true,
+      "code": "@file:basher_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

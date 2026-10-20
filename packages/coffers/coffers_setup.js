@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "0.3.4", keyword: "COFFERS", desc: "{{description}}",
+client.loom.registry.coffers = { version: "0.3.5", keyword: "COFFERS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("coffers_render", [], "coffers"); } };
 var CO = client.loom.coffers;

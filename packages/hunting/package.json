@@ -23,6 +23,18 @@
     },
     {
       "type": "function",
+      "name": "hunting_line",
+      "enabled": true,
+      "code": "@file:hunting_line.js"
+    },
+    {
+      "type": "function",
+      "name": "hunting_gmcp",
+      "enabled": true,
+      "code": "@file:hunting_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

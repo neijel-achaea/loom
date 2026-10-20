@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "social_line",
+      "enabled": true,
+      "code": "@file:social_line.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

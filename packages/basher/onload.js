@@ -23,3 +23,5 @@ setTimeout(function () {
   var B = client.loom && client.loom.basher;
   if (B && !B.hunting()) display_notice("[basher] needs the hunting package to attack; it sends nothing without it.", "orange");
 }, 5000);
+// The two-line scripts' work (#136): made afresh, so a reimport replaces it.
+run_function("basher_gmcp", [], "basher");
