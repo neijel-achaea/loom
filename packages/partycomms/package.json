@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "partycomms_gmcp",
+      "enabled": true,
+      "code": "@file:partycomms_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

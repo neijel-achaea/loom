@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "loom_gmcp",
+      "enabled": true,
+      "code": "@file:loom_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

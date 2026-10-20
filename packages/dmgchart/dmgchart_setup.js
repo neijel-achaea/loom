@@ -5,7 +5,7 @@
 // state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "0.3.7", keyword: "DMGCHART", desc: "{{description}}",
+client.loom.registry.dmgchart = { version: "0.3.8", keyword: "DMGCHART", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("dmgchart_render", [], "dmgchart"); } };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};

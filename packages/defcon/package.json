@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "defcon_gmcp",
+      "enabled": true,
+      "code": "@file:defcon_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

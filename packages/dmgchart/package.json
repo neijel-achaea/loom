@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "dmgchart_gmcp",
+      "enabled": true,
+      "code": "@file:dmgchart_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

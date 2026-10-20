@@ -10,7 +10,7 @@ if (!client.loom.social) client.loom.social = {};
 // colours (Here, Comms).
 // busy (#318): true while a QW poll's answer is still coming, so Here's
 // loyal probe waits its turn. A capture open for 5 s no longer counts.
-client.loom.registry.social = { version: "0.4.9", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+client.loom.registry.social = { version: "0.4.10", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
   var Sq = client.loom.social;
   return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
 }, redraw: function () {

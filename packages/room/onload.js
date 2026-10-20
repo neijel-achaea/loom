@@ -14,3 +14,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
 
 run_function("room_setup", [], "room");
 run_function("room_render", [], "room");
+// The two-line scripts' work (#136): made afresh, so a reimport replaces it.
+run_function("room_gmcp", [], "room");

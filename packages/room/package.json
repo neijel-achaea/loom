@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "room_gmcp",
+      "enabled": true,
+      "code": "@file:room_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

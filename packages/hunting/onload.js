@@ -5,3 +5,6 @@ set_variable("hunting_toggles", "{}");
 if (client.loom && client.loom.hunting) client.loom.hunting.toggles = {};
 run_function("hunting_setup", [], "hunting");
 run_function("hunting_buttons", [], "hunting");
+// The two-line scripts' work (#136): made afresh, so a reimport replaces it.
+run_function("hunting_gmcp", [], "hunting");
+run_function("hunting_line", [], "hunting");

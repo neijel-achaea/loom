@@ -23,6 +23,12 @@
   },
   {
    "type": "function",
+   "name": "levelgraph_gmcp",
+   "enabled": true,
+   "code": "@file:levelgraph_gmcp.js"
+  },
+  {
+   "type": "function",
    "name": "onGMCP",
    "enabled": true,
    "code": "@file:ongmcp.js"

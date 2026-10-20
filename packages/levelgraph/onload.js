@@ -13,3 +13,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
 }
 run_function("levelgraph_setup", [], "levelgraph");
 run_function("levelgraph_render", [], "levelgraph");
+// The two-line scripts' work (#136): made afresh, so a reimport replaces it.
+run_function("levelgraph_gmcp", [], "levelgraph");

@@ -18,3 +18,5 @@ send_command("score");
 send_command("def");
 
 run_function("self_render", [], "self");
+// The two-line scripts' work (#136): made afresh, so a reimport replaces it.
+run_function("self_gmcp", [], "self");

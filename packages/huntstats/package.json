@@ -23,6 +23,12 @@
     },
     {
       "type": "function",
+      "name": "huntstats_gmcp",
+      "enabled": true,
+      "code": "@file:huntstats_gmcp.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"

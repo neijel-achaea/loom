@@ -14,3 +14,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
 
 run_function("coffers_setup", [], "coffers");
 run_function("coffers_render", [], "coffers");
+// The two-line scripts' work (#136): made afresh, so a reimport replaces it.
+run_function("coffers_gmcp", [], "coffers");
