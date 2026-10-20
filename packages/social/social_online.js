@@ -19,12 +19,12 @@ function ask(q, n) { return (LL && LL.answer) ? LL.answer("social", q, n) : unde
 // the column stays quiet. Falls back to the band's name with no icon.
 function standCell(n) {
   var st = ask("person.standing", cap(n));
-  if (!st) return '<span style="flex:none;min-width:2.6em;"></span>';
+  if (!st) return '<span class="lo-st"></span>';
   var arrow = st.trend > 0 ? ' &#9650;' : (st.trend < 0 ? ' &#9660;' : '');
   var sc = (st.score > 0 ? "+" : "") + (Math.round(st.score * 10) / 10).toFixed(1);
   var tip = st.band + " " + sc + (st.recent ? ", " + st.recent + " dealing" + (st.recent === 1 ? "" : "s") + " in the last few days" + (st.trend > 0 ? ", up" : (st.trend < 0 ? ", down" : "")) : "");
-  var mark = st.icon ? '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:12px;">' + esc(st.icon) + '\ufe0e</span>' : esc(st.band);
-  return '<span title="' + esc(tip) + '" style="flex:none;min-width:2.6em;text-align:right;white-space:nowrap;cursor:default;color:' + esc(st.colour) + ';">' + mark + '<span style="font-size:8px;">' + arrow + '</span></span>';
+  var mark = st.icon ? '<span class="lo-sym">' + esc(st.icon) + '\ufe0e</span>' : esc(st.band);
+  return '<span class="lo-st lo-stv" title="' + esc(tip) + '" style="color:' + esc(st.colour) + ';">' + mark + '<span class="lo-arw">' + arrow + '</span></span>';
 }
 // The ledger column (#197, from ledger through loom's link ledger-online):
 // a quill when open items in the ledger name this person, with the count
@@ -38,11 +38,11 @@ function ledgerCell(n) {
   var c = worst === "overdue" ? "#d0604c" : (worst === "soon" ? "#e0a95a" : MUTED);
   var tip = [];
   for (var li = 0; li < its.length; li++) tip.push("#" + its[li].id + " " + its[li].text + (its[li].when ? " (" + its[li].when + ")" : ""));
-  return '<span title="' + esc(tip.join("\n")) + '" style="flex:none;white-space:nowrap;cursor:default;color:' + c + ';"><span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',sans-serif;font-size:11px;">\u270e\ufe0e</span>' + (its.length > 1 ? '<span style="font-size:9px;">' + its.length + '</span>' : '') + '</span>';
+  return '<span class="lo-lg" title="' + esc(tip.join("\n")) + '" style="color:' + c + ';"><span class="lo-quill">\u270e\ufe0e</span>' + (its.length > 1 ? '<span class="lo-lgn">' + its.length + '</span>' : '') + '</span>';
 }
 // The newbie leaf (#242, from room through loom): a small green leaf after
 // the name of someone last seen with a newbie title; the title on hover.
-function leaf(title) { return '<span title="newbie (' + esc(title) + ')" style="margin-left:4px;cursor:default;"><svg width="10" height="10" viewBox="0 0 10 10" style="vertical-align:-1px;" xmlns="http://www.w3.org/2000/svg"><path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/></svg></span>'; }
+function leaf(title) { return title ? '<span class="lo-leaf" title="newbie (' + esc(title) + ')"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/></svg></span>' : ''; }
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
 // small-caps headings, monospace rows. The accent is a moonlit teal.
 var S = client.loom.social;
@@ -131,13 +131,13 @@ if (!watchedN) {
     var sinceAt = (S.since && S.since[r.n]) || S.loginAt;
     var since = sinceAt ? now - sinceAt : null;
     var right = r.out ? "logged out" : (glow ? "logged in" : (since !== null ? forTxt(since) : ""));
-    html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:2px 0;' + (r.out ? 'opacity:0.6;' : '') + '">';
-    html += '<span title="' + esc(g2) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:12px;cursor:default;' + nameStyle + '">' + esc(cap(r.n)) + (ask("person.newbie", cap(r.n)) ? leaf(ask("person.newbie", cap(r.n))) : '') + '</span>';
+    html += '<div class="lo-row' + (r.out ? ' lo-gone' : '') + '">';
+    html += '<span class="lo-name" title="' + esc(g2) + '" style="' + nameStyle + '">' + esc(cap(r.n)) + leaf(ask("person.newbie", cap(r.n))) + '</span>';
     // Integration columns go here, between the name and the time: standing
     // (#196), then ledger (#197).
     html += ledgerCell(r.n);
     html += standCell(r.n);
-    html += '<span style="min-width:5.5em;text-align:right;color:' + (r.out ? MUTED : (glow ? col : MUTED)) + ';white-space:nowrap;">' + right + '</span>';
+    html += '<span class="lo-t"' + (glow && !r.out ? ' style="color:' + col + ';"' : '') + '>' + right + '</span>';
     html += '</div>';
   }
   html += '</div>';
@@ -161,11 +161,11 @@ if (watchedN && S.prev !== null) {
     html += '<div class="loom-ofl-list">';
     for (var oi = 0; oi < off.length; oi++) {
       var o = off[oi];
-      html += '<div style="display:flex;align-items:baseline;gap:8px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;opacity:0.55;">';
-      html += '<span title="' + esc(grp[o.n]) + '" style="flex:1 1 auto;white-space:nowrap;font-family:' + SERIF + ';font-size:11px;cursor:default;color:' + nameCol(o.n, grp[o.n]) + ';">' + esc(cap(o.n)) + (ask("person.newbie", cap(o.n)) ? leaf(ask("person.newbie", cap(o.n))) : '') + '</span>';
+      html += '<div class="lo-row lo-off">';
+      html += '<span class="lo-name" title="' + esc(grp[o.n]) + '" style="color:' + nameCol(o.n, grp[o.n]) + ';">' + esc(cap(o.n)) + leaf(ask("person.newbie", cap(o.n))) + '</span>';
       html += ledgerCell(o.n);
       html += standCell(o.n);
-      html += '<span style="min-width:5.5em;text-align:right;color:' + MUTED + ';white-space:nowrap;">' + (o.seen ? agoTxt(now - o.seen) : "not seen yet") + '</span>';
+      html += '<span class="lo-t">' + (o.seen ? agoTxt(now - o.seen) : "not seen yet") + '</span>';
       html += '</div>';
     }
     html += '</div>';
@@ -187,8 +187,20 @@ try {
     document.head.appendChild(oflSt);
     document.body.classList.toggle("loom-ofl-fold", S.showOffline === false);
   }
+  // Every row's look lives here, not in each row's HTML: with hundreds of
+  // watched people the inline styles made a single draw over 100 KB (#136).
+  var SYM = "'Segoe UI Symbol','DejaVu Sans','Noto Sans Symbols','Noto Sans Symbols 2',sans-serif";
   var oflCss = 'body.loom-ofl-fold .loom-ofl-list { display: none; } .loom-ofl-arrow::before { content: "\\25BE  "; } body.loom-ofl-fold .loom-ofl-arrow::before { content: "\\25B8  "; }' +
-    ' .flexlayout__tab:has(#loom-online) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-online) > * { min-height: 100%; }';
+    ' .flexlayout__tab:has(#loom-online) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-online) > * { min-height: 100%; }' +
+    ' #loom-online .lo-row { display: flex; align-items: baseline; gap: 8px; border-bottom: 1px dotted ' + RULE + '; padding: 2px 0; }' +
+    ' #loom-online .lo-gone { opacity: 0.6; } #loom-online .lo-off { padding: 1px 0; opacity: 0.55; }' +
+    ' #loom-online .lo-name { flex: 1 1 auto; white-space: nowrap; font-family: ' + SERIF + '; font-size: 12px; cursor: default; }' +
+    ' #loom-online .lo-off .lo-name { font-size: 11px; }' +
+    ' #loom-online .lo-t { min-width: 5.5em; text-align: right; color: ' + MUTED + '; white-space: nowrap; }' +
+    ' #loom-online .lo-st { flex: none; min-width: 2.6em; } #loom-online .lo-stv { text-align: right; white-space: nowrap; cursor: default; }' +
+    ' #loom-online .lo-sym { font-family: ' + SYM + '; font-size: 12px; } #loom-online .lo-arw { font-size: 8px; }' +
+    ' #loom-online .lo-lg { flex: none; white-space: nowrap; cursor: default; } #loom-online .lo-quill { font-family: ' + SYM + '; font-size: 11px; } #loom-online .lo-lgn { font-size: 9px; }' +
+    ' #loom-online .lo-leaf { margin-left: 4px; cursor: default; } #loom-online .lo-leaf svg { vertical-align: -1px; }';
   if (oflSt.textContent !== oflCss) oflSt.textContent = oflCss;
 } catch (e) {}
 try { set_custom_tab_html("Online", html); } catch (e) {}

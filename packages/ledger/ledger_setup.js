@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "0.3.4", keyword: "LEDGER", desc: "{{description}}",
+client.loom.registry.ledger = { version: "0.3.5", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;
@@ -162,24 +162,41 @@ LG.look = {
     name = String(name || "").trim();
     if (!/^[A-Za-z]+$/.test(name)) return [];
     name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-    var re = new RegExp("(^|[^A-Za-z])" + name + "(?![A-Za-z])");
-    var items;
-    try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
-    var today = LG.day, out = [];
-    for (var i = 0; i < items.length; i++) {
-      var it = items[i];
-      if (it.status && it.status !== "open") continue;
-      if (!re.test(String(it.text || ""))) continue;
-      var st = "standing", when = "";
-      if (it.due) {
-        var diff = today > 0 ? it.due - today : null;
-        if (diff === null) { st = "later"; }
-        else if (diff < 0) { st = "overdue"; when = "overdue " + LG.span(-diff); }
-        else if (diff === 0) { st = "soon"; when = "today"; }
-        else { st = diff <= LG.soonDays ? "soon" : "later"; when = "in " + LG.span(diff); }
+    // Asked once per person on every Online draw (hundreds of rows), so the
+    // open items are indexed by every word they hold, once per change of the
+    // ledger or the day, instead of parsed and scanned per person (#136).
+    // A name matches as a whole run of letters, exactly as written.
+    var raw;
+    try { raw = get_variable("ledger_items"); } catch (e) { raw = null; }
+    if (!LG.aboutIx || LG.aboutIx.raw !== raw || LG.aboutIx.day !== LG.day) {
+      var items;
+      try { items = JSON.parse(raw) || []; } catch (e) { items = []; }
+      if (!Array.isArray(items)) items = [];
+      var today = LG.day, ix = {};
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        if (!it || (it.status && it.status !== "open")) continue;
+        var st = "standing", when = "";
+        if (it.due) {
+          var diff = today > 0 ? it.due - today : null;
+          if (diff === null) { st = "later"; }
+          else if (diff < 0) { st = "overdue"; when = "overdue " + LG.span(-diff); }
+          else if (diff === 0) { st = "soon"; when = "today"; }
+          else { st = diff <= LG.soonDays ? "soon" : "later"; when = "in " + LG.span(diff); }
+        }
+        var row = { id: it.id, text: String(it.text), due: it.due || null, state: st, when: when };
+        var words = String(it.text || "").match(/[A-Za-z]+/g) || [], seenW = {};
+        for (var w = 0; w < words.length; w++) {
+          if (seenW[words[w]]) continue;
+          seenW[words[w]] = true;
+          (ix[words[w]] = ix[words[w]] || []).push(row);
+        }
       }
-      out.push({ id: it.id, text: String(it.text), due: it.due || null, state: st, when: when });
+      LG.aboutIx = { raw: raw, day: LG.day, ix: ix };
     }
+    var hit = Object.prototype.hasOwnProperty.call(LG.aboutIx.ix, name) ? LG.aboutIx.ix[name] : [];
+    var out = [];
+    for (var j = 0; j < hit.length; j++) out.push({ id: hit[j].id, text: hit[j].text, due: hit[j].due, state: hit[j].state, when: hit[j].when });
     var rank = { overdue: 0, soon: 1, later: 2, standing: 3 };
     out.sort(function (a, b) { return (rank[a.state] - rank[b.state]) || ((a.due || 0) - (b.due || 0)) || (a.id - b.id); });
     return out;
