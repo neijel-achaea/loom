@@ -13,7 +13,7 @@ Two packages depend on your class: **[hunting](hunting.md)** (the F-keys, battle
 | Alchemist | 1 | 7 | Caustic, **no key yet** | default | 23 |
 | Apostate | 1 | 7 | Pierce | default | 23 |
 | Bard | 1 | 7 | Resonance | default | 25 |
-| Blademaster | 1 | 7 | Shatter | default | 23 |
+| Blademaster | 2 | 7 | Shatter | default | 23 |
 | Depthswalker | 1 | 7 | Nakail | default | 21 |
 | Druid | 1 | 6 | Vinecrack | default | 23 |
 | Infernal | by weapon spec | 7 | Shiver | default | 23 |

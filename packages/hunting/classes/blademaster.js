@@ -7,7 +7,9 @@
 HU.classes["Blademaster"] = {
   // Main attacks for F1: HUNTING MAIN picks one, and adds more in game.
   mains: {
-    drawslash: ["Drawslash", "queue add b!wu!t!p drawslash @tar sternum"]
+    drawslash: ["Drawslash", "queue add b!wu!t!p drawslash @tar sternum"],
+    // Three strikes in one (Ricardo, 2026-10-20). HUNTING MAIN MULTISLASH.
+    multislash: ["Multislash", "queue add b!wu!t!p multislash @tar"]
   },
   keys: [
     ["{main}", ""],
@@ -30,6 +32,7 @@ HU.classes["Blademaster"] = {
   // reckless or afraid); Nerveslash.
   lines: [
     [/^With expert precision, you draw (.*) from its scabbard and unleash a vicious slash towards (.*)\.$/, "DRAWSLASH"],
+    [/^With masterful technique, you draw (.*) from its scabbard and unleash three precise strikes towards (.*)\.$/, "MULTISLASH"],
     [/^A Shin-enhanced leap flings you high into the air\.$/, "LEAPSTRIKE", "Leapstrike"],
     [/^You hurl a precise blast of Shin energy at (.*)'s eyes\.$/, "DAZE", "Daze"],
     [/^You unleash a burst of Shin energy at (.*), tearing apart (\w+) translucent shield\.$/, "SHATTER", "Shatter"],
