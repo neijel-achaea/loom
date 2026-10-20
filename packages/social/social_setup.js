@@ -10,7 +10,7 @@ if (!client.loom.social) client.loom.social = {};
 // colours (Here, Comms).
 // busy (#318): true while a QW poll's answer is still coming, so Here's
 // loyal probe waits its turn. A capture open for 5 s no longer counts.
-client.loom.registry.social = { version: "0.4.10", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+client.loom.registry.social = { version: "0.4.11", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
   var Sq = client.loom.social;
   return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
 }, redraw: function () {
@@ -170,7 +170,22 @@ S.nameColour = function (name) {
   var g = S.look.group(n);
   return g ? S.color[g] : undefined;
 };
+// What other packages read (#211), never the lists themselves:
+//   look.group(name)          the first group the name is in (priority order)
+//   look.groups(name)         every group it's in: [{group, colour}], in order
+//   look.inGroup(name, group) true when the name is on that group's list
+//   look.colour(name)         the colour Social paints the name with
 S.look = {
+  groups: function (name) {
+    var n = String(name || "").trim().toLowerCase(), out = [];
+    if (!n) return out;
+    for (var i = 0; i < S.groups.length; i++) { if (S.lists[S.groups[i]] && S.lists[S.groups[i]][n]) out.push({ group: S.groups[i], colour: S.color[S.groups[i]] }); }
+    return out;
+  },
+  inGroup: function (name, group) {
+    var n = String(name || "").trim().toLowerCase(), l = S.lists[String(group || "").toLowerCase()];
+    return !!(n && l && l.hasOwnProperty(n));
+  },
   group: function (name) {
     var n = String(name || "").trim().toLowerCase();
     if (!n) return undefined;
@@ -183,8 +198,6 @@ S.look = {
 // without it).
 if (client.loom.notify) client.loom.notify("social");
 
-// LEGACY: packages that haven't had their v0.2 pass read client.hl
-// (client.hl.groups, client.hl.color, client.hl[group]). Same objects, so
-// changes show up there too. Removed once no package reads it.
-client.hl = { groups: S.groups, color: S.color };
-for (var soH = 0; soH < S.groups.length; soH++) client.hl[S.groups[soH]] = S.lists[S.groups[soH]];
+// The legacy client.hl view of the lists is gone (#211): every package reads
+// S.look now. A copy left by an older social in this page goes too.
+if (client.hl) delete client.hl;

@@ -113,23 +113,15 @@ function stTagAvg(q) {
   }
   return { avg: w > 0 ? Math.round(sum / w * 100) / 100 : 0, n: n, w: w };
 }
-// Social package lists, in the social package's own priority order:
-// groups names the lists, lists[group] holds lowercase names as keys, and
-// color[group] is the list's highlight colour (client.loom.social, or the
-// legacy client.hl view of the same lists). Optional:
-// with no social package loaded there are simply no chips.
+// The Social groups a name is in, in Social's own priority order, as
+// [group, colour] chips, read through social's look (#211). Optional: with no
+// social package loaded there are simply no chips.
 function stLists(name) {
   var out = [];
-  var so = client.loom.social;
-  var groups = (so && so.groups) || (client.hl && client.hl.groups);
-  if (!groups || !groups.length) { return out; }
-  var lists = (so && so.lists) || client.hl;
-  var colors = (so && so.color) || (client.hl && client.hl.color) || {};
-  var key = stKey(name);
-  for (var i = 0; i < groups.length; i++) {
-    var g = groups[i];
-    if (lists[g] && lists[g][key]) { out.push([g, colors[g] || "#9a9aa3"]); }
-  }
+  var lk = client.loom.social && client.loom.social.look;
+  if (!lk || !lk.groups) { return out; }
+  var gs = lk.groups(stKey(name)) || [];
+  for (var i = 0; i < gs.length; i++) { out.push([gs[i].group, gs[i].colour || "#9a9aa3"]); }
   return out;
 }
 // Saving is also the moment standings' state changes, so loom's display
@@ -142,7 +134,7 @@ function stSave() {
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "0.3.3", keyword: "STANDINGS", desc: "{{description}}",
+client.loom.registry.standings = { version: "0.3.4", keyword: "STANDINGS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("standings_render", [], "standings"); } };
 var ST = client.loom.standings;

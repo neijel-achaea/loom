@@ -101,7 +101,7 @@ else if (W[0].toLowerCase() === "debug") {
   var cnt = 0, orgs = 0;
   for (var k3 in DB.e) { if (DB.e.hasOwnProperty(k3)) { if (DB.e[k3].org) { orgs++; } else { cnt++; } } }
   say(cnt + " people, " + orgs + " organisations, " + DB.pending.length + " pending; standings_db is " + JSON.stringify(DB).length + " chars.");
-  say("IC day now: " + F.ic(now) + " (" + (F.icTxt(F.ic(now)) || "unknown") + "); Ledger " + ((client.loom.ledger || client.lg) ? "loaded" : "not loaded") + "; social lists " + ((client.loom.social || client.hl) ? "found" : "not found") + ".");
+  say("IC day now: " + F.ic(now) + " (" + (F.icTxt(F.ic(now)) || "unknown") + "); Ledger " + ((client.loom.ledger || client.lg) ? "loaded" : "not loaded") + "; social lists " + ((client.loom.social && client.loom.social.look) ? "found" : "not found") + ".");
 }
 else {
   var who = W[0];

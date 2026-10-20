@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.crystalism) client.loom.crystalism = {};
-client.loom.registry.crystalism = { version: "0.3.1", keyword: "CRYSTALISM", desc: "{{description}}" };
+client.loom.registry.crystalism = { version: "0.3.2", keyword: "CRYSTALISM", desc: "{{description}}" };
 var CR = client.loom.crystalism;
 
 CR.shapes = ["cube", "cylinder", "diamond", "disc", "egg", "pentagon", "polyhedron", "pyramid", "sphere", "spiral", "torus"];
