@@ -6,12 +6,14 @@ var hlTitle = "[levelgraph] your progress through the levels, per minute and per
 var hlRows = [
   ["LEVELGRAPH", "level, session and long-term rates, time to the next level"],
   ["LEVELGRAPH MARK", "record a sample now"],
+  ["LEVELGRAPH NEW", "close this session and start a new one now"],
+  ["LEVELGRAPH GAP <5-240>", "minutes without a prompt that close a session (default 30)"],
   ["LEVELGRAPH GRAPH [SESSION|LONG] [ON|OFF]", "show or hide the graphs in the Level tab"],
   ["LEVELGRAPH SIZE <40-400>", "graph height (default 105)"],
-  ["LEVELGRAPH SPAN SESSION <15-720>", "minutes the session graph covers"],
+  ["LEVELGRAPH SPAN SESSION <15-720>", "minutes the minute-by-minute graph covers (the session's figures don't depend on it)"],
   ["LEVELGRAPH SPAN LONG <7-365>", "days the long-term graph covers"],
   ["LEVELGRAPH CSV [SESSION|LONG]", "a buffer as CSV lines"],
-  ["LEVELGRAPH WIPE CONFIRM", "clear both buffers"],
+  ["LEVELGRAPH WIPE CONFIRM", "clear both buffers and the session"],
   ["LEVELGRAPH DEBUG", "internal state"]
 ];
 var hlW = 0;

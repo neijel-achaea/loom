@@ -19,22 +19,19 @@ if (!cur) {
 } else {
   display_notice("[levelgraph] level " + cur[1] + ", " + cur[2].toFixed(2) + "% to next", "cyan");
 
-  if (mins.length >= 2) {
-    var sSpan = mins[mins.length - 1][0] - mins[0][0];
-    var sGain = prog(mins[mins.length - 1]) - prog(mins[0]);
-    if (sSpan > 0) {
-      var perHour = sGain / (sSpan / 3600);
-      display_notice("[levelgraph] session (" + Math.round(sSpan / 60) + " min, " + mins.length + " points): +" +
-        (Math.round(sGain * 10000) / 100) + "% = " + (Math.round(perHour * 10000) / 100) + "%/hr", "cyan");
-      if (perHour > 0) {
-        var togo = (1 - (cur[2] / 100)) / perHour;
-        var hh = Math.floor(togo);
-        var mm = Math.round((togo - hh) * 60);
-        display_notice("[levelgraph] at that rate, level " + (cur[1] + 1) + " in about " + (hh > 0 ? hh + "h " : "") + mm + "m", "cyan");
-      }
+  // The session (#335): from its start, whatever the graph's span.
+  var sF = LG.sessFigures ? LG.sessFigures(cur) : null;
+  if (sF && sF.span >= 60) {
+    display_notice("[levelgraph] session (since " + fl(sF.s) + ", " + Math.round(sF.span / 60) + " min): " + (sF.gain >= 0 ? "+" : "") +
+      (Math.round(sF.gain * 10000) / 100) + "% = " + (Math.round(sF.perHour * 10000) / 100) + "%/hr", "cyan");
+    if (sF.perHour > 0) {
+      var togo = sF.togo / 3600;
+      var hh = Math.floor(togo);
+      var mm = Math.round((togo - hh) * 60);
+      display_notice("[levelgraph] at that rate, level " + (cur[1] + 1) + " in about " + (hh > 0 ? hh + "h " : "") + mm + "m", "cyan");
     }
   } else {
-    display_notice("[levelgraph] session buffer has " + mins.length + " point(s); needs two for a rate.", "orange");
+    display_notice("[levelgraph] the session has just started; a rate after a minute.", "orange");
   }
 
   if (days.length >= 2) {
@@ -48,5 +45,5 @@ if (!cur) {
   } else {
     display_notice("[levelgraph] long-term buffer has " + days.length + " day(s); needs two for a rate.", "orange");
   }
-  display_notice("[levelgraph] windows: " + LG.mins + " min session, " + LG.days + " day long term. LEVELGRAPH HELP for commands.", "cyan");
+  display_notice("[levelgraph] graphs: last " + LG.mins + " min, last " + LG.days + " days; a session closes after " + LG.gap + " silent minutes. LEVELGRAPH HELP for commands.", "cyan");
 }

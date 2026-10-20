@@ -255,6 +255,8 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `levelgraph_graph_h` | setting | 0.2 | graph height | `lvl_graph_h` |
 | `levelgraph_span_mins` | setting | 0.2 | minutes the session graph covers | `lvl_span_mins` |
 | `levelgraph_span_days` | setting | 0.2 | days the long graph covers | `lvl_span_days` |
+| `levelgraph_gap` | setting | 0.8 | minutes without a prompt that close a session |  |
+| `levelgraph_sess` | data | 0.8 | the open session |  |
 | `levelgraph_min` | data | 0.2 | level readings, per minute | `lvl_min` |
 | `levelgraph_day` | data | 0.2 | level per day | `lvl_day`, `lvl_hist` |
 | `lvl_min` | legacy | 0.1 | old name of levelgraph_min |  |

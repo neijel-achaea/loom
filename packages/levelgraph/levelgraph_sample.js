@@ -77,6 +77,16 @@ if (lv > 0) {
     return true;
   }
 
+  // The session: a silence longer than the gap closes it; the next sample
+  // opens a new one (#335).
+  var prg = lv + nlr / 100;
+  if (LG.sess && now - LG.sess.last > LG.gap * 60) { LG.sess = null; }
+  if (!LG.sess) { LG.sess = { s: now, last: now, p0: prg }; LG.saveSess(); }
+  else {
+    LG.sess.last = now;
+    if (now - (LG.sessSaved || 0) >= 60) { LG.saveSess(); }
+  }
+
   if (feedMin()) { wrote = true; }
   if (feedDay()) { wrote = true; }
 
