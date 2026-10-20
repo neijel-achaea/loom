@@ -8,8 +8,11 @@ if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
 var L = client.loom.loom;
 
-// Retired package -> the one that replaced it ("" when none did).
-L.retired = { crystalism: "magi", artificing: "magi", elementalism: "", roleplay: "" };
+// Retired package -> the one that replaced it ("" when none did). Only the
+// packages Loom itself retired with 0.1.0 of magi: a player's own package
+// may carry any other name (roleplay is free again, for #262 and for
+// players' own).
+L.retired = { crystalism: "magi", artificing: "magi", elementalism: "" };
 
 // Nexus's package names as registry keys ("numpad movement" ->
 // "numpad_movement"), or null when this Nexus doesn't offer the list.
@@ -33,12 +36,14 @@ L.installed = function () {
   return out.sort();
 };
 
-// Retired packages still installed: [{ name, by }].
+// Retired packages still installed: [{ name, by }]. Only Loom's own copy
+// counts: it must have registered this page (a player's package of the same
+// name doesn't), and, when Nexus's list is there, still be installed.
 L.retiredHere = function () {
   var reg = client.loom.registry || {}, nx = L.nexusPackages(), out = [];
   for (var n in L.retired) {
     if (!L.retired.hasOwnProperty(n)) continue;
-    if (nx ? nx[n] : reg[n]) out.push({ name: n, by: L.retired[n] });
+    if (reg[n] && (!nx || nx[n])) out.push({ name: n, by: L.retired[n] });
   }
   return out;
 };
