@@ -195,7 +195,7 @@ L.addLink({
 // #160 social -> comms: talkers and Tells in their highlight colours.
 L.addLink({
   id: "social-comms", src: "social", dst: "comms", issue: 160,
-  desc: "Talkers in the Comms tab in their highlight colours",
+  desc: "Names in the Comms tab in their highlight colours",
   answers: {
     "person.colour": function (n) { var s = client.loom.social; return s && s.look ? s.look.colour(n) : undefined; },
     "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; }

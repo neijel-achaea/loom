@@ -26,12 +26,16 @@ client.loom.hooks.comms.gmcp = function (args) {
     var cmParty = /\[PARTY\] \w+ \S+ \d+\/\d+ \d+\/\d+ \d+\/\d+ \d+\/\d+ \d+ [\d.]+ ~ \d+ \S+ /;
     if (cmM === "Comm.Channel.Text" && cmA && cmA.channel && cmParty.test(String(cmA.text || "").replace(/\u001b\[[0-9;]*m/g, ""))) {
       // left out
+    } else if (cmM === "Comm.Channel.Text" && cmA && cmA.channel && CM.dropped && CM.dropped(String(cmA.channel))) {
+      // Emotes and Deathsight: left out (#334)
     } else if (cmM === "Comm.Channel.Text" && cmA && cmA.channel) {
       run_function("comms_add", cmA, "comms");
     } else if (cmM === "Comm.Channel.List" && cmA && cmA.length) {
       for (var cmI = 0; cmI < cmA.length; cmI++) {
         if (cmA[cmI] && cmA[cmI].name && cmA[cmI].caption) CM.captions[String(cmA[cmI].name)] = String(cmA[cmI].caption);
       }
+      // A channel only known as dropped once its caption came: forget it.
+      for (var cmD in CM.chans) { if (CM.chans.hasOwnProperty(cmD) && CM.dropped && CM.dropped(cmD)) { delete CM.chans[cmD]; if (CM.view === cmD) CM.view = "all"; } }
       run_function("comms_render", [], "comms");
     } else if ((cmM === "Char.Name" || cmM === "Char.Status") && cmA && cmA.name) {
       var cmN = String(cmA.name).split(/\s+/)[0];

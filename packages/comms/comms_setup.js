@@ -17,7 +17,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.comms) client.loom.comms = {};
 // redraw: how loom redraws the Comms tab when an integration's source changes (#159).
-client.loom.registry.comms = { version: "0.2.1", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
+client.loom.registry.comms = { version: "0.2.2", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
 var C = client.loom.comms;
 C.tab = "Comms";
 if (!C.chans) C.chans = {};
@@ -59,6 +59,38 @@ C.isClan = function (k) {
   return /^clt\d+$/i.test(k) || /^the\s+clan\s+of\b/i.test(String(cc.captions[k] || ""));
 };
 
+// A channel's names to match on: its key, Comm.Channel.List's caption and the
+// lines' own prefix, lowercased.
+C.names = function (k) {
+  var cc = client.loom.comms;
+  k = String(k || "");
+  return [k, String(cc.captions[k] || "").replace(/^the\s+/i, ""), String(cc.short[k] || "")].join("|").toLowerCase();
+};
+// Channels left out altogether (#334, Ricardo): Emotes and Deathsight carry
+// the gods' roleplay, not talk. Never stored, no filter; the main window
+// still shows them.
+C.dropped = function (k) {
+  return /(?:^|\|)(?:emotes?|deathsight)(?:\||$)/.test(C.names(k));
+};
+// The filters' order (#334, Ricardo): Say, Tell, Party, Yell, Shout, City,
+// House, HNT, Clans, then everything else alphabetically.
+C.order = [
+  /(?:^|\|)says?(?:\||$)/,
+  /(?:^|\|)tells(?:\||$)/,
+  /(?:^|\|)(?:party|pt)(?:\||$)/,
+  /(?:^|\|)yells?(?:\||$)/,
+  /(?:^|\|)shouts?(?:\||$)/,
+  /(?:^|\|)(?:ct|city)(?:\||$)/,
+  /(?:^|\|)(?:ht|gt|house)(?:\||$)/,
+  /(?:^|\|)(?:hnt|gnt|house newbie[^|]*)(?:\||$)/
+];
+C.rank = function (k) {
+  if (C.isClan(k)) return C.order.length;
+  var n = C.names(k);
+  for (var i = 0; i < C.order.length; i++) { if (C.order[i].test(n)) return i; }
+  return C.order.length + 1;
+};
+
 // The latest lines from before the reload, when nothing has come in yet.
 if (!C.restored) {
   C.restored = true;
@@ -68,7 +100,7 @@ if (!C.restored) {
     if (csSv.short) { for (var csK in csSv.short) { if (csSv.short.hasOwnProperty(csK) && !C.short[csK]) C.short[csK] = csSv.short[csK]; } }
     for (var csJ = 0; csJ < csSv.lines.length; csJ++) {
       var csL = csSv.lines[csJ];
-      if (!csL || !csL.ch) continue;
+      if (!csL || !csL.ch || C.dropped(csL.ch)) continue;
       if (!C.chans[csL.ch]) C.chans[csL.ch] = { key: csL.ch, lines: [], unread: 0, first: ++C.seq };
       csL.s = ++C.seq;
       csL.old = true;
