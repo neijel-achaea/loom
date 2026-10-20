@@ -6,7 +6,8 @@ var hlTitle = "[security] antitheft, gold in the backpack, and give/sell/drop/of
 var hlRows = [
   ["SECURITY", "status"],
   ["SECURITY ANTITHEFT ON|OFF", "put back worn items and gold that get taken"],
-  ["GG / PG", "get gold out of / put gold into the backpack (antitheft off / on)"],
+  ["GG [amount]", "get gold out of the backpack: all of it, or that many sovereigns"],
+  ["PG", "put gold back into the backpack and turn antitheft on"],
   ["SECURITY BACKPACK <id> = <desc>", "your backpack: its id, and how it reads in \"You remove ...\""],
   ["SECURITY ITEMS", "worn items antitheft watches"],
   ["SECURITY ITEM ADD <wear> = <desc>", "watch an item, e.g. wear ring123 = a silver ring"],
