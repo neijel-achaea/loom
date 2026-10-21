@@ -19,6 +19,5 @@ if (P.learn) {
     if (paMiss.length) { paOut.push("missing " + paMiss.join(", ")); paCol = "orange"; }
     else paOut.push("all present");
   }
-  if (P.shrines.length) { paOut.push("SHRINE/TOTEM: " + P.shrines.join(" ; ")); paCol = "orange"; }
   display_notice("[patrolling] " + paEnv + ": " + paOut.join("  |  "), paCol);
 }
