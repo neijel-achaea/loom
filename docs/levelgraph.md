@@ -3,7 +3,7 @@
 *Your progress through the levels as graphs, per minute and per day, with rates and the time to your next level.*
 
 <!-- loom:version levelgraph -->
-*This page describes levelgraph 0.3.0.*
+*This page describes levelgraph 0.3.1.*
 <!-- /loom:version -->
 
 ## What it is

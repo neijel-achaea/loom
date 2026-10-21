@@ -71,7 +71,7 @@ for (var k in areas) {
 }
 arr.sort(byTime);
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-huntstats" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + MOSS + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'HUNTING</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + (dh !== null ? 'dragonhood <span style="color:' + DRAGON + ';">' + dh.toFixed(2) + '%</span>' : arr.length + ' area' + (arr.length === 1 ? '' : 's')) + '</div></div>';
@@ -177,4 +177,12 @@ if (arr.length === 0) {
 html += section("Areas, by time spent", ar);
 html += '</div>';
 
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var hsSt = document.getElementById("loom-huntstats-style");
+  if (!hsSt) { hsSt = document.createElement("style"); hsSt.id = "loom-huntstats-style"; document.head.appendChild(hsSt); }
+  var hsCss = '.flexlayout__tab:has(#loom-huntstats) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-huntstats) > * { min-height: 100%; }';
+  if (hsSt.textContent !== hsCss) hsSt.textContent = hsCss;
+} catch (e) {}
 try { set_custom_tab_html("Stats", html); } catch (e) {}

@@ -59,7 +59,7 @@ function hero(num, tail) {
   return '<div style="margin:6px 0 2px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + WATER + ';">' + num + '</span> ' +
     '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">' + tail + '</span></div>';
 }
-var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var PANEL = '<div id="loom-fishingstats" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 
 var s = FS.session;
 var pal = FS.palette;
@@ -236,4 +236,12 @@ if (s.n === 0 && names.length === 0) {
 }
 html += '</div>';
 
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var fsSt = document.getElementById("loom-fishingstats-style");
+  if (!fsSt) { fsSt = document.createElement("style"); fsSt.id = "loom-fishingstats-style"; document.head.appendChild(fsSt); }
+  var fsCss = '.flexlayout__tab:has(#loom-fishingstats) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-fishingstats) > * { min-height: 100%; }';
+  if (fsSt.textContent !== fsCss) fsSt.textContent = fsCss;
+} catch (e) {}
 try { set_custom_tab_html("fishingstats", html); } catch (e) {}

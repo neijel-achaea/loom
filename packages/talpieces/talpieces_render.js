@@ -56,7 +56,7 @@ function header(title, right) {
     '<div style="font-family:' + SERIF + ';color:' + AME + ';font-size:14px;letter-spacing:0.22em;">' + glyph + title + '</div>' +
     '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + right + '</div></div>';
 }
-var PANEL = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var PANEL = '<div id="loom-talpieces" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 
 // ------------------------------------------------------------ the numbers ---
 // Owned is capped per piece type, so 100 black claws still scores 64.
@@ -249,4 +249,12 @@ if (TP.graphOn) {
 }
 html += '</div>';
 
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var tpSt = document.getElementById("loom-talpieces-style");
+  if (!tpSt) { tpSt = document.createElement("style"); tpSt.id = "loom-talpieces-style"; document.head.appendChild(tpSt); }
+  var tpCss = '.flexlayout__tab:has(#loom-talpieces) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-talpieces) > * { min-height: 100%; }';
+  if (tpSt.textContent !== tpCss) tpSt.textContent = tpCss;
+} catch (e) {}
 try { set_custom_tab_html("Talismans", html); } catch (e) {}

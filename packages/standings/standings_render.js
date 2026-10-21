@@ -130,7 +130,7 @@ var people = [];
 var orgsN = 0;
 for (var k in DB.e) { if (DB.e.hasOwnProperty(k)) { if (DB.e[k].org) { orgsN++; } else { people.push(DB.e[k]); } } }
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-standings" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + STEEL + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'STANDINGS</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + people.length + ' on the books' + (DB.pending.length ? ' &middot; <span style="color:' + STEEL + ';">' + DB.pending.length + ' to review</span>' : '') + '</div></div>';
@@ -250,4 +250,12 @@ else {
 }
 html += '<div style="color:' + MUTED + ';margin-top:6px;font-family:' + SERIF + ';font-style:italic;">STANDINGS HELP lists the commands. STANDINGS alone returns here.</div>';
 html += '</div>';
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var stSt = document.getElementById("loom-standings-style");
+  if (!stSt) { stSt = document.createElement("style"); stSt.id = "loom-standings-style"; document.head.appendChild(stSt); }
+  var stCss = '.flexlayout__tab:has(#loom-standings) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-standings) > * { min-height: 100%; }';
+  if (stSt.textContent !== stCss) stSt.textContent = stCss;
+} catch (e) {}
 try { set_custom_tab_html("Standings", html); } catch (e) {}
