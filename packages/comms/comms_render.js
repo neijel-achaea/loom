@@ -156,7 +156,7 @@ var inTells = C.view === "tells" || C.view.indexOf("tell:") === 0;
 var html = '<div id="loom-comms" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + INK + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 // The header (title, mute link, filters, and a conversation's own line) stays
 // put at the top of the tab while the lines scroll under it (Ricardo).
-html += '<div id="loom-comms-head" style="position:sticky;top:0;z-index:2;background:' + INK + ';margin:-7px -8px 0;padding:7px 8px 0;">';
+html += '<div id="loom-comms-head" style="position:sticky;top:0;z-index:2;overflow-anchor:none;background:' + INK + ';margin:-7px -8px 0;padding:7px 8px 0;">';
 var hd = "";
 hd += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DIM + ';padding-bottom:3px;">';
 hd += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + ACC + ';">Comms</span>';
@@ -314,7 +314,12 @@ if (C.view === "tells") {
 html += '</div>';
 var mutedL = [];
 for (var mk in C.muted) { if (C.muted.hasOwnProperty(mk)) mutedL.push(C.name(mk)); }
-html += '<div style="display:flex;justify-content:space-between;margin-top:6px;color:' + DIM + ';">';
+// The footer is the tab's scroll anchor while you follow (#357): the header
+// never anchors, and the rows opt out while body has loom-cm-follow (style
+// below), so the browser keeps the footer in place as rows are added or
+// trimmed, with no frame out of place. Scrolled up, the rows anchor as usual
+// and what you're reading stays put.
+html += '<div id="loom-comms-foot" style="display:flex;justify-content:space-between;margin-top:6px;overflow-anchor:auto;color:' + DIM + ';">';
 html += '<span>' + (mutedL.length ? 'muted: ' + esc(mutedL.join(", ")) : '') + '</span><span>keeps ' + C.cap + ' a channel</span></div>';
 html += '</div>';
 
@@ -324,6 +329,7 @@ try {
   if (!cmSt) { cmSt = document.createElement("style"); cmSt.id = "loom-comms-style"; document.head.appendChild(cmSt); }
   var cmCss = '.flexlayout__tab:has(#loom-comms) { background: ' + INK + ' !important; } .flexlayout__tab:has(#loom-comms) > * { min-height: 100%; }' +
     ' .loom-cm-chip, .loom-cm-tag, .loom-cm-conv, .loom-cm-who { cursor: pointer; } .loom-cm-chip:hover, .loom-cm-tag:hover { color: ' + TXT + ' !important; }' +
+    ' body.loom-cm-follow [id="loom-comms-rows"] { overflow-anchor: none; }' +
     ' .loom-cm-conv:hover { background: ' + ACCA("0.06") + '; } .loom-cm-who { text-decoration: underline dotted rgba(255,255,255,0.35); text-underline-offset: 2px; } .loom-cm-who:hover { text-decoration-color: currentColor; }';
   if (cmSt.textContent !== cmCss) cmSt.textContent = cmCss;
 } catch (e) {}
@@ -351,7 +357,15 @@ C.fulls = (C.fulls || 0) + 1;
 // a scroll that comes with new or trimmed rows is never taken for yours.
 // Reaching the bottom turns it back on. Every copy of the tab is kept at the
 // bottom (#349).
-setTimeout(function () {
+function cmFollowClass() {
+  try {
+    var CC = client.loom && client.loom.comms;
+    var on = !!(CC && CC.follow);
+    if (document.body.classList.contains("loom-cm-follow") !== on) document.body.classList.toggle("loom-cm-follow", on);
+  } catch (e) {}
+}
+function cmFollow() {
+  cmFollowClass();
   try {
     var cmEls = document.querySelectorAll('[id="loom-comms"]');
     for (var ce = 0; ce < cmEls.length; ce++) {
@@ -376,6 +390,7 @@ setTimeout(function () {
             if (sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40) CC.follow = true;
             else if (same && Date.now() - (sc.loomCommsUser || 0) < 1000) CC.follow = false;
             else if (CC.follow) sc.scrollTop = sc.scrollHeight;
+            cmFollowClass();
           });
           if (window.ResizeObserver) new ResizeObserver(function () {
             var CC = client.loom && client.loom.comms;
@@ -387,4 +402,8 @@ setTimeout(function () {
       sc.loomCommsH = sc.scrollHeight;
     }
   } catch (e) {}
-}, 20);
+}
+// Appended rows are already in the page: jump now, in the same frame. A full
+// draw lands through Nexus, so it waits a moment (and the jump repeats).
+if (cmAppended) cmFollow();
+setTimeout(cmFollow, 20);
