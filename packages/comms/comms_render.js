@@ -343,21 +343,48 @@ try { set_custom_tab_html(C.tab, html); } catch (e) {}
 C.drawn = { sig: cmSig, kids: C.view === "tells" ? 0 : cmKids, lastOld: cmLastOld, head: hd, v: C.drawSeq };
 C.fulls = (C.fulls || 0) + 1;
 }
+// Follow (#357): content changes scroll the tab too (rows trimmed from the
+// top, a long line wrapping, the sync draw), and those once switched follow
+// off by themselves. Now follow goes off only when you scroll up yourself
+// (wheel up, Up/PageUp/Home, a touch or a drag on the scrollbar, in the last
+// second) and the content's height hasn't changed since the last scroll, so
+// a scroll that comes with new or trimmed rows is never taken for yours.
+// Reaching the bottom turns it back on. Every copy of the tab is kept at the
+// bottom (#349).
 setTimeout(function () {
   try {
-    var el = document.getElementById("loom-comms");
-    var sc = null;
-    for (var p = el ? el.parentElement : null; p; p = p.parentElement) {
-      if (/auto|scroll/.test(getComputedStyle(p).overflowY)) { sc = p; break; }
+    var cmEls = document.querySelectorAll('[id="loom-comms"]');
+    for (var ce = 0; ce < cmEls.length; ce++) {
+      var sc = null;
+      for (var p = cmEls[ce].parentElement; p; p = p.parentElement) {
+        if (/auto|scroll/.test(getComputedStyle(p).overflowY)) { sc = p; break; }
+      }
+      if (!sc) continue;
+      if (!sc.loomCommsFollow2) {
+        sc.loomCommsFollow2 = true;
+        (function (sc) {
+          var touched = function () { sc.loomCommsUser = Date.now(); };
+          sc.addEventListener("wheel", function (e) { if (e.deltaY < 0) touched(); }, { passive: true });
+          sc.addEventListener("keydown", function (e) { if (/^(ArrowUp|PageUp|Home)$/.test(e.key)) touched(); }, { passive: true });
+          sc.addEventListener("touchmove", touched, { passive: true });
+          sc.addEventListener("pointerdown", touched, { passive: true });
+          sc.addEventListener("scroll", function () {
+            var CC = client.loom && client.loom.comms;
+            if (!CC || sc.clientHeight <= 0) return;
+            var same = sc.loomCommsH === sc.scrollHeight;
+            sc.loomCommsH = sc.scrollHeight;
+            if (sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40) CC.follow = true;
+            else if (same && Date.now() - (sc.loomCommsUser || 0) < 1000) CC.follow = false;
+            else if (CC.follow) sc.scrollTop = sc.scrollHeight;
+          });
+          if (window.ResizeObserver) new ResizeObserver(function () {
+            var CC = client.loom && client.loom.comms;
+            if (CC && CC.follow) sc.scrollTop = sc.scrollHeight;
+          }).observe(sc);
+        })(sc);
+      }
+      if (C.follow) sc.scrollTop = sc.scrollHeight;
+      sc.loomCommsH = sc.scrollHeight;
     }
-    if (!sc) return;
-    if (!sc.loomCommsFollow) {
-      sc.loomCommsFollow = true;
-      sc.addEventListener("scroll", function () {
-        if (sc.clientHeight > 0) C.follow = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40;
-      });
-      if (window.ResizeObserver) new ResizeObserver(function () { if (C.follow) sc.scrollTop = sc.scrollHeight; }).observe(sc);
-    }
-    if (C.follow) sc.scrollTop = sc.scrollHeight;
   } catch (e) {}
 }, 20);
