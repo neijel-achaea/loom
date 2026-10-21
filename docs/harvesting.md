@@ -3,14 +3,14 @@
 *Harvests the plants your rift is short of as you walk, and stores them, one after another.*
 
 <!-- loom:version harvesting -->
-*This page describes harvesting 0.2.6.*
+*This page describes harvesting 0.2.7.*
 <!-- /loom:version -->
 
 ## What it is
 
 With Harvesting on, every room you enter is checked: of the plants that grow in this kind of environment (forest, grasslands, jungle, swamp…), the ones whose stock in your rift is **below its minimum** are harvested, one at a time, and each is put straight into the rift (`INR`). Then it waits for balance and harvests the next. Plants you have enough of are left alone.
 
-It knows your stock from your rift: `HARVESTING ON` (or `HARVESTING STOCK`) reads it with `IR HERBS`, and every "You store N …" line keeps it up to date.
+It knows your stock from your rift: `HARVESTING ON` (or `HARVESTING STOCK`) reads it with `IR HERBS`, and every "You store N …" and "You remove N …" line keeps it up to date.
 
 Every plant has a minimum: 2,000 by default, or one you set for it. So walking a forest with Harvesting on tops up exactly what's short.
 

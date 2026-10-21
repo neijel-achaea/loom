@@ -162,6 +162,22 @@
     },
     {
       "type": "trigger",
+      "name": "Rift remove",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_remove.js"
+        }
+      ],
+      "text": "^You remove ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "Rift header",
       "enabled": true,
       "actions": [
