@@ -34,7 +34,7 @@ The pause is the Nexus variable `pauseTriggers`; your own reflexes can use it to
 
 **A package doesn't show in `LOOM`.** Only packages that register themselves are listed; the retired **groves** and **reclamation** don't. Any other missing package: reimport it.
 
-**Old command names.** A few commands were renamed (`DEFCON UP` → `DEFCON INIT`, `PATROLLING GOD` → `PATROLLING GODS`); the old names still work for a while and say what to use instead.
+**Old command names.** A few commands were renamed (`DEFCON UP` → `DEFCON INIT`); the old names still work for a while and say what to use instead.
 
 ## Your data
 

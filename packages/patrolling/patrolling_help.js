@@ -1,7 +1,7 @@
 // patrolling_help -- the HELP screen. Printed in a monospace block through
 // nexusclient.add_html_line when this Nexus has it, so the columns line up;
 // otherwise as plain notices.
-var hlTitle = "[patrolling] room-by-room plant and shrine checks for patrols. Commands:";
+var hlTitle = "[patrolling] room-by-room plant checks for patrols. Commands:";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["PATROLLING", "status"],
@@ -13,7 +13,7 @@ var hlRows = [
   ["PATROLLING FIRE", "tell your clan there's a fire here"],
   ["PATROLLING CLAN <clan|OFF>", "clan for fire alerts, lightning reports and replanting logs"],
   ["PATROLLING GODS", "friendly and hostile gods; every other god is neutral"],
-  ["PATROLLING GODS FRIENDLY <god>", "not reported on patrol; marked friendly in Here"],
+  ["PATROLLING GODS FRIENDLY <god>", "marked friendly in Here"],
   ["PATROLLING GODS HOSTILE <god>", "marked hostile in Here, with a warning in its header"],
   ["PATROLLING GODS NEUTRAL <god>", "take a god off the lists"],
   ["PATROLLING RESET / DEBUG", "reload the tables / internal state"]

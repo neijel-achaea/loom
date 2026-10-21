@@ -54,16 +54,6 @@ if (paSub === "" || paSub === "status") {
   } else {
     display_notice("[patrolling] usage: PATROLLING GODS [FRIENDLY|HOSTILE|NEUTRAL <god>]", "orange");
   }
-} else if (paSub === "god") {
-  // The old single god (before #164): it meant "don't flag these", which is
-  // what a friendly god is now. Kept as a spelling until patrolling 0.4.0.
-  if (paRest === "" || paRest.toLowerCase() === "off") {
-    display_notice("[patrolling] PATROLLING GOD is now PATROLLING GODS: PATROLLING GODS lists them, PATROLLING GODS FRIENDLY|HOSTILE|NEUTRAL <god> sets one.", "orange");
-  } else {
-    P.gods[paRest.toLowerCase()] = "friendly";
-    P.saveGods();
-    display_notice("[patrolling] PATROLLING GOD is now PATROLLING GODS FRIENDLY <god>; " + paRest.charAt(0).toUpperCase() + paRest.slice(1).toLowerCase() + " added as friendly.", "lime");
-  }
 } else if (paSub === "clan") {
   if (paRest === "") {
     display_notice("[patrolling] " + paSub + ": " + (get_variable("patrolling_" + paSub) || "none") + ".", C);
@@ -76,7 +66,7 @@ if (paSub === "" || paSub === "status") {
   run_function("patrolling_setup", [], "patrolling");
   display_notice("[patrolling] tables reloaded.", "lime");
 } else if (paSub === "debug") {
-  display_notice("[patrolling] room=" + JSON.stringify(P.room) + " active=" + P.active + " present=" + JSON.stringify(P.present) + " shrines=" + JSON.stringify(P.shrines), C);
+  display_notice("[patrolling] room=" + JSON.stringify(P.room) + " active=" + P.active + " present=" + JSON.stringify(P.present), C);
 } else {
   display_notice("[patrolling] unknown command '" + paSub + "'. PATROLLING HELP for commands.", "orange");
 }

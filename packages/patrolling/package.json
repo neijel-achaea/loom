@@ -126,43 +126,11 @@
             {
               "type": "script",
               "enabled": true,
-              "script": "@file:trigger_info_shrine.js"
+              "script": "@file:trigger_plants_end.js"
             }
           ],
-          "text": "\\b(?:shrine|totem)\\b",
+          "text": "^\\s*$",
           "matching": "regexp",
-          "whole_words": false,
-          "case_sensitive": true
-        },
-        {
-          "type": "trigger",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:trigger_info_gag.js"
-            }
-          ],
-          "text": "^\\S+\\s+\\S",
-          "matching": "regexp",
-          "whole_words": false,
-          "case_sensitive": true
-        },
-        {
-          "type": "trigger",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
-              "script": "@file:trigger_info_end.js"
-            }
-          ],
-          "text": "Number of objects:",
-          "matching": "substring",
           "whole_words": false,
           "case_sensitive": true
         }
@@ -415,5 +383,5 @@
       "case_sensitive": true
     }
   ],
-  "description": "Checks each room's plants and shrines, and suggests areas to patrol"
+  "description": "Checks each room's plants as you walk, and suggests areas to patrol"
 }

@@ -3,10 +3,10 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.patrolling) client.loom.patrolling = {};
-// busy (#318): true while the room check's PLANTS and INFO HERE are still
-// coming (until INFO HERE's "Number of objects" line), so Here's loyal
-// probe waits its turn. A check with no end line for 5 s no longer counts.
-client.loom.registry.patrolling = { version: "0.3.2", keyword: "PATROLLING", desc: "{{description}}", busy: function () {
+// busy (#318): true while the room check's PLANTS answer is still coming
+// (until the plant list ends), so Here's loyal probe waits its turn. A check
+// with no end for 5 s no longer counts.
+client.loom.registry.patrolling = { version: "0.4.0", keyword: "PATROLLING", desc: "{{description}}", busy: function () {
   var Pb = client.loom.patrolling;
   return !!(Pb && Pb.active && Date.now() - (Pb.activeAt || 0) < 5000);
 } };
@@ -27,9 +27,9 @@ if (!get_variable("patrolling_on")) set_variable("patrolling_on", "off");
 // Clan for fire alerts, lightning reports and replanting logs; empty = none.
 if (get_variable("patrolling_clan") === null || get_variable("patrolling_clan") === undefined) set_variable("patrolling_clan", "");
 // Gods by stance (#164, Ricardo): patrolling_gods = { sartan: "hostile",
-// gaia: "friendly" }; any god not listed is neutral. Shrines and totems of
-// friendly gods aren't reported on patrol; the Here tab marks friendly and
-// hostile ones. One-time migration: the old single patrolling_god becomes a
+// gaia: "friendly" }; any god not listed is neutral. The Here tab marks
+// friendly and hostile gods' shrines and totems (patrol reports name none
+// since #361). One-time migration: the old single patrolling_god becomes a
 // friendly god (it only ever meant "don't flag these").
 P.gods = {};
 try { P.gods = JSON.parse(get_variable("patrolling_gods") || "{}") || {}; } catch (e) { P.gods = {}; }
@@ -79,7 +79,28 @@ if (!get_variable("patrolling_last")) set_variable("patrolling_last", {});
 P.active = false;
 P.gag = false;
 P.present = [];
-P.shrines = [];
+P.prompts = 0;
+// The end of a check (#361): the plant list is over, report it.
+P.finish = function () {
+  if (!P.active) return;
+  P.active = false;
+  P.gag = false;
+  run_function("patrolling_report", [], "patrolling");
+};
+// Every prompt (Char.Vitals) while a check is out. The plant list ends at the
+// first prompt after its header: looked at once the packet's lines are read
+// (GMCP can come ahead of its packet's text). A room with no plants shows no
+// header; its check ends at the second prompt (the move's own prompt comes
+// first) and reports what it found: nothing.
+P.onPrompt = function () {
+  if (!P.active) return;
+  P.prompts++;
+  setTimeout(function () {
+    var Pq = client.loom.patrolling;
+    if (!Pq.active) return;
+    if (Pq.gag || Pq.prompts >= 2) Pq.finish();
+  }, 0);
+};
 if (!P.room) P.room = { id: "", name: "", area: "", env: "" };
 P.months = ["Sarapin", "Daedalan", "Aeguary", "Miraman", "Scarlatan", "Ero", "Valnuary", "Lupar", "Phaestian", "Chronos", "Glacian", "Mayan"];
 
