@@ -118,7 +118,7 @@ function lineRow(l, tag) {
     t = '<span class="loom-cm-tag" title="' + esc(C.name(tk)) + '" onclick="window.loomComms&&window.loomComms.view(\'' + esc(tv).replace(/'/g, "") + '\')" style="font-family:' + MONO + ';font-size:10px;margin-right:6px;' +
       'color:' + firstCol(l) + ';opacity:0.8;">' + esc(tn.length > 14 ? tn.slice(0, 13) + "…" : tn) + '</span>';
   }
-  return '<div class="loom-cm-row" title="' + esc(hms(l.t)) + '" style="padding:1px 0;font-family:' + SANS + ';font-size:13px;line-height:1.4;' + bg + '">' + t + body(l) + '</div>';
+  return '<div class="loom-cm-row" data-s="' + l.s + '" title="' + esc(hms(l.t)) + '" style="padding:1px 0;font-family:' + SANS + ';font-size:13px;line-height:1.4;' + bg + '">' + t + body(l) + '</div>';
 }
 
 // The filters (#334): All, Say, Tell, Party, Yell, Shout, City, House, HNT,
@@ -153,10 +153,10 @@ function chip(i, label, n, on, muted) {
   return '<span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.chip(' + i + ')" title="' + esc(label) + (muted ? ' (muted)' : '') + '" style="color:' + (on ? ACC : (muted ? DIM : MUTED)) + ';border-bottom:1px solid ' + (on ? ACC : 'transparent') + ';' + (muted ? 'text-decoration:line-through;' : '') + '">' + esc(label.length > 16 ? label.slice(0, 15) + "…" : label) + badge(n) + '</span>';
 }
 var inTells = C.view === "tells" || C.view.indexOf("tell:") === 0;
-var html = '<div id="loom-comms" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + INK + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
+var html = '<div id="loom-comms" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + INK + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;overflow-anchor:none;">';
 // The header (title, mute link, filters, and a conversation's own line) stays
 // put at the top of the tab while the lines scroll under it (Ricardo).
-html += '<div id="loom-comms-head" style="position:sticky;top:0;z-index:2;overflow-anchor:none;background:' + INK + ';margin:-7px -8px 0;padding:7px 8px 0;">';
+html += '<div id="loom-comms-head" style="position:sticky;top:0;z-index:2;background:' + INK + ';margin:-7px -8px 0;padding:7px 8px 0;">';
 var hd = "";
 hd += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DIM + ';padding-bottom:3px;">';
 hd += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + ACC + ';">Comms</span>';
@@ -183,87 +183,15 @@ if (C.chans[C.view] && C.isClan(C.view)) {
   hd += '<div style="border-top:1px solid ' + RULE + ';padding:3px 0;"><span class="loom-cm-chip" onclick="window.loomComms&&window.loomComms.view(\'clans\')" style="color:' + MUTED + ';">&larr; clans</span> <span style="font-family:' + SANS + ';font-size:13px;color:' + ACC + ';">&middot; ' + esc(C.name(C.view)) + '</span></div>';
 }
 hd += '<div style="border-bottom:1px solid ' + RULE + ';"></div>';
-// Each draw stamps the rows' container (data-v), so a page Nexus rebuilt from
-// an older draw's HTML is told apart from the one drawn last (#210).
-C.drawSeq = (C.drawSeq || 0) + 1;
-html += hd + '</div><div id="loom-comms-rows" data-v="' + C.drawSeq + '" style="padding-top:4px;">';
+html += hd + '</div><div id="loom-comms-rows" style="padding-top:4px;">';
 
-// New lines (#210): on a busy night every message used to rebuild the whole
-// view. comms_add asks for {append: true}: when nothing but the new lines and
-// the header changed since the last full draw (same view, filters, mutes,
-// colours), the header is replaced and only the new rows are added to the
-// page, the oldest past the view's limit dropped. Anything else, or a page
-// that isn't the one drawn last (its row count differs: Nexus may have
-// rebuilt the tab from the last full HTML), gets the full draw.
-//   C.newLines  lines added since the last draw (comms_add)
-//   C.drawn     {sig, kids, lastOld, head}: what the last draw left in the page
-// Nexus keeps the HTML it was last given and may draw the tab again from it
-// (and may hold more than one copy of the tab), so an append alone can be
-// lost (#349): every copy on the page gets the new rows, and once the lines
-// stop for a moment one full draw hands Nexus the page as it now is.
-var cmNew = C.newLines || [];
-C.newLines = [];
-var cmMutedK = [];
-for (var cmMk in C.muted) { if (C.muted.hasOwnProperty(cmMk)) cmMutedK.push(cmMk); }
-var cmSig = [C.view, C.chips.join(","), cmMutedK.sort().join(","), C.cap, ACC, TXT, INK].join("|");
-var cmLimit = (C.view === "all" || C.view === "clans") ? 200 : C.cap;
-var cmTag = C.view === "all" || C.view === "clans";
-function cmInView(l) {
-  if (!l || C.muted[l.ch] && (C.view === "all" || C.view === "clans")) return false;
-  if (C.view === "all") return true;
-  if (C.view === "clans") return C.isClan(l.ch);
-  if (C.view.indexOf("tell:") === 0) return l.ch === "tells" && !!l.conv && l.conv.toLowerCase().replace(/[^a-z]/g, "") === C.view.slice(5);
-  return l.ch === C.view;
-}
-var cmAppended = false;
-if (args && args.append && C.view !== "tells" && C.drawn && C.drawn.sig === cmSig && C.drawn.kids > 0 && !C.drawn.lastOld) {
-  try {
-    var cmHeads = document.querySelectorAll('[id="loom-comms-head"]');
-    var cmRowsAll = document.querySelectorAll('[id="loom-comms-rows"]');
-    var cmOk = cmRowsAll.length > 0 && cmHeads.length === cmRowsAll.length;
-    for (var cmC = 0; cmOk && cmC < cmRowsAll.length; cmC++) {
-      if (cmRowsAll[cmC].childElementCount !== C.drawn.kids || cmRowsAll[cmC].getAttribute("data-v") !== String(C.drawn.v)) cmOk = false;
-    }
-    C.copies = cmRowsAll.length;
-    if (cmOk) {
-      var cmAdd = "", cmN = 0;
-      for (var cmI = 0; cmI < cmNew.length; cmI++) { if (cmInView(cmNew[cmI])) { cmAdd += lineRow(cmNew[cmI], cmTag); cmN++; } }
-      var cmHeadNew = C.drawn.head !== hd;
-      var cmKidsAfter = 0;
-      for (var cmD = 0; cmD < cmRowsAll.length; cmD++) {
-        var cmRowsEl = cmRowsAll[cmD];
-        if (cmHeadNew) cmHeads[cmD].innerHTML = hd;
-        if (cmN) cmRowsEl.insertAdjacentHTML("beforeend", cmAdd);
-        var cmRowsN = cmRowsEl.getElementsByClassName("loom-cm-row").length;
-        while (cmRowsN > cmLimit && cmRowsEl.firstElementChild) {
-          if (/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsN--;
-          cmRowsEl.removeChild(cmRowsEl.firstElementChild);
-        }
-        while (cmRowsEl.firstElementChild && !/\bloom-cm-row\b/.test(cmRowsEl.firstElementChild.className || "")) cmRowsEl.removeChild(cmRowsEl.firstElementChild);
-        cmKidsAfter = cmRowsEl.childElementCount;
-        cmRowsEl.setAttribute("data-v", String(C.drawSeq));
-      }
-      C.drawn.head = hd;
-      C.drawn.kids = cmKidsAfter;
-      C.drawn.v = C.drawSeq;
-      C.appends = (C.appends || 0) + 1;
-      cmAppended = true;
-      // Once the lines stop for a moment, one full draw gives Nexus the page
-      // as it now is (it would otherwise draw the tab again from older HTML).
-      if (C.syncT) clearTimeout(C.syncT);
-      C.syncT = setTimeout(function () { client.loom.comms.syncT = null; run_function("comms_render", [], "comms"); }, C.syncMs || 1500);
-    }
-  } catch (e) { cmAppended = false; }
-}
-if (!cmAppended) {
-var cmKids = 0, cmLastOld = false;
 if (C.view === "tells") {
   // The conversations, newest first.
   var cl = [];
   for (var cn in C.convs) { if (C.convs.hasOwnProperty(cn)) cl.push(C.convs[cn]); }
   cl.sort(function (a, b) { return b.last - a.last; });
   var tl = C.chans.tells ? C.chans.tells.lines : [];
-  if (!cl.length) { html += '<div style="color:' + MUTED + ';padding:6px 0;">no tells yet.</div>'; cmKids++; }
+  if (!cl.length) { html += '<div style="color:' + MUTED + ';padding:6px 0;">no tells yet.</div>'; }
   for (var cj = 0; cj < cl.length; cj++) {
     var cc = cl[cj];
     var lastL = null;
@@ -278,7 +206,6 @@ if (C.view === "tells") {
     html += '<span' + (ccAbout ? ' title="' + esc(ccAbout) + '"' : '') + ' style="flex:none;width:7em;font-family:' + SANS + ';font-size:13px;color:' + esc(ccCol || (cc.unread ? ACC : TXT)) + ';">' + esc(cc.name) + (ask("person.newbie", cc.name) ? leaf(ask("person.newbie", cc.name)) : '') + badge(cc.unread) + '</span>';
     html += '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SANS + ';font-size:12px;color:' + MUTED + ';">' + esc(prev) + '</span>';
     html += '<span style="flex:none;color:' + DIM + ';">' + (cc.last ? ago(cc.last) : '') + '</span></div>';
-    cmKids++;
   }
 } else {
   var rows = [];
@@ -305,21 +232,14 @@ if (C.view === "tells") {
   var oldSeen = false;
   for (var ri = 0; ri < rows.length; ri++) {
     if (rows[ri].old) oldSeen = true;
-    else if (oldSeen) { html += '<div style="text-align:center;color:' + DIM + ';margin:3px 0;border-top:1px dotted ' + RULE + ';">before the reload &uarr;</div>'; oldSeen = false; cmKids++; }
+    else if (oldSeen) { html += '<div style="text-align:center;color:' + DIM + ';margin:3px 0;border-top:1px dotted ' + RULE + ';">before the reload &uarr;</div>'; oldSeen = false; }
     html += lineRow(rows[ri], tag);
-    cmKids++;
   }
-  cmLastOld = rows.length > 0 && !!rows[rows.length - 1].old;
 }
 html += '</div>';
 var mutedL = [];
 for (var mk in C.muted) { if (C.muted.hasOwnProperty(mk)) mutedL.push(C.name(mk)); }
-// The footer is the tab's scroll anchor while you follow (#357): the header
-// never anchors, and the rows opt out while body has loom-cm-follow (style
-// below), so the browser keeps the footer in place as rows are added or
-// trimmed, with no frame out of place. Scrolled up, the rows anchor as usual
-// and what you're reading stays put.
-html += '<div id="loom-comms-foot" style="display:flex;justify-content:space-between;margin-top:6px;overflow-anchor:auto;color:' + DIM + ';">';
+html += '<div style="display:flex;justify-content:space-between;margin-top:6px;color:' + DIM + ';">';
 html += '<span>' + (mutedL.length ? 'muted: ' + esc(mutedL.join(", ")) : '') + '</span><span>keeps ' + C.cap + ' a channel</span></div>';
 html += '</div>';
 
@@ -329,81 +249,100 @@ try {
   if (!cmSt) { cmSt = document.createElement("style"); cmSt.id = "loom-comms-style"; document.head.appendChild(cmSt); }
   var cmCss = '.flexlayout__tab:has(#loom-comms) { background: ' + INK + ' !important; } .flexlayout__tab:has(#loom-comms) > * { min-height: 100%; }' +
     ' .loom-cm-chip, .loom-cm-tag, .loom-cm-conv, .loom-cm-who { cursor: pointer; } .loom-cm-chip:hover, .loom-cm-tag:hover { color: ' + TXT + ' !important; }' +
-    ' body.loom-cm-follow [id="loom-comms-rows"] { overflow-anchor: none; }' +
     ' .loom-cm-conv:hover { background: ' + ACCA("0.06") + '; } .loom-cm-who { text-decoration: underline dotted rgba(255,255,255,0.35); text-underline-offset: 2px; } .loom-cm-who:hover { text-decoration-color: currentColor; }';
   if (cmSt.textContent !== cmCss) cmSt.textContent = cmCss;
 } catch (e) {}
 
-// Newest at the bottom (#273). C.follow says whether you're following the
-// newest lines: on by default, off only when you scroll up yourself, on again
-// at the bottom or when the view changes. The scroller (the first parent that
-// scrolls) gets, once, a scroll listener that keeps C.follow and a
-// ResizeObserver that goes back to the bottom whenever the tab gets its size:
-// after a reload the tab is drawn while hidden or unsized, so a jump made at
-// draw time alone was lost and the tab stayed at the top.
+
+// Newest at the bottom (#273, #357). Every draw is a full one: Nexus is
+// handed the whole page, which it keeps (and may draw again, or in more than
+// one copy, #349), so what it shows is always the current page.
+//   C.follow  following the newest line: on by default, off only when you
+//             scroll up yourself, on again at the bottom or on a view change.
+// The scroller around each copy of the tab (the first parent that scrolls)
+// gets, once:
+//   - input listeners: wheel up, Up/PageUp/Home, a touch or a drag on the
+//     scrollbar mark the last second as yours (sc.loomCommsUser);
+//   - a scroll listener: at the bottom, follow on; scrolled up by you with
+//     the content's height unchanged since the last scroll, follow off; any
+//     other scroll (new or trimmed rows) is not yours, and while following
+//     the bottom is put back;
+//   - a MutationObserver: when Nexus puts a new page in, before the browser
+//     paints, the view goes to the bottom (following) or back to the row you
+//     were reading (scrolled up), so no frame shows the wrong place, however
+//     late Nexus applies the HTML;
+//   - a ResizeObserver: the bottom again when the tab gets its size (after a
+//     reload the tab is drawn hidden or unsized).
+// The panel never lets the browser's own scroll anchoring move the view
+// (overflow-anchor:none on #loom-comms): only this code does.
 if (C.follow === undefined) C.follow = true;
 if (C.jump) C.follow = true;
 C.jump = false;
-if (C.syncT) { clearTimeout(C.syncT); C.syncT = null; }
-try { set_custom_tab_html(C.tab, html); } catch (e) {}
-C.drawn = { sig: cmSig, kids: C.view === "tells" ? 0 : cmKids, lastOld: cmLastOld, head: hd, v: C.drawSeq };
-C.fulls = (C.fulls || 0) + 1;
-}
-// Follow (#357): content changes scroll the tab too (rows trimmed from the
-// top, a long line wrapping, the sync draw), and those once switched follow
-// off by themselves. Now follow goes off only when you scroll up yourself
-// (wheel up, Up/PageUp/Home, a touch or a drag on the scrollbar, in the last
-// second) and the content's height hasn't changed since the last scroll, so
-// a scroll that comes with new or trimmed rows is never taken for yours.
-// Reaching the bottom turns it back on. Every copy of the tab is kept at the
-// bottom (#349).
-function cmFollowClass() {
+function cmScrollers() {
+  var out = [];
   try {
-    var CC = client.loom && client.loom.comms;
-    var on = !!(CC && CC.follow);
-    if (document.body.classList.contains("loom-cm-follow") !== on) document.body.classList.toggle("loom-cm-follow", on);
+    var els = document.querySelectorAll('[id="loom-comms"]');
+    for (var i = 0; i < els.length; i++) {
+      for (var p = els[i].parentElement; p; p = p.parentElement) {
+        if (/auto|scroll/.test(getComputedStyle(p).overflowY)) { if (out.indexOf(p) < 0) out.push(p); break; }
+      }
+    }
   } catch (e) {}
+  return out;
 }
-function cmFollow() {
-  cmFollowClass();
+// Where you are reading, to come back to after the page is replaced: the
+// first row showing at the top, and how far down the tab it sits.
+function cmKeep(sc) {
+  sc.loomCommsKeep = null;
   try {
-    var cmEls = document.querySelectorAll('[id="loom-comms"]');
-    for (var ce = 0; ce < cmEls.length; ce++) {
-      var sc = null;
-      for (var p = cmEls[ce].parentElement; p; p = p.parentElement) {
-        if (/auto|scroll/.test(getComputedStyle(p).overflowY)) { sc = p; break; }
-      }
-      if (!sc) continue;
-      if (!sc.loomCommsFollow2) {
-        sc.loomCommsFollow2 = true;
-        (function (sc) {
-          var touched = function () { sc.loomCommsUser = Date.now(); };
-          sc.addEventListener("wheel", function (e) { if (e.deltaY < 0) touched(); }, { passive: true });
-          sc.addEventListener("keydown", function (e) { if (/^(ArrowUp|PageUp|Home)$/.test(e.key)) touched(); }, { passive: true });
-          sc.addEventListener("touchmove", touched, { passive: true });
-          sc.addEventListener("pointerdown", touched, { passive: true });
-          sc.addEventListener("scroll", function () {
-            var CC = client.loom && client.loom.comms;
-            if (!CC || sc.clientHeight <= 0) return;
-            var same = sc.loomCommsH === sc.scrollHeight;
-            sc.loomCommsH = sc.scrollHeight;
-            if (sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40) CC.follow = true;
-            else if (same && Date.now() - (sc.loomCommsUser || 0) < 1000) CC.follow = false;
-            else if (CC.follow) sc.scrollTop = sc.scrollHeight;
-            cmFollowClass();
-          });
-          if (window.ResizeObserver) new ResizeObserver(function () {
-            var CC = client.loom && client.loom.comms;
-            if (CC && CC.follow) sc.scrollTop = sc.scrollHeight;
-          }).observe(sc);
-        })(sc);
-      }
-      if (C.follow) sc.scrollTop = sc.scrollHeight;
-      sc.loomCommsH = sc.scrollHeight;
+    var top = sc.getBoundingClientRect().top;
+    var rows = sc.querySelectorAll(".loom-cm-row");
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i].getBoundingClientRect();
+      if (r.bottom > top + 1) { sc.loomCommsKeep = { s: rows[i].getAttribute("data-s"), y: r.top - top }; break; }
     }
   } catch (e) {}
 }
-// Appended rows are already in the page: jump now, in the same frame. A full
-// draw lands through Nexus, so it waits a moment (and the jump repeats).
-if (cmAppended) cmFollow();
-setTimeout(cmFollow, 20);
+function cmPlace(sc) {
+  var CC = client.loom && client.loom.comms;
+  if (!CC || sc.clientHeight <= 0) return;
+  if (CC.follow) { sc.scrollTop = sc.scrollHeight; }
+  else if (sc.loomCommsKeep && sc.loomCommsKeep.s) {
+    var row = sc.querySelector('.loom-cm-row[data-s="' + sc.loomCommsKeep.s + '"]');
+    if (row) sc.scrollTop += (row.getBoundingClientRect().top - sc.getBoundingClientRect().top) - sc.loomCommsKeep.y;
+  }
+  sc.loomCommsH = sc.scrollHeight;
+}
+function cmWatch(sc) {
+  if (sc.loomCommsWatch) return;
+  sc.loomCommsWatch = true;
+  var touched = function () { sc.loomCommsUser = Date.now(); };
+  sc.addEventListener("wheel", function (e) { if (e.deltaY < 0) touched(); }, { passive: true });
+  sc.addEventListener("keydown", function (e) { if (/^(ArrowUp|PageUp|Home)$/.test(e.key)) touched(); }, { passive: true });
+  sc.addEventListener("touchmove", touched, { passive: true });
+  sc.addEventListener("pointerdown", touched, { passive: true });
+  sc.addEventListener("scroll", function () {
+    var CC = client.loom && client.loom.comms;
+    if (!CC || sc.clientHeight <= 0) return;
+    var same = sc.loomCommsH === sc.scrollHeight;
+    sc.loomCommsH = sc.scrollHeight;
+    if (sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40) CC.follow = true;
+    else if (same && Date.now() - (sc.loomCommsUser || 0) < 1000) CC.follow = false;
+    else if (CC.follow) sc.scrollTop = sc.scrollHeight;
+  });
+  if (window.MutationObserver) new MutationObserver(function () { cmPlace(sc); }).observe(sc, { childList: true, subtree: true });
+  if (window.ResizeObserver) new ResizeObserver(function () { cmPlace(sc); }).observe(sc);
+}
+var cmScs = cmScrollers();
+for (var cmK = 0; cmK < cmScs.length; cmK++) cmKeep(cmScs[cmK]);
+try { set_custom_tab_html(C.tab, html); } catch (e) {}
+C.draws = (C.draws || 0) + 1;
+C.lastDraw = Date.now();
+// Scrollers seen now and a moment later (the first draw, or a tab Nexus
+// builds late, has none yet): watched, and placed.
+cmScs = cmScrollers();
+for (var cmW = 0; cmW < cmScs.length; cmW++) { cmWatch(cmScs[cmW]); cmPlace(cmScs[cmW]); }
+setTimeout(function () {
+  var scs = cmScrollers();
+  for (var i = 0; i < scs.length; i++) { cmWatch(scs[i]); cmPlace(scs[i]); }
+}, 20);

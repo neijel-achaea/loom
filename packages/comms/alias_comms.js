@@ -82,8 +82,8 @@ if (cmSub === "" || cmSub === "status") {
   }
   cmSay("channels: " + (Object.keys(C.chans).join(", ") || "none") + "; me=" + (C.me || "?"), "orange");
   var cmCopies = 0;
-  try { cmCopies = document.querySelectorAll('[id="loom-comms-rows"]').length; } catch (e) {}
-  cmSay("draws: " + (C.fulls || 0) + " full, " + (C.appends || 0) + " appended; copies of the tab on the page: " + cmCopies, "orange");
+  try { cmCopies = document.querySelectorAll('[id="loom-comms"]').length; } catch (e) {}
+  cmSay("draws: " + (C.draws || 0) + "; copies of the tab on the page: " + cmCopies + "; following: " + (C.follow === false ? "no (scrolled up)" : "yes"), "orange");
   var cmIn = null;
   try { cmIn = window.loomComms && window.loomComms.input(); } catch (e) {}
   cmSay("input line for tells: " + (cmIn ? cmIn.tagName.toLowerCase() + (cmIn.id ? "#" + cmIn.id : "") + (cmIn.className ? "." + String(cmIn.className).split(" ").join(".") : "") : "not found"), "orange");

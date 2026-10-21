@@ -106,9 +106,6 @@ if (!caMe && !caSeen && !C.muted[caKey]) {
 
 // Saved a little later, so a busy channel writes once rather than per line.
 if (!C.saveT) C.saveT = setTimeout(function () { client.loom.comms.saveT = null; run_function("comms_save", [], "comms"); }, 15000);
-// Drawn a little later too, so a burst is one draw; the new lines are added
-// to the page rather than redrawing it, when they can be (#210).
-if (!C.newLines) C.newLines = [];
-C.newLines.push(caLine);
-if (C.drawT) clearTimeout(C.drawT);
-C.drawT = setTimeout(function () { client.loom.comms.drawT = null; run_function("comms_render", { append: true }, "comms"); }, 30);
+// Drawn at once (after this packet's other lines), and at most once every
+// C.drawGap ms while lines pour in, so a burst is a few draws (#357).
+if (!C.drawT) C.drawT = setTimeout(function () { client.loom.comms.drawT = null; run_function("comms_render", [], "comms"); }, Math.max(0, (C.drawGap || 100) - (Date.now() - (C.lastDraw || 0))));
