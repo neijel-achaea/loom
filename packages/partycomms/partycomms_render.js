@@ -55,7 +55,7 @@ if (now - PC.lastRender >= 1) {
     '<circle cx="14" cy="5" r="2.2" fill="' + DEEP + '"/><path d="M10.5 14 C11 10 12.5 8.8 14 8.8 C15.5 8.8 17 10 17.5 14 Z" fill="' + DEEP + '"/>' +
     '<circle cx="9" cy="3.6" r="2.6" fill="' + SEA + '"/><path d="M4.8 14 C5.3 9.4 7.2 7.9 9 7.9 C10.8 7.9 12.7 9.4 13.2 14 Z" fill="' + SEA + '"/></svg>';
 
-  var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+  var html = '<div id="loom-partycomms" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
   html += '<div style="font-family:' + SERIF + ';color:' + SEA + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'PARTY</div>';
   var right = names.length + ' member' + (names.length === 1 ? '' : 's');
@@ -98,5 +98,13 @@ if (now - PC.lastRender >= 1) {
     html += '</div>';
   }
   html += '</div>';
+  // The whole tab in the panel's colour (#355), as Self and Comms do: the
+  // panel fills the tab, and the tab itself takes the colour while it resizes.
+  try {
+    var pcSt = document.getElementById("loom-partycomms-style");
+    if (!pcSt) { pcSt = document.createElement("style"); pcSt.id = "loom-partycomms-style"; document.head.appendChild(pcSt); }
+    var pcCss = '.flexlayout__tab:has(#loom-partycomms) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-partycomms) > * { min-height: 100%; }';
+    if (pcSt.textContent !== pcCss) pcSt.textContent = pcCss;
+  } catch (e) {}
   try { set_custom_tab_html("Party", html); } catch (e) {}
 }

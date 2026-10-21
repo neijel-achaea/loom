@@ -71,7 +71,7 @@ var glyph = '<svg width="17" height="17" viewBox="0 0 17 17" style="vertical-ali
   '<path d="M10 13.5 L13.5 10 M3.5 10 L7 13.5" stroke="' + TXT + '" stroke-width="1.2"/>' +
   '<path d="M12.5 12.5 L15 15 M4.5 12.5 L2 15" stroke="' + DEEP + '" stroke-width="1.8"/></svg>';
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-dmgchart" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + EMBER + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'DAMAGE</div>';
 html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + MUTED + ';font-size:11px;">' + (label || (d.sess ? REC + ' recording' : 'waiting')) + '</div></div>';
@@ -194,4 +194,12 @@ if (d.saved.length) {
 }
 if (d.view) { html += '<div style="color:' + MUTED + ';margin-top:6px;font-family:' + SERIF + ';font-style:italic;">DMGCHART LIVE returns to the live fight.</div>'; }
 html += '</div>';
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var dcSt = document.getElementById("loom-dmgchart-style");
+  if (!dcSt) { dcSt = document.createElement("style"); dcSt.id = "loom-dmgchart-style"; document.head.appendChild(dcSt); }
+  var dcCss = '.flexlayout__tab:has(#loom-dmgchart) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-dmgchart) > * { min-height: 100%; }';
+  if (dcSt.textContent !== dcCss) dcSt.textContent = dcCss;
+} catch (e) {}
 try { set_custom_tab_html(d.tab, html); } catch (err) {}

@@ -120,7 +120,7 @@ if (L.gold !== undefined && L.bank !== undefined) { g = L.gold; b = L.bank; }
 else if (mins.length > 0) { g = mins[mins.length - 1][1]; b = mins[mins.length - 1][2]; }
 else if (days.length > 0) { g = days[days.length - 1][1]; b = days[days.length - 1][2]; }
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-coffers" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + BRONZE + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + GOLD + ';font-size:14px;letter-spacing:0.22em;">' + coins + 'COFFERS</div>';
 
@@ -226,4 +226,12 @@ if (g === undefined) {
   html += '</div>';
 }
 
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var coSt = document.getElementById("loom-coffers-style");
+  if (!coSt) { coSt = document.createElement("style"); coSt.id = "loom-coffers-style"; document.head.appendChild(coSt); }
+  var coCss = '.flexlayout__tab:has(#loom-coffers) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-coffers) > * { min-height: 100%; }';
+  if (coSt.textContent !== coCss) coSt.textContent = coCss;
+} catch (e) {}
 try { set_custom_tab_html("Coffers", html); } catch (e) {}

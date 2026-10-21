@@ -78,7 +78,7 @@ var quill = '<svg width="16" height="17" viewBox="0 0 16 17" style="vertical-ali
   '<path d="M14.5 1 C10.5 4 7.5 8 5 12.8" fill="none" stroke="' + SEPIA + '" stroke-width="0.7"/>' +
   '<path d="M3.5 12.5 L2.2 15.8" stroke="' + PARCH + '" stroke-width="1.1"/><circle cx="2" cy="16" r="0.9" fill="' + WAX + '"/></svg>';
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-ledger" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + SEPIA + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + PARCH + ';font-size:14px;letter-spacing:0.22em;">' + quill + 'LEDGER</div>';
 var tally = [];
@@ -157,6 +157,14 @@ if (standing.length === 0) {
 html += section("Standing", st, PARCH);
 
 html += '</div>';
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var lgSt = document.getElementById("loom-ledger-style");
+  if (!lgSt) { lgSt = document.createElement("style"); lgSt.id = "loom-ledger-style"; document.head.appendChild(lgSt); }
+  var lgCss = '.flexlayout__tab:has(#loom-ledger) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-ledger) > * { min-height: 100%; }';
+  if (lgSt.textContent !== lgCss) lgSt.textContent = lgCss;
+} catch (e) {}
 try { set_custom_tab_html("Ledger", html); } catch (e) {}
 // The items may have changed: tell loom (#197, the Online tab and the login
 // notice read them).

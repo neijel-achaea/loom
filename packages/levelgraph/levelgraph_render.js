@@ -120,7 +120,7 @@ var cur = null;
 if (mins.length > 0) { cur = mins[mins.length - 1]; }
 else if (days.length > 0) { cur = days[days.length - 1]; }
 
-var html = '<div style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;">';
+var html = '<div id="loom-levelgraph" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;">';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + ACC + ';font-size:14px;letter-spacing:0.22em;">' + glyph + 'LEVEL</div>';
 
@@ -194,4 +194,12 @@ if (!cur) {
   html += '</div>';
 }
 
+// The whole tab in the panel's colour (#355), as Self and Comms do: the
+// panel fills the tab, and the tab itself takes the colour while it resizes.
+try {
+  var lvSt = document.getElementById("loom-levelgraph-style");
+  if (!lvSt) { lvSt = document.createElement("style"); lvSt.id = "loom-levelgraph-style"; document.head.appendChild(lvSt); }
+  var lvCss = '.flexlayout__tab:has(#loom-levelgraph) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-levelgraph) > * { min-height: 100%; }';
+  if (lvSt.textContent !== lvCss) lvSt.textContent = lvCss;
+} catch (e) {}
 try { set_custom_tab_html("Level", html); } catch (e) {}
