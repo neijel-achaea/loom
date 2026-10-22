@@ -14,7 +14,7 @@ Everything comes from the game itself (GMCP), so there's nothing to configure. T
 
 What you see, top to bottom:
 
-- **The room:** its name, area and environment, the room's details as small tags (indoors, a shop, a bank…), the exits and the room number. After the number, a small button: **remember** marks the room; once you've moved on it reads **go back** and walks you there (`PATH FIND`), and arriving forgets the mark so you can remember another. In the marked room it reads **remembered**; a click forgets it. `ROOM REMEMBER`, `ROOM BACK` and `ROOM FORGET` do the same from the command line, and the mark survives a reload.
+- **The room:** its name, area and environment, the room's details as small tags (indoors, a shop, a bank…), the exits and the room number. In the title's top right, under the basher's chip, a small button: **remember** marks the room; once you've moved on it reads **go back** and walks you there (`PATH FIND`), and arriving forgets the mark so you can remember another. In the marked room it reads **remembered**; a click forgets it. `ROOM REMEMBER`, `ROOM BACK` and `ROOM FORGET` do the same from the command line, and the mark survives a reload.
 - **The description**, folded to two lines. Click it to unfold it, click again to fold it.
 - **Players** here, yourself left out, alphabetical. Hover a name for the player's full title. Your target glows red.
 - **Mobs**, one row each in the room's own order: the order the game uses when you target by name, so the next row down is the next mob `kill rat` would hit. Your target glows yellow in place, with its health. Dead ones are greyed out.

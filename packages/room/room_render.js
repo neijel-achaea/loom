@@ -81,12 +81,26 @@ if (!R.info) {
   var bBadge = "";
   if (BQ && BQ.state) {
     var bCol = { PRIMED: "#c8bfae", RUNNING: AMBER, FLEEING: "#ff9a4c" }[BQ.state] || MUTED;
-    bBadge = '<span title="the basher" style="flex:none;margin-top:3px;padding:0 5px;border:1px solid ' + DEEP + ';color:' + bCol + ';font-family:' + MONO + ';font-size:10px;letter-spacing:0.08em;white-space:nowrap;">&#9876;&#xfe0e; ' + BQ.state + '</span>';
+    bBadge = '<span title="the basher" style="padding:0 5px;border:1px solid ' + DEEP + ';color:' + bCol + ';font-family:' + MONO + ';font-size:10px;letter-spacing:0.08em;white-space:nowrap;">&#9876;&#xfe0e; ' + BQ.state + '</span>';
   }
+  // REMEMBER / GO BACK (#367): in the title, under the basher's chip, in
+  // its style (Ricardo).
+  var mkBtn = "";
+  if (I.num) {
+    var mkHere = R.mark && R.mark.id === String(I.num);
+    var mkLbl = !R.mark ? "remember" : (mkHere ? "remembered" : "go back");
+    var mkCol = !R.mark ? MUTED : (mkHere ? DIM : AMBER);
+    var mkFn = !R.mark ? "remember" : (mkHere ? "forget" : "back");
+    var mkTip = !R.mark ? "remember this room: then GO BACK walks you here" : (mkHere ? "remembered; click to forget it" : "walk back to " + R.markName(R.mark) + (R.mark.area ? ", " + R.mark.area : "") + " (PATH FIND)");
+    mkBtn = '<span class="loom-room-mark" onclick="window.loomRoom&&window.loomRoom.' + mkFn + '()" title="' + esc(mkTip) + '" style="cursor:pointer;padding:0 5px;border:1px solid ' + (R.mark && !mkHere ? mkCol : DEEP) + ';color:' + mkCol + ';font-family:' + MONO + ';font-size:10px;letter-spacing:0.08em;white-space:nowrap;">' + mkLbl.toUpperCase() + '</span>';
+  }
+  var titleRight = (bBadge || mkBtn) ? '<div style="flex:none;margin-top:3px;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">' + bBadge + mkBtn + '</div>' : '';
   html += '<div style="border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
   html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">';
-  html += '<div style="min-width:0;font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + '</div>' + bBadge + '</div>';
-  html += '<div style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:11px;">' + esc(I.area || "") + (I.environment ? ' &middot; ' + esc(I.environment) : '') + '</div></div>';
+  // The name and, under it, the area: one column, so the chips on the right
+  // sit beside both lines.
+  html += '<div style="min-width:0;"><div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + '</div>';
+  html += '<div style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:11px;">' + esc(I.area || "") + (I.environment ? ' &middot; ' + esc(I.environment) : '') + '</div></div>' + titleRight + '</div></div>';
   // Details as tags, exits, room number.
   var tags = "";
   var det = I.details || [];
@@ -149,17 +163,7 @@ if (!R.info) {
   for (var ek in (I.exits || {})) { if (I.exits.hasOwnProperty(ek)) ex.push(ek); }
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:3px;">';
   html += '<span>' + tags + '</span>';
-  // REMEMBER / GO BACK (#367), after the room number.
-  var mkBtn = "";
-  if (I.num) {
-    var mkHere = R.mark && R.mark.id === String(I.num);
-    var mkLbl = !R.mark ? "remember" : (mkHere ? "remembered" : "go back");
-    var mkCol = !R.mark ? MUTED : (mkHere ? DIM : AMBER);
-    var mkFn = !R.mark ? "remember" : (mkHere ? "forget" : "back");
-    var mkTip = !R.mark ? "remember this room: then GO BACK walks you here" : (mkHere ? "remembered; click to forget it" : "walk back to " + R.markName(R.mark) + (R.mark.area ? ", " + R.mark.area : "") + " (PATH FIND)");
-    mkBtn = ' <span class="loom-room-mark" onclick="window.loomRoom&&window.loomRoom.' + mkFn + '()" title="' + esc(mkTip) + '" style="cursor:pointer;margin-left:6px;padding:0 4px;border:1px solid ' + mkCol + ';color:' + mkCol + ';font-variant:small-caps;letter-spacing:1px;">' + mkLbl + '</span>';
-  }
-  html += '<span style="white-space:nowrap;color:' + MUTED + ';">exits <span style="color:' + AMBER + ';">' + (ex.length ? esc(ex.join("  ")) : "none") + '</span>' + (I.num ? ' &middot; ' + esc(I.num) : '') + mkBtn + '</span></div>';
+  html += '<span style="white-space:nowrap;color:' + MUTED + ';">exits <span style="color:' + AMBER + ';">' + (ex.length ? esc(ex.join("  ")) : "none") + '</span>' + (I.num ? ' &middot; ' + esc(I.num) : '') + '</span></div>';
   if (I.desc) {
     html += '<div onclick="document.body.classList.toggle(\'loom-room-desc-open\')" title="click to unfold or fold" class="loom-room-desc" style="cursor:pointer;margin-top:4px;font-family:' + SERIF + ';font-size:11px;line-height:1.35;color:' + MUTED + ';">' + esc(I.desc) + '</div>';
   }
