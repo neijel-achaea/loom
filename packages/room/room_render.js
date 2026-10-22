@@ -234,7 +234,8 @@ if (!R.info) {
     // Party members on this mob (mob.party, #256, from partycomms): their
     // names after the mob's, small, and in the hover.
     var pty = (!/d/.test(mob.attrib || "") && LLi && LLi.answer) ? LLi.answer("room", "mob.party", String(mob.id)) : undefined;
-    var ptyTag = (pty && pty.length) ? ' <span style="font-family:sans-serif;font-size:11px;color:' + PARTY + ';white-space:nowrap;text-shadow:none;">&#9666; ' + esc(pty.join(" \u00b7 ")) + '</span>' : '';
+    // In the names' own font and size, as Players and the mob's name (#365).
+    var ptyTag = (pty && pty.length) ? ' <span style="font-family:' + SERIF + ';font-size:14px;color:' + PARTY + ';white-space:nowrap;text-shadow:none;">&#9666; ' + esc(pty.join(" \u00b7 ")) + '</span>' : '';
     if (pty && pty.length) mfTitle = (mfTitle ? mfTitle + " \u00b7 " : "") + "targeted by " + pty.join(", ");
     // Someone's loyal (found by PROBE), Ricardo: a knight on the left (in the
     // badge column: loyals never get a kill-order number) and the owner in
@@ -250,7 +251,7 @@ if (!R.info) {
       loyIcon = '<span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',\'Noto Sans Symbols\',\'Noto Sans Symbols 2\',sans-serif;font-size:13px;color:' + loyCol + ';">&#9822;&#xfe0e;</span>';
       // Yours: the mob's own name in green, no owner (Ricardo).
       if (loyMine) mfCol = OWNLOYAL;
-      else ptyTag = ' <span style="font-family:' + SERIF + ';font-size:13px;color:' + loyCol + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
+      else ptyTag = ' <span style="font-family:' + SERIF + ';font-size:14px;color:' + loyCol + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
       mfTitle = "loyal to " + loy + (mfTitle ? " \u00b7 " + mfTitle : "");
     }
     var mid = String(mob.id);
