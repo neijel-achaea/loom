@@ -4,6 +4,7 @@ var HU = client.loom.hunting;
 // your total mastery of the form… You are Dragon!", matched on its last
 // words because the game may wrap the long line): fresh rage cooldowns, resume packages, after-form command.
 HU.cd = {};
+HU.glob = true;
 set_variable("pauseTriggers", "off");
 var huAf = get_variable("hunting_after_form");
 if (huAf) send_command(huAf);

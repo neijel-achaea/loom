@@ -133,7 +133,7 @@ else if (huSub === "buttons") {
   display_notice("[hunting] F-keys laid out for " + (HU.cls || "no class yet") + ".", C);
 }
 else if (huSub === "rage") {
-  display_notice("[hunting] rage " + HU.rage + ", global cooldown " + (HU.glob ? "clear" : "running"), C);
+  display_notice("[hunting] rage " + HU.rage + ", global cooldown " + (HU.glob ? "clear" : "running" + (HU.globAt ? " (" + Math.round((Date.now() - HU.globAt) / 1000) + "s)" : "")), C);
   display_notice("  slots: " + JSON.stringify(HU.slots), C);
   display_notice("  cooldowns: " + JSON.stringify(HU.cd), C);
 }

@@ -35,6 +35,16 @@ client.loom.hooks.hunting.line = function (args) {
       if (huRow[2] && !huRz) {
         HU.cd[huRow[2]] = false;
         HU.glob = false;
+        // The game says when the shared cooldown clears ("You can use another
+        // Battlerage ability again"). Should that line never come (a form or
+        // class change in between, a line hidden by something else), it
+        // clears by itself after HU.globMaxMs, so the keys and the basher
+        // can't wait for ever.
+        HU.globAt = Date.now();
+        setTimeout(function () {
+          var H2 = client.loom.hunting;
+          if (H2 && !H2.glob && Date.now() - (H2.globAt || 0) >= (H2.globMaxMs || 30000) - 50) { H2.glob = true; run_function("hunting_highlight", [], "hunting"); }
+        }, HU.globMaxMs || 30000);
         run_function("hunting_highlight", [], "hunting");
       }
       break;
