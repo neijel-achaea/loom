@@ -3,7 +3,7 @@
 *The Comms tab: every channel, tell and say in one place, in the game's own colours, with unread counts.*
 
 <!-- loom:version comms -->
-*This page describes comms 0.2.5.*
+*This page describes comms 0.2.6.*
 <!-- /loom:version -->
 
 ## What it is
@@ -24,7 +24,7 @@ Everything comes from the game (GMCP): there are no triggers, and the main windo
 | `COMMS MUTE\|UNMUTE <channel>` | leave a channel out of All and its unread count (still kept); the tab's mute link too |
 | `COMMS CAP <50-2000>` | lines kept per channel (default 300) |
 | `COMMS CLEAR [channel]` | forget every line, or one channel's |
-| `COMMS DEBUG` | the last comms GMCP payloads, and the input line tells go to |
+| `COMMS DEBUG` | the last GMCP payloads, the tell input line, why it follows or not |
 | **Filters run All, Say, Tell, Party, Yell, Shout, City, House, HNT, Clans, then the rest alphabetically. Emotes and Deathsight (the gods' roleplay) stay in the main window only.** | |
 | **In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them. Hover a line for its time.** | |
 | **The Comms tab replaces the stock communication window: create a custom tab named Comms, then close the stock one from the layout if you like.** | |
@@ -65,6 +65,7 @@ Comms reads nothing from other packages on its own. With others installed, Loom'
 ## Troubleshooting
 
 - **Clicking a name doesn't put a tell in the input line.** `COMMS DEBUG` shows whether Comms found Nexus's input line. Report it with that output.
+- **The tab jumps to the newest line while you're reading.** Send `COMMS DEBUG` right after it happens: it lists the last times following turned on or off, and why. Report it with that output.
 - **Lines show in plain white instead of their channel's colour.** Send `COMMS DEBUG` after one arrives: it shows the line as the game sent it, colour codes and all. Report it with that output.
 - **A channel shows under a strange name.** Comms names a channel from the prefix on its lines ("(Party): ") or the game's channel list. Report the line if it gets it wrong.
 - **Old lines are gone.** Only the newest 300 per channel are kept, and fewer survive a page reload. `COMMS CAP 1000` keeps more.

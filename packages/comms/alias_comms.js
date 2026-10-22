@@ -84,6 +84,12 @@ if (cmSub === "" || cmSub === "status") {
   var cmCopies = 0;
   try { cmCopies = document.querySelectorAll('[id="loom-comms"]').length; } catch (e) {}
   cmSay("draws: " + (C.draws || 0) + "; copies of the tab on the page: " + cmCopies + "; following: " + (C.follow === false ? "no (scrolled up)" : "yes"), "orange");
+  // Why the tab follows or not (#363): its last changes, and scrolls from
+  // outside Comms that were put back.
+  var cmFl = C.followLog || [];
+  var cmFt = [];
+  for (var cmF = 0; cmF < cmFl.length; cmF++) cmFt.push(Math.round((Date.now() - cmFl[cmF].t) / 1000) + "s ago " + (cmFl[cmF].on ? "on" : "off") + " (" + cmFl[cmF].why + ")");
+  cmSay("follow changes: " + (cmFt.length ? cmFt.join("; ") : "none") + "; scrolls from outside put back: " + (C.outside || 0), "orange");
   var cmIn = null;
   try { cmIn = window.loomComms && window.loomComms.input(); } catch (e) {}
   cmSay("input line for tells: " + (cmIn ? cmIn.tagName.toLowerCase() + (cmIn.id ? "#" + cmIn.id : "") + (cmIn.className ? "." + String(cmIn.className).split(" ").join(".") : "") : "not found"), "orange");

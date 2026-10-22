@@ -254,29 +254,43 @@ try {
 } catch (e) {}
 
 
-// Newest at the bottom (#273, #357). Every draw is a full one: Nexus is
-// handed the whole page, which it keeps (and may draw again, or in more than
-// one copy, #349), so what it shows is always the current page.
-//   C.follow  following the newest line: on by default, off only when you
-//             scroll up yourself, on again at the bottom or on a view change.
-// The scroller around each copy of the tab (the first parent that scrolls)
-// gets, once:
-//   - input listeners: wheel up, Up/PageUp/Home, a touch or a drag on the
-//     scrollbar mark the last second as yours (sc.loomCommsUser);
-//   - a scroll listener: at the bottom, follow on; scrolled up by you with
-//     the content's height unchanged since the last scroll, follow off; any
-//     other scroll (new or trimmed rows) is not yours, and while following
-//     the bottom is put back;
+// Newest at the bottom (#273, #357, #363). Every draw is a full one: Nexus
+// is handed the whole page, which it keeps (and may draw again, or in more
+// than one copy, #349), so what it shows is always the current page.
+//   C.follow     following the newest line: on by default; only you change
+//                it (scroll up: off; scroll back to the bottom: on), or a
+//                view change (on).
+//   C.followLog  its last changes, why, for COMMS DEBUG
+//   C.outside    scrolls that came from elsewhere and were undone
+// The view moves only when you move it (#363: something outside Comms, Nexus
+// most likely, scrolled the tab to the bottom now and then, and that was
+// taken for you going back there). The scroller around each copy of the tab
+// (the first parent that scrolls) gets, once:
+//   - input listeners: the wheel, scrolling keys, a touch, a press on the
+//     tab or its scrollbar (held until released) make the next 500 ms yours
+//     (sc.loomCommsUser, sc.loomCommsDown), in the direction you went when
+//     the wheel or a key says it (sc.loomCommsDir: -1 up, 1 down, 0 either);
+//   - a scroll listener: a scroll of yours (in that time and that direction)
+//     sets follow (at the bottom: on; anywhere else: off, and the row at the
+//     top is remembered); any other scroll is undone: the bottom while
+//     following, the remembered row while you read. A jump to the bottom
+//     from elsewhere just after you wheeled up is not yours: wrong way;
 //   - a MutationObserver: when Nexus puts a new page in, before the browser
-//     paints, the view goes to the bottom (following) or back to the row you
-//     were reading (scrolled up), so no frame shows the wrong place, however
-//     late Nexus applies the HTML;
-//   - a ResizeObserver: the bottom again when the tab gets its size (after a
+//     paints, the same placing, so no frame shows the wrong place;
+//   - a ResizeObserver: the same again when the tab gets its size (after a
 //     reload the tab is drawn hidden or unsized).
 // The panel never lets the browser's own scroll anchoring move the view
 // (overflow-anchor:none on #loom-comms): only this code does.
+function cmFollowSet(on, why) {
+  var CC = client.loom && client.loom.comms;
+  if (!CC || CC.follow === on) return;
+  CC.follow = on;
+  if (!CC.followLog) CC.followLog = [];
+  CC.followLog.push({ t: Date.now(), on: on, why: why });
+  if (CC.followLog.length > 8) CC.followLog.shift();
+}
 if (C.follow === undefined) C.follow = true;
-if (C.jump) C.follow = true;
+if (C.jump) cmFollowSet(true, "view changed");
 C.jump = false;
 function cmScrollers() {
   var out = [];
@@ -290,57 +304,83 @@ function cmScrollers() {
   } catch (e) {}
   return out;
 }
-// Where you are reading, to come back to after the page is replaced: the
-// first row showing at the top, and how far down the tab it sits.
+function cmBottom(sc) { return sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40; }
+// Where you are reading: the first row showing at the top, and how far down
+// the tab it sits. Taken when you scroll; rows keep their data-s through
+// redraws, so it holds until you scroll again.
 function cmKeep(sc) {
-  sc.loomCommsKeep = null;
   try {
     var top = sc.getBoundingClientRect().top;
     var rows = sc.querySelectorAll(".loom-cm-row");
     for (var i = 0; i < rows.length; i++) {
       var r = rows[i].getBoundingClientRect();
-      if (r.bottom > top + 1) { sc.loomCommsKeep = { s: rows[i].getAttribute("data-s"), y: r.top - top }; break; }
+      if (r.bottom > top + 1) { sc.loomCommsKeep = { s: +rows[i].getAttribute("data-s"), y: r.top - top }; return; }
     }
   } catch (e) {}
 }
+// The view where it belongs: the bottom while following, otherwise the row
+// you were reading (or, once that row is trimmed away, the next one still
+// there). Returns true when it had to move.
 function cmPlace(sc) {
   var CC = client.loom && client.loom.comms;
-  if (!CC || sc.clientHeight <= 0) return;
-  if (CC.follow) { sc.scrollTop = sc.scrollHeight; }
-  else if (sc.loomCommsKeep && sc.loomCommsKeep.s) {
-    var row = sc.querySelector('.loom-cm-row[data-s="' + sc.loomCommsKeep.s + '"]');
-    if (row) sc.scrollTop += (row.getBoundingClientRect().top - sc.getBoundingClientRect().top) - sc.loomCommsKeep.y;
+  if (!CC || sc.clientHeight <= 0) return false;
+  var want = null;
+  if (CC.follow) want = sc.scrollHeight - sc.clientHeight;
+  else if (sc.loomCommsKeep) {
+    var rows = sc.querySelectorAll(".loom-cm-row");
+    for (var i = 0; i < rows.length; i++) {
+      if (+rows[i].getAttribute("data-s") >= sc.loomCommsKeep.s) {
+        want = sc.scrollTop + (rows[i].getBoundingClientRect().top - sc.getBoundingClientRect().top) - sc.loomCommsKeep.y;
+        break;
+      }
+    }
   }
-  sc.loomCommsH = sc.scrollHeight;
+  if (want === null) return false;
+  want = Math.max(0, Math.min(Math.round(want), sc.scrollHeight - sc.clientHeight));
+  if (Math.abs(sc.scrollTop - want) < 2) return false;
+  sc.loomCommsSelf = true;
+  sc.scrollTop = want;
+  sc.loomCommsTop = sc.scrollTop;
+  return true;
 }
 function cmWatch(sc) {
-  if (sc.loomCommsWatch) return;
-  sc.loomCommsWatch = true;
-  var touched = function () { sc.loomCommsUser = Date.now(); };
-  sc.addEventListener("wheel", function (e) { if (e.deltaY < 0) touched(); }, { passive: true });
-  sc.addEventListener("keydown", function (e) { if (/^(ArrowUp|PageUp|Home)$/.test(e.key)) touched(); }, { passive: true });
-  sc.addEventListener("touchmove", touched, { passive: true });
-  sc.addEventListener("pointerdown", touched, { passive: true });
+  if (sc.loomCommsWatch2) return;
+  sc.loomCommsWatch2 = true;
+  var touched = function (dir) { sc.loomCommsUser = Date.now(); sc.loomCommsDir = dir; };
+  sc.addEventListener("wheel", function (e) { touched(e.deltaY < 0 ? -1 : (e.deltaY > 0 ? 1 : 0)); }, { passive: true });
+  sc.addEventListener("keydown", function (e) {
+    if (/^(ArrowUp|PageUp|Home)$/.test(e.key)) touched(-1);
+    else if (/^(ArrowDown|PageDown|End| )$/.test(e.key)) touched(1);
+  }, { passive: true });
+  sc.addEventListener("touchmove", function () { touched(0); }, { passive: true });
+  sc.addEventListener("pointerdown", function () { sc.loomCommsDown = true; touched(0); }, { passive: true });
+  var up = function () { if (sc.loomCommsDown) { sc.loomCommsDown = false; touched(0); } };
+  window.addEventListener("pointerup", up, { passive: true });
+  window.addEventListener("pointercancel", up, { passive: true });
   sc.addEventListener("scroll", function () {
     var CC = client.loom && client.loom.comms;
     if (!CC || sc.clientHeight <= 0) return;
-    var same = sc.loomCommsH === sc.scrollHeight;
-    sc.loomCommsH = sc.scrollHeight;
-    if (sc.scrollHeight - sc.scrollTop - sc.clientHeight < 40) CC.follow = true;
-    else if (same && Date.now() - (sc.loomCommsUser || 0) < 1000) CC.follow = false;
-    else if (CC.follow) sc.scrollTop = sc.scrollHeight;
+    var moved = sc.scrollTop - (sc.loomCommsTop === undefined ? sc.scrollTop : sc.loomCommsTop);
+    sc.loomCommsTop = sc.scrollTop;
+    // Our own placing: nothing to decide.
+    if (sc.loomCommsSelf) { sc.loomCommsSelf = false; return; }
+    var dir = sc.loomCommsDir || 0;
+    if (sc.loomCommsDown || (Date.now() - (sc.loomCommsUser || 0) < 500 && (dir === 0 || moved === 0 || (moved < 0) === (dir < 0)))) {
+      if (cmBottom(sc)) cmFollowSet(true, "you scrolled to the bottom");
+      else { cmFollowSet(false, "you scrolled up"); cmKeep(sc); }
+      return;
+    }
+    if (cmPlace(sc)) CC.outside = (CC.outside || 0) + 1;
   });
   if (window.MutationObserver) new MutationObserver(function () { cmPlace(sc); }).observe(sc, { childList: true, subtree: true });
   if (window.ResizeObserver) new ResizeObserver(function () { cmPlace(sc); }).observe(sc);
 }
-var cmScs = cmScrollers();
-for (var cmK = 0; cmK < cmScs.length; cmK++) cmKeep(cmScs[cmK]);
 try { set_custom_tab_html(C.tab, html); } catch (e) {}
 C.draws = (C.draws || 0) + 1;
 C.lastDraw = Date.now();
 // Scrollers seen now and a moment later (the first draw, or a tab Nexus
 // builds late, has none yet): watched, and placed.
-cmScs = cmScrollers();
+var cmScs = cmScrollers();
 for (var cmW = 0; cmW < cmScs.length; cmW++) { cmWatch(cmScs[cmW]); cmPlace(cmScs[cmW]); }
 setTimeout(function () {
   var scs = cmScrollers();
