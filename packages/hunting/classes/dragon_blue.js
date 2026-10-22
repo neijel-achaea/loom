@@ -21,6 +21,14 @@ HU.classes["Blue Dragon"] = {
   razes: ["Frostrive"],
   // Blast also breaks a shield, on balance (the basher, see README, razeAttack).
   razeAttack: "Blast",
+  // The basher's battlerage order (Ricardo): Ague first, then Override,
+  // Dragonchill, then Frostwave only while Override stays affordable after it.
+  bash: [
+    ["Ague"],
+    ["Override"],
+    ["Dragonchill"],
+    ["Frostwave", { keep: "Override" }]
+  ],
   lines: [
     // Gut and Incantation, every dragon's main attacks (as Black Dragon's);
     // the basher starts a run on them.
