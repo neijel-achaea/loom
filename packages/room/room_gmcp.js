@@ -23,6 +23,14 @@ client.loom.hooks.room.gmcp = function (args) {
     var rmDraw = true;
     if (rmM === "Room.Info" && rmA) {
       R.info = rmA;
+      // Back in the remembered room after GO BACK (#367): forget it, so the
+      // button offers REMEMBER again.
+      if (R.goingBack && R.mark && String(rmA.num) === R.mark.id) {
+        display_notice("[room] back in " + R.markName(R.mark) + ".", "lime");
+        R.mark = null;
+        R.goingBack = false;
+        delete_variable("room_mark");
+      }
       // A move: probes wait for this room's exits line (trigger room exits line).
       R.probeHold = "room";
       R.probeHoldN = 0;

@@ -318,6 +318,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `room_loyal_ignore` | setting | 0.8 | owners that are places, not loyals |  |
 | `room_newbies` | data | 0.5 | players seen with newbie titles |  |
 | `room_name` | state | 0.4 | your name, from GMCP |  |
+| `room_mark` | state | 0.8 | the remembered room (REMEMBER / GO BACK) |  |
 
 ## security
 

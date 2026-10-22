@@ -60,6 +60,12 @@ if (rmSub === "" || rmSub === "status") {
     for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.ownerOf(rmLi)) rmLy.push(rmLi + " (" + R.ownerOf(rmLi) + ")"); }
     rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs probed, loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : (R.probeOthers().length ? " (after " + R.probeOthers().join(", ") + ")" : "")) : "") + ". ROOM PROBE ON|OFF to change it.");
   }
+} else if (rmSub === "remember") {
+  R.remember();
+} else if (rmSub === "back") {
+  R.goBack();
+} else if (rmSub === "forget") {
+  R.forget();
 } else if (rmSub === "debug") {
   // The last payload of each GMCP message the tab reads, as JSON.
   var rmK = Object.keys(R.raw);

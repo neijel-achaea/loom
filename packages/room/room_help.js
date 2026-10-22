@@ -10,6 +10,9 @@ var hlRows = [
   ["ROOM PROBE IGNORE [name]", "places read as owners (\"loyal to Qurnok\"): mobs loyal to them aren't marked; no name lists them"],
   ["ROOM PROBE UNIGNORE <name>", "take a name off that list"],
   ["ROOM PROBE DEBUG", "the lines the last probe hid, and what ended it"],
+  ["ROOM REMEMBER", "remember this room (REMEMBER in Here does the same)"],
+  ["ROOM BACK", "walk back to the remembered room with PATH FIND (GO BACK in Here)"],
+  ["ROOM FORGET", "forget the remembered room"],
   ["ROOM DEBUG", "the last room GMCP payloads, as they came"],
   ["The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like."]
 ];

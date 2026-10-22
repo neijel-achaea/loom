@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "0.2.13", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "0.2.14", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -52,6 +52,51 @@ if (!R.me) { try { R.me = String(get_variable("room_name") || ""); } catch (e) {
 // The description starts folded to two lines (room_desc "folded"/"open").
 R.descOpen = get_variable("room_desc") == "open";
 R.tab = "Here";
+
+// A remembered room (#367, Ricardo): { id, name, area }, saved as room_mark.
+// Here's button next to the room number: REMEMBER marks this room; once you
+// have moved on it reads GO BACK and walks you there (PATH FIND <id>);
+// arriving after GO BACK forgets it, so the button offers REMEMBER again.
+// In the marked room itself it reads "remembered" (a click forgets it).
+//   R.goingBack  true from GO BACK until you arrive (Room.Info in room_gmcp)
+R.mark = null;
+try { var rmMk = JSON.parse(get_variable("room_mark") || "null"); if (rmMk && rmMk.id) R.mark = rmMk; } catch (e) { R.mark = null; }
+if (R.goingBack === undefined) R.goingBack = false;
+R.markName = function (m) { return m ? (m.name || "room") + " (" + m.id + ")" : ""; };
+R.markSave = function () {
+  if (R.mark) set_variable("room_mark", JSON.stringify(R.mark)); else delete_variable("room_mark");
+  run_function("room_render", [], "room");
+};
+R.remember = function () {
+  var I = R.info;
+  if (!I || !I.num) { display_notice("[room] no room yet: move or LOOK first.", "orange"); return; }
+  R.mark = { id: String(I.num), name: String(I.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, ""), area: String(I.area || "") };
+  R.goingBack = false;
+  R.markSave();
+  display_notice("[room] remembered " + R.markName(R.mark) + ". GO BACK in Here (or ROOM BACK) walks you here.", "lime");
+};
+R.goBack = function () {
+  if (!R.mark) { display_notice("[room] no room remembered: ROOM REMEMBER, or REMEMBER in Here.", "orange"); return; }
+  if (R.info && String(R.info.num) === R.mark.id) { display_notice("[room] you're in " + R.markName(R.mark) + " already.", "cyan"); return; }
+  R.goingBack = true;
+  send_command("path find " + R.mark.id, 1);
+  display_notice("[room] going back to " + R.markName(R.mark) + ".", "cyan");
+};
+R.forget = function () {
+  var was = R.mark;
+  R.mark = null;
+  R.goingBack = false;
+  R.markSave();
+  display_notice(was ? "[room] forgot " + R.markName(was) + "." : "[room] no room remembered.", "cyan");
+};
+// The tab's clicks (its page can't reach client.loom by name in every Nexus).
+try {
+  window.loomRoom = {
+    remember: function () { client.loom.room.remember(); },
+    back: function () { client.loom.room.goBack(); },
+    forget: function () { client.loom.room.forget(); }
+  };
+} catch (e) {}
 
 // Newbies (#242): players whose full name (GMCP fullname) carries one of
 // these titles get a green leaf. Here reads the title live; for tabs that
