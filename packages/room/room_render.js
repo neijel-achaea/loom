@@ -149,7 +149,17 @@ if (!R.info) {
   for (var ek in (I.exits || {})) { if (I.exits.hasOwnProperty(ek)) ex.push(ek); }
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:3px;">';
   html += '<span>' + tags + '</span>';
-  html += '<span style="white-space:nowrap;color:' + MUTED + ';">exits <span style="color:' + AMBER + ';">' + (ex.length ? esc(ex.join("  ")) : "none") + '</span>' + (I.num ? ' &middot; ' + esc(I.num) : '') + '</span></div>';
+  // REMEMBER / GO BACK (#367), after the room number.
+  var mkBtn = "";
+  if (I.num) {
+    var mkHere = R.mark && R.mark.id === String(I.num);
+    var mkLbl = !R.mark ? "remember" : (mkHere ? "remembered" : "go back");
+    var mkCol = !R.mark ? MUTED : (mkHere ? DIM : AMBER);
+    var mkFn = !R.mark ? "remember" : (mkHere ? "forget" : "back");
+    var mkTip = !R.mark ? "remember this room: then GO BACK walks you here" : (mkHere ? "remembered; click to forget it" : "walk back to " + R.markName(R.mark) + (R.mark.area ? ", " + R.mark.area : "") + " (PATH FIND)");
+    mkBtn = ' <span class="loom-room-mark" onclick="window.loomRoom&&window.loomRoom.' + mkFn + '()" title="' + esc(mkTip) + '" style="cursor:pointer;margin-left:6px;padding:0 4px;border:1px solid ' + mkCol + ';color:' + mkCol + ';font-variant:small-caps;letter-spacing:1px;">' + mkLbl + '</span>';
+  }
+  html += '<span style="white-space:nowrap;color:' + MUTED + ';">exits <span style="color:' + AMBER + ';">' + (ex.length ? esc(ex.join("  ")) : "none") + '</span>' + (I.num ? ' &middot; ' + esc(I.num) : '') + mkBtn + '</span></div>';
   if (I.desc) {
     html += '<div onclick="document.body.classList.toggle(\'loom-room-desc-open\')" title="click to unfold or fold" class="loom-room-desc" style="cursor:pointer;margin-top:4px;font-family:' + SERIF + ';font-size:11px;line-height:1.35;color:' + MUTED + ';">' + esc(I.desc) + '</div>';
   }

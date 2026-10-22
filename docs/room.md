@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 0.2.13.*
+*This page describes room 0.2.14.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,7 +14,7 @@ Everything comes from the game itself (GMCP), so there's nothing to configure. T
 
 What you see, top to bottom:
 
-- **The room:** its name, area and environment, the room's details as small tags (indoors, a shop, a bank…), the exits and the room number.
+- **The room:** its name, area and environment, the room's details as small tags (indoors, a shop, a bank…), the exits and the room number. After the number, a small button: **remember** marks the room; once you've moved on it reads **go back** and walks you there (`PATH FIND`), and arriving forgets the mark so you can remember another. In the marked room it reads **remembered**; a click forgets it. `ROOM REMEMBER`, `ROOM BACK` and `ROOM FORGET` do the same from the command line, and the mark survives a reload.
 - **The description**, folded to two lines. Click it to unfold it, click again to fold it.
 - **Players** here, yourself left out, alphabetical. Hover a name for the player's full title. Your target glows red.
 - **Mobs**, one row each in the room's own order: the order the game uses when you target by name, so the next row down is the next mob `kill rat` would hit. Your target glows yellow in place, with its health. Dead ones are greyed out.
@@ -31,6 +31,9 @@ What you see, top to bottom:
 | `ROOM PROBE IGNORE [name]` | places read as owners ("loyal to Qurnok"): mobs loyal to them aren't marked; no name lists them |
 | `ROOM PROBE UNIGNORE <name>` | take a name off that list |
 | `ROOM PROBE DEBUG` | the lines the last probe hid, and what ended it |
+| `ROOM REMEMBER` | remember this room (REMEMBER in Here does the same) |
+| `ROOM BACK` | walk back to the remembered room with PATH FIND (GO BACK in Here) |
+| `ROOM FORGET` | forget the remembered room |
 | `ROOM DEBUG` | the last room GMCP payloads, as they came |
 | **The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like.** | |
 <!-- /loom:commands -->
