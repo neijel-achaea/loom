@@ -10,6 +10,8 @@
 
 Basher takes the repetition out of hunting while you stay at the keyboard. Once it's primed, your own first attack starts a **run**: from then on it sends your class's main attack at your target each time balance and equilibrium come back, until the room has no more of what you're hunting. Then it waits, primed, for your next attack.
 
+<img src="img/basher.png" width="380" alt="The Basher tab: two mob types active in the kill order for the Western Ithmia.">
+
 It is **attended by design**:
 
 - It never starts a fight on its own. You attack first; it carries on.

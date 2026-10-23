@@ -10,6 +10,8 @@
 
 Coffers keeps your books. It watches the gold in your purse and in the bank, and tells you how much money came in and went out: per play session, per day, and over the last months. It awards wealth ranks as your fortune grows, keeps your records, and can track a goal ("earn 500k").
 
+<img src="img/coffers.png" width="380" alt="The Coffers tab: fortune, this session and today, records, and the two gold graphs.">
+
 Coffers only cares about money that enters or leaves your character. Your **fortune** is purse plus bank, so depositing or withdrawing changes nothing. Selling, looting and getting paid count as **in**. Buying, paying and losing gold count as **out**.
 
 Your gold and bank come from the game itself (GMCP), so there is no prompt to configure. Coffers reads them whenever the game reports them, and updates the books once per prompt, whatever your prompt looks like. Its one trigger notes who gives you gold, for the [standings integration](#working-with-other-packages).

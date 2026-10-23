@@ -50,5 +50,5 @@ Vision reads **social**'s city and enemies lists, and the enemy colour. Nothing 
 
 ## Troubleshooting
 
-- **City members still show.** They must be on social's `city` list (`SOCIAL LIST city`), and `VISION HIDE` on.
-- **No alert for an enemy.** They must be on social's `enemies` list, `VISION ALERT` on, and you in a party (or the channel you set).
+- **City members still show.** They must be on social's `city` list (`SOCIAL LIST city`), and `VISION HIDE ON`.
+- **No alert for an enemy.** They must be on social's `enemies` list, `VISION ALERT ON`, and you in a party (or the channel you set).

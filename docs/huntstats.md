@@ -10,6 +10,8 @@
 
 Huntstats times your hunts and keeps the books on every area you hunt in. A **hunt** starts with the first experience you gain in an area and is **filed** when you leave the area: its experience, gold, kills and length are added to that area's record, and a line in the main window sums it up:
 
+<img src="img/stats.png" width="380" alt="The Stats tab: the last hunt, lifetime figures, recent hunts and areas by time spent.">
+
 ```
 [huntstats] Annwyn: 412,800 xp (198,144/hr), 24,300 gold, 61 kills, 2h 05m, took 38/s (max hit 1,240)
 ```

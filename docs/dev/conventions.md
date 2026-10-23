@@ -75,4 +75,4 @@ A package (or a change to one) is done when:
 - [ ] it has one command with `HELP`, and registers itself;
 - [ ] names and items specific to a player are in configuration, not code;
 - [ ] its version is bumped, it's built, `check.py`, `smoke.py` and `upgrade.py` pass, and it's tested in the game;
-- [ ] its page in `docs/` describes what it does now.
+- [ ] its page in `docs/` describes what it does now, and a changed tab has a fresh screenshot (`tools/screens.py`).

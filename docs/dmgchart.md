@@ -10,6 +10,8 @@
 
 DmgChart reads the game's damage lines ("Damage dealt: 412 (cutting)." and "Health lost: 96 (fire).") and turns them into the **DmgChart** tab:
 
+<img src="img/dmgchart.png" width="380" alt="The Damage tab: damage dealt and taken by type in the live fight, and the exchange table.">
+
 - **Two big figures**: damage dealt and taken per second in the current fight.
 - **Two donuts**, one for each, split by damage type (cutting, fire, magic…). Bleeding counts as a type of its own.
 - **Your hits as a table**: normal hits and each critical tier (crushing, obliterating, world-shattering…), with count, share and average damage, plus your biggest hit and hits a minute.

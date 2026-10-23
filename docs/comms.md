@@ -10,6 +10,8 @@
 
 Comms draws a tab called **Comms** that replaces Nexus's stock communication window. Every line the game sends on a channel (says, tells, party, your city, clan, house, order, newbie…) lands there, newest at the bottom, in the colours your game uses for that channel (so your `CONFIG COLOUR` choices carry over, the 256-colour ones included). Hover a line to see when it came.
 
+<img src="img/comms.png" width="380" alt="The Comms tab: city, party and say lines in the game's colours, with a tell from Maren.">
+
 Across the top, a row of **filters** in a fixed order: All, Say, Tell, Party, Yell, Shout, City, House, HNT, Clans, then every other channel alphabetically, each with its count of unread lines. Every clan channel sits under one **Clans** filter. Click one to show only that channel. Emotes and Deathsight carry the gods' roleplay rather than talk: they stay in the main window and never reach the tab.
 
 Everything comes from the game (GMCP): there are no triggers, and the main window is left exactly as it was.

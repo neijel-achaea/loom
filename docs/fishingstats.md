@@ -13,6 +13,10 @@ FishingStats watches the fishing going on around you (yours and everyone else's)
 - **fishingstats**, the session under way: each angler with their catch count and a bar in their colour, their casts, hooks and landing rate, their biggest fish; and each species caught, its bar split by angler so you can see who's catching what.
 - **fishinglog**, the sessions you've fished before, and all-time totals.
 
+<img src="img/fishingstats.png" width="380" alt="The fishingstats tab during a session: catches by angler and by species, and recent catches.">
+
+<img src="img/fishinglog.png" width="380" alt="The fishinglog tab: every filed session, anglers of all time and the biggest catch ever.">
+
 A **session** files itself into the log after 90 minutes without a cast or catch (`FISHINGSTATS GAP` to change), so a day at the pier becomes one entry without you doing anything. A session where nothing was landed is thrown away rather than logged.
 
 **Record catches.** Once you've loaded the year's rankings (`RANKINGS FISHING`), a catch that beats this year's ranking for its species is flagged in the main window: "[fishingstats] Ana's blue eel at 6lb 3oz beats this year's ranking of 5lb 14oz by…".

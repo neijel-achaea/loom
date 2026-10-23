@@ -13,6 +13,8 @@ Ledger is an in-character to-do list that lives on Achaea's own calendar. It hol
 - **Dated items**, due on an Achaean day: "Pay the guild dues @ 1st Sarapin 1016", or "@ +2 months". They can repeat.
 - **Standing items** with no date: things to keep in mind ("Ask Ana about the grove"). The longer you leave one untouched, the warmer its colour turns.
 
+<img src="img/ledger.png" width="380" alt="The Ledger tab: the Achaean month, reminders approaching and a standing item.">
+
 An Achaean day is about one real hour, a month is 25 days and a year 12 months, so "+4 months" is about four real days.
 
 What you get:

@@ -10,6 +10,8 @@
 
 Standings keeps a book of the people you deal with. Each time something happens between you (a favour, a slight, a gift, a betrayal) you **nudge** your standing with them up or down, with a note. Their standing is worked out from those dealings, on a scale from -10 to +10, and falls in one of seven **bands**:
 
+<img src="img/standings.png" width="380" alt="The Standings overview: recent dealings and the people held in highest and lowest regard.">
+
 | Band | From | To | Icon |
 | --- | ---: | ---: | :---: |
 | Nemesis | -10 | -6 | ☠ |
