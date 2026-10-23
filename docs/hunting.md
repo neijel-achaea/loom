@@ -14,6 +14,8 @@ Hunting lays out Nexus's F-key buttons for the class you're in, and keeps them h
 - **Battlerage abilities** sit on the next keys, each lit only when it's ready: off its own cooldown, the shared battlerage cooldown clear, and enough rage.
 - **Extras** on F8 to F12: your class's utility (a mode, a panic key, a heal), the Stats key (with huntstats), `DIAGNOSE` and `TOUCH SHIELD`.
 
+<img src="img/fkeys.png" alt="The F-key bar for a Monk during a basher run: F1 shows STOP, F4 (Spinningbackfist) is lit as ready, F9 to F12 are the extras.">
+
 Every class in the game has a layout, and every dragon colour. When you change class, morph or specialisation, the keys follow.
 
 It also:

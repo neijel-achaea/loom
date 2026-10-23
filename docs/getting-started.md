@@ -47,9 +47,19 @@ If a tab doesn't appear, reset the UI layout. Tab icons show after a page reload
 
 Room's tab is called **Here**, not Room, because Nexus already has a Room tab of its own.
 
+How it can look once the tabs are placed (here: Self and Comms on the left, Here on the right above Level, with the other Loom tabs in the strip below it; arrange yours as you like):
+
+<img src="img/layout.png" alt="The Nexus client with Loom tabs: Self and Comms on the left, the main window in the middle, Here and Level on the right, F-keys along the bottom.">
+
 ## 4. First commands
 
 Every package answers to one word, its name in capitals, and lists its commands with `HELP`: `COFFERS HELP`, `ROOM HELP`, `DEFCON HELP`.
+
+<img src="img/help.png" alt="BASHER HELP in the main window: commands in cyan on the left, what each does on the right.">
+
+Loom's notices start with the package's name in brackets, and their colour says what kind they are: **cyan** for information (a status, HELP, a list), **lime** when something was done or saved, **orange** when something went wrong or needs a look (an unknown command, a warning). Red is kept for security's theft alarm.
+
+<img src="img/notices.png" width="620" alt="Notices in the main window: a cyan basher status, a lime room confirmation and an orange ledger error between game lines.">
 
 Loom's own commands:
 
