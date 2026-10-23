@@ -10,6 +10,8 @@
 
 Self draws a tab called **Self** that replaces Nexus's stock character panel. It follows your afflictions and defences as the game reports them, and tells you when a defence you care about is missing.
 
+<img src="img/self.png" width="380" alt="The Self tab: character, condition, afflictions and defences.">
+
 What you see, top to bottom:
 
 - **Title:** your name, race, class and level; the large number is how many afflictions you have right now.

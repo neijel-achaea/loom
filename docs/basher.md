@@ -10,6 +10,8 @@
 
 Basher takes the repetition out of hunting while you stay at the keyboard. Once it's primed, your own first attack starts a **run**: from then on it sends your class's main attack at your target each time balance and equilibrium come back, until the room has no more of what you're hunting. Then it waits, primed, for your next attack.
 
+<img src="img/basher.png" width="380" alt="The Basher tab: two mob types active in the kill order for the Western Ithmia.">
+
 It is **attended by design**:
 
 - It never starts a fight on its own. You attack first; it carries on.
@@ -55,6 +57,8 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 When the room runs out of targets the run ends and the basher stays primed: "run over, still primed. Attack something to start again."
 
 `BASHER STOP` (or `BASHER OFF`) stops everything at once. While a run lasts, **F1 becomes a lit STOP key** that sends `BASHER END`: the run ends at once and the basher stays primed, so your next attack starts a new one. When the run ends, however it ends, F1 goes back to your main attack. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…).
+
+<img src="img/fkeys.png" alt="The F-key bar during a run: F1 has become the STOP key.">
 
 The basher also switches itself off after 3 attacks in a row that took no balance: something is wrong (no target, a wrong command), and it won't keep sending blindly. It sends nothing at all while `pauseTriggers` is on (`LOOM PAUSE ON`).
 

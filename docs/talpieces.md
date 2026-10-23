@@ -10,6 +10,8 @@
 
 TalPieces keeps count of your dragon talisman pieces as you find them, trade them and list them, and shows your progress toward the full set in the **Talismans** tab:
 
+<img src="img/talismans.png" width="380" alt="The Talismans tab: progress per colour, pieces still needed and the graph over time.">
+
 - **The headline**: how much of the set you hold, common and rare.
 - **A graph** of your progress over time, and your pace over the last seven days with a projected finish date.
 - **A grid of what's still needed**, by colour (black, blue, gold, green, red, silver) and piece type, coloured from green (nearly there) to red (far off).

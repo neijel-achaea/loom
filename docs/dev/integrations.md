@@ -92,6 +92,8 @@ Call `notify` as soon as the state changes, not after your own tab's delayed red
 
 Always guard the call (`if (client.loom.notify)`): the source must work without loom.
 
+When a package is uninstalled, its `onUninstall` calls `client.loom.gone("<pkg>")`: the registry entry goes, every link from it turns to waiting, and its destinations are redrawn without its answers. Nothing it created in other packages is withdrawn, so a reinstall finds things as after a reload. When loom itself is uninstalled, every link waits.
+
 ## Switching
 
 - A link is **on** as soon as both its packages are installed (present in `client.loom.registry`), unless the player switched it off.

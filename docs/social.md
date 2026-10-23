@@ -14,6 +14,8 @@ Social keeps your lists of people (family, enemies, order, house, city, allies, 
 - **Tells you when they log in or out**: "Ana has awoken." and "Ana has drifted into slumber.", in their group's colour.
 - **Draws the Online tab**: the people you watch who are online, how long they've been on, and below, the ones who are offline with when you last saw them.
 
+<img src="img/online.png" width="380" alt="The Online tab: watched people online in their group colours, standings icons, and one offline.">
+
 It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POLL EVERY` changes that) and hiding the reply, so the main window stays clean. Your city's enemies list fills itself from the game's own list (`SOCIAL SYNC` switches that).
 
 ## Commands

@@ -16,6 +16,8 @@ LevelGraph follows your level and how far you are into it, and draws them in the
 - **A minute-by-minute graph** over the last 2 hours. Its span is separate from the session: a 3-hour session still counts from its start.
 - **A long-term graph**: one point per day over the last 100 days.
 
+<img src="img/level.png" width="380" alt="The Level tab: progress to the next level, this session and the long term, and both graphs.">
+
 It reads your level from the game (GMCP) once per prompt, whatever your prompt looks like, so there's nothing to set up. When the game's character stats carry the precise figure ("Level: 54 (23.45%)"), it uses that rather than the whole percent.
 
 ## Commands

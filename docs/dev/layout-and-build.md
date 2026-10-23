@@ -33,6 +33,7 @@ In `package.json`, a value `"@file:vials_setup.js"` stands for that file's conte
 Most packages share the same skeleton:
 
 - **`<pkg>_setup`** builds the package's state under `client.loom.<pkg>`, registers it (`client.loom.registry.<pkg> = { version, keyword, desc }`), migrates old variables once, and defines its helpers. It's safe to run again: data is kept, helpers rebuilt.
+- **`onUninstall`** stops the package's timers and calls `client.loom.gone("<pkg>")` (or deletes its registry entry when loom isn't there), so `LOOM` and the integrations drop it at once.
 - **`onInstall` and `onLoad`** run the setup. `onGMCP` reads what the package needs from the game, and runs the setup too if the namespace is missing (Nexus doesn't run `onInstall` when importing over an existing package).
 - **One alias**, `^<pkg>(?:\s+(.*))?$`, for the package's command, with `HELP` and a bare call that shows status.
 - **`<pkg>_help`** prints the HELP table. The player docs read the same table (see `tools/docs.py` below), so a command is documented once.
@@ -52,6 +53,7 @@ All of them run from the repository's root with Python 3. `docs.py` also needs `
 | `python3 tools/upgrade.py` | Imports the current build over every release since 0.2 in node, and checks no setting was lost and every saved variable is in [Saved variables](variables.md) ([Testing](testing.md#3-upgrade-test)) |
 | `python3 tools/versions.py` | Writes `dist/versions.json`, the version of every built package (`--check` only tests it) |
 | `python3 tools/docs.py` | Fills the generated blocks in `docs/` (`--check` only reports stale pages) |
+| `python3 tools/screens.py` | Draws every tab with invented data and saves the screenshots in `docs/img/` (needs node and playwright); run it when a tab's look changes |
 
 **Build** checks each description and resolves every `@file:` and `@cat:` reference. `extract.py` and `build.py` round-trip exactly: extracting a built package and building it again gives the same file.
 

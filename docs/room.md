@@ -10,6 +10,8 @@
 
 Room draws a tab called **Here** that replaces Nexus's stock Room tab. It shows the room you stand in, the players and mobs in it, and the items on the floor, and keeps them current as people come and go and mobs die.
 
+<img src="img/here.png" width="380" alt="The Here tab in an oak wood: two players, three mobs numbered in kill order with the target highlighted, and the items on the floor.">
+
 Everything comes from the game itself (GMCP), so there's nothing to configure. The only exceptions are a few game lines GMCP doesn't cover (someone flying up or landing, the game confirming a new target), which Room reads as well.
 
 What you see, top to bottom:
