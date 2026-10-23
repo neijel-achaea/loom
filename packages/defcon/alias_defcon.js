@@ -30,10 +30,9 @@ else if (dcSub === "aftermorph") {
   D.edit = { verb: "aftermorph", words: dcParts.slice(1), rest: dcRest };
   run_function("defcon_edit", [], "defcon");
 }
-else if ((dcSub === "init" && dcVal === "auto") || dcSub === "autoup") {
-  // DEFCON INIT AUTO ON|OFF (DEFCON AUTOUP until 0.5.0).
-  var dcOnOff = dcSub === "autoup" ? dcVal : (dcParts[2] || "");
-  if (dcSub === "autoup") display_notice("[defcon] DEFCON AUTOUP is now DEFCON INIT AUTO.", "orange");
+else if (dcSub === "init" && dcVal === "auto") {
+  // DEFCON INIT AUTO ON|OFF.
+  var dcOnOff = dcParts[2] || "";
   if (dcOnOff === "on" || dcOnOff === "off") {
     set_variable("defcon_autoinit", dcOnOff);
     display_notice("[defcon] init at login " + dcOnOff.toUpperCase() + ": your class's init commands " + (dcOnOff === "on" ? "are" : "aren't") + " sent when you log in.", "lime");
@@ -41,9 +40,8 @@ else if ((dcSub === "init" && dcVal === "auto") || dcSub === "autoup") {
     display_notice("[defcon] init at login is " + String(get_variable("defcon_autoinit")).toUpperCase() + ". DEFCON INIT AUTO ON or OFF.", C);
   }
 }
-else if (dcSub === "init" || dcSub === "up") {
-  // DEFCON INIT (DEFCON UP until 0.5.0): send the class's init commands now.
-  if (dcSub === "up") display_notice("[defcon] DEFCON UP is now DEFCON INIT.", "orange");
+else if (dcSub === "init") {
+  // DEFCON INIT: send the class's init commands now.
   run_function("defcon_up", [], "defcon");
 }
 else if (dcSub === "add" || dcSub === "set" || dcSub === "remove" || dcSub === "reset") {

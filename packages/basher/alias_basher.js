@@ -31,13 +31,11 @@ if (bsSub === "" || bsSub === "status") {
   if (!B.on) display_notice("[basher] OFF: no run to end.", "cyan");
   else if (!B.run) display_notice("[basher] primed, no run to end.", "cyan");
   else { B.fleeing = null; B.rageSent = null; B.diag = false; B.end("run ended by hand"); }
-} else if (bsSub === "wimpy" || bsSub === "health") {
-  // BASHER HEALTH n (0.1) is read as BASHER WIMPY HEALTH n.
-  var bsK = bsSub === "health" ? "health" : (bsW[1] || "");
-  var bsV = bsSub === "health" ? (bsW[1] || "") : (bsW[2] || "");
+} else if (bsSub === "wimpy") {
+  var bsK = bsW[1] || "";
+  var bsV = bsW[2] || "";
   var bsVars = { health: "basher_flee_health", mana: "basher_flee_mana" };
-  if (bsSub === "health") display_notice("[basher] BASHER HEALTH is now BASHER WIMPY HEALTH: the basher flees below it instead of holding.", "orange");
-  if (bsK === "" || (bsSub === "health" && bsV === "")) {
+  if (bsK === "") {
     display_notice("[basher] wimpy: " + B.wimpyText() + ". BASHER WIMPY HEALTH|MANA <1-90|OFF>, BASHER WIMPY DIR <direction|OFF>.", "cyan");
   } else if (bsVars[bsK] && (bsV === "off" || (/^\d+$/.test(bsV) && to_number(bsV) >= 1 && to_number(bsV) <= 90))) {
     set_variable(bsVars[bsK], bsV === "off" ? "0" : String(to_number(bsV)));
