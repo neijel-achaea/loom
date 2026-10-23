@@ -3,7 +3,7 @@
 *Refill your vials from the rift by elixir name, without remembering which vial holds what.*
 
 <!-- loom:version vials -->
-*This page describes vials 0.2.3.*
+*This page describes vials 0.2.4.*
 <!-- /loom:version -->
 
 ## What it is

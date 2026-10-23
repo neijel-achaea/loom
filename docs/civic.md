@@ -3,7 +3,7 @@
 *City duties, one ministry at a time: for now, the ambassador's aide, who welcomes new citizens and teaches novices.*
 
 <!-- loom:version civic -->
-*This page describes civic 0.2.6.*
+*This page describes civic 0.2.7.*
 <!-- /loom:version -->
 
 ## What it is
@@ -26,6 +26,7 @@ Civic gathers the routine of city work. It works for any city and is organised b
 | `CIVIC AIDE TITLE <title>` | your aide title, e.g. Verdant Emissary |
 | `CIVIC AIDE CLAN <clan>` | the novice clan you help in, e.g. saiha |
 | `CIVIC GREET <name> [CT\|CLT]` | welcome a new citizen (both channels by default) |
+| `CIVIC DEBUG` | internal state |
 <!-- /loom:commands -->
 
 `CIVIC GREET Ana CT` welcomes on the city channel only, `CLT` on the clan only; both by default.

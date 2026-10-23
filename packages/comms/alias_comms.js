@@ -60,17 +60,21 @@ if (cmSub === "" || cmSub === "status") {
     cmDraw = false;
   }
 } else if (cmSub === "clear") {
-  if (!cmRest) {
+  // COMMS CLEAR [channel] CONFIRM (#137): saved lines are gone for good, so it asks first.
+  var cmOk = /(^|\s)confirm$/i.test(cmRest);
+  var cmWhat = cmRest.replace(/(^|\s+)confirm$/i, "").trim();
+  var cmC = cmWhat ? cmFind(cmWhat) : "";
+  if (cmWhat && !cmC) { cmSay("no channel heard yet matches '" + cmWhat + "'.", "orange"); cmDraw = false; }
+  else if (!cmOk) {
+    cmSay("this forgets " + (cmC ? "every line of " + C.name(cmC) : "every line of every channel") + ". COMMS CLEAR " + (cmWhat ? cmWhat.toUpperCase() + " " : "") + "CONFIRM to do it.", "orange");
+    cmDraw = false;
+  } else if (!cmC) {
     C.chans = {}; C.convs = {}; C.view = "all";
-    cmSay("all lines cleared.", "lime");
+    cmSay("all lines cleared.", "orange");
   } else {
-    var cmC = cmFind(cmRest);
-    if (!cmC) { cmSay("no channel heard yet matches '" + cmRest + "'.", "orange"); cmDraw = false; }
-    else {
-      delete C.chans[cmC];
-      if (cmC === "tells") C.convs = {};
-      cmSay(C.name(cmC) + " cleared.", "lime");
-    }
+    delete C.chans[cmC];
+    if (cmC === "tells") C.convs = {};
+    cmSay(C.name(cmC) + " cleared.", "orange");
   }
   if (cmDraw) run_function("comms_save", [], "comms");
 } else if (cmSub === "debug") {
@@ -78,21 +82,21 @@ if (cmSub === "" || cmSub === "status") {
   if (!cmRk.length) cmSay("no comms GMCP seen yet.");
   for (var cmX = 0; cmX < cmRk.length; cmX++) {
     var cmS = JSON.stringify(C.raw[cmRk[cmX]]);
-    cmSay(cmRk[cmX] + " " + (cmS.length > 600 ? cmS.slice(0, 600) + "…" : cmS), "orange");
+    cmSay(cmRk[cmX] + " " + (cmS.length > 600 ? cmS.slice(0, 600) + "…" : cmS));
   }
-  cmSay("channels: " + (Object.keys(C.chans).join(", ") || "none") + "; me=" + (C.me || "?"), "orange");
+  cmSay("channels: " + (Object.keys(C.chans).join(", ") || "none") + "; me=" + (C.me || "?"));
   var cmCopies = 0;
   try { cmCopies = document.querySelectorAll('[id="loom-comms"]').length; } catch (e) {}
-  cmSay("draws: " + (C.draws || 0) + "; copies of the tab on the page: " + cmCopies + "; following: " + (C.follow === false ? "no (scrolled up)" : "yes"), "orange");
+  cmSay("draws: " + (C.draws || 0) + "; copies of the tab on the page: " + cmCopies + "; following: " + (C.follow === false ? "no (scrolled up)" : "yes"));
   // Why the tab follows or not (#363): its last changes, and scrolls from
   // outside Comms that were put back.
   var cmFl = C.followLog || [];
   var cmFt = [];
   for (var cmF = 0; cmF < cmFl.length; cmF++) cmFt.push(Math.round((Date.now() - cmFl[cmF].t) / 1000) + "s ago " + (cmFl[cmF].on ? "on" : "off") + " (" + cmFl[cmF].why + ")");
-  cmSay("follow changes: " + (cmFt.length ? cmFt.join("; ") : "none") + "; scrolls from outside put back: " + (C.outside || 0), "orange");
+  cmSay("follow changes: " + (cmFt.length ? cmFt.join("; ") : "none") + "; scrolls from outside put back: " + (C.outside || 0));
   var cmIn = null;
   try { cmIn = window.loomComms && window.loomComms.input(); } catch (e) {}
-  cmSay("input line for tells: " + (cmIn ? cmIn.tagName.toLowerCase() + (cmIn.id ? "#" + cmIn.id : "") + (cmIn.className ? "." + String(cmIn.className).split(" ").join(".") : "") : "not found"), "orange");
+  cmSay("input line for tells: " + (cmIn ? cmIn.tagName.toLowerCase() + (cmIn.id ? "#" + cmIn.id : "") + (cmIn.className ? "." + String(cmIn.className).split(" ").join(".") : "") : "not found"));
   cmDraw = false;
 } else {
   cmSay("unknown command '" + cmSub + "'. COMMS HELP for commands.", "orange");

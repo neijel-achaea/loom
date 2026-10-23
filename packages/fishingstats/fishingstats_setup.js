@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.fishingstats) client.loom.fishingstats = {};
-client.loom.registry.fishingstats = { version: "0.2.4", keyword: "FISHINGSTATS", desc: "{{description}}",
+client.loom.registry.fishingstats = { version: "0.2.5", keyword: "FISHINGSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("fishingstats_render", [], "fishingstats"); run_function("fishingstats_log_render", [], "fishingstats"); } };
 var FS = client.loom.fishingstats;

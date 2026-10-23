@@ -29,8 +29,8 @@ if (rmSub === "" || rmSub === "status") {
     var rmPl = R.probeLast;
     if (!rmPl) rmSay("no probe has ended yet.");
     else {
-      rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden:", "orange");
-      for (var rmPd = 0; rmPd < rmPl.lines.length; rmPd++) rmSay("  " + rmPl.lines[rmPd], "orange");
+      rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden:");
+      for (var rmPd = 0; rmPd < rmPl.lines.length; rmPd++) rmSay("  " + rmPl.lines[rmPd]);
     }
   } else if (rmPv === "ignore" || rmPv === "unignore") {
     // Names the probe reads as owners that are places (Qurnok): not loyals.
@@ -72,9 +72,9 @@ if (rmSub === "" || rmSub === "status") {
   if (!rmK.length) rmSay("no room GMCP seen yet.");
   for (var rmX = 0; rmX < rmK.length; rmX++) {
     var rmS = JSON.stringify(R.raw[rmK[rmX]]);
-    rmSay(rmK[rmX] + " " + (rmS.length > 600 ? rmS.slice(0, 600) + "…" : rmS), "orange");
+    rmSay(rmK[rmX] + " " + (rmS.length > 600 ? rmS.slice(0, 600) + "…" : rmS));
   }
-  rmSay("me=" + (R.me || "?") + " players=" + Object.keys(R.players).length + " items=" + Object.keys(R.items).length, "orange");
+  rmSay("me=" + (R.me || "?") + " players=" + Object.keys(R.players).length + " items=" + Object.keys(R.items).length);
 } else {
   rmSay("unknown command '" + rmSub + "'. ROOM HELP for commands.", "orange");
 }

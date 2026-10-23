@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.talpieces) client.loom.talpieces = {};
-client.loom.registry.talpieces = { version: "0.2.5", keyword: "TALPIECES", desc: "{{description}}",
+client.loom.registry.talpieces = { version: "0.2.6", keyword: "TALPIECES", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("talpieces_render", [], "talpieces"); } };
 var TP = client.loom.talpieces;

@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 0.4.11.*
+*This page describes social 0.4.12.*
 <!-- /loom:version -->
 
 ## What it is
@@ -33,7 +33,7 @@ It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POL
 | `SOCIAL UNWATCH <group>` | stop announcing it |
 | `SOCIAL POLL ON\|OFF\|NOW` | the QW poll behind the announcements |
 | `SOCIAL POLL EVERY [seconds]` | time between polls, 3 to 600 (default 5; no number: show) |
-| `SOCIAL SYNC [ON\|OFF]` | load the enemies group from your city's enemies list (default on; no word: show) |
+| `SOCIAL SYNC [ON\|OFF]` | load the enemies group from your city's enemies list (default ON; no word: show) |
 | `SOCIAL RESET` | reload the lists, re-prime the watchlist |
 | `SOCIAL DEBUG [ON\|OFF]` | internal state; ON shows each poll |
 | **Groups, highest priority first: family, enemies, order, house, city, allies, friends.** | |

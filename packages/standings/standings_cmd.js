@@ -87,14 +87,16 @@ else if (W[0].toLowerCase() === "skip") {
   if (DB.pending.length === 0) { say("nothing waiting for review."); }
   else { var sk = DB.pending.shift(); F.save(); say("dismissed: " + sk.who + " — " + sk.why + "." + (DB.pending.length ? " " + DB.pending.length + " more waiting." : ""), "lime"); render(); }
 }
-else if (W[0].toLowerCase() === "rebuild") {
+else if (W[0].toLowerCase() === "reset" || W[0].toLowerCase() === "rebuild") {
+  // STANDINGS RESET (#137); REBUILD, its old name, works until Loom 1.1.
+  if (W[0].toLowerCase() === "rebuild") say("STANDINGS REBUILD is now STANDINGS RESET.", "orange");
   client.loom.standings.F = undefined;
   run_function("standings_ensure", [], "standings");
   F = client.loom.standings.F;
   // Recompute every standing with the fresh rules.
   for (var kr in DB.e) { if (DB.e.hasOwnProperty(kr)) { DB.e[kr].s = F.score(DB.e[kr].log || []); } }
   F.save();
-  say("helpers rebuilt and every standing recomputed.", "lime");
+  say("reset: helpers rebuilt and every standing recomputed; the books are untouched.", "lime");
   render();
 }
 else if (W[0].toLowerCase() === "debug") {

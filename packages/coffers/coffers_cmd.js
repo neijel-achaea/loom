@@ -233,12 +233,14 @@ else if (c === "wipe") {
     render();
   }
 }
-else if (c === "rebuild") {
+else if (c === "reset" || c === "rebuild") {
+  // COFFERS RESET (#137); REBUILD, its old name, works until Loom 1.1.
+  if (c === "rebuild") say("COFFERS REBUILD is now COFFERS RESET.", "orange");
   CO.f = undefined;
   CO.tiers = undefined;
   if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
 var CO = client.loom.coffers;
-  say("helpers and rank table rebuilt.", "lime");
+  say("reset: helpers and rank table rebuilt from the code; your books are untouched.", "lime");
   render();
 }
 else if (c === "debug") {
@@ -248,4 +250,4 @@ else if (c === "debug") {
   say("settings: span " + CO.mins + "m/" + CO.daySpan + "d, gap " + CO.gap + "m, bigcoin " + CO.big + ", goal " + CO.goal + " from " + CO.goalBase + ", height " + CO.chartH + ".");
 }
 else if (c === "help") { run_function("coffers_help", [], "coffers"); }
-else { say("unknown subcommand '" + c + "'. COFFERS HELP lists them.", "orange"); }
+else { say("unknown command '" + c + "'. COFFERS HELP for commands.", "orange"); }

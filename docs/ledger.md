@@ -3,7 +3,7 @@
 *Reminders and standing items on the Achaean calendar, with reminders other packages add for you.*
 
 <!-- loom:version ledger -->
-*This page describes ledger 0.3.6.*
+*This page describes ledger 0.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -38,7 +38,7 @@ Ledger learns the date from the game itself: it asks `DATE` once at login (and h
 | `LEDGER TOUCH <#>` | mark a standing item as looked at today |
 | `LEDGER DATE` | ask the game for today's date |
 | `LEDGER DEBUG [ON\|OFF]` | internal state, or debug notices |
-| `LEDGER REBUILD` | rebuild from the saved variables |
+| `LEDGER RESET` | rebuild from the saved variables (your items are kept) |
 | **Items other packages add show their source (· harvesting); they go away by themselves when** | |
 | **their condition clears. DONE or DROP one and it stays away until then.** | |
 | `LEDGER DISMISSED` | those you've sent away, waiting for their condition to clear |

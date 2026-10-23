@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 0.2.14.*
+*This page describes room 0.2.15.*
 <!-- /loom:version -->
 
 ## What it is
@@ -27,7 +27,7 @@ What you see, top to bottom:
 |---|---|
 | `ROOM` | the room in a line, and how the description starts |
 | `ROOM DESC OPEN\|FOLDED` | show the description in full, or folded to two lines (clicking it flips it too) |
-| `ROOM PROBE [ON\|OFF]` | loyals: probe each new mob once, silently, and mark the ones loyal to someone (default on) |
+| `ROOM PROBE [ON\|OFF]` | loyals: probe each new mob once, silently, and mark the ones loyal to someone (default ON) |
 | `ROOM PROBE IGNORE [name]` | places read as owners ("loyal to Qurnok"): mobs loyal to them aren't marked; no name lists them |
 | `ROOM PROBE UNIGNORE <name>` | take a name off that list |
 | `ROOM PROBE DEBUG` | the lines the last probe hid, and what ended it |

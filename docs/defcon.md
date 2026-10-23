@@ -3,7 +3,7 @@
 *Defence readiness for any class: one number from 5 (bare minimum) to 1 (full alert) decides which defences the game's curing keeps up.*
 
 <!-- loom:version defcon -->
-*This page describes defcon 0.4.5.*
+*This page describes defcon 0.5.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -116,4 +116,4 @@ Each class's defaults live in one file under `packages/defcon/classes/`; the [RE
 - **"not configured yet: general defences".** Your class has no file: you get the defences every class shares, and only the common setup commands.
 - **A defence keeps dropping and coming back.** It's in the table at your level and the game re-raises it. Raise its tier (`DEFCON SET <def> <higher tier>`) or remove it.
 - **A defence isn't raised.** Check the name matches `DEF`, and that `DEFCON ON` (defence upkeep) and `CURING ON` are set. `DEFCON <same level>` resends everything.
-- **`DEFCON UP` or `AUTOUP` says it's now called something else.** They were renamed to `DEFCON INIT` and `DEFCON INIT AUTO`.
+- **`DEFCON UP` or `AUTOUP` is an unknown command.** They were renamed to `DEFCON INIT` and `DEFCON INIT AUTO` in 0.4, and the old names were removed before Loom 1.0.

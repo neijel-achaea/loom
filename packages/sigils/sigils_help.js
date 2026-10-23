@@ -12,7 +12,7 @@ var hlRows = [
   ["SIGILS UNIGNORE HERE|id", "watch a room again"],
   ["SIGILS THRESHOLD [n]", "flag sigils with fewer than n months left"],
   ["SIGILS COST [MONOLITH|FLAME n]", "prices used in the report"],
-  ["SIGILS CLEAR", "wipe the flagged list"],
+  ["SIGILS CLEAR CONFIRM", "forget every flagged room (ignored rooms are kept)"],
   ["SIGILS RESET", "clear the queue, restore missing defaults"],
   ["SIGILS DEBUG", "internal state"]
 ];

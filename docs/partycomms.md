@@ -3,7 +3,7 @@
 *Shares your vitals, rage and target with your party, and shows everyone's in the Party tab.*
 
 <!-- loom:version partycomms -->
-*This page describes partycomms 0.2.7.*
+*This page describes partycomms 0.2.8.*
 <!-- /loom:version -->
 
 ## What it is
@@ -25,7 +25,7 @@ Your vitals, rage, class and target come from the game (GMCP). When the game doe
 | Command | What it does |
 |---|---|
 | `PARTYCOMMS` | sharing on or off, your target, and who you've heard from |
-| `PARTYCOMMS ON / OFF` | start or stop sharing |
+| `PARTYCOMMS ON\|OFF` | start or stop sharing |
 | `PARTYCOMMS NAME [<name>]` | your name, if the game hasn't sent it since you imported |
 | `PARTYCOMMS CLEAR` | forget the party's reports |
 | `PARTYCOMMS TEST` | two sample members, to check the tab solo |

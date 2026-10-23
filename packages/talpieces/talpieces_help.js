@@ -13,7 +13,7 @@ var hlRows = [
   ["TALPIECES SEED <YYYY-MM-DD> [c] [r]", "backdate a starting point: common and rare held then"],
   ["TALPIECES CSV", "history as CSV lines (most recent 300)"],
   ["TALPIECES COMBINE ON|OFF", "queue TALISMAN COMBINE for each row when you list"],
-  ["TALPIECES WIPE PIECES|HISTORY", "clear the tracked pieces / the graph history"],
+  ["TALPIECES WIPE PIECES|HISTORY CONFIRM", "clear the tracked pieces / the graph history"],
   ["TALPIECES RESET / DEBUG", "reload from saved variables / internal state"],
   ["Pieces are counted as you find, trade and list them; list yours in game to rebuild the count."]
 ];

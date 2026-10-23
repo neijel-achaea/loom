@@ -9,9 +9,9 @@ function viKeys() { var a = []; for (var k in VI.map) { if (VI.map.hasOwnPropert
 function viSave() { set_variable("vials_map", JSON.stringify(VI.map)); }
 function viFill(el) { send_command("fill vial" + VI.map[el] + " with " + el + " from rift"); }
 
-if (viSub === "" || viSub === "list") {
+if (viSub === "" || viSub === "list" || viSub === "status") {
   var viK = viKeys();
-  if (!viK.length) viSay("no vials set yet. VIALS LEARN reads them from ELIXLIST, or VIALS SET <elixir> <vial number> [...].", "orange");
+  if (!viK.length) viSay("no vials set yet. VIALS LEARN reads them from ELIXLIST, or VIALS SET <elixir> <vial number> [...].");
   else {
     // A monospace block through nexusclient.add_html_line when this Nexus has
     // it, so the columns line up; otherwise plain notices.

@@ -3,7 +3,7 @@
 *Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and when you'll finish at your pace.*
 
 <!-- loom:version talpieces -->
-*This page describes talpieces 0.2.5.*
+*This page describes talpieces 0.2.6.*
 <!-- /loom:version -->
 
 ## What it is
@@ -36,7 +36,7 @@ It counts from the game's lines:
 | `TALPIECES SEED <YYYY-MM-DD> [c] [r]` | backdate a starting point: common and rare held then |
 | `TALPIECES CSV` | history as CSV lines (most recent 300) |
 | `TALPIECES COMBINE ON\|OFF` | queue TALISMAN COMBINE for each row when you list |
-| `TALPIECES WIPE PIECES\|HISTORY` | clear the tracked pieces / the graph history |
+| `TALPIECES WIPE PIECES\|HISTORY CONFIRM` | clear the tracked pieces / the graph history |
 | `TALPIECES RESET / DEBUG` | reload from saved variables / internal state |
 | **Pieces are counted as you find, trade and list them; list yours in game to rebuild the count.** | |
 <!-- /loom:commands -->

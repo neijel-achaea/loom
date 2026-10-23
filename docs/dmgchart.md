@@ -3,7 +3,7 @@
 *Damage dealt and taken by type, per fight and per recorded session, your critical hits, and how long your health will last.*
 
 <!-- loom:version dmgchart -->
-*This page describes dmgchart 0.3.9.*
+*This page describes dmgchart 0.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -32,10 +32,9 @@ A **fight** ends after 6 seconds with no hit either way; the next hit starts a n
 | `DMGCHART DEL <#>` | delete saved session # |
 | `DMGCHART GAP <seconds>` | quiet time that ends a fight (default 6; bleeding doesn't count) |
 | `DMGCHART WINDOW <seconds>` | how far back health lasts looks (default 6) |
-| `DMGCHART WARN [<seconds> \| OFF]` | warn in the main window when health lasts drops below this (default 10) |
-| `DMGCHART RESET` | clear the live fight |
+| `DMGCHART WARN [<seconds>\|OFF]` | warn in the main window when health lasts drops below this (default 10) |
+| `DMGCHART RESET` | clear the live fight and rebuild from the saved variables (a recording carries on) |
 | `DMGCHART WIPE CONFIRM` | delete all saved sessions |
-| `DMGCHART REBUILD` | rebuild from the saved variables (a recording resumes from its last checkpoint) |
 | `DMGCHART DEBUG` | internal state |
 <!-- /loom:commands -->
 

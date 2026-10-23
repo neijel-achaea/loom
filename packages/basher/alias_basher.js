@@ -31,13 +31,11 @@ if (bsSub === "" || bsSub === "status") {
   if (!B.on) display_notice("[basher] OFF: no run to end.", "cyan");
   else if (!B.run) display_notice("[basher] primed, no run to end.", "cyan");
   else { B.fleeing = null; B.rageSent = null; B.diag = false; B.end("run ended by hand"); }
-} else if (bsSub === "wimpy" || bsSub === "health") {
-  // BASHER HEALTH n (0.1) is read as BASHER WIMPY HEALTH n.
-  var bsK = bsSub === "health" ? "health" : (bsW[1] || "");
-  var bsV = bsSub === "health" ? (bsW[1] || "") : (bsW[2] || "");
+} else if (bsSub === "wimpy") {
+  var bsK = bsW[1] || "";
+  var bsV = bsW[2] || "";
   var bsVars = { health: "basher_flee_health", mana: "basher_flee_mana" };
-  if (bsSub === "health") display_notice("[basher] BASHER HEALTH is now BASHER WIMPY HEALTH: the basher flees below it instead of holding.", "orange");
-  if (bsK === "" || (bsSub === "health" && bsV === "")) {
+  if (bsK === "") {
     display_notice("[basher] wimpy: " + B.wimpyText() + ". BASHER WIMPY HEALTH|MANA <1-90|OFF>, BASHER WIMPY DIR <direction|OFF>.", "cyan");
   } else if (bsVars[bsK] && (bsV === "off" || (/^\d+$/.test(bsV) && to_number(bsV) >= 1 && to_number(bsV) <= 90))) {
     set_variable(bsVars[bsK], bsV === "off" ? "0" : String(to_number(bsV)));
@@ -75,6 +73,17 @@ if (bsSub === "" || bsSub === "status") {
   } else {
     display_notice("[basher] battlerage " + String(get_variable("basher_rage")).toUpperCase() + ", in this order: " + B.rotationText() + ". BASHER RAGE ON|OFF.", "cyan");
   }
+} else if (bsSub === "debug") {
+  // BASHER DEBUG (#137): the state a run decides on, on two lines.
+  var bsT = {};
+  try { bsT = B.target() || {}; } catch (e) { bsT = { why: "target() threw: " + e }; }
+  var bsN = function (o) { var a = []; for (var k in o) { if (o.hasOwnProperty(k)) a.push(k); } return a.join(",") || "none"; };
+  display_notice("[basher] on=" + !!B.on + " run=" + !!B.run + " loop=" + (B.loop ? "set" : "none") + " bal=" + B.bal + " eq=" + B.eq
+    + " target=" + (bsT.tar || "none") + (bsT.name ? " (" + bsT.name + ")" : "") + " why='" + (bsT.why || B.why || "") + "' lastFight=" + (B.lastFight ? JSON.stringify(B.lastFight) : "none")
+    + " misses=" + B.misses + " fleeing=" + (B.fleeing ? JSON.stringify(B.fleeing) : "none") + " pause=" + (get_variable("pauseTriggers") === "on" ? "on" : "off"), "cyan");
+  display_notice("[basher] area=" + (B.area || "?") + " room=" + (B.roomNum || "?") + (B.roomKnown ? "" : " (unknown)") + " players=" + bsN(B.players || {})
+    + " shields=" + bsN(B.shields) + " affs=" + JSON.stringify(B.affs) + " rageSent=" + (B.rageSent ? JSON.stringify(B.rageSent) : "none")
+    + " razeAt=" + (B.razeAt ? Math.round((Date.now() - B.razeAt) / 1000) + "s ago" : "never") + " game=" + (B.game ? B.game.id + " " + B.game.name : "none") + " autoTop='" + (B.autoTop || "") + "'", "cyan");
 } else {
   display_notice("[basher] unknown command '" + bsW.join(" ") + "'. BASHER HELP for commands.", "orange");
 }

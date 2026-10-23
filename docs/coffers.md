@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 0.3.6.*
+*This page describes coffers 0.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -42,7 +42,7 @@ Everything goes through one command, `COFFERS`. Commands aren't case-sensitive. 
 | `COFFERS SPAN LONG <7-365>` | days the day-by-day graph covers |
 | `COFFERS CSV [DAYS\|SESSION\|SESSIONS]` | the books as CSV lines |
 | `COFFERS WIPE CONFIRM` | burn the whole ledger, goal and proposals too |
-| `COFFERS REBUILD / DEBUG` | rebuild helpers and rank table / internal state |
+| `COFFERS RESET / DEBUG` | rebuild helpers and rank table (the books are kept) / internal state |
 <!-- /loom:commands -->
 
 ### Looking at the books
@@ -114,7 +114,7 @@ Other packages can suggest a goal through Loom's integrations (see [Working with
 | Command | What it does |
 | --- | --- |
 | `COFFERS WIPE CONFIRM` | Burns everything: graphs, days, sessions, records, your goal, pending proposals and dismissals. Only your settings stay. `COFFERS WIPE` alone only asks for confirmation. |
-| `COFFERS REBUILD` | Rebuilds the formatting helpers and the rank table, after editing them, without reloading the page. |
+| `COFFERS RESET` | Rebuilds the formatting helpers and the rank table, after editing them, without reloading the page. Your books are untouched. (`COFFERS REBUILD`, its old name, works until Loom 1.1.) |
 | `COFFERS DEBUG` | Shows the raw state: the last gold and bank readings, the open session, how much is stored, and the settings. Useful when reporting a problem. |
 
 ## Setting it up

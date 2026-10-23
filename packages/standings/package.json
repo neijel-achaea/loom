@@ -18,6 +18,12 @@
     },
     {
       "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
       "name": "standings_ensure",
       "enabled": true,
       "code": "@file:standings_ensure.js"

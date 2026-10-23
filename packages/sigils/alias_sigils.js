@@ -22,11 +22,18 @@ else if (sub === "check") {
   set_variable("sigils_on", was);
 }
 else if (sub === "clear") {
-  set_variable("sigils_flagged", {});
-  if (client.loom.notify) client.loom.notify("sigils");
-  S.queue = [];
-  S.await = null;
-  display_notice("[sigils] list cleared.", "lime");
+  // SIGILS CLEAR CONFIRM (#137): every flagged room is forgotten, so it asks first.
+  if (S.argv[0] !== "confirm") {
+    var sgN = 0;
+    try { var sgF = get_variable("sigils_flagged"); if (typeof sgF === "string") sgF = JSON.parse(sgF); if (sgF && typeof sgF === "object") sgN = Object.keys(sgF).length; } catch (e) {}
+    display_notice("[sigils] this forgets all " + sgN + " flagged room" + (sgN === 1 ? "" : "s") + " (ignored rooms are kept). SIGILS CLEAR CONFIRM to do it.", "orange");
+  } else {
+    set_variable("sigils_flagged", {});
+    if (client.loom.notify) client.loom.notify("sigils");
+    S.queue = [];
+    S.await = null;
+    display_notice("[sigils] flagged list cleared.", "orange");
+  }
 }
 else if (sub === "reset") {
   run_function("sigils_setup", [], "sigils");

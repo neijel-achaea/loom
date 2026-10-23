@@ -3,7 +3,7 @@
 *Baits and casts with one command, then teases, jerks and reels on the game's cues until the fish is landed.*
 
 <!-- loom:version fishing -->
-*This page describes fishing 0.2.6.*
+*This page describes fishing 0.2.7.*
 <!-- /loom:version -->
 
 ## What it is

@@ -39,6 +39,18 @@ The rules every package follows, and why. They're what lets a player drop any on
 
 - **Wrappers around game commands** keep the game's word: `QUIT`/`QQ`, and `GIVE`/`SELL`/`DROP`/`OFFER` in security. Their whole point is to replace the game command.
 - **Everyday shortcuts** stay short: `GG` and `PG` (security), `CL` (fishing).
+- **A package with nothing to set or show** needs no command: `numpad_movement` is key bindings only. It still registers itself, so `LOOM` lists it.
+- **FISHING** catches only its own words; anything else after FISHING goes to the game, as typing it without Loom would.
+
+### Words that mean the same everywhere
+
+- **`ON|OFF`** for a switch; `[ON|OFF]` when the bare word shows the current state. Defaults are written in capitals: "(default ON)".
+- **`STATUS`** does what the bare keyword does.
+- **`DEBUG`** prints internal state, in cyan; every package with a command has one (fishing, which passes other words to the game, shows its state with `LOOM DEBUG ON`).
+- **`RESET`** puts a package's working state back without touching what the player recorded: helpers rebuilt, tables reloaded, a queue or the live fight cleared. Each HELP line says what it resets.
+- **`CONFIRM`** is required by every command that throws away recorded data (`WIPE`, `CLEAR`, `DISCARD`, `FORGET`). Without it the command says what would be lost, in orange.
+- An unknown word answers "unknown command 'x'. `<KEYWORD>` HELP for commands." in orange.
+- **Uninstalling** a package takes it out at once: its `onUninstall` stops its timers and calls `client.loom.gone("<package>")` (falling back to deleting its registry entry when loom isn't installed), so `LOOM` and the integrations drop it without a reload.
 
 ## Versions
 

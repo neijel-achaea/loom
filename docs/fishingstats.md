@@ -3,7 +3,7 @@
 *Casts, hooks and catches for you and everyone fishing around you, per angler and per species, with a log of past sessions and a flag on record catches.*
 
 <!-- loom:version fishingstats -->
-*This page describes fishingstats 0.2.4.*
+*This page describes fishingstats 0.2.5.*
 <!-- /loom:version -->
 
 ## What it is

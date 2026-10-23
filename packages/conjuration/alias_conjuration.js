@@ -15,7 +15,7 @@ function cjAll() { var a = []; for (var k in CJ.sigils) { if (CJ.sigils.hasOwnPr
 if (cjSub === "make") { cjSub = cjP1; cjP1 = ""; }
 
 if (cjSub === "" || cjSub === "status") {
-  cjSay(cjWhere(), CJ.ouroboros ? "cyan" : "orange");
+  cjSay(cjWhere());
   if (CJ.run) {
     var cjS0 = CJ.run.steps[CJ.run.i];
     var cjCh = 0, cjChN = 0;

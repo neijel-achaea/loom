@@ -17,6 +17,14 @@ if (viSub === "" || viSub === "status") {
 } else if (viSub === "channel" && /^[a-z0-9]+$/.test(viVal)) {
   set_variable("vision_channel", viVal);
   display_notice("[vision] enemy alerts go to " + viVal.toUpperCase() + ".", "lime");
+} else if (viSub === "debug") {
+  // VISION DEBUG (#137): the settings, social's lists as vision sees them,
+  // and what the last alertness line did.
+  var viL = client.loom.social && client.loom.social.look;
+  var viLa = client.loom.vision.last;
+  display_notice("[vision] on=" + get_variable("vision_on") + " hide=" + get_variable("vision_hide") + " alert=" + get_variable("vision_alert") + " channel=" + get_variable("vision_channel")
+    + " social=" + (viL && viL.inGroup ? "yes" : "no") + " pause=" + (get_variable("pauseTriggers") === "on" ? "on" : "off")
+    + " last=" + (viLa ? viLa.who + " " + viLa.did + " " + Math.round((Date.now() - viLa.at) / 1000) + "s ago" : "none"), "cyan");
 } else {
   display_notice("[vision] unknown command '" + viW.join(" ") + "'. VISION HELP for commands.", "orange");
 }
