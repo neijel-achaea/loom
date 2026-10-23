@@ -3,7 +3,7 @@
 *How you stand with people and organisations, kept as a ledger of dealings, from Nemesis to Soulmate.*
 
 <!-- loom:version standings -->
-*This page describes standings 0.3.5.*
+*This page describes standings 0.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -49,7 +49,7 @@ Each of your characters keeps its own book.
 | `STANDINGS REVIEW` | suggested dealings waiting for you |
 | `STANDINGS OK [nudge] [note]` | record the first suggestion (optionally another size) |
 | `STANDINGS SKIP` | dismiss it |
-| `STANDINGS DEBUG / REBUILD` | counts and links / reload the rules and recompute |
+| `STANDINGS DEBUG / RESET` | counts and links / reload the rules and recompute (the books are kept) |
 <!-- /loom:commands -->
 
 ### Nudges

@@ -9,7 +9,8 @@ var hlRows = [
   ["CIVIC AIDE ON|OFF", "go on or off duty (city guide, newbie channel, novice clan)"],
   ["CIVIC AIDE TITLE <title>", "your aide title, e.g. Verdant Emissary"],
   ["CIVIC AIDE CLAN <clan>", "the novice clan you help in, e.g. saiha"],
-  ["CIVIC GREET <name> [CT|CLT]", "welcome a new citizen (both channels by default)"]
+  ["CIVIC GREET <name> [CT|CLT]", "welcome a new citizen (both channels by default)"],
+  ["CIVIC DEBUG", "internal state"]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

@@ -75,6 +75,17 @@ if (bsSub === "" || bsSub === "status") {
   } else {
     display_notice("[basher] battlerage " + String(get_variable("basher_rage")).toUpperCase() + ", in this order: " + B.rotationText() + ". BASHER RAGE ON|OFF.", "cyan");
   }
+} else if (bsSub === "debug") {
+  // BASHER DEBUG (#137): the state a run decides on, on two lines.
+  var bsT = {};
+  try { bsT = B.target() || {}; } catch (e) { bsT = { why: "target() threw: " + e }; }
+  var bsN = function (o) { var a = []; for (var k in o) { if (o.hasOwnProperty(k)) a.push(k); } return a.join(",") || "none"; };
+  display_notice("[basher] on=" + !!B.on + " run=" + !!B.run + " loop=" + (B.loop ? "set" : "none") + " bal=" + B.bal + " eq=" + B.eq
+    + " target=" + (bsT.tar || "none") + (bsT.name ? " (" + bsT.name + ")" : "") + " why='" + (bsT.why || B.why || "") + "' lastFight=" + (B.lastFight ? JSON.stringify(B.lastFight) : "none")
+    + " misses=" + B.misses + " fleeing=" + (B.fleeing ? JSON.stringify(B.fleeing) : "none") + " pause=" + (get_variable("pauseTriggers") === "on" ? "on" : "off"), "cyan");
+  display_notice("[basher] area=" + (B.area || "?") + " room=" + (B.roomNum || "?") + (B.roomKnown ? "" : " (unknown)") + " players=" + bsN(B.players || {})
+    + " shields=" + bsN(B.shields) + " affs=" + JSON.stringify(B.affs) + " rageSent=" + (B.rageSent ? JSON.stringify(B.rageSent) : "none")
+    + " razeAt=" + (B.razeAt ? Math.round((Date.now() - B.razeAt) / 1000) + "s ago" : "never") + " game=" + (B.game ? B.game.id + " " + B.game.name : "none") + " autoTop='" + (B.autoTop || "") + "'", "cyan");
 } else {
   display_notice("[basher] unknown command '" + bsW.join(" ") + "'. BASHER HELP for commands.", "orange");
 }

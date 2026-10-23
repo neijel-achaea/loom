@@ -3,7 +3,7 @@
 *Runs a sigil's whole creation ritual one step at a time, each when the game is ready for it.*
 
 <!-- loom:version conjuration -->
-*This page describes conjuration 0.2.4.*
+*This page describes conjuration 0.2.5.*
 <!-- /loom:version -->
 
 ## What it is

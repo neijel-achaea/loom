@@ -20,7 +20,7 @@ var hlRows = [
   ["STANDINGS REVIEW", "suggested dealings waiting for you"],
   ["STANDINGS OK [nudge] [note]", "record the first suggestion (optionally another size)"],
   ["STANDINGS SKIP", "dismiss it"],
-  ["STANDINGS DEBUG / REBUILD", "counts and links / reload the rules and recompute"]
+  ["STANDINGS DEBUG / RESET", "counts and links / reload the rules and recompute (the books are kept)"]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

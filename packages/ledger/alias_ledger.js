@@ -150,11 +150,13 @@ if (lgSub === "" || lgSub === "status") {
     var all = lgLoad();
     lgSay("day " + LG.day + " | items " + all.length + " | seq " + get_variable("ledger_seq") + " | armed " + (LG.armed ? "yes" : "no") + " | inblock " + (LG.inBlock ? "yes" : "no") + " | pause " + (get_variable("pauseTriggers") || "unset") + " | debug " + (LG.debug ? "ON" : "OFF") + ". LEDGER DEBUG ON/OFF.");
   }
-} else if (lgSub === "rebuild") {
+} else if (lgSub === "reset" || lgSub === "rebuild") {
+  // LEDGER RESET (#137); REBUILD, its old name, works until Loom 1.1.
+  if (lgSub === "rebuild") lgSay("LEDGER REBUILD is now LEDGER RESET.", "orange");
   client.loom.ledger = {};
   run_function("ledger_setup", [], "ledger");
   run_function("ledger_render", [], "ledger");
-  lgSay("rebuilt from the saved variables (day " + client.loom.ledger.day + ")", "lime");
+  lgSay("reset: rebuilt from the saved variables (day " + client.loom.ledger.day + "); your items are untouched.", "lime");
 } else {
   lgSay("unknown command '" + lgSub + "'. LEDGER HELP for commands.", "orange");
 }

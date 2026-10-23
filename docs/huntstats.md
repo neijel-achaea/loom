@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 0.3.6.*
+*This page describes huntstats 0.3.7.*
 <!-- /loom:version -->
 
 ## What it is
@@ -42,7 +42,7 @@ Your area and level come from the game (GMCP); experience, gold and kills from t
 | `HUNTSTATS PARTY CLEAR` | back to hunting alone |
 | `HUNTSTATS SPLIT` | the party's gold so far and the transfers that even it out |
 | `HUNTSTATS SPLIT REPORT` | send the split to party tell now, one line per person |
-| `HUNTSTATS SPLIT TELL ON\|OFF` | also send it to party tell when a party hunt ends (default off) |
+| `HUNTSTATS SPLIT TELL ON\|OFF` | also send it to party tell when a party hunt ends (default OFF) |
 | `HUNTSTATS WIPE CONFIRM` | clear all area records and the log |
 | `HUNTSTATS DEBUG` | internal state |
 | **A hunt is filed when you leave its area, and needs a minute or more of experience. A party hunt's gold split is shown then.** | |

@@ -14,7 +14,7 @@ var hlRows = [
   ["LEDGER TOUCH <#>", "mark a standing item as looked at today"],
   ["LEDGER DATE", "ask the game for today's date"],
   ["LEDGER DEBUG [ON|OFF]", "internal state, or debug notices"],
-  ["LEDGER REBUILD", "rebuild from the saved variables"],
+  ["LEDGER RESET", "rebuild from the saved variables (your items are kept)"],
   ["Items other packages add show their source (\u00b7 harvesting); they go away by themselves when"],
   ["their condition clears. DONE or DROP one and it stays away until then."],
   ["LEDGER DISMISSED", "those you've sent away, waiting for their condition to clear"],

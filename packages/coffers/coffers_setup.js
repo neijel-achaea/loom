@@ -1,12 +1,12 @@
 // coffers_setup -- run from onLoad and onInstall, and by any reflex that
 // finds the namespace missing. Namespace, registry, one-time migration of the
 // gc_* variables, then every piece of client.loom.coffers built from stored
-// variables, once: each piece is only built when missing. COFFERS REBUILD
+// variables, once: each piece is only built when missing. COFFERS RESET
 // drops the helpers so edits to them take effect without a page reload.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "0.3.6", keyword: "COFFERS", desc: "{{description}}",
+client.loom.registry.coffers = { version: "0.4.0", keyword: "COFFERS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("coffers_render", [], "coffers"); } };
 var CO = client.loom.coffers;

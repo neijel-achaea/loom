@@ -47,10 +47,17 @@ if (sub == "gap") {
       display_notice("[dmgchart] warns when health lasts drops below " + wv + "s", "lime");
     }
   }
-} else if (sub == "reset") {
-  d.fight = null;
-  d.lastInc = null;
-  display_notice("[dmgchart] fight cleared; the next damage line starts a new one", "lime");
+} else if (sub == "reset" || sub == "rebuild") {
+  // DMGCHART RESET (#137): clears the live fight and rebuilds the namespace
+  // from the saved variables; REBUILD, its old name, works until Loom 1.1.
+  // A recording in progress is saved first, so it resumes where it was.
+  if (sub == "rebuild") display_notice("[dmgchart] DMGCHART REBUILD is now DMGCHART RESET.", "orange");
+  // The damage record other packages read (huntstats) is kept too.
+  if (d.sess) { set_variable("dmgchart_open", JSON.stringify(d.sess)); }
+  client.loom.dmgchart = { hp: d.hp, rec: d.rec, recFrom: d.recFrom };
+  run_function("dmgchart_setup", [], "dmgchart");
+  d = client.loom.dmgchart;
+  display_notice("[dmgchart] reset: live fight cleared, rebuilt from the saved variables (gap " + d.gap + "s, window " + d.window + "s" + (d.sess ? ", recording '" + d.sess.name + "' carries on" : "") + ")", "lime");
 } else if (sub == "start") {
   if (d.sess) {
     display_notice("[dmgchart] session '" + d.sess.name + "' is already recording. DMGCHART END first.", "orange");
@@ -137,15 +144,8 @@ if (sub == "gap") {
       display_notice("  #" + lv.id + " " + lv.name + " - " + ldt.getDate() + "/" + (ldt.getMonth() + 1) + ", " + lv.fights + " fights, " + (lcs < 60 ? Math.round(lcs) + "s" : Math.round(lcs / 60) + "m") + " in combat, dealt " + Math.round(lv.outTotal / lcs) + "/s, taken " + Math.round(lv.incTotal / lcs) + "/s");
     }
   }
-} else if (sub == "rebuild") {
-  // Empty the namespace, keeping only the health reading, then build it again
-  // from the saved variables.
-  client.loom.dmgchart = { hp: d.hp };
-  run_function("dmgchart_setup", [], "dmgchart");
-  d = client.loom.dmgchart;
-  display_notice("[dmgchart] rebuilt from the saved variables (gap " + d.gap + "s, window " + d.window + "s" + (d.sess ? ", recording '" + d.sess.name + "' resumed from its last checkpoint" : "") + ")", "lime");
 } else if (sub == "debug") {
-  display_notice("[dmgchart] gap=" + d.gap + " window=" + d.window + " warn=" + d.warn + " lasts=" + (d.lasts ? Math.round(d.lasts.secs) + "s" : "none") + " recent=" + (d.recent ? d.recent.length : 0) + " view='" + d.view + "' saved=" + d.saved.length + " nextId=" + d.nextId + " hp=" + d.hp + " sess=" + (d.sess ? d.sess.name + "/" + d.sess.fights : "none") + " fight=" + (d.fight ? d.fight.outTotal + "/" + d.fight.incTotal : "none") + " lastInc=" + (d.lastInc ? d.lastInc.type + ":" + d.lastInc.amt : "none"), "orange");
+  display_notice("[dmgchart] gap=" + d.gap + " window=" + d.window + " warn=" + d.warn + " lasts=" + (d.lasts ? Math.round(d.lasts.secs) + "s" : "none") + " recent=" + (d.recent ? d.recent.length : 0) + " view='" + d.view + "' saved=" + d.saved.length + " nextId=" + d.nextId + " hp=" + d.hp + " sess=" + (d.sess ? d.sess.name + "/" + d.sess.fights : "none") + " fight=" + (d.fight ? d.fight.outTotal + "/" + d.fight.incTotal : "none") + " lastInc=" + (d.lastInc ? d.lastInc.type + ":" + d.lastInc.amt : "none"), "cyan");
 } else {
   display_notice("[dmgchart] unknown command '" + sub + "'. DMGCHART HELP for commands.", "orange");
 }

@@ -8,7 +8,7 @@ var hlRows = [
   ["COMMS VIEW <channel|name|CLANS|ALL>", "what the tab shows: a channel (TELLS, SAY, PARTY...), a tell conversation, every clan together, or All"],
   ["COMMS MUTE|UNMUTE <channel>", "leave a channel out of All and its unread count (still kept); the tab's mute link too"],
   ["COMMS CAP <50-2000>", "lines kept per channel (default 300)"],
-  ["COMMS CLEAR [channel]", "forget every line, or one channel's"],
+  ["COMMS CLEAR [channel] CONFIRM", "forget every line, or one channel's"],
   ["COMMS DEBUG", "the last GMCP payloads, the tell input line, why it follows or not"],
   ["Filters run All, Say, Tell, Party, Yell, Shout, City, House, HNT, Clans, then the rest alphabetically. Emotes and Deathsight (the gods' roleplay) stay in the main window only."],
   ["In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them. Hover a line for its time."],

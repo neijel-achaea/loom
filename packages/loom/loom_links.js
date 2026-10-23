@@ -76,6 +76,9 @@ L.linkMissing = function (id) {
   var out = [];
   if (!e) return out;
   var reg = client.loom.registry || {};
+  // Loom itself uninstalled (#137): every link waits, so no tab keeps
+  // asking a package that is gone.
+  if (!reg.loom) out.push("loom");
   if (e.src && !reg[e.src]) out.push(e.src);
   if (e.dst && e.dst !== e.src && !reg[e.dst]) out.push(e.dst);
   return out;
@@ -188,6 +191,23 @@ client.loom.notify = function (src) {
     if (e.src !== src || !L.linkOn(e.id)) continue;
     if (typeof e.update === "function") L.runUpdate(e.id);
     if (!seen[e.dst]) { seen[e.dst] = true; L.redraw(e.dst); }
+  }
+};
+
+// A package being uninstalled calls this from its onUninstall (#137): its
+// registry entry goes at once, so LOOM stops listing it and every link from
+// it turns to waiting, and the tabs that showed its answers are redrawn
+// without them. Nothing is withdrawn: a reinstall finds its items as they
+// were, as after a reload.
+client.loom.gone = function (pkg) {
+  var reg = client.loom.registry || {};
+  delete reg[pkg];
+  var seen = {};
+  for (var i = 0; i < L.linkOrder.length; i++) {
+    var e = L.links[L.linkOrder[i]];
+    if (e.src !== pkg || e.dst === pkg || !reg[e.dst] || seen[e.dst]) continue;
+    seen[e.dst] = true;
+    L.redraw(e.dst);
   }
 };
 

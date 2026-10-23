@@ -6,7 +6,7 @@ if (!client.loom.patrolling) client.loom.patrolling = {};
 // busy (#318): true while the room check's PLANTS answer is still coming
 // (until the plant list ends), so Here's loyal probe waits its turn. A check
 // with no end for 5 s no longer counts.
-client.loom.registry.patrolling = { version: "0.4.0", keyword: "PATROLLING", desc: "{{description}}", busy: function () {
+client.loom.registry.patrolling = { version: "0.4.1", keyword: "PATROLLING", desc: "{{description}}", busy: function () {
   var Pb = client.loom.patrolling;
   return !!(Pb && Pb.active && Date.now() - (Pb.activeAt || 0) < 5000);
 } };

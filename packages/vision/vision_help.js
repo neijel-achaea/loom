@@ -9,6 +9,7 @@ var hlRows = [
   ["VISION HIDE ON|OFF", "hide reports about your city's members"],
   ["VISION ALERT ON|OFF", "tell the party when an enemy comes near"],
   ["VISION CHANNEL <channel>", "where alerts go: pt (default), clt3, ..."],
+  ["VISION DEBUG", "internal state, and what the last alertness line did"],
   ["Recognises people through social's city and enemies lists; without social, every report shows as usual."]
 ];
 var hlW = 0;

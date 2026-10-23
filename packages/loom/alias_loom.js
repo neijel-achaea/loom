@@ -1,4 +1,4 @@
-// LOOM [LIST|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM|LINKS|LINK <id> [on/off]|THEME [<city>|auto|off]|PERF [<seconds>|STOP|DATA]]
+// LOOM [LIST|STATUS|HELP|UPDATES [AUTO on/off]|PAUSE on/off|DEBUG on/off|ROOM|LINKS|LINK <id> [on/off]|THEME [<city>|auto|off]|PERF [<seconds>|STOP|DATA]]
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.loom) client.loom.loom = {};
@@ -9,13 +9,13 @@ var sub = String(parts[0] || "").toLowerCase();
 var val = String(parts[1] || "").toLowerCase();
 var C = "cyan";
 
-if (sub === "" || sub === "list") {
+if (sub === "" || sub === "list" || sub === "status") {
   // The package list prints in a monospace block through
   // nexusclient.add_html_line when this Nexus has it, so the columns line
   // up; otherwise as plain notices.
   var reg = client.loom.registry;
-  // Only what is really installed: the registry keeps an uninstalled
-  // package until the next load, and retired ones are named apart below.
+  // Only what is really installed (a package uninstalled before #137 kept
+  // its registry entry until the next load), and retired ones named apart below.
   var lpL = client.loom.loom || {};
   var names = lpL.installed ? lpL.installed() : Object.keys(reg).sort();
   var html = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");

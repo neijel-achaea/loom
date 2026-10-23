@@ -3,7 +3,7 @@
 *Filters what your alertness reports: city members hidden, enemies coloured and announced to your party.*
 
 <!-- loom:version vision -->
-*This page describes vision 0.2.3.*
+*This page describes vision 0.2.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -28,6 +28,7 @@ Without social installed, Vision knows nobody, and every report shows as the gam
 | `VISION HIDE ON\|OFF` | hide reports about your city's members |
 | `VISION ALERT ON\|OFF` | tell the party when an enemy comes near |
 | `VISION CHANNEL <channel>` | where alerts go: pt (default), clt3, ... |
+| `VISION DEBUG` | internal state, and what the last alertness line did |
 | **Recognises people through social's city and enemies lists; without social, every report shows as usual.** | |
 <!-- /loom:commands -->
 

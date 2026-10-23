@@ -1,6 +1,6 @@
 // Builds client.loom.standings: the book (db, view, cal) and the helpers (F)
 // from stored variables, once. Each character keeps its own book, since Nexus stores variables per
-// character. STANDINGS REBUILD drops the helpers so edits to them take effect.
+// character. STANDINGS RESET drops the helpers so edits to them take effect.
 function stLoad(name, def) {
   var raw;
   try { raw = get_variable(name); } catch (e) { raw = undefined; }
@@ -134,7 +134,7 @@ function stSave() {
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "0.3.5", keyword: "STANDINGS", desc: "{{description}}",
+client.loom.registry.standings = { version: "0.4.0", keyword: "STANDINGS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("standings_render", [], "standings"); } };
 var ST = client.loom.standings;

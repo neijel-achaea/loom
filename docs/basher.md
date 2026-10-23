@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 0.5.9.*
+*This page describes basher 0.5.10.*
 <!-- /loom:version -->
 
 ## What it is
@@ -39,6 +39,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 | `BASHER RAZE [ON\|OFF]` | raze a shielded target with your class's shieldbreak (default ON); no word: show it |
 | `BASHER RAGE [ON\|OFF]` | battlerage during a run (default ON), in the class's order; no word: show it |
 | `BASHER INTERRUPT [ON\|OFF]` | players arriving, tells and your city channel end the run after this fight (default ON, remembered); no word: show it |
+| `BASHER DEBUG` | internal state: the run, its target and why, the room |
 | **The Basher tab (create a custom tab named Basher) keeps a kill order per area: new mob types join ignored; ACTIVE ones are targeted by priority, then room order. While primed the basher sets your target to the top one whenever that changes; in a run it takes the next after each kill and ends when none are left. With no active types in an area it follows your own target as before.** | |
 | **Another player arriving during a run, a tell to you, or a line on your city channel that names you makes the fight in progress the last: it finishes, nothing new starts, the basher waits primed. BASHER INTERRUPT OFF turns all three off. With social, enemies are named as such and still count with interruptions off (loom link social-basher).** | |
 | **Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system.** | |

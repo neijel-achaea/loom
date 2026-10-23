@@ -19,7 +19,7 @@ var hlRows = [
   ["COFFERS SPAN LONG <7-365>", "days the day-by-day graph covers"],
   ["COFFERS CSV [DAYS|SESSION|SESSIONS]", "the books as CSV lines"],
   ["COFFERS WIPE CONFIRM", "burn the whole ledger, goal and proposals too"],
-  ["COFFERS REBUILD / DEBUG", "rebuild helpers and rank table / internal state"]
+  ["COFFERS RESET / DEBUG", "rebuild helpers and rank table (the books are kept) / internal state"]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

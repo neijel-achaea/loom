@@ -3,7 +3,7 @@
 *A watcher for your city's monoliths and flame sigils: which rooms are running out, and what renewing them will cost.*
 
 <!-- loom:version sigils -->
-*This page describes sigils 0.2.7.*
+*This page describes sigils 0.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -29,7 +29,7 @@ A sigil month is an Achaean month (25 Achaean days, about a day of real time).
 | `SIGILS UNIGNORE HERE\|id` | watch a room again |
 | `SIGILS THRESHOLD [n]` | flag sigils with fewer than n months left |
 | `SIGILS COST [MONOLITH\|FLAME n]` | prices used in the report |
-| `SIGILS CLEAR` | wipe the flagged list |
+| `SIGILS CLEAR CONFIRM` | forget every flagged room (ignored rooms are kept) |
 | `SIGILS RESET` | clear the queue, restore missing defaults |
 | `SIGILS DEBUG` | internal state |
 <!-- /loom:commands -->
@@ -42,7 +42,7 @@ A sigil month is an Achaean month (25 Achaean days, about a day of real time).
 
 Some rooms have no monolith on purpose, or don't concern you. `SIGILS IGNORE HERE` (or `SIGILS IGNORE <room number>`) skips a room: it's never flagged, and the Here tab doesn't warn about it. `SIGILS IGNORE` lists them; `SIGILS UNIGNORE HERE` watches it again.
 
-`SIGILS CLEAR` wipes the flagged list, to start a survey fresh.
+`SIGILS CLEAR CONFIRM` wipes the flagged list, to start a survey fresh; `SIGILS CLEAR` alone says how many rooms it would forget.
 
 ## Setting it up
 

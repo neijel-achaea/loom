@@ -13,10 +13,9 @@ var hlRows = [
   ["DMGCHART DEL <#>", "delete saved session #"],
   ["DMGCHART GAP <seconds>", "quiet time that ends a fight (default 6; bleeding doesn't count)"],
   ["DMGCHART WINDOW <seconds>", "how far back health lasts looks (default 6)"],
-  ["DMGCHART WARN [<seconds> | OFF]", "warn in the main window when health lasts drops below this (default 10)"],
-  ["DMGCHART RESET", "clear the live fight"],
+  ["DMGCHART WARN [<seconds>|OFF]", "warn in the main window when health lasts drops below this (default 10)"],
+  ["DMGCHART RESET", "clear the live fight and rebuild from the saved variables (a recording carries on)"],
   ["DMGCHART WIPE CONFIRM", "delete all saved sessions"],
-  ["DMGCHART REBUILD", "rebuild from the saved variables (a recording resumes from its last checkpoint)"],
   ["DMGCHART DEBUG", "internal state"]
 ];
 var hlW = 0;
