@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.0.0", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.0.1", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -239,11 +239,32 @@ R.ownerOf = function (id) {
   var o = R.loyal[k] || "";
   return (o && !R.loyalIgnored(o)) ? o : "";
 };
-// Every line while a probe is out: gagged, and read.
+// Lines a probe must never hide (#393): channel lines announced by GMCP
+// (Comm.Channel.Text comes before its line), kept 3 s, each let through once.
+R.probeChans = [];
+R.probeStrip = function (t) { return String(t || "").replace(/\u001b\[[0-9;]*m/g, "").replace(/\s+/g, " ").trim(); };
+R.probeChan = function (text) {
+  var now = Date.now(), keep = [];
+  for (var i = 0; i < R.probeChans.length; i++) if (now - R.probeChans[i].at < 3000) keep.push(R.probeChans[i]);
+  keep.push({ t: R.probeStrip(text), at: now });
+  R.probeChans = keep.slice(-10);
+};
+R.probeChanned = function (line) {
+  var t = R.probeStrip(line), now = Date.now();
+  for (var i = 0; i < R.probeChans.length; i++) {
+    if (now - R.probeChans[i].at < 3000 && R.probeChans[i].t === t) { R.probeChans.splice(i, 1); return true; }
+  }
+  return false;
+};
+// Every line while a probe is out: gagged, and read. Not gagged: a channel
+// line, and, after a move, the new room's title line, which ends the probe
+// (the answer came before it).
 R.probeLine = function (line) {
   var p = R.probing;
   if (!p) return;
   if (p.start !== undefined && !p.lines.length && line === p.start) { p.start = undefined; return; }
+  if (R.probeChans.length && R.probeChanned(line)) return;
+  if (p.moved && String(line || "").trim().indexOf(p.moved) === 0) { p.how = "moved"; R.probeEnd(false); return; }
   gag_current_line();
   line = String(line || "").trim();
   if (p.lines.length < 20) p.lines.push(line);
@@ -258,12 +279,18 @@ R.probeLine = function (line) {
 // A prompt after the answer's health line ("He has 95% health remaining.")
 // ends a probe whose last lines were worded some other way. A prompt before
 // it (GMCP can come ahead of a packet's text) doesn't.
+// However its lines are worded, a prompt ends it (#393), so nothing after the
+// answer is hidden: the first prompt once some of the answer has been read
+// (it came after the text), else the second (the first may be ahead of its
+// own packet's text).
 R.probePrompt = function () {
   var p = R.probing;
-  if (!p || !p.health) return false;
-  p.how = "prompt";
-  R.probeEnd(true);
-  return true;
+  if (!p) return false;
+  p.prompts = (p.prompts || 0) + 1;
+  if (p.health) { p.how = "prompt"; R.probeEnd(true); return true; }
+  // Answer lines read, then a prompt: the answer is whole, so its result counts.
+  if (p.prompts >= 2 || p.lines.length) { p.how = p.moved !== undefined ? "moved" : "prompts"; R.probeEnd(p.lines.length > 0); return true; }
+  return false;
 };
 // A probe's end: ok = the whole output was read. A loyal gets one notice.
 R.probeEnd = function (ok) {

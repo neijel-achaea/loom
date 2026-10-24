@@ -15,6 +15,11 @@ client.loom.hooks.room.gmcp = function (args) {
   var rmA = null;
   try { rmM = args.gmcp_method; rmA = args.gmcp_args; } catch (e) { rmM = ""; }
   if (typeof rmA === "string") { try { rmA = JSON.parse(rmA); } catch (e) { /* a bare name, as RemovePlayer may send */ } }
+  // A channel line (a say, a tell, the city channel) is announced before it
+  // prints: while a loyal probe is out, that line is let through, not hidden.
+  if (rmM === "Comm.Channel.Text" && rmA && typeof rmA === "object" && client.loom && client.loom.room && client.loom.room.probing && client.loom.room.probeChan) {
+    client.loom.room.probeChan(rmA.text);
+  }
   var rmMine = /^Room\.(Info|Players|AddPlayer|RemovePlayer)$/.test(rmM) || rmM === "IRE.Target.Info" || rmM === "IRE.Target.Set" || rmM === "Char.Vitals" || (/^Char\.Items\.(List|Add|Remove|Update)$/.test(rmM) && rmA && rmA.location === "room") || rmM === "Char.Name" || rmM === "Char.Status";
   if (rmMine) {
     if (!client.loom || !client.loom.room || !client.loom.room.raw) run_function("room_setup", [], "room");
@@ -31,6 +36,9 @@ client.loom.hooks.room.gmcp = function (args) {
         R.goingBack = false;
         delete_variable("room_mark");
       }
+      // A probe still out when you move: its answer came before this room,
+      // so the probe ends at this room's title line, which shows (#393).
+      if (R.probing) { R.probing.moved = String(rmA.name || ""); }
       // A move: probes wait for this room's exits line (trigger room exits line).
       R.probeHold = "room";
       R.probeHoldN = 0;
