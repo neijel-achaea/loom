@@ -3,7 +3,7 @@
 *Walk with the number pad, and look, check your score and your inventory with one key.*
 
 <!-- loom:version numpad_movement -->
-*This page describes numpad_movement 0.2.3.*
+*This page describes numpad_movement 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

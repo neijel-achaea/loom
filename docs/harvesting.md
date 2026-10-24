@@ -3,7 +3,7 @@
 *Harvests the plants your rift is short of as you walk, and stores them, one after another.*
 
 <!-- loom:version harvesting -->
-*This page describes harvesting 0.2.8.*
+*This page describes harvesting 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

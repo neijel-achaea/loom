@@ -3,7 +3,7 @@
 *For Magi: refine crystals evenly, pick up pearls, open sonic portals for your city, choose your staff attack and form elemental treaties without anything breaking them.*
 
 <!-- loom:version magi -->
-*This page describes magi 0.1.1.*
+*This page describes magi 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

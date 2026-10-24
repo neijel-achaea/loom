@@ -3,7 +3,7 @@
 *Defence readiness for any class: one number from 5 (bare minimum) to 1 (full alert) decides which defences the game's curing keeps up.*
 
 <!-- loom:version defcon -->
-*This page describes defcon 0.5.0.*
+*This page describes defcon 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

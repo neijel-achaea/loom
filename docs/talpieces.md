@@ -3,7 +3,7 @@
 *Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and when you'll finish at your pace.*
 
 <!-- loom:version talpieces -->
-*This page describes talpieces 0.2.6.*
+*This page describes talpieces 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

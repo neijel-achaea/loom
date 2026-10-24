@@ -1,8 +1,8 @@
 # Loom — Roadmap
 
 **Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
-**Current release:** Loom 0.7 (Documentation) · next: Loom 0.8 (Hardening)
-**Released:** 0.1 (2026-10-07) · 0.2 Standalone (10-09) · 0.3 Multiclass (10-15) · 0.4 Enhancements (10-15) · 0.5 Integrations (10-16) · 0.6 Autobasher (10-16) · 0.7 Documentation (10-17)
+**Current release:** Loom 1.0 (Stable) · next: Loom 1.1 (Community Requests)
+**Released:** 0.1 (2026-10-07) · 0.2 Standalone (10-09) · 0.3 Multiclass (10-15) · 0.4 Enhancements (10-15) · 0.5 Integrations (10-16) · 0.6 Autobasher (10-16) · 0.7 Documentation (10-17) · 0.8 Hardening, released as 1.0 (10-24)
 
 See the README for what each package does today.
 
@@ -216,6 +216,8 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 ## Loom 0.8 — Hardening
 
+*Done: released as 1.0.*
+
 **Goal:** make what players actually use solid. Tested while it's built by Ricardo and a few selected players; their reports land here as they come, bugs first.
 
 - Fresh-install test of every package, alone and all together, on clean profiles.
@@ -228,7 +230,9 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 ## Loom 1.0
 
-**A stable product.** Hardening (0.8) ends straight in 1.0: commands and settings are stable from here. Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered.
+*Released 2026-10-24.*
+
+**A stable product.** Hardening (0.8) ends straight in 1.0: commands and settings are stable from here. Keywords and subcommands, persistent variable names, integration entry points and the class-data format only change in a breaking way in 2.0. Tab layout and notice wording are not covered. The details: [What 1.0 keeps stable](docs/stability.md). Every package is 1.0.0.
 
 ## Loom 1.x — Enhancements
 
@@ -238,7 +242,10 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 
 Packages and features other players ask for, as the players who try Loom tell us what they need. New packages land here; their integrations with the rest of the suite follow the 0.5 conventions (a link in loom, off-switchable).
 
-- First request: **gathering** (#232), waiting on the game lines for gathering and storing.
+- **Waypoints** (#369): a tab of saved rooms, one click to walk there; then the **Questing Companion** (#376): your own quests as steps, walked through each time.
+- **druid** (#378): groves and reclamation merged into a Druid class package, as magi did for the Magi.
+- Trade skills: **gathering** (#232), waiting on the game lines for gathering and storing; placeholders for inkmilling, tattoos, riding, transmutation, remedies and toxicology (#370–#375).
+- Smaller requests: `DOR` (#312), deaths marked in LevelGraph's session graph (#336), the newbie leaf configurable (#389).
 
 ### Loom 1.2 — Advanced Autobasher
 

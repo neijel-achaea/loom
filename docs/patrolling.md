@@ -3,7 +3,7 @@
 *Room-by-room plant checks for patrols, an area to patrol next, and fire, lightning and replanting reports to your clan.*
 
 <!-- loom:version patrolling -->
-*This page describes patrolling 0.4.1.*
+*This page describes patrolling 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

@@ -71,4 +71,4 @@ Run `python3 tools/docs.py` after changing a HELP table, a version or an integra
 
 ## Releases
 
-Loom's releases follow its milestones: milestone *Loom 0.6 · Autobasher* is released as tag `loom-v0.6.0` with a zip of every `.nxs` in `dist/` and release notes listing each package's version. A release is cut when its milestone closes. If `main` has already moved on by then, it's cut on a `release/X.Y` branch from the commit where the milestone ended.
+Loom's releases follow its milestones: milestone *Loom 0.6 · Autobasher* is released as tag `loom-v0.6.0` with a zip of every `.nxs` in `dist/` and release notes listing each package's version. A release is cut when its milestone closes. If `main` has already moved on by then, it's cut on a `release/X.Y` branch from the commit where the milestone ended. The one exception: milestone *Loom 0.8 · Hardening* was released as Loom 1.0 (tag `loom-v1.0.0`); from there, milestone *Loom 1.1* is tag `loom-v1.1.0`, and so on.

@@ -25,7 +25,7 @@
    "type": "function",
    "name": "vision_setup",
    "enabled": true,
-   "code": "// vision_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, defaults.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.vision) client.loom.vision = {};\nclient.loom.registry.vision = { version: \"0.2.4\", keyword: \"VISION\", desc: \"Alertness filter: hides city members, flags and reports enemies\" };\nif (!get_variable(\"vision_on\")) set_variable(\"vision_on\", \"on\");\nif (!get_variable(\"vision_hide\")) set_variable(\"vision_hide\", \"on\");\nif (!get_variable(\"vision_alert\")) set_variable(\"vision_alert\", \"on\");\n// Where enemy alerts go: any channel command that takes text (pt, clt3, ...).\nif (!get_variable(\"vision_channel\")) set_variable(\"vision_channel\", \"pt\");\n"
+   "code": "// vision_setup -- run from onLoad and onInstall, and by any reflex that finds\n// the namespace missing. Namespace, registry, defaults.\nif (!client.loom) client.loom = {};\nif (!client.loom.registry) client.loom.registry = {};\nif (!client.loom.vision) client.loom.vision = {};\nclient.loom.registry.vision = { version: \"1.0.0\", keyword: \"VISION\", desc: \"Alertness filter: hides city members, flags and reports enemies\" };\nif (!get_variable(\"vision_on\")) set_variable(\"vision_on\", \"on\");\nif (!get_variable(\"vision_hide\")) set_variable(\"vision_hide\", \"on\");\nif (!get_variable(\"vision_alert\")) set_variable(\"vision_alert\", \"on\");\n// Where enemy alerts go: any channel command that takes text (pt, clt3, ...).\nif (!get_variable(\"vision_channel\")) set_variable(\"vision_channel\", \"pt\");\n"
   },
   {
    "type": "function",

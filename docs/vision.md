@@ -3,7 +3,7 @@
 *Filters what your alertness reports: city members hidden, enemies coloured and announced to your party.*
 
 <!-- loom:version vision -->
-*This page describes vision 0.2.4.*
+*This page describes vision 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

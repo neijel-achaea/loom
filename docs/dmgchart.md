@@ -3,7 +3,7 @@
 *Damage dealt and taken by type, per fight and per recorded session, your critical hits, and how long your health will last.*
 
 <!-- loom:version dmgchart -->
-*This page describes dmgchart 0.4.0.*
+*This page describes dmgchart 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

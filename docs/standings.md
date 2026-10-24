@@ -3,7 +3,7 @@
 *How you stand with people and organisations, kept as a ledger of dealings, from Nemesis to Soulmate.*
 
 <!-- loom:version standings -->
-*This page describes standings 0.4.0.*
+*This page describes standings 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

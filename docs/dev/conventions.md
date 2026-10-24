@@ -56,14 +56,16 @@ The rules every package follows, and why. They're what lets a player drop any on
 
 Each package keeps its own [semantic version](https://semver.org), in the registry line of its setup, shown by `LOOM`:
 
-- a fix bumps the last number: 0.2.1 → 0.2.2;
-- new behaviour (a new command family, a new tab) bumps the middle one: 0.2.2 → 0.3.0;
-- before 1.0, a change that breaks existing use (a renamed command, a changed variable) also bumps the middle one;
-- a new package starts at 0.1.0.
+- a fix bumps the last number: 1.0.1 → 1.0.2;
+- new behaviour (a new command, an option, a tab section) bumps the middle one: 1.0.2 → 1.1.0;
+- a change that breaks existing use (a removed or renamed command, a changed variable, an entry point that changed shape) waits for Loom 2.0, which bumps the first number. [What 1.0 keeps stable](../stability.md) says what counts;
+- a new package starts at 0.1.0, outside that promise, and becomes 1.0.0 in the Loom release that makes it stable.
 
-Every pull request that changes a package bumps its version once. Packages move independently of each other and of Loom's releases.
+Every package became 1.0.0 in Loom 1.0. Every pull request that changes a package bumps its version once. Packages move independently of each other and of Loom's releases.
 
-**The loom package is the exception:** it carries the suite's version. Between releases it takes patch bumps; when Loom X.Y is released it becomes X.Y.0.
+**Before you merge**, check the change against [What 1.0 keeps stable](../stability.md): a new command or option is fine; renaming one, or a saved variable, is fine only with the old name still working (and, for a variable, migrated once, listed in [Saved variables](variables.md)).
+
+**The loom package is the exception:** it carries the suite's version. Between releases it takes patch bumps; when Loom X.Y is released it becomes X.Y.0 (Loom 1.0: 1.0.0).
 
 ## Definition of done
 
