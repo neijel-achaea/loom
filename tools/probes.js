@@ -3,14 +3,16 @@
 // text or after it; every probe is answered in order: before the next room
 // (walking), in the same packet as it (walking fast), or after its text
 // (following, when the game moves you first). Checks that no room, say or
-// arrival line is hidden and no probe answer shows.
+// arrival line is hidden and no probe answer shows. Every packet ends with
+// its prompt line (a standard one, or one Here can't recognise), and the
+// prompt line must never be hidden.
 //   node tools/probes.js [dist]      exit 1 on any problem
 "use strict";
 const path = require("path");
 const sim = require("./sim.js");
 const P = sim.loadDist(process.argv[2] || path.join(__dirname, "..", "dist"), ["loom", "room"]);
 sim.use(P);
-function run(MODE, ORDER) {
+function run(MODE, ORDER, PROMPTS) {
   const names=["loom","room"];
   sim.newWorld(names,{}); global.nexusclient={add_html_line:()=>{}};
   sim.load("install"); for(const [m,a] of sim.GOOD.filter(g=>!/^Room|Char.Items|IRE.Target|Comm/.test(g[0]))) sim.gmcp(m,a); sim.flush();
@@ -21,7 +23,10 @@ function run(MODE, ORDER) {
   function packet(gmcps, lines){ const ahead=ORDER[pk++%ORDER.length]==="A";
     for(const g of gmcps) sim.gmcp(g[0],g[1]);
     if(ahead) { sim.gmcp("Char.Vitals",sim.GOOD[2][1]); }
-    for(const [t,k] of lines){ kind=k; gagged=false; sim.line(t); if(k==="answer"&&!gagged) ansShown.push(t); }
+    // The packet's prompt line closes its text, as Nexus hands it to triggers;
+    // with PROMPTS off, a custom prompt (health and mana, other wording).
+    const all=lines.concat([[PROMPTS?"7547h, 5989m, 35230e, 30144w exkdb-":"[H:3000 M:2000] >","prompt"]]);
+    for(const [t,k] of all){ kind=k; gagged=false; sim.line(t); if(k==="answer"&&!gagged) ansShown.push(t); }
     if(!ahead) { sim.gmcp("Char.Vitals",sim.GOOD[2][1]); }
     sim.flush(); sim.advance(10); }
   let seen=0; const probes=()=>{ const o=W.sent.slice(seen).filter(c=>/^probe \d+/.test(c)); seen=W.sent.length; return o; };
@@ -48,12 +53,12 @@ function run(MODE, ORDER) {
   //`${MODE.padEnd(6)} ${ORDER.padEnd(4)} hidden-wrongly ${String(badHidden.length).padStart(2)}  answers-shown ${String(ansShown.length).padStart(2)}  probes ${W.sent.filter(c=>/^probe \d+/.test(c)).length}  probed-ok ${loy}`+(badHidden.length?"  e.g. "+JSON.stringify(badHidden.slice(0,2)):"")+(ansShown.length?"  shown e.g. "+JSON.stringify(ansShown.slice(0,2)):""));
 }
 let fails = 0;
-for (const mode of ["walk", "fast", "follow", "stand"]) {
+for (const prompts of [true, false]) for (const mode of ["walk", "fast", "follow", "stand"]) {
   for (const order of ["A", "B", "AB", "BA", "AAB"]) {
-    const r = run(mode, order);
+    const r = run(mode, order, prompts);
     const bad = r.bad.length || r.shown.length || (mode !== "follow" && r.ok < r.probes);
     if (bad) fails++;
-    console.log((bad ? "FAIL " : "ok   ") + mode.padEnd(7) + order.padEnd(4) + " hidden " + r.bad.length + ", answers shown " + r.shown.length + ", probes " + r.probes + ", read " + r.ok
+    console.log((bad ? "FAIL " : "ok   ") + (prompts ? "prompt  " : "custom  ") + mode.padEnd(7) + order.padEnd(4) + " hidden " + r.bad.length + ", answers shown " + r.shown.length + ", probes " + r.probes + ", read " + r.ok
       + (r.bad.length ? "  e.g. " + JSON.stringify(r.bad.slice(0, 2)) : "") + (r.shown.length ? "  shown " + JSON.stringify(r.shown.slice(0, 2)) : ""));
   }
 }

@@ -39,7 +39,7 @@ client.loom.hooks.room.gmcp = function (args) {
       }
       // A probe still out when you move: its answer came before this room,
       // so the probe ends at this room's title line, which shows (#393).
-      if (R.probing) { R.probing.moved = String(rmA.name || ""); R.probing.movePrompts = -1; R.probing.late = false; }
+      if (R.probing) { R.probing.moved = String(rmA.name || ""); R.probing.movePrompts = -1; R.probing.moveText = 0; R.probing.late = false; }
       // A move: probes wait for this room's exits line (trigger room exits line).
       R.probeHold = "room";
       R.probeHoldN = 0;
@@ -94,6 +94,8 @@ client.loom.hooks.room.gmcp = function (args) {
       // The second prompt after a move lifts the hold too (no exits line seen:
       // blind, or a display that leaves it out).
       if (R.probeHold && ++R.probeHoldN >= 2) R.probeHold = "";
+      // Health and mana as the prompt shows them, to recognise a custom prompt.
+      if (rmA && typeof rmA === "object" && rmA.hp !== undefined && rmA.mp !== undefined) R.vitHM = [String(rmA.hp).replace(/\D/g, ""), String(rmA.mp).replace(/\D/g, "")];
       R.probeAtPrompt = true;
       if (!R.probePrompt()) R.probeNext();
       R.probeAtPrompt = false;

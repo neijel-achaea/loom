@@ -198,10 +198,9 @@ R.probeNext = function () {
     var id = R.probeQ.shift();
     var it = R.items[id];
     if (it && !/d/.test(it.attrib || "")) {
-      // Prompts are counted from the next packet (see probePrompt): sent at a
-      // prompt, the next one is the answer's; sent from a line (the room's
-      // exits line, a probe ending), this packet's own prompt may still come.
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: R.probeAtPrompt ? 0 : -1 };
+      // Sent from a line (the room's exits line, a probe ending on a line):
+      // the rest of this packet isn't the answer (p.sendPacket, probeLine).
+      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt };
       R.probing = p;
       clearTimeout(R.probeT);
       R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
@@ -259,8 +258,27 @@ R.probeChanned = function (line) {
   }
   return false;
 };
-// Every line while a probe is out: gagged, and read. Not gagged: a channel
-// line, and, after a move, the new room and what follows it.
+// The prompt line (Ricardo's log, #393): Nexus hands it to triggers like any
+// other line, and it closes its packet in the text itself, whatever order the
+// GMCP came in. A probe never hides it, and uses it to know where packets end.
+// Standard prompts start "7547h, 5989m"; a custom prompt is recognised by
+// your health and mana as Char.Vitals last gave them (R.vitHM), both on the
+// line as whole numbers. Otherwise the GMCP Char.Vitals counts instead
+// (probePrompt).
+R.promptRe = /^\s*\d+h, \d+m\b/;
+R.isPrompt = function (raw) {
+  if (R.promptRe.test(raw)) return true;
+  var hm = R.vitHM;
+  if (!hm || !hm[0] || !hm[1]) return false;
+  return new RegExp("(^|\\D)" + hm[0] + "(\\D|$)").test(raw) && new RegExp("(^|\\D)" + hm[1] + "(\\D|$)").test(raw);
+};
+// Every line while a probe is out: gagged, and read. Not gagged: prompts,
+// channel lines, the rest of the packet the probe went out in, and, after a
+// move, the new room and what follows it.
+//   p.sendPacket  the probe went out partway through a packet (at the room's
+//                 exits line): the game can't answer within that packet, so
+//                 nothing is hidden until it ends, at its prompt line or the
+//                 first Char.Vitals after the send, whichever comes first.
 // A move with a probe out (p.moved, the new room's name): when you walk, your
 // commands are taken in order, so the answer comes before the new room; when
 // you follow someone, the game can move you first, and the answer comes after
@@ -272,18 +290,31 @@ R.probeChanned = function (line) {
 R.probeLine = function (line) {
   var p = R.probing;
   if (!p) return;
+  var raw = String(line || "");
+  var isPrompt = R.isPrompt(raw);
+  if (isPrompt) R.promptText = true;
+  if (p.sendPacket) { if (isPrompt) p.sendPacket = false; return; }
+  if (isPrompt) {
+    // A prompt after answer lines closes the answer: its result counts. After
+    // a move, the second prompt from the new room's title (or from the move,
+    // with no title seen) ends the wait for a late answer.
+    if (p.late) { if (++p.lateText >= 2) { p.how = "moved"; R.probeEnd(false); } }
+    else if (p.moved !== undefined) { if (++p.moveText >= 2) { p.how = "moved"; R.probeEnd(false); } }
+    else if (p.lines.length) { p.how = "prompt line"; R.probeEnd(true); }
+    return;
+  }
   if (p.start !== undefined && !p.lines.length && line === p.start) { p.start = undefined; return; }
   if (R.probeChans.length && R.probeChanned(line)) return;
   if (p.late) {
-    if (/^\s*What do you wish to examine\?\s*$/.test(String(line || ""))) { gag_current_line(); p.how = "late"; R.probeEnd(false); }
+    if (/^\s*What do you wish to examine\?\s*$/.test(raw)) { gag_current_line(); p.how = "late"; R.probeEnd(false); }
     return;
   }
   if (p.moved) {
-    if (String(line || "").trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = -1; return; }
-    if (/^You follow /.test(String(line || ""))) return;
+    if (raw.trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = -1; p.lateText = 0; return; }
+    if (/^You follow /.test(raw)) return;
   }
   gag_current_line();
-  line = String(line || "").trim();
+  line = raw.trim();
   if (p.lines.length < 20) p.lines.push(line);
   if (/ health remaining\.$/.test(line)) p.health = true;
   if (/^What do you wish to examine\?$/.test(line)) { p.how = "gone"; R.probeEnd(false); return; }
@@ -293,27 +324,21 @@ R.probeLine = function (line) {
   if (/^You see nothing in it\.$/.test(line)) { p.how = "nothing"; R.probeEnd(true); return; }
   if (/ (?:is|are) holding:$/.test(line)) p.holding = true;
 };
-// A prompt after the answer's health line ("He has 95% health remaining.")
-// ends a probe whose last lines were worded some other way. A prompt before
-// it (GMCP can come ahead of a packet's text) doesn't.
-// However its lines are worded, a prompt ends it (#393), so nothing after the
-// answer is hidden: the first prompt once some of the answer has been read
-// (it came after the text), else the second from the next packet on (the
-// first may be ahead of the answer's own text).
+// Char.Vitals, once per packet, before or after its text. The first after a
+// probe went out partway through a packet ends that packet's grace (see
+// p.sendPacket). A health line read, then a prompt: the answer is in. When
+// prompt lines are recognised (R.promptText), they decide the rest. Otherwise
+// (another prompt), counted here: the first prompt once answer lines were
+// read, else the second; after a move, the second from the title or the move.
 R.probePrompt = function () {
   var p = R.probing;
   if (!p) return false;
+  if (p.sendPacket) { p.sendPacket = false; return false; }
   p.prompts = (p.prompts || 0) + 1;
-  // A packet's prompt can come before or after its text. So without answer
-  // lines read, the probe ends only at the second prompt counted from the
-  // packet after the one it was sent in: by then the answer is surely in.
   if (p.health) { p.how = "prompt"; R.probeEnd(true); return true; }
-  // After a move: a late answer may still come (see probeLine), so the probe
-  // ends at the second prompt after the new room's title, or the second after
-  // the move when no title line was recognised.
+  if (R.promptText) return false;
   if (p.late) { if (++p.latePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
   if (p.moved !== undefined) { if (++p.movePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
-  // Answer lines read, then a prompt: the answer is whole, so its result counts.
   if (p.prompts >= 2 || (p.prompts >= 1 && p.lines.length)) { p.how = "prompts"; R.probeEnd(p.lines.length > 0); return true; }
   return false;
 };
