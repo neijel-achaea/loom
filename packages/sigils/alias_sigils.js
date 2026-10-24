@@ -20,6 +20,8 @@ else if (sub === "check") {
   set_variable("sigils_on", true);
   run_function("sigils_enter", [], "sigils");
   set_variable("sigils_on", was);
+  // A check waiting its turn still goes out with watching off.
+  if (S.pending) S.pending.check = true;
 }
 else if (sub === "clear") {
   // SIGILS CLEAR CONFIRM (#137): every flagged room is forgotten, so it asks first.
@@ -46,6 +48,7 @@ else if (sub === "debug") {
     + " ignored=" + Object.keys(get_variable("sigils_ignored") || {}).join(",")
     + " queue=" + JSON.stringify(S.queue)
     + " await=" + JSON.stringify(S.await)
+    + " pending=" + (S.pending ? S.pending.id + " (waiting on " + ((S.waitOn || []).join(",") || "the next prompt") + ")" : "none")
     + " room=" + JSON.stringify(S.room)
     + " city=" + (S.city || "?"), "cyan");
 }
