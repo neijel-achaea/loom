@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 0.6.0.*
+*This page describes basher 0.6.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -56,7 +56,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 
 When the room runs out of targets the run ends and the basher stays primed: "run over, still primed. Attack something to start again."
 
-`BASHER STOP` (or `BASHER OFF`) stops everything at once. While a run lasts, **F1 becomes a lit STOP key** that sends `BASHER END`: the run ends at once and the basher stays primed, so your next attack starts a new one. When the run ends, however it ends, F1 goes back to your main attack. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…).
+`BASHER STOP` (or `BASHER OFF`) stops everything at once. While a run lasts, **F1 becomes a lit STOP key** that sends `BASHER END`: the run ends at once and the basher stays primed, so your next attack starts a new one. When the run ends, however it ends, F1 goes back to your main attack. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…). Raising your own shield mid-run (`TOUCH SHIELD`, F12) ends the run the same way, since the next attack would drop it.
 
 <img src="img/fkeys.png" alt="The F-key bar during a run: F1 has become the STOP key.">
 

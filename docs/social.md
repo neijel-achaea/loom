@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 0.4.12.*
+*This page describes social 0.4.13.*
 <!-- /loom:version -->
 
 ## What it is
@@ -71,7 +71,7 @@ Names go in a group with `SOCIAL ADD <group> <name>`, for example `SOCIAL ADD fr
 
 ### Watching
 
-Every group is watched by default. `SOCIAL UNWATCH city` stops the login and logout notices for your city (useful in a big city), and its people leave the Online tab; their names are still coloured. `SOCIAL WATCH city` brings them back; `SOCIAL WATCH` alone shows which groups are watched.
+Every group but enemies is watched on a new install (enemies are still coloured, and vision and the basher still flag them). `SOCIAL UNWATCH city` stops the login and logout notices for your city (useful in a big city), and its people leave the Online tab; their names are still coloured. `SOCIAL WATCH city` brings them back; `SOCIAL WATCH` alone shows which groups are watched.
 
 `SOCIAL POLL OFF` stops the `QW` poll altogether: no notices, no Online updates. `SOCIAL POLL NOW` polls once right away and reports what it found. `SOCIAL POLL EVERY 10` polls every 10 seconds instead of 5 (3 to 600; remembered across loads; `SOCIAL POLL EVERY 5` goes back to the default). A longer gap means arrivals and departures show up a little later.
 

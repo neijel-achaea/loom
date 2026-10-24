@@ -100,6 +100,12 @@ client.loom.hooks.basher.gmcp = function (args) {
       for (var bsD = 0; bsD < bsA.length; bsD++) if (bsBr(bsA[bsD].name)) B.breath = true;
     } else if (bsM === "Char.Defences.Add") {
       if (bsBr(bsA.name)) B.breath = true;
+      // Your own shield up mid-run (TOUCH SHIELD, F12): the next attack
+      // would drop it, so the run ends and the basher stays primed (#387).
+      if (String(bsA.name || "").toLowerCase() === "shield" && B.on && B.run) {
+        B.fleeing = null; B.rageSent = null; B.diag = false;
+        B.end("you shielded yourself");
+      }
     } else {
       var bsR = [].concat(bsA);
       for (var bsE = 0; bsE < bsR.length; bsE++) if (bsBr(typeof bsR[bsE] === "object" ? bsR[bsE].name : bsR[bsE])) { B.breath = false; B.blasted(); }
