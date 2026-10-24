@@ -32,7 +32,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `basher_priorities` | setting | 0.6 | kill order per area: which mobs are active, in order |  |
 | `basher_rage` | setting | 0.6 | battlerage use (BASHER RAGE) |  |
 | `basher_raze` | setting | 0.6 | raze shielded targets (BASHER RAZE) |  |
-| `basher_interrupt` | setting | 0.8 | finish the fight and stop when someone shows up (BASHER INTERRUPT) |  |
+| `basher_interrupt` | setting | 1.0 | finish the fight and stop when someone shows up (BASHER INTERRUPT) |  |
 | `basher_flee_health` | setting | 0.6 | health percent that steps you back (wimpy) |  |
 | `basher_flee_mana` | setting | 0.6 | mana percent that steps you back (wimpy) |  |
 | `basher_flee_dir` | setting | 0.6 | the direction wimpy steps you |  |
@@ -133,7 +133,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 |---|---|---|---|---|
 | `fishing_bait` | setting | 0.2 | the bait | `bait` |
 | `fishing_ding` | setting | 0.2 | party ding on a record |  |
-| `fishing_rebait` | setting | 0.8 | bait the hook again after a catch |  |
+| `fishing_rebait` | setting | 1.0 | bait the hook again after a catch |  |
 | `bait` | legacy | 0.1 | old name of fishing_bait |  |
 
 ## fishingstats
@@ -231,8 +231,8 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `levelgraph_graph_h` | setting | 0.2 | graph height | `lvl_graph_h` |
 | `levelgraph_span_mins` | setting | 0.2 | minutes the session graph covers | `lvl_span_mins` |
 | `levelgraph_span_days` | setting | 0.2 | days the long graph covers | `lvl_span_days` |
-| `levelgraph_gap` | setting | 0.8 | minutes without a prompt that close a session |  |
-| `levelgraph_sess` | data | 0.8 | the open session |  |
+| `levelgraph_gap` | setting | 1.0 | minutes without a prompt that close a session |  |
+| `levelgraph_sess` | data | 1.0 | the open session |  |
 | `levelgraph_min` | data | 0.2 | level readings, per minute | `lvl_min` |
 | `levelgraph_day` | data | 0.2 | level per day | `lvl_day`, `lvl_hist` |
 | `lvl_min` | legacy | 0.1 | old name of levelgraph_min |  |
@@ -250,8 +250,8 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 |---|---|---|---|---|
 | `loom_autoupdates` | setting | 0.3 | check for updates at login |  |
 | `loom_links_off` | setting | 0.5 | integrations switched off |  |
-| `loom_theme` | setting | 0.8 | tab theme |  |
-| `loom_city` | state | 0.8 | your city, from GMCP (for the auto theme) |  |
+| `loom_theme` | setting | 1.0 | tab theme |  |
+| `loom_city` | state | 1.0 | your city, from GMCP (for the auto theme) |  |
 | `loom_updates_mode` | state | 0.3 | whether the update check is the automatic one |  |
 | `currentRoomId` | legacy | 0.1 | pre-Loom room tracking, deleted |  |
 | `currentRoomName` | legacy | 0.1 | pre-Loom room tracking, deleted |  |
@@ -264,12 +264,12 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
-| `magi_staff` | setting | 0.8 | the staff attack STAFF CAST uses | `artificing_staff` `staffAttack` |
-| `magi_pearls` | setting | 0.8 | pick up pearls (MAGI PEARLS) | `crystalism_pearls` |
-| `magi_portal` | setting | 0.8 | open portals on request (MAGI PORTAL) | `crystalism_portal` |
-| `magi_min` | setting | 0.8 | minimum per shape (MAGI MIN) | `crystalism_min` |
-| `magi_default_min` | setting | 0.8 | default minimum | `crystalism_default_min` |
-| `magi_rift` | data | 0.8 | rift counts last read | `crystalism_rift` |
+| `magi_staff` | setting | 1.0 | the staff attack STAFF CAST uses | `artificing_staff` `staffAttack` |
+| `magi_pearls` | setting | 1.0 | pick up pearls (MAGI PEARLS) | `crystalism_pearls` |
+| `magi_portal` | setting | 1.0 | open portals on request (MAGI PORTAL) | `crystalism_portal` |
+| `magi_min` | setting | 1.0 | minimum per shape (MAGI MIN) | `crystalism_min` |
+| `magi_default_min` | setting | 1.0 | default minimum | `crystalism_default_min` |
+| `magi_rift` | data | 1.0 | rift counts last read | `crystalism_rift` |
 | `artificing_staff` | legacy | 0.2 | old name of magi_staff; hunting and the basher still read it while magi isn't installed |  |
 | `staffAttack` | legacy | 0.1 | artificing's pre-0.2 name of the staff attack; hunting still reads it while magi isn't installed |  |
 | `crystalism_pearls` | legacy | 0.2 | old name of magi_pearls |  |
@@ -285,7 +285,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `partycomms_on` | setting | 0.2 | reporting on | `party_on` |
 | `partycomms_name` | state | 0.2 | your name, from GMCP | `party_me` |
 | `partycomms_class` | state | 0.2 | your class, from GMCP |  |
-| `partycomms_level` | state | 0.8 | your level, from GMCP |  |
+| `partycomms_level` | state | 1.0 | your level, from GMCP |  |
 | `party_on` | legacy | 0.1 | old name of partycomms_on |  |
 | `party_me` | legacy | 0.1 | old name of partycomms_name |  |
 | `party_data` | legacy | 0.1 | pre-Loom party state, deleted |  |
@@ -314,11 +314,11 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
 | `room_desc` | setting | 0.4 | description folded or open |  |
-| `room_probe` | setting | 0.8 | probe each new mob once for loyals |  |
-| `room_loyal_ignore` | setting | 0.8 | owners that are places, not loyals |  |
+| `room_probe` | setting | 1.0 | probe each new mob once for loyals |  |
+| `room_loyal_ignore` | setting | 1.0 | owners that are places, not loyals |  |
 | `room_newbies` | data | 0.5 | players seen with newbie titles |  |
 | `room_name` | state | 0.4 | your name, from GMCP |  |
-| `room_mark` | state | 0.8 | the remembered room (REMEMBER / GO BACK) |  |
+| `room_mark` | state | 1.0 | the remembered room (REMEMBER / GO BACK) |  |
 
 ## security
 
@@ -368,10 +368,10 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `social_colors` | setting | 0.2 | group colours | `hlColor_<group>` |
 | `social_watch` | setting | 0.2 | groups watched in Online | `wlWatch` |
 | `social_poll` | setting | 0.2 | QW polling | `wlEnabled` |
-| `social_poll_every` | setting | 0.8 | seconds between polls |  |
+| `social_poll_every` | setting | 1.0 | seconds between polls |  |
 | `social_debug` | setting | 0.2 | debug notices | `wlDebug` |
 | `social_offline` | setting | 0.4 | offline section shown |  |
-| `social_sync_enemies` | setting | 0.8 | CITY ENEMIES replaces the enemies group |  |
+| `social_sync_enemies` | setting | 1.0 | CITY ENEMIES replaces the enemies group |  |
 | `social_colour_by` | setting | 0.5 | colour names by group or standing |  |
 | `social_seen` | data | 0.4 | when watched people were last seen |  |
 | `hlFamily` | legacy | 0.1 | old list, migrated into social_lists |  |

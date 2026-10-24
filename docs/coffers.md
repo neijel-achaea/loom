@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 0.4.0.*
+*This page describes coffers 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 0.7.14.*
+*This page describes loom 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

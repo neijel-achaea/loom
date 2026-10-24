@@ -3,7 +3,7 @@
 *Reminders and standing items on the Achaean calendar, with reminders other packages add for you.*
 
 <!-- loom:version ledger -->
-*This page describes ledger 0.4.1.*
+*This page describes ledger 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

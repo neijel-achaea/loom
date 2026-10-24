@@ -3,7 +3,7 @@
 *The Comms tab: every channel, tell and say in one place, in the game's own colours, with unread counts.*
 
 <!-- loom:version comms -->
-*This page describes comms 0.3.0.*
+*This page describes comms 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

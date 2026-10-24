@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.magi) client.loom.magi = {};
-client.loom.registry.magi = { version: "0.1.1", keyword: "MAGI", desc: "{{description}}" };
+client.loom.registry.magi = { version: "1.0.0", keyword: "MAGI", desc: "{{description}}" };
 var MG = client.loom.magi;
 
 function mgGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || ("" + v) === "undefined") ? "" : "" + v; }
