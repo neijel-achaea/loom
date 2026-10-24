@@ -286,14 +286,31 @@ R.probeIdle = function (line) {
   R.probeNext();
   R.probeAtPrompt = false;
 };
-// Lines a probe hid that turned out not to be its answer (Ricardo's ROOM
-// PROBE DEBUG, 2026-10-24: a bunyip attacked 29 ms after its probe went out,
-// before the game could answer): shown again, in order, so nothing is lost.
-// They come after their packet's prompt line, in plain colour.
+// Too soon to be the answer (Ricardo, 2026-10-24: a bunyip attacked 29 ms
+// after its probe went out; answers in his log took 128 ms and more): an
+// answer needs a round trip to the game, so a line arriving sooner than 80%
+// of the fastest answer seen (R.rttMin, learned from each answer's health
+// line) is someone else's, and isn't hidden: it shows as it came, colours and
+// highlights included. Lag only makes answers later, never earlier. Until an
+// answer has been timed, nothing is let through this way.
+R.probeTooSoon = function (p) { return !!(R.rttMin && Date.now() - p.at < R.rttMin * 0.8); };
+// Lines a probe hid that turned out not to be its answer (after that first
+// stretch): shown again at once, as one block so their order holds, in
+// plain text (a trigger only gets a line's text, not its colours).
 R.probeReplay = function (p) {
   var ls = p.lines || [];
-  for (var i = 0; i < ls.length; i++) {
-    try { display_notice(ls[i], "#c0c0c0"); } catch (e) {}
+  if (ls.length) {
+    var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+    var done = false;
+    try {
+      if (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function") {
+        var h = [];
+        for (var i = 0; i < ls.length; i++) h.push(esc(ls[i]));
+        nexusclient.add_html_line('<span style="white-space:pre-wrap">' + h.join("\n") + '</span>');
+        done = true;
+      }
+    } catch (e) { done = false; }
+    if (!done) { try { display_notice(ls.join("\n"), "#c0c0c0"); } catch (e) {} }
   }
   p.replayed = (p.replayed || 0) + ls.length;
   p.lines = [];
@@ -350,10 +367,15 @@ R.probeLine = function (line) {
     if (raw.trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = -1; p.lateText = 0; return; }
     if (/^You follow /.test(raw)) return;
   }
+  if (R.probeTooSoon(p)) return;
   gag_current_line();
   line = raw.trim();
   if (p.lines.length < 20) p.lines.push(line);
-  if (/ health remaining\.$/.test(line)) p.health = true;
+  if (/ health remaining\.$/.test(line)) {
+    p.health = true;
+    var rtt = Date.now() - p.at;
+    if (rtt > 0 && (!R.rttMin || rtt < R.rttMin)) R.rttMin = rtt;
+  }
   if (/^What do you wish to examine\?$/.test(line)) {
     // That one line is the whole answer: anything hidden before it wasn't.
     if (p.lines.length && p.lines[p.lines.length - 1] === line) p.lines.pop();
