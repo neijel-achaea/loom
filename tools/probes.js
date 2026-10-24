@@ -2,7 +2,8 @@
 // (#393). Each packet carries its text and a prompt, the prompt ahead of the
 // text or after it; every probe is answered in order: before the next room
 // (walking), in the same packet as it (walking fast), or after its text
-// (following, when the game moves you first). Checks that no room, say or
+// (following, when the game moves you first), or with a mob walking into the
+// room you stand in. Checks that no room, say or
 // arrival line is hidden and no probe answer shows. Every packet ends with
 // its prompt line (a standard one, or one Here can't recognise), and the
 // prompt line must never be hidden.
@@ -43,6 +44,10 @@ function run(MODE, ORDER, PROMPTS) {
     if(MODE==="walk"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes(); packet(roomG(n), roomL(n)); }
     else if(MODE==="fast"){ const a=out.flatMap(c=>answerLines(c,here)); out=[]; packet(roomG(n), a.concat(roomL(n))); }
     else if(MODE==="follow"){ const prev=out; out=[]; const g=roomG(n); packet(g, roomL(n).concat(prev.flatMap(c=>answerLines(c,n)))); }
+    else if(MODE==="arrive"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes();
+    // A mob walks into the room you stand in.
+    const id=String(7000+n); MOB[id]={room:here,name:"Gnoll"+n,owner:""};
+    packet([["Char.Items.Add",{location:"room",item:{id,name:"a gnoll sentinel",attrib:"m"}}]], [["A gnoll sentinel enters from the north.","room"]]); out=out.concat(probes()); }
     else if(MODE==="stand"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes(); packet([], [["Ilsabet arrives from the north.","room"]]); out=out.concat(probes()); packet(roomG(n), roomL(n)); }
     out=out.concat(probes());
     if(n%3===0){ sim.gmcp("Comm.Channel.Text",{channel:"says",talker:"Corwen",text:'Corwen says, "Room '+n+'."'}); packet([], [['Corwen says, "Room '+n+'."',"room"]].concat(out.flatMap(c=>answerLines(c,here)))); out=probes(); }
@@ -53,7 +58,7 @@ function run(MODE, ORDER, PROMPTS) {
   //`${MODE.padEnd(6)} ${ORDER.padEnd(4)} hidden-wrongly ${String(badHidden.length).padStart(2)}  answers-shown ${String(ansShown.length).padStart(2)}  probes ${W.sent.filter(c=>/^probe \d+/.test(c)).length}  probed-ok ${loy}`+(badHidden.length?"  e.g. "+JSON.stringify(badHidden.slice(0,2)):"")+(ansShown.length?"  shown e.g. "+JSON.stringify(ansShown.slice(0,2)):""));
 }
 let fails = 0;
-for (const prompts of [true, false]) for (const mode of ["walk", "fast", "follow", "stand"]) {
+for (const prompts of [true, false]) for (const mode of ["walk", "fast", "follow", "stand", "arrive"]) {
   for (const order of ["A", "B", "AB", "BA", "AAB"]) {
     const r = run(mode, order, prompts);
     const bad = r.bad.length || r.shown.length || (mode !== "follow" && r.ok < r.probes);

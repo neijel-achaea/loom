@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.0.1", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.0.2", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -272,6 +272,20 @@ R.isPrompt = function (raw) {
   if (!hm || !hm[0] || !hm[1]) return false;
   return new RegExp("(^|\\D)" + hm[0] + "(\\D|$)").test(raw) && new RegExp("(^|\\D)" + hm[1] + "(\\D|$)").test(raw);
 };
+// Once prompt lines are recognised (R.promptText), a waiting probe goes out at
+// the prompt line, the end of its packet's text, rather than at Char.Vitals,
+// which can come ahead of the text: a probe sent there took the rest of the
+// packet ("A gnoll sentinel enters from the north.") for its answer, and the
+// real answer, a packet later, showed (Ricardo, 2026-10-24).
+R.probeIdle = function (line) {
+  if (R.promptText && !R.probeQ.length) return;
+  if (!R.isPrompt(String(line || ""))) return;
+  R.promptText = true;
+  if (!R.probeQ.length) return;
+  R.probeAtPrompt = true;
+  R.probeNext();
+  R.probeAtPrompt = false;
+};
 // Every line while a probe is out: gagged, and read. Not gagged: prompts,
 // channel lines, the rest of the packet the probe went out in, and, after a
 // move, the new room and what follows it.
@@ -298,9 +312,13 @@ R.probeLine = function (line) {
     // A prompt after answer lines closes the answer: its result counts. After
     // a move, the second prompt from the new room's title (or from the move,
     // with no title seen) ends the wait for a late answer.
+    // Ended here, at a prompt line, the next probe may go out at once: the
+    // packet's text is over (R.probeAtPrompt).
+    R.probeAtPrompt = true;
     if (p.late) { if (++p.lateText >= 2) { p.how = "moved"; R.probeEnd(false); } }
     else if (p.moved !== undefined) { if (++p.moveText >= 2) { p.how = "moved"; R.probeEnd(false); } }
     else if (p.lines.length) { p.how = "prompt line"; R.probeEnd(true); }
+    R.probeAtPrompt = false;
     return;
   }
   if (p.start !== undefined && !p.lines.length && line === p.start) { p.start = undefined; return; }

@@ -97,14 +97,16 @@ client.loom.hooks.room.gmcp = function (args) {
       // Health and mana as the prompt shows them, to recognise a custom prompt.
       if (rmA && typeof rmA === "object" && rmA.hp !== undefined && rmA.mp !== undefined) R.vitHM = [String(rmA.hp).replace(/\D/g, ""), String(rmA.mp).replace(/\D/g, "")];
       R.probeAtPrompt = true;
-      if (!R.probePrompt()) R.probeNext();
+      // With prompt lines recognised, probes go out at the prompt line instead
+      // (R.probeIdle); Char.Vitals only counts for a probe already out.
+      if (!R.probePrompt() && !R.promptText) R.probeNext();
       R.probeAtPrompt = false;
       // GMCP can come ahead of its packet's text: an answer another package
       // was waiting for may be in this same packet, so look again once the
       // packet's lines are read (not a time gate: busy() decides).
       if (!R.probing && R.probeQ.length && R.probeWaitOn && R.probeWaitOn.length) {
         clearTimeout(R.probeLater);
-        R.probeLater = setTimeout(function () { R.probeAtPrompt = true; R.probeNext(); R.probeAtPrompt = false; }, 0);
+        R.probeLater = setTimeout(function () { if (R.promptText) return; R.probeAtPrompt = true; R.probeNext(); R.probeAtPrompt = false; }, 0);
       }
       var rmTar = String(get_variable("tar") || "");
       if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
