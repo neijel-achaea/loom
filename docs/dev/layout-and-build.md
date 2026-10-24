@@ -53,6 +53,7 @@ All of them run from the repository's root with Python 3. `docs.py` also needs `
 | `python3 tools/upgrade.py` | Imports the current build over every release since 0.2 in node, and checks no setting was lost and every saved variable is in [Saved variables](variables.md) ([Testing](testing.md#3-upgrade-test)) |
 | `python3 tools/versions.py` | Writes `dist/versions.json`, the version of every built package (`--check` only tests it) |
 | `python3 tools/docs.py` | Fills the generated blocks in `docs/` (`--check` only reports stale pages) |
+| `node tools/probes.js` | Here's loyal probe against the game, packet by packet, walking, following and standing ([Testing](testing.md#heres-loyal-probe)) |
 | `python3 tools/screens.py` | Draws every tab with invented data and saves the screenshots in `docs/img/` (needs node and playwright); run it when a tab's look changes |
 
 **Build** checks each description and resolves every `@file:` and `@cat:` reference. `extract.py` and `build.py` round-trip exactly: extracting a built package and building it again gives the same file.

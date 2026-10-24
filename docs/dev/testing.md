@@ -131,6 +131,10 @@ Things that help:
 - **For integrations**, load loom and both packages into one harness, and test with each of the two missing too.
 - **Run harnesses from a scratch folder**, not inside the repository, so files they write don't end up in a commit.
 
+### Here's loyal probe
+
+`node tools/probes.js` plays room's silent `PROBE` against the game packet by packet: every packet ends with its prompt line (a standard prompt, or a custom one showing health and mana), and the prompt message (Char.Vitals) comes ahead of the text or after it. Four situations: walking, walking fast (answer and next room in one packet), following someone (the game moves you before answering) and standing still while people arrive. It fails if a room, say, arrival or prompt line is hidden, or a probe's answer shows. The cases come from a real log (Ricardo, 2026-10-24): the prompt line reaches triggers, and marks a packet's end in the text whatever order the GMCP came in. Run it after any change to the probe in `room_setup.js` or `room_gmcp.js` (#393).
+
 ## 6. Preview a tab
 
 A tab's HTML can be checked by eye before going in game: capture it from `set_custom_tab_html` in a simulation, wrap it in a page the width of a tab, and screenshot it with a headless browser:
