@@ -257,14 +257,28 @@ R.probeChanned = function (line) {
   return false;
 };
 // Every line while a probe is out: gagged, and read. Not gagged: a channel
-// line, and, after a move, the new room's title line, which ends the probe
-// (the answer came before it).
+// line, and, after a move, the new room and what follows it.
+// A move with a probe out (p.moved, the new room's name): when you walk, your
+// commands are taken in order, so the answer comes before the new room; when
+// you follow someone, the game can move you first, and the answer comes after
+// the room's text: "What do you wish to examine?", the mob being left behind.
+// So the room's title line starts p.late: the room shows, and only that one
+// line is still hidden if it comes, ending the probe. No other probe goes out
+// meanwhile, so answers can't be taken for the wrong probe. "You follow …" lines
+// before the title show too.
 R.probeLine = function (line) {
   var p = R.probing;
   if (!p) return;
   if (p.start !== undefined && !p.lines.length && line === p.start) { p.start = undefined; return; }
   if (R.probeChans.length && R.probeChanned(line)) return;
-  if (p.moved && String(line || "").trim().indexOf(p.moved) === 0) { p.how = "moved"; R.probeEnd(false); return; }
+  if (p.late) {
+    if (/^\s*What do you wish to examine\?\s*$/.test(String(line || ""))) { gag_current_line(); p.how = "late"; R.probeEnd(false); }
+    return;
+  }
+  if (p.moved) {
+    if (String(line || "").trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = 0; return; }
+    if (/^You follow /.test(String(line || ""))) return;
+  }
   gag_current_line();
   line = String(line || "").trim();
   if (p.lines.length < 20) p.lines.push(line);
@@ -288,8 +302,13 @@ R.probePrompt = function () {
   if (!p) return false;
   p.prompts = (p.prompts || 0) + 1;
   if (p.health) { p.how = "prompt"; R.probeEnd(true); return true; }
+  // After a move: a late answer may still come (see probeLine), so the probe
+  // ends at the second prompt after the new room's title, or the second after
+  // the move when no title line was recognised.
+  if (p.late) { if (++p.latePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
+  if (p.moved !== undefined) { if (++p.movePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
   // Answer lines read, then a prompt: the answer is whole, so its result counts.
-  if (p.prompts >= 2 || p.lines.length) { p.how = p.moved !== undefined ? "moved" : "prompts"; R.probeEnd(p.lines.length > 0); return true; }
+  if (p.prompts >= 2 || p.lines.length) { p.how = "prompts"; R.probeEnd(p.lines.length > 0); return true; }
   return false;
 };
 // A probe's end: ok = the whole output was read. A loyal gets one notice.

@@ -88,7 +88,7 @@ With a link switched off, Here simply goes without that part; nothing else chang
 ## Troubleshooting
 
 - **The tab is empty.** No room has been reported yet: move, or type `LOOK`.
-- **A line went missing from the main window.** While a loyal probe's answer comes in, Room hides it, and only it: a new room you walk into, says, tells and channel lines always show, and the next prompt ends the hiding. If something still goes missing, type `ROOM PROBE DEBUG` straight after: it lists the lines the last probe hid and what ended it. Report those lines; `ROOM PROBE OFF` stops the probes meanwhile.
+- **A line went missing from the main window.** While a loyal probe's answer comes in, Room hides it, and only it: a new room you walk or follow someone into, says, tells and channel lines always show, and a prompt or two ends the hiding. If something still goes missing, type `ROOM PROBE DEBUG` straight after: it lists the lines the last probe hid and what ended it. Report those lines; `ROOM PROBE OFF` stops the probes meanwhile.
 - **The tab doesn't appear at all.** The custom tab must be named exactly `Here`. Reset the UI layout if it still doesn't show.
 - **Someone is listed who has left (or missing who's there).** A few ways of arriving or leaving send nothing Room can see. The next room you enter puts it right; if you can name the line the game showed, report it so Room learns it.
 - **A line went missing.** While a probe is out, every line is hidden until the probe's answer ends (its last line, at most 2 seconds). If something you needed was hidden, report it with `ROOM PROBE DEBUG` (the lines the last probe hid), or turn probing off with `ROOM PROBE OFF`.

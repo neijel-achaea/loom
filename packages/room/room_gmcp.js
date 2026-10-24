@@ -38,7 +38,7 @@ client.loom.hooks.room.gmcp = function (args) {
       }
       // A probe still out when you move: its answer came before this room,
       // so the probe ends at this room's title line, which shows (#393).
-      if (R.probing) { R.probing.moved = String(rmA.name || ""); }
+      if (R.probing) { R.probing.moved = String(rmA.name || ""); R.probing.movePrompts = 0; R.probing.late = false; }
       // A move: probes wait for this room's exits line (trigger room exits line).
       R.probeHold = "room";
       R.probeHoldN = 0;
