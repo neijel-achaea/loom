@@ -316,7 +316,6 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `room_desc` | setting | 0.4 | description folded or open |  |
 | `room_probe` | setting | 1.0 | probe each new mob once for loyals |  |
 | `room_loyal_ignore` | setting | 1.0 | owners that are places, not loyals |  |
-| `room_probe_descs` | data | 1.1 | the first 80 characters of each mob kind's description, learned from probe answers (up to 4 per name, 300 names), so a probe hides nothing before its answer |  |
 | `room_newbies` | data | 0.5 | players seen with newbie titles |  |
 | `room_name` | state | 0.4 | your name, from GMCP |  |
 | `room_mark` | state | 1.0 | the remembered room (REMEMBER / GO BACK) |  |
