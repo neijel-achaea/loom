@@ -6,7 +6,10 @@
 // Situations:
 //   walk, fast, follow  passing through rooms (150, 80, 400 ms apart; following
 //                       adds "You follow …"): nothing may be probed
-//   linger              2.6 s in each room, someone speaking meanwhile
+//   linger              3.6 s in each room, someone speaking meanwhile
+//   return              linger, then a new session (saved variables kept)
+//                       walking the same rooms: the loyals show on arrival,
+//                       with no probe; the others are probed again
 //   arrive              standing while mobs walk in
 //   attacked            a mob walks in and hits you twice: nothing is probed
 //                       while you lose health; it is once things are calm
@@ -22,8 +25,8 @@ const sim = require("./sim.js");
 const P = sim.loadDist(process.argv[2] || path.join(__dirname, "..", "dist"), ["loom", "room"]);
 sim.use(P);
 
-function run(MODE, ORDER, PROMPTS) {
-  sim.newWorld(["loom", "room"], {});
+function run(MODE, ORDER, PROMPTS, VARS) {
+  sim.newWorld(["loom", "room"], VARS || {});
   global.nexusclient = { add_html_line: () => {} };
   sim.load("install");
   for (const [m, a] of sim.GOOD.filter(g => !/^Room|Char.Items|IRE.Target|Comm/.test(g[0]))) sim.gmcp(m, a);
@@ -89,20 +92,27 @@ function run(MODE, ORDER, PROMPTS) {
   const mobIn = (n, name, line, owner) => () => { const id = String(7000 + n); MOB[id] = { room: here, name, owner: owner || "" }; packet([["Char.Items.Add", { location: "room", item: { id, name: name.toLowerCase(), attrib: "m" } }]], [[line, "room"]]); };
 
   const step = { walk: 150, fast: 80, follow: 400 }[MODE];
+  let knownOnArrival = 0;
   for (let n = 0; n < 24; n++) {
     if (step) play([[0, roomPacket(n)]], step);
-    else if (MODE === "linger" || MODE === "busy") play([[0, roomPacket(n)], [1000, say(n)]], 2600);
-    else if (MODE === "arrive") play(n === 0 ? [[0, roomPacket(0)]] : [[0, mobIn(n, "A gnoll sentinel", "A gnoll sentinel enters from the north.")]], 3000);
+    else if (MODE === "linger" || MODE === "busy") play([[0, roomPacket(n)], [1000, say(n)]], 3600);
+    else if (MODE === "return") {
+      // Arriving: a remembered loyal is known before any probe could go out.
+      play([[0, roomPacket(n)]], 50);
+      if (n % 4 === 0) { if (R().ownerOf(String(5000 + n)) === "Falau" && !probesAt.some(p => p.cmd === "probe " + (5000 + n))) knownOnArrival++; }
+      play([[1000, say(n)]], 3550);
+    }
+    else if (MODE === "arrive") play(n === 0 ? [[0, roomPacket(0)]] : [[0, mobIn(n, "A gnoll sentinel", "A gnoll sentinel enters from the north.")]], 4000);
     else if (MODE === "attacked") play(n === 0 ? [[0, roomPacket(0)]] : [
       [0, mobIn(n, "A bunyip", "Slowly rising from the swampy waters is a hulking bunyip.")],
       [130, () => packet([], [["A bunyip's eyes gleam as you are butchered with a wicked blow.", "room"], ["Health lost: 888 (physical blunt).", "room"]], 888)],
       [1600, () => packet([], [["Fire erupts in your side as a bunyip carves you up.", "room"], ["Health lost: 544 (physical cutting).", "room"]], 544)],
-      [1700, () => { hp = 3000; packet([], [["The elixir heals and soothes you.", "room"]]); }]], 4500);
+      [1700, () => { hp = 3000; packet([], [["The elixir heals and soothes you.", "room"]]); }]], 5500);
   }
   // Passing through: count the probes sent on the way, then stop in the
   // last room (where a probe is right).
   const onTheWay = probesAt.length;
-  play([], 3000);
+  play([], 4000);
 
   // Shown again in the order they were hidden? A line shown again isn't lost.
   const again = shownAgain.filter(l => hiddenSeq.includes(l));
@@ -110,20 +120,24 @@ function run(MODE, ORDER, PROMPTS) {
   for (let i = lost.length - 1; i >= 0; i--) { const j = shownAgain.indexOf(lost[i]); if (j >= 0) { shownAgain.splice(j, 1); lost.splice(i, 1); } }
   const probes = probesAt.length, read = Object.keys(R().loyal).length;
   // Probes while passing through, or within the calm time after a blow.
-  const early = step ? onTheWay : probesAt.filter(p => hurtAt.some(h => p.t >= h && p.t - h < 2000)).length;
-  // Mobs that stayed 2 s in a calm room, read.
+  const calm = R().probeCalmMs;
+  const early = step ? onTheWay : probesAt.filter(p => hurtAt.some(h => p.t >= h && p.t - h < calm)).length;
+  // Mobs that stayed long enough in a calm room, read.
   const wantRead = step ? 1 : 24;
-  return { lost, ansShown, probes, read, again: again.length, orderOk, early, wantRead };
+  // In a second session, the 6 loyals (every fourth room) aren't probed again.
+  const reprobed = MODE === "return" ? probesAt.filter(p => +p.cmd.split(" ")[1] % 4 === 0).length : 0;
+  return { lost, ansShown, probes, read, again: again.length, orderOk, early, wantRead, knownOnArrival, reprobed, vars: Object.assign({}, W.vars) };
 }
 
 let fails = 0;
-for (const prompts of [true, false]) for (const mode of ["walk", "fast", "follow", "linger", "arrive", "attacked", "busy"]) {
+for (const prompts of [true, false]) for (const mode of ["walk", "fast", "follow", "linger", "return", "arrive", "attacked", "busy"]) {
   for (const order of ["A", "B", "AB", "BA", "AAB"]) {
-    const r = run(mode, order, prompts);
-    const bad = r.lost.length || r.ansShown.length || !r.orderOk || r.early || r.read < r.wantRead;
+    const r = mode === "return" ? run("return", order, prompts, run("linger", order, prompts).vars) : run(mode, order, prompts);
+    const bad = r.lost.length || r.ansShown.length || !r.orderOk || r.early || r.read < r.wantRead || (mode === "return" && (r.knownOnArrival < 6 || r.reprobed));
     if (bad) fails++;
     console.log((bad ? "FAIL " : "ok   ") + (prompts ? "prompt  " : "custom  ") + mode.padEnd(9) + order.padEnd(4)
       + " lost " + r.lost.length + ", answers shown " + r.ansShown.length + ", probes " + r.probes + ", read " + r.read + "/" + r.wantRead
+      + (mode === "return" ? ", loyals known on arrival " + r.knownOnArrival + "/6" + (r.reprobed ? ", PROBED AGAIN " + r.reprobed : "") : "")
       + (r.early ? ", EARLY probes " + r.early : "") + (r.again ? ", shown again " + r.again + (r.orderOk ? " in order" : " OUT OF ORDER") : "")
       + (r.lost.length ? "  e.g. " + JSON.stringify(r.lost.slice(0, 2)) : "") + (r.ansShown.length ? "  shown " + JSON.stringify(r.ansShown.slice(0, 2)) : ""));
   }

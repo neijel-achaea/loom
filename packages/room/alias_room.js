@@ -43,13 +43,26 @@ if (rmSub === "" || rmSub === "status") {
       var rmAt = R.loyalIgnore.indexOf(rmNl);
       if (rmPv === "ignore") {
         if (rmAt >= 0) rmSay("mobs loyal to " + rmNc + " are already not marked.");
-        else { R.loyalIgnore.push(rmNl); R.saveLoyalIgnore(); rmSay("mobs loyal to " + rmNc + " are no longer marked as loyals.", "lime"); }
+        else {
+          R.loyalIgnore.push(rmNl); R.saveLoyalIgnore();
+          // Not remembered either.
+          var rmDrop = 0;
+          for (var rmLd in R.loyals) { if (R.loyals.hasOwnProperty(rmLd) && R.loyals[rmLd].o.toLowerCase() === rmNl) { delete R.loyals[rmLd]; rmDrop++; } }
+          if (rmDrop) R.saveLoyals();
+          rmSay("mobs loyal to " + rmNc + " are no longer marked as loyals.", "lime");
+        }
       } else {
         if (rmAt < 0) rmSay(rmNc + " isn't on the list. ROOM PROBE IGNORE lists it.", "orange");
         else { R.loyalIgnore.splice(rmAt, 1); R.saveLoyalIgnore(); rmSay("mobs loyal to " + rmNc + " are marked as loyals again.", "lime"); }
       }
       if (client.loom.notify) client.loom.notify("room");
     }
+  } else if (rmPv === "forget") {
+    // The loyals remembered across sessions: recorded data, so CONFIRM.
+    var rmLn = Object.keys(R.loyals).length;
+    if (!rmLn) rmSay("no loyals remembered.");
+    else if ((rmW[2] || "").toLowerCase() !== "confirm") rmSay("this forgets the " + rmLn + " loyal" + (rmLn === 1 ? "" : "s") + " remembered from earlier sessions; each is probed again when next seen. ROOM PROBE FORGET CONFIRM to go ahead.", "orange");
+    else { R.loyals = {}; R.saveLoyals(); rmSay("forgot " + rmLn + " remembered loyal" + (rmLn === 1 ? "" : "s") + "; this session's stay marked.", "lime"); }
   } else if (rmPv === "on" || rmPv === "off") {
     R.probeOn = rmPv === "on";
     set_variable("room_probe", rmPv);
@@ -59,7 +72,7 @@ if (rmSub === "" || rmSub === "status") {
   } else {
     var rmLy = [];
     for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.ownerOf(rmLi)) rmLy.push(rmLi + " (" + R.ownerOf(rmLi) + ")"); }
-    rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs probed, loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : (R.probeOthers().length ? " (after " + R.probeOthers().join(", ") + ")" : "")) : "") + ". ROOM PROBE ON|OFF to change it.");
+    rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs known this session, " + Object.keys(R.loyals).length + " loyals remembered; this session's loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : (R.probeOthers().length ? " (after " + R.probeOthers().join(", ") + ")" : "")) : "") + ". ROOM PROBE ON|OFF to change it.");
   }
 } else if (rmSub === "remember") {
   R.remember();

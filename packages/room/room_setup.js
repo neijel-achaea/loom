@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.0.2", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.1.0", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -134,8 +134,8 @@ R.leaf = function (title) { return '<span title="' + String(title || "newbie").r
 // timeout only for an answer that never comes. Probes wait while the basher has a run (a gagged combat line
 // would be lost), while triggers are paused, and while another package's answer
 // is still coming (R.probeOthers, #318). PROBE is free (Ricardo).
-//   R.loyal    id -> owner, "" = loyal to nobody; in memory only (ids are
-//              per mob, so a reload just probes again)
+//   R.loyal    id -> owner, "" = loyal to nobody, for this session
+//   R.loyals   the loyals remembered across sessions (below)
 //   R.probeQ   ids waiting; R.probing {id, name, at, owner, holding, lines}
 //   R.probeLast  the last probe's lines and how it ended, for ROOM PROBE DEBUG
 // ROOM PROBE ON|OFF (room_probe, default on).
@@ -145,6 +145,50 @@ if (!R.probeQ) R.probeQ = [];
 if (R.probing === undefined) R.probing = null;
 R.probeMs = 2000;
 R.loyalCap = 3000;
+// Loyals remembered (Ricardo, 1.1): a mob keeps its id for as long as it
+// lives, so a loyal found once is known on sight next time, with no probe.
+// Only someone's loyals are kept (not ignored owners, not mobs loyal to
+// nobody: those respawn under new ids). A remembered id is used only while
+// the mob's name is the same, and is probed again once R.loyalsCheck old (it
+// may have changed hands); the least recently seen go beyond R.loyalsCap.
+//   R.loyals  id -> { n: name, o: owner, c: when probed, t: when last seen },
+//             saved in room_loyals (JSON)
+R.loyalsCap = 500;
+R.loyalsCheck = 30 * 86400000;
+R.loyals = {};
+try {
+  var rmLs = JSON.parse(get_variable("room_loyals") || "{}");
+  if (rmLs && typeof rmLs == "object" && !Array.isArray(rmLs)) {
+    for (var rmLk in rmLs) {
+      var rmLe = rmLs[rmLk];
+      if (rmLs.hasOwnProperty(rmLk) && rmLe && typeof rmLe == "object" && typeof rmLe.n == "string" && typeof rmLe.o == "string" && rmLe.o && typeof rmLe.c == "number" && typeof rmLe.t == "number") R.loyals[rmLk] = { n: rmLe.n, o: rmLe.o, c: rmLe.c, t: rmLe.t };
+    }
+  }
+} catch (e) { R.loyals = {}; }
+R.saveLoyals = function () {
+  var ks = Object.keys(R.loyals);
+  if (ks.length > R.loyalsCap) {
+    ks.sort(function (a, b) { return R.loyals[a].t - R.loyals[b].t; });
+    for (var i = 0; i < ks.length - R.loyalsCap; i++) delete R.loyals[ks[i]];
+  }
+  try { if (Object.keys(R.loyals).length) set_variable("room_loyals", JSON.stringify(R.loyals)); else delete_variable("room_loyals"); } catch (e) {}
+};
+// Keep (or drop) what a probe found about mob id, called name.
+R.loyalsKeep = function (id, name, owner) {
+  if (owner && !R.loyalIgnored(owner)) { var now = Date.now(); R.loyals[id] = { n: name, o: owner, c: now, t: now }; R.saveLoyals(); }
+  else if (R.loyals.hasOwnProperty(id)) { delete R.loyals[id]; R.saveLoyals(); }
+};
+// Known from an earlier session: true (and R.loyal set) when it can be used.
+R.loyalsKnown = function (id, name) {
+  var e = R.loyals[id];
+  if (!e) return false;
+  var now = Date.now();
+  if (e.n !== name || now - e.c > R.loyalsCheck || R.loyalIgnored(e.o)) { delete R.loyals[id]; R.saveLoyals(); return false; }
+  R.loyal[id] = e.o;
+  // Last seen, saved at most once a day.
+  if (now - e.t > 86400000) { e.t = now; R.saveLoyals(); }
+  return true;
+};
 // Queue a mob from Char.Items, unless it's dead, known, queued or being probed.
 // A calm room first (Ricardo, 2026-10-24): a mob is probed only once it has
 // been in the room with you for R.probeCalmMs and you haven't lost health for
@@ -152,16 +196,17 @@ R.loyalCap = 3000;
 // itself before any probe goes out, and no probe is out while blows are
 // landing; rooms you pass through aren't probed at all. Lag delays the room
 // and the attack alike, so their order holds. The trade-off: a mob you attack
-// within those 2 s hasn't been probed for the basher's loyal check.
+// within those 3 s hasn't been probed for the basher's loyal check.
 //   R.probeSince  id -> when the mob was first seen here
 //   R.hurtAt      when Char.Vitals last showed less health than before
-R.probeCalmMs = 2000;
+R.probeCalmMs = 3000;
 if (!R.probeSince) R.probeSince = {};
 if (R.hurtAt === undefined) R.hurtAt = 0;
 R.probeAdd = function (it) {
   if (!it || !/m/.test(it.attrib || "") || /d/.test(it.attrib || "")) return;
   var id = String(it.id);
   if (R.loyal.hasOwnProperty(id) || R.probeQ.indexOf(id) >= 0 || (R.probing && R.probing.id === id)) return;
+  if (R.loyalsKnown(id, String(it.name || "a mob"))) { if (client.loom.notify) client.loom.notify("room"); return; }
   R.probeQ.push(id);
   R.probeSince[id] = Date.now();
 };
@@ -462,6 +507,7 @@ R.probeEnd = function (ok) {
   if (ok) {
     if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
     R.loyal[p.id] = p.owner;
+    R.loyalsKeep(p.id, p.name, p.owner);
     // Silent (Ricardo): the loyal shows in Here, no notice.
     if (p.owner && !R.loyalIgnored(p.owner)) {
       if (client.loom.notify) client.loom.notify("room");
