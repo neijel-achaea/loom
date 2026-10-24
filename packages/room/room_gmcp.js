@@ -96,6 +96,9 @@ client.loom.hooks.room.gmcp = function (args) {
       if (R.probeHold && ++R.probeHoldN >= 2) R.probeHold = "";
       // Health and mana as the prompt shows them, to recognise a custom prompt.
       if (rmA && typeof rmA === "object" && rmA.hp !== undefined && rmA.mp !== undefined) R.vitHM = [String(rmA.hp).replace(/\D/g, ""), String(rmA.mp).replace(/\D/g, "")];
+      // Health going down: not calm, no probes for R.probeCalmMs.
+      var rmHp = rmA && typeof rmA === "object" ? parseInt(String(rmA.hp), 10) : NaN;
+      if (!isNaN(rmHp)) { if (R.lastHp !== undefined && rmHp < R.lastHp) R.hurtAt = Date.now(); R.lastHp = rmHp; }
       R.probeAtPrompt = true;
       // With prompt lines recognised, probes go out at the prompt line instead
       // (R.probeIdle); Char.Vitals only counts for a probe already out.

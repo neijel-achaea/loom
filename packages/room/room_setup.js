@@ -146,11 +146,33 @@ if (R.probing === undefined) R.probing = null;
 R.probeMs = 2000;
 R.loyalCap = 3000;
 // Queue a mob from Char.Items, unless it's dead, known, queued or being probed.
+// A calm room first (Ricardo, 2026-10-24): a mob is probed only once it has
+// been in the room with you for R.probeCalmMs and you haven't lost health for
+// as long. Loyals are never aggressive, so a mob that attacks on arrival shows
+// itself before any probe goes out, and no probe is out while blows are
+// landing; rooms you pass through aren't probed at all. Lag delays the room
+// and the attack alike, so their order holds. The trade-off: a mob you attack
+// within those 2 s hasn't been probed for the basher's loyal check.
+//   R.probeSince  id -> when the mob was first seen here
+//   R.hurtAt      when Char.Vitals last showed less health than before
+R.probeCalmMs = 2000;
+if (!R.probeSince) R.probeSince = {};
+if (R.hurtAt === undefined) R.hurtAt = 0;
 R.probeAdd = function (it) {
   if (!it || !/m/.test(it.attrib || "") || /d/.test(it.attrib || "")) return;
   var id = String(it.id);
   if (R.loyal.hasOwnProperty(id) || R.probeQ.indexOf(id) >= 0 || (R.probing && R.probing.id === id)) return;
   R.probeQ.push(id);
+  R.probeSince[id] = Date.now();
+};
+// Wake up when the next waiting mob (or the room) has been calm long enough.
+R.probeWakeIn = function (ms) {
+  clearTimeout(R.probeWake);
+  R.probeWake = setTimeout(function () {
+    R.probeWake = null;
+    // A timer runs between packets: nothing of a packet is still coming.
+    R.probeAtPrompt = true; R.probeNext(); R.probeAtPrompt = false;
+  }, Math.max(20, ms + 20));
 };
 // Whether the basher is fighting (its run, read through the basher-room link).
 R.probeBusy = function () {
@@ -194,8 +216,22 @@ R.probeNext = function () {
   if (get_variable("pauseTriggers") == "on" || R.probeBusy()) return;
   R.probeWaitOn = R.probeOthers();
   if (R.probeWaitOn.length) return;
+  // Calm: no health lost for R.probeCalmMs, and the mob here at least as long.
+  var now = Date.now();
+  var hurtLeft = R.hurtAt + R.probeCalmMs - now;
+  if (hurtLeft > 0) { R.probeWakeIn(hurtLeft); return; }
+  var soonest = -1;
+  for (var qi = 0; qi < R.probeQ.length; qi++) {
+    var qid = R.probeQ[qi], qit = R.items[qid];
+    if (!qit || /d/.test(qit.attrib || "")) { R.probeQ.splice(qi, 1); delete R.probeSince[qid]; qi--; continue; }
+    var left = (R.probeSince[qid] || now) + R.probeCalmMs - now;
+    if (left <= 0) { R.probeQ.splice(qi, 1); R.probeQ.unshift(qid); soonest = -1; break; }
+    if (soonest < 0 || left < soonest) soonest = left;
+  }
+  if (soonest >= 0) { R.probeWakeIn(soonest); return; }
   while (R.probeQ.length) {
     var id = R.probeQ.shift();
+    delete R.probeSince[id];
     var it = R.items[id];
     if (it && !/d/.test(it.attrib || "")) {
       // Sent from a line (the room's exits line, a probe ending on a line):
@@ -426,8 +462,8 @@ R.probeEnd = function (ok) {
   if (ok) {
     if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
     R.loyal[p.id] = p.owner;
+    // Silent (Ricardo): the loyal shows in Here, no notice.
     if (p.owner && !R.loyalIgnored(p.owner)) {
-      display_notice("[room] " + p.name + " (" + p.id + ") is loyal to " + p.owner + ".", "cyan");
       if (client.loom.notify) client.loom.notify("room");
       R.drawSoon();
     }

@@ -6,7 +6,7 @@ var hlTitle = "[room] the Here tab: the room you are in, its exits, players, mob
 var hlRows = [
   ["ROOM", "the room in a line, and how the description starts"],
   ["ROOM DESC OPEN|FOLDED", "show the description in full, or folded to two lines (clicking it flips it too)"],
-  ["ROOM PROBE [ON|OFF]", "loyals: probe each new mob once, silently, and mark the ones loyal to someone (default ON)"],
+  ["ROOM PROBE [ON|OFF]", "loyals: once a mob has been here 2 s and nothing is hurting you, probe it once, silently, and mark it in Here if it's loyal to someone (default ON)"],
   ["ROOM PROBE IGNORE [name]", "places read as owners (\"loyal to Qurnok\"): mobs loyal to them aren't marked; no name lists them"],
   ["ROOM PROBE UNIGNORE <name>", "take a name off that list"],
   ["ROOM PROBE DEBUG", "the lines the last probe hid, and what ended it"],
