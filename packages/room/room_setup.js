@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.0.1", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.0.2", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -146,11 +146,33 @@ if (R.probing === undefined) R.probing = null;
 R.probeMs = 2000;
 R.loyalCap = 3000;
 // Queue a mob from Char.Items, unless it's dead, known, queued or being probed.
+// A calm room first (Ricardo, 2026-10-24): a mob is probed only once it has
+// been in the room with you for R.probeCalmMs and you haven't lost health for
+// as long. Loyals are never aggressive, so a mob that attacks on arrival shows
+// itself before any probe goes out, and no probe is out while blows are
+// landing; rooms you pass through aren't probed at all. Lag delays the room
+// and the attack alike, so their order holds. The trade-off: a mob you attack
+// within those 2 s hasn't been probed for the basher's loyal check.
+//   R.probeSince  id -> when the mob was first seen here
+//   R.hurtAt      when Char.Vitals last showed less health than before
+R.probeCalmMs = 2000;
+if (!R.probeSince) R.probeSince = {};
+if (R.hurtAt === undefined) R.hurtAt = 0;
 R.probeAdd = function (it) {
   if (!it || !/m/.test(it.attrib || "") || /d/.test(it.attrib || "")) return;
   var id = String(it.id);
   if (R.loyal.hasOwnProperty(id) || R.probeQ.indexOf(id) >= 0 || (R.probing && R.probing.id === id)) return;
   R.probeQ.push(id);
+  R.probeSince[id] = Date.now();
+};
+// Wake up when the next waiting mob (or the room) has been calm long enough.
+R.probeWakeIn = function (ms) {
+  clearTimeout(R.probeWake);
+  R.probeWake = setTimeout(function () {
+    R.probeWake = null;
+    // A timer runs between packets: nothing of a packet is still coming.
+    R.probeAtPrompt = true; R.probeNext(); R.probeAtPrompt = false;
+  }, Math.max(20, ms + 20));
 };
 // Whether the basher is fighting (its run, read through the basher-room link).
 R.probeBusy = function () {
@@ -194,13 +216,27 @@ R.probeNext = function () {
   if (get_variable("pauseTriggers") == "on" || R.probeBusy()) return;
   R.probeWaitOn = R.probeOthers();
   if (R.probeWaitOn.length) return;
+  // Calm: no health lost for R.probeCalmMs, and the mob here at least as long.
+  var now = Date.now();
+  var hurtLeft = R.hurtAt + R.probeCalmMs - now;
+  if (hurtLeft > 0) { R.probeWakeIn(hurtLeft); return; }
+  var soonest = -1;
+  for (var qi = 0; qi < R.probeQ.length; qi++) {
+    var qid = R.probeQ[qi], qit = R.items[qid];
+    if (!qit || /d/.test(qit.attrib || "")) { R.probeQ.splice(qi, 1); delete R.probeSince[qid]; qi--; continue; }
+    var left = (R.probeSince[qid] || now) + R.probeCalmMs - now;
+    if (left <= 0) { R.probeQ.splice(qi, 1); R.probeQ.unshift(qid); soonest = -1; break; }
+    if (soonest < 0 || left < soonest) soonest = left;
+  }
+  if (soonest >= 0) { R.probeWakeIn(soonest); return; }
   while (R.probeQ.length) {
     var id = R.probeQ.shift();
+    delete R.probeSince[id];
     var it = R.items[id];
     if (it && !/d/.test(it.attrib || "")) {
       // Sent from a line (the room's exits line, a probe ending on a line):
       // the rest of this packet isn't the answer (p.sendPacket, probeLine).
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt };
+      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt, foreign: 0, replayed: 0 };
       R.probing = p;
       clearTimeout(R.probeT);
       R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
@@ -272,6 +308,49 @@ R.isPrompt = function (raw) {
   if (!hm || !hm[0] || !hm[1]) return false;
   return new RegExp("(^|\\D)" + hm[0] + "(\\D|$)").test(raw) && new RegExp("(^|\\D)" + hm[1] + "(\\D|$)").test(raw);
 };
+// Once prompt lines are recognised (R.promptText), a waiting probe goes out at
+// the prompt line, the end of its packet's text, rather than at Char.Vitals,
+// which can come ahead of the text: a probe sent there took the rest of the
+// packet ("A gnoll sentinel enters from the north.") for its answer, and the
+// real answer, a packet later, showed (Ricardo, 2026-10-24).
+R.probeIdle = function (line) {
+  if (R.promptText && !R.probeQ.length) return;
+  if (!R.isPrompt(String(line || ""))) return;
+  R.promptText = true;
+  if (!R.probeQ.length) return;
+  R.probeAtPrompt = true;
+  R.probeNext();
+  R.probeAtPrompt = false;
+};
+// Too soon to be the answer (Ricardo, 2026-10-24: a bunyip attacked 29 ms
+// after its probe went out; answers in his log took 128 ms and more): an
+// answer needs a round trip to the game, so a line arriving sooner than 80%
+// of the fastest answer seen (R.rttMin, learned from each answer's health
+// line) is someone else's, and isn't hidden: it shows as it came, colours and
+// highlights included. Lag only makes answers later, never earlier. Until an
+// answer has been timed, nothing is let through this way.
+R.probeTooSoon = function (p) { return !!(R.rttMin && Date.now() - p.at < R.rttMin * 0.8); };
+// Lines a probe hid that turned out not to be its answer (after that first
+// stretch): shown again at once, as one block so their order holds, in
+// plain text (a trigger only gets a line's text, not its colours).
+R.probeReplay = function (p) {
+  var ls = p.lines || [];
+  if (ls.length) {
+    var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+    var done = false;
+    try {
+      if (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function") {
+        var h = [];
+        for (var i = 0; i < ls.length; i++) h.push(esc(ls[i]));
+        nexusclient.add_html_line('<span style="white-space:pre-wrap">' + h.join("\n") + '</span>');
+        done = true;
+      }
+    } catch (e) { done = false; }
+    if (!done) { try { display_notice(ls.join("\n"), "#c0c0c0"); } catch (e) {} }
+  }
+  p.replayed = (p.replayed || 0) + ls.length;
+  p.lines = [];
+};
 // Every line while a probe is out: gagged, and read. Not gagged: prompts,
 // channel lines, the rest of the packet the probe went out in, and, after a
 // move, the new room and what follows it.
@@ -298,9 +377,20 @@ R.probeLine = function (line) {
     // A prompt after answer lines closes the answer: its result counts. After
     // a move, the second prompt from the new room's title (or from the move,
     // with no title seen) ends the wait for a late answer.
+    // Ended here, at a prompt line, the next probe may go out at once: the
+    // packet's text is over (R.probeAtPrompt).
+    R.probeAtPrompt = true;
     if (p.late) { if (++p.lateText >= 2) { p.how = "moved"; R.probeEnd(false); } }
     else if (p.moved !== undefined) { if (++p.moveText >= 2) { p.how = "moved"; R.probeEnd(false); } }
-    else if (p.lines.length) { p.how = "prompt line"; R.probeEnd(true); }
+    else if (p.lines.length && p.health) { p.how = "prompt line"; R.probeEnd(true); }
+    else if (p.lines.length) {
+      // A packet without the health line every answer has: someone else's
+      // (an attack, a message). Its lines are shown again, and the probe
+      // keeps waiting for its answer, for up to three such packets.
+      R.probeReplay(p);
+      if (++p.foreign >= 3) { p.how = "no answer"; R.probeEnd(false); }
+    }
+    R.probeAtPrompt = false;
     return;
   }
   if (p.start !== undefined && !p.lines.length && line === p.start) { p.start = undefined; return; }
@@ -313,11 +403,22 @@ R.probeLine = function (line) {
     if (raw.trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = -1; p.lateText = 0; return; }
     if (/^You follow /.test(raw)) return;
   }
+  if (R.probeTooSoon(p)) return;
   gag_current_line();
   line = raw.trim();
   if (p.lines.length < 20) p.lines.push(line);
-  if (/ health remaining\.$/.test(line)) p.health = true;
-  if (/^What do you wish to examine\?$/.test(line)) { p.how = "gone"; R.probeEnd(false); return; }
+  if (/ health remaining\.$/.test(line)) {
+    p.health = true;
+    var rtt = Date.now() - p.at;
+    if (rtt > 0 && (!R.rttMin || rtt < R.rttMin)) R.rttMin = rtt;
+  }
+  if (/^What do you wish to examine\?$/.test(line)) {
+    // That one line is the whole answer: anything hidden before it wasn't.
+    if (p.lines.length && p.lines[p.lines.length - 1] === line) p.lines.pop();
+    if (p.lines.length) R.probeReplay(p);
+    p.lines.push(line);
+    p.how = "gone"; R.probeEnd(false); return;
+  }
   var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
   if (m) { p.owner = R.loyalOwner(m[1]); return; }
   if (p.holding) { p.how = "holding"; R.probeEnd(true); return; }
@@ -339,6 +440,13 @@ R.probePrompt = function () {
   if (R.promptText) return false;
   if (p.late) { if (++p.latePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
   if (p.moved !== undefined) { if (++p.movePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
+  if (p.prompts >= 1 && p.lines.length && !p.health) {
+    // As at a prompt line: lines without the health line weren't the answer.
+    R.probeReplay(p);
+    if (++p.foreign >= 3) { p.how = "no answer"; R.probeEnd(false); return true; }
+    p.prompts = 0;
+    return false;
+  }
   if (p.prompts >= 2 || (p.prompts >= 1 && p.lines.length)) { p.how = "prompts"; R.probeEnd(p.lines.length > 0); return true; }
   return false;
 };
@@ -348,12 +456,14 @@ R.probeEnd = function (ok) {
   R.probing = null;
   clearTimeout(R.probeT);
   if (!p) return;
-  R.probeLast = { id: p.id, name: p.name, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at };
+  // Ended without its answer (timeout, a move): what it hid wasn't the answer.
+  if (!ok && !p.health && p.how !== "gone" && p.lines.length) R.probeReplay(p);
+  R.probeLast = { id: p.id, name: p.name, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at, replayed: p.replayed || 0 };
   if (ok) {
     if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
     R.loyal[p.id] = p.owner;
+    // Silent (Ricardo): the loyal shows in Here, no notice.
     if (p.owner && !R.loyalIgnored(p.owner)) {
-      display_notice("[room] " + p.name + " (" + p.id + ") is loyal to " + p.owner + ".", "cyan");
       if (client.loom.notify) client.loom.notify("room");
       R.drawSoon();
     }
