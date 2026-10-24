@@ -31,6 +31,7 @@ if (rmSub === "" || rmSub === "status") {
     else {
       rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden" + (rmPl.replayed ? ", " + rmPl.replayed + " not its answer shown again" : "") + ":");
       for (var rmPd = 0; rmPd < rmPl.lines.length; rmPd++) rmSay("  " + rmPl.lines[rmPd]);
+      rmSay("descriptions known for " + Object.keys(R.descs).length + " kinds" + (rmPl.kind ? "; " + rmPl.kind + ": " + (R.descs[rmPl.kind] ? "known" : "not yet") : "") + ".");
       rmSay("round trip: fastest answer " + (R.rttMin ? R.rttMin + " ms; lines sooner than " + Math.round(R.rttMin * 0.8) + " ms after a probe aren't hidden." : "not timed yet."));
     }
   } else if (rmPv === "ignore" || rmPv === "unignore") {

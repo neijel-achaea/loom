@@ -38,11 +38,16 @@ function run(MODE, ORDER, PROMPTS) {
     sim.flush(); }
   let seen=0; const probes=()=>{ const o=W.sent.slice(seen).filter(c=>/^probe \d+/.test(c)); seen=W.sent.length; return o; };
   const MOB={}; let here=0;
+  // Mobs of a kind share a description (as in the game: 26 kinds in two logs,
+  // one description each). Three kinds repeat; every fourth room brings a
+  // kind never seen before, so first encounters stay tested.
+  const kindFor=(n,base)=>n%4===3 ? base+" of breed "+n : base+["", " of the marsh", " of the reeds"][n%3];
+  const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
   function answerLines(cmd, curRoom){ const id=cmd.split(" ")[1]; const m=MOB[id];
     if(!m || m.room!==curRoom) return [["What do you wish to examine?","answer"]];
-    return [["Dressed in a white tunic, "+m.name+" fidgets constantly.","answer"],[m.name+" is quite powerful.","answer"],["He has 100% health remaining.","answer"],["He weighs about 90 pounds.","answer"],["He is loyal to "+(m.owner||"Luman Village")+".","answer"],["You see nothing in it.","answer"]]; }
-  function roomG(n){ here=n; const id=String(5000+n); MOB[id]={room:n,name:"Nulem"+n,owner:n%4===0?"Falau":""};
-    return [["Room.Info",{num:100+n,name:"Room "+n+" by the sea",area:"Luman",environment:"Road",exits:{n:1},details:[]}],["Char.Items.List",{location:"room",items:[{id,name:"an unruly young boy",attrib:"m"}]}]]; }
+    return [["Seen up close, "+m.kind+" is a creature of its kind, described at length and the same for every one of them.","answer"],[cap(m.kind)+" is quite powerful.","answer"],["He has 100% health remaining.","answer"],["He weighs about 90 pounds.","answer"],["He is loyal to "+(m.owner||"Luman Village")+".","answer"],["You see nothing in it.","answer"]]; }
+  function roomG(n){ here=n; const id=String(5000+n); const kind=kindFor(n,"an unruly boy"); MOB[id]={room:n,kind,owner:n%4===0?"Falau":""};
+    return [["Room.Info",{num:100+n,name:"Room "+n+" by the sea",area:"Luman",environment:"Road",exits:{n:1},details:[]}],["Char.Items.List",{location:"room",items:[{id,name:kind,attrib:"m"}]}]]; }
   const roomL=n=>[...(MODE==="follow"?[["You follow Corwen to the north.","room"]]:[]),["Room "+n+" by the sea. (road)","room"],["Dawn breaks across the land. An unruly young boy stands here.","room"],["You see exits leading north and south.","room"]];
   packet(roomG(0), roomL(0));
   let out=probes();
@@ -52,17 +57,18 @@ function run(MODE, ORDER, PROMPTS) {
     else if(MODE==="follow"){ const prev=out; out=[]; const g=roomG(n); packet(g, roomL(n).concat(prev.flatMap(c=>answerLines(c,n)))); }
     else if(MODE==="arrive"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes();
     // A mob walks into the room you stand in.
-    const id=String(7000+n); MOB[id]={room:here,name:"Gnoll"+n,owner:""};
-    packet([["Char.Items.Add",{location:"room",item:{id,name:"a gnoll sentinel",attrib:"m"}}]], [["A gnoll sentinel enters from the north.","room"]]); out=out.concat(probes()); }
+    const id=String(7000+n); const kind=kindFor(n,"a gnoll sentinel"); MOB[id]={room:here,kind,owner:""};
+    packet([["Char.Items.Add",{location:"room",item:{id,name:kind,attrib:"m"}}]], [["A gnoll sentinel enters from the north.","room"]]); out=out.concat(probes()); }
     else if(MODE==="attacked"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes();
     // A mob walks in and attacks before the game answers the probe (Ricardo's
     // ROOM PROBE DEBUG, 2026-10-24): an unrequested packet comes first.
-    const id=String(8000+n); MOB[id]={room:here,name:"Bunyip"+n,owner:""};
-    packet([["Char.Items.Add",{location:"room",item:{id,name:"a bunyip",attrib:"m"}}]], [["Slowly rising from the swampy waters is a hulking bunyip.","room"]]); out=out.concat(probes());
-    // The first attack 30 ms after the probe (too soon to be its answer); on
-    // odd rooms a second one at 140 ms, after that window.
-    packet([], [["A bunyip's eyes gleam as you are butchered with a wicked blow.","room"],["Health lost: 888 (physical blunt).","room"]], 30);
-    if(n%2) packet([], [["Fire erupts in your side as a bunyip carves you up.","room"],["Health lost: 544 (physical cutting).","room"]], 110); }
+    const id=String(8000+n); const kind=kindFor(n,"a bunyip"); MOB[id]={room:here,kind,owner:""};
+    packet([["Char.Items.Add",{location:"room",item:{id,name:kind,attrib:"m"}}]], [["Slowly rising from the swampy waters is a hulking bunyip.","room"]]); out=out.concat(probes());
+    // The first attack 130 ms after the probe, as long as an answer takes
+    // (Ricardo's second log: 131-193 ms); on odd rooms a second at 190 ms.
+    // On rooms divisible by 5, the first comes at 30 ms (the bunyip case).
+    packet([], [["A bunyip's eyes gleam as you are butchered with a wicked blow.","room"],["Health lost: 888 (physical blunt).","room"]], n%5===0 ? 30 : 130);
+    if(n%2) packet([], [["Fire erupts in your side as a bunyip carves you up.","room"],["Health lost: 544 (physical cutting).","room"]], 60); }
   else if(MODE==="stand"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes(); packet([], [["Ilsabet arrives from the north.","room"]]); out=out.concat(probes()); packet(roomG(n), roomL(n)); }
     out=out.concat(probes());
     if(n%3===0){ sim.gmcp("Comm.Channel.Text",{channel:"says",talker:"Corwen",text:'Corwen says, "Room '+n+'."'}); packet([], [['Corwen says, "Room '+n+'."',"room"]].concat(out.flatMap(c=>answerLines(c,here)))); out=probes(); }

@@ -200,7 +200,8 @@ R.probeNext = function () {
     if (it && !/d/.test(it.attrib || "")) {
       // Sent from a line (the room's exits line, a probe ending on a line):
       // the rest of this packet isn't the answer (p.sendPacket, probeLine).
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt, foreign: 0, replayed: 0 };
+      var kind = String(it.name || "").toLowerCase();
+      var p = { id: id, name: String(it.name || "a mob"), kind: kind, descs: (R.descs[kind] || []).slice(), inAnswer: false, seen: [], at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt, foreign: 0, replayed: 0 };
       R.probing = p;
       clearTimeout(R.probeT);
       R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
@@ -222,6 +223,49 @@ R.loyalOwner = function (x) {
 //   R.loyalIgnore  lowercased names, saved in room_loyal_ignore (JSON list)
 // R.loyal keeps what the probe read; the list is applied when read, so
 // UNIGNORE brings the marks back without probing again.
+// A probe's answer starts with the mob's description, and mobs of one kind
+// share it (26 kinds in Ricardo's logs, one description each). Learned from
+// each answer read whole, by the mob's name, up to four per name (named
+// people can share one: "a village elder"), the first 80 characters, saved in
+// room_probe_descs. A probe of a known kind hides nothing until that line
+// comes: the lines of someone attacking the moment you walk in (131-193 ms
+// after the room, as long as an answer takes) show as they came, colours and
+// all. Unknown kinds use the show-again way (R.probeReplay).
+R.descs = {};
+try {
+  var rmDs = JSON.parse(get_variable("room_probe_descs") || "{}");
+  if (rmDs && typeof rmDs === "object" && !Array.isArray(rmDs)) {
+    for (var rmDk in rmDs) {
+      if (rmDs.hasOwnProperty(rmDk) && Object.prototype.toString.call(rmDs[rmDk]) === "[object Array]") {
+        var rmDl = [];
+        for (var rmDi = 0; rmDi < rmDs[rmDk].length && rmDl.length < 4; rmDi++) if (typeof rmDs[rmDk][rmDi] === "string" && rmDs[rmDk][rmDi]) rmDl.push(rmDs[rmDk][rmDi]);
+        if (rmDl.length) R.descs[rmDk] = rmDl;
+      }
+    }
+  }
+} catch (e) { R.descs = {}; }
+R.descCap = 300;
+R.descLearn = function (kind, line) {
+  kind = String(kind || "").toLowerCase();
+  var d = String(line || "").trim().slice(0, 80);
+  if (!kind || d.length < 20) return;
+  var l = (R.descs[kind] || []).slice();
+  var at = l.indexOf(d);
+  if (at >= 0) l.splice(at, 1);
+  l.unshift(d);
+  // Newest last in key order, so at R.descCap names the oldest go first.
+  delete R.descs[kind];
+  R.descs[kind] = l.slice(0, 4);
+  var ks = Object.keys(R.descs);
+  while (ks.length > R.descCap) delete R.descs[ks.shift()];
+  try { set_variable("room_probe_descs", JSON.stringify(R.descs)); } catch (e) {}
+};
+// Which of a kind's descriptions a line starts with, or -1.
+R.descAt = function (p, raw) {
+  var t = String(raw || "").trim(), l = p.descs || [];
+  for (var i = 0; i < l.length; i++) if (t.indexOf(l[i]) === 0) return i;
+  return -1;
+};
 R.loyalIgnore = [];
 try {
   var rmIg = JSON.parse(get_variable("room_loyal_ignore") || "[]");
@@ -367,12 +411,28 @@ R.probeLine = function (line) {
     if (raw.trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = -1; p.lateText = 0; return; }
     if (/^You follow /.test(raw)) return;
   }
-  if (R.probeTooSoon(p)) return;
+  // A known kind: nothing is hidden until its description starts the answer
+  // ("What do you wish to examine?" is the whole answer for a mob gone).
+  if (p.descs.length && !p.inAnswer) {
+    if (/^\s*What do you wish to examine\?\s*$/.test(raw)) { gag_current_line(); p.lines.push(raw.trim()); p.how = "gone"; R.probeEnd(false); return; }
+    if (R.descAt(p, raw) < 0) {
+      // Its health line, shown: the kind's description has changed. Learn the
+      // new one (two lines up) and stop waiting.
+      p.seen.push(raw.trim()); if (p.seen.length > 4) p.seen.shift();
+      if (/ health remaining\.$/.test(raw.trim()) && p.seen.length >= 3) { R.descLearn(p.kind, p.seen[p.seen.length - 3]); p.how = "description changed"; R.probeEnd(false); }
+      return;
+    }
+    p.inAnswer = true;
+  }
+  if (!p.inAnswer && R.probeTooSoon(p)) return;
   gag_current_line();
   line = raw.trim();
   if (p.lines.length < 20) p.lines.push(line);
   if (/ health remaining\.$/.test(line)) {
     p.health = true;
+    // Learn the kind's description: two lines above the health line
+    // (description, how strong it looks, health).
+    if (!p.descs.length) { var hi = p.lines.length - 1; R.descLearn(p.kind, p.lines[hi >= 2 ? hi - 2 : 0]); }
     var rtt = Date.now() - p.at;
     if (rtt > 0 && (!R.rttMin || rtt < R.rttMin)) R.rttMin = rtt;
   }
@@ -422,7 +482,7 @@ R.probeEnd = function (ok) {
   if (!p) return;
   // Ended without its answer (timeout, a move): what it hid wasn't the answer.
   if (!ok && !p.health && p.how !== "gone" && p.lines.length) R.probeReplay(p);
-  R.probeLast = { id: p.id, name: p.name, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at, replayed: p.replayed || 0 };
+  R.probeLast = { id: p.id, name: p.name, kind: p.kind, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at, replayed: p.replayed || 0 };
   if (ok) {
     if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
     R.loyal[p.id] = p.owner;
