@@ -16,6 +16,10 @@ hand and left alone.
     (every integration in packages/loom/loom_links.js: id, from, to, what it does)
     <!-- /loom:links -->
 
+    <!-- loom:classes all -->
+    (one regression row per class, from packages/hunting/classes/*.js)
+    <!-- /loom:classes -->
+
 The HELP table is the `hlRows` literal in packages/<pkg>/<pkg>_help.js:
 [command, what it does] rows, and one-element rows for section lines. The
 version is the one the package registers (`registry.<pkg> = { version: ...`).
@@ -32,7 +36,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS = os.path.join(ROOT, "docs")
 PACKAGES = os.path.join(ROOT, "packages")
 
-BLOCK = re.compile(r"(<!-- loom:(commands|version|links) (\w+) -->\n)(.*?)(<!-- /loom:\2 -->)", re.S)
+BLOCK = re.compile(r"(<!-- loom:(commands|version|links|classes) (\w+) -->\n)(.*?)(<!-- /loom:\2 -->)", re.S)
 
 READ_ROWS = r"""
 const s = require("fs").readFileSync(process.argv[1], "utf8");
@@ -49,6 +53,46 @@ const rows = new Function("scope", "with (scope) { return " + m[1] + "; }")(scop
 const title = t ? new Function("return " + t[1])() : "";
 process.stdout.write(JSON.stringify({ title: title, rows: rows }));
 """
+
+# One checklist row per class for docs/dev/regression.md: F1, the rage
+# abilities, the shieldbreak, F11 and toggles, read from the class files.
+CLASS_ROWS = r"""
+const fs = require("fs"), path = require("path");
+const dir = process.argv[1];
+global.HU = { classes: {} }; global.huQ = "";
+for (const f of fs.readdirSync(dir).filter(f => f.endsWith(".js")).sort()) eval(fs.readFileSync(path.join(dir, f), "utf8"));
+const rows = [];
+const seen = new Set();
+for (const name of Object.keys(HU.classes).sort()) {
+  const c = HU.classes[name];
+  // An alias for the same table ("Golden Dragon" for "Gold Dragon") gets no row of its own.
+  if (seen.has(c)) continue;
+  seen.add(c);
+  const razes = c.razes || [];
+  let f1;
+  if (/Dragon/.test(name)) f1 = "Gut or Incantation, by the F8 mode";
+  else if (c.weapons && !c.mains) f1 = "by weapon specialisation";
+  else f1 = Object.values(c.mains || {}).map(m => m[0]).join(", ");
+  const rage = Object.keys(c.rage || {}).filter(r => !razes.includes(r));
+  const k11 = (c.keys || [])[10] || ["", ""];
+  let f11 = k11[0];
+  const tg = /^\{toggle:(\w+)\}$/.exec(f11);
+  if (tg) f11 = tg[1].charAt(0).toUpperCase() + tg[1].slice(1) + " toggle";
+  if (/^\{|^Shield$|^Diag$/.test(f11)) f11 = "";
+  const toggles = Object.keys(c.toggles || {}).map(t => t.charAt(0).toUpperCase() + t.slice(1)).filter(t => !(f11 === t + " toggle"));
+  let r = "- [ ] **" + name + "**: F1 " + f1 + "; rage: " + rage.join(", ") + "; shieldbreak: " + razes.join(", ") + " (on a shielded mob)";
+  if (f11) r += "; F11: " + f11;
+  if (toggles.length) r += "; toggle" + (toggles.length > 1 ? "s" : "") + ": " + toggles.join(", ");
+  rows.push(r);
+}
+console.log(rows.join("\n"));
+"""
+
+def classes_md():
+    out = subprocess.run(["node", "-e", CLASS_ROWS, os.path.join(PACKAGES, "hunting", "classes")], capture_output=True, text=True)
+    if out.returncode:
+        sys.exit(out.stderr.strip())
+    return out.stdout
 
 def help_table(pkg):
     path = os.path.join(PACKAGES, pkg, pkg + "_help.js")
@@ -109,6 +153,8 @@ def fill(text):
             body = commands_md(pkg)
         elif kind == "links":
             body = links_md()
+        elif kind == "classes":
+            body = classes_md()
         else:
             body = version_md(pkg)
         return m.group(1) + body + m.group(5)
@@ -117,7 +163,7 @@ def fill(text):
 def main():
     check = "--check" in sys.argv[1:]
     stale = []
-    for page in sorted(glob.glob(os.path.join(DOCS, "*.md"))):
+    for page in sorted(glob.glob(os.path.join(DOCS, "*.md")) + glob.glob(os.path.join(DOCS, "dev", "*.md"))):
         old = open(page, encoding="utf-8").read()
         new = fill(old)
         if new != old:
