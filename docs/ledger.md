@@ -3,7 +3,7 @@
 *Reminders and standing items on the Achaean calendar, with reminders other packages add for you.*
 
 <!-- loom:version ledger -->
-*This page describes ledger 1.0.0.*
+*This page describes ledger 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -64,7 +64,7 @@ Each item gets a number (#3), shown in the tab and the digest.
 
 - `LEDGER DONE 3`: done. A repeating item moves on to its next date; any other is removed.
 - `LEDGER DROP 3`: removed without doing it.
-- `LEDGER TOUCH 3`: a standing item you've looked at today. Its colour cools again and it goes to the back of the standing list.
+- `LEDGER TOUCH 3`: a standing item you've looked at today. Its colour cools again and it goes to the back of the standing list. An item another package keeps up to date is touched each time it changes (new wording or a new date).
 
 ## Setting it up
 

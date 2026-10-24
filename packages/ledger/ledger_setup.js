@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "1.0.0", keyword: "LEDGER", desc: "{{description}}",
+client.loom.registry.ledger = { version: "1.0.1", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;
@@ -99,9 +99,14 @@ LG.entry = {
     for (var i = 0; i < items.length; i++) {
       if (items[i].source === src && items[i].key === key) {
         var moved = items[i].due !== due;
+        // An edit (new text or a new date) touches it, as LEDGER TOUCH does,
+        // so a standing item a package keeps current doesn't read as
+        // neglected (#394). The same text again isn't an edit.
+        var edited = moved || items[i].text !== String(it.text);
         items[i].text = String(it.text);
         items[i].due = due;
         if (moved) items[i].notified = false;
+        if (edited && today > 0) items[i].touched = today;
         set_variable("ledger_items", JSON.stringify(items));
         run_function("ledger_check", [], "ledger");
         return items[i].id;
