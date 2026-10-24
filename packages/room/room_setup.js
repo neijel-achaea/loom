@@ -200,7 +200,7 @@ R.probeNext = function () {
     if (it && !/d/.test(it.attrib || "")) {
       // Sent from a line (the room's exits line, a probe ending on a line):
       // the rest of this packet isn't the answer (p.sendPacket, probeLine).
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt };
+      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt, foreign: 0, replayed: 0 };
       R.probing = p;
       clearTimeout(R.probeT);
       R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
@@ -286,6 +286,18 @@ R.probeIdle = function (line) {
   R.probeNext();
   R.probeAtPrompt = false;
 };
+// Lines a probe hid that turned out not to be its answer (Ricardo's ROOM
+// PROBE DEBUG, 2026-10-24: a bunyip attacked 29 ms after its probe went out,
+// before the game could answer): shown again, in order, so nothing is lost.
+// They come after their packet's prompt line, in plain colour.
+R.probeReplay = function (p) {
+  var ls = p.lines || [];
+  for (var i = 0; i < ls.length; i++) {
+    try { display_notice(ls[i], "#c0c0c0"); } catch (e) {}
+  }
+  p.replayed = (p.replayed || 0) + ls.length;
+  p.lines = [];
+};
 // Every line while a probe is out: gagged, and read. Not gagged: prompts,
 // channel lines, the rest of the packet the probe went out in, and, after a
 // move, the new room and what follows it.
@@ -317,7 +329,14 @@ R.probeLine = function (line) {
     R.probeAtPrompt = true;
     if (p.late) { if (++p.lateText >= 2) { p.how = "moved"; R.probeEnd(false); } }
     else if (p.moved !== undefined) { if (++p.moveText >= 2) { p.how = "moved"; R.probeEnd(false); } }
-    else if (p.lines.length) { p.how = "prompt line"; R.probeEnd(true); }
+    else if (p.lines.length && p.health) { p.how = "prompt line"; R.probeEnd(true); }
+    else if (p.lines.length) {
+      // A packet without the health line every answer has: someone else's
+      // (an attack, a message). Its lines are shown again, and the probe
+      // keeps waiting for its answer, for up to three such packets.
+      R.probeReplay(p);
+      if (++p.foreign >= 3) { p.how = "no answer"; R.probeEnd(false); }
+    }
     R.probeAtPrompt = false;
     return;
   }
@@ -335,7 +354,13 @@ R.probeLine = function (line) {
   line = raw.trim();
   if (p.lines.length < 20) p.lines.push(line);
   if (/ health remaining\.$/.test(line)) p.health = true;
-  if (/^What do you wish to examine\?$/.test(line)) { p.how = "gone"; R.probeEnd(false); return; }
+  if (/^What do you wish to examine\?$/.test(line)) {
+    // That one line is the whole answer: anything hidden before it wasn't.
+    if (p.lines.length && p.lines[p.lines.length - 1] === line) p.lines.pop();
+    if (p.lines.length) R.probeReplay(p);
+    p.lines.push(line);
+    p.how = "gone"; R.probeEnd(false); return;
+  }
   var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
   if (m) { p.owner = R.loyalOwner(m[1]); return; }
   if (p.holding) { p.how = "holding"; R.probeEnd(true); return; }
@@ -357,6 +382,13 @@ R.probePrompt = function () {
   if (R.promptText) return false;
   if (p.late) { if (++p.latePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
   if (p.moved !== undefined) { if (++p.movePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
+  if (p.prompts >= 1 && p.lines.length && !p.health) {
+    // As at a prompt line: lines without the health line weren't the answer.
+    R.probeReplay(p);
+    if (++p.foreign >= 3) { p.how = "no answer"; R.probeEnd(false); return true; }
+    p.prompts = 0;
+    return false;
+  }
   if (p.prompts >= 2 || (p.prompts >= 1 && p.lines.length)) { p.how = "prompts"; R.probeEnd(p.lines.length > 0); return true; }
   return false;
 };
@@ -366,7 +398,9 @@ R.probeEnd = function (ok) {
   R.probing = null;
   clearTimeout(R.probeT);
   if (!p) return;
-  R.probeLast = { id: p.id, name: p.name, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at };
+  // Ended without its answer (timeout, a move): what it hid wasn't the answer.
+  if (!ok && !p.health && p.how !== "gone" && p.lines.length) R.probeReplay(p);
+  R.probeLast = { id: p.id, name: p.name, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at, replayed: p.replayed || 0 };
   if (ok) {
     if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
     R.loyal[p.id] = p.owner;

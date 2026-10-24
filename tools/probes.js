@@ -3,7 +3,7 @@
 // text or after it; every probe is answered in order: before the next room
 // (walking), in the same packet as it (walking fast), or after its text
 // (following, when the game moves you first), or with a mob walking into the
-// room you stand in. Checks that no room, say or
+// room you stand in, and attacking before the answer comes. Checks that no room, say or
 // arrival line is hidden and no probe answer shows. Every packet ends with
 // its prompt line (a standard one, or one Here can't recognise), and the
 // prompt line must never be hidden.
@@ -18,7 +18,9 @@ function run(MODE, ORDER, PROMPTS) {
   sim.newWorld(names,{}); global.nexusclient={add_html_line:()=>{}};
   sim.load("install"); for(const [m,a] of sim.GOOD.filter(g=>!/^Room|Char.Items|IRE.Target|Comm/.test(g[0]))) sim.gmcp(m,a); sim.flush();
   const W=sim.W, R=()=>client.loom.room;
-  const badHidden=[], ansShown=[]; let kind="", gagged=false;
+  const badHidden=[], ansShown=[], replayed=[]; let kind="", gagged=false;
+  const keep=t=>{ replayed.push(String(t).replace(/<[^>]+>/g,"").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").trim()); };
+  global.nexusclient={add_html_line:keep}; const dn=global.display_notice; global.display_notice=(t,c)=>{ keep(t); };
   global.gag_current_line=()=>{ gagged=true; if(kind!=="answer") badHidden.push(W.line); };
   let pk=0;
   function packet(gmcps, lines){ const ahead=ORDER[pk++%ORDER.length]==="A";
@@ -48,17 +50,26 @@ function run(MODE, ORDER, PROMPTS) {
     // A mob walks into the room you stand in.
     const id=String(7000+n); MOB[id]={room:here,name:"Gnoll"+n,owner:""};
     packet([["Char.Items.Add",{location:"room",item:{id,name:"a gnoll sentinel",attrib:"m"}}]], [["A gnoll sentinel enters from the north.","room"]]); out=out.concat(probes()); }
-    else if(MODE==="stand"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes(); packet([], [["Ilsabet arrives from the north.","room"]]); out=out.concat(probes()); packet(roomG(n), roomL(n)); }
+    else if(MODE==="attacked"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes();
+    // A mob walks in and attacks before the game answers the probe (Ricardo's
+    // ROOM PROBE DEBUG, 2026-10-24): an unrequested packet comes first.
+    const id=String(8000+n); MOB[id]={room:here,name:"Bunyip"+n,owner:""};
+    packet([["Char.Items.Add",{location:"room",item:{id,name:"a bunyip",attrib:"m"}}]], [["Slowly rising from the swampy waters is a hulking bunyip.","room"]]); out=out.concat(probes());
+    packet([], [["A bunyip's eyes gleam as you are butchered with a wicked blow.","room"],["Health lost: 888 (physical blunt).","room"]]);
+    if(n%2) packet([], [["Fire erupts in your side as a bunyip carves you up.","room"],["Health lost: 544 (physical cutting).","room"]]); }
+  else if(MODE==="stand"){ packet([], out.flatMap(c=>answerLines(c,here))); out=probes(); packet([], [["Ilsabet arrives from the north.","room"]]); out=out.concat(probes()); packet(roomG(n), roomL(n)); }
     out=out.concat(probes());
     if(n%3===0){ sim.gmcp("Comm.Channel.Text",{channel:"says",talker:"Corwen",text:'Corwen says, "Room '+n+'."'}); packet([], [['Corwen says, "Room '+n+'."',"room"]].concat(out.flatMap(c=>answerLines(c,here)))); out=probes(); }
   }
   packet([], out.flatMap(c=>answerLines(c,here))); packet([],[]); packet([],[]);
   const loy=Object.keys(R().loyal).length;
+  // A hidden line shown again (replayed) by room isn't lost.
+  for (let i=badHidden.length-1;i>=0;i--){ const j=replayed.indexOf(badHidden[i].trim()); if(j>=0){ replayed.splice(j,1); badHidden.splice(i,1); } }
   return { bad: badHidden, shown: ansShown, probes: W.sent.filter(c=>/^probe \d+/.test(c)).length, ok: loy };
   //`${MODE.padEnd(6)} ${ORDER.padEnd(4)} hidden-wrongly ${String(badHidden.length).padStart(2)}  answers-shown ${String(ansShown.length).padStart(2)}  probes ${W.sent.filter(c=>/^probe \d+/.test(c)).length}  probed-ok ${loy}`+(badHidden.length?"  e.g. "+JSON.stringify(badHidden.slice(0,2)):"")+(ansShown.length?"  shown e.g. "+JSON.stringify(ansShown.slice(0,2)):""));
 }
 let fails = 0;
-for (const prompts of [true, false]) for (const mode of ["walk", "fast", "follow", "stand", "arrive"]) {
+for (const prompts of [true, false]) for (const mode of ["walk", "fast", "follow", "stand", "arrive", "attacked"]) {
   for (const order of ["A", "B", "AB", "BA", "AAB"]) {
     const r = run(mode, order, prompts);
     const bad = r.bad.length || r.shown.length || (mode !== "follow" && r.ok < r.probes);

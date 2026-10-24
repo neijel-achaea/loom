@@ -29,7 +29,7 @@ if (rmSub === "" || rmSub === "status") {
     var rmPl = R.probeLast;
     if (!rmPl) rmSay("no probe has ended yet.");
     else {
-      rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden:");
+      rmSay("last probe: " + rmPl.name + " (" + rmPl.id + "), ended by " + rmPl.how + " after " + rmPl.ms + " ms, " + rmPl.lines.length + " line" + (rmPl.lines.length === 1 ? "" : "s") + " hidden" + (rmPl.replayed ? ", " + rmPl.replayed + " not its answer shown again" : "") + ":");
       for (var rmPd = 0; rmPd < rmPl.lines.length; rmPd++) rmSay("  " + rmPl.lines[rmPd]);
     }
   } else if (rmPv === "ignore" || rmPv === "unignore") {
