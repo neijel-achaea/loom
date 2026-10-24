@@ -41,6 +41,12 @@
     },
     {
       "type": "function",
+      "name": "sigils_send",
+      "enabled": true,
+      "code": "@file:sigils_send.js"
+    },
+    {
+      "type": "function",
       "name": "sigils_take",
       "enabled": true,
       "code": "@file:sigils_take.js"

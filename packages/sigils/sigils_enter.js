@@ -1,5 +1,6 @@
-// sigils_enter -- on every room change while watching: queue the room and
-// probe its monolith. Every entry is re-probed; nothing is sent while paused.
+// sigils_enter -- on every room change while watching: the room's monolith
+// is to be probed. Every entry is re-probed; nothing is sent while paused.
+// The probe itself goes out through sigils_send, which waits its turn.
 var S = client.loom.sigils;
 var here = S.room || {};
 var rid = here.id;
@@ -12,10 +13,6 @@ if (get_variable("sigils_on") && get_variable("pauseTriggers") != "on" && rid !=
   run_function("sigils_settle", [], "sigils");
 
   var ign = get_variable("sigils_ignored") || {};
-  if (!ign[key]) {
-    if (!S.queue) S.queue = [];
-    S.queue.push({ id: key, name: here.name || "?", t: Date.now() });
-    if (S.queue.length > 20) S.queue = S.queue.slice(S.queue.length - 20);
-    send_command("probe monolith here");
-  }
+  S.pending = ign[key] ? null : { id: key, name: here.name || "?" };
+  run_function("sigils_send", [], "sigils");
 }
