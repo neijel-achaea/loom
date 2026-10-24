@@ -131,6 +131,10 @@ Things that help:
 - **For integrations**, load loom and both packages into one harness, and test with each of the two missing too.
 - **Run harnesses from a scratch folder**, not inside the repository, so files they write don't end up in a commit.
 
+### Here's loyal probe
+
+`node tools/probes.js` plays room's silent `PROBE` against the game packet by packet, with the prompt ahead of each packet's text or after it, in four situations: walking, walking fast (answer and next room in one packet), following someone (the game moves you before answering) and standing still while people arrive. It fails if a room, say or arrival line is hidden, or a probe's answer shows. Run it after any change to the probe in `room_setup.js` or `room_gmcp.js` (#393).
+
 ## 6. Preview a tab
 
 A tab's HTML can be checked by eye before going in game: capture it from `set_custom_tab_html` in a simulation, wrap it in a page the width of a tab, and screenshot it with a headless browser:

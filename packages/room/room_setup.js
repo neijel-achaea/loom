@@ -198,7 +198,10 @@ R.probeNext = function () {
     var id = R.probeQ.shift();
     var it = R.items[id];
     if (it && !/d/.test(it.attrib || "")) {
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "" };
+      // Prompts are counted from the next packet (see probePrompt): sent at a
+      // prompt, the next one is the answer's; sent from a line (the room's
+      // exits line, a probe ending), this packet's own prompt may still come.
+      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: R.probeAtPrompt ? 0 : -1 };
       R.probing = p;
       clearTimeout(R.probeT);
       R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
@@ -276,7 +279,7 @@ R.probeLine = function (line) {
     return;
   }
   if (p.moved) {
-    if (String(line || "").trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = 0; return; }
+    if (String(line || "").trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = -1; return; }
     if (/^You follow /.test(String(line || ""))) return;
   }
   gag_current_line();
@@ -295,12 +298,15 @@ R.probeLine = function (line) {
 // it (GMCP can come ahead of a packet's text) doesn't.
 // However its lines are worded, a prompt ends it (#393), so nothing after the
 // answer is hidden: the first prompt once some of the answer has been read
-// (it came after the text), else the second (the first may be ahead of its
-// own packet's text).
+// (it came after the text), else the second from the next packet on (the
+// first may be ahead of the answer's own text).
 R.probePrompt = function () {
   var p = R.probing;
   if (!p) return false;
   p.prompts = (p.prompts || 0) + 1;
+  // A packet's prompt can come before or after its text. So without answer
+  // lines read, the probe ends only at the second prompt counted from the
+  // packet after the one it was sent in: by then the answer is surely in.
   if (p.health) { p.how = "prompt"; R.probeEnd(true); return true; }
   // After a move: a late answer may still come (see probeLine), so the probe
   // ends at the second prompt after the new room's title, or the second after
@@ -308,7 +314,7 @@ R.probePrompt = function () {
   if (p.late) { if (++p.latePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
   if (p.moved !== undefined) { if (++p.movePrompts >= 2) { p.how = "moved"; R.probeEnd(false); return true; } return false; }
   // Answer lines read, then a prompt: the answer is whole, so its result counts.
-  if (p.prompts >= 2 || p.lines.length) { p.how = "prompts"; R.probeEnd(p.lines.length > 0); return true; }
+  if (p.prompts >= 2 || (p.prompts >= 1 && p.lines.length)) { p.how = "prompts"; R.probeEnd(p.lines.length > 0); return true; }
   return false;
 };
 // A probe's end: ok = the whole output was read. A loyal gets one notice.
