@@ -3,7 +3,7 @@
 *Your class's attacks on the F-keys, lit when they're ready, with battlerage cooldowns, attack lines tagged, dragon attacks and gold pickup.*
 
 <!-- loom:version hunting -->
-*This page describes hunting 0.4.59.*
+*This page describes hunting 0.4.60.*
 <!-- /loom:version -->
 
 ## What it is
@@ -38,7 +38,7 @@ Your class, specialisation, balance, equilibrium and rage come from the game (GM
 | `HUNTING AUTOGOLD [ON\|ALL\|OFF]` | pick up gold from your kills, from any corpse, or not at all |
 | `HUNTING PARTYTARGET [name\|OFF]` | who party-aimed keys act on (the druid's Remedy key) |
 | `HUNTING AFTERFORM [cmd\|OFF]` | command sent when dragonform rises or falls, e.g. DEFCON INIT |
-| `HUNTING MAIN [name]` | your class's main attack on F1 (no name: list them) |
+| `HUNTING MAIN [name]` | your class's main attack on F1 (no name: list them); dragons: GUT, INCANTATION or AUTO, as DRAGONMODE |
 | `HUNTING MAIN <name> = <command>` | add one for this class, e.g. to try an attack; empty command removes it |
 | `HUNTING TOGGLE <name> [ON\|OFF]` | class toggles on the F-keys, e.g. the Serpent's SNEAK and WEAVE |
 | `HUNTING BUTTONS` | lay out the F-keys again |
@@ -64,7 +64,7 @@ Some classes have something a key switches on and off, such as the Serpent's sne
 
 ### Dragons
 
-`HUNTING DRAGONMODE PHY` attacks with gut, `MAG` with incantation, `AUTO` with whichever of endurance (gut) or willpower (incantation) is fuller. F8 shows and switches the mode.
+`HUNTING DRAGONMODE PHY` attacks with gut, `MAG` with incantation, `AUTO` with whichever of endurance (gut) or willpower (incantation) is fuller. F8 shows and switches the mode. A dragon's `HUNTING MAIN` lists the same three and switches with `HUNTING MAIN GUT`, `INCANTATION` or `AUTO`; dragons can't add main attacks of their own.
 
 `HUNTING AFTERFORM DEFCON INIT` sends a command whenever dragonform rises or falls, to raise the right defences for the new form; `OFF` sends nothing.
 

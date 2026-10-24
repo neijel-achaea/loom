@@ -68,8 +68,31 @@ else if (huSub === "main") {
   var huMeq = huRest.indexOf("=");
   var huMname = (huMeq >= 0 ? huRest.substring(0, huMeq) : huRest).trim().toLowerCase().replace(/\s+/g, "");
   var huMcmd = huMeq >= 0 ? huRest.substring(huMeq + 1).trim() : null;
+  // Dragons (#386): F1 is Gut or Incantation, picked by the dragon mode,
+  // not a list of main attacks. GUT, INCANTATION and AUTO set the mode;
+  // nothing can be added (it would change the basher's attack but not F1).
+  var huF1 = ((HU.classes[HU.cls] || {}).keys || [])[0];
+  var huDrg = !!(huF1 && huF1[0] === "{DRAGON}");
+  var huDmodes = { gut: "physical", phy: "physical", physical: "physical", incantation: "magical", mag: "magical", magical: "magical", auto: "auto" };
   if (!HU.cls) {
     display_notice("[hunting] no class seen yet.", "orange");
+  } else if (huDrg && huMcmd !== null) {
+    display_notice("[hunting] a dragon's F1 is Gut or Incantation, picked by the dragon mode: nothing can be added. HUNTING MAIN GUT, INCANTATION or AUTO.", "orange");
+  } else if (huDrg && huMname !== "" && !huDmodes[huMname]) {
+    display_notice("[hunting] no main attack " + huMname.toUpperCase() + " for " + HU.cls + ": GUT, INCANTATION or AUTO.", "orange");
+  } else if (huDrg && huMname !== "") {
+    // The same as HUNTING DRAGONMODE with that mode.
+    var huDnext = huDmodes[huMname];
+    set_variable("hunting_dragon_mode", huDnext);
+    if (huDnext === "physical") set_variable("hunting_dragon_attack", "gut");
+    if (huDnext === "magical") set_variable("hunting_dragon_attack", "incantation");
+    if (huDnext === "auto") run_function("hunting_dragon_best", [], "hunting");
+    display_notice("[hunting] dragon mode " + huDnext.toUpperCase() + ": attacking with " + get_variable("hunting_dragon_attack") + ".", "lime");
+    run_function("hunting_buttons", [], "hunting");
+  } else if (huDrg) {
+    var huDm = String(get_variable("hunting_dragon_mode") || "auto");
+    var huDa = String(get_variable("hunting_dragon_attack") || "gut");
+    display_notice("[hunting] main attack for " + HU.cls + ": " + (huDm === "physical" ? "*GUT, INCANTATION, AUTO" : huDm === "magical" ? "GUT, *INCANTATION, AUTO" : "GUT, INCANTATION, *AUTO (now " + huDa.toUpperCase() + ")") + ", the dragon mode (F8). HUNTING MAIN <name> to switch.", C);
   } else if (huMname === "") {
     var huMout = [];
     for (var huMi = 0; huMi < HU.mainList.length; huMi++) {

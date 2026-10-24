@@ -10,7 +10,7 @@ if (!client.loom.social) client.loom.social = {};
 // colours (Here, Comms).
 // busy (#318): true while a QW poll's answer is still coming, so Here's
 // loyal probe waits its turn. A capture open for 5 s no longer counts.
-client.loom.registry.social = { version: "0.4.12", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+client.loom.registry.social = { version: "0.4.13", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
   var Sq = client.loom.social;
   return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
 }, redraw: function () {
@@ -62,7 +62,9 @@ for (var soK = 0; soK < soWlOld.length; soK++) {
 }
 if (!get_variable("social_poll")) set_variable("social_poll", "on");
 if (!get_variable("social_debug")) set_variable("social_debug", "off");
-if (get_variable("social_watch") === null || get_variable("social_watch") === undefined) set_variable("social_watch", S.groups.join(","));
+// A new install watches every group but enemies (#388): their logins are
+// for vision and the basher to flag, not for the Online tab to announce.
+if (get_variable("social_watch") === null || get_variable("social_watch") === undefined) set_variable("social_watch", S.groups.filter(function (g) { return g !== "enemies"; }).join(","));
 if (soMig) display_notice("[social] lists carried over from the hl* variables.", "cyan");
 
 // Lists: S.lists[group] = { lowercasename: true }. Kept as the same objects

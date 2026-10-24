@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "0.4.59", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "0.4.60", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -73,6 +73,12 @@ if (huAf === null || huAf === undefined) set_variable("hunting_after_form", "");
 else if (String(huAf).trim().toLowerCase() === "initdef") {
   set_variable("hunting_after_form", "");
   display_notice("[hunting] the after-dragonform command was INITDEF, from the old defences package: cleared. HUNTING AFTERFORM <command> sets another.", "cyan");
+}
+// DEFCON UP and AUTOUP were removed before 1.0 (#137): a stored DEFCON UP
+// would now be an unknown command, so it becomes DEFCON INIT, once (#385).
+else if (/^\s*defcon\s+up\s*$/i.test(String(huAf))) {
+  set_variable("hunting_after_form", "DEFCON INIT");
+  display_notice("[hunting] the after-dragonform command was DEFCON UP, now called DEFCON INIT: changed.", "cyan");
 }
 
 if (!get_variable("hunting_dragon_mode")) set_variable("hunting_dragon_mode", "auto");
