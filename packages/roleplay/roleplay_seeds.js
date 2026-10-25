@@ -885,6 +885,29 @@ client.loom.roleplay.seeds = {
       "regards {his} surroundings with calm, unwavering focus.",
       "stands perfectly balanced on the balls of {his} feet, hands loose at {his} sides.",
       "exhales sharply through {his} nose and shifts into a new stance."
+    ],
+    // acid: venom at jaw and talon, acid-slick spine and barbed tail, smoke that never lands
+    "Black Dragon": [
+      "lets a single dark drop gather at the edge of {his} jaw; it falls and burns away to a thread of smoke before it lands.",
+      "lets out a slow breath, and the air before {him} carries the sharp bite of acid.",
+      "licks {his} lips, and a faint wisp of smoke curls from the corner of {his} mouth.",
+      "works {his} jaw slowly, and a dark sheen beads along {his} gums.",
+      "lets a bead of something dark well at the tip of one talon; it drips and sizzles into smoke in mid-air.",
+      "draws one talon slowly through the air, a faint trail of smoke following it.",
+      "flexes {his} talons, each tip glistening wetly.",
+      "raises {his} tail, the acid-slick spine along it glistening, then lowers it.",
+      "arches the barbed tip of {his} tail high over {his} back, poised, then lets it settle.",
+      "shudders, and a dark slick ripples down the ridge of {his} spine.",
+      "curls {his} tail close, its barbed tip beading with a single dark drop.",
+      "lashes {his} tail once, and a few dark drops fly from it and hiss away into smoke.",
+      "shifts, and {his} black scales gleam like wet stone.",
+      "rolls {his} shoulders, and a faint acrid tang lifts from {his} hide.",
+      "settles, and the dark sheen across {his} scales stirs and goes still.",
+      "scrapes one talon along a scale, and it comes away smoking faintly.",
+      "goes utterly still, the dark eyes unblinking, the whole immense form coiled and patient.",
+      "exhales, and a thin, stinging haze hangs briefly before {his} snout.",
+      "lets a dark drop slide down one fang, then licks it back with a flick of tongue.",
+      "rubs {his} jaw slowly along one foreleg, leaving a dark sheen on the scales."
     ]
   },
   form: {
