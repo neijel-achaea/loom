@@ -237,6 +237,29 @@ client.loom.roleplay.seeds = {
       "leans back with an easy, careless air.",
       "claps {his} hands together once, briskly.",
       "rubs {his} palms together, then dusts them off."
+    ],
+    // Dignified boar-folk: crystals at joints and skull, snout and tusks, sturdy, earth-minded. No homeworld.
+    "Tash'la": [
+      "runs a thumb along the crystals ridging {his} knuckles.",
+      "brushes grit from the crystals along {his} forearm.",
+      "rubs the crystals at {his} elbow with the heel of {his} hand.",
+      "flexes {his} hand, the crystals at {his} knuckles grinding faintly together.",
+      "rolls {his} shoulders, crystals clicking softly at the joints.",
+      "picks a fleck of dirt from between the crystals on {his} wrist.",
+      "snorts softly through {his} broad snout.",
+      "lifts {his} snout and scents the air.",
+      "rubs the side of {his} snout with the back of a hand.",
+      "runs a thumb along one tusk.",
+      "grunts low in {his} throat.",
+      "stands squarely, head held with quiet dignity.",
+      "squares {his} broad shoulders and lifts {his} chin.",
+      "shifts {his} considerable weight from one foot to the other.",
+      "folds {his} thick arms, perfectly still.",
+      "rolls {his} thick neck slowly from side to side.",
+      "presses a heel down, testing the ground beneath.",
+      "turns a small stone over in {his} thick fingers.",
+      "brushes soil from beneath {his} fingernails.",
+      "scrapes a thumbnail along a seam in a stone, studying it."
     ]
   },
   "class": {}
