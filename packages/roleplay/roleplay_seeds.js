@@ -283,6 +283,29 @@ client.loom.roleplay.seeds = {
       "drums {his} hard fingertips against {his} carapace with a dry clatter.",
       "bends {his} legs, coiled for a moment, then straightens.",
       "straightens a strap across the plates of {his} chest."
+    ],
+    // Scaled and tailed, snout and talons; fire kept to small touches. No Krenindala.
+    "Xoran": [
+      "runs a hand along the scales of {his} forearm, smoothing them flat.",
+      "rolls {his} shoulders, scales rasping faintly against one another.",
+      "picks at a loose scale on {his} wrist.",
+      "brushes dust from the scales along {his} arm.",
+      "rubs at a ruffled patch of scales until they lie smooth again.",
+      "sweeps {his} long tail slowly across the ground.",
+      "curls {his} tail around {his} feet.",
+      "flicks the end of {his} tail.",
+      "lifts {his} tail clear of the ground, then lets it settle.",
+      "shifts {his} weight, tail swaying to balance it.",
+      "rubs the side of {his} snout with a knuckle.",
+      "flexes {his} talons, then curls them in.",
+      "lifts {his} snout, nostrils flaring.",
+      "exhales slowly, a thin wisp of smoke curling from {his} nostrils.",
+      "breathes out a warm breath that shimmers briefly in the air.",
+      "lets a faint curl of smoke escape between {his} teeth.",
+      "rolls {his} thick neck, scales shifting with the movement.",
+      "stretches to {his} full height, tail stretched out behind {him}.",
+      "stands tall and still, tail resting along the ground.",
+      "blinks slowly, a deliberate, reptilian blink."
     ]
   },
   "class": {}
