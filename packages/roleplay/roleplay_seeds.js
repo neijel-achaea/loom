@@ -7,9 +7,9 @@
 //   class    20 per class,    5 dealt, weight 4 (the class defines a character best)
 //   form     30 per form,    15 dealt, weight 4 (every dragon, every elemental lord)
 // Twenty emotes in all: general + race + class for a normal class; form +
-// class (the colour's or element's own 10, 5 dealt) for a dragon or a lord. Rows are [weight, text], or just
-// the text where the plan sets the weight; the text follows "emote ", with
-// {he} {him} {his} for your pronouns.
+// class (the colour's or element's own pool, 5 dealt) for a dragon or a lord.
+// Rows are [weight, text], or just the text where the plan sets the weight;
+// the text follows "emote ", with {he} {him} {his} for your pronouns.
 //
 //   general        any race, any normal class (never a dragon or elemental lord)
 //   race[<Race>]   that race's body and habits, as GMCP names the race
@@ -425,6 +425,29 @@ client.loom.roleplay.seeds = {
       "smooths a scratch on {his} pauldron left by sharp talons.",
       "slides {his} weapon an inch from its sheath, then sets it home again.",
       "stands with both hands resting on the pommel of {his} grounded weapon."
+    ],
+    // Rune-knights of discipline: runes on skin, weapon and armour; the falcon by its traces; kit varies by weapon school.
+    "Runewarden": [
+      "traces the outline of a rune on the back of {his} hand with a fingertip.",
+      "runs a thumb along the runes carved into {his} weapon.",
+      "studies the runes on {his} armour, checking each line.",
+      "rubs a smear from one of the runes on {his} armour.",
+      "turns a small, rune-carved stone over in {his} fingers.",
+      "scratches a rune into the ground with the toe of {his} boot, then scuffs it out.",
+      "traces a protective sign over {his} heart.",
+      "presses a thumb to the rune drawn at {his} wrist.",
+      "turns {his} weapon so the runes along it catch the eye.",
+      "brushes a small brown feather from {his} shoulder.",
+      "runs a thumb over the scuffed leather guard on {his} forearm.",
+      "adjusts the falconer's glove on {his} hand.",
+      "stands at ease, hands clasped behind {his} back, every line of {him} disciplined.",
+      "tests the balance of {his} weapon in one hand.",
+      "rolls {his} wrists, loosening them for the blade.",
+      "checks the fastenings of {his} armour, one by one.",
+      "squares {his} shoulders, steady and composed.",
+      "holds a disciplined stillness, weight evenly balanced.",
+      "wipes a fleck of venom from {his} blade with care.",
+      "flexes {his} sword hand, then lets it rest."
     ]
   },
   form: {
