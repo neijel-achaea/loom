@@ -517,6 +517,29 @@ client.loom.roleplay.seeds = {
       "tucks a small vial of something dark back into {his} robes.",
       "draws a long, rattling breath, then lets it out slowly.",
       "rests a hand on the hilt of {his} daegger, which twitches faintly."
+    ],
+    // Chaos in the flesh: skin, joints and whispers that don't behave, mutations hinted at; the hound by its traces.
+    "Unnamable": [
+      "rolls {his} shoulders, and something beneath {his} skin shifts out of step.",
+      "flexes a hand, the knuckles bending a fraction too far.",
+      "presses a palm to {his} side, where the flesh ripples, then stills.",
+      "rubs at a lump beneath {his} skin until it subsides.",
+      "smooths a hand over {his} arm as the skin settles back into place.",
+      "twitches, a ripple running down {his} arm from shoulder to fingertips.",
+      "tilts {his} head at an angle no neck should allow, then rights it.",
+      "stretches, {his} joints popping in the wrong order.",
+      "rolls {his} neck, and something crackles wetly.",
+      "holds out a hand and watches it, the fingers curling and uncurling one by one.",
+      "draws a deep breath that swells {his} chest more than it should.",
+      "scratches at {his} forearm, where the skin puckers briefly into a mouth and closes again.",
+      "blinks, and a second set of eyelids follows a moment behind.",
+      "murmurs something, and a faint second whisper echoes it.",
+      "hums a tuneless note that comes from more than one throat.",
+      "breathes out, the sound carrying a faint, wet whisper.",
+      "brushes a few black, oddly warm hairs from {his} leg.",
+      "runs a thumb along a long scratch in {his} armour left by heavy claws.",
+      "tests the heft of {his} weapon in one hand.",
+      "touches one of the skull trinkets at {his} belt."
     ]
   },
   form: {
