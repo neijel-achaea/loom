@@ -1000,6 +1000,29 @@ client.loom.roleplay.seeds = {
       "lowers {his} head and huffs, smoke curling up about {his} brow.",
       "licks {his} lips, a faint smell of brimstone hanging on {his} breath.",
       "sighs, and a long ribbon of smoke unwinds slowly from {his} jaws."
+    ],
+    // lightning: sparks and static that wink out, storm smell, silver sheen
+    "Silver Dragon": [
+      "shifts, and a thin thread of lightning crawls across {his} scales and is gone.",
+      "rolls {his} shoulders, sparks crackling softly along the ridge of {his} spine.",
+      "flexes {his} talons, a tiny arc of light leaping from tip to tip.",
+      "shakes {his} head, and a few blue-white sparks scatter and wink out.",
+      "curls {his} tail close, static crackling faintly along its length.",
+      "stretches one wing, faint flickers of lightning tracing the bones within.",
+      "exhales, and a sharp smell like a storm about to break hangs on {his} breath.",
+      "parts {his} jaws, a flicker of white light dancing between {his} teeth.",
+      "snorts, and tiny sparks spit from {his} nostrils and vanish.",
+      "breathes out slowly, a faint hum lingering in the air about {his} head.",
+      "goes still, and the air about {him} grows taut, charged, then eases.",
+      "bristles, every scale lifting slightly with a faint hiss of static.",
+      "flicks the tip of {his} tail, a small spark snapping from it.",
+      "shifts {his} massive form, {his} silver scales gleaming like polished steel.",
+      "settles, a pale light rippling over {his} silver hide like moonlight on water.",
+      "turns {his} head, {his} scales flashing silver along the curve of {his} neck.",
+      "regards {his} surroundings with eyes bright as forked lightning.",
+      "goes perfectly still, the faint crackle about {him} the only sound.",
+      "rumbles low, a sound like distant thunder rolling in {his} chest.",
+      "stretches {his} long neck, a crackle of static running along it."
     ]
   },
   form: {
