@@ -586,6 +586,29 @@ client.loom.roleplay.seeds = {
       "sorts the little pouches at {his} belt into a better order.",
       "holds a sliver of glass up and studies it closely.",
       "sets {his} reagent case down, checks its clasps, and picks it up again."
+    ],
+    // Heirs of the Aldar: threads woven from Creation, the mind, echoes of the many. No weapon in hand.
+    "Psion": [
+      "draws a thin thread of light between finger and thumb, then lets it unravel.",
+      "moves {his} fingers in a slow weaving motion, then stills them.",
+      "closes {his} hand around the half-formed shimmer of a blade, then lets it dissolve.",
+      "plucks at the air, and a faint strand of something glints and vanishes.",
+      "rubs {his} thumb slowly across {his} fingertips.",
+      "flicks a fleck of shimmering dust from {his} sleeve.",
+      "rests two fingers lightly against {his} brow, eyes closed.",
+      "massages {his} temples in slow circles.",
+      "touches a fingertip to the centre of {his} forehead and holds it there.",
+      "draws a slow breath, {his} expression smoothing into calm.",
+      "blinks, and for a moment {his} eyes hold a faint, distant light.",
+      "holds perfectly still, attention plainly elsewhere.",
+      "moves, and for an instant a faint echo of the movement follows.",
+      "glances down as a faint second outline of {his} hand lingers beside it, then fades.",
+      "hums a low, even note that lingers a little longer than it should.",
+      "murmurs a few words in an archaic, unfamiliar tongue.",
+      "smooths {his} clothes with neat, precise movements.",
+      "snaps {his} fingers once, and a brief ripple runs through the air.",
+      "folds {his} hands, fingertips touching, and regards them.",
+      "closes {his} eyes, and the air about {him} grows very still."
     ]
   },
   form: {
