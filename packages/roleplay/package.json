@@ -1,0 +1,89 @@
+{
+  "type": "group",
+  "name": "roleplay",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "roleplay_setup",
+      "enabled": true,
+      "code": "@file:roleplay_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "roleplay_seeds",
+      "enabled": true,
+      "code": "@file:roleplay_seeds.js"
+    },
+    {
+      "type": "function",
+      "name": "roleplay_gmcp",
+      "enabled": true,
+      "code": "@file:roleplay_gmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "roleplay_help",
+      "enabled": true,
+      "code": "@file:roleplay_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "roleplay",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_roleplay.js"
+        }
+      ],
+      "text": "^roleplay(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "roleplay own line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_own.js"
+        }
+      ],
+      "text": "^(?:\\([^)]*\\)\\s*)?(You (?:say|ask|exclaim|yell)\\b|[A-Z][a-z]+)\\b",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Ambient emotes in your own voice, per race and class"
+}

@@ -187,6 +187,7 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 - [ ] **Magi (staff and treaties):** `MAGI STAFF FROST`: the staff key casts horripilation after the next prompt; a treaty pauses and resumes with sipping back on.
 - [ ] **Magi (upgrade):** a flooded room's line is highlighted cyan; with crystalism or artificing still installed, the warning at load and no pearl picked up twice; after uninstalling them and reloading, `MAGI` shows the old settings.
 - [ ] **Numpad movement:** walk on the number pad; 5 goes up, 0 down.
+- [ ] **Roleplay:** after login `ROLEPLAY` names your race, class and pronouns; `ROLEPLAY AEM LIST` shows general + race + class with chances adding to 100%. `AEM ADD CLASS 5 <text>`, `EDIT`, `WEIGHT`, `TEST`, `REMOVE` by LIST number. `AEM TIME 1 2` and `AEM ON`: an emote within two minutes, never the same twice running. Hidden (`HIDE` or a shroud), asleep, or just hit: nothing sent, `ROLEPLAY AEM` says what holds it. Say something: the next one a minute later. In dragonform, `LIST` shows only the dragon's list. Reload: AEM is OFF, lists and settings kept.
 
 ## 10. Integrations
 

@@ -10,7 +10,7 @@ The rules every package follows, and why. They're what lets a player drop any on
 4. **One command per package**, normally its name, with `HELP` and a bare call that shows status. Old aliases are retired, not kept alongside. *Why:* a player can always find a package's commands with one word.
 5. **Suggest, don't apply.** Anything generated (a ledger reminder, a coffers goal, a standing) is tagged with its source, can be withdrawn by it, and is never applied without the player seeing it. *Why:* these are the player's judgements, not the package's.
 6. **Data in tables, not in code.** Anything that differs per class, city or player (abilities, rage costs, plant lists, greetings, names) lives in a table. *Why:* another player can use the package by filling in their own values.
-7. **Reflexes, not a bot.** A package answers something the player started, finishes it and stops: no loops, no walking, nothing that keeps a character earning while the player is away. *Why:* the game forbids it ([Safety and fair play](../safety.md)), and players trust Loom not to put their characters at risk.
+7. **Reflexes, not a bot.** A package answers something the player started, finishes it and stops: no loops, no walking, nothing that keeps a character earning while the player is away. *Why:* the game forbids it ([Safety and fair play](../safety.md)), and players trust Loom not to put their characters at risk. The one timer that repeats is roleplay's ambient emotes: flavour that earns nothing, loads off, and moves no one.
 
 ## The rules
 

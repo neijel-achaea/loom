@@ -33,6 +33,7 @@ On top of that:
 - The basher finishes the fight in progress and starts no new one when another player arrives, tells you something, or names you on your city channel: someone may want your attention. You can turn this off with `BASHER INTERRUPT OFF`; the basher still needs you there, since every run starts with your own attack and ends when the room is empty. `BASHER` says when interruptions are off.
 - Everything that sends commands stops at once with `LOOM PAUSE ON`; the basher has its own kill switch, `BASHER STOP`.
 - The basher and harvesting always load **off**, so a reload never leaves them running.
+- One package repeats on a timer: **roleplay**'s ambient emotes, an emote every few minutes while you've switched them on. It sends only emotes, earns nothing and moves you nowhere: flavour, not automation of anything you gain from. It loads **off** too, and holds back while you're hidden, asleep or fighting.
 
 ### Don't take it further
 
