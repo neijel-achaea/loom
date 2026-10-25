@@ -74,6 +74,30 @@ client.loom.roleplay.seeds = {
     [2, "taps a finger lightly against {his} chin."],
     [2, "rests {his} hands on {his} hips."]
   ],
-  race: {},
+  race: {
+    // The plain human body and a traveller's habits: humans have no unusual features.
+    Human: [
+      "runs a hand back through {his} hair.",
+      "tucks a loose strand of hair behind {his} ear.",
+      "pushes {his} hair back from {his} forehead with the back of {his} wrist.",
+      "rubs one eye with a knuckle.",
+      "tugs lightly at an earlobe.",
+      "rubs a thumb over the calluses on {his} palm.",
+      "turns {his} hands over and looks at them for a moment.",
+      "kneads the muscle at the base of {his} thumb.",
+      "rubs {his} palms down the front of {his} legs.",
+      "presses a hand to the small of {his} back and stretches.",
+      "rises briefly onto {his} toes, then settles back down.",
+      "stands with {his} weight on one leg, one hip cocked.",
+      "kneads {his} shoulder with one hand.",
+      "pushes {his} sleeves up to the elbow.",
+      "hooks {his} thumbs into {his} belt.",
+      "knocks the dust from {his} boots, one against the other.",
+      "settles {his} clothes more comfortably about {his} shoulders.",
+      "touches the pouch at {his} belt, then lets {his} hand fall.",
+      "bites lightly at {his} lower lip.",
+      "scuffs the toe of one boot against the ground."
+    ]
+  },
   "class": {}
 };
