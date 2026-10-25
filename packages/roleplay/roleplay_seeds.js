@@ -403,6 +403,29 @@ client.loom.roleplay.seeds = {
     ]
   },
   "class": {
+    // Holy knights of Light and Fire: arms, armour and prayer; weapon never named (every style), the eagle only by its traces.
+    "Paladin": [
+      "rests one hand on the weapon at {his} side.",
+      "checks the edge of {his} weapon with a careful eye.",
+      "rubs a smudge from {his} weapon with {his} sleeve.",
+      "adjusts the straps of {his} armour with practised tugs.",
+      "rolls {his} shoulders beneath the weight of {his} armour.",
+      "raps a knuckle against {his} breastplate, checking the fit.",
+      "checks the strap of {his} shield.",
+      "bows {his} head briefly in silent prayer.",
+      "murmurs a short prayer under {his} breath.",
+      "touches two fingers to {his} brow, then to {his} heart.",
+      "clasps {his} hands before {him} and lowers {his} gaze.",
+      "kneels briefly, head bowed, then rises.",
+      "stands at attention, back straight, chin raised.",
+      "sets {his} feet in a soldier's stance, weight balanced.",
+      "scans the room with the steady watchfulness of a sentry.",
+      "sets {his} jaw and stands a little taller.",
+      "brushes a stray golden feather from {his} shoulder.",
+      "smooths a scratch on {his} pauldron left by sharp talons.",
+      "slides {his} weapon an inch from its sheath, then sets it home again.",
+      "stands with both hands resting on the pommel of {his} grounded weapon."
+    ]
   },
   form: {
   }
