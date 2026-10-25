@@ -9,17 +9,17 @@ var hlRows = [
   ["ROLEPLAY QUIET [ADD|REMOVE <name>|RESET]", "defences and afflictions that hold the emotes back"],
   ["ROLEPLAY AEM [ON|OFF]", "an ambient emote every few minutes, or none; remembered across sessions (default OFF)"],
   ["ROLEPLAY AEM NOW", "one ambient emote now"],
-  ["ROLEPLAY AEM LIST [GENERAL|RACE|CLASS|ALL]", "the emotes in use, numbered, with weight and chance"],
-  ["ROLEPLAY AEM ADD <list> [weight] <text>", "add an emote: list GENERAL, RACE, CLASS, or CLASS:<name>"],
+  ["ROLEPLAY AEM LIST [GENERAL|RACE|CLASS|FORM|ALL]", "the emotes in use, numbered, with weight and chance"],
+  ["ROLEPLAY AEM ADD <list> [weight] <text>", "add an emote: list GENERAL, RACE, CLASS, FORM, or CLASS:<name>"],
   ["ROLEPLAY AEM EDIT <n> <text>", "reword emote n"],
   ["ROLEPLAY AEM WEIGHT <n> <weight>", "how often emote n comes up (0 keeps it but never sends it)"],
   ["ROLEPLAY AEM REMOVE <n>", "remove emote n (its text is shown, to add back)"],
   ["ROLEPLAY AEM TEST <n>", "show emote n as it would be sent, without sending it"],
   ["ROLEPLAY AEM TIME [<min> <max>]", "minutes between ambient emotes (default 15 19)"],
   ["ROLEPLAY AEM EXPORT [ALL]", "your emotes as ADD commands, to keep or paste back"],
-  ["ROLEPLAY AEM RESET [GENERAL|RACE|CLASS|ALL] CONFIRM", "put the starting emotes back (yours in that list are lost)"],
+  ["ROLEPLAY AEM RESET [GENERAL|RACE|CLASS|FORM|ALL] CONFIRM", "a fresh set of starting emotes (yours in that list are lost)"],
   ["ROLEPLAY DEBUG", "internal state"],
-  ["A normal class uses general + race + class lists; a dragon or elemental lord only its own class list."],
+  ["A normal class uses general + race + class lists; a dragon or elemental lord its form list (every dragon, every lord) + its own (colour, element)."],
   ["Numbers are those of the last LIST. Nothing is sent while triggers are paused, while hidden or asleep, or in a fight."]
 ];
 var hlW = 0;

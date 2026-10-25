@@ -14,7 +14,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.roleplay) client.loom.roleplay = {};
-client.loom.registry.roleplay = { version: "0.2.1", keyword: "ROLEPLAY", desc: "{{description}}" };
+client.loom.registry.roleplay = { version: "0.3.29", keyword: "ROLEPLAY", desc: "{{description}}" };
 var RP = client.loom.roleplay;
 
 function rpGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || ("" + v) === "undefined") ? "" : "" + v; }
@@ -118,15 +118,23 @@ RP.setOn = function (on) {
 RP.isForm = function () {
   return /dragon$/i.test(RP.cls || "") || /\blord$/i.test(RP.cls || "");
 };
-// The list a word names: GENERAL, RACE, CLASS (yours now), or RACE:<name> /
-// CLASS:<name> for any other (underscores for spaces). "" when it can't.
+// A form's shared list, for every colour or element: "Dragon" or "Elemental
+// Lord" ("" when not in a form).
+RP.formKind = function () {
+  if (/dragon$/i.test(RP.cls || "")) return "Dragon";
+  if (/\blord$/i.test(RP.cls || "")) return "Elemental Lord";
+  return "";
+};
+// The list a word names: GENERAL, RACE, CLASS, FORM (yours now), or
+// RACE:<name> / CLASS:<name> / FORM:<name> for any other (underscores for
+// spaces). "" when it can't.
 RP.keyFor = function (word) {
   var w = String(word || "");
-  var m = /^(race|class):(.+)$/i.exec(w);
+  var m = /^(race|class|form):(.+)$/i.exec(w);
   if (m) {
     var want = m[1].toLowerCase() + ":" + m[2].replace(/_/g, " ").toLowerCase();
     // The spelling already in use (GMCP's), whatever case you typed.
-    var mine = ["race:" + RP.race, "class:" + RP.clsKey()];
+    var mine = ["race:" + RP.race, "class:" + RP.clsKey(), "form:Dragon", "form:Elemental Lord"];
     for (var k in RP.lists) if (RP.lists.hasOwnProperty(k)) mine.push(k);
     for (var j = 0; j < mine.length; j++) if (mine[j].toLowerCase() === want) return mine[j];
     return want.replace(/(:|\s)([a-z])/g, function (a, s, c) { return s + c.toUpperCase(); });
@@ -135,16 +143,18 @@ RP.keyFor = function (word) {
   if (w === "general") return "general";
   if (w === "race") return RP.race ? "race:" + RP.race : "";
   if (w === "class") return RP.cls ? "class:" + RP.clsKey() : "";
+  if (w === "form") return RP.formKind() ? "form:" + RP.formKind() : "";
   return "";
 };
 RP.label = function (key) {
   if (key === "general") return "general";
-  var m = /^(race|class):(.+)$/.exec(key);
-  return m ? m[2] + (m[1] === "race" ? " (race)" : "") : key;
+  var m = /^(race|class|form):(.+)$/.exec(key);
+  return m ? m[2] + (m[1] === "race" ? " (race)" : (m[1] === "form" ? " (every form)" : "")) : key;
 };
-// What you use now: a form only its own list, a normal class general + race + class.
+// What you use now: a form its shared list (every dragon's, every lord's) and
+// its own (the colour's, the element's); a normal class general + race + class.
 RP.activeKeys = function () {
-  if (RP.isForm()) return RP.cls ? ["class:" + RP.clsKey()] : [];
+  if (RP.isForm()) return ["form:" + RP.formKind(), "class:" + RP.clsKey()];
   var k = ["general"];
   if (RP.race) k.push("race:" + RP.race);
   if (RP.cls) k.push("class:" + RP.clsKey());
@@ -156,15 +166,25 @@ RP.seedKey = function (key) {
   var sd = RP.seedFor(key);
   if (!sd.length) return false;
   if (!RP.lists[key]) RP.lists[key] = [];
-  for (var i = 0; i < sd.length; i++) RP.lists[key].push({ w: sd[i][0], t: sd[i][1] });
+  // A random handful of a long pool, kept in the pool's order.
+  var plan = (RP.seedPlan || {})[key === "general" ? "general" : key.split(":")[0]] || {};
+  var n = plan.n || 10, idx = [], i;
+  for (i = 0; i < sd.length; i++) idx.push(i);
+  for (i = idx.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+  idx = idx.slice(0, n).sort(function (a, b) { return a - b; });
+  for (i = 0; i < idx.length; i++) {
+    var row = sd[idx[i]];
+    var txt = typeof row == "string" ? row : row[1];
+    RP.lists[key].push({ w: plan.w || (typeof row == "string" ? 2 : row[0]), t: txt });
+  }
   RP.seeded[key] = 1;
   return true;
 };
 RP.seedFor = function (key) {
   var S = RP.seeds || {};
   if (key === "general") return S.general || [];
-  var m = /^(race|class):(.+)$/.exec(key);
-  var tab = m ? (m[1] === "race" ? S.race : S["class"]) || {} : {};
+  var m = /^(race|class|form):(.+)$/.exec(key);
+  var tab = m ? S[m[1]] || {} : {};
   return m ? tab[m[2]] || [] : [];
 };
 RP.seedActive = function () {

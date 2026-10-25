@@ -34,7 +34,7 @@ function rpRow(n) {
   var k = parseInt(n, 10);
   return (k >= 1 && k <= rows.length) ? rows[k - 1] : null;
 }
-function rpWho() { return (RP.cls || "your class") + (RP.isForm() ? " (a form: its own list only)" : ""); }
+function rpWho() { return (RP.cls || "your class") + (RP.isForm() ? " (a form: its own lists only)" : ""); }
 
 if (rpSub === "" || rpSub === "status") {
   var g = RP.genderNow();
@@ -117,7 +117,7 @@ if (rpSub === "" || rpSub === "status") {
       vk = k1 ? [k1] : undefined;
     }
     if (vk === undefined) {
-      rpSay("ROLEPLAY AEM LIST, LIST GENERAL, RACE, CLASS, ALL, or RACE:<name> / CLASS:<name>" + (RP.cls ? "" : " (your race and class come from the game at login)") + ".", "orange");
+      rpSay("ROLEPLAY AEM LIST, LIST GENERAL, RACE, CLASS, FORM, ALL, or RACE:/CLASS:/FORM:<name>" + (RP.cls ? "" : " (your race and class come from the game at login)") + ".", "orange");
     } else {
       RP.viewKeys = vk;
       var rows = RP.rows(rpViewKeys());
@@ -154,7 +154,7 @@ if (rpSub === "" || rpSub === "status") {
     if (wm) { wt = Math.min(1000, parseInt(wm[1], 10)); txt = wm[2]; }
     txt = txt.replace(/^emote\s+/i, "").trim();
     if (!key) {
-      rpSay("ROLEPLAY AEM ADD <GENERAL|RACE|CLASS|CLASS:<name>|RACE:<name>> [weight] <text>" + (RP.cls ? "" : " (your race and class come from the game at login)") + ".", "orange");
+      rpSay("ROLEPLAY AEM ADD <GENERAL|RACE|CLASS|FORM, or RACE:|CLASS:|FORM:<name>> [weight] <text>" + (RP.cls ? "" : " (your race and class come from the game at login)") + ".", "orange");
     } else if (!txt) {
       rpSay("the emote's text is missing.", "orange");
     } else {
@@ -203,7 +203,7 @@ if (rpSub === "" || rpSub === "status") {
     var xl = [];
     for (var xi = 0; xi < ek.length; xi++) {
       var l2 = RP.lists[ek[xi]] || [];
-      var nm = ek[xi] === "general" ? "GENERAL" : ek[xi].replace(/ /g, "_").replace(/^(race|class)/, function (m) { return m.toUpperCase(); });
+      var nm = ek[xi] === "general" ? "GENERAL" : ek[xi].replace(/ /g, "_").replace(/^(race|class|form)/, function (m) { return m.toUpperCase(); });
       for (var xj = 0; xj < l2.length; xj++) xl.push([["ROLEPLAY AEM ADD " + nm + " " + l2[xj].w + " " + l2[xj].t, "#c8bfae"]]);
     }
     if (!xl.length) rpSay("nothing to export" + (a3 === "all" ? "." : " in the lists in use. ROLEPLAY AEM EXPORT ALL for every list."), "orange");
@@ -220,7 +220,7 @@ if (rpSub === "" || rpSub === "status") {
       rk = k2 ? [k2] : null;
     }
     if (!rk) {
-      rpSay("ROLEPLAY AEM RESET [GENERAL|RACE|CLASS|ALL] CONFIRM.", "orange");
+      rpSay("ROLEPLAY AEM RESET [GENERAL|RACE|CLASS|FORM|ALL] CONFIRM.", "orange");
     } else {
       var lost = 0;
       for (var zi = 0; zi < rk.length; zi++) lost += (RP.lists[rk[zi]] || []).length;
