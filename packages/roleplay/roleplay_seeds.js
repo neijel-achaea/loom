@@ -260,6 +260,29 @@ client.loom.roleplay.seeds = {
       "turns a small stone over in {his} thick fingers.",
       "brushes soil from beneath {his} fingernails.",
       "scrapes a thumbnail along a seam in a stone, studying it."
+    ],
+    // Insectoid: carapace, mandibles and antennae (optional in the lore: easy to drop), precise, alien stillness.
+    "Horkval": [
+      "runs a hand along the ridged plates of {his} carapace.",
+      "taps a knuckle against {his} own carapace with a dull click.",
+      "flexes, the plates of {his} carapace shifting and settling with a faint scrape.",
+      "brushes dust from the seams of {his} carapace.",
+      "rolls {his} shoulders, carapace plates sliding over one another.",
+      "picks grit from a joint in {his} carapace.",
+      "clicks {his} mandibles softly together.",
+      "works {his} mandibles slowly, then stills them.",
+      "twitches {his} antennae, first one and then the other.",
+      "sweeps {his} antennae slowly through the air.",
+      "smooths one antenna back with a careful hand.",
+      "turns {his} head in a smooth, precise motion, then holds perfectly still.",
+      "stands motionless, unblinking.",
+      "shifts with a dry rustle of chitin.",
+      "flexes {his} segmented fingers one joint at a time.",
+      "bends one leg, joints clicking softly, then straightens it.",
+      "tilts {his} head at a sharp angle, then rights it.",
+      "drums {his} hard fingertips against {his} carapace with a dry clatter.",
+      "bends {his} legs, coiled for a moment, then straightens.",
+      "straightens a strap across the plates of {his} chest."
     ]
   },
   "class": {}
