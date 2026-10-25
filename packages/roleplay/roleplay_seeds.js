@@ -701,6 +701,29 @@ client.loom.roleplay.seeds = {
       "sways gently, like a sapling in the wind.",
       "kneels to press a seed into the earth, then rises.",
       "lets a single hailstone form on {his} palm, then closes {his} hand over it."
+    ],
+    // Stealth and venom: fangs, dirk and whip, hood and cloak, a hypnotist's sway, the serpent's hiss and rattle.
+    "Serpent": [
+      "runs the tip of {his} tongue along {his} fangs.",
+      "wipes a thin smear of venom from the corner of {his} mouth.",
+      "swirls a tiny vial of something viscous, then tucks it away.",
+      "counts the vials at {his} belt with a quick touch.",
+      "turns {his} dirk over between {his} fingers.",
+      "tests the point of {his} dirk against a fingertip.",
+      "flips {his} dirk end over end and catches it by the hilt.",
+      "wipes the blade of {his} dirk clean on {his} sleeve.",
+      "coils {his} whip neatly and hangs it at {his} hip.",
+      "lets the end of {his} whip uncoil, then gathers it back.",
+      "draws {his} hood lower over {his} eyes.",
+      "adjusts the fall of {his} cloak to hide {his} hands.",
+      "lets {his} gaze settle, steady and unblinking.",
+      "sways very slightly from side to side in a slow, lulling rhythm.",
+      "hums a low, even note, almost a lullaby.",
+      "hisses softly through {his} teeth.",
+      "makes a soft, dry rattle low in {his} throat.",
+      "works {his} jaw slowly, then stills it.",
+      "stands so still {he} is easy to overlook.",
+      "tilts {his} head with a slow, sinuous turn of the neck."
     ]
   },
   form: {
