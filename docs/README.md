@@ -69,6 +69,12 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | --- | --- | --- |
 | [ledger](ledger.md) | Ledger | Reminders and standing items on the Achaean calendar |
 
+## Roleplay
+
+| Package | Tab | What it does |
+| --- | --- | --- |
+| [roleplay](roleplay.md) | — | Ambient emotes in your own voice, per race and class |
+
 ## The suite
 
 | Package | Tab | What it does |

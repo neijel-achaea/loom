@@ -10,7 +10,7 @@ The rules every package follows, and why. They're what lets a player drop any on
 4. **One command per package**, normally its name, with `HELP` and a bare call that shows status. Old aliases are retired, not kept alongside. *Why:* a player can always find a package's commands with one word.
 5. **Suggest, don't apply.** Anything generated (a ledger reminder, a coffers goal, a standing) is tagged with its source, can be withdrawn by it, and is never applied without the player seeing it. *Why:* these are the player's judgements, not the package's.
 6. **Data in tables, not in code.** Anything that differs per class, city or player (abilities, rage costs, plant lists, greetings, names) lives in a table. *Why:* another player can use the package by filling in their own values.
-7. **Reflexes, not a bot.** A package answers something the player started, finishes it and stops: no loops, no walking, nothing that keeps a character earning while the player is away. *Why:* the game forbids it ([Safety and fair play](../safety.md)), and players trust Loom not to put their characters at risk.
+7. **Reflexes, not a bot.** A package answers something the player started, finishes it and stops: no loops, no walking, nothing that keeps a character earning while the player is away. *Why:* the game forbids it ([Safety and fair play](../safety.md)), and players trust Loom not to put their characters at risk. The one timer that repeats is roleplay's ambient emotes: flavour that earns nothing, loads off, and moves no one.
 
 ## The rules
 
@@ -26,7 +26,7 @@ The rules every package follows, and why. They're what lets a player drop any on
 | **Notice colours** | **cyan** information (status, HELP, lists); **orange** bad (errors, usage, warnings, something lost); **lime** good (a setting saved, something done or gained); **red** only for alarms to act on at once (security's theft warning). Data printed as data (CSV, tables) and highlight colours keep their own | The colour alone tells a player what kind of message it is |
 | **The pause** | `pauseTriggers` is a plain variable; "unset" counts as off. Nothing that sends commands does so while it's on | Any package or reflex can pause all the others without depending on them |
 | **Sending** | Only what the player started; check the pause first | See principle 7 |
-| **Toggles** | Switches that make a package act (basher, harvesting) load **off** | A reload never leaves something running unnoticed |
+| **Toggles** | Switches that make a package act (basher, harvesting) load **off**. The one exception is roleplay's ambient emotes, remembered as left (it only emotes, and says so at load) | A reload never leaves something running unnoticed |
 | **Other packages** | Never read another package's variables or call its functions. What one offers another goes through its `look` (read) or `entry` (write), and the integration lives in **loom** ([Integrations](integrations.md)) | Packages can change their insides freely |
 | **Tabs** | A custom tab with the package's own name (never one of Nexus's own names), house style (ink panel, serif small-caps headings, monospace rows), an icon as CSS keyed on the tab button's title | Players recognise a Loom tab, and nothing clashes with Nexus's tabs |
 | **Captures** | Capturing game output (a listing, `QW`) ends on the output's own last line, never on a timer; a long safety timeout only for a reply that never comes. Captures run only when the package asked for the output | A typed command's output is never eaten, and lag never cuts a capture short |
