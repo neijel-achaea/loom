@@ -862,6 +862,29 @@ client.loom.roleplay.seeds = {
       "hums a slow, sorrowful elegy, then falls silent.",
       "straightens the plume in {his} hat.",
       "sketches a quick flourish in the air with two fingers, as if conducting."
+    ],
+    // Tekura stances and katas, belt and robe, conditioning, Kai
+    "Monk": [
+      "sinks into the Horse stance, holds it, then straightens.",
+      "flows through a short kata and ends in perfect stillness.",
+      "moves from the Cat stance into the Eagle, then lets the form fall away.",
+      "balances on one leg in the Eagle stance, arms spread, utterly steady.",
+      "drops low into the Scorpion stance, one hand poised, then rises.",
+      "runs through a slow sequence of strikes at the empty air.",
+      "snaps a quick kick at the air, then sets the foot down without a sound.",
+      "tightens the knot of {his} belt with a sharp tug.",
+      "smooths the folds of {his} robe and resettles {his} belt.",
+      "flexes {his} fists, knuckles hardened by years of training.",
+      "rolls {his} wrists and shakes out {his} hands.",
+      "sinks into a deep squat, then rises without using {his} hands.",
+      "raps {his} own forearm lightly, testing its toughness.",
+      "settles briefly into a cross-legged seat, then rises in one smooth motion.",
+      "bounces lightly on {his} toes, loose and ready.",
+      "draws a deep breath, and a faint warmth gathers about {him}.",
+      "closes {his} eyes, and the air around {him} hums faintly with gathered energy.",
+      "regards {his} surroundings with calm, unwavering focus.",
+      "stands perfectly balanced on the balls of {his} feet, hands loose at {his} sides.",
+      "exhales sharply through {his} nose and shifts into a new stance."
     ]
   },
   form: {
