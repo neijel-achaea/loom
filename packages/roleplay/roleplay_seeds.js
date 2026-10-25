@@ -448,6 +448,29 @@ client.loom.roleplay.seeds = {
       "holds a disciplined stillness, weight evenly balanced.",
       "wipes a fleck of venom from {his} blade with care.",
       "flexes {his} sword hand, then lets it rest."
+    ],
+    // One named blade, kept in its scabbard (never drawn casually); stances, breath and stillness; light garb.
+    "Blademaster": [
+      "rests {his} hand on the hilt of {his} sword, thumb against the guard.",
+      "eases {his} blade a finger's width from its scabbard, then lets it slide home.",
+      "wipes down {his} scabbard with a soft cloth.",
+      "adjusts the angle of the scabbard at {his} hip.",
+      "checks the cord bound around the hilt of {his} sword.",
+      "traces a finger along the guard of {his} blade.",
+      "regards {his} sheathed blade for a long, quiet moment.",
+      "shifts into a low, rooted stance, then lets it go.",
+      "flows briefly through the opening of a stance, then stills.",
+      "sinks {his} weight, knees soft, then straightens.",
+      "closes one hand into a fist and opens it again, slowly.",
+      "settles into an even, measured rhythm of breath.",
+      "closes {his} eyes for a few slow breaths, then opens them.",
+      "stands utterly still, breath slow and even.",
+      "lets {his} hands rest one over the other, low before {him}.",
+      "breathes out slowly through {his} mouth, shoulders sinking.",
+      "tightens the sash at {his} waist.",
+      "smooths the folds of {his} garb flat against {his} sides.",
+      "rolls {his} neck slowly, then settles back into stillness.",
+      "shifts {his} grip on {his} scabbard, keeping the blade close."
     ]
   },
   form: {
