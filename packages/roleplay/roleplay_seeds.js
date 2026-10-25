@@ -494,6 +494,29 @@ client.loom.roleplay.seeds = {
       "wipes a smear of slaver from {his} greave.",
       "lets a faint, cold miasma curl about {his} armour, then fade.",
       "picks a pale maggot from a joint of {his} armour and crushes it."
+    ],
+    // Black priests of Mhaldor: dark robes and litanies, the evil eye without a target, daemons by their traces, necromancy.
+    "Apostate": [
+      "murmurs a low litany under {his} breath.",
+      "traces an inverted sigil in the air with one finger.",
+      "clasps {his} hands within the sleeves of {his} dark robes.",
+      "bows {his} head in silent devotion.",
+      "stands still, hands folded, patient as a grave.",
+      "touches the daemonic talisman at {his} chest.",
+      "runs dark beads through {his} fingers, one by one.",
+      "draws {his} hood a little lower over {his} face.",
+      "lets {his} gaze settle, unblinking and cold, then drift away.",
+      "blinks slowly, eyes shadowed and heavy.",
+      "narrows {his} eyes, a faint darkness gathering in them before it fades.",
+      "brushes a fleck of sulphurous ash from {his} shoulder.",
+      "rubs at a small claw mark on the back of {his} hand.",
+      "murmurs a word in a harsh, guttural tongue.",
+      "flexes {his} fingers, and the air about them grows briefly cold.",
+      "wipes {his} fingertips clean on a dark cloth.",
+      "turns a small bone over in {his} fingers.",
+      "tucks a small vial of something dark back into {his} robes.",
+      "draws a long, rattling breath, then lets it out slowly.",
+      "rests a hand on the hilt of {his} daegger, which twitches faintly."
     ]
   },
   form: {
