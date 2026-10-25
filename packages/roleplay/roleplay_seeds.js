@@ -954,6 +954,29 @@ client.loom.roleplay.seeds = {
       "sits utterly motionless, a faint golden haze gathering about {his} head and fading.",
       "flicks one ear-frill, the gold along its edge catching a faint inner light.",
       "lets out a low, resonant thrum, felt in the chest more than heard."
+    ],
+    // poison: venomous fangs, slaver, green haze, slime that fades
+    "Green Dragon": [
+      "bares {his} fangs, a pale venom beading at each tip.",
+      "works {his} jaws, and a thick green slaver strings between {his} teeth.",
+      "runs {his} tongue along one long fang, slick with venom.",
+      "lets a rope of green slaver stretch from {his} jaw, then draws it back with a flick of tongue.",
+      "parts {his} jaws, and a faint sweetish rot drifts out on {his} breath.",
+      "clicks {his} fangs together once, venom glistening along them.",
+      "exhales slowly, and a sickly green haze hangs before {his} snout, then thins away.",
+      "snorts, and a faint green mist curls from {his} nostrils and fades.",
+      "shifts, and a slick sheen of green slime oozes across {his} scales.",
+      "rolls {his} shoulders, a film of slime sliding wetly along {his} hide.",
+      "shakes {his} head, a few drops of slime flying from {his} jaw and fading to nothing.",
+      "curls {his} tail close, its scales slick and glistening.",
+      "settles, the mottled green of {his} scales dark as stagnant water.",
+      "shifts, {his} green scales gleaming wetly like moss on stone.",
+      "lowers {his} head, a darker green mottling the scales along {his} neck.",
+      "lifts {his} head and tastes the air with a long, forked tongue.",
+      "lowers {his} head close and draws in a long, slow breath.",
+      "swallows, the venom glands along {his} jaw swelling, then easing.",
+      "drools a thick strand of slime that thins and vanishes before it lands.",
+      "licks the slime from one talon, slow and unhurried."
     ]
   },
   form: {
