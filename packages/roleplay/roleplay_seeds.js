@@ -143,6 +143,29 @@ client.loom.roleplay.seeds = {
       "balances easily on one foot, the other ankle hooked behind it.",
       "smooths {his} dark hair flat with one palm.",
       "tilts {his} head, {his} dark eyes half-lidded."
+    ],
+    // Winged humans: grooming, folding and stretching the wings; never airborne.
+    "Atavian": [
+      "runs a hand along the edge of one wing, smoothing the feathers.",
+      "preens a stray feather back into place.",
+      "smooths the feathers at the base of {his} wings with careful fingers.",
+      "combs {his} fingers through the long flight feathers of one wing.",
+      "turns to check a ruffled patch of feathers over {his} shoulder.",
+      "plucks a loose feather from {his} wing and lets it drift down.",
+      "reaches back to straighten a bent feather.",
+      "shakes out {his} wings, then folds them neatly against {his} back.",
+      "tucks {his} wings in a little tighter.",
+      "resettles {his} wings with a soft rustle of feathers.",
+      "ruffles {his} feathers briefly, then lets them settle.",
+      "lets {his} wings droop loosely behind {him}.",
+      "stretches one wing out to its full length, then the other.",
+      "half-spreads {his} wings, then draws them back in.",
+      "rolls {his} shoulders, the movement rippling down through {his} wings.",
+      "gives {his} wings a single slow beat, stirring the air around {him}.",
+      "flicks the tips of {his} wings, shaking off a little dust.",
+      "holds {his} wings a little apart, balanced lightly on {his} feet.",
+      "shifts {his} wings to keep them clear of {his} surroundings.",
+      "scratches at an itch where {his} wings meet {his} back."
     ]
   },
   "class": {}
