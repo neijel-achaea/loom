@@ -793,6 +793,29 @@ client.loom.roleplay.seeds = {
       "hums a few notes of a hymn, then lets them fade.",
       "passes a string of pale prayer beads through {his} fingers, one by one.",
       "unrolls a short scroll of verse, reads a line, and rolls it up again."
+    ],
+    // Ritualists of the Court of Shadows: vodun dolls of rope and cloth, curses, bound spirits, fetishes and the ritual blade.
+    "Shaman": [
+      "binds a fresh twist of rope about the waist of a small cloth doll.",
+      "smooths the cloth face of a vodun doll with {his} thumb.",
+      "tucks a small rope-and-cloth doll back into {his} pack, out of sight.",
+      "pins a scrap of cloth to a doll with a careful twist.",
+      "holds a doll up at eye level, studying it without expression.",
+      "tightens a knot in a doll's rope binding.",
+      "knots a single strand of hair about a doll's wrist.",
+      "traces a hooked sign in the air with two fingers.",
+      "sways slightly, eyes half-closed, lips moving without sound.",
+      "nods to the empty air beside {him}, like greeting an old friend.",
+      "breathes in deeply, and a faint, cold draught stirs about {him}.",
+      "shivers once as something passes through the air beside {him}.",
+      "rattles the bone fetishes at {his} belt with a flick of the wrist.",
+      "runs a thumb over the carvings on a bone fetish.",
+      "straightens the trinkets hanging at {his} belt.",
+      "tests the edge of {his} ritual blade against a thumbnail.",
+      "wipes {his} ritual blade clean and sheathes it.",
+      "ties a small bundle of herbs and bone together with twine.",
+      "tips a pinch of dust from a pouch into {his} palm, studies it, and blows it away.",
+      "whispers something into the ear of a cloth doll."
     ]
   },
   form: {
