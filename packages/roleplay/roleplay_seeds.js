@@ -888,5 +888,38 @@ client.loom.roleplay.seeds = {
     ]
   },
   form: {
+    // every dragon: size, wings, neck, tail, scales, talons, teeth, breath
+    "Dragon": [
+      "shifts {his} vast weight, and the ground notices.",
+      "settles the massive weight of {his} body and simply watches.",
+      "lets {his} gaze travel slowly about, without haste.",
+      "lets {his} eyes half-close, the great body perfectly still.",
+      "regards {his} surroundings from a great height, unblinking.",
+      "half-unfurls {his} wings, then folds them back with a dry rustle.",
+      "stretches one great wing to its full span, then draws it in.",
+      "lifts {his} wings slightly from {his} back and settles them again.",
+      "stretches from end to end: forelimbs reaching, spine arching, wings lifting.",
+      "lifts {his} head on the long column of {his} neck, then lowers it.",
+      "turns {his} head slowly, the long neck curving like a drawn bow.",
+      "tilts {his} head, regarding those nearby with one saucer eye.",
+      "stretches {his} long neck, the scales shifting along its length.",
+      "shakes {his} head, a ripple running down {his} scales to the tip of {his} tail.",
+      "blinks slowly, a thin inner lid sliding across each eye.",
+      "curls {his} long tail around {his} body, the tip twitching.",
+      "flicks the tip of {his} tail once, sharply.",
+      "sweeps {his} tail slowly from one side to the other.",
+      "rasps one talon idly across the scales of {his} chest.",
+      "preens a scale along {his} foreleg with the tip of {his} snout.",
+      "drags the tip of one claw a slow inch across the ground.",
+      "draws a long breath through {his} nostrils, {his} flanks swelling.",
+      "rumbles low in {his} chest, a sound felt more than heard.",
+      "lets out a long, slow breath of heat.",
+      "runs {his} tongue along the edge of one razor-sharp tooth.",
+      "curls one corner of {his} lip back from a razor-edged tooth.",
+      "draws {his} wings tighter against {his} flanks.",
+      "parts {his} jaws a little, then closes them with a soft click of teeth.",
+      "lets {his} wings hang loose for a moment, then draws them tight.",
+      "stretches out one hind leg behind {him}, talons spreading, then tucks it back in."
+    ]
   }
 };
