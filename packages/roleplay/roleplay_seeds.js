@@ -471,6 +471,29 @@ client.loom.roleplay.seeds = {
       "smooths the folds of {his} garb flat against {his} sides.",
       "rolls {his} neck slowly, then settles back into stillness.",
       "shifts {his} grip on {his} scabbard, keeping the blade close."
+    ],
+    // Hellforged knights of the Seven Truths: dark plate, cold bearing, the hyena by its traces, a touch of Oppression.
+    "Infernal": [
+      "tests the weight of {his} weapon, turning it in {his} grip.",
+      "tightens a strap of {his} black plate with a sharp tug.",
+      "rolls {his} shoulders, dark plate grinding softly.",
+      "flexes {his} fingers within {his} dark gauntlet.",
+      "checks the edge of {his} weapon with cold attention.",
+      "scrapes a fleck of dried blood from {his} weapon with a thumbnail.",
+      "stands with both hands resting on the haft of {his} grounded weapon.",
+      "straightens the dark tabard over {his} plate.",
+      "bows {his} head briefly in a silent rite.",
+      "traces a jagged sign in the air with one finger.",
+      "touches a fist to {his} chest in a curt salute.",
+      "stands motionless, cold eyes passing over the room.",
+      "surveys the room with a hard, unblinking stare.",
+      "squares {his} armoured shoulders.",
+      "draws a slow breath through clenched teeth.",
+      "sets {his} feet wide and stands like a sentinel of iron.",
+      "brushes a few coarse, spotted hairs from {his} armour.",
+      "wipes a smear of slaver from {his} greave.",
+      "lets a faint, cold miasma curl about {his} armour, then fade.",
+      "picks a pale maggot from a joint of {his} armour and crushes it."
     ]
   },
   form: {
