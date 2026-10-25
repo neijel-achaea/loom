@@ -609,6 +609,29 @@ client.loom.roleplay.seeds = {
       "snaps {his} fingers once, and a brief ripple runs through the air.",
       "folds {his} hands, fingertips touching, and regards them.",
       "closes {his} eyes, and the air about {him} grows very still."
+    ],
+    // Scholars of Chaos: the Tarot and its inks, auras and time, pact marks; secrets kept close.
+    "Occultist": [
+      "shuffles a small stack of tarot cards with practised fingers.",
+      "turns over the top card of {his} deck, studies it, and slips it back.",
+      "fans a handful of cards, then snaps them closed again.",
+      "flips a single card across {his} knuckles and catches it.",
+      "lets a card slip between {his} fingers and vanish up {his} sleeve.",
+      "taps the edge of a card against {his} chin.",
+      "tucks a card back into {his} cardpack.",
+      "holds up a card to examine its faded colours.",
+      "runs a thumbnail along the edge of a blank card.",
+      "rubs a smear of ink from {his} fingertips.",
+      "checks the stopper on a small pot of ink.",
+      "passes a hand slowly through the air beside {him}, fingers parted.",
+      "studies the air about {his} own hand, eyes narrowed.",
+      "moves, and for an instant {his} motion lags a fraction behind {him}.",
+      "brushes a fleck of something iridescent from {his} sleeve.",
+      "rubs at a faint, shifting mark on the back of {his} hand.",
+      "checks the clasp on a small, locked journal.",
+      "glances over {his} shoulder before tucking a folded page away.",
+      "cuts the deck one-handed, then squares it again.",
+      "draws a card, glances at it, and returns it face down."
     ]
   },
   form: {
