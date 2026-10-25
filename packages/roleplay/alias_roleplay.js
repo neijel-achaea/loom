@@ -86,6 +86,9 @@ if (rpSub === "" || rpSub === "status") {
   var a3 = rpW[2] || "";
   if (rpS2 === "" || rpS2 === "status") {
     rpSay("ambient emotes " + (RP.on ? "ON" : "OFF") + ", every " + RP.min + "-" + RP.max + " minutes, " + RP.rows(RP.activeKeys()).length + " in use for " + rpWho() + "." + (RP.on && RP.timer ? " Next in " + RP.mmss(RP.due - Date.now()) + (RP.held ? ", held: " + RP.held : "") + "." : "") + " ROLEPLAY AEM ON|OFF|NOW|LIST.");
+  } else if (rpS2 === "on" && RP.on && RP.timer) {
+    // Already running: keep the time it has (your own talk may have pushed it).
+    rpSay("ambient emotes already ON; the next in " + RP.mmss(RP.due - Date.now()) + (RP.held ? ", held: " + RP.held : "") + ".");
   } else if (rpS2 === "on") {
     RP.setOn(true);
     RP.emptyTold = false;
