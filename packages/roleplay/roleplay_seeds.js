@@ -913,7 +913,7 @@ client.loom.roleplay.seeds = {
       "drags the tip of one claw a slow inch across the ground.",
       "draws a long breath through {his} nostrils, {his} flanks swelling.",
       "rumbles low in {his} chest, a sound felt more than heard.",
-      "lets out a long, slow breath of heat.",
+      "lets out a long, slow breath through {his} nostrils.",
       "runs {his} tongue along the edge of one razor-sharp tooth.",
       "curls one corner of {his} lip back from a razor-edged tooth.",
       "draws {his} wings tighter against {his} flanks.",
