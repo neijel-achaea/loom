@@ -191,6 +191,29 @@ client.loom.roleplay.seeds = {
       "lets {his} hands rest lightly at {his} sides, perfectly still.",
       "rests a fingertip against {his} lips for a moment.",
       "shifts {his} weight with light, easy balance."
+    ],
+    // Tiger-like: tail, whiskers, fur and mane, feline ears, the great cat's ease.
+    "Rajamala": [
+      "flicks the tip of {his} tail lazily.",
+      "curls {his} tail around {his} legs.",
+      "lets {his} tail sway slowly from side to side.",
+      "lashes {his} tail once, then stills it.",
+      "smooths the fur along {his} tail with one hand.",
+      "twitches {his} whiskers.",
+      "smooths {his} whiskers back with the side of a finger.",
+      "lifts {his} nose and scents the air, whiskers twitching.",
+      "licks the back of {his} hand and smooths down a ruffled patch of fur.",
+      "ruffles the fur at {his} neck, then smooths it flat.",
+      "gives a full-body shake that ripples through {his} fur.",
+      "flicks one ear, then the other.",
+      "flattens {his} ears briefly, then lets them rise.",
+      "arches {his} back in a long, slow stretch.",
+      "flexes {his} fingers, spreading them wide, then curls them in again.",
+      "rolls {his} powerful shoulders, muscles shifting beneath {his} coat.",
+      "pads a slow step on broad, silent feet.",
+      "settles into a loose stillness, only {his} tail moving.",
+      "rumbles softly, deep in {his} chest.",
+      "kneads the air briefly with flexing fingers."
     ]
   },
   "class": {}
