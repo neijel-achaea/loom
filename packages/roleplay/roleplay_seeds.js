@@ -120,6 +120,29 @@ client.loom.roleplay.seeds = {
       "hums a low, rumbling work song under {his} breath.",
       "drums {his} thick fingers on {his} belt buckle.",
       "gives a short, decisive nod."
+    ],
+    // Slim, sinewy and light on their feet; dark eyes, watchful stillness (no light assumed).
+    "Mhun": [
+      "shifts {his} weight onto the balls of {his} feet.",
+      "tests {his} footing with a light, quick step.",
+      "moves with a soft, restless step, then stills again.",
+      "flexes {his} long, wiry fingers.",
+      "rolls {his} lean shoulders with a quick, loose shrug.",
+      "stretches {his} wiry frame, joints loose and easy.",
+      "rubs a thumb along {his} sharp jaw.",
+      "sweeps the hair back from {his} angular face.",
+      "blinks slowly, {his} dark eyes giving nothing away.",
+      "glances upward, studying the space overhead.",
+      "stands very still, only {his} eyes moving.",
+      "tucks {his} chin down, watching from under {his} brows.",
+      "slips {his} hands into {his} sleeves.",
+      "picks absently at the grit under {his} fingernails.",
+      "bounces lightly on the balls of {his} feet.",
+      "shakes out {his} hands and wrists, loose and quick.",
+      "steps lightly to one side and back again, without a sound.",
+      "balances easily on one foot, the other ankle hooked behind it.",
+      "smooths {his} dark hair flat with one palm.",
+      "tilts {his} head, {his} dark eyes half-lidded."
     ]
   },
   "class": {}
