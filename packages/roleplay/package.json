@@ -70,6 +70,22 @@
     },
     {
       "type": "trigger",
+      "name": "roleplay score gender",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_score.js"
+        }
+      ],
+      "text": "^\\W*Gender\\s*:\\s*([A-Za-z]+)\\s+Race\\s*:",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "roleplay own line",
       "enabled": true,
       "actions": [

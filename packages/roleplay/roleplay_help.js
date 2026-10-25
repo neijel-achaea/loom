@@ -5,7 +5,7 @@ var hlTitle = "[roleplay] ambient emotes in your own voice. Commands:";
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["ROLEPLAY", "who the emotes follow (race, class, gender) and the ambient emotes' state"],
-  ["ROLEPLAY GENDER [HE|SHE|FAE|AUTO]", "the pronouns {he} {him} {his} become (AUTO: from the game)"],
+  ["ROLEPLAY GENDER [HE|SHE|FAE|AUTO]", "the pronouns {he} {him} {his} become (AUTO: your gender in SCORE)"],
   ["ROLEPLAY QUIET [ADD|REMOVE <name>|RESET]", "defences and afflictions that hold the emotes back"],
   ["ROLEPLAY AEM [ON|OFF]", "an ambient emote every few minutes, or none (default OFF)"],
   ["ROLEPLAY AEM NOW", "one ambient emote now"],

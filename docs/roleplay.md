@@ -3,7 +3,7 @@
 *Ambient emotes in your own voice: small gestures sent every few minutes, written per race and per class.*
 
 <!-- loom:version roleplay -->
-*This page describes roleplay 0.1.0.*
+*This page describes roleplay 0.1.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -23,7 +23,7 @@ It's flavour only. It earns nothing, and it stays quiet when an emote would be o
 | Command | What it does |
 |---|---|
 | `ROLEPLAY` | who the emotes follow (race, class, gender) and the ambient emotes' state |
-| `ROLEPLAY GENDER [HE\|SHE\|FAE\|AUTO]` | the pronouns {he} {him} {his} become (AUTO: from the game) |
+| `ROLEPLAY GENDER [HE\|SHE\|FAE\|AUTO]` | the pronouns {he} {him} {his} become (AUTO: your gender in SCORE) |
 | `ROLEPLAY QUIET [ADD\|REMOVE <name>\|RESET]` | defences and afflictions that hold the emotes back |
 | `ROLEPLAY AEM [ON\|OFF]` | an ambient emote every few minutes, or none (default OFF) |
 | `ROLEPLAY AEM NOW` | one ambient emote now |
@@ -78,9 +78,10 @@ Each list takes its starting emotes once, the first time it's in use: general an
 ## Setting it up
 
 1. **Import `roleplay.nxs`** (see [Getting started](getting-started.md)). Log in once (or `QUIT` and back) so it learns your name, race and class from the game.
-2. **`ROLEPLAY`** shows what it knows. If your pronouns show as unknown, `ROLEPLAY GENDER HE`, `SHE` or `FAE`: emotes with pronouns wait until it's set.
-3. **`ROLEPLAY AEM LIST`** to see the emotes in use, then add your own.
-4. **`ROLEPLAY AEM ON`.**
+2. **Type `SCORE` once.** The game doesn't send your gender with the rest, so roleplay reads it from SCORE's "Gender :" line and keeps it (male he/him/his, female she/her/her). `ROLEPLAY GENDER HE`, `SHE` or `FAE` overrides it; `AUTO` goes back to SCORE's. Emotes with pronouns wait until one of the two is known.
+3. **`ROLEPLAY`** shows what it knows: name, race, class and pronouns.
+4. **`ROLEPLAY AEM LIST`** to see the emotes in use, then add your own.
+5. **`ROLEPLAY AEM ON`.**
 
 ## Daily use
 
@@ -104,5 +105,5 @@ Roleplay reads nothing from other packages and nothing reads it.
 
 - **No emotes in use.** `ROLEPLAY` shows the race and class it knows: an empty or wrong one means it hasn't seen your login yet. Log in again. A form with an empty list sends nothing: `ROLEPLAY AEM ADD CLASS ...` while you're in it.
 - **Nothing is sent.** `ROLEPLAY AEM` shows the next time and what's holding it back. `ROLEPLAY QUIET` shows which of its defences and afflictions are up.
-- **`{his}` appears as written.** Your pronouns aren't known: `ROLEPLAY GENDER`.
+- **`{his}` appears as written, or token emotes never come up.** Your pronouns aren't known: type `SCORE`, or `ROLEPLAY GENDER`.
 - **A bug?** [Report it](https://github.com/neijel-achaea/loom/issues/new/choose) with `ROLEPLAY DEBUG`'s output.

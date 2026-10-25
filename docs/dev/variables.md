@@ -330,6 +330,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `roleplay_aem_time` | setting | 1.1 | minutes between ambient emotes, "min max" (ROLEPLAY AEM TIME) |  |
 | `roleplay_gender` | setting | 1.1 | your pronouns for {he} {him} {his} (ROLEPLAY GENDER); absent = from the game |  |
 | `roleplay_quiet` | setting | 1.1 | defences and afflictions that hold the emotes back (ROLEPLAY QUIET); absent = the defaults |  |
+| `roleplay_game_gender` | state | 1.1 | your gender as SCORE shows it, as pronouns (he, she, fae), for ROLEPLAY GENDER AUTO |  |
 | `roleplay_name` | state | 1.1 | your name, from GMCP |  |
 | `roleplay_race` | state | 1.1 | your race, from GMCP (a dragon's is left out) |  |
 | `roleplay_class` | state | 0.2 | your class, from GMCP (Loom's old roleplay kept it too) |  |

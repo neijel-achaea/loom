@@ -25,10 +25,8 @@ client.loom.hooks.roleplay.gmcp = function (args) {
     }
   } else if (rpM === "Char.Name" || rpM === "Char.Status") {
     if (rpA.name && String(rpA.name) !== RP.me) { RP.me = String(rpA.name); set_variable("roleplay_name", RP.me); }
-    if (rpA.gender) {
-      var g = String(rpA.gender).toLowerCase();
-      RP.gmcpGender = /^m/.test(g) ? "he" : (/^f/.test(g) ? "she" : "");
-    }
+    // Not sent by Achaea today (SCORE's line is read instead), kept in case it is.
+    if (rpA.gender) RP.learnGender(rpA.gender);
     var changed = false;
     // A form's race (a dragon's) isn't your race: keep the one you had.
     if (rpA.race && !/dragon|lord/i.test(String(rpA.race)) && String(rpA.race) !== RP.race) {

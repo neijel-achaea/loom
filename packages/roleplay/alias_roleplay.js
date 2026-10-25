@@ -38,7 +38,7 @@ function rpWho() { return (RP.cls || "your class") + (RP.isForm() ? " (a form: i
 
 if (rpSub === "" || rpSub === "status") {
   var g = RP.genderNow();
-  rpSay((RP.me || "you") + ": " + (RP.race || "race unknown") + ", " + (RP.cls || "class unknown") + (RP.isForm() ? " (a form)" : "") + "; pronouns " + (g ? RP.pron[g].he + "/" + RP.pron[g].him + "/" + RP.pron[g].his + (RP.gender ? "" : " (from the game)") : "unknown: ROLEPLAY GENDER HE|SHE|FAE") + ".", (RP.cls && g) ? "cyan" : "orange");
+  rpSay((RP.me || "you") + ": " + (RP.race || "race unknown") + ", " + (RP.cls || "class unknown") + (RP.isForm() ? " (a form)" : "") + "; pronouns " + (g ? RP.pron[g].he + "/" + RP.pron[g].him + "/" + RP.pron[g].his + (RP.gender ? "" : " (from SCORE)") : "unknown: type SCORE, or ROLEPLAY GENDER HE|SHE|FAE") + ".", (RP.cls && g) ? "cyan" : "orange");
   var act = RP.rows(RP.activeKeys());
   var bits = [];
   var ak = RP.activeKeys();
@@ -49,7 +49,7 @@ if (rpSub === "" || rpSub === "status") {
 } else if (rpSub === "gender") {
   if (rpS2 === "") {
     var g2 = RP.genderNow();
-    rpSay("pronouns: " + (g2 ? RP.pron[g2].he + "/" + RP.pron[g2].him + "/" + RP.pron[g2].his + (RP.gender ? " (set by you)" : " (from the game)") : "unknown") + ". ROLEPLAY GENDER HE, SHE, FAE or AUTO.");
+    rpSay("pronouns: " + (g2 ? RP.pron[g2].he + "/" + RP.pron[g2].him + "/" + RP.pron[g2].his + (RP.gender ? " (set by you)" : " (from SCORE)") : "unknown: type SCORE") + ". ROLEPLAY GENDER HE, SHE, FAE or AUTO.");
   } else if (/^(he|she|fae)$/.test(rpS2)) {
     RP.gender = rpS2;
     set_variable("roleplay_gender", rpS2);
@@ -57,7 +57,7 @@ if (rpSub === "" || rpSub === "status") {
   } else if (rpS2 === "auto") {
     RP.gender = "";
     delete_variable("roleplay_gender");
-    rpSay("pronouns follow the game" + (RP.gmcpGender ? ": " + RP.pron[RP.gmcpGender].he + "." : " (not known yet: it tells at login).") , "lime");
+    rpSay("pronouns follow the game" + (RP.gameGender ? ": " + RP.pron[RP.gameGender].he + "." : " (not known yet: type SCORE once).") , "lime");
   } else {
     rpSay("ROLEPLAY GENDER HE, SHE, FAE or AUTO.", "orange");
   }
@@ -100,7 +100,7 @@ if (rpSub === "" || rpSub === "status") {
   } else if (rpS2 === "now") {
     var e1 = RP.pick();
     if (get_variable("pauseTriggers") === "on") rpSay("triggers are paused, so nothing was sent.", "orange");
-    else if (!e1) rpSay("no ambient emote to send for " + rpWho() + (RP.genderNow() ? "" : " (those with pronouns wait for ROLEPLAY GENDER)") + ".", "orange");
+    else if (!e1) rpSay("no ambient emote to send for " + rpWho() + (RP.genderNow() ? "" : " (those with pronouns wait for your gender: type SCORE, or ROLEPLAY GENDER)") + ".", "orange");
     else { RP.send(e1); if (RP.on) RP.schedule(); }
   } else if (rpS2 === "list") {
     var vk;
@@ -140,7 +140,7 @@ if (rpSub === "" || rpSub === "status") {
           ]);
         }
         rpBlock(lines);
-        if (!RP.genderNow()) rpSay("pronouns unknown: emotes with {he} {him} {his} wait for ROLEPLAY GENDER.", "orange");
+        if (!RP.genderNow()) rpSay("pronouns unknown: emotes with {he} {him} {his} wait until you type SCORE once, or set ROLEPLAY GENDER.", "orange");
       }
     }
   } else if (rpS2 === "add") {
@@ -167,7 +167,7 @@ if (rpSub === "" || rpSub === "status") {
     if (!row) {
       rpSay("no emote " + (a3 || "?") + " in the last LIST. ROLEPLAY AEM LIST numbers them.", "orange");
     } else if (rpS2 === "test") {
-      rpSay("would send: emote " + RP.fill(row.e.t) + (RP.hasTokens(row.e.t) && !RP.genderNow() ? "  (pronouns unknown: ROLEPLAY GENDER)" : ""));
+      rpSay("would send: emote " + RP.fill(row.e.t) + (RP.hasTokens(row.e.t) && !RP.genderNow() ? "  (pronouns unknown: type SCORE, or ROLEPLAY GENDER)" : ""));
     } else if (rpS2 === "remove") {
       RP.lists[row.key].splice(row.i, 1);
       RP.seeded[row.key] = 1;
@@ -238,7 +238,7 @@ if (rpSub === "" || rpSub === "status") {
 } else if (rpSub === "debug") {
   var dk = [];
   for (var dl in RP.lists) if (RP.lists.hasOwnProperty(dl)) dk.push(dl + "=" + RP.lists[dl].length);
-  rpSay("me=" + RP.me + " race=" + RP.race + " cls=" + RP.cls + " form=" + RP.isForm() + " gender=" + (RP.gender || "-") + "/gmcp " + (RP.gmcpGender || "-") + " on=" + RP.on + " timer=" + !!RP.timer + " due=" + (RP.timer ? RP.mmss(RP.due - Date.now()) : "-") + " held=" + (RP.held || "-") + " hold now=" + (RP.holdWhy() || "-") + " sent=" + RP.sent + " lists={" + dk.join(", ") + "} seeded=" + JSON.stringify(RP.seeded) + " view=" + JSON.stringify(RP.viewKeys || "active") + " defs=" + Object.keys(RP.defs).length + " affs=" + Object.keys(RP.affs).join(",") + " pause=" + (get_variable("pauseTriggers") || "unset"));
+  rpSay("me=" + RP.me + " race=" + RP.race + " cls=" + RP.cls + " form=" + RP.isForm() + " gender=" + (RP.gender || "-") + "/game " + (RP.gameGender || "-") + " on=" + RP.on + " timer=" + !!RP.timer + " due=" + (RP.timer ? RP.mmss(RP.due - Date.now()) : "-") + " held=" + (RP.held || "-") + " hold now=" + (RP.holdWhy() || "-") + " sent=" + RP.sent + " lists={" + dk.join(", ") + "} seeded=" + JSON.stringify(RP.seeded) + " view=" + JSON.stringify(RP.viewKeys || "active") + " defs=" + Object.keys(RP.defs).length + " affs=" + Object.keys(RP.affs).join(",") + " pause=" + (get_variable("pauseTriggers") || "unset"));
 } else {
   rpSay("unknown command '" + rpSub + "'. ROLEPLAY HELP for commands.", "orange");
 }

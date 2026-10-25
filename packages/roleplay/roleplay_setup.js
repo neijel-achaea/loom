@@ -14,7 +14,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.roleplay) client.loom.roleplay = {};
-client.loom.registry.roleplay = { version: "0.1.0", keyword: "ROLEPLAY", desc: "{{description}}" };
+client.loom.registry.roleplay = { version: "0.1.1", keyword: "ROLEPLAY", desc: "{{description}}" };
 var RP = client.loom.roleplay;
 
 function rpGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || ("" + v) === "undefined") ? "" : "" + v; }
@@ -57,7 +57,22 @@ if (!RP.seeded) RP.seeded = rpJson("roleplay_seeded") || {};
 if (RP.cls === undefined) RP.cls = rpGet("roleplay_class");
 if (RP.race === undefined) RP.race = rpGet("roleplay_race");
 if (RP.me === undefined) RP.me = rpGet("roleplay_name");
-if (RP.gmcpGender === undefined) RP.gmcpGender = "";
+// Your gender as the game states it: SCORE's "Gender : male" line (GMCP
+// doesn't send it), kept since SCORE isn't typed every session.
+if (RP.gameGender === undefined) RP.gameGender = rpGet("roleplay_game_gender");
+if (!/^(he|she|fae)$/.test(RP.gameGender)) RP.gameGender = "";
+// A gender word as pronouns: male he, female she, anything else fae.
+RP.genderOf = function (w) {
+  w = String(w || "").toLowerCase();
+  if (!w) return "";
+  return w === "male" ? "he" : (w === "female" ? "she" : "fae");
+};
+RP.learnGender = function (w) {
+  var g = RP.genderOf(w);
+  if (!g || g === RP.gameGender) return;
+  RP.gameGender = g;
+  set_variable("roleplay_game_gender", g);
+};
 
 // Settings.
 RP.gender = rpGet("roleplay_gender");
@@ -159,7 +174,7 @@ RP.rows = function (keys) {
 };
 // Pronouns: {he} {him} {his}, capitalised as written ({His}).
 RP.pron = { he: { he: "he", him: "him", his: "his" }, she: { he: "she", him: "her", his: "her" }, fae: { he: "fae", him: "faen", his: "faes" } };
-RP.genderNow = function () { return RP.gender || RP.gmcpGender || ""; };
+RP.genderNow = function () { return RP.gender || RP.gameGender || ""; };
 RP.hasTokens = function (t) { return /\{(he|him|his)\}/i.test(t); };
 RP.fill = function (t) {
   var p = RP.pron[RP.genderNow()];
