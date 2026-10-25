@@ -839,6 +839,29 @@ client.loom.roleplay.seeds = {
       "hums a slow, mournful dirge under {his} breath.",
       "sets a scarab-shaped amulet swinging from {his} fingers, then catches it.",
       "scrapes a dried flake of blood from beneath a fingernail."
+    ],
+    // Swashbuckling skalds: the songblessed rapier, footwork, song and lute, the chronicler's verse.
+    "Bard": [
+      "flicks {his} rapier from its scabbard in a whisper of steel, then slides it home.",
+      "traces a slow figure of eight in the air with the point of {his} rapier.",
+      "runs a thumb along the flat of {his} rapier, humming softly to it.",
+      "taps the guard of {his} rapier in a quick three-beat rhythm.",
+      "shifts {his} feet through a light, quick dance step, then settles.",
+      "pivots lightly on one heel with a fencer's footwork.",
+      "rises onto the balls of {his} feet and sways in a slow tempo.",
+      "hums a few bars of a stirring ballad.",
+      "sings a soft line of verse, then trails off.",
+      "warms {his} voice with a low, rising scale.",
+      "whistles the opening phrase of an old marching song.",
+      "picks out a quick, bright run of notes on {his} lute.",
+      "polishes the body of {his} lute with {his} sleeve.",
+      "jots a line of verse in a small, ink-stained notebook.",
+      "begins to murmur an old tale under {his} breath, then lets it trail away.",
+      "counts syllables on {his} fingers, lips moving.",
+      "tosses {his} hair back with a performer's flair.",
+      "hums a slow, sorrowful elegy, then falls silent.",
+      "straightens the plume in {his} hat.",
+      "sketches a quick flourish in the air with two fingers, as if conducting."
     ]
   },
   form: {
