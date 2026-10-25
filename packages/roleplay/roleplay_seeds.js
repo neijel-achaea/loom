@@ -563,6 +563,29 @@ client.loom.roleplay.seeds = {
       "brushes a fleck of crystal dust from {his} hands.",
       "rubs a smear of soot from {his} fingertips.",
       "murmurs a phrase in a hissing, elemental tongue."
+    ],
+    // Scholars of the Cauda Pavonis: phials and primes, metals and gold, the laboratory's stains; the homunculus by its traces.
+    "Alchemist": [
+      "holds a phial up and tilts it, watching its contents settle.",
+      "checks the stopper of a phial with a careful twist.",
+      "tucks a corked phial back into a padded loop at {his} belt.",
+      "tips a pinch of salt from a pouch, studies it, and lets it fall back.",
+      "sniffs cautiously at a phial, then reseals it.",
+      "taps a phial with a fingernail, listening to the ring of the glass.",
+      "lets a few drops from a phial bead on {his} palm, watching them roll.",
+      "examines a fleck of gold caught under {his} thumbnail.",
+      "jots a quick note in a small, battered book, then closes it.",
+      "murmurs a sequence of proportions under {his} breath.",
+      "wipes a sticky residue from {his} fingertips with a cloth.",
+      "rubs at a chemical stain on {his} fingers.",
+      "smooths the stained front of {his} robes.",
+      "brushes a fine grey powder from {his} sleeves.",
+      "checks the singed cuff of {his} sleeve.",
+      "wipes a small, sticky handprint from {his} robes.",
+      "checks the seal on a small jar of something that moves inside.",
+      "sorts the little pouches at {his} belt into a better order.",
+      "holds a sliver of glass up and studies it closely.",
+      "sets {his} reagent case down, checks its clasps, and picks it up again."
     ]
   },
   form: {
