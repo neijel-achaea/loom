@@ -97,6 +97,29 @@ client.loom.roleplay.seeds = {
       "touches the pouch at {his} belt, then lets {his} hand fall.",
       "bites lightly at {his} lower lip.",
       "scuffs the toe of one boot against the ground."
+    ],
+    // Stocky and grounded, proud of their beards (many women dwarves remove theirs: easy to drop).
+    "Dwarf": [
+      "strokes {his} beard slowly from chin to tip.",
+      "combs {his} fingers through {his} beard, working loose a tangle.",
+      "tucks the end of {his} beard into {his} belt.",
+      "smooths {his} beard down with both hands.",
+      "plants {his} feet a little wider, settling {his} weight low.",
+      "stands square and solid, like a boulder set in the ground.",
+      "rolls {his} broad shoulders, slow and heavy.",
+      "crosses {his} thick arms over {his} chest.",
+      "flexes {his} heavy forearms.",
+      "stamps one booted foot, then the other, firmly down.",
+      "presses a heel into the ground, testing how firm it is.",
+      "hitches up {his} belt with both hands.",
+      "rubs the end of {his} nose with a thick finger.",
+      "pushes a tangle of thick curls out of {his} eyes.",
+      "checks the knots of {his} pack straps with a practised eye.",
+      "turns a small pebble over in {his} fingers, studying the grain.",
+      "inspects the stitching on {his} sleeve with a critical eye.",
+      "hums a low, rumbling work song under {his} breath.",
+      "drums {his} thick fingers on {his} belt buckle.",
+      "gives a short, decisive nod."
     ]
   },
   "class": {}
