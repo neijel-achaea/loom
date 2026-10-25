@@ -908,6 +908,29 @@ client.loom.roleplay.seeds = {
       "exhales, and a thin, stinging haze hangs briefly before {his} snout.",
       "lets a dark drop slide down one fang, then licks it back with a flick of tongue.",
       "rubs {his} jaw slowly along one foreleg, leaving a dark sheen on the scales."
+    ],
+    // ice: frosted breath, rime on scales, wings and talons, all melting away
+    "Blue Dragon": [
+      "lets out a slow breath that hangs before {his} snout as a pale mist.",
+      "exhales, and a few glittering flakes of ice drift from {his} nostrils and vanish.",
+      "breathes out, and a thin rime forms along {his} lips and melts away.",
+      "draws in a long breath, and the air about {his} jaws turns briefly crisp and cold.",
+      "snorts, and two plumes of frosted breath curl up and fade.",
+      "shifts, and a fine frost cracks and flakes from the joints of {his} wings.",
+      "flexes {his} talons, a thin edge of ice glinting along each one.",
+      "shakes {his} head, scattering a glitter of ice crystals that melt in the air.",
+      "rolls {his} shoulders, and a faint crackle of frost runs across {his} scales.",
+      "stretches one wing, its membrane laced with a delicate frost.",
+      "shifts {his} massive girth, {his} blue scales gleaming like deep glacial ice.",
+      "flexes the long muscles of {his} flanks, scales sliding like plates of ice.",
+      "goes perfectly still, cold and patient as a winter lake.",
+      "regards {his} surroundings with pale, glacial eyes.",
+      "half-closes {his} eyes, frost gathering on the lids.",
+      "blinks slowly, a few flakes of ice falling from {his} brow ridges.",
+      "curls {his} tail close, frost glittering along its ridge.",
+      "folds {his} wings with a faint crackle of breaking rime.",
+      "exhales, and a cold draught spills from {his} jaws and fades.",
+      "shudders, and a fine powder of frost sifts from {his} scales and vanishes."
     ]
   },
   form: {
