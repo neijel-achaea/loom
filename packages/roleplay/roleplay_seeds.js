@@ -375,6 +375,29 @@ client.loom.roleplay.seeds = {
       "runs {his} fingertips idly along {his} jaw.",
       "hums a soft, low melody.",
       "settles into stillness, quietly drawing the eye."
+    ],
+    // Towering and heavy-featured: height, bulk and weight, no menace. No Gruul or Kasmarkin.
+    "Troll": [
+      "stoops slightly, bringing {his} towering height down a little.",
+      "looms quietly, arms folded across {his} chest.",
+      "stretches {his} long arms out to either side, then lets them drop.",
+      "shifts {his} great bulk from one foot to the other.",
+      "rolls {his} massive shoulders, joints popping like snapping branches.",
+      "shrugs, a slow heave of {his} massive shoulders.",
+      "hunches {his} great shoulders a little lower.",
+      "plants {his} huge feet and stands like a wall.",
+      "flexes {his} huge hands, opening and closing them slowly.",
+      "knocks {his} knuckles together with a dull thud.",
+      "draws in a deep breath, {his} huge chest swelling.",
+      "drums {his} thick fingers against {his} forearm.",
+      "rubs {his} heavy brow with the heel of one hand.",
+      "runs a hand over {his} heavy jaw.",
+      "scratches at the rough grey skin of {his} forearm.",
+      "rumbles low in {his} throat.",
+      "lowers {his} head to peer at something closer to the ground.",
+      "cracks {his} neck with a slow tilt of {his} head.",
+      "blinks slowly, heavy lids lowering over deep-set eyes.",
+      "narrows {his} eyes beneath {his} heavy brow."
     ]
   },
   "class": {}
