@@ -747,6 +747,29 @@ client.loom.roleplay.seeds = {
       "giggles, stops abruptly, and looks around for the culprit.",
       "holds a whispered conversation with one of {his} puppets, then shushes it.",
       "laughs at a joke no one told, a beat too long."
+    ],
+    // Heirs of the Tsol'teth: shadow at the fingertips, time that slips, words of power. No scythe or hourglass (not in the lore).
+    "Depthswalker": [
+      "draws a sliver of shadow from the air and lets it unravel between {his} fingers.",
+      "closes {his} hand around a wisp of darkness, then opens it, empty.",
+      "flicks a curl of shadow from {his} sleeve like dust.",
+      "stands half-wrapped in shadow, {his} outline soft at the edges.",
+      "lets a thin ribbon of darkness wind about {his} wrist like a bracelet.",
+      "runs a thumb along the edge of a shadow-forged blade, which fades at {his} touch.",
+      "stands utterly still as the dark about {him} deepens by a shade.",
+      "lets {his} shadow stretch a little longer than it should, then draws it back in.",
+      "moves, and for a heartbeat {his} outline blurs before settling.",
+      "blinks, and is somehow a step from where {he} stood.",
+      "breathes out, and the moment around {him} lingers a fraction too long.",
+      "murmurs a single heavy word, and the air goes very still.",
+      "traces a word in an alien script on the air, then smudges it away.",
+      "shapes a soundless word with {his} lips, something old.",
+      "turns a page of research notes, lips moving silently.",
+      "lets a slick, dark eel coil briefly about {his} shoulder, then slip away.",
+      "presses {his} fingertips together, a faint chill gathering between them.",
+      "turns, and {his} shadow is a moment late to follow.",
+      "stills completely, as if time had paused for {him} alone.",
+      "brushes {his} fingers through a patch of shadow as if it were water."
     ]
   },
   form: {
