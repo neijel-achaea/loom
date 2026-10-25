@@ -540,6 +540,29 @@ client.loom.roleplay.seeds = {
       "runs a thumb along a long scratch in {his} armour left by heavy claws.",
       "tests the heft of {his} weapon in one hand.",
       "touches one of the skull trinkets at {his} belt."
+    ],
+    // Elemental scholars: the workshop staff and its foci, crystals, small elemental touches, the craft.
+    "Magi": [
+      "leans lightly on {his} elemental staff.",
+      "polishes the head of {his} staff with {his} sleeve.",
+      "turns {his} staff slowly, studying the foci set into it.",
+      "runs a thumb over one of the foci set into {his} staff.",
+      "taps the butt of {his} staff once against the ground.",
+      "shifts {his} staff from one hand to the other.",
+      "turns a small crystal over in {his} fingers, studying its facets.",
+      "holds a crystal up to one eye and squints into its depths.",
+      "sets a crystal spinning on {his} palm, then closes {his} hand over it.",
+      "taps a fingernail against a crystal, listening to its faint hum.",
+      "lets a faint frost spread across {his} fingertips, then breathes it away.",
+      "rolls a tiny spark of flame across {his} knuckles before snuffing it out.",
+      "turns {his} palm up, and a small swirl of air stirs above it.",
+      "draws a slow breath, and the air around {him} cools a shade.",
+      "traces the sign of one of the elements in the air.",
+      "shakes a thin rime of frost from the hem of {his} robes.",
+      "consults a scrap of notes from {his} sleeve, then tucks it away.",
+      "brushes a fleck of crystal dust from {his} hands.",
+      "rubs a smear of soot from {his} fingertips.",
+      "murmurs a phrase in a hissing, elemental tongue."
     ]
   },
   form: {
