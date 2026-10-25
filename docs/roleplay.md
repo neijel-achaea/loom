@@ -3,7 +3,7 @@
 *Ambient emotes in your own voice: small gestures sent every few minutes, written per race and per class.*
 
 <!-- loom:version roleplay -->
-*This page describes roleplay 0.3.10.*
+*This page describes roleplay 0.3.11.*
 <!-- /loom:version -->
 
 ## What it is

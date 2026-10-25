@@ -632,6 +632,29 @@ client.loom.roleplay.seeds = {
       "glances over {his} shoulder before tucking a folded page away.",
       "cuts the deck one-handed, then squares it again.",
       "draws a card, glances at it, and returns it face down."
+    ],
+    // Gaia's forestals: the quarterstaff, soil and green things, the Grove's sunlight and bees, traces of the beast forms.
+    "Druid": [
+      "leans on {his} quarterstaff, both hands folded over its top.",
+      "runs a thumb along the worn grain of {his} quarterstaff.",
+      "plants the foot of {his} staff and leans into it, unhurried.",
+      "brushes a curl of bark from {his} staff.",
+      "holds {his} staff upright, a faint warmth of stored sunlight about it.",
+      "crumbles a pinch of soil between {his} fingers and breathes in its scent.",
+      "picks a leaf from {his} hair and turns it over, studying its veins.",
+      "twists a green stem slowly between {his} fingers.",
+      "brushes a patch of moss from {his} sleeve.",
+      "touches a sprig of greenery tucked at {his} belt.",
+      "stands as still as an old tree, unmoving.",
+      "lets a bee crawl across {his} knuckles, then shakes it gently free.",
+      "brushes a few grains of pollen from {his} clothes.",
+      "holds out a palm, and a faint mote of sunlight settles on it and fades.",
+      "cups {his} hands, and a pale shoot unfurls between {his} fingers, then withers.",
+      "rolls {his} shoulders with a loose, wolfish ease.",
+      "lifts {his} head and scents the air, briefly and keenly.",
+      "blinks, and for an instant {his} eyes hold a feral, golden sheen.",
+      "flexes {his} fingers like claws, then lets them relax.",
+      "presses the heel of {his} staff into the earth and holds it there a moment."
     ]
   },
   form: {
