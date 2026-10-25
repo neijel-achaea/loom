@@ -87,14 +87,14 @@ if (rpSub === "" || rpSub === "status") {
   if (rpS2 === "" || rpS2 === "status") {
     rpSay("ambient emotes " + (RP.on ? "ON" : "OFF") + ", every " + RP.min + "-" + RP.max + " minutes, " + RP.rows(RP.activeKeys()).length + " in use for " + rpWho() + "." + (RP.on && RP.timer ? " Next in " + RP.mmss(RP.due - Date.now()) + (RP.held ? ", held: " + RP.held : "") + "." : "") + " ROLEPLAY AEM ON|OFF|NOW|LIST.");
   } else if (rpS2 === "on") {
-    RP.on = true;
+    RP.setOn(true);
     RP.emptyTold = false;
     RP.seedActive();
     RP.schedule();
     var n1 = RP.rows(RP.activeKeys()).length;
     rpSay("ambient emotes ON: one every " + RP.min + "-" + RP.max + " minutes, the first in " + RP.mmss(RP.due - Date.now()) + "." + (n1 ? "" : " None are written for " + rpWho() + " yet: ROLEPLAY AEM ADD."), n1 ? "lime" : "orange");
   } else if (rpS2 === "off") {
-    RP.on = false;
+    RP.setOn(false);
     RP.stop();
     rpSay("ambient emotes OFF.", "lime");
   } else if (rpS2 === "now") {
@@ -238,7 +238,7 @@ if (rpSub === "" || rpSub === "status") {
 } else if (rpSub === "debug") {
   var dk = [];
   for (var dl in RP.lists) if (RP.lists.hasOwnProperty(dl)) dk.push(dl + "=" + RP.lists[dl].length);
-  rpSay("me=" + RP.me + " race=" + RP.race + " cls=" + RP.cls + " form=" + RP.isForm() + " gender=" + (RP.gender || "-") + "/game " + (RP.gameGender || "-") + " on=" + RP.on + " timer=" + !!RP.timer + " due=" + (RP.timer ? RP.mmss(RP.due - Date.now()) : "-") + " held=" + (RP.held || "-") + " hold now=" + (RP.holdWhy() || "-") + " sent=" + RP.sent + " lists={" + dk.join(", ") + "} seeded=" + JSON.stringify(RP.seeded) + " view=" + JSON.stringify(RP.viewKeys || "active") + " defs=" + Object.keys(RP.defs).length + " affs=" + Object.keys(RP.affs).join(",") + " pause=" + (get_variable("pauseTriggers") || "unset"));
+  rpSay("me=" + RP.me + " race=" + RP.race + " cls=" + RP.cls + " form=" + RP.isForm() + " gender=" + (RP.gender || "-") + "/game " + (RP.gameGender || "-") + " on=" + RP.on + " timer=" + !!RP.timer + " due=" + (RP.timer ? RP.mmss(RP.due - Date.now()) : "-") + " held=" + (RP.held || "-") + " hold now=" + (RP.holdWhy() || "-") + " sent=" + RP.sent + " lastBump=" + (RP.lastBump ? RP.mmss(Date.now() - RP.lastBump.at) + " ago, " + RP.lastBump.why + " +" + RP.lastBump.by + "s" : "-") + " lists={" + dk.join(", ") + "} seeded=" + JSON.stringify(RP.seeded) + " view=" + JSON.stringify(RP.viewKeys || "active") + " defs=" + Object.keys(RP.defs).length + " affs=" + Object.keys(RP.affs).join(",") + " pause=" + (get_variable("pauseTriggers") || "unset"));
 } else {
   rpSay("unknown command '" + rpSub + "'. ROLEPLAY HELP for commands.", "orange");
 }

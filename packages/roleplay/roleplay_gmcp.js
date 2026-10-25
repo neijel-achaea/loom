@@ -10,14 +10,21 @@ if (!client.loom.hooks.roleplay) client.loom.hooks.roleplay = {};
 // emotes back), and the defences and afflictions in ROLEPLAY QUIET.
 client.loom.hooks.roleplay.gmcp = function (args) {
   var rpM = String((args && args.gmcp_method) || "");
-  if (!/^Char\./.test(rpM)) return;
+  if (!/^Char\.|^Comm\.Channel\.Text$/.test(rpM)) return;
   var rpA = args.gmcp_args;
   if (typeof rpA === "string") { try { rpA = JSON.parse(rpA); } catch (e) { rpA = null; } }
   if (!rpA || typeof rpA != "object") return;
   if (!client.loom || !client.loom.roleplay || !client.loom.roleplay.lists) run_function("roleplay_setup", [], "roleplay");
   var RP = client.loom.roleplay;
   var i;
-  if (rpM === "Char.Vitals") {
+  if (rpM === "Comm.Channel.Text") {
+    // Your own say or yell, in any voice or accent: the talker is you, or the
+    // text starts "You ..." / "Your ...".
+    if (RP.on && /^(says?|yells?)$/i.test(String(rpA.channel || ""))) {
+      var plain = String(rpA.text || "").replace(/\u001b\[[0-9;]*m/g, "").replace(/^\([^)]*\):?\s*/, "");
+      if ((RP.me && String(rpA.talker || "").toLowerCase() === RP.me.toLowerCase()) || /^Your?\b/.test(plain)) RP.bump("you spoke");
+    }
+  } else if (rpM === "Char.Vitals") {
     var hp = Number(rpA.hp);
     if (!isNaN(hp)) {
       if (RP.lastHp !== undefined && hp < RP.lastHp) RP.hurtAt = Date.now();
@@ -48,11 +55,11 @@ client.loom.hooks.roleplay.gmcp = function (args) {
   }
 };
 
-// Your own roleplay: "You say/ask/exclaim/yell ..." or a line starting with
-// your name (your emote's echo). Either pushes the next ambient emote back.
+// Your own emote: a line starting with your name (after an optional
+// parenthesis), its echo. Pushes the next ambient emote back. Says come
+// through GMCP above, whatever the voice.
 client.loom.hooks.roleplay.line = function (args) {
   var RP = client.loom && client.loom.roleplay;
-  if (!RP || !RP.on || !RP.bump) return;
-  var w = String((args && args[1]) || "");
-  if (w.indexOf("You ") === 0 || (RP.me && w === RP.me)) RP.bump();
+  if (!RP || !RP.on || !RP.bump || !RP.me) return;
+  if (String((args && args[1]) || "") === RP.me) RP.bump("you emoted");
 };

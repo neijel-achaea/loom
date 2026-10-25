@@ -14,7 +14,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.roleplay) client.loom.roleplay = {};
-client.loom.registry.roleplay = { version: "0.1.1", keyword: "ROLEPLAY", desc: "{{description}}" };
+client.loom.registry.roleplay = { version: "0.2.0", keyword: "ROLEPLAY", desc: "{{description}}" };
 var RP = client.loom.roleplay;
 
 function rpGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || ("" + v) === "undefined") ? "" : "" + v; }
@@ -26,10 +26,13 @@ function rpJson(n, isList) {
   return (v && typeof v == "object" && !Array.isArray(v)) ? v : null;
 }
 
-// Old names, from the roleplay package Loom shipped until 0.6 (and before it,
-// window.AEM): the switch is not kept (switches load off), so they're deleted.
-if (rpGet("aem_on") !== "") delete_variable("aem_on");
-if (rpGet("roleplay_aem_on") !== "") delete_variable("roleplay_aem_on");
+// The switch is remembered from the last session (Ricardo: easy to forget
+// it's off), as roleplay_aem_on "1"/"0", the name Loom's old roleplay used
+// too; aem_on, older still, is migrated once.
+if (rpGet("aem_on") !== "") {
+  if (rpGet("roleplay_aem_on") === "") set_variable("roleplay_aem_on", rpGet("aem_on"));
+  delete_variable("aem_on");
+}
 if (typeof window !== "undefined" && window.AEM) { try { clearTimeout(window.AEM.timer); } catch (e) {} window.AEM = null; }
 
 // ---- Data (kept across a rerun) ----------------------------------------
@@ -85,8 +88,8 @@ if (!(RP.min >= 1 && RP.max >= RP.min && RP.max <= 600)) { RP.min = 15; RP.max =
 RP.quietDefault = ["shroud", "hiding", "cloak", "phased", "asleep", "prone", "stun", "aeon"];
 RP.quiet = rpJson("roleplay_quiet", true) || RP.quietDefault.slice(0);
 
-// ---- Runtime (kept across a rerun; the switch starts off at load) -------
-if (RP.on === undefined) RP.on = false;
+// ---- Runtime (kept across a rerun) ----------------------------------------
+if (RP.on === undefined) RP.on = rpGet("roleplay_aem_on") === "1";
 if (!RP.defs) RP.defs = {};
 if (!RP.affs) RP.affs = {};
 if (RP.hurtAt === undefined) RP.hurtAt = 0;
@@ -105,6 +108,13 @@ RP.save = function () {
   set_variable("roleplay_emotes", JSON.stringify(RP.lists));
   set_variable("roleplay_seeded", JSON.stringify(RP.seeded));
 };
+// The class's list: an elder dragon shares its colour's ("Elder Golden
+// Dragon" -> "Golden Dragon").
+RP.clsKey = function () { return String(RP.cls || "").replace(/^Elder\s+/i, ""); };
+RP.setOn = function (on) {
+  RP.on = !!on;
+  set_variable("roleplay_aem_on", on ? "1" : "0");
+};
 RP.isForm = function () {
   return /dragon$/i.test(RP.cls || "") || /\blord$/i.test(RP.cls || "");
 };
@@ -116,7 +126,7 @@ RP.keyFor = function (word) {
   if (m) {
     var want = m[1].toLowerCase() + ":" + m[2].replace(/_/g, " ").toLowerCase();
     // The spelling already in use (GMCP's), whatever case you typed.
-    var mine = ["race:" + RP.race, "class:" + RP.cls];
+    var mine = ["race:" + RP.race, "class:" + RP.clsKey()];
     for (var k in RP.lists) if (RP.lists.hasOwnProperty(k)) mine.push(k);
     for (var j = 0; j < mine.length; j++) if (mine[j].toLowerCase() === want) return mine[j];
     return want.replace(/(:|\s)([a-z])/g, function (a, s, c) { return s + c.toUpperCase(); });
@@ -124,7 +134,7 @@ RP.keyFor = function (word) {
   w = w.toLowerCase();
   if (w === "general") return "general";
   if (w === "race") return RP.race ? "race:" + RP.race : "";
-  if (w === "class") return RP.cls ? "class:" + RP.cls : "";
+  if (w === "class") return RP.cls ? "class:" + RP.clsKey() : "";
   return "";
 };
 RP.label = function (key) {
@@ -134,10 +144,10 @@ RP.label = function (key) {
 };
 // What you use now: a form only its own list, a normal class general + race + class.
 RP.activeKeys = function () {
-  if (RP.isForm()) return RP.cls ? ["class:" + RP.cls] : [];
+  if (RP.isForm()) return RP.cls ? ["class:" + RP.clsKey()] : [];
   var k = ["general"];
   if (RP.race) k.push("race:" + RP.race);
-  if (RP.cls) k.push("class:" + RP.cls);
+  if (RP.cls) k.push("class:" + RP.clsKey());
   return k;
 };
 // A list in use for the first time takes its seeds (once).
@@ -247,11 +257,12 @@ RP.tick = function () {
 };
 // You spoke or emoted yourself: the next ambient emote waits a minute longer,
 // at most the longest wait from now.
-RP.bump = function () {
+RP.bump = function (why) {
   if (!RP.on || !RP.timer) return;
   var now = Date.now();
   if (now - RP.sentAt < RP.echoMs) return;
   var due = Math.min(RP.due + RP.bumpMs, now + RP.max * 60000);
+  RP.lastBump = { at: now, why: why || "", by: Math.round((due - RP.due) / 1000) };
   if (due > RP.due) RP.at(due - now);
 };
 RP.mmss = function (ms) {
@@ -261,3 +272,5 @@ RP.mmss = function (ms) {
 
 run_function("roleplay_seeds", [], "roleplay");
 RP.seedActive();
+// On from the last session: running again (a reimport keeps the timer it has).
+if (RP.on && !RP.timer) RP.schedule();

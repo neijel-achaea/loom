@@ -334,8 +334,8 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `roleplay_name` | state | 1.1 | your name, from GMCP |  |
 | `roleplay_race` | state | 1.1 | your race, from GMCP (a dragon's is left out) |  |
 | `roleplay_class` | state | 0.2 | your class, from GMCP (Loom's old roleplay kept it too) |  |
-| `roleplay_aem_on` | legacy | 0.2 | the old roleplay's ambient emote switch; deleted at load (switches load off) |  |
-| `aem_on` | legacy | 0.1 | older name of the same switch; deleted at load |  |
+| `roleplay_aem_on` | setting | 0.2 | ambient emotes on ("1") or off ("0"), remembered across sessions (ROLEPLAY AEM ON\|OFF) | `aem_on` |
+| `aem_on` | legacy | 0.1 | older name of the ambient emote switch; copied into roleplay_aem_on once, then deleted |  |
 
 ## security
 

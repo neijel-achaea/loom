@@ -95,7 +95,7 @@
           "script": "@file:trigger_own.js"
         }
       ],
-      "text": "^(?:\\([^)]*\\)\\s*)?(You (?:say|ask|exclaim|yell)\\b|[A-Z][a-z]+)\\b",
+      "text": "^(?:\\([^)]*\\)\\s*)?([A-Z][a-z]+)\\b",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true

@@ -3,7 +3,7 @@
 *Ambient emotes in your own voice: small gestures sent every few minutes, written per race and per class.*
 
 <!-- loom:version roleplay -->
-*This page describes roleplay 0.1.1.*
+*This page describes roleplay 0.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -13,7 +13,7 @@ A character who never moves between lines reads like a statue. With ambient emot
 It's flavour only. It earns nothing, and it stays quiet when an emote would be out of place.
 
 - **Your lists, your words.** You add, reword, weigh and remove emotes with commands. A few starting emotes are there for those who'd rather not write their own; once a list is in use, it's yours.
-- **One voice per body.** Lists are kept per race and per class. A normal class draws from three lists: *general* (anyone), your *race*, and your *class*. A dragon or an elemental lord is a different body, so a form draws only from its own class list: no talk of hands or hair while you're a dragon.
+- **One voice per body.** Lists are kept per race and per class. A normal class draws from three lists: *general* (anyone), your *race*, and your *class*. A dragon or an elemental lord is a different body, so a form draws only from its own class list: no talk of hands or hair while you're a dragon. An elder dragon shares its colour's list (Elder Golden Dragon uses Golden Dragon's).
 - **Chances you can see.** `ROLEPLAY AEM LIST` numbers every emote in use with its weight and the chance it's the next one picked.
 - **Pronouns.** Emotes can say `{he}`, `{him}` and `{his}` (or `{His}` at the start of a sentence), filled in as he/him/his, she/her/her or fae/faen/faes.
 
@@ -25,7 +25,7 @@ It's flavour only. It earns nothing, and it stays quiet when an emote would be o
 | `ROLEPLAY` | who the emotes follow (race, class, gender) and the ambient emotes' state |
 | `ROLEPLAY GENDER [HE\|SHE\|FAE\|AUTO]` | the pronouns {he} {him} {his} become (AUTO: your gender in SCORE) |
 | `ROLEPLAY QUIET [ADD\|REMOVE <name>\|RESET]` | defences and afflictions that hold the emotes back |
-| `ROLEPLAY AEM [ON\|OFF]` | an ambient emote every few minutes, or none (default OFF) |
+| `ROLEPLAY AEM [ON\|OFF]` | an ambient emote every few minutes, or none; remembered across sessions (default OFF) |
 | `ROLEPLAY AEM NOW` | one ambient emote now |
 | `ROLEPLAY AEM LIST [GENERAL\|RACE\|CLASS\|ALL]` | the emotes in use, numbered, with weight and chance |
 | `ROLEPLAY AEM ADD <list> [weight] <text>` | add an emote: list GENERAL, RACE, CLASS, or CLASS:<name> |
@@ -85,7 +85,7 @@ Each list takes its starting emotes once, the first time it's in use: general an
 
 ## Daily use
 
-`ROLEPLAY AEM ON` when you settle somewhere to roleplay. The switch loads OFF, so a reload never leaves it running unnoticed.
+`ROLEPLAY AEM ON` when you settle somewhere to roleplay. The switch stays as you left it across sessions: when it loads ON, a notice says so (`ROLEPLAY AEM OFF` to stop).
 
 It holds back on its own, and tries again a minute later:
 
@@ -93,7 +93,7 @@ It holds back on its own, and tries again a minute later:
 - while you're hidden, shrouded, cloaked or phased, or asleep, prone, stunned or in aeon (`ROLEPLAY QUIET` lists them, by the names the game gives them; `QUIET ADD|REMOVE <name>` changes the list);
 - in a fight: you lost health in the last 30 seconds.
 
-When you speak (`You say`, `ask`, `exclaim`, `yell`) or emote yourself, the next ambient emote waits a minute longer, up to the longest wait from now. In the middle of a conversation it steps aside instead of talking over you.
+When you speak or yell (in any voice or accent: it's read from the game's GMCP, not the line) or emote yourself, the next ambient emote waits a minute longer, up to the longest wait from now. In the middle of a conversation it steps aside instead of talking over you.
 
 `ROLEPLAY AEM NOW` sends one at once (unless Loom is paused). `ROLEPLAY AEM TEST <n>` shows one as it would be sent, without sending it.
 
