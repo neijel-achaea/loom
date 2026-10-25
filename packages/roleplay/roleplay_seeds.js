@@ -214,6 +214,29 @@ client.loom.roleplay.seeds = {
       "settles into a loose stillness, only {his} tail moving.",
       "rumbles softly, deep in {his} chest.",
       "kneads the air briefly with flexing fingers."
+    ],
+    // Horns, hooves and goat legs, shaped beards; jovial through movement and tunes, not smiles.
+    "Satyr": [
+      "runs a hand over the curve of one horn.",
+      "traces the ridges of one horn with a fingertip.",
+      "scratches at the base of {his} horns.",
+      "tips {his} head to one side, horns and all.",
+      "taps a cloven hoof against the ground in a quick little rhythm.",
+      "stamps one hoof, then the other.",
+      "shifts from hoof to hoof with a soft clatter.",
+      "kicks out one goat leg in a lazy stretch.",
+      "scratches the coarse fur of one leg with the other hoof.",
+      "brushes a few tangles out of the coarse fur on {his} legs.",
+      "balances on one hoof, then the other.",
+      "strokes {his} carefully shaped beard.",
+      "twirls the end of {his} beard around a finger.",
+      "smooths {his} beard into a neat point.",
+      "does a light, skipping half-step, hooves clicking.",
+      "whistles a few bright notes of a jaunty tune.",
+      "hums a lively tune, tapping a hoof in time.",
+      "leans back with an easy, careless air.",
+      "claps {his} hands together once, briskly.",
+      "rubs {his} palms together, then dusts them off."
     ]
   },
   "class": {}
