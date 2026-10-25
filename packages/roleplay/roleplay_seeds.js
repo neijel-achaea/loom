@@ -306,6 +306,29 @@ client.loom.roleplay.seeds = {
       "stretches to {his} full height, tail stretched out behind {him}.",
       "stands tall and still, tail resting along the ground.",
       "blinks slowly, a deliberate, reptilian blink."
+    ],
+    // Slender and amphibious: bulbous eyes, webbed hands, smooth skin; cerebral. No tentacles (not in the lore), no Ulangi.
+    "Grook": [
+      "blinks {his} large, bulbous eyes slowly.",
+      "dabs at the corner of one large eye.",
+      "lets {his} large eyes drift half-closed.",
+      "spreads {his} fingers, stretching the webbing between them.",
+      "smooths the webbing between two fingers with a thumb.",
+      "presses {his} webbed hands together, fingertip to fingertip.",
+      "flicks a drop of water from {his} fingertips.",
+      "runs a hand over the smooth skin of {his} forearm.",
+      "rubs at a dry patch of skin on {his} wrist.",
+      "swallows, the skin of {his} throat pulsing gently.",
+      "draws {his} slender frame up straight.",
+      "tucks {his} thin arms close, hands folded.",
+      "runs a palm back over {his} smooth head.",
+      "shifts slowly from foot to foot, weight swaying.",
+      "traces a small, intricate pattern in the air with one fingertip.",
+      "steeples {his} long fingers before {his} face.",
+      "taps a fingertip against {his} temple, eyes unfocused.",
+      "hums a low, bubbling note.",
+      "tilts {his} head, studying {his} surroundings with {his} large eyes.",
+      "folds {his} slender, webbed hands before {him}."
     ]
   },
   "class": {}
