@@ -3,7 +3,7 @@
 *Ambient emotes in your own voice: small gestures sent every few minutes, written per race and per class.*
 
 <!-- loom:version roleplay -->
-*This page describes roleplay 0.2.17.*
+*This page describes roleplay 0.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -13,7 +13,7 @@ A character who never moves between lines reads like a statue. With ambient emot
 It's flavour only. It earns nothing, and it stays quiet when an emote would be out of place.
 
 - **Your lists, your words.** You add, reword, weigh and remove emotes with commands. A few starting emotes are there for those who'd rather not write their own; once a list is in use, it's yours.
-- **One voice per body.** Lists are kept per race and per class. A normal class draws from three lists: *general* (anyone), your *race*, and your *class*. A dragon or an elemental lord is a different body, so a form draws only from its own class list: no talk of hands or hair while you're a dragon. An elder dragon shares its colour's list (Elder Golden Dragon uses Golden Dragon's).
+- **One voice per body.** Lists are kept per race and per class. A normal class draws from three lists: *general* (anyone), your *race*, and your *class*. A dragon or an elemental lord is a different body, so a form draws only from its own two lists: the *form*'s (shared by every dragon, or every lord) and its *class* (the colour's, or the element's). No talk of hands or hair while you're a dragon. An elder dragon shares its colour's list (Elder Golden Dragon uses Golden Dragon's).
 - **Chances you can see.** `ROLEPLAY AEM LIST` numbers every emote in use with its weight and the chance it's the next one picked.
 - **Pronouns.** Emotes can say `{he}`, `{him}` and `{his}` (or `{His}` at the start of a sentence), filled in as he/him/his, she/her/her or fae/faen/faes.
 
@@ -27,17 +27,17 @@ It's flavour only. It earns nothing, and it stays quiet when an emote would be o
 | `ROLEPLAY QUIET [ADD\|REMOVE <name>\|RESET]` | defences and afflictions that hold the emotes back |
 | `ROLEPLAY AEM [ON\|OFF]` | an ambient emote every few minutes, or none; remembered across sessions (default OFF) |
 | `ROLEPLAY AEM NOW` | one ambient emote now |
-| `ROLEPLAY AEM LIST [GENERAL\|RACE\|CLASS\|ALL]` | the emotes in use, numbered, with weight and chance |
-| `ROLEPLAY AEM ADD <list> [weight] <text>` | add an emote: list GENERAL, RACE, CLASS, or CLASS:<name> |
+| `ROLEPLAY AEM LIST [GENERAL\|RACE\|CLASS\|FORM\|ALL]` | the emotes in use, numbered, with weight and chance |
+| `ROLEPLAY AEM ADD <list> [weight] <text>` | add an emote: list GENERAL, RACE, CLASS, FORM, or CLASS:<name> |
 | `ROLEPLAY AEM EDIT <n> <text>` | reword emote n |
 | `ROLEPLAY AEM WEIGHT <n> <weight>` | how often emote n comes up (0 keeps it but never sends it) |
 | `ROLEPLAY AEM REMOVE <n>` | remove emote n (its text is shown, to add back) |
 | `ROLEPLAY AEM TEST <n>` | show emote n as it would be sent, without sending it |
 | `ROLEPLAY AEM TIME [<min> <max>]` | minutes between ambient emotes (default 15 19) |
 | `ROLEPLAY AEM EXPORT [ALL]` | your emotes as ADD commands, to keep or paste back |
-| `ROLEPLAY AEM RESET [GENERAL\|RACE\|CLASS\|ALL] CONFIRM` | a fresh set of starting emotes (yours in that list are lost) |
+| `ROLEPLAY AEM RESET [GENERAL\|RACE\|CLASS\|FORM\|ALL] CONFIRM` | a fresh set of starting emotes (yours in that list are lost) |
 | `ROLEPLAY DEBUG` | internal state |
-| **A normal class uses general + race + class lists; a dragon or elemental lord only its own class list.** | |
+| **A normal class uses general + race + class lists; a dragon or elemental lord its form list (every dragon, every lord) + its own (colour, element).** | |
 | **Numbers are those of the last LIST. Nothing is sent while triggers are paused, while hidden or asleep, or in a fight.** | |
 <!-- /loom:commands -->
 
@@ -48,9 +48,10 @@ It's flavour only. It earns nothing, and it stays quiet when an emote would be o
 | List | What it's for |
 | --- | --- |
 | `GENERAL` | gestures anyone could make, whatever their race and class (never used in a form) |
-| `RACE` | your race's body and habits: an Atavian's wings, a Grook's tentacles (never used in a form) |
-| `CLASS` | your class now: a Magi's crystals, a Druid's staff; as a dragon or elemental lord, that form's whole voice |
-| `CLASS:<name>`, `RACE:<name>` | another class's or race's list, with underscores for spaces: `CLASS:Black_Dragon` |
+| `RACE` | your race's body and habits: an Atavian's wings, a Grook's webbed hands (never used in a form) |
+| `CLASS` | your class now: a Magi's crystals, a Druid's staff; as a dragon, your colour's own |
+| `FORM` | in a form, what every dragon (or every elemental lord) shares: wings, scales, size |
+| `CLASS:<name>`, `RACE:<name>`, `FORM:<name>` | another class's, race's or form's list, with underscores for spaces: `CLASS:Black_Dragon`, `FORM:Dragon` |
 
 Then an optional weight (default 1), then the text, which is everything after `emote `. A leading `emote` is dropped if you type it:
 
@@ -73,7 +74,7 @@ An emote with weight 4 comes up twice as often as one with weight 2. `LIST` show
 
 ### Starting emotes
 
-Each list takes its starting emotes once, the first time it's in use: general and your race's at install, a class's the first time you're that class. They're a random handful from larger pools, so two characters seldom start with the same set: 10 general emotes (from 50), 5 for your race (from 20, weight 3) and 5 for your class (from 10, weight 4). Twenty in all, with the class, which defines a character best, coming up most often. After that the list is yours: emptying it keeps it empty. `ROLEPLAY AEM RESET GENERAL CONFIRM` (or `RACE`, `CLASS`, `ALL`) deals a fresh set and removes yours from that list.
+Each list takes its starting emotes once, the first time it's in use: general and your race's at install, a class's the first time you're that class. They're a random handful from larger pools, so two characters seldom start with the same set: 10 general emotes (from 50), 5 for your race (from 20, weight 3) and 5 for your class (from 20, weight 4). A form gets 15 from its shared pool and 5 from its colour's or element's, all at weight 4. Twenty in all, with the class, which defines a character best, coming up most often. After that the list is yours: emptying it keeps it empty. `ROLEPLAY AEM RESET GENERAL CONFIRM` (or `RACE`, `CLASS`, `ALL`) deals a fresh set and removes yours from that list.
 
 The starting emotes keep to a few rules, worth following in your own too: only what others can see (no "as if", nothing that tells the room what you think), nothing that invites a question, nothing that depends on the room or the moment, nothing that says how you feel (hungry, cold), and nothing rude.
 
@@ -105,7 +106,7 @@ Roleplay reads nothing from other packages and nothing reads it.
 
 ## Troubleshooting
 
-- **No emotes in use.** `ROLEPLAY` shows the race and class it knows: an empty or wrong one means it hasn't seen your login yet. Log in again. A form with an empty list sends nothing: `ROLEPLAY AEM ADD CLASS ...` while you're in it.
+- **No emotes in use.** `ROLEPLAY` shows the race and class it knows: an empty or wrong one means it hasn't seen your login yet. Log in again. A form with empty lists sends nothing: `ROLEPLAY AEM ADD FORM ...` or `ADD CLASS ...` while you're in it.
 - **Nothing is sent.** `ROLEPLAY AEM` shows the next time and what's holding it back. `ROLEPLAY QUIET` shows which of its defences and afflictions are up.
 - **`{his}` appears as written, or token emotes never come up.** Your pronouns aren't known: type `SCORE`, or `ROLEPLAY GENDER`.
 - **A bug?** [Report it](https://github.com/neijel-achaea/loom/issues/new/choose) with `ROLEPLAY DEBUG`'s output.

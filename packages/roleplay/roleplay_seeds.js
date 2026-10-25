@@ -4,15 +4,17 @@
 // each pool (RP.seedPlan), so two characters seldom share the same set:
 //   general  50 in the pool, 10 dealt, at the row's weight (2, clumsy ones 1)
 //   race     20 per race,     5 dealt, weight 3
-//   class    10 per class,    5 dealt, weight 4 (the class defines a character best)
-// Twenty emotes in all for a normal class. Rows are [weight, text], or just
+//   class    20 per class,    5 dealt, weight 4 (the class defines a character best)
+//   form     30 per form,    15 dealt, weight 4 (every dragon, every elemental lord)
+// Twenty emotes in all: general + race + class for a normal class; form +
+// class (the colour's or element's own 10, 5 dealt) for a dragon or a lord. Rows are [weight, text], or just
 // the text where the plan sets the weight; the text follows "emote ", with
 // {he} {him} {his} for your pronouns.
 //
 //   general        any race, any normal class (never a dragon or elemental lord)
 //   race[<Race>]   that race's body and habits, as GMCP names the race
-//   class[<Class>] that class; dragons and elemental lords are classes here,
-//                  and theirs is the whole voice of the form
+//   class[<Class>] that class; a dragon colour or an element is a class here
+//   form[<Form>]   "Dragon" or "Elemental Lord": what every colour or element shares
 //
 // Rules for every seed (Ricardo, 2026-10-25): only what others can see (no
 // "as if", nothing that tells the room what you think); nothing that invites
@@ -22,7 +24,7 @@
 // Race pools assume no homeland, city or faith (any race lives anywhere):
 // nature and the like belong in class pools.
 if (!client.loom || !client.loom.roleplay) { if (!client.loom) client.loom = {}; client.loom.roleplay = {}; }
-client.loom.roleplay.seedPlan = { general: { n: 10 }, race: { n: 5, w: 3 }, "class": { n: 5, w: 4 } };
+client.loom.roleplay.seedPlan = { general: { n: 10 }, race: { n: 5, w: 3 }, "class": { n: 5, w: 4 }, form: { n: 15, w: 4 } };
 client.loom.roleplay.seeds = {
   general: [
     [2, "glances around, taking quiet stock of the room."],
@@ -400,5 +402,6 @@ client.loom.roleplay.seeds = {
       "narrows {his} eyes beneath {his} heavy brow."
     ]
   },
-  "class": {}
+  "class": {},
+  form: {}
 };
