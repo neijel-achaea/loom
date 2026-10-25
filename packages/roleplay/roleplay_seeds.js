@@ -977,6 +977,29 @@ client.loom.roleplay.seeds = {
       "swallows, the venom glands along {his} jaw swelling, then easing.",
       "drools a thick strand of slime that thins and vanishes before it lands.",
       "licks the slime from one talon, slow and unhurried."
+    ],
+    // fire: smoke and sparks that wink out, inner glow, heat haze, ember eyes
+    "Red Dragon": [
+      "exhales, and a thin wisp of smoke curls from {his} nostrils.",
+      "lets out a slow breath that shimmers with heat before {his} snout.",
+      "snorts, and a few sparks spill from {his} nostrils and wink out in the air.",
+      "parts {his} jaws, a dull orange glow kindling deep in {his} throat, then fading.",
+      "breathes out, and the air about {his} head ripples with heat.",
+      "huffs, a short burst of smoke rolling from between {his} teeth.",
+      "rumbles, and a red glow pulses beneath the scales of {his} throat.",
+      "swallows, the glow in {his} chest flaring and sinking again.",
+      "shakes {his} head, and a few embers drift from {his} jaw and die in the air.",
+      "rolls {his} shoulders, heat shimmering off the ridge of {his} spine.",
+      "flexes {his} talons, each tip glowing a dull red, then cooling.",
+      "curls {his} tail close, a faint haze of heat rising from its scales.",
+      "shifts {his} massive form, {his} red scales gleaming like banked coals.",
+      "settles, the deep crimson of {his} hide warm as a hearthstone.",
+      "bares {his} teeth in a slow, smouldering grin.",
+      "lifts {his} head high, proud and imperious.",
+      "regards {his} surroundings with eyes like smouldering embers.",
+      "lowers {his} head and huffs, smoke curling up about {his} brow.",
+      "licks {his} lips, a faint smell of brimstone hanging on {his} breath.",
+      "sighs, and a long ribbon of smoke unwinds slowly from {his} jaws."
     ]
   },
   form: {
