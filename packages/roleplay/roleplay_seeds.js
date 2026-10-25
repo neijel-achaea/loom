@@ -931,6 +931,29 @@ client.loom.roleplay.seeds = {
       "folds {his} wings with a faint crackle of breaking rime.",
       "exhales, and a cold draught spills from {his} jaws and fades.",
       "shudders, and a fine powder of frost sifts from {his} scales and vanishes."
+    ],
+    // mind: glowing eyes, pressure and shimmer in the air, burnished gold
+    "Golden Dragon": [
+      "turns {his} gaze on nothing in particular, and the gold of {his} eyes brightens, then dims.",
+      "narrows {his} eyes, a faint golden light gathering behind them.",
+      "blinks slowly, and for a moment {his} eyes are pools of molten gold.",
+      "holds {his} gaze steady, unblinking, the pupils narrowed to thin dark slits.",
+      "lets {his} eyes go unfocused, a soft glow pulsing in their depths.",
+      "lowers {his} head, and the air about {him} grows briefly heavy, then eases.",
+      "exhales slowly, and a low hum seems to linger in the air about {his} head.",
+      "tilts {his} head, and the air before {him} ripples faintly, like heat over stone.",
+      "closes {his} eyes, and a subtle shimmer passes over {his} brow.",
+      "shifts, and {his} golden scales gleam like hammered coin.",
+      "settles, the gold of {his} hide warm and burnished.",
+      "rolls {his} shoulders, a ripple of gold running from neck to tail.",
+      "stretches one wing, its golden membrane glowing faintly at the edges.",
+      "curls {his} tail close, the gilded scales along it gleaming.",
+      "lifts {his} head high on {his} neck, regal and composed.",
+      "regards {his} surroundings with calm, measuring patience.",
+      "furrows the ridges above {his} eyes, a faint glow flickering across {his} brow.",
+      "sits utterly motionless, a faint golden haze gathering about {his} head and fading.",
+      "flicks one ear-frill, the gold along its edge catching a faint inner light.",
+      "lets out a low, resonant thrum, felt in the chest more than heard."
     ]
   },
   form: {
