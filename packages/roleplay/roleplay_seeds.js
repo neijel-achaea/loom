@@ -770,6 +770,29 @@ client.loom.roleplay.seeds = {
       "turns, and {his} shadow is a moment late to follow.",
       "stills completely, as if time had paused for {him} alone.",
       "brushes {his} fingers through a patch of shadow as if it were water."
+    ],
+    // Bloodsworn healers of the Dawn: verse and ash, blessings, vestments and beads, the angel by its warmth, the spiritual mace.
+    "Priest": [
+      "recites a line of holy verse under {his} breath.",
+      "brushes a fleck of pale ash from {his} fingertips.",
+      "thumbs through a small, well-worn book of verse.",
+      "marks a passage in {his} book of verse with a ribbon.",
+      "folds {his} hands and offers a brief, whispered blessing.",
+      "lifts {his} face, eyes closed, lips moving in quiet devotion.",
+      "murmurs a name softly, like a promise.",
+      "raises two fingers in a small, quiet blessing.",
+      "glances to {his} side, where a faint warmth lingers in the air.",
+      "bows {his} head toward the empty air beside {him}.",
+      "rests {his} hand on the haft of {his} mace.",
+      "presses {his} palms together, a soft glow gathering between them before it fades.",
+      "straightens the pale vestments at {his} shoulders.",
+      "stands with the quiet, upright patience of the devout.",
+      "smooths the embroidered stole about {his} neck.",
+      "holds very still, eyes closed, as the air around {him} warms.",
+      "wipes {his} hands on a clean white cloth.",
+      "hums a few notes of a hymn, then lets them fade.",
+      "passes a string of pale prayer beads through {his} fingers, one by one.",
+      "unrolls a short scroll of verse, reads a line, and rolls it up again."
     ]
   },
   form: {
