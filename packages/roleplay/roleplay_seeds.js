@@ -678,6 +678,29 @@ client.loom.roleplay.seeds = {
       "scans the edges of {his} whereabouts with a hunter's eyes.",
       "checks the straps holding {his} gear tight against {him}.",
       "snaps a twig between {his} fingers and drops the pieces."
+    ],
+    // Forest-touched weatherweavers: wind, rain and static, the Viridian under the skin, herbs and seeds. No staff (not in the lore).
+    "Sylvan": [
+      "lifts a hand, and a soft breeze stirs the hair at {his} brow before dying away.",
+      "rubs {his} fingertips together, and a faint crackle of static jumps between them.",
+      "turns {his} palm up as a few drops of rain gather there and run off.",
+      "flicks {his} wrist, and a small eddy of wind spins about {his} feet.",
+      "lets a curl of wind tug at {his} sleeves, then stills it with a gesture.",
+      "brushes a fine dusting of green from the back of {his} hand.",
+      "rubs at a thorn pricking through the skin of {his} wrist until it sinks back.",
+      "picks a tiny sprouting leaf from {his} fingertip.",
+      "flexes {his} hand, faint green veins showing briefly beneath the skin.",
+      "wipes a bead of sap from {his} palm.",
+      "turns a sprig of valerian over in {his} fingers.",
+      "crushes a leaf of lobelia, breathes in its scent, and tucks it away.",
+      "sorts a few dried herbs in {his} palm, setting one aside.",
+      "pinches a goldenseal root between {his} fingers, testing its dryness.",
+      "tucks a sprig of bloodroot behind {his} ear.",
+      "studies a seed on {his} palm with quiet attention.",
+      "holds up a damp finger, testing the air.",
+      "sways gently, like a sapling in the wind.",
+      "kneels to press a seed into the earth, then rises.",
+      "lets a single hailstone form on {his} palm, then closes {his} hand over it."
     ]
   },
   form: {
