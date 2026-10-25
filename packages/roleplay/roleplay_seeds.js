@@ -329,6 +329,29 @@ client.loom.roleplay.seeds = {
       "hums a low, bubbling note.",
       "tilts {his} head, studying {his} surroundings with {his} large eyes.",
       "folds {his} slender, webbed hands before {him}."
+    ],
+    // Small, quick and youthful; skin patterned like their mother trees (colour, not texture); the seed-gift. No Aerinewild.
+    "Fayad": [
+      "traces the patterns along {his} forearm with a fingertip.",
+      "turns one hand over, studying the colours patterning {his} skin.",
+      "rubs a thumb across the markings on the back of {his} hand.",
+      "bounces up onto {his} toes, quick and light.",
+      "hops lightly from one foot to the other.",
+      "tilts {his} head with a quick, birdlike movement.",
+      "darts a few quick steps one way, then back again.",
+      "stretches {his} small frame up as tall as it will go.",
+      "rocks on the outer edges of {his} feet.",
+      "peers closely at {his} own fingertips, wiggling them.",
+      "watches everything around {him} with bright, quick eyes.",
+      "weaves {his} fingers together in an idle, shifting pattern.",
+      "swings {his} arms idly back and forth.",
+      "hums a bright, wandering little tune.",
+      "blows softly across {his} open palm.",
+      "cups {his} hands together, then opens them, empty.",
+      "brushes a drift of fine seed-down from {his} shoulder.",
+      "picks up a pebble, studies it, and sets it carefully down again.",
+      "twirls a lock of hair around a finger.",
+      "sits back on {his} heels, then springs up again."
     ]
   },
   "class": {}
