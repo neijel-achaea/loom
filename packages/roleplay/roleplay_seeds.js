@@ -655,6 +655,29 @@ client.loom.roleplay.seeds = {
       "blinks, and for an instant {his} eyes hold a feral, golden sheen.",
       "flexes {his} fingers like claws, then lets them relax.",
       "presses the heel of {his} staff into the earth and holds it there a moment."
+    ],
+    // Gaia's hunters: weapons named generically (axe, spear or trident), traps and cord, companions by their traces, field craft.
+    "Sentinel": [
+      "tests the edge of the weapon at {his} belt with a thumb.",
+      "spins {his} weapon once and catches it by the haft.",
+      "runs a whetstone along {his} weapon in short, practised strokes.",
+      "leans on the shaft of {his} weapon.",
+      "checks the binding below the head of {his} weapon.",
+      "coils a length of snare wire neatly around {his} hand.",
+      "tests a knot in a length of cord, then pulls it tight.",
+      "checks the spring of a small trap, then tucks it away.",
+      "whittles a sharp point onto a stick with a few quick strokes.",
+      "sorts through a pouch of trap makings with a practised hand.",
+      "whistles a short, soft call through {his} teeth.",
+      "brushes a russet fox hair from {his} knee.",
+      "smooths a black raven feather and tucks it into {his} belt.",
+      "brushes a smudge of campfire soot from {his} sleeve.",
+      "rubs the rough, bark-like skin on the back of {his} hand.",
+      "tucks a sprig of leaves into the band of {his} cloak.",
+      "cleans the dirt from under {his} nails with the point of a knife.",
+      "scans the edges of {his} whereabouts with a hunter's eyes.",
+      "checks the straps holding {his} gear tight against {him}.",
+      "snaps a twig between {his} fingers and drops the pieces."
     ]
   },
   form: {
