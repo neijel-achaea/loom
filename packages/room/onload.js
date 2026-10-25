@@ -16,3 +16,7 @@ run_function("room_setup", [], "room");
 run_function("room_render", [], "room");
 // The two-line scripts' work (#136): made afresh, so a reimport replaces it.
 run_function("room_gmcp", [], "room");
+// A LOOK on load (#401): the game sends the room (and fills Nexus's map) only
+// when you move or look, so after a login or reload Here would stay empty
+// until then, longer while blind.
+send_command("look");

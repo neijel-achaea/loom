@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 1.1.0.*
+*This page describes room 1.1.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -47,7 +47,7 @@ What you see, top to bottom:
 
 1. **Import `room.nxs`** (see [Getting started](getting-started.md)).
 2. **Create the tab.** Add a custom tab named exactly **`Here`**. If it doesn't appear, reset the UI layout. Its amber icon shows after a page reload. You can then close Nexus's own Room tab from the layout, if you like.
-3. **Move or `LOOK`.** The tab fills on the first room the game reports.
+3. **That's it.** Room sends a `LOOK` when it loads, so the tab (and Nexus's map) fills at once, even while you're blind.
 
 It's called Here because Nexus already has a tab called Room, and two tabs with one name don't get along.
 
