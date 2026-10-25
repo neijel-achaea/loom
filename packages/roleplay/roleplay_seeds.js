@@ -816,6 +816,29 @@ client.loom.roleplay.seeds = {
       "ties a small bundle of herbs and bone together with twine.",
       "tips a pinch of dust from a pouch into {his} palm, studies it, and blows it away.",
       "whispers something into the ear of a cloth doll."
+    ],
+    // The Accursed: blood logographs, swarms and plague vials, desert sand and grave dust, the crypt's scarabs.
+    "Pariah": [
+      "traces a small logograph in the air with a bloodied fingertip, then lets it fade.",
+      "presses a fingertip to a shallow cut on {his} palm and studies the bead of blood.",
+      "wipes a smear of blood from {his} fingers onto a dark cloth.",
+      "binds a thin strip of cloth about {his} cut palm.",
+      "traces a slow line of dried blood along the back of {his} hand.",
+      "lets a beetle crawl from {his} sleeve across {his} knuckles and back again.",
+      "brushes a few chittering insects from {his} shoulder.",
+      "flicks a dead locust from the folds of {his} robes.",
+      "tilts {his} head toward a faint chittering from inside {his} robes.",
+      "stoppers a small vial of something cloudy and tucks it away.",
+      "brushes fine desert sand from {his} sleeves.",
+      "shakes a trickle of sand from {his} boots.",
+      "turns a small carved scarab over in {his} fingers.",
+      "runs a thumb along the curved edge of {his} desert-forged blade.",
+      "brushes a wisp of grave dust from {his} robes.",
+      "murmurs a few words in the old desert tongue.",
+      "draws the dark folds of {his} robes closer about {him}.",
+      "hums a slow, mournful dirge under {his} breath.",
+      "sets a scarab-shaped amulet swinging from {his} fingers, then catches it.",
+      "scrapes a dried flake of blood from beneath a fingernail."
     ]
   },
   form: {
