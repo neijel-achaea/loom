@@ -402,6 +402,8 @@ client.loom.roleplay.seeds = {
       "narrows {his} eyes beneath {his} heavy brow."
     ]
   },
-  "class": {},
-  form: {}
+  "class": {
+  },
+  form: {
+  }
 };
