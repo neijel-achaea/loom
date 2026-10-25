@@ -19,6 +19,8 @@
 // a question (no reaction to something unseen); nothing that depends on the
 // room or the moment; nothing that states something about you (hungry, cold);
 // nothing rude or grating. Clumsy ones weigh 1, the rest 2.
+// Race pools assume no homeland, city or faith (any race lives anywhere):
+// nature and the like belong in class pools.
 if (!client.loom || !client.loom.roleplay) { if (!client.loom) client.loom = {}; client.loom.roleplay = {}; }
 client.loom.roleplay.seedPlan = { general: { n: 10 }, race: { n: 5, w: 3 }, "class": { n: 5, w: 4 } };
 client.loom.roleplay.seeds = {
@@ -166,6 +168,29 @@ client.loom.roleplay.seeds = {
       "holds {his} wings a little apart, balanced lightly on {his} feet.",
       "shifts {his} wings to keep them clear of {his} surroundings.",
       "scratches at an itch where {his} wings meet {his} back."
+    ],
+    // Lithe, elegant and unhurried, long hair. No forest: that belongs to classes (Tsol'aa live in every city).
+    "Tsol'aa": [
+      "gathers {his} long hair over one shoulder.",
+      "combs {his} fingers slowly through the length of {his} hair.",
+      "tucks a long strand of hair back with an unhurried hand.",
+      "stands in a quiet, lithe stillness, {his} weight perfectly balanced.",
+      "moves with slow, deliberate grace, then settles again.",
+      "stretches {his} lithe frame with slow, easy grace.",
+      "inclines {his} head slightly, a slow and measured movement.",
+      "waits, perfectly patient, without a trace of hurry.",
+      "regards the room with a long, patient look.",
+      "blinks slowly, {his} gaze steady and calm.",
+      "folds {his} slender hands together before {him}.",
+      "smooths a crease from {his} clothes with long, elegant fingers.",
+      "runs a fingertip along the curve of {his} ear.",
+      "draws {his} long hair back from {his} face with both hands.",
+      "smooths {his} long hair down over {his} back.",
+      "straightens with quiet poise, chin lifted slightly.",
+      "lowers {his} eyes for a long moment, then raises them again.",
+      "lets {his} hands rest lightly at {his} sides, perfectly still.",
+      "rests a fingertip against {his} lips for a moment.",
+      "shifts {his} weight with light, easy balance."
     ]
   },
   "class": {}
