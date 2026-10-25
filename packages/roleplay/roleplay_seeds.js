@@ -352,6 +352,29 @@ client.loom.roleplay.seeds = {
       "picks up a pebble, studies it, and sets it carefully down again.",
       "twirls a lock of hair around a finger.",
       "sits back on {his} heels, then springs up again."
+    ],
+    // Poise, grace, hair and gaze; elegant rather than sultry. No water (not in Achaea's lore).
+    "Siren": [
+      "sweeps {his} luxurious hair back over one shoulder.",
+      "winds a lock of hair slowly around one finger.",
+      "lifts {his} hair off {his} neck, then lets it fall.",
+      "smooths a stray strand back into place with a light touch.",
+      "tosses {his} head lightly, hair settling about {his} shoulders.",
+      "brushes {his} hair from {his} cheek with the back of a hand.",
+      "lowers {his} heavy-lidded eyes, then raises them slowly.",
+      "glances up through {his} lashes.",
+      "lets {his} gaze linger a moment before moving on.",
+      "touches a fingertip lightly to {his} full lower lip.",
+      "shifts {his} weight with an easy, unhurried grace.",
+      "straightens with effortless poise.",
+      "turns {his} head slowly, the line of {his} neck graceful.",
+      "adjusts the drape of {his} clothes with a practised hand.",
+      "rests {his} chin lightly on the back of one hand.",
+      "trails {his} fingertips slowly along {his} collarbone.",
+      "tilts {his} head slowly to one side.",
+      "runs {his} fingertips idly along {his} jaw.",
+      "hums a soft, low melody.",
+      "settles into stillness, quietly drawing the eye."
     ]
   },
   "class": {}
