@@ -3,7 +3,7 @@
 *Ambient emotes in your own voice: small gestures sent every few minutes, written per race and per class.*
 
 <!-- loom:version roleplay -->
-*This page describes roleplay 0.2.2.*
+*This page describes roleplay 0.2.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -73,7 +73,7 @@ An emote with weight 4 comes up twice as often as one with weight 2. `LIST` show
 
 ### Starting emotes
 
-Each list takes its starting emotes once, the first time it's in use: general and your race's at install, a class's the first time you're that class. They're a random 15 from a larger pool (the general pool holds 50), so two characters seldom start with the same set. After that the list is yours: emptying it keeps it empty. `ROLEPLAY AEM RESET GENERAL CONFIRM` (or `RACE`, `CLASS`, `ALL`) deals a fresh 15 and removes yours from that list.
+Each list takes its starting emotes once, the first time it's in use: general and your race's at install, a class's the first time you're that class. They're a random handful from larger pools, so two characters seldom start with the same set: 10 general emotes (from 50), 5 for your race (from 20, weight 3) and 5 for your class (from 10, weight 4). Twenty in all, with the class, which defines a character best, coming up most often. After that the list is yours: emptying it keeps it empty. `ROLEPLAY AEM RESET GENERAL CONFIRM` (or `RACE`, `CLASS`, `ALL`) deals a fresh set and removes yours from that list.
 
 The starting emotes keep to a few rules, worth following in your own too: only what others can see (no "as if", nothing that tells the room what you think), nothing that invites a question, nothing that depends on the room or the moment, nothing that says how you feel (hungry, cold), and nothing rude.
 

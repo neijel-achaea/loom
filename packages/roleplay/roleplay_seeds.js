@@ -1,9 +1,13 @@
 // roleplay_seeds -- the starting emotes, run by roleplay_setup. A list takes
 // its seeds once, the first time it's in use, and is the player's after that;
-// ROLEPLAY AEM RESET puts a fresh set back. A pool longer than RP.seedCount
-// (15) gives each player a random handful of it, so two characters seldom
-// share the same set. Rows are [weight, text]; the text follows "emote ",
-// with {he} {him} {his} for your pronouns.
+// ROLEPLAY AEM RESET deals a fresh set. Each player gets a random handful of
+// each pool (RP.seedPlan), so two characters seldom share the same set:
+//   general  50 in the pool, 10 dealt, at the row's weight (2, clumsy ones 1)
+//   race     20 per race,     5 dealt, weight 3
+//   class    10 per class,    5 dealt, weight 4 (the class defines a character best)
+// Twenty emotes in all for a normal class. Rows are [weight, text], or just
+// the text where the plan sets the weight; the text follows "emote ", with
+// {he} {him} {his} for your pronouns.
 //
 //   general        any race, any normal class (never a dragon or elemental lord)
 //   race[<Race>]   that race's body and habits, as GMCP names the race
@@ -16,7 +20,7 @@
 // room or the moment; nothing that states something about you (hungry, cold);
 // nothing rude or grating. Clumsy ones weigh 1, the rest 2.
 if (!client.loom || !client.loom.roleplay) { if (!client.loom) client.loom = {}; client.loom.roleplay = {}; }
-client.loom.roleplay.seedCount = 15;
+client.loom.roleplay.seedPlan = { general: { n: 10 }, race: { n: 5, w: 3 }, "class": { n: 5, w: 4 } };
 client.loom.roleplay.seeds = {
   general: [
     [2, "glances around, taking quiet stock of the room."],
