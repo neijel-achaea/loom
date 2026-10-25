@@ -17,7 +17,7 @@ var hlRows = [
   ["ROLEPLAY AEM TEST <n>", "show emote n as it would be sent, without sending it"],
   ["ROLEPLAY AEM TIME [<min> <max>]", "minutes between ambient emotes (default 15 19)"],
   ["ROLEPLAY AEM EXPORT [ALL]", "your emotes as ADD commands, to keep or paste back"],
-  ["ROLEPLAY AEM RESET [GENERAL|RACE|CLASS|ALL] CONFIRM", "put the starting emotes back (yours in that list are lost)"],
+  ["ROLEPLAY AEM RESET [GENERAL|RACE|CLASS|ALL] CONFIRM", "a fresh set of starting emotes (yours in that list are lost)"],
   ["ROLEPLAY DEBUG", "internal state"],
   ["A normal class uses general + race + class lists; a dragon or elemental lord only its own class list."],
   ["Numbers are those of the last LIST. Nothing is sent while triggers are paused, while hidden or asleep, or in a fight."]

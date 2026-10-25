@@ -3,7 +3,7 @@
 *Ambient emotes in your own voice: small gestures sent every few minutes, written per race and per class.*
 
 <!-- loom:version roleplay -->
-*This page describes roleplay 0.2.1.*
+*This page describes roleplay 0.2.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -35,7 +35,7 @@ It's flavour only. It earns nothing, and it stays quiet when an emote would be o
 | `ROLEPLAY AEM TEST <n>` | show emote n as it would be sent, without sending it |
 | `ROLEPLAY AEM TIME [<min> <max>]` | minutes between ambient emotes (default 15 19) |
 | `ROLEPLAY AEM EXPORT [ALL]` | your emotes as ADD commands, to keep or paste back |
-| `ROLEPLAY AEM RESET [GENERAL\|RACE\|CLASS\|ALL] CONFIRM` | put the starting emotes back (yours in that list are lost) |
+| `ROLEPLAY AEM RESET [GENERAL\|RACE\|CLASS\|ALL] CONFIRM` | a fresh set of starting emotes (yours in that list are lost) |
 | `ROLEPLAY DEBUG` | internal state |
 | **A normal class uses general + race + class lists; a dragon or elemental lord only its own class list.** | |
 | **Numbers are those of the last LIST. Nothing is sent while triggers are paused, while hidden or asleep, or in a fight.** | |
@@ -73,7 +73,9 @@ An emote with weight 4 comes up twice as often as one with weight 2. `LIST` show
 
 ### Starting emotes
 
-Each list takes its starting emotes once, the first time it's in use: general and your race's at install, a class's the first time you're that class. After that the list is yours: emptying it keeps it empty. `ROLEPLAY AEM RESET GENERAL CONFIRM` (or `RACE`, `CLASS`, `ALL`) puts the starting emotes back and removes yours from that list.
+Each list takes its starting emotes once, the first time it's in use: general and your race's at install, a class's the first time you're that class. They're a random 15 from a larger pool (the general pool holds 50), so two characters seldom start with the same set. After that the list is yours: emptying it keeps it empty. `ROLEPLAY AEM RESET GENERAL CONFIRM` (or `RACE`, `CLASS`, `ALL`) deals a fresh 15 and removes yours from that list.
+
+The starting emotes keep to a few rules, worth following in your own too: only what others can see (no "as if", nothing that tells the room what you think), nothing that invites a question, nothing that depends on the room or the moment, nothing that says how you feel (hungry, cold), and nothing rude.
 
 ## Setting it up
 

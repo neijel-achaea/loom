@@ -14,7 +14,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.roleplay) client.loom.roleplay = {};
-client.loom.registry.roleplay = { version: "0.2.1", keyword: "ROLEPLAY", desc: "{{description}}" };
+client.loom.registry.roleplay = { version: "0.2.2", keyword: "ROLEPLAY", desc: "{{description}}" };
 var RP = client.loom.roleplay;
 
 function rpGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || ("" + v) === "undefined") ? "" : "" + v; }
@@ -156,7 +156,12 @@ RP.seedKey = function (key) {
   var sd = RP.seedFor(key);
   if (!sd.length) return false;
   if (!RP.lists[key]) RP.lists[key] = [];
-  for (var i = 0; i < sd.length; i++) RP.lists[key].push({ w: sd[i][0], t: sd[i][1] });
+  // A random handful of a long pool, kept in the pool's order.
+  var n = RP.seedCount || 15, idx = [], i;
+  for (i = 0; i < sd.length; i++) idx.push(i);
+  for (i = idx.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+  idx = idx.slice(0, n).sort(function (a, b) { return a - b; });
+  for (i = 0; i < idx.length; i++) RP.lists[key].push({ w: sd[idx[i]][0], t: sd[idx[i]][1] });
   RP.seeded[key] = 1;
   return true;
 };
