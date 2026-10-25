@@ -724,6 +724,29 @@ client.loom.roleplay.seeds = {
       "works {his} jaw slowly, then stills it.",
       "stands so still {he} is easy to overlook.",
       "tilts {his} head with a slow, sinuous turn of the neck."
+    ],
+    // Absurdity as a weapon: acrobatics, props, puppets, motley, and a touch of madness (the one pool that may invite questions).
+    "Jester": [
+      "does a quick handspring and lands neatly on {his} feet.",
+      "turns a lazy cartwheel and finishes with a flourish.",
+      "stands on {his} hands for a moment, then flips upright again.",
+      "pulls a balloon from {his} pocket, blows it up, and twists it into a lopsided animal.",
+      "juggles three small balls, then catches them all in one hand.",
+      "polishes the blackjack at {his} belt with {his} sleeve.",
+      "pats {his} pockets, finds a mouse in one, and puts it back.",
+      "makes a small wooden puppet take a bow, then tucks it away.",
+      "walks a tiny puppet along {his} forearm.",
+      "untangles a puppet's strings with nimble fingers.",
+      "straightens {his} motley with an exaggerated tug.",
+      "tips an imaginary hat to no one in particular.",
+      "strikes a dramatic pose, holds it, then abandons it entirely.",
+      "mimes leaning on a wall that isn't there.",
+      "takes an elaborate bow to an audience of no one.",
+      "mutters a punchline, then waits expectantly.",
+      "tosses a pinch of confetti into the air and watches it fall.",
+      "giggles, stops abruptly, and looks around for the culprit.",
+      "holds a whispered conversation with one of {his} puppets, then shushes it.",
+      "laughs at a joke no one told, a beat too long."
     ]
   },
   form: {
