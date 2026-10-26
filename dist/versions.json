@@ -15,13 +15,13 @@
   "huntstats": "1.0.0",
   "ledger": "1.0.1",
   "levelgraph": "1.0.0",
-  "loom": "1.0.0",
+  "loom": "1.0.1",
   "magi": "1.0.0",
   "numpad_movement": "1.0.0",
   "partycomms": "1.0.0",
   "patrolling": "1.0.0",
   "roleplay": "0.3.29",
-  "room": "1.1.1",
+  "room": "1.1.2",
   "security": "1.0.0",
   "self": "1.0.0",
   "sigils": "1.0.1",
@@ -29,6 +29,7 @@
   "standings": "1.0.0",
   "talpieces": "1.0.0",
   "vials": "1.0.0",
-  "vision": "1.0.0"
+  "vision": "1.0.0",
+  "waypoints": "0.2.1"
  }
 }
