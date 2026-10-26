@@ -32,7 +32,7 @@ CJ.sigils = {
   pestilence: { name: "a ring of pestilence" },
   star: { name: "a star sigil" },
   stasis: { name: "a bag of stasis" },
-  whirlwind: { name: "a whirlwind of Vastar" }
+  whirlwind: { name: "a whirlwind of Vastar", begin: "whirlwind of vastar", take: "whirlwind", reagents: [[1, "silver"], [1, "dust"], [1, "horn"]], actions: "4x4, 16, 9, 4x4" }
 };
 
 // The ritual actions by number (HELP CONJURATION): the command, and the
