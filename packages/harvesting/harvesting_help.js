@@ -5,7 +5,7 @@ var hlTitle = "[harvesting] harvests and stores plants below their minimum rift 
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["HARVESTING", "status: what is below its minimum"],
-  ["HARVESTING ON|OFF", "ON also re-reads your rift (IR HERBS)"],
+  ["HARVESTING ON|OFF", "ON also re-reads your rift (IR HERBS); loads OFF"],
   ["HARVESTING MIN <n>", "default minimum for every plant"],
   ["HARVESTING MIN <plant> <n>", "minimum for one plant (DEFAULT to go back to the default)"],
   ["HARVESTING STOCK", "re-read your rift now"],

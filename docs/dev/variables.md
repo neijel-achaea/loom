@@ -159,7 +159,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
-| `harvesting_on` | setting | 0.2 | harvest as you walk | `hv_on` |
+| `harvesting_on` | state | 0.2 | harvest as you walk; set off at every load (1.1) | `hv_on` |
 | `harvesting_default_min` | setting | 0.2 | default minimum per plant |  |
 | `harvesting_min` | setting | 0.2 | minimum per plant | `hv_min` |
 | `harvesting_map` | data | 0.2 | plant name to rift name | `hv_map` |
