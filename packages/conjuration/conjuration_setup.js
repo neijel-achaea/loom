@@ -18,7 +18,7 @@ CJ.sigils = {
   bauble: { name: "a scented bauble" },
   brooch: { name: "a brooch of Thoth", begin: "brooch of thoth", take: "brooch", reagents: [[1, "ice"], [2, "dust"], [1, "horn"], [2, "silver"]], actions: 'chant "mortis troy tenkla", chant "mortis troy tenklu", chant "mortis troy tenkli", 3x6' },
   comprehension: { name: "a necklace of comprehension", begin: "necklace of comprehension", take: "necklace", reagents: [[2, "ice"], [3, "gold"], [4, "silver"], [3, "horn"]], actions: "3x10, 9, 16, 1, 2x13, 4, 9, 15" },
-  concealment: { name: "an orb of concealment" },
+  concealment: { name: "an orb of concealment", begin: "orb of concealment", take: "orb", reagents: [[5, "silver"], [1, "gold"]], actions: '16, 14, 12, 10, 8, 6, 4, chant "aisyalam" , 4, 6, 8, 10, 12, 14, 16' },
   cube: { name: "a vibration-dampening cube" },
   dreamcatcher: { name: "a dreamcatcher" },
   eye: { name: "an eye sigil", reagents: [[1, "obsidian"]], actions: "17, 1" },
