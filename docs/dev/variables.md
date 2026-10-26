@@ -155,6 +155,15 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `fsh_area` | legacy | 0.1 | old name of fishingstats_area |  |
 | `fsh_gap` | legacy | 0.1 | old name of fishingstats_gap |  |
 
+## gathering
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `gathering_default_min` | setting | 1.1 | default minimum per material (500) |  |
+| `gathering_min` | setting | 1.1 | minimum per material |  |
+| `gathering_map` | data | 1.1 | material name to rift name |  |
+| `gathering_stock` | data | 1.1 | rift stock last read |  |
+
 ## harvesting
 
 | Variable | Kind | Since | Holds | Was |

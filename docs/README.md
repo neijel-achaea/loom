@@ -46,6 +46,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [vials](vials.md) | — | Refill your vials from the rift by elixir |
 | [magi](magi.md) | — | Magi helpers: even crystal refining, pearls, portals, staff attack, treaties |
 | [harvesting](harvesting.md) | — | Harvests the plants your rift is short of as you walk the rooms |
+| [gathering](gathering.md) | — | Gathers the materials your rift is short of as you walk the rooms |
 
 ## City and duties
 

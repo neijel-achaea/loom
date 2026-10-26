@@ -1,0 +1,259 @@
+{
+  "type": "group",
+  "name": "gathering",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "gathering_setup",
+      "enabled": true,
+      "code": "@file:gathering_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "gathering_status",
+      "enabled": true,
+      "code": "@file:gathering_status.js"
+    },
+    {
+      "type": "function",
+      "name": "gathering_help",
+      "enabled": true,
+      "code": "@file:gathering_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Gathering control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_gathering.js"
+        }
+      ],
+      "text": "^gathering(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Gather success",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_success.js"
+        }
+      ],
+      "text": "^(?:You reach out and carefully harvest .+|Sifting through the soft riverbed with your fingers, you collect .+|Carefully scouring the nooks and crannies of the surrounding rock, you gather .+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Gather seeds",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_seeds.js"
+        }
+      ],
+      "text": "^With your keen eyes, you spot some additional edibles and you gather .+ to supplement your collection\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Gather gold",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_gold.js"
+        }
+      ],
+      "text": "^As you cleanse the clay in the riverwater, you discover .+ hidden by the silt\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Gather failure",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#ff0074",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_failure.js"
+        }
+      ],
+      "text": "^(?:What do you wish to harvest\\?|That plant has been fully harvested\\.|You carefully dig through the soft soil of the river bed but are unable to find any suitable clay\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift store",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_store.js"
+        }
+      ],
+      "text": "^You store ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift remove",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_remove.js"
+        }
+      ],
+      "text": "^You remove ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift header",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_header.js"
+        }
+      ],
+      "text": "^Glancing into your rift, you see:$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift title",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_title.js"
+        }
+      ],
+      "text": "^Ingredients$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift rule",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_rule.js"
+        }
+      ],
+      "text": "^-{20,}$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift rows",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_rows.js"
+        }
+      ],
+      "text": "^\\s*\\[\\s*[\\d,]+\\]\\s.*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Gathers the materials your rift is short of as you walk the rooms"
+}
