@@ -24,7 +24,7 @@ CJ.sigils = {
   eye: { name: "an eye sigil" },
   fist: { name: "a fist sigil", reagents: [[1, "silver"], [2, "horn"]], chant: "fartak ishla spooz tran", actions: "3x2,1" },
   flame: { name: "a flame sigil", reagents: [[1, "silver"]], chant: "flet lhar abe minlo eec", actions: "3x2,1" },
-  key: { name: "a key sigil" },
+  key: { name: "a key sigil", reagents: [[1, "gold"]], actions: '3xchant "krolop escit yall", 1' },
   monolith: { name: "a monolith sigil" },
   mushroom: { name: "a mushroom sigil" },
   negation: { name: "a gem of negation" },
@@ -60,7 +60,8 @@ CJ.acts = {
 };
 
 // The AB scroll's actions field as steps: comma-separated; "3x6" = action 6
-// three times, "9" = once, chant "words" = chant those words. A bare 2 chants
+// three times, "9" = once, chant "words" = chant those words, 3xchant
+// "words" = three times. A bare 2 chants
 // the recipe's chant. {steps: [{cmd, expect, bal}]} or {err: "why"}.
 CJ.parseActions = function (text, chant) {
   var out = [];
@@ -69,8 +70,10 @@ CJ.parseActions = function (text, chant) {
   for (var i = 0; i < parts.length; i++) {
     var p = parts[i].replace(/^\s+|\s+$/g, "");
     var m;
-    if ((m = /^chant\s+"([^"]+)"$/i.exec(p))) {
-      out.push({ cmd: "chant " + m[1].toLowerCase(), expect: CJ.acts[2].expect, bal: true });
+    if ((m = /^(?:(\d+)\s*x\s*)?chant\s+"([^"]+)"$/i.exec(p))) {
+      var nc = m[1] ? +m[1] : 1;
+      if (nc < 1 || nc > 30) return { err: "action '" + p + "' not understood" };
+      for (var c = 0; c < nc; c++) out.push({ cmd: "chant " + m[2].toLowerCase(), expect: CJ.acts[2].expect, bal: true });
     } else if ((m = /^(?:(\d+)\s*x\s*)?(\d+)$/i.exec(p))) {
       var n = m[1] ? +m[1] : 1;
       var a = CJ.acts[+m[2]];
