@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.1.1", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.1.2", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -66,11 +66,13 @@ R.markName = function (m) { return m ? (m.name || "room") + " (" + m.id + ")" : 
 R.markSave = function () {
   if (R.mark) set_variable("room_mark", JSON.stringify(R.mark)); else delete_variable("room_mark");
   run_function("room_render", [], "room");
+  // Waypoints pins the remembered room (#369, link room-waypoints).
+  if (client.loom.notify) client.loom.notify("room");
 };
 R.remember = function () {
   var I = R.info;
   if (!I || !I.num) { display_notice("[room] no room yet: move or LOOK first.", "orange"); return; }
-  R.mark = { id: String(I.num), name: String(I.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, ""), area: String(I.area || "") };
+  R.mark = { id: String(I.num), name: String(I.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, ""), area: String(I.area || ""), at: Date.now() };
   R.goingBack = false;
   R.markSave();
   display_notice("[room] remembered " + R.markName(R.mark) + ". GO BACK in Here (or ROOM BACK) walks you here.", "lime");
@@ -88,6 +90,13 @@ R.forget = function () {
   R.goingBack = false;
   R.markSave();
   display_notice(was ? "[room] forgot " + R.markName(was) + "." : "[room] no room remembered.", "cyan");
+};
+// What other packages may ask room to do, through loom's integrations
+// (#369, Waypoints' Remembered box): the same as Here's buttons.
+R.entry = {
+  remember: function () { client.loom.room.remember(); },
+  back: function () { client.loom.room.goBack(); },
+  forget: function () { client.loom.room.forget(); }
 };
 // The tab's clicks (its page can't reach client.loom by name in every Nexus).
 try {
@@ -521,7 +530,12 @@ R.probeEnd = function (ok) {
 //     with, or undefined.
 //   look.loyal(id) -> the owner's name when that mob is someone's loyal, ""
 //     when probed and loyal to nobody, undefined when not probed yet.
+//   look.mark() -> the remembered room { id, name, area, at } (at: when it
+//     was remembered, missing for one remembered before 1.1.2), or null.
+//   look.here() -> the number of the room you're in, or "".
 R.look = {
+  mark: function () { var m = client.loom.room.mark; return m ? { id: m.id, name: m.name, area: m.area, at: m.at } : null; },
+  here: function () { var i = client.loom.room.info; return i && i.num ? String(i.num) : ""; },
   newbie: function (name) { var e = R.newbies[String(name || "").toLowerCase()]; return e ? e.title : undefined; },
   loyal: function (id) { return R.ownerOf(id); }
 };

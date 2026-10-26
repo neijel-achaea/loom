@@ -1,0 +1,67 @@
+{
+  "type": "group",
+  "name": "waypoints",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "waypoints_setup",
+      "enabled": true,
+      "code": "@file:waypoints_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "waypoints_render",
+      "enabled": true,
+      "code": "@file:waypoints_render.js"
+    },
+    {
+      "type": "function",
+      "name": "waypoints_help",
+      "enabled": true,
+      "code": "@file:waypoints_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Waypoints control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_waypoints.js"
+        }
+      ],
+      "text": "^waypoints(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ],
+  "description": "Rooms you save by name, listed by area in a tab; a click walks you there"
+}

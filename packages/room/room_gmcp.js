@@ -36,6 +36,7 @@ client.loom.hooks.room.gmcp = function (args) {
         R.mark = null;
         R.goingBack = false;
         delete_variable("room_mark");
+        if (client.loom.notify) client.loom.notify("room");
       }
       // A probe still out when you move: its answer came before this room,
       // so the probe ends at this room's title line, which shows (#393).

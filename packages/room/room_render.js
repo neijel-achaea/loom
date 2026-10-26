@@ -101,8 +101,11 @@ if (!R.info) {
   // sit beside both lines.
   html += '<div style="min-width:0;"><div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">' + esc(name) + '</div>';
   html += '<div style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:11px;">' + esc(I.area || "") + (I.environment ? ' &middot; ' + esc(I.environment) : '') + '</div></div>' + titleRight + '</div></div>';
-  // Details as tags, exits, room number.
+  // Details as tags, exits, room number. A saved waypoint first (#369, link
+  // waypoints-room: room.waypoint -> { name, note }), its note on hover.
   var tags = "";
+  var wpA = (client.loom.loom && client.loom.loom.answer && I.num) ? client.loom.loom.answer("room", "room.waypoint", { id: String(I.num) }) : undefined;
+  if (wpA && wpA.name) tags += '<span title="' + esc("saved as " + wpA.name + (wpA.note ? ": " + wpA.note : "")) + '" style="display:inline-block;margin:0 4px 0 0;padding:0 4px;border:1px solid ' + AMBER + ';color:' + AMBER + ';cursor:default;"><span style="font-family:\'Segoe UI Symbol\',\'DejaVu Sans\',sans-serif;">&#9873;</span> ' + esc(wpA.name) + '</span>';
   var det = I.details || [];
   for (var di = 0; di < det.length; di++) tags += '<span style="display:inline-block;margin:0 4px 0 0;padding:0 4px;border:1px solid ' + DEEP + ';color:' + MUTED + ';">' + esc(det[di]) + '</span>';
   // Items flagged through loom's display entry point (item.flags: { label,

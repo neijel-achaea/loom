@@ -329,7 +329,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `room_loyals` | data | 1.1 | loyals found, remembered across sessions (500 at most) |  |
 | `room_newbies` | data | 0.5 | players seen with newbie titles |  |
 | `room_name` | state | 0.4 | your name, from GMCP |  |
-| `room_mark` | state | 1.0 | the remembered room (REMEMBER / GO BACK) |  |
+| `room_mark` | state | 1.0 | the remembered room (REMEMBER / GO BACK), with when (since 1.1) |  |
 
 ## roleplay
 
@@ -451,3 +451,10 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `vision_hide` | setting | 0.2 | hide reports about your city's members |  |
 | `vision_alert` | setting | 0.2 | tell the party when an enemy comes near |  |
 | `vision_channel` | setting | 0.2 | channel for alerts |  |
+
+## waypoints
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `waypoints_list` | data | 1.1 | saved rooms: number, name, note, and the game's room name, area and environment |  |
+| `waypoints_folded` | setting | 1.1 | areas folded in the tab |  |

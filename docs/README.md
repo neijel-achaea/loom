@@ -23,6 +23,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [standings](standings.md) | Standings | Standings with adventurers and organisations, kept per character |
 | [self](self.md) | Self | Character panel: afflictions, defences you watch, and SCORE details |
 | [vision](vision.md) | — | Alertness filter: hides city members, flags and reports enemies |
+| [waypoints](waypoints.md) | Waypoints | Rooms you save by name, listed by area; one click walks you there |
 
 ## Hunting and combat
 

@@ -727,3 +727,35 @@ L.addLink({
     }
   }
 });
+
+// #369 waypoints -> room (Ricardo): a room you've saved as a waypoint shows
+// "⚑ <name>" on Here's exits line, where the detail tags go; the note on
+// hover. Answers room.waypoint (arg: { id }) -> { name, note }.
+L.addLink({
+  id: "waypoints-room", src: "waypoints", dst: "room", issue: 369,
+  desc: "A saved waypoint's name as a tag in Here, its note on hover",
+  answers: {
+    "room.waypoint": function (ctx) {
+      var w = client.loom.waypoints;
+      return (w && w.look && w.look.at && ctx) ? w.look.at(ctx.id) : undefined;
+    }
+  }
+});
+
+// #369 room -> waypoints (Ricardo): Here's REMEMBER is a shortcut waypoint,
+// pinned at the top of the Waypoints tab with GO BACK (or REMEMBER HERE when
+// nothing is remembered). Answers waypoints.remembered -> { id, name, area,
+// at } or {} when nothing is remembered, plus remember/back/forget, which
+// do what Here's buttons do.
+L.addLink({
+  id: "room-waypoints", src: "room", dst: "waypoints", issue: 369,
+  desc: "Here's remembered room pinned at the top of Waypoints, with GO BACK",
+  answers: {
+    "waypoints.remembered": function () {
+      var r = client.loom.room;
+      if (!r || !r.look || !r.look.mark || !r.entry) return undefined;
+      var m = r.look.mark() || {};
+      return { id: m.id, name: m.name, area: m.area, at: m.at, remember: r.entry.remember, back: r.entry.back, forget: r.entry.forget };
+    }
+  }
+});

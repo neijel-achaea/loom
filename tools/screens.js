@@ -89,6 +89,27 @@ function identity() {
   line("It is now the 28th of Phaestian, 1022 years after the Coming of the Sun.");
 }
 
+// Rooms saved as waypoints on earlier walks (#369), and one remembered.
+function waypoints() {
+  const visit = (num, name, area, environment, add, note) => {
+    g("Room.Info", { num, name, area, environment, coords: "", map: "", exits: {}, details: [] });
+    if (add) type("waypoints add " + add);
+    if (note) type("waypoints note " + add + " " + note);
+    sim.advance(60000);
+  };
+  visit(12040, "The Grove of the Ancients", "Eleusis", "Garden", "Grove of the Ancients", "the Druids' hall");
+  visit(12077, "A quiet apothecary", "Eleusis", "Urban", "Herb seller", "pays well for kelp");
+  visit(8790, "Edge of the oak wood", "the Western Ithmia", "Forest", "Oak wood edge");
+  visit(8814, "Beneath a canopy of whispering oaks", "the Western Ithmia", "Forest", "Wolf glade", "wolves and boars, quiet at night");
+  visit(9120, "A clearing in the Arcadian Forest", "the Arcadian Forest", "Forest", "Satyr clearing");
+  visit(9105, "A mossy hollow", "the Arcadian Forest", "Forest");
+  type("room remember");
+  sim.advance(20 * 60000);
+  const W = client.loom.waypoints;
+  const gi = W && W.areasDrawn ? W.areasDrawn.indexOf("Eleusis") : -1;
+  if (gi >= 0) { window.loomWaypoints.fold(gi); sim.flush(); }
+}
+
 // Where the screenshots are taken: an oak wood, mid-hunt, chatter on the channels.
 function here() {
   g("Char.Afflictions.List", [{ name: "clumsiness", cure: "eat kelp", desc: "" }, { name: "asthma", cure: "eat kelp", desc: "" }]);
@@ -227,6 +248,7 @@ async function main() {
   sim.advance(25 * 60000);
   people();
   hunts();
+  waypoints();
   here();
   type("partycomms test");
   type("fishingstats demo");
