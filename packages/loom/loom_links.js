@@ -742,6 +742,20 @@ L.addLink({
   }
 });
 
+// #376 waypoints -> questbook: a quest's GO step whose room is a saved waypoint
+// shows the waypoint's name (⚑ name) under the step. Answers questbook.waypoint
+// (arg: { id }) -> { name, note }.
+L.addLink({
+  id: "waypoints-questbook", src: "waypoints", dst: "questbook", issue: 376,
+  desc: "A quest's GO step shows the waypoint's name when its room is one",
+  answers: {
+    "questbook.waypoint": function (ctx) {
+      var w = client.loom.waypoints;
+      return (w && w.look && w.look.at && ctx) ? w.look.at(ctx.id) : undefined;
+    }
+  }
+});
+
 // #369 room -> waypoints (Ricardo): Here's REMEMBER is a shortcut waypoint,
 // pinned at the top of the Waypoints tab with GO BACK (or REMEMBER HERE when
 // nothing is remembered). Answers waypoints.remembered -> { id, name, area,

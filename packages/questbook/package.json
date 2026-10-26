@@ -1,0 +1,99 @@
+{
+  "type": "group",
+  "name": "questbook",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "questbook_setup",
+      "enabled": true,
+      "code": "@file:questbook_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "questbook_render",
+      "enabled": true,
+      "code": "@file:questbook_render.js"
+    },
+    {
+      "type": "function",
+      "name": "questbook_help",
+      "enabled": true,
+      "code": "@file:questbook_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Questbook control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_questbook.js"
+        }
+      ],
+      "text": "^questbook(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Questbook date",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_date.js"
+        }
+      ],
+      "text": "^(?:It is now|Today is) the (\\d+)(?:st|nd|rd|th) of (\\w+), (\\d+) years after",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Questbook slain",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_slain.js"
+        }
+      ],
+      "text": "^You have slain (.+?)\\.?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Your own repeatable quests as steps in a tab, ticked as you play"
+}

@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.0.1.*
+*This page describes loom 1.0.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -83,6 +83,7 @@ Every link:
 | `partycomms-room` | [partycomms](partycomms.md) | [room](room.md) | Party members' targets shown on the mobs in Here |
 | `room-basher` | [room](room.md) | [basher](basher.md) | The basher skips mobs that are someone's loyal (found by Here's probe) |
 | `waypoints-room` | [waypoints](waypoints.md) | [room](room.md) | A saved waypoint's name as a tag in Here, its note on hover |
+| `waypoints-questbook` | [waypoints](waypoints.md) | [questbook](questbook.md) | A quest's GO step shows the waypoint's name when its room is one |
 | `room-waypoints` | [room](room.md) | [waypoints](waypoints.md) | Here's remembered room pinned at the top of Waypoints, with GO BACK |
 <!-- /loom:links -->
 
