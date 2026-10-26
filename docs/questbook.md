@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.2.3.*
+*This page describes questbook 0.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,11 +18,13 @@ Questbook (the Questing Companion) keeps the quests you do again and again (most
 
 ### Steps
 
+Anything after `QUESTBOOK STEP` that isn't one of the step words below is a command, sent exactly as you typed it, so a quest can hold any action (pull, turn, put, push, kneel…). A command whose first word is a step word (KILL, NOTE, GO, GET…) goes after `DO`: `QUESTBOOK STEP DO kill rat` sends `kill rat` instead of counting kills.
+
 | Kind | What it holds | Ticks when | Its button |
 |---|---|---|---|
 | GO | the room you were in when you added it (or a room number) | you arrive there (or are already there) | WALK: `PATH FIND <number>` |
 | GREET | a denizen (`GREET <denizen>`, the usual way to start talking to one) | you send it with the button | GREET |
-| TALK / ASK / SAY | the command, as you'd type it | you send it with the button | SEND |
+| any command | the command, as you'd type it (`ASK miller about sack`, `PULL lever`, `PUT coin in box`); TALK, ASK and SAY get their own icons | you send it with the button | SEND |
 | GET / BUY | an item, and optionally a command | an item whose name holds those words comes into your inventory | SEND (the command), or DONE |
 | GIVE / DROP | an item, and optionally a command | that item leaves your inventory | SEND (the command), or DONE |
 | KILL | a mob and how many | that many `You have slain …` lines naming it | DONE |
@@ -47,7 +49,8 @@ When the last step ticks, the quest is done: its count goes up, it's stamped wit
 | **Writing steps (on the quest open in the tab):** | |
 | `QUESTBOOK STEP GO [room]` | go to the room you're in, or that room number (ticks when you arrive; click walks) |
 | `QUESTBOOK STEP GREET <denizen>` | greet a denizen, the game's way to start talking to one (ticks when sent from the tab) |
-| `QUESTBOOK STEP TALK\|ASK\|SAY <command>` | a line to send, as you'd type it (ticks when sent from the tab) |
+| `QUESTBOOK STEP <any command>` | a command to send, as you'd type it: ASK miller about sack, PULL lever, PUT coin in box (ticks when sent from the tab) |
+| `QUESTBOOK STEP DO <command>` | the same, for a command starting with a step word (DO kill rat) |
 | `QUESTBOOK STEP GET\|BUY <item> [/ <command>]` | ticks when the item is in your inventory; the command, if given, is its button |
 | `QUESTBOOK STEP GIVE\|DROP <item> [/ <command>]` | ticks when the item leaves your inventory |
 | `QUESTBOOK STEP KILL [count] <mob>` | ticks after that many "You have slain" lines naming it |
@@ -81,7 +84,7 @@ Most commands work on the quest open in the tab. Writing one down, standing at t
 QUESTBOOK NEW The miller's lost sack
 QUESTBOOK STEP GO
 QUESTBOOK STEP GREET miller
-QUESTBOOK STEP ASK ask miller about sack
+QUESTBOOK STEP ASK miller about sack
 QUESTBOOK STEP GET flour sack / get sack
 QUESTBOOK STEP GIVE flour sack / give sack to miller
 QUESTBOOK REWARD RENOWN 3
@@ -91,7 +94,7 @@ QUESTBOOK REWARD GOLD 1500
 
 GO adds the room you're in, so walk to each place and add its GO step there (or give its number: `QUESTBOOK STEP GO 5134`). (The quest and its lines here are made up.)
 
-**Fixing a step.** `QUESTBOOK STEP EDIT <n>` followed by the step as you'd add it rewrites step n: `QUESTBOOK STEP EDIT 2 ASK ask miller about the sack`. In the tab, **EDIT STEPS** shows a ✎ on each step that puts that command, with the step as it stands, in your input line to correct and send. `QUESTBOOK STEP INSERT <n> …` adds a step before step n.
+**Fixing a step.** `QUESTBOOK STEP EDIT <n>` followed by the step as you'd add it rewrites step n: `QUESTBOOK STEP EDIT 3 ASK miller about the sack`. In the tab, **EDIT STEPS** shows a ✎ on each step that puts that command, with the step as it stands, in your input line to correct and send. `QUESTBOOK STEP INSERT <n> …` adds a step before step n.
 
 ## Setting it up
 
