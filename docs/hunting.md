@@ -3,7 +3,7 @@
 *Your class's attacks on the F-keys, lit when they're ready, with battlerage cooldowns, attack lines tagged, dragon attacks and gold pickup.*
 
 <!-- loom:version hunting -->
-*This page describes hunting 1.0.1.*
+*This page describes hunting 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -41,6 +41,7 @@ Your class, specialisation, balance, equilibrium and rage come from the game (GM
 | `HUNTING MAIN [name]` | your class's main attack on F1 (no name: list them); dragons: GUT, INCANTATION or AUTO, as DRAGONMODE |
 | `HUNTING MAIN <name> = <command>` | add one for this class, e.g. to try an attack; empty command removes it |
 | `HUNTING TOGGLE <name> [ON\|OFF]` | class toggles on the F-keys, e.g. the Serpent's SNEAK and WEAVE |
+| `HUNTING HIGHLIGHT [ON\|OFF]` | light keys when ready (default ON); OFF: no key lights, the basher's STOP included |
 | `HUNTING BUTTONS` | lay out the F-keys again |
 | `HUNTING RAGE` | rage, cooldowns and tracked keys |
 | `HUNTING RESET` | clear rage cooldowns, lay out the F-keys again |
@@ -60,7 +61,7 @@ Some classes have something a key switches on and off, such as the Serpent's sne
 
 ### Battlerage
 
-`HUNTING RAGE` shows your rage, each ability's cooldown and which keys are tracked. `HUNTING RESET` clears the cooldowns and lays the keys out again, if they get out of step (after a disconnect, say).
+`HUNTING RAGE` shows your rage, each ability's cooldown and which keys are tracked. If you'd rather your keys never light, `HUNTING HIGHLIGHT OFF` turns that off for every key, the basher's STOP key included; cooldowns are still tracked, so the basher works the same. `HUNTING RESET` clears the cooldowns and lays the keys out again, if they get out of step (after a disconnect, say).
 
 ### Dragons
 

@@ -56,6 +56,7 @@ And for the suite:
 - [ ] *Dragon:* F8 cycles PHY → MAG → AUTO; in AUTO, F1 flips between Gut and Incantation as endurance and willpower drain. `HUNTING AFTERFORM DEFCON INIT`, then dragonform: nothing is sent during the transformation (triggers paused, elder dragons too), init after the roar and after it melts.
 - [ ] *Dragon:* use a rage ability, shift form, shift back: the rage keys light again (the shared cooldown never stays stuck), and the basher fires rage.
 - [ ] Toggles (Sneak, Weave, Block): the key reads ON/OFF without lighting; typed by hand, the key follows; reload: OFF.
+- [ ] `HUNTING HIGHLIGHT OFF`: every key goes dark at once and stays dark (rage, F1, the basher's STOP); the basher still fires rage. `ON`: keys light again. Survives a reload.
 - [ ] F8–F12 need Button Count 12; the install notice and `HUNTING HELP` say so.
 
 ### Every class
