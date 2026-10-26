@@ -1,6 +1,6 @@
 {
   "type": "group",
-  "name": "quests",
+  "name": "questbook",
   "enabled": true,
   "items": [
     {
@@ -29,34 +29,34 @@
     },
     {
       "type": "function",
-      "name": "quests_setup",
+      "name": "questbook_setup",
       "enabled": true,
-      "code": "@file:quests_setup.js"
+      "code": "@file:questbook_setup.js"
     },
     {
       "type": "function",
-      "name": "quests_render",
+      "name": "questbook_render",
       "enabled": true,
-      "code": "@file:quests_render.js"
+      "code": "@file:questbook_render.js"
     },
     {
       "type": "function",
-      "name": "quests_help",
+      "name": "questbook_help",
       "enabled": true,
-      "code": "@file:quests_help.js"
+      "code": "@file:questbook_help.js"
     },
     {
       "type": "alias",
-      "name": "Quests control",
+      "name": "Questbook control",
       "enabled": true,
       "actions": [
         {
           "type": "script",
           "enabled": true,
-          "script": "@file:alias_quests.js"
+          "script": "@file:alias_questbook.js"
         }
       ],
-      "text": "^quests(?:\\s+(.*))?$",
+      "text": "^questbook(?:\\s+(.*))?$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": false,
@@ -64,7 +64,7 @@
     },
     {
       "type": "trigger",
-      "name": "Quests slain",
+      "name": "Questbook slain",
       "enabled": true,
       "actions": [
         {

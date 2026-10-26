@@ -1,4 +1,4 @@
-// quests_render -- the Quests tab (#376), in the house style shared with Here
+// questbook_render -- the Quests tab (#376), in the house style shared with Here
 // and Waypoints: ink panel, serif small-caps headings, monospace rows.
 // Two views (mockup boards 1 and 2):
 //   - the list, by area (the area you're in first; areas fold, remembered):
@@ -8,8 +8,8 @@
 //   - one quest: rewards, a progress bar, its steps two lines each with the
 //     current one highlighted and its button (WALK, the line to send, DONE),
 //     START OVER and EDIT STEPS, when it was last done.
-if (!client.loom || !client.loom.quests || !client.loom.quests.list) run_function("quests_setup", [], "quests");
-var QU = client.loom.quests;
+if (!client.loom || !client.loom.questbook || !client.loom.questbook.list) run_function("questbook_setup", [], "questbook");
+var QU = client.loom.questbook;
 var TH = (client.loom && client.loom.theme) || {};
 var AMBER = TH.acc || "#e0b46c";
 var DEEP = TH.deep || "#7a5f33";
@@ -26,7 +26,7 @@ var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 var SYM = "'Segoe UI Symbol','DejaVu Sans',sans-serif";
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function js(s) { return esc(String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'")); }
-function click(fn) { return 'window.loomQuests&&window.loomQuests.' + fn; }
+function click(fn) { return 'window.loomQuestbook&&window.loomQuestbook.' + fn; }
 function chip(label, fn, col, border, tip, bg) {
   return '<span onclick="event.stopPropagation();' + click(fn) + '" title="' + esc(tip) + '" style="flex:none;cursor:pointer;padding:0 5px;border:1px solid ' + border + ';color:' + col + ';' + (bg ? 'background:' + bg + ';' : '') + 'letter-spacing:0.08em;white-space:nowrap;">' + label + '</span>';
 }
@@ -87,7 +87,7 @@ if (!open) {
   html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:5px;">';
   html += '<span style="display:flex;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">show</span>';
   html += '<span style="border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;">' + seg("all", "ALL") + seg("ready", "READY") + seg("waiting", "WAITING") + '</span></span>';
-  html += chip('<span style="font-family:' + SYM + ';color:#ff6a5e;">&#9679;</span> RECORD NEW', 'record()', MUTED, DEEP, 'record a new quest as you play (coming next; for now QUESTS NEW <name>)');
+  html += chip('<span style="font-family:' + SYM + ';color:#ff6a5e;">&#9679;</span> RECORD NEW', 'record()', MUTED, DEEP, 'record a new quest as you play (coming next; for now QUESTBOOK NEW <name>)');
   html += '</div>';
 
   function shown(q) {
@@ -124,7 +124,7 @@ if (!open) {
       html += '</div>';
     }
   }
-  if (!QU.list.length) html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No quests yet. QUESTS NEW &lt;name&gt; starts writing one down.</div>';
+  if (!QU.list.length) html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No quests yet. QUESTBOOK NEW &lt;name&gt; starts writing one down.</div>';
   else if (!any) html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No ' + (QU.filter === "ready" ? 'quest is ready' : 'quest is waiting') + ' right now.</div>';
   html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Click a quest to follow it; click a heading to fold it. Daily quests reset at ' + esc(QU.daily) + '.</div>';
 } else {
@@ -138,7 +138,7 @@ if (!open) {
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:5px;">';
   html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:16px;color:' + TXT + ';">' + esc(q1.name) + '</span>' + statusChip(q1) + '</div>';
   var rw = QU.rewardText(q1);
-  html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">' + (rw.length ? rw.map(esc).join(' &middot; ') : 'no rewards written down (QUESTS REWARD)') + '</div>';
+  html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">' + (rw.length ? rw.map(esc).join(' &middot; ') : 'no rewards written down (QUESTBOOK REWARD)') + '</div>';
 
   // Progress.
   var n = q1.steps.length, pct = n ? Math.round(100 * cur / n) : 0;
@@ -192,8 +192,8 @@ if (!open) {
     html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + (done ? DIM : MUTED) + ';padding-left:54px;">' + d2 + '</div>';
     html += '</div>';
   }
-  if (!n) html += '<div style="margin-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No steps yet. QUESTS STEP GO saves the room you\'re in; QUESTS HELP lists the other kinds.</div>';
-  if (QU.edit) html += '<div style="margin-top:5px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">&times; strikes a step through; DONE EDITING drops the struck ones. Add steps with QUESTS STEP &hellip;</div>';
+  if (!n) html += '<div style="margin-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No steps yet. QUESTBOOK STEP GO saves the room you\'re in; QUESTBOOK HELP lists the other kinds.</div>';
+  if (QU.edit) html += '<div style="margin-top:5px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">&times; strikes a step through; DONE EDITING drops the struck ones. Add steps with QUESTBOOK STEP &hellip;</div>';
 
   // Footer.
   html += '<div style="margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">';

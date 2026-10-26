@@ -11,5 +11,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
     document.head.appendChild(tiSt);
   }
 }
-run_function("quests_setup", [], "quests");
-run_function("quests_render", [], "quests");
+run_function("questbook_setup", [], "questbook");
+run_function("questbook_render", [], "questbook");

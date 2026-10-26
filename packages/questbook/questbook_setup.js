@@ -1,4 +1,4 @@
-// quests_setup -- run from onLoad and onInstall, and by any reflex that finds
+// questbook_setup -- run from onLoad and onInstall, and by any reflex that finds
 // the namespace missing. Questing Companion (#376): quests you write down
 // yourself as lists of steps, which then walk you through them every time
 // you do them again. A guide, never a bot: a step can be one click (walk
@@ -8,19 +8,19 @@
 // added by command. Recording comes next.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-if (!client.loom.quests) client.loom.quests = {};
-client.loom.registry.quests = { version: "0.1.0", keyword: "QUESTS", desc: "{{description}}",
-  redraw: function () { run_function("quests_render", [], "quests"); } };
-var QU = client.loom.quests;
+if (!client.loom.questbook) client.loom.questbook = {};
+client.loom.registry.questbook = { version: "0.1.0", keyword: "QUESTBOOK", desc: "{{description}}",
+  redraw: function () { run_function("questbook_render", [], "questbook"); } };
+var QU = client.loom.questbook;
 
 // Saved (per character, as every Nexus variable):
-//   quests_list   = [{ id, name, area, repeat, at, rewards: { renown, gold,
+//   questbook_list   = [{ id, name, area, repeat, at, rewards: { renown, gold,
 //                     items: [] }, steps: [{ k, … }] }], the quests as written;
-//   quests_state  = { id: { step, started, kills, last, done } }: where you
+//   questbook_state  = { id: { step, started, kills, last, done } }: where you
 //                   are in each, when it was last done and how often;
-//   quests_folded = [area, …], the areas folded in the tab;
-//   quests_filter = "ready" | "waiting" (absent: all);
-//   quests_daily  = "hh:mm", the daily reset on your own clock (absent: 00:00).
+//   questbook_folded = [area, …], the areas folded in the tab;
+//   questbook_filter = "ready" | "waiting" (absent: all);
+//   questbook_daily  = "hh:mm", the daily reset on your own clock (absent: 00:00).
 // A variable that isn't readable starts afresh (#135).
 QU.read = function (name, arr) {
   var v = get_variable(name);
@@ -61,7 +61,7 @@ QU.cleanStep = function (s) {
 };
 
 QU.list = [];
-var quRaw = QU.read("quests_list", true);
+var quRaw = QU.read("questbook_list", true);
 for (var quI = 0; quI < quRaw.length; quI++) {
   var quE = quRaw[quI];
   if (!quE || typeof quE != "object" || !/^\d+$/.test(String(quE.id || "")) || !String(quE.name || "").trim()) continue;
@@ -76,7 +76,7 @@ for (var quI = 0; quI < quRaw.length; quI++) {
     steps: quSt });
 }
 QU.state = {};
-var quStRaw = QU.read("quests_state", false);
+var quStRaw = QU.read("questbook_state", false);
 for (var quId in quStRaw) {
   if (!quStRaw.hasOwnProperty(quId) || !/^\d+$/.test(quId)) continue;
   var quX = quStRaw[quId];
@@ -85,11 +85,11 @@ for (var quId in quStRaw) {
     kills: Math.max(0, Math.floor(Number(quX.kills) || 0)), last: Number(quX.last) || 0, done: Math.max(0, Math.floor(Number(quX.done) || 0)) };
 }
 QU.folded = {};
-var quF = QU.read("quests_folded", true);
+var quF = QU.read("questbook_folded", true);
 for (var quL = 0; quL < quF.length; quL++) if (typeof quF[quL] == "string") QU.folded[quF[quL]] = true;
-var quFl = get_variable("quests_filter");
+var quFl = get_variable("questbook_filter");
 QU.filter = (quFl === "ready" || quFl === "waiting") ? quFl : "all";
-QU.daily = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(get_variable("quests_daily") || "")) ? String(get_variable("quests_daily")) : "00:00";
+QU.daily = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(get_variable("questbook_daily") || "")) ? String(get_variable("questbook_daily")) : "00:00";
 // Runtime only: the room you're in, your inventory (id -> name), the quest
 // shown in the tab (open), the one being followed (ticks go to it), and
 // steps struck through while editing.
@@ -101,7 +101,7 @@ QU.edit = false;
 QU.struck = {};
 
 QU.save = function () {
-  if (QU.list.length) set_variable("quests_list", JSON.stringify(QU.list)); else delete_variable("quests_list");
+  if (QU.list.length) set_variable("questbook_list", JSON.stringify(QU.list)); else delete_variable("questbook_list");
   QU.saveState();
 };
 QU.saveState = function () {
@@ -110,19 +110,19 @@ QU.saveState = function () {
     var s = QU.state[QU.list[i].id];
     if (s && (s.step || s.started || s.kills || s.last || s.done)) { out[QU.list[i].id] = s; any = true; }
   }
-  if (any) set_variable("quests_state", JSON.stringify(out)); else delete_variable("quests_state");
+  if (any) set_variable("questbook_state", JSON.stringify(out)); else delete_variable("questbook_state");
   // "AGAIN IN 5 H" counts down, and a quest turns ready at its reset with no
 // game event to say so: the tab redraws once a minute (it sends nothing).
 // Replaced on each setup, stopped at uninstall.
 if (QU.clock) clearInterval(QU.clock);
-QU.clock = setInterval(function () { run_function("quests_render", [], "quests"); }, 60000);
-if (client.loom.notify) client.loom.notify("quests");
-  run_function("quests_render", [], "quests");
+QU.clock = setInterval(function () { run_function("questbook_render", [], "questbook"); }, 60000);
+if (client.loom.notify) client.loom.notify("questbook");
+  run_function("questbook_render", [], "questbook");
 };
 QU.saveFolded = function () {
   var out = [];
   for (var a in QU.folded) if (QU.folded.hasOwnProperty(a) && QU.folded[a]) out.push(a);
-  if (out.length) set_variable("quests_folded", JSON.stringify(out)); else delete_variable("quests_folded");
+  if (out.length) set_variable("questbook_folded", JSON.stringify(out)); else delete_variable("questbook_folded");
 };
 QU.st = function (q) {
   if (!QU.state[q.id]) QU.state[q.id] = { step: 0, started: 0, kills: 0, last: 0, done: 0 };
@@ -149,7 +149,7 @@ QU.nextId = function () {
 };
 QU.roomName = function (n) { return String(n || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, ""); };
 QU.times = function (n) { return n === 1 ? "once" : (n === 2 ? "twice" : n + " times"); };
-QU.say = function (text, colour) { display_notice("[quests] " + text, colour || "cyan"); };
+QU.say = function (text, colour) { display_notice("[questbook] " + text, colour || "cyan"); };
 
 // --- Repeats --------------------------------------------------------------
 // Daily: every day at QU.daily on your own clock (Ricardo: a fixed reset).
@@ -219,10 +219,10 @@ QU.stepCmd = function (s) {
   if (s.cmd) return s.cmd;
   return "";
 };
-// The name of a step's room when it's a waypoint (link waypoints-quests).
+// The name of a step's room when it's a waypoint (link waypoints-questbook).
 QU.waypoint = function (id) {
   var L = client.loom.loom;
-  var w = (L && L.answer) ? L.answer("quests", "quests.waypoint", { id: String(id) }) : undefined;
+  var w = (L && L.answer) ? L.answer("questbook", "questbook.waypoint", { id: String(id) }) : undefined;
   return (w && w.name) ? w : undefined;
 };
 QU.addStep = function (q, s) {
@@ -245,14 +245,14 @@ QU.removeStep = function (q, i) {
 // --- Following ------------------------------------------------------------
 // Open a quest in the tab; one you can do now is followed: its steps tick as
 // you play. A waiting quest is only shown, and so is one you're writing
-// (QUESTS NEW): adding GO steps where you stand mustn't tick them. START
+// (QUESTBOOK NEW): adding GO steps where you stand mustn't tick them. START
 // OVER or FOLLOW THIS follows it.
 QU.openQuest = function (q, writing) {
   QU.open = q ? q.id : null;
   QU.edit = false; QU.struck = {};
   if (q && !writing && q.steps.length && QU.status(q) !== "waiting") QU.follow = q.id;
   QU.check();
-  run_function("quests_render", [], "quests");
+  run_function("questbook_render", [], "questbook");
 };
 QU.followed = function () { return QU.follow ? QU.byId(QU.follow) : null; };
 QU.current = function (q) {
@@ -358,13 +358,13 @@ QU.onSlain = function (what) {
 // --- Tab helpers ----------------------------------------------------------
 QU.setFilter = function (f) {
   QU.filter = (f === "ready" || f === "waiting") ? f : "all";
-  if (QU.filter === "all") delete_variable("quests_filter"); else set_variable("quests_filter", QU.filter);
-  run_function("quests_render", [], "quests");
+  if (QU.filter === "all") delete_variable("questbook_filter"); else set_variable("questbook_filter", QU.filter);
+  run_function("questbook_render", [], "questbook");
 };
 QU.fold = function (area) {
   QU.folded[area] = !QU.folded[area];
   QU.saveFolded();
-  run_function("quests_render", [], "quests");
+  run_function("questbook_render", [], "questbook");
 };
 // EDIT STEPS: × strikes a step through (click again brings it back); DONE
 // EDITING drops the struck steps.
@@ -377,7 +377,7 @@ QU.editDone = function () {
     for (var i = 0; i < idx.length; i++) if (idx[i] < q.steps.length) QU.removeStep(q, idx[i]);
   }
   QU.edit = false; QU.struck = {};
-  run_function("quests_render", [], "quests");
+  run_function("questbook_render", [], "questbook");
 };
 
 // The read-only look other packages see through loom: never its variables.
@@ -401,23 +401,23 @@ QU.look = {
 // The tab's clicks. Its page shares window with the scripts but can't reach
 // client.loom in every Nexus, so these closures carry them.
 try {
-  window.loomQuests = {
-    open: function (id) { var Q = client.loom.quests; Q.openQuest(id ? Q.byId(id) : null); },
-    filter: function (f) { client.loom.quests.setFilter(f); },
-    fold: function (i) { var Q = client.loom.quests, g = Q.areasDrawn || []; if (g[i] !== undefined) Q.fold(g[i]); },
-    act: function () { client.loom.quests.act(); },
-    next: function () { client.loom.quests.tick("Ticked by hand"); },
-    jump: function (i) { var Q = client.loom.quests, q = Q.open ? Q.byId(Q.open) : null; if (q && !Q.edit) Q.jump(q, i); },
-    restart: function () { var Q = client.loom.quests, q = Q.open ? Q.byId(Q.open) : null; if (q) { Q.restart(q); Q.say(q.name + ": started over.", "lime"); Q.check(); } },
-    follow: function () { var Q = client.loom.quests, q = Q.open ? Q.byId(Q.open) : null; if (q) { Q.follow = q.id; Q.check(); run_function("quests_render", [], "quests"); } },
-    edit: function () { var Q = client.loom.quests; if (Q.edit) Q.editDone(); else { Q.edit = true; Q.struck = {}; run_function("quests_render", [], "quests"); } },
-    strike: function (i) { var Q = client.loom.quests; Q.struck[i] = !Q.struck[i]; run_function("quests_render", [], "quests"); },
-    record: function () { client.loom.quests.say("recording comes in the next step of #376. For now: QUESTS NEW <name>, then QUESTS STEP … (QUESTS HELP).", "cyan"); }
+  window.loomQuestbook = {
+    open: function (id) { var Q = client.loom.questbook; Q.openQuest(id ? Q.byId(id) : null); },
+    filter: function (f) { client.loom.questbook.setFilter(f); },
+    fold: function (i) { var Q = client.loom.questbook, g = Q.areasDrawn || []; if (g[i] !== undefined) Q.fold(g[i]); },
+    act: function () { client.loom.questbook.act(); },
+    next: function () { client.loom.questbook.tick("Ticked by hand"); },
+    jump: function (i) { var Q = client.loom.questbook, q = Q.open ? Q.byId(Q.open) : null; if (q && !Q.edit) Q.jump(q, i); },
+    restart: function () { var Q = client.loom.questbook, q = Q.open ? Q.byId(Q.open) : null; if (q) { Q.restart(q); Q.say(q.name + ": started over.", "lime"); Q.check(); } },
+    follow: function () { var Q = client.loom.questbook, q = Q.open ? Q.byId(Q.open) : null; if (q) { Q.follow = q.id; Q.check(); run_function("questbook_render", [], "questbook"); } },
+    edit: function () { var Q = client.loom.questbook; if (Q.edit) Q.editDone(); else { Q.edit = true; Q.struck = {}; run_function("questbook_render", [], "questbook"); } },
+    strike: function (i) { var Q = client.loom.questbook; Q.struck[i] = !Q.struck[i]; run_function("questbook_render", [], "questbook"); },
+    record: function () { client.loom.questbook.say("recording comes in the next step of #376. For now: QUESTBOOK NEW <name>, then QUESTBOOK STEP … (QUESTBOOK HELP).", "cyan"); }
   };
 } catch (e) {}
 // "AGAIN IN 5 H" counts down, and a quest turns ready at its reset with no
 // game event to say so: the tab redraws once a minute (it sends nothing).
 // Replaced on each setup, stopped at uninstall.
 if (QU.clock) clearInterval(QU.clock);
-QU.clock = setInterval(function () { run_function("quests_render", [], "quests"); }, 60000);
-if (client.loom.notify) client.loom.notify("quests");
+QU.clock = setInterval(function () { run_function("questbook_render", [], "questbook"); }, 60000);
+if (client.loom.notify) client.loom.notify("questbook");

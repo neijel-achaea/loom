@@ -1,13 +1,13 @@
 // Quests follows the room and your inventory itself: arriving ticks a GO
 // step, an item coming or going ticks GET/BUY or GIVE.
-if (!client.loom || !client.loom.quests || !client.loom.quests.list) run_function("quests_setup", [], "quests");
-var QU = client.loom.quests;
+if (!client.loom || !client.loom.questbook || !client.loom.questbook.list) run_function("questbook_setup", [], "questbook");
+var QU = client.loom.questbook;
 var quG = (args.gmcp_args && typeof args.gmcp_args == "object") ? args.gmcp_args : {};
 var quM = args.gmcp_method;
 if (quM == "Room.Info") {
   var quWas = QU.here ? QU.here.id : "";
   QU.here = quG.num ? { id: String(quG.num), name: QU.roomName(quG.name), area: String(quG.area || "") } : null;
-  if (QU.here && QU.here.id !== quWas) { QU.onArrive(); run_function("quests_render", [], "quests"); }
+  if (QU.here && QU.here.id !== quWas) { QU.onArrive(); run_function("questbook_render", [], "questbook"); }
 } else if (quG.location == "inv") {
   if (quM == "Char.Items.List") {
     QU.inv = {};

@@ -742,14 +742,14 @@ L.addLink({
   }
 });
 
-// #376 waypoints -> quests: a quest's GO step whose room is a saved waypoint
-// shows the waypoint's name (⚑ name) under the step. Answers quests.waypoint
+// #376 waypoints -> questbook: a quest's GO step whose room is a saved waypoint
+// shows the waypoint's name (⚑ name) under the step. Answers questbook.waypoint
 // (arg: { id }) -> { name, note }.
 L.addLink({
-  id: "waypoints-quests", src: "waypoints", dst: "quests", issue: 376,
+  id: "waypoints-questbook", src: "waypoints", dst: "questbook", issue: 376,
   desc: "A quest's GO step shows the waypoint's name when its room is one",
   answers: {
-    "quests.waypoint": function (ctx) {
+    "questbook.waypoint": function (ctx) {
       var w = client.loom.waypoints;
       return (w && w.look && w.look.at && ctx) ? w.look.at(ctx.id) : undefined;
     }
