@@ -12,7 +12,7 @@ Making a sigil or conjured item is a long string of commands: take the reagents 
 
 `CONJURATION flame` does the whole thing:
 
-1. `IR COMMODITIES`, and stops before taking anything out if the rift is short of a reagent ("not enough in the rift: dust (1 of 2)").
+1. `IR COMMODITIES` (and `IR PLANTS` when the recipe crushes kola), and stops before taking anything out if the rift is short of a reagent ("not enough in the rift: dust (1 of 2)").
 2. If selfishness is up, `GENEROSITY` first (reagents can't go into the ouroboros otherwise).
 3. `OUTR` each reagent from the rift and `PUT` it in your ouroboros, then `SELFISHNESS` again if it was up. A recipe that crushes kola also takes one kola nut out per crush (kept in your inventory, not put in); kola is part of the rift check.
 4. `BEGIN CREATION OF FLAME SIGIL`, then waits for the game to say you may begin.

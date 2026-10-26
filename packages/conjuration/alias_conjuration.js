@@ -71,7 +71,10 @@ if (cjSub === "" || cjSub === "status") {
     var cjO = "ouroboros" + CJ.ouroboros;
     var cjSteps = [];
     // First the rift: nothing is taken out unless every reagent is there.
-    cjSteps.push({ cmd: "ir commodities", expect: "^Glancing into your rift", rift: true });
+    // Kola and other carried things are plants: read that part of the rift
+    // too, and check once the last part has been read.
+    cjSteps.push({ cmd: "ir commodities", expect: "^Glancing into your rift", rift: true, riftLast: !cjPa.carry.length });
+    if (cjPa.carry.length) cjSteps.push({ cmd: "ir plants", expect: "^Glancing into your rift", rift: true, riftLast: true });
     var cjSelf = CJ.selfish === true;
     if (cjSelf) cjSteps.push({ cmd: "generosity", expect: "^A feeling of generosity spreads throughout you\\.$", eq: true });
     for (var cjR = 0; cjR < S.reagents.length; cjR++) {
