@@ -56,7 +56,7 @@ CJ.acts = {
   14: { cmd: "wave arms", expect: null },
   15: { cmd: "crush kola", expect: null },
   16: { cmd: "wave feather", expect: null },
-  17: { cmd: "square the circle", expect: null }
+  17: { cmd: "square the circle", expect: "^You trace a circle in the air, leaving a trail of fire behind you" }
 };
 
 // The AB scroll's actions field as steps: comma-separated; "3x6" = action 6
