@@ -26,6 +26,7 @@ What that means in practice:
 | Keeps attacking in the room where **you** started the fight, then stops | Start a fight, walk to the next room, or clear an area on its own |
 | Takes one step back when you're badly hurt | Walk anywhere else |
 | Harvests and gathers in the rooms **you** walk into | Walk a route for you |
+| Sends the game's `PATH FIND` once when **you** click a waypoint or GO BACK | Chain destinations, or set off on its own |
 | Runs a ritual or a refine you asked for, then stops | Start one again on its own |
 
 On top of that:

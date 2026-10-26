@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 1.1.1.*
+*This page describes room 1.1.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -75,14 +75,16 @@ Room reads nothing from other packages on its own. With others installed, Loom's
 | `magi-room` | [magi](magi.md) | Barnacle encrusted oysters (they drop pearls) and glistening iridescent pearls show with a green name and a green ◉; hover says why. Corpses stay grey; your target's glow still wins. |
 | `harvesting-room` | harvesting and patrolling | A small line under the description with the plants this environment should hold: **green** here and stocked, **yellow** here but below your minimum, **red** missing, with a "⚠ N plants missing" warning. It appears once patrolling's plant check has seen the room (with `PATROLLING ON`). Hover a plant for its stock and minimum. |
 | `basher-room` | basher | Each living mob's place in the basher's kill order as a numbered badge (filled on your target, outlined in gold on the next one), types the basher ignores in this area dimmed, and the basher's state beside the room name (⚔ PRIMED, RUNNING or FLEEING). |
+| `waypoints-room` | [waypoints](waypoints.md) | A room you've saved as a waypoint shows ⚑ and its name as a tag on the exits line, where the details go; hover it for the note. |
 | `partycomms-room` | partycomms | Party members' targets: each mob row ends with the names of the members targeting it (◂ Filune · Ojec, small, in blue), from their reports under 30 seconds old; hover says "targeted by …". Not on corpses. |
 
-Room also feeds two links of its own:
+Room also feeds three links of its own:
 
 | Link | With | What it does |
 | --- | --- | --- |
 | `room-social` | social | A green leaf in the Online tab on people last seen with a newbie title. |
 | `room-comms` | comms | The same leaf on talkers' names in the Comms tab. |
+| `room-waypoints` | [waypoints](waypoints.md) | The remembered room (REMEMBER) pinned at the top of the Waypoints tab with how long ago, and GO BACK, FORGET or REMEMBER HERE, as Here's button. |
 
 With a link switched off, Here simply goes without that part; nothing else changes.
 
