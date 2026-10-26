@@ -10,7 +10,7 @@ var GA = client.loom.gathering;
 // busy (#318): true while a GATHER or the rift reading is out, or while the
 // room's queue is still being worked through, so Here's probe and other
 // packages wait their turn. 10 s without a send no longer counts.
-client.loom.registry.gathering = { version: "0.1.0", keyword: "GATHERING", desc: "{{description}}", busy: function () {
+client.loom.registry.gathering = { version: "0.1.1", keyword: "GATHERING", desc: "{{description}}", busy: function () {
   var g = client.loom.gathering;
   return !!(g && g.on && (g.current || g.reading || (g.queue && g.queue.length)) && Date.now() - (g.sentAt || 0) < 10000);
 } };
@@ -70,6 +70,10 @@ if (!GA.rttMin) GA.rttMin = 0;
 GA.timeoutMs = 5000;
 
 GA.rift = function (m) { return GA.map[m] || m; };
+// The word INR takes: the material's own word, not its rift name (INR RED
+// CLAY would read as "red"; Ricardo: INR CLAY works).
+GA.inrWord = { vegetables: "vegetable", olives: "olive" };
+GA.inr = function (m) { return GA.inrWord[m] || m; };
 GA.minOf = function (m) { return GA.min[m] != null ? GA.min[m] : GA.defMin; };
 GA.have = function (m) { var s = GA.stock[GA.rift(m)]; return (s === undefined || s === null) ? null : s; };
 GA.paused = function () { return get_variable("pauseTriggers") == "on"; };
@@ -152,7 +156,7 @@ GA.success = function () {
   GA.inrFor = m;
   GA.last = m;
   GA.lastAt = Date.now();
-  send_command("queue add be inr " + GA.rift(m));
+  send_command("queue add be inr " + GA.inr(m));
   return true;
 };
 // Anything that came with a gather (seeds with fruit, gold with clay) goes

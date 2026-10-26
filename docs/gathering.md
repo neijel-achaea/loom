@@ -3,7 +3,7 @@
 *Gathers the materials your rift is short of as you walk, and stores them, one after another.*
 
 <!-- loom:version gathering -->
-*This page describes gathering 0.1.0.*
+*This page describes gathering 0.1.1.*
 <!-- /loom:version -->
 
 ## What it is
