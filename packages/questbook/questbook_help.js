@@ -11,6 +11,7 @@ var hlRows = [
   ["QUESTBOOK CLOSE", "back to the list (also \u2190 quests in the tab)"],
   ["Writing steps (on the quest open in the tab):"],
   ["QUESTBOOK STEP GO [room]", "go to the room you're in, or that room number (ticks when you arrive; click walks)"],
+  ["QUESTBOOK STEP GREET <denizen>", "greet a denizen, the game's way to start talking to one (ticks when sent from the tab)"],
   ["QUESTBOOK STEP TALK|ASK|SAY <command>", "a line to send, as you'd type it (ticks when sent from the tab)"],
   ["QUESTBOOK STEP GET|BUY <item> [/ <command>]", "ticks when the item is in your inventory; the command, if given, is its button"],
   ["QUESTBOOK STEP GIVE <item> [/ <command>]", "ticks when the item leaves your inventory"],

@@ -160,6 +160,7 @@ if (!open) {
   // hover. Drawn in SVG so every font shows the same thing.
   var ICON = {
     go: ['<path d="M1.5 6 H9.5 M6.5 3 L9.5 6 L6.5 9"/>', "GO: walk to the room; ticks when you arrive"],
+    greet: ['<path d="M3.6 6.6 V3.2 M5.4 6 V1.9 M7.2 6 V2.2 M9 6.6 V3.7 M3.6 6.6 Q2.4 5.6 1.8 6.6 Q1.5 7.2 2.3 8.2 L3.4 9.7 Q4.4 11 6.2 11 Q9 11 9 8.2 V6.6"/>', "GREET: greet a denizen; ticks when you send it"],
     talk: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M3.8 5 h0.01 M6 5 h0.01 M8.2 5 h0.01" stroke-width="1.6"/>', "TALK: a line to send; ticks when you send it"],
     ask: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M4.8 4 Q4.8 3 6 3 Q7.2 3 7.2 4 Q7.2 4.8 6 5.2 V5.8 M6 6.9 v0.01"/>', "ASK: a question to send; ticks when you send it"],
     say: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M3.3 4 H8.7 M3.3 6 H7"/>', "SAY: words to say; ticks when you send them"],
@@ -181,6 +182,9 @@ if (!open) {
       var wpt = QU.waypoint(sp.room);
       d2 = esc(sp.room) + ' &middot; ' + (wpt ? '<span style="font-family:' + SYM + ';color:' + AMBER + ';">&#9873;</span> ' + esc(wpt.name) : esc(sp.area || "")) + (here.id === sp.room ? ' &middot; you\'re here' : '');
       if (isCur && here.id !== sp.room) btn = chip('WALK', 'act()', AMBER, AMBER, 'walk there (PATH FIND ' + sp.room + ')');
+    } else if (sp.k === "greet") {
+      d2 = 'greet ' + esc(sp.who) + ' &middot; ticks when you send it from here';
+      if (isCur) btn = chip('GREET', 'act()', AMBER, AMBER, 'send: greet ' + sp.who);
     } else if (sp.k === "talk" || sp.k === "ask" || sp.k === "say") {
       d2 = 'ticks when you send it from here';
       if (isCur) btn = chip('SEND', 'act()', AMBER, AMBER, 'send: ' + sp.cmd);
@@ -198,7 +202,7 @@ if (!open) {
       if (isCur) btn = chip('DONE', 'act()', MUTED, DEEP, 'tick it by hand');
     }
     // Done steps keep their details, not what would tick them.
-    if (done && (sp.k === "talk" || sp.k === "ask" || sp.k === "say")) d2 = "sent";
+    if (done && (sp.k === "talk" || sp.k === "ask" || sp.k === "say" || sp.k === "greet")) d2 = "sent";
     else if (done && sp.k !== "go" && sp.k !== "kill") d2 = sp.cmd ? esc(sp.cmd) : "";
     else if (done && sp.k === "kill") d2 = sp.n + (sp.n === 1 ? ' kill' : ' kills');
     if (QU.edit) btn = '<span style="flex:none;display:flex;gap:2px;">' + (struck ? '' : '<span onclick="event.stopPropagation();' + click('pen(' + j + ')') + '" title="fix this step: puts QUESTBOOK STEP EDIT ' + (j + 1) + ' in your input line" style="flex:none;cursor:pointer;color:' + AMBER + ';padding:0 4px;font-family:' + SYM + ';">&#9998;</span>') + '<span onclick="event.stopPropagation();' + click('strike(' + j + ')') + '" title="' + (struck ? 'keep this step' : 'drop this step') + '" style="flex:none;cursor:pointer;color:' + (struck ? MUTED : '#ff9a4c') + ';padding:0 4px;display:inline-block;text-decoration:none;">' + (struck ? 'keep' : '&times;') + '</span>' + '</span>';

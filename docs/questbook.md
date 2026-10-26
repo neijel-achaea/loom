@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.2.0.*
+*This page describes questbook 0.2.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -21,6 +21,7 @@ Questbook (the Questing Companion) keeps the quests you do again and again (most
 | Kind | What it holds | Ticks when | Its button |
 |---|---|---|---|
 | GO | the room you were in when you added it (or a room number) | you arrive there (or are already there) | WALK: `PATH FIND <number>` |
+| GREET | a denizen (`GREET <denizen>`, the usual way to start talking to one) | you send it with the button | GREET |
 | TALK / ASK / SAY | the command, as you'd type it | you send it with the button | SEND |
 | GET / BUY | an item, and optionally a command | an item whose name holds those words comes into your inventory | SEND (the command), or DONE |
 | GIVE | an item, and optionally a command | that item leaves your inventory | SEND (the command), or DONE |
@@ -45,6 +46,7 @@ When the last step ticks, the quest is done: its count goes up, it's stamped wit
 | `QUESTBOOK CLOSE` | back to the list (also ← quests in the tab) |
 | **Writing steps (on the quest open in the tab):** | |
 | `QUESTBOOK STEP GO [room]` | go to the room you're in, or that room number (ticks when you arrive; click walks) |
+| `QUESTBOOK STEP GREET <denizen>` | greet a denizen, the game's way to start talking to one (ticks when sent from the tab) |
 | `QUESTBOOK STEP TALK\|ASK\|SAY <command>` | a line to send, as you'd type it (ticks when sent from the tab) |
 | `QUESTBOOK STEP GET\|BUY <item> [/ <command>]` | ticks when the item is in your inventory; the command, if given, is its button |
 | `QUESTBOOK STEP GIVE <item> [/ <command>]` | ticks when the item leaves your inventory |
@@ -77,6 +79,7 @@ Most commands work on the quest open in the tab. Writing one down, standing at t
 ```
 QUESTBOOK NEW The miller's lost sack
 QUESTBOOK STEP GO
+QUESTBOOK STEP GREET miller
 QUESTBOOK STEP ASK ask miller about sack
 QUESTBOOK STEP GET flour sack / get sack
 QUESTBOOK STEP GIVE flour sack / give sack to miller
