@@ -8,8 +8,16 @@ if (R) {
   var st = R.steps[R.i];
   var cjBounce = /^You must regain balance first\.|^You must wait a short while to use a say-like command again\./.test(cjLine);
   var cjBal = /^You have recovered balance on all limbs\./.test(cjLine);
-  if (R.state === "expect" && st.expect && new RegExp(st.expect).test(cjLine)) {
-    if (st.bal) { R.state = "bal"; R.sawLost = false; R.prompts = 0; }
+  if (R.state === "rift") {
+    // IR COMMODITIES: rows "[ 20] coal [ 61] dust", ended by the rule
+    // after them (or the next prompt, in onGMCP).
+    var cjRow, cjRe = /\[\s*([\d,]+)\]\s+([^\[]+?)\s*(?=\[|$)/g, cjAny = false;
+    while ((cjRow = cjRe.exec(cjLine))) { R.have[cjRow[2].toLowerCase()] = +cjRow[1].replace(/,/g, ""); cjAny = true; }
+    if (cjAny) R.rows = (R.rows || 0) + 1;
+    else if (/^-{10,}$/.test(cjLine) && R.rows) run_function("conjuration_riftcheck", [], "conjuration");
+  } else if (R.state === "expect" && st.expect && new RegExp(st.expect).test(cjLine)) {
+    if (st.rift) { R.state = "rift"; R.rows = 0; R.prompts = 0; }
+    else if (st.bal || st.eq) { R.state = "bal"; R.sawLost = false; R.prompts = 0; }
     else run_function("conjuration_next", [], "conjuration");
   } else if (R.state === "expect" && cjBounce) {
     R.tries = (R.tries || 0) + 1;
