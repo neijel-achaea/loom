@@ -45,7 +45,9 @@ client.loom.hooks.conjuration.gmcp = function (args) {
     } else if (R.state === "bal" && cjSt.eq) {
       // Generosity and selfishness: on as soon as a prompt shows equilibrium.
       if (cjE) run_function("conjuration_next", [], "conjuration");
-    } else if (R.state === "bal" && cjB && R.sawLost) {
+    } else if (R.state === "bal" && cjB && (R.sawLost || R.prompts >= 2)) {
+      // Balance back after the action took it, or never taken at all
+      // (two prompts with balance up, for actions that don't use it).
       run_function("conjuration_next", [], "conjuration");
     } else if (R.state === "retry" && cjB && (R.sawLost || R.prompts >= 2)) {
       R.state = "send";

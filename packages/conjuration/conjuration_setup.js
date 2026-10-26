@@ -45,7 +45,7 @@ CJ.acts = {
   3: { cmd: "bang drum", expect: null },
   4: { cmd: "spin around thrice", expect: null },
   5: { cmd: "light candle", expect: null },
-  6: { cmd: "clap hands", expect: null },
+  6: { cmd: "clap hands", expect: "^You clap your hands quickly and suddenly\\." },
   7: { cmd: "burn the polygon", expect: null },
   8: { cmd: "point sword", expect: null },
   9: { cmd: "burn incense", expect: null },
