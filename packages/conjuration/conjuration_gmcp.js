@@ -30,6 +30,11 @@ client.loom.hooks.conjuration.gmcp = function (args) {
       }
     }
   }
+  if (cjM === "Char.Status" && client.loom && client.loom.conjuration) {
+    var cjG = args.gmcp_args;
+    if (typeof cjG === "string") { try { cjG = JSON.parse(cjG); } catch (e) { cjG = null; } }
+    if (cjG && typeof cjG == "object" && cjG.gold !== undefined && /^[\d,]+$/.test(String(cjG.gold))) client.loom.conjuration.gold = +String(cjG.gold).replace(/,/g, "");
+  }
   if (cjM === "Char.Vitals" && cjA && client.loom && client.loom.conjuration && client.loom.conjuration.run) {
     if (typeof cjA === "string") { try { cjA = JSON.parse(cjA); } catch (e) { cjA = null; } }
     var CJ = client.loom.conjuration;

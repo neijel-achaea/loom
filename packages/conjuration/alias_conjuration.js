@@ -61,6 +61,8 @@ if (cjSub === "" || cjSub === "status") {
     cjSay("can't make " + S.name + " yet: " + cjPa.err + ".", "orange");
   } else if (!CJ.ouroboros) {
     cjSay("set your ouroboros first: CONJURATION OUROBOROS <number>.", "orange");
+  } else if (cjPa.coins && CJ.gold !== null && CJ.gold < cjPa.coins) {
+    cjSay("the ritual for " + S.name + " flips " + (cjPa.coins > 1 ? cjPa.coins + " coins" : "a coin") + ", and you have " + CJ.gold + " sovereign" + (CJ.gold == 1 ? "" : "s") + " on hand: GG " + (cjPa.coins - CJ.gold) + " first. Nothing was sent.", "orange");
   } else if (get_variable("pauseTriggers") === "on") {
     cjSay("triggers are paused, so nothing was sent.", "orange");
   } else if (CJ.run) {

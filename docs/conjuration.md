@@ -14,14 +14,14 @@ Making a sigil or conjured item is a long string of commands: take the reagents 
 
 1. `IR COMMODITIES` (and `IR PLANTS` when the recipe crushes kola), and stops before taking anything out if the rift is short of a reagent ("not enough in the rift: dust (1 of 2)").
 2. If selfishness is up, `GENEROSITY` first (reagents can't go into the ouroboros otherwise).
-3. `OUTR` each reagent from the rift and `PUT` it in your ouroboros, then `SELFISHNESS` again if it was up. A recipe that crushes kola also takes one kola nut out per crush (kept in your inventory, not put in); kola is part of the rift check.
+3. `OUTR` each reagent from the rift and `PUT` it in your ouroboros, then `SELFISHNESS` again if it was up. A recipe that crushes kola also takes one kola nut out per crush (kept in your inventory, not put in); kola is part of the rift check. A recipe that flips a coin needs that many sovereigns on hand: if you have fewer, it tells you how many to `GG` and sends nothing.
 4. `BEGIN CREATION OF FLAME SIGIL`, then waits for the game to say you may begin.
 5. The item's actions as its AB scroll lists them: for the flame sigil, chant three times and ring the bell; for the brooch of Thoth, three different chants and three claps. Each waits for its line and for balance.
 6. `END RITUAL`, then takes the item from the ouroboros.
 
 Every step waits for its own reply from the game before the next goes out, so the game's queue only ever holds one ritual command. If a step bounces ("must regain balance"), it's sent again once you're ready. If the game stops answering for a dozen prompts, the ritual stops and says at which step and why.
 
-Recipes so far: **brooch** (brooch of Thoth), **comprehension** (necklace of comprehension), **eye**, **fist**, **flame**, **key**, **mushroom** and **whirlwind** (whirlwind of Vastar). `CONJURATION LIST` shows every item and which have a recipe; an item whose actions include one Loom doesn't know the game's line for yet says so. More are added as players send them in.
+Recipes so far: **brooch** (brooch of Thoth), **comprehension** (necklace of comprehension), **eye**, **fist**, **flame**, **concealment** (orb of concealment), **key**, **mushroom** and **whirlwind** (whirlwind of Vastar). `CONJURATION LIST` shows every item and which have a recipe; an item whose actions include one Loom doesn't know the game's line for yet says so. More are added as players send them in.
 
 ## Setting it up
 
@@ -35,7 +35,7 @@ Recipes so far: **brooch** (brooch of Thoth), **comprehension** (necklace of com
 
 ## Adding a recipe
 
-A recipe is the item's AB scroll entry: the BEGIN CREATION syntax, the comms (reagents), and the actions field exactly as written (e.g. `chant "mortis troy tenkla", 3x6` or `3xchant "krolop escit yall", 1`). Loom also needs the game's line for each action it hasn't seen yet (all but POINT SWORD and FLIPCOIN are known), and the line you get taking the item out. Send them with a [feature idea](https://github.com/neijel-achaea/loom/issues/new/choose).
+A recipe is the item's AB scroll entry: the BEGIN CREATION syntax, the comms (reagents), and the actions field exactly as written (e.g. `chant "mortis troy tenkla", 3x6` or `3xchant "krolop escit yall", 1`). Loom also needs the game's line for each action it hasn't seen yet (all 17 are known now), and the line you get taking the item out. Send them with a [feature idea](https://github.com/neijel-achaea/loom/issues/new/choose).
 
 ## Working with other packages
 
