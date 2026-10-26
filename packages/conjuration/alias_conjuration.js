@@ -77,6 +77,10 @@ if (cjSub === "" || cjSub === "status") {
     for (var cjR = 0; cjR < S.reagents.length; cjR++) {
       cjSteps.push({ cmd: "outr " + (S.reagents[cjR][0] > 1 ? S.reagents[cjR][0] + " " : "") + S.reagents[cjR][1] });
     }
+    // Things the actions use up from your inventory (kola): out, never in.
+    for (var cjK2 = 0; cjK2 < cjPa.carry.length; cjK2++) {
+      cjSteps.push({ cmd: "outr " + (cjPa.carry[cjK2][0] > 1 ? cjPa.carry[cjK2][0] + " " : "") + cjPa.carry[cjK2][1] });
+    }
     for (var cjP = 0; cjP < S.reagents.length; cjP++) {
       for (var cjQ = 0; cjQ < S.reagents[cjP][0]; cjQ++) cjSteps.push({ cmd: "put " + S.reagents[cjP][1] + " in " + cjO });
     }
@@ -85,7 +89,7 @@ if (cjSub === "" || cjSub === "status") {
     for (var cjA = 0; cjA < cjPa.steps.length; cjA++) cjSteps.push(cjPa.steps[cjA]);
     cjSteps.push({ cmd: "end ritual", expect: "^The ouroboros flashes" });
     cjSteps.push({ cmd: "get " + (S.take || "sigil") + " from ouroboros" + (CJ.sigilFrom || CJ.ouroboros), expect: "^You take .* from .*ouroboros" });
-    CJ.run = { sigil: cjSub, reagents: S.reagents, have: {}, steps: cjSteps, i: 0, state: "send", tries: 0, prompts: 0, sawLost: false };
+    CJ.run = { sigil: cjSub, reagents: S.reagents.concat(cjPa.carry), have: {}, steps: cjSteps, i: 0, state: "send", tries: 0, prompts: 0, sawLost: false };
     cjSay("making " + S.name + ", one step at a time (" + cjSteps.length + " steps).");
     run_function("conjuration_step", [], "conjuration");
   }

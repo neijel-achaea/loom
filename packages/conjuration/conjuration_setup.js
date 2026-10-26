@@ -39,32 +39,35 @@ CJ.sigils = {
 // game's line confirming it (a regular expression; null until someone sends
 // it in, and a recipe needing it can't be run yet). Every action takes
 // balance. A new line also goes into the "conjuration ritual" trigger.
+// carry: something the action uses from your inventory, one per use (kola
+// for CRUSH KOLA): taken out of the rift with the reagents, never put in.
 CJ.acts = {
   1: { cmd: "ring bell", expect: "as you ring a small silver bell" },
   2: { cmd: "chant", expect: "^You chant, \"" },
-  3: { cmd: "bang drum", expect: null },
-  4: { cmd: "spin around thrice", expect: null },
-  5: { cmd: "light candle", expect: null },
+  3: { cmd: "bang drum", expect: "^You strike a drum with a firm hand" },
+  4: { cmd: "spin around thrice", expect: "^You quickly spin around counter-clockwise, three times" },
+  5: { cmd: "light candle", expect: "^You light a candle from one of the braziers" },
   6: { cmd: "clap hands", expect: "^You clap your hands quickly and suddenly\\." },
-  7: { cmd: "burn the polygon", expect: null },
+  7: { cmd: "burn the polygon", expect: "^You pen a seventeen-sided polygon on a piece of paper and burn it" },
   8: { cmd: "point sword", expect: null },
-  9: { cmd: "burn incense", expect: null },
-  10: { cmd: "play horn", expect: null },
-  11: { cmd: "strum lute", expect: null },
+  9: { cmd: "burn incense", expect: "^You place some incense in a burner, and light it" },
+  10: { cmd: "play horn", expect: "^You pick up a horn and blow a resounding blast" },
+  11: { cmd: "strum lute", expect: "^You strum a lute" },
   12: { cmd: "flipcoin", expect: null },
-  13: { cmd: "roll dice", expect: null },
-  14: { cmd: "wave arms", expect: null },
-  15: { cmd: "crush kola", expect: null },
-  16: { cmd: "wave feather", expect: null },
+  13: { cmd: "roll dice", expect: "^You roll the dice and as they tumble to a stop" },
+  14: { cmd: "wave arms", expect: "^You wave your arms frantically" },
+  15: { cmd: "crush kola", expect: "^You take a kola nut, crush it in your fist", carry: "kola" },
+  16: { cmd: "wave feather", expect: "^Taking an eagle's feather from a nearby table, you wave it over the ouroboros" },
   17: { cmd: "square the circle", expect: "^You trace a circle in the air, leaving a trail of fire behind you" }
 };
 
 // The AB scroll's actions field as steps: comma-separated; "3x6" = action 6
 // three times, "9" = once, chant "words" = chant those words, 3xchant
 // "words" = three times. A bare 2 chants
-// the recipe's chant. {steps: [{cmd, expect, bal}]} or {err: "why"}.
+// the recipe's chant. {steps: [{cmd, expect, bal}], carry: [[count, item]]}
+// or {err: "why"}.
 CJ.parseActions = function (text, chant) {
-  var out = [];
+  var out = [], carry = {};
   var parts = String(text || "").match(/(?:[^,"]|"[^"]*")+/g) || [];
   if (!parts.length) return { err: "no actions" };
   for (var i = 0; i < parts.length; i++) {
@@ -81,11 +84,14 @@ CJ.parseActions = function (text, chant) {
       if (!a.expect) return { err: "the game's line for " + a.cmd.toUpperCase() + " isn't known yet" };
       if (+m[2] === 2 && !chant) return { err: "action 2 needs the recipe's chant" };
       for (var k = 0; k < n; k++) out.push({ cmd: +m[2] === 2 ? "chant " + chant : a.cmd, expect: a.expect, bal: true });
+      if (a.carry) carry[a.carry] = (carry[a.carry] || 0) + n;
     } else {
       return { err: "action '" + p + "' not understood" };
     }
   }
-  return { steps: out };
+  var cl = [];
+  for (var ci in carry) { if (carry.hasOwnProperty(ci)) cl.push([carry[ci], ci]); }
+  return { steps: out, carry: cl };
 };
 
 // Selfishness, from Char.Defences (true/false; null until the game says).
