@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 1.0.0.*
+*This page describes social 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -78,7 +78,7 @@ Every group but enemies is watched on a new install (enemies are still coloured,
 ## Setting it up
 
 1. **Import `social.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Online`**. If it doesn't appear, reset the UI layout. Its icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Online`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. Its icon shows after a page reload.
 3. **Fill your lists.** `SOCIAL ADD family <name>`, `SOCIAL ADD friends <name>`… and look at your city's enemies once (`CITY ENEMIES`) to load that list.
 
 The first poll after login only takes note of who's online ("primed with N names"); notices start with the next one, so logging in doesn't flood you with everyone already on.

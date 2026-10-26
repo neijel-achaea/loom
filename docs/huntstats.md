@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 1.0.0.*
+*This page describes huntstats 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -95,7 +95,7 @@ One limit: when two other people pass gold between themselves, the game doesn't 
 ## Setting it up
 
 1. **Import `huntstats.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Stats`**. If it doesn't appear, reset the UI layout. The arrowhead icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Stats`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The arrowhead icon shows after a page reload.
 3. **Hunt.** The first experience you gain starts the first hunt. Type `SCORE` once if you want the precise level percentage straight away; GMCP gives it in whole percent.
 
 If you used the older huntstats (`hs_*` variables), its records move over the first time it loads.

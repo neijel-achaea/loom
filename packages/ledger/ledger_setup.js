@@ -9,7 +9,11 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "1.0.1", keyword: "LEDGER", desc: "{{description}}",
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab("Ledger", null);
+client.loom.registry.ledger = { version: "1.0.2", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;

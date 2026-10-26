@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 1.1.1.*
+*This page describes room 1.1.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -38,7 +38,7 @@ What you see, top to bottom:
 | `ROOM BACK` | walk back to the remembered room with PATH FIND (GO BACK in Here) |
 | `ROOM FORGET` | forget the remembered room |
 | `ROOM DEBUG` | the last room GMCP payloads, as they came |
-| **The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like.** | |
+| **The Here tab (added when room loads) replaces the stock Room tab: close the stock one from the layout if you like.** | |
 <!-- /loom:commands -->
 
 `ROOM` on its own sums the room up in one line ("Grove of the Ancients (12345), Eleusis: 2 players, 3 mobs, 4 items.") and says how the description starts. `ROOM DESC OPEN` is for players who want the whole description every time; clicking the description still flips it for the moment. `ROOM DEBUG` prints the last room messages the game sent, as they came: paste them with a bug report.
@@ -46,7 +46,7 @@ What you see, top to bottom:
 ## Setting it up
 
 1. **Import `room.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Here`**. If it doesn't appear, reset the UI layout. Its amber icon shows after a page reload. You can then close Nexus's own Room tab from the layout, if you like.
+2. **The tab.** Importing the package adds a tab named **`Here`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. Its amber icon shows after a page reload. You can then close Nexus's own Room tab from the layout, if you like.
 3. **That's it.** Room sends a `LOOK` when it loads, so the tab (and Nexus's map) fills at once, even while you're blind.
 
 It's called Here because Nexus already has a tab called Room, and two tabs with one name don't get along.
@@ -90,6 +90,6 @@ With a link switched off, Here simply goes without that part; nothing else chang
 
 - **The tab is empty.** No room has been reported yet: move, or type `LOOK`.
 - **A line went missing from the main window.** While a loyal probe's answer comes in, Room hides it, and only it: probes only go out in a calm room, a new room you walk or follow someone into, says, tells and channel lines always show, and a prompt or two ends the hiding. Lines that arrive too soon after a probe to be its answer (a mob attacking the moment you walk in) are never hidden; Room learns how long answers take from your connection. If a later packet still turns out not to be the answer, its lines are shown again just after it, in order but in plain colour. If something still goes missing, type `ROOM PROBE DEBUG` straight after: it lists the lines the last probe hid and what ended it. Report those lines; `ROOM PROBE OFF` stops the probes meanwhile.
-- **The tab doesn't appear at all.** The custom tab must be named exactly `Here`. Reset the UI layout if it still doesn't show.
+- **The tab doesn't appear at all.** Room adds it when it loads. If it's missing, add a custom tab named exactly `Here` and reset the UI layout.
 - **Someone is listed who has left (or missing who's there).** A few ways of arriving or leaving send nothing Room can see. The next room you enter puts it right; if you can name the line the game showed, report it so Room learns it.
 - **The wrong mob glows.** Room glows the first living mob whose name holds your target word, as the game picks it. If the game hit a different one, report it with `ROOM DEBUG` and the line that named the target.

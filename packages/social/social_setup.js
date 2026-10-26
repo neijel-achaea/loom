@@ -10,7 +10,11 @@ if (!client.loom.social) client.loom.social = {};
 // colours (Here, Comms).
 // busy (#318): true while a QW poll's answer is still coming, so Here's
 // loyal probe waits its turn. A capture open for 5 s no longer counts.
-client.loom.registry.social = { version: "1.0.0", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab("Online", null);
+client.loom.registry.social = { version: "1.0.1", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
   var Sq = client.loom.social;
   return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
 }, redraw: function () {

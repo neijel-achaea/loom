@@ -5,7 +5,11 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.talpieces) client.loom.talpieces = {};
-client.loom.registry.talpieces = { version: "1.0.0", keyword: "TALPIECES", desc: "{{description}}",
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab("Talismans", null);
+client.loom.registry.talpieces = { version: "1.0.1", keyword: "TALPIECES", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("talpieces_render", [], "talpieces"); } };
 var TP = client.loom.talpieces;

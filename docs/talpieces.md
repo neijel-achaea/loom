@@ -3,7 +3,7 @@
 *Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and when you'll finish at your pace.*
 
 <!-- loom:version talpieces -->
-*This page describes talpieces 1.0.0.*
+*This page describes talpieces 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -62,7 +62,7 @@ With `TALPIECES COMBINE ON`, each piece row of your listing queues `TALISMAN COM
 ## Setting it up
 
 1. **Import `talpieces.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Talismans`**. If it doesn't appear, reset the UI layout. Its icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Talismans`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. Its icon shows after a page reload.
 3. **List your pieces in game** once, so the count starts right.
 
 If you used the older talismans package, its data moves over the first time TalPieces loads, and it uses the same Talismans tab. Its TalGraph tab is gone: close it.

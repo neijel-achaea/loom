@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 1.0.0.*
+*This page describes coffers 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -122,7 +122,7 @@ Other packages can suggest a goal through Loom's integrations (see [Working with
 ## Setting it up
 
 1. **Import `coffers.nxs`** in Nexus's package manager (see [Getting started](getting-started.md)). If you already had it, reimporting keeps your books and settings.
-2. **Create the tab.** Add a custom tab named exactly **`Coffers`**. If it doesn't appear, reset the UI layout. The coin-stack icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Coffers`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The coin-stack icon shows after a page reload.
 3. **Get a first reading.** Coffers fills in as soon as the game reports your gold, which it does at login. If the tab says the ledger is empty, type `SCORE` or make a small deposit.
 
 There is nothing else to configure. The defaults suit most players. Books are kept per character, so each of your characters has its own.

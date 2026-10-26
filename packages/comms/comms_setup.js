@@ -17,9 +17,13 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.comms) client.loom.comms = {};
 // redraw: how loom redraws the Comms tab when an integration's source changes (#159).
-client.loom.registry.comms = { version: "1.0.0", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
+client.loom.registry.comms = { version: "1.0.1", keyword: "COMMS", desc: "{{description}}", redraw: function () { run_function("comms_render", [], "comms"); } };
 var C = client.loom.comms;
 C.tab = "Comms";
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab(C.tab, null);
 if (!C.chans) C.chans = {};
 if (!C.convs) C.convs = {};
 if (!C.raw) C.raw = {};

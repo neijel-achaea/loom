@@ -3,7 +3,7 @@
 *How you stand with people and organisations, kept as a ledger of dealings, from Nemesis to Soulmate.*
 
 <!-- loom:version standings -->
-*This page describes standings 1.0.0.*
+*This page describes standings 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -81,7 +81,7 @@ For someone you've known a long time, `STANDINGS Ana SET 5 old friend from the w
 ## Setting it up
 
 1. **Import `standings.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Standings`**. If it doesn't appear, reset the UI layout. The balance icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Standings`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The balance icon shows after a page reload.
 3. **Start the book** with the people who matter: `SET` for old acquaintances, nudges from here on.
 
 With **ledger** installed, dealings are dated on the Achaean calendar. With **social**, a person's page shows chips for the social groups they're in.

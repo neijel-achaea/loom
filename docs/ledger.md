@@ -3,7 +3,7 @@
 *Reminders and standing items on the Achaean calendar, with reminders other packages add for you.*
 
 <!-- loom:version ledger -->
-*This page describes ledger 1.0.1.*
+*This page describes ledger 1.0.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -69,7 +69,7 @@ Each item gets a number (#3), shown in the tab and the digest.
 ## Setting it up
 
 1. **Import `ledger.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Ledger`**. If it doesn't appear, reset the UI layout. The quill icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Ledger`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The quill icon shows after a page reload.
 3. **Log in, or type `LEDGER DATE`**, so it learns today's date. Until then dated items can't be added ("date not known yet").
 
 If you used the older ledger (`lg_*` variables), its items move over the first time it loads.

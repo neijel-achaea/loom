@@ -36,7 +36,8 @@ Nexus runs package code as JavaScript in the page, but with quirks. These are th
 
 ## Custom tabs
 
-- **`set_custom_tab_html(name, html)`** fills a custom tab the player created with exactly that name. Never use a name Nexus already has (that's why the room tab is called Here).
+- **`register_custom_tab(name, null)`** creates a custom tab (#407). Nexus forgets it at every reload, so setup calls it on every load; calling it for a tab that exists (registered or made by hand) does nothing. Guard it with `typeof register_custom_tab == "function"`.
+- **`set_custom_tab_html(name, html)`** fills a custom tab with exactly that name. Never use a name Nexus already has (that's why the room tab is called Here).
 - **Injected `<script>` doesn't run.** Tabs are static HTML and inline SVG; Canvas and chart libraries don't work.
 - **A tab's page shares `window` and `document`** with package scripts, **but can't reach `client.*`.** Clicks reach the package through closures the setup puts on `window` (`onclick="window.loomComms.tell('Ana')"`), or by toggling a class on `document.body`.
 - **Keep UI state out of the tab's HTML.** Each render rewrites it, so something like "the offline section is folded" lives as a class on `document.body`, with a `<style>` element (injected once by id, its text refreshed on each draw) that acts on it. Toggling inline styles that the next render rewrites makes the tab flicker.

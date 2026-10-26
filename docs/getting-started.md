@@ -22,9 +22,9 @@ Check each package's page before importing it: a few need another package (the b
 
 Your data (gold history, ledger items, standings, settings) is kept in Nexus variables, separately from the packages, and per character. Reimporting a newer version of a package keeps it.
 
-## 3. Create the tabs
+## 3. The tabs
 
-Some packages draw their own tab. Nexus needs the tab to exist first: add a **custom tab** with **exactly** the name below (capitals included).
+Some packages draw their own tab, and add it by themselves when they load: place it in your layout like any other tab. The names below are what to look for.
 
 | Package | Tab name |
 | --- | --- |
@@ -43,7 +43,7 @@ Some packages draw their own tab. Nexus needs the tab to exist first: add a **cu
 | standings | `Standings` |
 | talpieces | `Talismans` |
 
-If a tab doesn't appear, reset the UI layout. Tab icons show after a page reload.
+If a tab doesn't appear, add a **custom tab** with **exactly** its name (capitals included), then reset the UI layout. Tab icons show after a page reload.
 
 Room's tab is called **Here**, not Room, because Nexus already has a Room tab of its own.
 

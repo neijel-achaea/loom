@@ -157,7 +157,7 @@ For tabs with clicks, load the whole package into the page and click through it 
 ## 7. Test in game
 
 1. Import the built `.nxs` from your branch (the raw link to `dist/<name>.nxs` at your commit).
-2. Reimporting runs the package's setup again, keeping its saved settings, so no restart is needed. A new tab needs its custom tab created; a changed tab icon needs a page reload.
+2. Reimporting runs the package's setup again, keeping its saved settings, so no restart is needed. A new tab registers itself; a changed tab icon needs a page reload.
 3. Walk through the checklist in your pull request, ticking each step.
 4. Check the package still works **alone**, and with the packages it integrates with.
 

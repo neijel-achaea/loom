@@ -3,7 +3,7 @@
 *Shares your vitals, rage and target with your party, and shows everyone's in the Party tab.*
 
 <!-- loom:version partycomms -->
-*This page describes partycomms 1.0.0.*
+*This page describes partycomms 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -43,7 +43,7 @@ If you imported PartyComms mid-session and the game hasn't sent your name since,
 ## Setting it up
 
 1. **Import `partycomms.nxs`** (see [Getting started](getting-started.md)). **Everyone in the party needs the same version**: reports in an older format are ignored.
-2. **Create the tab.** Add a custom tab named exactly **`Party`**. If it doesn't appear, reset the UI layout. Its icon shows right away.
+2. **The tab.** Importing the package adds a tab named **`Party`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. Its icon shows right away.
 3. **Join a party** and `PARTYCOMMS ON`.
 
 Sharing is on unless you switch it off, but it **switches itself off when you're not in a party** (the game answers "You are not the member of any party." to the report). After joining one, `PARTYCOMMS ON` again.

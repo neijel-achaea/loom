@@ -3,7 +3,7 @@
 *Your progress through the levels as graphs, per minute and per day, with rates and the time to your next level.*
 
 <!-- loom:version levelgraph -->
-*This page describes levelgraph 1.0.0.*
+*This page describes levelgraph 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -52,7 +52,7 @@ Points older than the span drop out of the buffer. `LEVELGRAPH CSV SESSION` or `
 ## Setting it up
 
 1. **Import `levelgraph.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Level`**. If it doesn't appear, reset the UI layout. The stair icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Level`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The stair icon shows after a page reload.
 3. **Play.** The first prompt gives the first point.
 
 If you used the older level graph (`lvl_*` variables), its history moves over the first time it loads.

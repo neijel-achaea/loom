@@ -6,7 +6,7 @@ Each package's page ends with its own troubleshooting. Start here when the troub
 
 ## Tabs
 
-**A tab doesn't appear.** A package's tab only shows in a custom tab created with **exactly** its name, capitals included: `Here`, `Online`, `Comms`, `Self`, `Stats`, `Coffers`, `Ledger`, `Level`, `Party`, `Standings`, `Talismans`, `DmgChart`, `Basher`, `fishingstats`, `fishinglog`. If it's named right and still blank, reset Nexus's UI layout and add it again.
+**A tab doesn't appear.** Each package adds its tab when it loads. If one is missing, add a custom tab with **exactly** its name, capitals included: `Here`, `Online`, `Comms`, `Self`, `Stats`, `Coffers`, `Ledger`, `Level`, `Party`, `Standings`, `Talismans`, `DmgChart`, `Basher`, `fishingstats`, `fishinglog`. If it's named right and still blank, reset Nexus's UI layout and add it again.
 
 **A tab's icon is missing.** Icons are added once per page load: reload the page after importing.
 

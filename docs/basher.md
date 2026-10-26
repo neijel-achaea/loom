@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.0.0.*
+*This page describes basher 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -42,7 +42,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 | `BASHER RAGE [ON\|OFF]` | battlerage during a run (default ON), in the class's order; no word: show it |
 | `BASHER INTERRUPT [ON\|OFF]` | players arriving, tells and your city channel end the run after this fight (default ON, remembered); no word: show it |
 | `BASHER DEBUG` | internal state: the run, its target and why, the room |
-| **The Basher tab (create a custom tab named Basher) keeps a kill order per area: new mob types join ignored; ACTIVE ones are targeted by priority, then room order. While primed the basher sets your target to the top one whenever that changes; in a run it takes the next after each kill and ends when none are left. With no active types in an area it follows your own target as before.** | |
+| **The Basher tab (added when basher loads) keeps a kill order per area: new mob types join ignored; ACTIVE ones are targeted by priority, then room order. While primed the basher sets your target to the top one whenever that changes; in a run it takes the next after each kill and ends when none are left. With no active types in an area it follows your own target as before.** | |
 | **Another player arriving during a run, a tell to you, or a line on your city channel that names you makes the fight in progress the last: it finishes, nothing new starts, the basher waits primed. BASHER INTERRUPT OFF turns all three off. With social, enemies are named as such and still count with interruptions off (loom link social-basher).** | |
 | **Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system.** | |
 | **A shielded target is razed with your class's shieldbreak when you have the rage (BASHER RAZE); dragons Blast it on recovery while their dragonbreath is up; otherwise attacks wait for the shield to fade.** | |
@@ -113,7 +113,7 @@ Named NPCs are best left ignored.
 ## Setting it up
 
 1. **Import `hunting.nxs` and `basher.nxs`** (see [Getting started](getting-started.md)). Check your class's main attack with `HUNTING MAIN`.
-2. **Create the tab.** Add a custom tab named exactly **`Basher`**. If it doesn't appear, reset the UI layout. The training-dummy icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Basher`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The training-dummy icon shows after a page reload.
 3. **Turn on curing**: `CURING ON` for the game's server-side curing, or your own system.
 4. **In a hunting area**, open the Basher tab and switch the mob types you want to ACTIVE, in the order you want them.
 

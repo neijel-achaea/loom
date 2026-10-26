@@ -3,7 +3,7 @@
 *Casts, hooks and catches for you and everyone fishing around you, per angler and per species, with a log of past sessions and a flag on record catches.*
 
 <!-- loom:version fishingstats -->
-*This page describes fishingstats 1.0.0.*
+*This page describes fishingstats 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -65,7 +65,7 @@ If catches are missed regularly, the game is probably wording them in a way Fish
 ## Setting it up
 
 1. **Import `fishingstats.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tabs.** Add two custom tabs named exactly **`fishingstats`** and **`fishinglog`** (lower case). If they don't appear, reset the UI layout. Their icons show after a page reload.
+2. **The tabs.** Importing the package adds two tabs, **`fishingstats`** and **`fishinglog`** (lower case), by themselves. If they don't appear, add custom tabs with exactly those names, then reset the UI layout. Their icons show after a page reload.
 3. **Type `RANKINGS FISHING` once**, and again each new Achaean year, so record catches are flagged.
 
 `FISHINGSTATS DEMO` fills the tab with sample data, to see what it looks like before your first cast.

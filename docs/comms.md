@@ -3,7 +3,7 @@
 *The Comms tab: every channel, tell and say in one place, in the game's own colours, with unread counts.*
 
 <!-- loom:version comms -->
-*This page describes comms 1.0.0.*
+*This page describes comms 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -29,7 +29,7 @@ Everything comes from the game (GMCP): there are no triggers, and the main windo
 | `COMMS DEBUG` | the last GMCP payloads, the tell input line, why it follows or not |
 | **Filters run All, Say, Tell, Party, Yell, Shout, City, House, HNT, Clans, then the rest alphabetically. Emotes and Deathsight (the gods' roleplay) stay in the main window only.** | |
 | **In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them. Hover a line for its time.** | |
-| **The Comms tab replaces the stock communication window: create a custom tab named Comms, then close the stock one from the layout if you like.** | |
+| **The Comms tab (added when comms loads) replaces the stock communication window: close the stock one from the layout if you like.** | |
 <!-- /loom:commands -->
 
 Channel names can be shortened: `COMMS VIEW cl` finds the first channel heard whose name starts with "cl". `COMMS VIEW Ana` opens your tells with Ana; `COMMS VIEW ALL` goes back to everything.
@@ -39,7 +39,7 @@ Channel names can be shortened: `COMMS VIEW cl` finds the first channel heard wh
 ## Setting it up
 
 1. **Import `comms.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Comms`**. If it doesn't appear, reset the UI layout. The speech-bubble icon shows after a page reload. You can then close the stock communication window from the layout, if you like.
+2. **The tab.** Importing the package adds a tab named **`Comms`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The speech-bubble icon shows after a page reload. You can then close the stock communication window from the layout, if you like.
 3. **Talk, or wait.** The tab fills with the first line you hear.
 
 ## Daily use

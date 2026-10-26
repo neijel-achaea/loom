@@ -9,7 +9,11 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "1.0.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab("Basher", null);
+client.loom.registry.basher = { version: "1.0.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came

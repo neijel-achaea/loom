@@ -7,7 +7,11 @@ if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.self) client.loom.self = {};
 // redraw: how loom redraws the Self tab when a source changes (#176).
-client.loom.registry.self = { version: "1.0.0", keyword: "SELF", desc: "{{description}}", redraw: function () { run_function("self_render", [], "self"); } };
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab("Self", null);
+client.loom.registry.self = { version: "1.0.1", keyword: "SELF", desc: "{{description}}", redraw: function () { run_function("self_render", [], "self"); } };
 var SF = client.loom.self;
 
 // The old package kept its state in client.self, client.selfWant,

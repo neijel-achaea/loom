@@ -4,7 +4,12 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.fishingstats) client.loom.fishingstats = {};
-client.loom.registry.fishingstats = { version: "1.0.0", keyword: "FISHINGSTATS", desc: "{{description}}",
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab("fishingstats", null);
+if (typeof register_custom_tab == "function") register_custom_tab("fishinglog", null);
+client.loom.registry.fishingstats = { version: "1.0.1", keyword: "FISHINGSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("fishingstats_render", [], "fishingstats"); run_function("fishingstats_log_render", [], "fishingstats"); } };
 var FS = client.loom.fishingstats;

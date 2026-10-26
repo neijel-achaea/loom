@@ -3,7 +3,7 @@
 *The Self tab: your afflictions and defences live, the defences you care about watched, and your character at a glance.*
 
 <!-- loom:version self -->
-*This page describes self 1.0.0.*
+*This page describes self 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -57,7 +57,7 @@ The tab title shows your name as the game sends it. `SELF NAME Neijel` shows ano
 ## Setting it up
 
 1. **Import `self.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`Self`**. If it doesn't appear, reset the UI layout. The bust icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`Self`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The bust icon shows after a page reload.
 3. **Fill it in once:** type `DIAG`, `DEF` and `SCORE`. After that, afflictions and defences keep themselves current; type `SCORE` again whenever you want the Character readings refreshed.
 4. **Pick the defences to watch** for each class you play: `SELF WANT …`.
 

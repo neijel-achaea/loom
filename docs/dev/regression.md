@@ -17,6 +17,7 @@ One pass through everything Loom does, in game. Run it before a release, and whe
 - [ ] **The basher without hunting:** an orange notice says hunting is needed; nothing is sent.
 - [ ] **Reimport over itself:** reimport any package without reloading. Its settings stay, no duplicate timers (no doubled notices).
 - [ ] **Upgrade:** import the previous release, change a few settings in several packages, then import the candidate over it. Nothing reset.
+- [ ] **Tabs add themselves (#407):** on a profile without Loom's custom tabs, import a tab package: its tab appears without creating it. Reload the page: still there, filled. Import it again: no second tab. A tab made by hand with the same name: no duplicate.
 - [ ] **Page reload:** every tab redraws; toggles that should load off (basher, harvesting) are off.
 - [ ] **`LOOM UPDATES`:** lists what's out of date ("up to date" in lime otherwise). At login on a current profile: nothing. `LOOM UPDATES AUTO OFF`, relog: no check.
 - [ ] **Uninstall:** uninstall a package another one shows (social): `LOOM` drops it at once, and Here loses its name colours without a reload. Reinstall: the colours are back.

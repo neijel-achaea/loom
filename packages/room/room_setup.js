@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.1.1", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.1.2", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -52,6 +52,10 @@ if (!R.me) { try { R.me = String(get_variable("room_name") || ""); } catch (e) {
 // The description starts folded to two lines (room_desc "folded"/"open").
 R.descOpen = get_variable("room_desc") == "open";
 R.tab = "Here";
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab(R.tab, null);
 
 // A remembered room (#367, Ricardo): { id, name, area }, saved as room_mark.
 // Here's button next to the room number: REMEMBER marks this room; once you

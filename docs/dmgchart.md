@@ -3,7 +3,7 @@
 *Damage dealt and taken by type, per fight and per recorded session, your critical hits, and how long your health will last.*
 
 <!-- loom:version dmgchart -->
-*This page describes dmgchart 1.0.0.*
+*This page describes dmgchart 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -67,7 +67,7 @@ When it drops below 10 seconds (`DMGCHART WARN 15` to change, `OFF` to silence i
 ## Setting it up
 
 1. **Import `dmgchart.nxs`** (see [Getting started](getting-started.md)).
-2. **Create the tab.** Add a custom tab named exactly **`DmgChart`**. If it doesn't appear, reset the UI layout. The crossed-blades icon shows after a page reload.
+2. **The tab.** Importing the package adds a tab named **`DmgChart`** by itself. If it doesn't appear, add a custom tab with exactly that name, then reset the UI layout. The crossed-blades icon shows after a page reload.
 3. **Fight something.** The tab fills with the first damage line. If no "Damage dealt" or "Health lost" lines appear in your game at all, DmgChart has nothing to read.
 
 If you used the older damage chart (`dc_*` variables), its sessions move over the first time it loads.

@@ -12,7 +12,7 @@ var hlRows = [
   ["COMMS DEBUG", "the last GMCP payloads, the tell input line, why it follows or not"],
   ["Filters run All, Say, Tell, Party, Yell, Shout, City, House, HNT, Clans, then the rest alphabetically. Emotes and Deathsight (the gods' roleplay) stay in the main window only."],
   ["In the tab: click a filter to show it, a line's channel tag to open that channel, a name to start a tell to them. Hover a line for its time."],
-  ["The Comms tab replaces the stock communication window: create a custom tab named Comms, then close the stock one from the layout if you like."]
+  ["The Comms tab (added when comms loads) replaces the stock communication window: close the stock one from the layout if you like."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

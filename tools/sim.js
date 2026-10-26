@@ -112,6 +112,7 @@ function newWorld(installed, vars) {
     sent: [],
     notices: [],
     tabs: {},
+    registered: new Set(),
     line: "",
   };
   const G = global;
@@ -130,6 +131,7 @@ function newWorld(installed, vars) {
   G.replace_current_line = () => {};
   G.current_text = () => W.line;
   G.to_number = v => { const n = Number(v); return isNaN(n) ? 0 : n; };
+  G.register_custom_tab = (name) => { W.registered.add(String(name)); };
   G.set_custom_tab_html = (name, html) => { W.tabs[name] = String(html); STATS.tabs.add(name); };
   G.buttons_set_label = G.buttons_set_highlight = G.buttons_set_commands = G.buttons_set_default = () => {};
   G.nexusclient = { add_html_line: () => {} };

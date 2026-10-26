@@ -5,7 +5,7 @@
 // state, each part built if missing.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
-client.loom.registry.dmgchart = { version: "1.0.0", keyword: "DMGCHART", desc: "{{description}}",
+client.loom.registry.dmgchart = { version: "1.0.1", keyword: "DMGCHART", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("dmgchart_render", [], "dmgchart"); } };
 if (!client.loom.dmgchart) client.loom.dmgchart = {};
@@ -60,6 +60,10 @@ if (DC.warn === undefined) {
 if (DC.lasts === undefined) DC.lasts = null;
 if (!DC.recent) DC.recent = [];
 DC.tab = "DmgChart";
+// The tab registers itself (#407): no custom tab to create by hand. Nexus
+// doesn't keep a registered tab across reloads, so this runs on every load;
+// registering a tab that exists (made by hand, or twice) does nothing.
+if (typeof register_custom_tab == "function") register_custom_tab(DC.tab, null);
 if (!DC.colors) DC.colors = { "cutting": "#d9534f", "blunt": "#b08968", "magical": "#9b6bd6", "unblockable": "#d8d8d8", "poison": "#6abf4b", "fire": "#f0883e", "cold": "#5bc0de", "electricity": "#f2d43d", "asphyxiation": "#7f8fa6", "psychic": "#e36bb8", "raw": "#8c8c8c", "bleed": "#8b1e2d" };
 DC.spare = ["#4fb0a5", "#c9a0dc", "#a3c45a", "#e0b070", "#6f8fd8", "#d97a9a"];
 if (DC.spareIdx === undefined) DC.spareIdx = 0;

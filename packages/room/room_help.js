@@ -15,7 +15,7 @@ var hlRows = [
   ["ROOM BACK", "walk back to the remembered room with PATH FIND (GO BACK in Here)"],
   ["ROOM FORGET", "forget the remembered room"],
   ["ROOM DEBUG", "the last room GMCP payloads, as they came"],
-  ["The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like."]
+  ["The Here tab (added when room loads) replaces the stock Room tab: close the stock one from the layout if you like."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {
