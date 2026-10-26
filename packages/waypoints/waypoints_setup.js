@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.waypoints) client.loom.waypoints = {};
-client.loom.registry.waypoints = { version: "0.1.0", keyword: "WAYPOINTS", desc: "{{description}}",
+client.loom.registry.waypoints = { version: "0.1.1", keyword: "WAYPOINTS", desc: "{{description}}",
   redraw: function () { run_function("waypoints_render", [], "waypoints"); } };
 var WP = client.loom.waypoints;
 
@@ -74,14 +74,18 @@ WP.add = function (name) {
   name = String(name || "").trim();
   var H = WP.here;
   if (!H || !H.id) { display_notice("[waypoints] no room yet: move or LOOK first.", "orange"); return; }
-  if (!name) { display_notice("[waypoints] WAYPOINTS ADD <name> saves the room you're in.", "orange"); return; }
   var had = WP.byId(H.id);
   if (had) { display_notice("[waypoints] this room is saved already, as " + had.name + ". WAYPOINTS RENAME " + had.name + " <new name> to rename it.", "orange"); return; }
+  // No name (ADD HERE, or a bare ADD): the room's own title, with its
+  // number when another waypoint has that name already (Ricardo).
+  var named = !!name;
+  if (!name) name = H.name || ("Room " + H.id);
+  if (!named && WP.byName(name)) name = name + " " + H.id;
   if (/^\d+$/.test(name)) { display_notice("[waypoints] give it a name, not a number: the number is the room's.", "orange"); return; }
   if (WP.byName(name)) { display_notice("[waypoints] " + WP.byName(name).name + " is taken: pick another name.", "orange"); return; }
   WP.list.push({ id: H.id, name: name, note: "", room: H.name, area: H.area, env: H.env, at: Date.now() });
   WP.save();
-  display_notice("[waypoints] saved " + name + " (" + H.id + ", " + (H.name || "?") + (H.area ? ", " + H.area : "") + ").", "lime");
+  display_notice("[waypoints] saved " + name + " (" + H.id + ", " + (H.name || "?") + (H.area ? ", " + H.area : "") + ")." + (named ? "" : " WAYPOINTS RENAME " + name + " <new name> to give it your own."), "lime");
 };
 WP.remove = function (w) {
   for (var i = 0; i < WP.list.length; i++) {
@@ -120,40 +124,8 @@ try {
       var L = client.loom.loom, r = (L && L.answer) ? L.answer("waypoints", "waypoints.remembered") : undefined;
       if (r && typeof r[what] == "function") r[what]();
     },
-    // ADD HERE: "waypoints add " in the input line, for the name.
-    add: function () {
-      var inp = window.loomWaypoints.input();
-      if (!inp) { display_notice("[waypoints] couldn't find the input line: type WAYPOINTS ADD <name>.", "orange"); return; }
-      var v = "waypoints add ";
-      try {
-        var desc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(inp), "value");
-        if (desc && desc.set) desc.set.call(inp, v); else inp.value = v;
-      } catch (e) { inp.value = v; }
-      try { inp.dispatchEvent(new Event("input", { bubbles: true })); } catch (e) {}
-      try { inp.focus(); inp.setSelectionRange(v.length, v.length); } catch (e) {}
-    },
-    input: function () {
-      var ids = ["userinput", "user_input", "input", "command_input"];
-      for (var i = 0; i < ids.length; i++) {
-        var e = document.getElementById(ids[i]);
-        if (e && (e.tagName === "TEXTAREA" || e.tagName === "INPUT")) return e;
-      }
-      var li = window.loomWaypointsLastInput;
-      if (li && li.isConnected && li.offsetParent !== null) return li;
-      var sels = ["textarea", "input[type=text], input:not([type])"];
-      for (var s = 0; s < sels.length; s++) {
-        var all = document.querySelectorAll(sels[s]);
-        for (var j = 0; j < all.length; j++) { if (all[j].offsetParent !== null) return all[j]; }
-      }
-      return null;
-    }
+    // ADD HERE: saved under the room's own title (rename by command).
+    add: function () { client.loom.waypoints.add(""); }
   };
-  if (!window.loomWaypointsFocus) {
-    window.loomWaypointsFocus = true;
-    document.addEventListener("focusin", function (ev) {
-      var t = ev.target;
-      if (t && (t.tagName === "TEXTAREA" || (t.tagName === "INPUT" && (!t.type || t.type === "text")))) window.loomWaypointsLastInput = t;
-    }, true);
-  }
 } catch (e) {}
 if (client.loom.notify) client.loom.notify("waypoints");

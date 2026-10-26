@@ -6,7 +6,7 @@ var hlTitle = "[waypoints] rooms you save by name, one click away in the Waypoin
 var hlRows = [
   ["WAYPOINTS", "status: how many saved, and whether this room is one"],
   ["WAYPOINTS LIST", "every waypoint, by area"],
-  ["WAYPOINTS ADD <name>", "save the room you're in (also ADD HERE in the tab)"],
+  ["WAYPOINTS ADD [name]", "save the room you're in; no name: the room's own title (as ADD HERE in the tab)"],
   ["WAYPOINTS REMOVE <name|number>", "forget one (also the × on its row in the tab)"],
   ["WAYPOINTS RENAME <name|number> <new name>", "give it another name"],
   ["WAYPOINTS NOTE <name|number> <text>", "a note under it in the tab; no text clears it"],

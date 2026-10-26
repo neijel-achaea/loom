@@ -58,7 +58,7 @@ var count = WP.list.length + ' saved' + (order.length ? ' &middot; ' + order.len
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + AMBER + ';">Waypoints</span>';
 html += '<span style="display:flex;align-items:baseline;gap:8px;"><span style="color:' + MUTED + ';">' + count + '</span>';
-if (here.id && !hereW) html += chip('&#8853; ADD HERE', 'add()', MUTED, DEEP, 'save the room you\'re in: type its name after WAYPOINTS ADD');
+if (here.id && !hereW) html += chip('&#8853; ADD HERE', 'add()', MUTED, DEEP, 'save the room you\'re in under its own title (WAYPOINTS RENAME to change it)');
 html += '</span></div>';
 
 // Remembered (room's REMEMBER), through loom.
@@ -108,7 +108,7 @@ for (var g = 0; g < order.length; g++) {
 if (!WP.list.length) {
   html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No waypoints yet.</div>';
 }
-html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Click a waypoint to walk there; click an area to fold it. WAYPOINTS ADD &lt;name&gt; saves the room you\'re in.</div>';
+html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Click a waypoint to walk there; click an area to fold it. WAYPOINTS RENAME gives a waypoint your own name.</div>';
 html += '</div>';
 
 // The whole tab in the panel's colour (#355); the × shows on a row's hover.

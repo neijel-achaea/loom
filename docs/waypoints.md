@@ -3,7 +3,7 @@
 *Rooms you save by name, listed by area in a tab; one click walks you there.*
 
 <!-- loom:version waypoints -->
-*This page describes waypoints 0.1.0.*
+*This page describes waypoints 0.1.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -15,7 +15,7 @@ Waypoints keeps the rooms you want to come back to (a hunting spot, a shop, your
 - **By area.** The area you're in comes first, the others follow by name. Click an area's header to fold it: a folded area keeps its count and lists its waypoints' names on the header line. Folding is remembered.
 - **Two lines a row.** The flag and the name you gave it, with the room number on the right; under it, the game's room name, its environment and your note.
 - **Where you are.** A waypoint you're standing in is highlighted and reads `HERE`.
-- **Adding and removing.** `⊕ ADD HERE` on the title line, shown when the room you're in isn't saved yet, puts `waypoints add ` in your input line: type the name and press Enter. Hover a row for its `×`, which removes it at once.
+- **Adding and removing.** `⊕ ADD HERE` on the title line, shown when the room you're in isn't saved yet, saves it under the room's own title (with its number added if another waypoint has that name); `WAYPOINTS RENAME` gives it your own. Hover a row for its `×`, which removes it at once.
 
 With **room** installed, its REMEMBER is pinned at the top as a shortcut waypoint: the remembered room, its area and how long ago, with **GO BACK** (or **FORGET** while you're in it). With nothing remembered, the box offers **REMEMBER HERE**. In Here, a room you've saved shows its name as a ⚑ tag on the exits line, with the note on hover.
 
@@ -28,7 +28,7 @@ Walking is the game's own `PATH FIND`: Waypoints sends it once per click and doe
 |---|---|
 | `WAYPOINTS` | status: how many saved, and whether this room is one |
 | `WAYPOINTS LIST` | every waypoint, by area |
-| `WAYPOINTS ADD <name>` | save the room you're in (also ADD HERE in the tab) |
+| `WAYPOINTS ADD [name]` | save the room you're in; no name: the room's own title (as ADD HERE in the tab) |
 | `WAYPOINTS REMOVE <name\|number>` | forget one (also the × on its row in the tab) |
 | `WAYPOINTS RENAME <name\|number> <new name>` | give it another name |
 | `WAYPOINTS NOTE <name\|number> <text>` | a note under it in the tab; no text clears it |
@@ -44,7 +44,7 @@ Names can have spaces: `WAYPOINTS RENAME rat spot Big rat spot` renames "Rat spo
 
 1. **Import `waypoints.nxs`** (see [Getting started](getting-started.md)).
 2. **Create a custom tab named `Waypoints`** (exactly that name); it fills in at once.
-3. Walk to a room you want to keep and **`WAYPOINTS ADD <name>`** (or `⊕ ADD HERE` in the tab).
+3. Walk to a room you want to keep and click **`⊕ ADD HERE`** in the tab (or `WAYPOINTS ADD <name>` to name it as you save it).
 
 ## Daily use
 
@@ -62,5 +62,4 @@ Waypoints reads nothing from other packages. With **room** installed, Loom's int
 ## Troubleshooting
 
 - **The tab stays empty.** Check the custom tab is named exactly `Waypoints`, then `WAYPOINTS RESET`.
-- **ADD HERE doesn't put anything in the input line.** Type `WAYPOINTS ADD <name>` instead (and tell us which Nexus layout you use).
 - **A click doesn't walk.** `PATH FIND` needs a route the game knows; try `PATH FIND <number>` yourself to see the game's answer. Nothing walks while Loom is paused (`LOOM PAUSE ON`).
