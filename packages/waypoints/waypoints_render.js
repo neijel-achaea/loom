@@ -112,8 +112,11 @@ for (var g = 0; g < order.length; g++) {
     for (var f = 0; f < ws.length; f++) nl.push(esc(ws[f].name));
     names = ' <span style="color:' + DIM + ';font-variant:normal;letter-spacing:0;font-style:italic;">&middot; ' + nl.join(', ') + '</span>';
   }
-  html += '<div onclick="window.loomWaypoints&&window.loomWaypoints.fold(' + g + ')" title="click to ' + (folded ? 'unfold' : 'fold') + '" style="cursor:pointer;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + AMBER + ';margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">';
-  html += '<span style="font-family:' + SYM + ';display:inline-block;width:12px;color:' + MUTED + ';">' + (folded ? '&#9656;' : '&#9662;') + '</span>' + esc(label[gk].toLowerCase()) + ' <span style="color:' + MUTED + ';">' + ws.length + '</span>' + names + '</div>';
+  // The area you're in glows (Ricardo), with a small "you are here" mark.
+  var inArea = !byTag && here.area && gk === here.area;
+  var hName = inArea ? '<span style="color:' + HI + ';text-shadow:0 0 6px ' + AMBER + ', 0 0 2px ' + AMBER + ';">' + esc(label[gk].toLowerCase()) + '</span>' : esc(label[gk].toLowerCase());
+  html += '<div onclick="window.loomWaypoints&&window.loomWaypoints.fold(' + g + ')" title="' + (inArea ? 'the area you are in; ' : '') + 'click to ' + (folded ? 'unfold' : 'fold') + '" style="cursor:pointer;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + AMBER + ';margin:8px 0 2px;border-top:1px solid ' + (inArea ? DEEP : RULE) + ';padding-top:5px;">';
+  html += '<span style="font-family:' + SYM + ';display:inline-block;width:12px;color:' + (inArea ? AMBER : MUTED) + ';">' + (folded ? '&#9656;' : '&#9662;') + '</span>' + hName + ' <span style="color:' + MUTED + ';">' + ws.length + '</span>' + (inArea ? ' <span style="font-family:' + MONO + ';font-variant:normal;letter-spacing:0.08em;font-size:9px;color:' + AMBER + ';">&#9673; HERE</span>' : '') + names + '</div>';
   if (folded) continue;
   for (var k = 0; k < ws.length; k++) {
     var w = ws[k], isHere = here.id === w.id;
