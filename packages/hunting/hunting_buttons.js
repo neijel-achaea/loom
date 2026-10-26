@@ -74,6 +74,11 @@ for (var huK = 1; huK <= 12; huK++) {
   }
   huLabel = huLabel.replace("{DRAGON}", huDragon == "gut" ? "Gut" : "Incantation").replace("{MODE}", huMode);
   huCmd = huCmd.replace("{dragon}", huDragon).replace("{staff}", huStaff).replace("{target}", huTarget).replace(/\s+$/, "");
+  // Class keys join commands with "|"; Nexus splits a key on the player's
+  // own command separator (#410: client._settings.stack_delimiter), so the
+  // key gets that one instead.
+  var huSep = (client._settings && typeof client._settings.stack_delimiter == "string" && client._settings.stack_delimiter) || "|";
+  if (huSep !== "|" && huCmd.indexOf("|") >= 0) huCmd = huCmd.split(/\s*\|\s*/).join(huSep);
   buttons_set_label(huK, huLabel);
   buttons_set_commands(huK, huCmd);
   // The third field is "main", or the ability this key uses when its label

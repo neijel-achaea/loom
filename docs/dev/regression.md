@@ -58,6 +58,7 @@ And for the suite:
 - [ ] Toggles (Sneak, Weave, Block): the key reads ON/OFF without lighting; typed by hand, the key follows; reload: OFF.
 - [ ] `HUNTING HIGHLIGHT OFF`: every key goes dark at once and stays dark (rage, F1, the basher's STOP); the basher still fires rage. `ON`: keys light again. Survives a reload.
 - [ ] F8–F12 need Button Count 12; the install notice and `HUNTING HELP` say so.
+- [ ] *Command separator* (#410): set Nexus's separator to `;`, `HUNTING BUTTONS`: as Druid, Maul sends wreathe then maul (two commands); the basher's run does the same; a key of your own written `a;b` works by hand and in the basher. Back to `|`: the same.
 
 ### Every class
 
