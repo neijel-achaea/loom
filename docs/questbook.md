@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.2.2.*
+*This page describes questbook 0.2.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -56,7 +56,8 @@ When the last step ticks, the quest is done: its count goes up, it's stamped wit
 | `QUESTBOOK STEP INSERT <n> <kind> …` | a new step before step n |
 | `QUESTBOOK STEP REMOVE <n>` | drop a step (also × in EDIT STEPS) |
 | `QUESTBOOK REPEAT DAILY\|MONTHLY\|YEARLY\|NONE` | in Achaean time: daily on the hour, monthly at the game's midnight, yearly on 1st Sarapin; NONE: once |
-| `QUESTBOOK REWARD RENOWN\|GOLD <n>` | what it gives (0 takes it off) |
+| `QUESTBOOK REWARD` | the open quest's rewards |
+| `QUESTBOOK REWARD RENOWN\|XP\|GOLD <n>` | what it gives (0 takes it off) |
 | `QUESTBOOK REWARD ITEM <text> \| CLEAR` | an item it gives, or clear the rewards |
 | `QUESTBOOK RENAME <new name>` | rename the open quest |
 | `QUESTBOOK REMOVE <name\|number> CONFIRM` | forget a quest and its record |
@@ -84,6 +85,7 @@ QUESTBOOK STEP ASK ask miller about sack
 QUESTBOOK STEP GET flour sack / get sack
 QUESTBOOK STEP GIVE flour sack / give sack to miller
 QUESTBOOK REWARD RENOWN 3
+QUESTBOOK REWARD XP 12000
 QUESTBOOK REWARD GOLD 1500
 ```
 

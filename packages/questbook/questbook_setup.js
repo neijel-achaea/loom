@@ -9,12 +9,12 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.2.2", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.2.3", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
 // Saved (per character, as every Nexus variable):
-//   questbook_list   = [{ id, name, area, repeat, at, rewards: { renown, gold,
+//   questbook_list   = [{ id, name, area, repeat, at, rewards: { renown, xp, gold,
 //                     items: [] }, steps: [{ k, … }] }], the quests as written;
 //   questbook_state  = { id: { step, started, kills, last, done } }: where you
 //                   are in each, when it was last done and how often;
@@ -80,7 +80,7 @@ for (var quI = 0; quI < quRaw.length; quI++) {
   if (Array.isArray(quR.items)) for (var quK = 0; quK < quR.items.length; quK++) if (String(quR.items[quK] || "").trim()) quItems.push(String(quR.items[quK]).trim());
   QU.list.push({ id: String(quE.id), name: String(quE.name).trim(), area: String(quE.area || ""),
     repeat: QU.repeats.indexOf(quE.repeat) >= 0 ? quE.repeat : "daily", at: Number(quE.at) || 0,
-    rewards: { renown: Math.max(0, Math.floor(Number(quR.renown) || 0)), gold: Math.max(0, Math.floor(Number(quR.gold) || 0)), items: quItems },
+    rewards: { renown: Math.max(0, Math.floor(Number(quR.renown) || 0)), xp: Math.max(0, Math.floor(Number(quR.xp) || 0)), gold: Math.max(0, Math.floor(Number(quR.gold) || 0)), items: quItems },
     steps: quSt });
 }
 QU.state = {};
@@ -243,6 +243,7 @@ QU.ago = function (t) {
 QU.rewardText = function (q) {
   var r = q.rewards, out = [];
   if (r.renown) out.push("renown " + r.renown);
+  if (r.xp) out.push(r.xp.toLocaleString() + " xp");
   if (r.gold) out.push(r.gold.toLocaleString() + " gold");
   for (var i = 0; i < r.items.length; i++) out.push(r.items[i]);
   return out;

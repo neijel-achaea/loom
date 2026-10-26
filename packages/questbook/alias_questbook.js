@@ -33,7 +33,7 @@ if (quCmd === "" || quCmd === "status") {
   else if (/^\d+$/.test(quRest)) QU.say("give it a name, not a number: the number is the quest's.", "orange");
   else if (QU.byName(quRest)) QU.say(QU.byName(quRest).name + " is taken: pick another name.", "orange");
   else {
-    quQ = { id: QU.nextId(), name: quRest, area: (QU.here && QU.here.area) || "", repeat: "daily", at: Date.now(), rewards: { renown: 0, gold: 0, items: [] }, steps: [] };
+    quQ = { id: QU.nextId(), name: quRest, area: (QU.here && QU.here.area) || "", repeat: "daily", at: Date.now(), rewards: { renown: 0, xp: 0, gold: 0, items: [] }, steps: [] };
     QU.list.push(quQ);
     QU.save();
     QU.openQuest(quQ, true);
@@ -85,9 +85,10 @@ if (quCmd === "" || quCmd === "status") {
   else QU.say(quOpen.name + (quOpen.repeat === "none" ? " doesn't repeat" : " repeats " + quOpen.repeat) + ". QUESTBOOK REPEAT DAILY|MONTHLY|YEARLY|NONE.", quRp ? "orange" : "cyan");
 } else if (quCmd === "reward") {
   if (quNeedOpen()) {
-    var quRm = /^(renown|gold|item|clear)(?:\s+(.*))?$/i.exec(quRest);
+    var quRm = /^(renown|xp|gold|item|clear)(?:\s+(.*))?$/i.exec(quRest);
     var quRw = quOpen.rewards;
-    if (!quRm) QU.say("QUESTBOOK REWARD RENOWN <n> | GOLD <n> | ITEM <text> | CLEAR.", "orange");
+    if (!quRest) QU.say(quOpen.name + " rewards " + (QU.rewardText(quOpen).join(", ") || "nothing written down") + ". QUESTBOOK REWARD RENOWN|XP|GOLD <n> | ITEM <text> | CLEAR.", "cyan");
+    else if (!quRm) QU.say("QUESTBOOK REWARD RENOWN <n> | XP <n> | GOLD <n> | ITEM <text> | CLEAR.", "orange");
     else {
       var quRk = quRm[1].toLowerCase(), quRv = String(quRm[2] || "").trim();
       if (quRk === "clear") { quOpen.rewards = { renown: 0, gold: 0, items: [] }; QU.save(); QU.say(quOpen.name + ": rewards cleared.", "lime"); }
