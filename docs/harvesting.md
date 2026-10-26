@@ -3,7 +3,7 @@
 *Harvests the plants your rift is short of as you walk, and stores them, one after another.*
 
 <!-- loom:version harvesting -->
-*This page describes harvesting 1.0.0.*
+*This page describes harvesting 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,7 +14,7 @@ It knows your stock from your rift: `HARVESTING ON` (or `HARVESTING STOCK`) read
 
 Every plant has a minimum: 2,000 by default, or one you set for it. So walking a forest with Harvesting on tops up exactly what's short.
 
-It sends nothing while Loom is paused (`LOOM PAUSE ON`), and it's off until you turn it on.
+It sends nothing while Loom is paused (`LOOM PAUSE ON`), and it loads off: every session starts with `HARVESTING ON`.
 
 ## Commands
 
@@ -22,7 +22,7 @@ It sends nothing while Loom is paused (`LOOM PAUSE ON`), and it's off until you 
 | Command | What it does |
 |---|---|
 | `HARVESTING` | status: what is below its minimum |
-| `HARVESTING ON\|OFF` | ON also re-reads your rift (IR HERBS) |
+| `HARVESTING ON\|OFF` | ON also re-reads your rift (IR HERBS); loads OFF |
 | `HARVESTING MIN <n>` | default minimum for every plant |
 | `HARVESTING MIN <plant> <n>` | minimum for one plant (DEFAULT to go back to the default) |
 | `HARVESTING STOCK` | re-read your rift now |
