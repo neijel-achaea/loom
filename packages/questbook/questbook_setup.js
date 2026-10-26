@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.4.0", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.4.1", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
@@ -442,7 +442,10 @@ QU.act = function () {
   if (get_variable("pauseTriggers") == "on") { QU.say("Loom is paused (LOOM PAUSE OFF to send).", "orange"); return; }
   var cmd = QU.stepCmd(s);
   if (s.k === "go" && QU.here && QU.here.id === s.room) { QU.check(); return; }
-  send_command(cmd, 1);
+  // A command goes through your aliases (and the command separator), as if
+  // typed (Ricardo); PATH FIND skips them, so nothing can turn a walk into
+  // something else.
+  send_command(cmd, s.k === "go" ? 1 : 0);
   if (s.k === "do") QU.tick("Sent");
   else if (s.k === "go") QU.say("walking to " + (s.name || s.room) + " (" + s.room + ").", "cyan");
 };

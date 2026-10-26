@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.4.0.*
+*This page describes questbook 0.4.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,7 +18,7 @@ Questbook (the Questing Companion) keeps the quests you do again and again (most
 
 ### Steps
 
-Most steps are commands: anything after `QUESTBOOK STEP` that isn't GO, KILL or NOTE is sent exactly as you typed it (greet, ask, give, get, buy, drop, pull, turn, put, kneel…), and its button in the tab sends it. A command whose first word is a step word goes after `DO`: `QUESTBOOK STEP DO kill rat` sends `kill rat` instead of counting kills.
+Most steps are commands: anything after `QUESTBOOK STEP` that isn't GO, KILL or NOTE is sent exactly as you typed it (greet, ask, give, get, buy, drop, pull, turn, put, kneel…), and its button in the tab sends it. It's sent as if you'd typed it, so your own aliases work in a step (one of yours can send several commands; the command separator itself can't go in a step, since Nexus splits your QUESTBOOK line on it before Questbook sees it). A command whose first word is a step word goes after `DO`: `QUESTBOOK STEP DO kill rat` sends `kill rat` instead of counting kills.
 
 | Kind | What it holds | Ticks when | Its button |
 |---|---|---|---|
