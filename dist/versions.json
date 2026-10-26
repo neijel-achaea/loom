@@ -1,6 +1,6 @@
 {
  "packages": {
-  "basher": "1.0.0",
+  "basher": "1.0.1",
   "civic": "1.0.0",
   "coffers": "1.0.0",
   "comms": "1.0.0",
@@ -11,7 +11,7 @@
   "fishingstats": "1.0.0",
   "gathering": "0.1.2",
   "harvesting": "1.0.1",
-  "hunting": "1.1.1",
+  "hunting": "1.1.2",
   "huntstats": "1.0.0",
   "ledger": "1.0.1",
   "levelgraph": "1.0.0",
