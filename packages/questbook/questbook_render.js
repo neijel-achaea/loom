@@ -167,6 +167,7 @@ if (!open) {
     get: ['<path d="M6 1 V6.5 M3.6 4.2 L6 6.6 L8.4 4.2 M1.5 7.5 V10.5 H10.5 V7.5"/>', "GET: ticks when the item is in your inventory"],
     buy: ['<circle cx="6" cy="6" r="4.6"/><path d="M7.4 4.3 Q6.9 3.7 6 3.7 Q4.8 3.7 4.8 4.7 Q4.8 5.6 6 6 Q7.3 6.4 7.3 7.3 Q7.3 8.3 6 8.3 Q5 8.3 4.6 7.7 M6 2.8 V9.2"/>', "BUY: ticks when the item is in your inventory"],
     give: ['<path d="M6 7 V1.5 M3.6 3.8 L6 1.4 L8.4 3.8 M1.5 7.5 V10.5 H10.5 V7.5"/>', "GIVE: ticks when the item leaves your inventory"],
+    drop: ['<path d="M6 1.2 V8 M3.6 5.6 L6 8 L8.4 5.6 M1.5 10.6 H10.5"/>', "DROP: ticks when the item leaves your inventory"],
     kill: ['<path d="M10.5 1.5 L4.6 7.4 L4 8 L5.2 9.2 L5.8 8.6 L11 2.2 Z M2.6 6.6 L6.6 10.6 M1.3 10.7 L3.4 8.6"/>', "KILL: ticks after that many kills"],
     note: ['<path d="M1.8 10.2 L2.6 7.6 L8.4 1.8 L10.2 3.6 L4.4 9.4 Z M7.4 2.8 L9.2 4.6"/>', "NOTE: a reminder; tick it by hand"]
   };
@@ -191,7 +192,7 @@ if (!open) {
     } else if (sp.k === "get" || sp.k === "buy") {
       d2 = (sp.cmd ? esc(sp.cmd) + ' &middot; ' : '') + 'ticks when it\'s in your inventory';
       if (isCur) btn = sp.cmd ? chip('SEND', 'act()', AMBER, AMBER, 'send: ' + sp.cmd) : chip('DONE', 'act()', MUTED, DEEP, 'tick it by hand');
-    } else if (sp.k === "give") {
+    } else if (sp.k === "give" || sp.k === "drop") {
       d2 = (sp.cmd ? esc(sp.cmd) + ' &middot; ' : '') + 'ticks when it leaves your inventory';
       if (isCur) btn = sp.cmd ? chip('SEND', 'act()', AMBER, AMBER, 'send: ' + sp.cmd) : chip('DONE', 'act()', MUTED, DEEP, 'tick it by hand');
     } else if (sp.k === "kill") {

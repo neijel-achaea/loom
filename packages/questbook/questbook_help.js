@@ -14,7 +14,7 @@ var hlRows = [
   ["QUESTBOOK STEP GREET <denizen>", "greet a denizen, the game's way to start talking to one (ticks when sent from the tab)"],
   ["QUESTBOOK STEP TALK|ASK|SAY <command>", "a line to send, as you'd type it (ticks when sent from the tab)"],
   ["QUESTBOOK STEP GET|BUY <item> [/ <command>]", "ticks when the item is in your inventory; the command, if given, is its button"],
-  ["QUESTBOOK STEP GIVE <item> [/ <command>]", "ticks when the item leaves your inventory"],
+  ["QUESTBOOK STEP GIVE|DROP <item> [/ <command>]", "ticks when the item leaves your inventory"],
   ["QUESTBOOK STEP KILL [count] <mob>", "ticks after that many \"You have slain\" lines naming it"],
   ["QUESTBOOK STEP NOTE <text>", "a reminder, ticked by hand"],
   ["QUESTBOOK STEP EDIT <n> <kind> …", "rewrite step n, as you'd add it (\u270e in EDIT STEPS puts it in your input line)"],

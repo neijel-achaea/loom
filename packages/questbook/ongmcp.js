@@ -1,5 +1,5 @@
 // Quests follows the room and your inventory itself: arriving ticks a GO
-// step, an item coming or going ticks GET/BUY or GIVE.
+// step, an item coming or going ticks GET/BUY or GIVE/DROP.
 if (!client.loom || !client.loom.questbook || !client.loom.questbook.list) run_function("questbook_setup", [], "questbook");
 var QU = client.loom.questbook;
 var quG = (args.gmcp_args && typeof args.gmcp_args == "object") ? args.gmcp_args : {};

@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.2.1.*
+*This page describes questbook 0.2.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -24,7 +24,7 @@ Questbook (the Questing Companion) keeps the quests you do again and again (most
 | GREET | a denizen (`GREET <denizen>`, the usual way to start talking to one) | you send it with the button | GREET |
 | TALK / ASK / SAY | the command, as you'd type it | you send it with the button | SEND |
 | GET / BUY | an item, and optionally a command | an item whose name holds those words comes into your inventory | SEND (the command), or DONE |
-| GIVE | an item, and optionally a command | that item leaves your inventory | SEND (the command), or DONE |
+| GIVE / DROP | an item, and optionally a command | that item leaves your inventory | SEND (the command), or DONE |
 | KILL | a mob and how many | that many `You have slain …` lines naming it | DONE |
 | NOTE | free text | by hand | DONE |
 
@@ -49,7 +49,7 @@ When the last step ticks, the quest is done: its count goes up, it's stamped wit
 | `QUESTBOOK STEP GREET <denizen>` | greet a denizen, the game's way to start talking to one (ticks when sent from the tab) |
 | `QUESTBOOK STEP TALK\|ASK\|SAY <command>` | a line to send, as you'd type it (ticks when sent from the tab) |
 | `QUESTBOOK STEP GET\|BUY <item> [/ <command>]` | ticks when the item is in your inventory; the command, if given, is its button |
-| `QUESTBOOK STEP GIVE <item> [/ <command>]` | ticks when the item leaves your inventory |
+| `QUESTBOOK STEP GIVE\|DROP <item> [/ <command>]` | ticks when the item leaves your inventory |
 | `QUESTBOOK STEP KILL [count] <mob>` | ticks after that many "You have slain" lines naming it |
 | `QUESTBOOK STEP NOTE <text>` | a reminder, ticked by hand |
 | `QUESTBOOK STEP EDIT <n> <kind> …` | rewrite step n, as you'd add it (✎ in EDIT STEPS puts it in your input line) |
@@ -113,5 +113,5 @@ Questbook reads nothing from other packages. With **waypoints** installed, Loom'
 ## Troubleshooting
 
 - **The tab stays empty.** Check the custom tab is named exactly `Quests`, then `QUESTBOOK RESET`.
-- **A step doesn't tick.** Only the quest you follow ticks, and only its current step. GET/BUY/GIVE match the item's name as the game sends it to your inventory: use a few words of it (`flour sack`). `QUESTBOOK NEXT` ticks it by hand; `QUESTBOOK DEBUG` shows the current step.
+- **A step doesn't tick.** Only the quest you follow ticks, and only its current step. GET/BUY/GIVE/DROP match the item's name as the game sends it to your inventory: use a few words of it (`flour sack`). `QUESTBOOK NEXT` ticks it by hand; `QUESTBOOK DEBUG` shows the current step.
 - **A click doesn't walk or send.** Nothing is sent while Loom is paused (`LOOM PAUSE ON`). `PATH FIND` needs a route the game knows.

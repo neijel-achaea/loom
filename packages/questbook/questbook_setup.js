@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.2.1", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.2.2", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
@@ -37,11 +37,11 @@ QU.read = function (name, arr) {
 //   greet { who }                     you send GREET <who> (its button)
 //   talk, ask, say { cmd }            you send it (its button sends it)
 //   get, buy { what, cmd? }           it appears in your inventory
-//   give  { what, cmd? }              it leaves your inventory
+//   give, drop { what, cmd? }        it leaves your inventory
 //   kill  { what, n }                 that many "You have slain …" lines
 //   note  { text }                    by hand
 QU.repeats = ["none", "daily", "monthly", "yearly"];
-QU.kinds = ["go", "greet", "talk", "ask", "say", "get", "buy", "give", "kill", "note"];
+QU.kinds = ["go", "greet", "talk", "ask", "say", "get", "buy", "give", "drop", "kill", "note"];
 QU.cleanStep = function (s) {
   if (!s || typeof s != "object" || QU.kinds.indexOf(String(s.k)) < 0) return null;
   var k = String(s.k), o = { k: k };
@@ -54,7 +54,7 @@ QU.cleanStep = function (s) {
   } else if (k === "talk" || k === "ask" || k === "say") {
     if (!String(s.cmd || "").trim()) return null;
     o.cmd = String(s.cmd).trim();
-  } else if (k === "get" || k === "buy" || k === "give") {
+  } else if (k === "get" || k === "buy" || k === "give" || k === "drop") {
     if (!String(s.what || "").trim()) return null;
     o.what = String(s.what).trim();
     if (String(s.cmd || "").trim()) o.cmd = String(s.cmd).trim();
@@ -275,7 +275,7 @@ QU.waypoint = function (id) {
 //   GO [room number]                  this room (or that number)
 //   GREET <denizen>                   the game's way to start talking to one
 //   TALK|ASK|SAY <command>
-//   GET|BUY|GIVE <item> [/ <command>]
+//   GET|BUY|GIVE|DROP <item> [/ <command>]
 //   KILL [count] <mob>
 //   NOTE <text>
 // `was`: the step being edited (a GO to the same room keeps its name).
@@ -285,7 +285,7 @@ QU.parseStep = function (text, was) {
   var sp = text.search(/\s/);
   var k = (sp < 0 ? text : text.substring(0, sp)).toLowerCase();
   var rest = sp < 0 ? "" : text.substring(sp).trim();
-  var usage = "QUESTBOOK STEP GO [room] | GREET <denizen> | TALK|ASK|SAY <command> | GET|BUY|GIVE <item> [/ <command>] | KILL [count] <mob> | NOTE <text> (also STEP EDIT <n> …, STEP INSERT <n> …, STEP REMOVE <n>).";
+  var usage = "QUESTBOOK STEP GO [room] | GREET <denizen> | TALK|ASK|SAY <command> | GET|BUY|GIVE|DROP <item> [/ <command>] | KILL [count] <mob> | NOTE <text> (also STEP EDIT <n> …, STEP INSERT <n> …, STEP REMOVE <n>).";
   if (k === "go") {
     if (rest && !/^\d+$/.test(rest)) return { err: "QUESTBOOK STEP GO [room number]: no number saves the room you're in." };
     if (!rest) {
@@ -305,7 +305,7 @@ QU.parseStep = function (text, was) {
     if (!rest) return { err: "QUESTBOOK STEP " + k.toUpperCase() + " <the command, as you'd type it>." };
     return { step: { k: k, cmd: rest } };
   }
-  if (k === "get" || k === "buy" || k === "give") {
+  if (k === "get" || k === "buy" || k === "give" || k === "drop") {
     var p = rest.split(/\s+\/\s+/);
     if (!p[0]) return { err: "QUESTBOOK STEP " + k.toUpperCase() + " <item> [/ <command>]." };
     return { step: { k: k, what: p[0], cmd: p.slice(1).join(" / ") } };
@@ -444,7 +444,7 @@ QU.act = function () {
   if (!q) return;
   var s = QU.current(q);
   if (!s) return;
-  if (s.k === "note" || s.k === "kill" || ((s.k === "get" || s.k === "buy" || s.k === "give") && !s.cmd)) { QU.tick("Ticked by hand"); return; }
+  if (s.k === "note" || s.k === "kill" || ((s.k === "get" || s.k === "buy" || s.k === "give" || s.k === "drop") && !s.cmd)) { QU.tick("Ticked by hand"); return; }
   if (get_variable("pauseTriggers") == "on") { QU.say("Loom is paused (LOOM PAUSE OFF to send).", "orange"); return; }
   var cmd = QU.stepCmd(s);
   if (s.k === "go" && QU.here && QU.here.id === s.room) { QU.check(); return; }
@@ -467,7 +467,7 @@ QU.onInvAdd = function (name) {
 };
 QU.onInvRemove = function (name) {
   var q = QU.followed(), s = q && QU.current(q);
-  if (s && s.k === "give" && QU.itemMatch(name, s.what)) QU.tick(name + " is gone");
+  if (s && (s.k === "give" || s.k === "drop") && QU.itemMatch(name, s.what)) QU.tick(name + " is gone");
 };
 QU.onSlain = function (what) {
   var q = QU.followed(), s = q && QU.current(q);
