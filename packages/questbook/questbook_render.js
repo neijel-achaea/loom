@@ -160,18 +160,26 @@ if (!open) {
   // hover. Drawn in SVG so every font shows the same thing.
   var ICON = {
     go: ['<path d="M1.5 6 H9.5 M6.5 3 L9.5 6 L6.5 9"/>', "GO: walk to the room; ticks when you arrive"],
-    do: ['<path d="M1.8 3.2 L4.6 6 L1.8 8.8 M6 9 H10.2"/>', "a command to send; ticks when you send it"],
-    greet: ['<path d="M3.6 6.6 V3.2 M5.4 6 V1.9 M7.2 6 V2.2 M9 6.6 V3.7 M3.6 6.6 Q2.4 5.6 1.8 6.6 Q1.5 7.2 2.3 8.2 L3.4 9.7 Q4.4 11 6.2 11 Q9 11 9 8.2 V6.6"/>', "GREET: greet a denizen; ticks when you send it"],
-    talk: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M3.8 5 h0.01 M6 5 h0.01 M8.2 5 h0.01" stroke-width="1.6"/>', "TALK: a line to send; ticks when you send it"],
-    ask: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M4.8 4 Q4.8 3 6 3 Q7.2 3 7.2 4 Q7.2 4.8 6 5.2 V5.8 M6 6.9 v0.01"/>', "ASK: a question to send; ticks when you send it"],
-    say: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M3.3 4 H8.7 M3.3 6 H7"/>', "SAY: words to say; ticks when you send them"],
-    get: ['<path d="M6 1 V6.5 M3.6 4.2 L6 6.6 L8.4 4.2 M1.5 7.5 V10.5 H10.5 V7.5"/>', "GET: ticks when the item is in your inventory"],
-    buy: ['<circle cx="6" cy="6" r="4.6"/><path d="M7.4 4.3 Q6.9 3.7 6 3.7 Q4.8 3.7 4.8 4.7 Q4.8 5.6 6 6 Q7.3 6.4 7.3 7.3 Q7.3 8.3 6 8.3 Q5 8.3 4.6 7.7 M6 2.8 V9.2"/>', "BUY: ticks when the item is in your inventory"],
-    give: ['<path d="M6 7 V1.5 M3.6 3.8 L6 1.4 L8.4 3.8 M1.5 7.5 V10.5 H10.5 V7.5"/>', "GIVE: ticks when the item leaves your inventory"],
-    drop: ['<path d="M6 1.2 V8 M3.6 5.6 L6 8 L8.4 5.6 M1.5 10.6 H10.5"/>', "DROP: ticks when the item leaves your inventory"],
+    do: ['<path d="M1.8 3.2 L4.6 6 L1.8 8.8 M6 9 H10.2"/>', "a command; ticks when you send it"],
+    greet: ['<path d="M3.6 6.6 V3.2 M5.4 6 V1.9 M7.2 6 V2.2 M9 6.6 V3.7 M3.6 6.6 Q2.4 5.6 1.8 6.6 Q1.5 7.2 2.3 8.2 L3.4 9.7 Q4.4 11 6.2 11 Q9 11 9 8.2 V6.6"/>', "GREET: greet a denizen: a command; ticks when you send it"],
+    talk: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M3.8 5 h0.01 M6 5 h0.01 M8.2 5 h0.01" stroke-width="1.6"/>', "TALK: a command; ticks when you send it"],
+    ask: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M4.8 4 Q4.8 3 6 3 Q7.2 3 7.2 4 Q7.2 4.8 6 5.2 V5.8 M6 6.9 v0.01"/>', "ASK: a command; ticks when you send it"],
+    say: ['<path d="M2 2 H10 Q11 2 11 3 V7 Q11 8 10 8 H5.5 L3 10.2 V8 H2 Q1 8 1 7 V3 Q1 2 2 2 Z"/><path d="M3.3 4 H8.7 M3.3 6 H7"/>', "SAY: a command; ticks when you send it"],
+    get: ['<path d="M6 1 V6.5 M3.6 4.2 L6 6.6 L8.4 4.2 M1.5 7.5 V10.5 H10.5 V7.5"/>', "GET: a command; ticks when you send it"],
+    buy: ['<circle cx="6" cy="6" r="4.6"/><path d="M7.4 4.3 Q6.9 3.7 6 3.7 Q4.8 3.7 4.8 4.7 Q4.8 5.6 6 6 Q7.3 6.4 7.3 7.3 Q7.3 8.3 6 8.3 Q5 8.3 4.6 7.7 M6 2.8 V9.2"/>', "BUY: a command; ticks when you send it"],
+    give: ['<path d="M6 7 V1.5 M3.6 3.8 L6 1.4 L8.4 3.8 M1.5 7.5 V10.5 H10.5 V7.5"/>', "GIVE: a command; ticks when you send it"],
+    drop: ['<path d="M6 1.2 V8 M3.6 5.6 L6 8 L8.4 5.6 M1.5 10.6 H10.5"/>', "DROP: a command; ticks when you send it"],
     kill: ['<path d="M10.5 1.5 L4.6 7.4 L4 8 L5.2 9.2 L5.8 8.6 L11 2.2 Z M2.6 6.6 L6.6 10.6 M1.3 10.7 L3.4 8.6"/>', "KILL: ticks after that many kills"],
     note: ['<path d="M1.8 10.2 L2.6 7.6 L8.4 1.8 L10.2 3.6 L4.4 9.4 Z M7.4 2.8 L9.2 4.6"/>', "NOTE: a reminder; tick it by hand"]
   };
+  // A command step takes the icon of its first word when it has one (GREET,
+  // ASK, GIVE…), and its button says that word.
+  function verb(cmd) { return String(cmd).split(/\s+/)[0].toUpperCase(); }
+  function iconKey(sp) {
+    if (sp.k !== "do") return sp.k;
+    var v = verb(sp.cmd).toLowerCase();
+    return (ICON[v] && v !== "go" && v !== "kill" && v !== "note") ? v : "do";
+  }
   function icon(k, col) {
     var ic = ICON[k];
     return '<span title="' + esc(ic[1]) + '" style="flex:none;display:inline-flex;width:14px;justify-content:center;align-self:center;color:' + col + ';"><svg viewBox="0 0 12 12" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" style="display:block;">' + ic[0] + '</svg></span>';
@@ -184,18 +192,9 @@ if (!open) {
       var wpt = QU.waypoint(sp.room);
       d2 = esc(sp.room) + ' &middot; ' + (wpt ? '<span style="font-family:' + SYM + ';color:' + AMBER + ';">&#9873;</span> ' + esc(wpt.name) : esc(sp.area || "")) + (here.id === sp.room ? ' &middot; you\'re here' : '');
       if (isCur && here.id !== sp.room) btn = chip('WALK', 'act()', AMBER, AMBER, 'walk there (PATH FIND ' + sp.room + ')');
-    } else if (sp.k === "greet") {
-      d2 = 'greet ' + esc(sp.who) + ' &middot; ticks when you send it from here';
-      if (isCur) btn = chip('GREET', 'act()', AMBER, AMBER, 'send: greet ' + sp.who);
-    } else if (sp.k === "talk" || sp.k === "ask" || sp.k === "say" || sp.k === "do") {
+    } else if (sp.k === "do") {
       d2 = 'ticks when you send it from here';
-      if (isCur) btn = chip('SEND', 'act()', AMBER, AMBER, 'send: ' + sp.cmd);
-    } else if (sp.k === "get" || sp.k === "buy") {
-      d2 = (sp.cmd ? esc(sp.cmd) + ' &middot; ' : '') + 'ticks when it\'s in your inventory';
-      if (isCur) btn = sp.cmd ? chip('SEND', 'act()', AMBER, AMBER, 'send: ' + sp.cmd) : chip('DONE', 'act()', MUTED, DEEP, 'tick it by hand');
-    } else if (sp.k === "give" || sp.k === "drop") {
-      d2 = (sp.cmd ? esc(sp.cmd) + ' &middot; ' : '') + 'ticks when it leaves your inventory';
-      if (isCur) btn = sp.cmd ? chip('SEND', 'act()', AMBER, AMBER, 'send: ' + sp.cmd) : chip('DONE', 'act()', MUTED, DEEP, 'tick it by hand');
+      if (isCur) btn = chip(esc(verb(sp.cmd)), 'act()', AMBER, AMBER, 'send: ' + sp.cmd);
     } else if (sp.k === "kill") {
       d2 = isCur ? (st.kills || 0) + ' of ' + sp.n + ' killed' : 'ticks after ' + sp.n + (sp.n === 1 ? ' kill' : ' kills');
       if (isCur) btn = chip('DONE', 'act()', MUTED, DEEP, 'tick it by hand');
@@ -204,15 +203,15 @@ if (!open) {
       if (isCur) btn = chip('DONE', 'act()', MUTED, DEEP, 'tick it by hand');
     }
     // Done steps keep their details, not what would tick them.
-    if (done && (sp.k === "talk" || sp.k === "ask" || sp.k === "say" || sp.k === "greet" || sp.k === "do")) d2 = "sent";
-    else if (done && sp.k !== "go" && sp.k !== "kill") d2 = sp.cmd ? esc(sp.cmd) : "";
+    if (done && sp.k === "do") d2 = "sent";
+    else if (done && sp.k === "note") d2 = "";
     else if (done && sp.k === "kill") d2 = sp.n + (sp.n === 1 ? ' kill' : ' kills');
     if (QU.edit) btn = '<span style="flex:none;display:flex;gap:2px;">' + (struck ? '' : '<span onclick="event.stopPropagation();' + click('pen(' + j + ')') + '" title="fix this step: puts QUESTBOOK STEP EDIT ' + (j + 1) + ' in your input line" style="flex:none;cursor:pointer;color:' + AMBER + ';padding:0 4px;font-family:' + SYM + ';">&#9998;</span>') + '<span onclick="event.stopPropagation();' + click('strike(' + j + ')') + '" title="' + (struck ? 'keep this step' : 'drop this step') + '" style="flex:none;cursor:pointer;color:' + (struck ? MUTED : '#ff9a4c') + ';padding:0 4px;display:inline-block;text-decoration:none;">' + (struck ? 'keep' : '&times;') + '</span>' + '</span>';
     var rowTip = QU.edit ? '' : 'make this the current step';
     html += '<div' + (QU.edit ? '' : ' onclick="' + click('jump(' + j + ')') + '"') + ' title="' + rowTip + '" style="' + (QU.edit ? '' : 'cursor:pointer;') + 'padding:3px 4px;border-bottom:1px dotted ' + RULE + ';' + (isCur ? 'background:rgba(224,180,108,0.10);border-left:2px solid ' + AMBER + ';' : 'border-left:2px solid transparent;') + (struck ? 'text-decoration:line-through;opacity:0.5;' : '') + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">';
     html += '<span style="min-width:0;display:flex;align-items:baseline;gap:6px;"><span style="flex:none;width:12px;text-align:right;color:' + (done ? GREEN : (isCur ? AMBER : MUTED)) + ';">' + mark + '</span>';
-    html += icon(sp.k, isCur ? AMBER : (done ? DIM : MUTED));
+    html += icon(iconKey(sp), isCur ? AMBER : (done ? DIM : MUTED));
     html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;color:' + (done ? MUTED : (isCur ? HI : TXT)) + ';">' + esc(what) + '</span></span>' + btn + '</div>';
     html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + (done ? DIM : MUTED) + ';padding-left:38px;">' + d2 + '</div>';
     html += '</div>';

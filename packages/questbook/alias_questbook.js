@@ -145,7 +145,7 @@ if (quCmd === "" || quCmd === "status") {
 } else if (quCmd === "debug") {
   var quFd = QU.followed();
   QU.say("here=" + JSON.stringify(QU.here) + " open=" + QU.open + " follow=" + QU.follow + (quFd ? " step=" + JSON.stringify(QU.state[quFd.id] || {}) + " current=" + JSON.stringify(QU.current(quFd)) : "") +
-    " inv=" + Object.keys(QU.inv).length + " quests=" + QU.list.length + " filter=" + QU.filter + " midnight=" + QU.midnight + " year=" + (QU.year ? new Date(QU.year).toString() : "unknown") + " nextYear=" + (QU.year ? new Date(QU.nextReset("yearly", Date.now())).toString() : "?"), "cyan");
+    " quests=" + QU.list.length + " filter=" + QU.filter + " midnight=" + QU.midnight + " year=" + (QU.year ? new Date(QU.year).toString() : "unknown") + " nextYear=" + (QU.year ? new Date(QU.nextReset("yearly", Date.now())).toString() : "?"), "cyan");
 } else {
   QU.say("unknown command '" + quCmd + "'. QUESTBOOK HELP for commands.", "orange");
 }

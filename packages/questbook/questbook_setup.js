@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.3.0", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.4.0", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
@@ -34,31 +34,33 @@ QU.read = function (name, arr) {
 
 // Step kinds: what a step holds and when it ticks (the issue's table).
 //   go    { room, name, area }        you arrive (click: PATH FIND)
-//   greet { who }                     you send GREET <who> (its button)
-//   talk, ask, say, do { cmd }        you send it (its button sends it);
-//                                     do: any other command (PULL, TURN, PUT…)
-//   get, buy { what, cmd? }           it appears in your inventory
-//   give, drop { what, cmd? }        it leaves your inventory
+//   do    { cmd }                     any command (GREET, ASK, GIVE, PULL…):
+//                                     its button sends it, and that ticks it
 //   kill  { what, n }                 that many "You have slain …" lines
 //   note  { text }                    by hand
+// Steps saved by 0.1–0.3 as greet/talk/ask/say/get/buy/give/drop become
+// commands when read (Ricardo: one kind, so every one has a button).
 QU.repeats = ["none", "daily", "monthly", "yearly"];
-QU.kinds = ["go", "do", "greet", "talk", "ask", "say", "get", "buy", "give", "drop", "kill", "note"];
+QU.kinds = ["go", "do", "kill", "note"];
 QU.cleanStep = function (s) {
-  if (!s || typeof s != "object" || QU.kinds.indexOf(String(s.k)) < 0) return null;
+  if (!s || typeof s != "object") return null;
   var k = String(s.k), o = { k: k };
+  // Older kinds, read as the command they stood for.
+  if (k === "greet" && String(s.who || "").trim()) return { k: "do", cmd: "greet " + String(s.who).trim() };
+  if ((k === "talk" || k === "ask" || k === "say") && String(s.cmd || "").trim()) {
+    var c = String(s.cmd).trim();
+    return { k: "do", cmd: c.toLowerCase().indexOf(k + " ") === 0 ? c : k + " " + c };
+  }
+  if ((k === "get" || k === "buy" || k === "give" || k === "drop") && String(s.what || s.cmd || "").trim()) {
+    return { k: "do", cmd: String(s.cmd || "").trim() || k + " " + String(s.what).trim() };
+  }
+  if (QU.kinds.indexOf(k) < 0) return null;
   if (k === "go") {
     if (!/^\d+$/.test(String(s.room || ""))) return null;
     o.room = String(s.room); o.name = String(s.name || ""); o.area = String(s.area || "");
-  } else if (k === "greet") {
-    if (!String(s.who || "").trim()) return null;
-    o.who = String(s.who).trim();
-  } else if (k === "talk" || k === "ask" || k === "say" || k === "do") {
+  } else if (k === "do") {
     if (!String(s.cmd || "").trim()) return null;
     o.cmd = String(s.cmd).trim();
-  } else if (k === "get" || k === "buy" || k === "give" || k === "drop") {
-    if (!String(s.what || "").trim()) return null;
-    o.what = String(s.what).trim();
-    if (String(s.cmd || "").trim()) o.cmd = String(s.cmd).trim();
   } else if (k === "kill") {
     if (!String(s.what || "").trim()) return null;
     o.what = String(s.what).trim(); o.n = Math.max(1, Math.min(99, Math.floor(Number(s.n) || 1)));
@@ -104,7 +106,6 @@ QU.year = Number(get_variable("questbook_year")) || 0;
 // shown in the tab (open), the one being followed (ticks go to it), and
 // steps struck through while editing.
 if (QU.here === undefined) QU.here = null;
-if (!QU.inv || typeof QU.inv != "object") QU.inv = {};
 if (QU.open === undefined) QU.open = null;
 if (QU.follow === undefined) QU.follow = null;
 QU.edit = false;
@@ -254,8 +255,7 @@ QU.rewardText = function (q) {
 // What a step does, in a few words (HELP's verbs, for notices and the tab).
 QU.stepWhat = function (s) {
   if (s.k === "go") return s.name || ("room " + s.room);
-  if (s.k === "talk" || s.k === "ask" || s.k === "say" || s.k === "do") return s.cmd;
-  if (s.k === "greet") return s.who;
+  if (s.k === "do") return s.cmd;
   if (s.k === "kill") return (s.n > 1 ? s.n + " × " : "") + s.what;
   if (s.k === "note") return s.text;
   return s.what;
@@ -263,7 +263,6 @@ QU.stepWhat = function (s) {
 // The command a step's button sends, if it has one.
 QU.stepCmd = function (s) {
   if (s.k === "go") return "path find " + s.room;
-  if (s.k === "greet") return "greet " + s.who;
   if (s.cmd) return s.cmd;
   return "";
 };
@@ -275,13 +274,10 @@ QU.waypoint = function (id) {
 };
 // A step from what's typed after STEP (or STEP EDIT <n> / INSERT <n>):
 //   GO [room number]                  this room (or that number)
-//   GREET <denizen>                   the game's way to start talking to one
-//   TALK|ASK|SAY …                    the whole line is the command
-//   any other command (PULL lever, PUT coin in box): sent as typed
-//   DO <command>                      a command starting with a step word
-//   GET|BUY|GIVE|DROP <item> [/ <command>]
 //   KILL [count] <mob>
 //   NOTE <text>
+//   any other command, as typed       GREET miller, GIVE sack to miller, PULL lever
+//   DO <command>                      a command starting with a step word
 // `was`: the step being edited (a GO to the same room keeps its name).
 // -> { step } or { err }.
 QU.parseStep = function (text, was) {
@@ -289,10 +285,9 @@ QU.parseStep = function (text, was) {
   var sp = text.search(/\s/);
   var k = (sp < 0 ? text : text.substring(0, sp)).toLowerCase();
   var rest = sp < 0 ? "" : text.substring(sp).trim();
-  var usage = "QUESTBOOK STEP <any command> | GO [room] | GREET <denizen> | GET|BUY|GIVE|DROP <item> [/ <command>] | KILL [count] <mob> | NOTE <text> | DO <command> (also STEP EDIT <n> …, STEP INSERT <n> …, STEP REMOVE <n>).";
-  if (!text) return { err: usage };
+  if (!text) return { err: "QUESTBOOK STEP <any command> | GO [room] | KILL [count] <mob> | NOTE <text> | DO <command> (also STEP EDIT <n> …, STEP INSERT <n> …, STEP REMOVE <n>)." };
   if (k === "go") {
-    if (rest && !/^\d+$/.test(rest)) return { err: "QUESTBOOK STEP GO [room number]: no number saves the room you're in." };
+    if (rest && !/^\d+$/.test(rest)) return { err: "QUESTBOOK STEP GO [room number]: no number saves the room you're in (DO go north for the game's GO)." };
     if (!rest) {
       if (!QU.here || !QU.here.id) return { err: "no room yet: move or LOOK first (or give the room's number)." };
       return { step: { k: "go", room: QU.here.id, name: QU.here.name, area: QU.here.area } };
@@ -302,25 +297,9 @@ QU.parseStep = function (text, was) {
     var w = QU.waypoint(rest);
     return { step: { k: "go", room: rest, name: w ? w.name : "", area: "" } };
   }
-  if (k === "greet") {
-    if (!rest) return { err: "QUESTBOOK STEP GREET <denizen>, as you'd type GREET in the game." };
-    return { step: { k: "greet", who: rest } };
-  }
-  // TALK/ASK/SAY: the verb is part of the command (STEP ASK miller about
-  // sack sends "ask miller about sack"); a line already starting with the
-  // verb (the 0.1 way: STEP ASK ask miller …) is kept as it is.
-  if (k === "talk" || k === "ask" || k === "say") {
-    if (!rest) return { err: "QUESTBOOK STEP " + k.toUpperCase() + " <the rest of the command>." };
-    return { step: { k: k, cmd: rest.toLowerCase().indexOf(k + " ") === 0 ? rest : k + " " + rest } };
-  }
   if (k === "do") {
     if (!rest) return { err: "QUESTBOOK STEP DO <command>, for a command that starts with a step word (DO kill rat)." };
     return { step: { k: "do", cmd: rest } };
-  }
-  if (k === "get" || k === "buy" || k === "give" || k === "drop") {
-    var p = rest.split(/\s+\/\s+/);
-    if (!p[0]) return { err: "QUESTBOOK STEP " + k.toUpperCase() + " <item> [/ <command>]." };
-    return { step: { k: k, what: p[0], cmd: p.slice(1).join(" / ") } };
   }
   if (k === "kill") {
     var m = /^(?:(\d+)\s+)?(.+)$/.exec(rest);
@@ -331,23 +310,20 @@ QU.parseStep = function (text, was) {
     if (!rest) return { err: "QUESTBOOK STEP NOTE <text>." };
     return { step: { k: "note", text: rest } };
   }
-  // Anything else is a command, sent as typed (Ricardo: PULL, TURN, PUT…
-  // without the list of kinds growing).
+  // Anything else is a command, sent as typed (Ricardo: GREET, GIVE, PULL,
+  // TURN, PUT… without a list of kinds, and every one with its button).
   return { step: { k: "do", cmd: text } };
 };
 // A step written back as it would be typed (✎ in EDIT STEPS puts it in the
 // input line after STEP EDIT <n>).
 // Words STEP reads as a kind (or EDIT/INSERT/REMOVE): a command starting with
 // one of these needs DO in front.
-QU.stepWords = ["go", "do", "greet", "talk", "ask", "say", "get", "buy", "give", "drop", "kill", "note", "edit", "insert", "remove", "del"];
+QU.stepWords = ["go", "do", "kill", "note", "edit", "insert", "remove", "del"];
 QU.stepSpec = function (s) {
   if (s.k === "go") return "GO " + s.room;
-  if (s.k === "talk" || s.k === "ask" || s.k === "say") return s.cmd.toLowerCase().indexOf(s.k + " ") === 0 ? s.cmd : s.k + " " + s.cmd;
   if (s.k === "do") return (QU.stepWords.indexOf(s.cmd.split(/\s+/)[0].toLowerCase()) >= 0 ? "DO " : "") + s.cmd;
-  if (s.k === "greet") return "GREET " + s.who;
   if (s.k === "kill") return "KILL " + (s.n > 1 ? s.n + " " : "") + s.what;
-  if (s.k === "note") return "NOTE " + s.text;
-  return s.k.toUpperCase() + " " + s.what + (s.cmd ? " / " + s.cmd : "");
+  return "NOTE " + s.text;
 };
 // Replace step i (edit), or put a new one before it (insert). Where you are
 // in the quest stays on the same step.
@@ -462,30 +438,22 @@ QU.act = function () {
   if (!q) return;
   var s = QU.current(q);
   if (!s) return;
-  if (s.k === "note" || s.k === "kill" || ((s.k === "get" || s.k === "buy" || s.k === "give" || s.k === "drop") && !s.cmd)) { QU.tick("Ticked by hand"); return; }
+  if (s.k === "note" || s.k === "kill") { QU.tick("Ticked by hand"); return; }
   if (get_variable("pauseTriggers") == "on") { QU.say("Loom is paused (LOOM PAUSE OFF to send).", "orange"); return; }
   var cmd = QU.stepCmd(s);
   if (s.k === "go" && QU.here && QU.here.id === s.room) { QU.check(); return; }
   send_command(cmd, 1);
-  if (s.k === "talk" || s.k === "ask" || s.k === "say" || s.k === "greet" || s.k === "do") QU.tick("Sent");
+  if (s.k === "do") QU.tick("Sent");
   else if (s.k === "go") QU.say("walking to " + (s.name || s.room) + " (" + s.room + ").", "cyan");
 };
 
 // Game events, for the followed quest's current step.
 QU.onArrive = function () { QU.check(); };
 QU.norm = function (t) { return String(t || "").toLowerCase().replace(/\s+/g, " ").trim(); };
-// An item's name matches a step's item when it holds the step's words.
+// A slain mob matches a KILL step when its name holds the step's words.
 QU.itemMatch = function (name, what) {
   var n = QU.norm(name), w = QU.norm(what);
   return !!w && n.indexOf(w) >= 0;
-};
-QU.onInvAdd = function (name) {
-  var q = QU.followed(), s = q && QU.current(q);
-  if (s && (s.k === "get" || s.k === "buy") && QU.itemMatch(name, s.what)) QU.tick("You have " + name);
-};
-QU.onInvRemove = function (name) {
-  var q = QU.followed(), s = q && QU.current(q);
-  if (s && (s.k === "give" || s.k === "drop") && QU.itemMatch(name, s.what)) QU.tick(name + " is gone");
 };
 QU.onSlain = function (what) {
   var q = QU.followed(), s = q && QU.current(q);
