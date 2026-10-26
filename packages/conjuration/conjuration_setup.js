@@ -26,7 +26,7 @@ CJ.sigils = {
   flame: { name: "a flame sigil", reagents: [[1, "silver"]], chant: "flet lhar abe minlo eec", actions: "3x2,1" },
   key: { name: "a key sigil", reagents: [[1, "gold"]], actions: '3xchant "krolop escit yall", 1' },
   monolith: { name: "a monolith sigil" },
-  mushroom: { name: "a mushroom sigil" },
+  mushroom: { name: "a mushroom sigil", reagents: [[1, "ice"]], actions: '3xchant "mil usra shal hract reed oom oon mez", 1' },
   negation: { name: "a gem of negation" },
   orb: { name: "a chaos-destroying orb" },
   pestilence: { name: "a ring of pestilence" },

@@ -21,7 +21,7 @@ Making a sigil or conjured item is a long string of commands: take the reagents 
 
 Every step waits for its own reply from the game before the next goes out, so the game's queue only ever holds one ritual command. If a step bounces ("must regain balance"), it's sent again once you're ready. If the game stops answering for a dozen prompts, the ritual stops and says at which step and why.
 
-Recipes so far: **brooch** (brooch of Thoth), **comprehension** (necklace of comprehension), **eye**, **fist**, **flame** and **key**. `CONJURATION LIST` shows every item and which have a recipe; an item whose actions include one Loom doesn't know the game's line for yet says so. More are added as players send them in.
+Recipes so far: **brooch** (brooch of Thoth), **comprehension** (necklace of comprehension), **eye**, **fist**, **flame**, **key** and **mushroom**. `CONJURATION LIST` shows every item and which have a recipe; an item whose actions include one Loom doesn't know the game's line for yet says so. More are added as players send them in.
 
 ## Setting it up
 
