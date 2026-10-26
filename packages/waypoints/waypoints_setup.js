@@ -5,13 +5,16 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.waypoints) client.loom.waypoints = {};
-client.loom.registry.waypoints = { version: "0.1.1", keyword: "WAYPOINTS", desc: "{{description}}",
+client.loom.registry.waypoints = { version: "0.2.0", keyword: "WAYPOINTS", desc: "{{description}}",
   redraw: function () { run_function("waypoints_render", [], "waypoints"); } };
 var WP = client.loom.waypoints;
 
-// Saved: waypoints_list = [{ id, name, note, room, area, env, at }], where
+// Saved: waypoints_list = [{ id, name, note, room, area, env, at, tags }], where
 // room, area and env are the game's, read when the waypoint was added;
-// waypoints_folded = [area, …], the areas folded in the tab. A variable that
+// tags are your own words (lower case, several per waypoint);
+// waypoints_folded = [area, …, "tag:<tag>", …], the groups folded in the tab
+// ("tag:" alone is the untagged group); waypoints_view = "tag" when the tab
+// groups by tag (absent: by area). A variable that
 // isn't readable starts afresh (#135).
 WP.readList = function (name) {
   var v = get_variable(name);
@@ -23,11 +26,14 @@ var wpRaw = WP.readList("waypoints_list");
 for (var wpI = 0; wpI < wpRaw.length; wpI++) {
   var wpE = wpRaw[wpI];
   if (!wpE || typeof wpE != "object" || !/^\d+$/.test(String(wpE.id || "")) || !String(wpE.name || "").trim()) continue;
-  WP.list.push({ id: String(wpE.id), name: String(wpE.name).trim(), note: String(wpE.note || ""), room: String(wpE.room || ""), area: String(wpE.area || ""), env: String(wpE.env || ""), at: Number(wpE.at) || 0 });
+  var wpT = [];
+  if (Array.isArray(wpE.tags)) for (var wpK = 0; wpK < wpE.tags.length; wpK++) { var wpTg = String(wpE.tags[wpK] || "").toLowerCase(); if (/^[a-z0-9][a-z0-9_-]*$/.test(wpTg) && wpT.indexOf(wpTg) < 0) wpT.push(wpTg); }
+  WP.list.push({ id: String(wpE.id), name: String(wpE.name).trim(), note: String(wpE.note || ""), room: String(wpE.room || ""), area: String(wpE.area || ""), env: String(wpE.env || ""), at: Number(wpE.at) || 0, tags: wpT });
 }
 WP.folded = {};
 var wpF = WP.readList("waypoints_folded");
 for (var wpJ = 0; wpJ < wpF.length; wpJ++) if (typeof wpF[wpJ] == "string") WP.folded[wpF[wpJ]] = true;
+WP.view = get_variable("waypoints_view") === "tag" ? "tag" : "area";
 if (WP.here === undefined) WP.here = null;
 
 WP.save = function () {
@@ -83,7 +89,7 @@ WP.add = function (name) {
   if (!named && WP.byName(name)) name = name + " " + H.id;
   if (/^\d+$/.test(name)) { display_notice("[waypoints] give it a name, not a number: the number is the room's.", "orange"); return; }
   if (WP.byName(name)) { display_notice("[waypoints] " + WP.byName(name).name + " is taken: pick another name.", "orange"); return; }
-  WP.list.push({ id: H.id, name: name, note: "", room: H.name, area: H.area, env: H.env, at: Date.now() });
+  WP.list.push({ id: H.id, name: name, note: "", room: H.name, area: H.area, env: H.env, at: Date.now(), tags: [] });
   WP.save();
   display_notice("[waypoints] saved " + name + " (" + H.id + ", " + (H.name || "?") + (H.area ? ", " + H.area : "") + ")." + (named ? "" : " WAYPOINTS RENAME " + name + " <new name> to give it your own."), "lime");
 };
@@ -99,6 +105,32 @@ WP.go = function (w) {
   if (WP.here && WP.here.id === w.id) { display_notice("[waypoints] you're at " + WP.label(w) + " already.", "cyan"); return; }
   send_command("path find " + w.id, 1);
   display_notice("[waypoints] walking to " + WP.label(w) + ".", "cyan");
+};
+// Tags: words of letters, digits, - and _, kept in lower case.
+WP.tagWord = function (t) { t = String(t || "").toLowerCase(); return /^[a-z0-9][a-z0-9_-]*$/.test(t) ? t : ""; };
+WP.tag = function (w, words) {
+  var added = [], bad = [];
+  for (var i = 0; i < words.length; i++) {
+    var t = WP.tagWord(words[i]);
+    if (!t) { bad.push(words[i]); continue; }
+    if (w.tags.indexOf(t) < 0) { w.tags.push(t); added.push(t); }
+  }
+  if (added.length) WP.save();
+  if (added.length) display_notice("[waypoints] " + w.name + " tagged " + added.join(", ") + ".", "lime");
+  if (bad.length) display_notice("[waypoints] not a tag: " + bad.join(", ") + " (one word each: letters, digits, - and _).", "orange");
+  if (!added.length && !bad.length) display_notice("[waypoints] " + w.name + " has those tags already.", "cyan");
+};
+WP.untag = function (w, words) {
+  var gone = [];
+  if (words.length === 1 && words[0].toLowerCase() === "all") { gone = w.tags.slice(); w.tags = []; }
+  else for (var i = 0; i < words.length; i++) { var t = words[i].toLowerCase(), k = w.tags.indexOf(t); if (k >= 0) { w.tags.splice(k, 1); gone.push(t); } }
+  if (gone.length) { WP.save(); display_notice("[waypoints] " + w.name + ": removed tag " + gone.join(", ") + ".", "lime"); }
+  else display_notice("[waypoints] " + w.name + " has no such tag" + (w.tags.length ? " (its tags: " + w.tags.join(", ") + ")" : "") + ".", "orange");
+};
+WP.setView = function (v) {
+  WP.view = v === "tag" ? "tag" : "area";
+  if (WP.view === "tag") set_variable("waypoints_view", "tag"); else delete_variable("waypoints_view");
+  run_function("waypoints_render", [], "waypoints");
 };
 WP.fold = function (area) {
   WP.folded[area] = !WP.folded[area];
@@ -118,6 +150,7 @@ try {
   window.loomWaypoints = {
     go: function (id) { var w = client.loom.waypoints.byId(id); if (w) client.loom.waypoints.go(w); },
     remove: function (id) { var w = client.loom.waypoints.byId(id); if (w) client.loom.waypoints.remove(w); },
+    view: function (v) { client.loom.waypoints.setView(v); },
     fold: function (i) { var g = client.loom.waypoints.areasDrawn || []; if (g[i] !== undefined) client.loom.waypoints.fold(g[i]); },
     // Remembered box: room's own buttons, through loom (link room-waypoints).
     mark: function (what) {

@@ -456,5 +456,6 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
-| `waypoints_list` | data | 1.1 | saved rooms: number, name, note, and the game's room name, area and environment |  |
-| `waypoints_folded` | setting | 1.1 | areas folded in the tab |  |
+| `waypoints_list` | data | 1.1 | saved rooms: number, name, note, tags, and the game's room name, area and environment |  |
+| `waypoints_folded` | setting | 1.1 | areas and tags (`tag:<tag>`) folded in the tab |  |
+| `waypoints_view` | setting | 1.1 | `tag` when the tab groups by tag (absent: by area) |  |

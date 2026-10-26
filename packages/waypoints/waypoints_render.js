@@ -37,26 +37,39 @@ function chip(label, fn, col, border, tip) {
 var here = WP.here || {};
 var hereW = here.id ? WP.byId(here.id) : null;
 
-// Group by area: the area you're in first, then the rest by name.
-var groups = {}, order = [];
+// Groups, keyed as they fold: by area (the area you're in first, then the
+// rest by name), or by tag ("tag:<tag>", by name, a waypoint under each of
+// its tags; "tag:" for the untagged, last).
+var byTag = WP.view === "tag";
+var groups = {}, order = [], label = {};
+function put(key, lbl, w) { if (!groups[key]) { groups[key] = []; order.push(key); label[key] = lbl; } groups[key].push(w); }
 for (var i = 0; i < WP.list.length; i++) {
-  var a = WP.list[i].area || "unknown area";
-  if (!groups[a]) { groups[a] = []; order.push(a); }
-  groups[a].push(WP.list[i]);
+  var wi = WP.list[i];
+  if (!byTag) put(wi.area || "unknown area", wi.area || "unknown area", wi);
+  else if (!wi.tags.length) put("tag:", "untagged", wi);
+  else for (var ti = 0; ti < wi.tags.length; ti++) put("tag:" + wi.tags[ti], wi.tags[ti], wi);
 }
 order.sort(function (x, y) {
-  if (x === here.area) return -1;
-  if (y === here.area) return 1;
+  if (byTag) { if (x === "tag:") return 1; if (y === "tag:") return -1; }
+  else { if (x === here.area) return -1; if (y === here.area) return 1; }
   return x.toLowerCase() < y.toLowerCase() ? -1 : (x.toLowerCase() > y.toLowerCase() ? 1 : 0);
 });
 WP.areasDrawn = order.slice();
+var nGroups = 0;
+for (var ng = 0; ng < order.length; ng++) if (order[ng] !== "tag:") nGroups++;
 
 var html = '<div id="loom-waypoints" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;">';
 
 // Title.
-var count = WP.list.length + ' saved' + (order.length ? ' &middot; ' + order.length + (order.length === 1 ? ' area' : ' areas') : '');
+var count = WP.list.length + ' saved' + (nGroups ? ' &middot; ' + nGroups + (byTag ? (nGroups === 1 ? ' tag' : ' tags') : (nGroups === 1 ? ' area' : ' areas')) : '');
+// AREA · TAG: how the list is grouped (remembered).
+function seg(v, lbl) {
+  var on = WP.view === v;
+  return '<span onclick="window.loomWaypoints&&window.loomWaypoints.view(\'' + v + '\')" title="group by ' + v + '" style="cursor:pointer;padding:0 4px;' + (on ? 'background:' + DEEP + ';color:' + TXT + ';' : 'color:' + MUTED + ';') + '">' + lbl + '</span>';
+}
+var viewSw = '<span style="flex:none;border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;">' + seg("area", "AREA") + seg("tag", "TAG") + '</span>';
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
-html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + AMBER + ';">Waypoints</span>';
+html += '<span style="display:flex;align-items:baseline;gap:8px;"><span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + AMBER + ';">Waypoints</span>' + (WP.list.length ? viewSw : '') + '</span>';
 html += '<span style="display:flex;align-items:baseline;gap:8px;"><span style="color:' + MUTED + ';">' + count + '</span>';
 if (here.id && !hereW) html += chip('&#8853; ADD HERE', 'add()', MUTED, DEEP, 'save the room you\'re in under its own title (WAYPOINTS RENAME to change it)');
 html += '</span></div>';
@@ -80,9 +93,18 @@ if (rem && rem.id) {
   html += '<span style="flex:none;padding:0 5px;border:1px solid ' + DEEP + ';color:' + MUTED + ';letter-spacing:0.08em;white-space:nowrap;">REMEMBER HERE</span></div>';
 }
 
-// The waypoints, by area.
+// The waypoints, by area or by tag.
+function tagChips(w, skip) {
+  var out = "";
+  for (var t = 0; t < w.tags.length; t++) {
+    if (w.tags[t] === skip) continue;
+    out += '<span style="display:inline-block;margin-left:5px;padding:0 3px;border:1px solid ' + RULE + ';color:' + MUTED + ';font-family:' + MONO + ';font-size:9px;font-style:normal;letter-spacing:0;vertical-align:2px;">' + esc(w.tags[t]) + '</span>';
+  }
+  return out;
+}
 for (var g = 0; g < order.length; g++) {
-  var area = order[g], ws = groups[area], folded = !!WP.folded[area];
+  var gk = order[g], ws = groups[gk], folded = !!WP.folded[gk];
+  var curTag = byTag && gk !== "tag:" ? gk.substring(4) : "";
   var names = "";
   if (folded) {
     var nl = [];
@@ -90,17 +112,17 @@ for (var g = 0; g < order.length; g++) {
     names = ' <span style="color:' + DIM + ';font-variant:normal;letter-spacing:0;font-style:italic;">&middot; ' + nl.join(', ') + '</span>';
   }
   html += '<div onclick="window.loomWaypoints&&window.loomWaypoints.fold(' + g + ')" title="click to ' + (folded ? 'unfold' : 'fold') + '" style="cursor:pointer;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:11px;color:' + AMBER + ';margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">';
-  html += '<span style="font-family:' + SYM + ';display:inline-block;width:12px;color:' + MUTED + ';">' + (folded ? '&#9656;' : '&#9662;') + '</span>' + esc(area.toLowerCase()) + ' <span style="color:' + MUTED + ';">' + ws.length + '</span>' + names + '</div>';
+  html += '<span style="font-family:' + SYM + ';display:inline-block;width:12px;color:' + MUTED + ';">' + (folded ? '&#9656;' : '&#9662;') + '</span>' + esc(label[gk].toLowerCase()) + ' <span style="color:' + MUTED + ';">' + ws.length + '</span>' + names + '</div>';
   if (folded) continue;
   for (var k = 0; k < ws.length; k++) {
     var w = ws[k], isHere = here.id === w.id;
     var tip = isHere ? "you're here" : "walk to " + w.name + " (PATH FIND " + w.id + ")";
     html += '<div class="loom-wp-row" onclick="window.loomWaypoints&&window.loomWaypoints.go(\'' + js(w.id) + '\')" title="' + esc(tip) + '" style="cursor:pointer;padding:3px 4px;border-bottom:1px dotted ' + RULE + ';' + (isHere ? 'background:rgba(224,180,108,0.08);' : '') + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">';
-    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:14px;color:' + (isHere ? AMBER : TXT) + ';"><span style="font-family:' + SYM + ';color:' + (isHere ? AMBER : DEEP) + ';margin-right:4px;">&#9873;</span>' + esc(w.name) + '</span>';
+    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:14px;color:' + (isHere ? AMBER : TXT) + ';"><span style="font-family:' + SYM + ';color:' + (isHere ? AMBER : DEEP) + ';margin-right:4px;">&#9873;</span>' + esc(w.name) + tagChips(w, curTag) + '</span>';
     html += '<span style="flex:none;white-space:nowrap;color:' + (isHere ? AMBER : MUTED) + ';' + (isHere ? 'letter-spacing:0.08em;' : '') + '">' + (isHere ? 'HERE &middot; ' : '') + esc(w.id);
     html += '<span class="loom-wp-x" onclick="event.stopPropagation();window.loomWaypoints&&window.loomWaypoints.remove(\'' + js(w.id) + '\')" title="remove ' + esc(w.name) + '" style="cursor:pointer;margin-left:6px;color:#ff9a4c;">&times;</span></span></div>';
-    var line2 = [w.room, (w.env || "").toLowerCase()].filter(function (s) { return s; }).map(esc).join(' &middot; ');
+    var line2 = [w.room, byTag ? w.area : (w.env || "").toLowerCase()].filter(function (s) { return s; }).map(esc).join(' &middot; ');
     html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';padding-left:17px;">' + line2 + (w.note ? ' <span style="color:' + DIM + ';">&mdash; ' + esc(w.note) + '</span>' : '') + '</div>';
     html += '</div>';
   }
@@ -108,7 +130,7 @@ for (var g = 0; g < order.length; g++) {
 if (!WP.list.length) {
   html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No waypoints yet.</div>';
 }
-html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Click a waypoint to walk there; click an area to fold it. WAYPOINTS RENAME gives a waypoint your own name.</div>';
+html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Click a waypoint to walk there; click a heading to fold it. WAYPOINTS RENAME and TAG name and sort them your way.</div>';
 html += '</div>';
 
 // The whole tab in the panel's colour (#355); the × shows on a row's hover.

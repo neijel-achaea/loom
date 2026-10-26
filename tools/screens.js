@@ -103,6 +103,7 @@ function waypoints() {
   visit(8814, "Beneath a canopy of whispering oaks", "the Western Ithmia", "Forest", "Wolf glade", "wolves and boars, quiet at night");
   visit(9120, "A clearing in the Arcadian Forest", "the Arcadian Forest", "Forest", "Satyr clearing");
   visit(9105, "A mossy hollow", "the Arcadian Forest", "Forest");
+  for (const c of ["waypoints tag herb seller shop", "waypoints tag wolf glade hunting", "waypoints tag satyr clearing hunting", "waypoints tag grove of the ancients guild"]) type(c);
   type("room remember");
   sim.advance(20 * 60000);
   const W = client.loom.waypoints;

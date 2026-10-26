@@ -63,5 +63,5 @@
       "prefix_suffix": true
     }
   ],
-  "description": "Rooms you save by name, listed by area in a tab; a click walks you there"
+  "description": "Rooms you save by name, listed by area or tag in a tab; a click walks there"
 }

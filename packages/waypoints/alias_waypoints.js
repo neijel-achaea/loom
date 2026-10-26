@@ -22,7 +22,7 @@ if (wpCmd === "" || wpCmd === "status") {
     display_notice("[waypoints] " + wpOrd[wpK] + ":", "cyan");
     for (var wpL = 0; wpL < wpBy[wpOrd[wpK]].length; wpL++) {
       var wpX = wpBy[wpOrd[wpK]][wpL];
-      display_notice("  " + wpX.name + " (" + wpX.id + ") " + (wpX.room || "") + (wpX.note ? " - " + wpX.note : ""), "cyan");
+      display_notice("  " + wpX.name + " (" + wpX.id + ") " + (wpX.room || "") + (wpX.tags.length ? " [" + wpX.tags.join(", ") + "]" : "") + (wpX.note ? " - " + wpX.note : ""), "cyan");
     }
   }
 } else if (wpCmd === "add") {
@@ -41,6 +41,21 @@ if (wpCmd === "" || wpCmd === "status") {
   var wpN = WP.split(wpRest);
   if (!wpN) display_notice("[waypoints] WAYPOINTS NOTE <name|number> <text>; no text clears the note.", "orange");
   else { wpN.w.note = wpN.rest; WP.save(); display_notice(wpN.rest ? "[waypoints] note on " + wpN.w.name + ": " + wpN.rest + "." : "[waypoints] note on " + wpN.w.name + " cleared.", "lime"); }
+} else if (wpCmd === "tag" || wpCmd === "untag") {
+  var wpG = WP.split(wpRest);
+  if (!wpG || !wpG.rest) display_notice("[waypoints] WAYPOINTS " + wpCmd.toUpperCase() + " <name|number> <tag> [tag…]" + (wpCmd === "untag" ? ", or ALL" : "") + ".", "orange");
+  else if (wpCmd === "tag") WP.tag(wpG.w, wpG.rest.split(/\s+/));
+  else WP.untag(wpG.w, wpG.rest.split(/\s+/));
+} else if (wpCmd === "tags") {
+  var wpTc = {}, wpTn = [];
+  for (var wpM = 0; wpM < WP.list.length; wpM++) for (var wpQ = 0; wpQ < WP.list[wpM].tags.length; wpQ++) { var wpTt = WP.list[wpM].tags[wpQ]; if (!wpTc[wpTt]) { wpTc[wpTt] = 0; wpTn.push(wpTt); } wpTc[wpTt]++; }
+  wpTn.sort();
+  display_notice(wpTn.length ? "[waypoints] tags: " + wpTn.map(function (t) { return t + " (" + wpTc[t] + ")"; }).join(", ") + "." : "[waypoints] no tags yet: WAYPOINTS TAG <name|number> <tag>.", "cyan");
+} else if (wpCmd === "view") {
+  var wpV = wpRest.toLowerCase();
+  if (wpV === "area" || wpV === "tag") { WP.setView(wpV); display_notice("[waypoints] the tab groups waypoints by " + wpV + ".", "lime"); }
+  else if (!wpV) display_notice("[waypoints] the tab groups waypoints by " + WP.view + ". WAYPOINTS VIEW AREA|TAG.", "cyan");
+  else display_notice("[waypoints] WAYPOINTS VIEW AREA|TAG.", "orange");
 } else if (wpCmd === "go") {
   wpW = WP.find(wpRest);
   if (wpW) WP.go(wpW);
@@ -50,7 +65,7 @@ if (wpCmd === "" || wpCmd === "status") {
   run_function("waypoints_render", [], "waypoints");
   display_notice("[waypoints] reset: saved waypoints reloaded, tab redrawn.", "lime");
 } else if (wpCmd === "debug") {
-  display_notice("[waypoints] here=" + JSON.stringify(WP.here) + " saved=" + WP.list.length + " folded=" + JSON.stringify(Object.keys(WP.folded).filter(function (a) { return WP.folded[a]; })), "cyan");
+  display_notice("[waypoints] here=" + JSON.stringify(WP.here) + " saved=" + WP.list.length + " view=" + WP.view + " folded=" + JSON.stringify(Object.keys(WP.folded).filter(function (a) { return WP.folded[a]; })), "cyan");
 } else {
   display_notice("[waypoints] unknown command '" + wpCmd + "'. WAYPOINTS HELP for commands.", "orange");
 }
