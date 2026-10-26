@@ -1,0 +1,423 @@
+// quests_setup -- run from onLoad and onInstall, and by any reflex that finds
+// the namespace missing. Questing Companion (#376): quests you write down
+// yourself as lists of steps, which then walk you through them every time
+// you do them again. A guide, never a bot: a step can be one click (walk
+// there, send the line), but nothing runs by itself.
+//
+// Step 1 (Ricardo, 2026-10-26): the list and following a quest, with steps
+// added by command. Recording comes next.
+if (!client.loom) client.loom = {};
+if (!client.loom.registry) client.loom.registry = {};
+if (!client.loom.quests) client.loom.quests = {};
+client.loom.registry.quests = { version: "0.1.0", keyword: "QUESTS", desc: "{{description}}",
+  redraw: function () { run_function("quests_render", [], "quests"); } };
+var QU = client.loom.quests;
+
+// Saved (per character, as every Nexus variable):
+//   quests_list   = [{ id, name, area, repeat, at, rewards: { renown, gold,
+//                     items: [] }, steps: [{ k, … }] }], the quests as written;
+//   quests_state  = { id: { step, started, kills, last, done } }: where you
+//                   are in each, when it was last done and how often;
+//   quests_folded = [area, …], the areas folded in the tab;
+//   quests_filter = "ready" | "waiting" (absent: all);
+//   quests_daily  = "hh:mm", the daily reset on your own clock (absent: 00:00).
+// A variable that isn't readable starts afresh (#135).
+QU.read = function (name, arr) {
+  var v = get_variable(name);
+  if (typeof v == "string") { try { v = JSON.parse(v); } catch (e) { v = null; } }
+  if (arr) return Array.isArray(v) ? v : [];
+  return (v && typeof v == "object" && !Array.isArray(v)) ? v : {};
+};
+
+// Step kinds: what a step holds and when it ticks (the issue's table).
+//   go    { room, name, area }        you arrive (click: PATH FIND)
+//   talk, ask, say { cmd }            you send it (its button sends it)
+//   get, buy { what, cmd? }           it appears in your inventory
+//   give  { what, cmd? }              it leaves your inventory
+//   kill  { what, n }                 that many "You have slain …" lines
+//   note  { text }                    by hand
+QU.kinds = ["go", "talk", "ask", "say", "get", "buy", "give", "kill", "note"];
+QU.cleanStep = function (s) {
+  if (!s || typeof s != "object" || QU.kinds.indexOf(String(s.k)) < 0) return null;
+  var k = String(s.k), o = { k: k };
+  if (k === "go") {
+    if (!/^\d+$/.test(String(s.room || ""))) return null;
+    o.room = String(s.room); o.name = String(s.name || ""); o.area = String(s.area || "");
+  } else if (k === "talk" || k === "ask" || k === "say") {
+    if (!String(s.cmd || "").trim()) return null;
+    o.cmd = String(s.cmd).trim();
+  } else if (k === "get" || k === "buy" || k === "give") {
+    if (!String(s.what || "").trim()) return null;
+    o.what = String(s.what).trim();
+    if (String(s.cmd || "").trim()) o.cmd = String(s.cmd).trim();
+  } else if (k === "kill") {
+    if (!String(s.what || "").trim()) return null;
+    o.what = String(s.what).trim(); o.n = Math.max(1, Math.min(99, Math.floor(Number(s.n) || 1)));
+  } else {
+    if (!String(s.text || "").trim()) return null;
+    o.text = String(s.text).trim();
+  }
+  return o;
+};
+
+QU.list = [];
+var quRaw = QU.read("quests_list", true);
+for (var quI = 0; quI < quRaw.length; quI++) {
+  var quE = quRaw[quI];
+  if (!quE || typeof quE != "object" || !/^\d+$/.test(String(quE.id || "")) || !String(quE.name || "").trim()) continue;
+  var quSt = [];
+  if (Array.isArray(quE.steps)) for (var quJ = 0; quJ < quE.steps.length; quJ++) { var quS = QU.cleanStep(quE.steps[quJ]); if (quS) quSt.push(quS); }
+  var quR = (quE.rewards && typeof quE.rewards == "object") ? quE.rewards : {};
+  var quItems = [];
+  if (Array.isArray(quR.items)) for (var quK = 0; quK < quR.items.length; quK++) if (String(quR.items[quK] || "").trim()) quItems.push(String(quR.items[quK]).trim());
+  QU.list.push({ id: String(quE.id), name: String(quE.name).trim(), area: String(quE.area || ""),
+    repeat: quE.repeat === "yearly" ? "yearly" : "daily", at: Number(quE.at) || 0,
+    rewards: { renown: Math.max(0, Math.floor(Number(quR.renown) || 0)), gold: Math.max(0, Math.floor(Number(quR.gold) || 0)), items: quItems },
+    steps: quSt });
+}
+QU.state = {};
+var quStRaw = QU.read("quests_state", false);
+for (var quId in quStRaw) {
+  if (!quStRaw.hasOwnProperty(quId) || !/^\d+$/.test(quId)) continue;
+  var quX = quStRaw[quId];
+  if (!quX || typeof quX != "object") continue;
+  QU.state[quId] = { step: Math.max(0, Math.floor(Number(quX.step) || 0)), started: Number(quX.started) || 0,
+    kills: Math.max(0, Math.floor(Number(quX.kills) || 0)), last: Number(quX.last) || 0, done: Math.max(0, Math.floor(Number(quX.done) || 0)) };
+}
+QU.folded = {};
+var quF = QU.read("quests_folded", true);
+for (var quL = 0; quL < quF.length; quL++) if (typeof quF[quL] == "string") QU.folded[quF[quL]] = true;
+var quFl = get_variable("quests_filter");
+QU.filter = (quFl === "ready" || quFl === "waiting") ? quFl : "all";
+QU.daily = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(get_variable("quests_daily") || "")) ? String(get_variable("quests_daily")) : "00:00";
+// Runtime only: the room you're in, your inventory (id -> name), the quest
+// shown in the tab (open), the one being followed (ticks go to it), and
+// steps struck through while editing.
+if (QU.here === undefined) QU.here = null;
+if (!QU.inv || typeof QU.inv != "object") QU.inv = {};
+if (QU.open === undefined) QU.open = null;
+if (QU.follow === undefined) QU.follow = null;
+QU.edit = false;
+QU.struck = {};
+
+QU.save = function () {
+  if (QU.list.length) set_variable("quests_list", JSON.stringify(QU.list)); else delete_variable("quests_list");
+  QU.saveState();
+};
+QU.saveState = function () {
+  var out = {}, any = false;
+  for (var i = 0; i < QU.list.length; i++) {
+    var s = QU.state[QU.list[i].id];
+    if (s && (s.step || s.started || s.kills || s.last || s.done)) { out[QU.list[i].id] = s; any = true; }
+  }
+  if (any) set_variable("quests_state", JSON.stringify(out)); else delete_variable("quests_state");
+  // "AGAIN IN 5 H" counts down, and a quest turns ready at its reset with no
+// game event to say so: the tab redraws once a minute (it sends nothing).
+// Replaced on each setup, stopped at uninstall.
+if (QU.clock) clearInterval(QU.clock);
+QU.clock = setInterval(function () { run_function("quests_render", [], "quests"); }, 60000);
+if (client.loom.notify) client.loom.notify("quests");
+  run_function("quests_render", [], "quests");
+};
+QU.saveFolded = function () {
+  var out = [];
+  for (var a in QU.folded) if (QU.folded.hasOwnProperty(a) && QU.folded[a]) out.push(a);
+  if (out.length) set_variable("quests_folded", JSON.stringify(out)); else delete_variable("quests_folded");
+};
+QU.st = function (q) {
+  if (!QU.state[q.id]) QU.state[q.id] = { step: 0, started: 0, kills: 0, last: 0, done: 0 };
+  return QU.state[q.id];
+};
+QU.byId = function (id) {
+  for (var i = 0; i < QU.list.length; i++) if (QU.list[i].id === String(id)) return QU.list[i];
+  return null;
+};
+QU.byName = function (name) {
+  var n = String(name || "").trim().toLowerCase();
+  for (var i = 0; i < QU.list.length; i++) if (QU.list[i].name.toLowerCase() === n) return QU.list[i];
+  return null;
+};
+// A quest by its name or its number.
+QU.find = function (q) {
+  q = String(q || "").trim();
+  return (/^\d+$/.test(q) && QU.byId(q)) || QU.byName(q);
+};
+QU.nextId = function () {
+  var n = 0;
+  for (var i = 0; i < QU.list.length; i++) n = Math.max(n, Number(QU.list[i].id) || 0);
+  return String(n + 1);
+};
+QU.roomName = function (n) { return String(n || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, ""); };
+QU.times = function (n) { return n === 1 ? "once" : (n === 2 ? "twice" : n + " times"); };
+QU.say = function (text, colour) { display_notice("[quests] " + text, colour || "cyan"); };
+
+// --- Repeats --------------------------------------------------------------
+// Daily: every day at QU.daily on your own clock (Ricardo: a fixed reset).
+// Yearly: an Achaean year, 12 months of 25 Achaean days, one real hour each:
+// 300 real hours (12.5 days) after you last did it.
+QU.yearMs = 300 * 3600000;
+QU.lastReset = function (now) {
+  var hm = QU.daily.split(":"), d = new Date(now);
+  d.setHours(Number(hm[0]), Number(hm[1]), 0, 0);
+  if (d.getTime() > now) d.setDate(d.getDate() - 1);
+  return d.getTime();
+};
+// When a quest is ready again (0 = now; it has never been done, or the
+// reset has passed since).
+QU.readyAt = function (q) {
+  var s = QU.state[q.id], last = s ? s.last : 0;
+  if (!last) return 0;
+  var now = Date.now();
+  if (q.repeat === "yearly") return last + QU.yearMs > now ? last + QU.yearMs : 0;
+  var r = QU.lastReset(now);
+  if (last < r) return 0;
+  var next = new Date(r); next.setDate(next.getDate() + 1);
+  return next.getTime();
+};
+// "going" (in progress), "ready" or "waiting".
+QU.status = function (q) {
+  var s = QU.state[q.id];
+  if (s && (s.step > 0 || s.started) && s.step < q.steps.length) return "going";
+  return QU.readyAt(q) ? "waiting" : "ready";
+};
+QU.span = function (ms) {
+  var m = Math.max(1, Math.ceil(ms / 60000));
+  if (m < 60) return m + " MIN";
+  var h = Math.round(m / 60);
+  if (h < 48) return h + " H";
+  return Math.round(h / 24) + " D";
+};
+QU.ago = function (t) {
+  if (!t) return "never";
+  var now = new Date(Date.now()), then = new Date(t);
+  var day = function (d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+  var dd = Math.round((day(now) - day(then)) / 86400000);
+  if (dd <= 0) return "today";
+  if (dd === 1) return "yesterday";
+  return dd + " days ago";
+};
+QU.rewardText = function (q) {
+  var r = q.rewards, out = [];
+  if (r.renown) out.push("renown " + r.renown);
+  if (r.gold) out.push(r.gold.toLocaleString() + " gold");
+  for (var i = 0; i < r.items.length; i++) out.push(r.items[i]);
+  return out;
+};
+
+// --- Steps ----------------------------------------------------------------
+// What a step does, in a few words (HELP's verbs, for notices and the tab).
+QU.stepWhat = function (s) {
+  if (s.k === "go") return s.name || ("room " + s.room);
+  if (s.k === "talk" || s.k === "ask" || s.k === "say") return s.cmd;
+  if (s.k === "kill") return (s.n > 1 ? s.n + " × " : "") + s.what;
+  if (s.k === "note") return s.text;
+  return s.what;
+};
+// The command a step's button sends, if it has one.
+QU.stepCmd = function (s) {
+  if (s.k === "go") return "path find " + s.room;
+  if (s.cmd) return s.cmd;
+  return "";
+};
+// The name of a step's room when it's a waypoint (link waypoints-quests).
+QU.waypoint = function (id) {
+  var L = client.loom.loom;
+  var w = (L && L.answer) ? L.answer("quests", "quests.waypoint", { id: String(id) }) : undefined;
+  return (w && w.name) ? w : undefined;
+};
+QU.addStep = function (q, s) {
+  s = QU.cleanStep(s);
+  if (!s) return false;
+  q.steps.push(s);
+  QU.save();
+  QU.say(q.name + ": step " + q.steps.length + " " + s.k.toUpperCase() + " " + QU.stepWhat(s) + ".", "lime");
+  return true;
+};
+QU.removeStep = function (q, i) {
+  var s = q.steps.splice(i, 1)[0];
+  var st = QU.state[q.id];
+  if (st && st.step > i) st.step--;
+  if (st && st.step === i) st.kills = 0;
+  QU.save();
+  QU.say(q.name + ": removed step " + (i + 1) + " " + s.k.toUpperCase() + " " + QU.stepWhat(s) + ".", "lime");
+};
+
+// --- Following ------------------------------------------------------------
+// Open a quest in the tab; one you can do now is followed: its steps tick as
+// you play. A waiting quest is only shown, and so is one you're writing
+// (QUESTS NEW): adding GO steps where you stand mustn't tick them. START
+// OVER or FOLLOW THIS follows it.
+QU.openQuest = function (q, writing) {
+  QU.open = q ? q.id : null;
+  QU.edit = false; QU.struck = {};
+  if (q && !writing && q.steps.length && QU.status(q) !== "waiting") QU.follow = q.id;
+  QU.check();
+  run_function("quests_render", [], "quests");
+};
+QU.followed = function () { return QU.follow ? QU.byId(QU.follow) : null; };
+QU.current = function (q) {
+  var s = QU.state[q.id], i = s ? s.step : 0;
+  return i < q.steps.length ? q.steps[i] : null;
+};
+// The current step of the followed quest is done: on to the next, and the
+// quest is done after its last.
+QU.tick = function (why) {
+  var q = QU.followed();
+  if (!q) return;
+  var st = QU.st(q), s = q.steps[st.step];
+  if (!s) return;
+  if (!st.started) st.started = Date.now();
+  st.step++; st.kills = 0;
+  if (st.step >= q.steps.length) { QU.finish(q); return; }
+  QU.say(q.name + ": " + (why ? why + ". " : "") + "Step " + (st.step + 1) + " of " + q.steps.length + ": " + q.steps[st.step].k.toUpperCase() + " " + QU.stepWhat(q.steps[st.step]) + ".", "lime");
+  QU.saveState();
+  QU.check();
+};
+QU.finish = function (q) {
+  var st = QU.st(q);
+  st.step = 0; st.started = 0; st.kills = 0; st.last = Date.now(); st.done++;
+  if (QU.follow === q.id) QU.follow = null;
+  var ra = QU.readyAt(q);
+  QU.say(q.name + " done (" + QU.times(st.done) + ")." + (ra ? " Again in " + QU.span(ra - Date.now()).toLowerCase() + "." : ""), "lime");
+  QU.saveState();
+};
+QU.back = function (q) {
+  var st = QU.st(q);
+  if (st.step > 0) { st.step--; st.kills = 0; QU.saveState(); return true; }
+  return false;
+};
+QU.restart = function (q) {
+  var st = QU.st(q);
+  st.step = 0; st.started = 0; st.kills = 0;
+  QU.follow = q.id;
+  QU.saveState();
+};
+// Jump to a step (a click on its number): the steps before it count as done.
+QU.jump = function (q, i) {
+  if (i < 0 || i >= q.steps.length) return;
+  var st = QU.st(q);
+  st.step = i; st.kills = 0;
+  if (!st.started && i > 0) st.started = Date.now();
+  QU.follow = q.id;
+  QU.saveState();
+  QU.check();
+};
+// A GO step whose room you're already in ticks at once (after any tick, an
+// added step or opening the quest, and on every arrival).
+QU.check = function () {
+  for (var guard = 0; guard < 50; guard++) {
+    var q = QU.followed();
+    if (!q) return;
+    var s = QU.current(q);
+    if (!s || s.k !== "go" || !QU.here || QU.here.id !== s.room) return;
+    QU.tick("You're at " + (s.name || s.room));
+  }
+};
+// The current step's button: walk, or send its line (which ticks it).
+QU.act = function () {
+  var q = QU.followed();
+  if (!q) return;
+  var s = QU.current(q);
+  if (!s) return;
+  if (s.k === "note" || s.k === "kill" || ((s.k === "get" || s.k === "buy" || s.k === "give") && !s.cmd)) { QU.tick("Ticked by hand"); return; }
+  if (get_variable("pauseTriggers") == "on") { QU.say("Loom is paused (LOOM PAUSE OFF to send).", "orange"); return; }
+  var cmd = QU.stepCmd(s);
+  if (s.k === "go" && QU.here && QU.here.id === s.room) { QU.check(); return; }
+  send_command(cmd, 1);
+  if (s.k === "talk" || s.k === "ask" || s.k === "say") QU.tick("Sent");
+  else if (s.k === "go") QU.say("walking to " + (s.name || s.room) + " (" + s.room + ").", "cyan");
+};
+
+// Game events, for the followed quest's current step.
+QU.onArrive = function () { QU.check(); };
+QU.norm = function (t) { return String(t || "").toLowerCase().replace(/\s+/g, " ").trim(); };
+// An item's name matches a step's item when it holds the step's words.
+QU.itemMatch = function (name, what) {
+  var n = QU.norm(name), w = QU.norm(what);
+  return !!w && n.indexOf(w) >= 0;
+};
+QU.onInvAdd = function (name) {
+  var q = QU.followed(), s = q && QU.current(q);
+  if (s && (s.k === "get" || s.k === "buy") && QU.itemMatch(name, s.what)) QU.tick("You have " + name);
+};
+QU.onInvRemove = function (name) {
+  var q = QU.followed(), s = q && QU.current(q);
+  if (s && s.k === "give" && QU.itemMatch(name, s.what)) QU.tick(name + " is gone");
+};
+QU.onSlain = function (what) {
+  var q = QU.followed(), s = q && QU.current(q);
+  if (!s || s.k !== "kill" || !QU.itemMatch(what, s.what)) return;
+  var st = QU.st(q);
+  st.kills++;
+  if (st.kills >= s.n) { QU.tick("Killed " + s.n); return; }
+  if (!st.started) st.started = Date.now();
+  QU.say(q.name + ": " + st.kills + " of " + s.n + " " + s.what + ".", "lime");
+  QU.saveState();
+};
+
+// --- Tab helpers ----------------------------------------------------------
+QU.setFilter = function (f) {
+  QU.filter = (f === "ready" || f === "waiting") ? f : "all";
+  if (QU.filter === "all") delete_variable("quests_filter"); else set_variable("quests_filter", QU.filter);
+  run_function("quests_render", [], "quests");
+};
+QU.fold = function (area) {
+  QU.folded[area] = !QU.folded[area];
+  QU.saveFolded();
+  run_function("quests_render", [], "quests");
+};
+// EDIT STEPS: × strikes a step through (click again brings it back); DONE
+// EDITING drops the struck steps.
+QU.editDone = function () {
+  var q = QU.open ? QU.byId(QU.open) : null;
+  if (q) {
+    var idx = [];
+    for (var k in QU.struck) if (QU.struck.hasOwnProperty(k) && QU.struck[k]) idx.push(Number(k));
+    idx.sort(function (a, b) { return b - a; });
+    for (var i = 0; i < idx.length; i++) if (idx[i] < q.steps.length) QU.removeStep(q, idx[i]);
+  }
+  QU.edit = false; QU.struck = {};
+  run_function("quests_render", [], "quests");
+};
+
+// The read-only look other packages see through loom: never its variables.
+//   look.quest(id) -> { name, area, status, step, steps } or undefined;
+//   look.following() -> the followed quest's { id, name, step, steps, kind }.
+QU.look = {
+  quest: function (id) {
+    var q = QU.byId(id);
+    if (!q) return undefined;
+    var s = QU.state[q.id];
+    return { name: q.name, area: q.area, status: QU.status(q), step: s ? s.step : 0, steps: q.steps.length };
+  },
+  following: function () {
+    var q = QU.followed();
+    if (!q) return undefined;
+    var c = QU.current(q);
+    return { id: q.id, name: q.name, step: QU.st(q).step, steps: q.steps.length, kind: c ? c.k : "" };
+  }
+};
+
+// The tab's clicks. Its page shares window with the scripts but can't reach
+// client.loom in every Nexus, so these closures carry them.
+try {
+  window.loomQuests = {
+    open: function (id) { var Q = client.loom.quests; Q.openQuest(id ? Q.byId(id) : null); },
+    filter: function (f) { client.loom.quests.setFilter(f); },
+    fold: function (i) { var Q = client.loom.quests, g = Q.areasDrawn || []; if (g[i] !== undefined) Q.fold(g[i]); },
+    act: function () { client.loom.quests.act(); },
+    next: function () { client.loom.quests.tick("Ticked by hand"); },
+    jump: function (i) { var Q = client.loom.quests, q = Q.open ? Q.byId(Q.open) : null; if (q && !Q.edit) Q.jump(q, i); },
+    restart: function () { var Q = client.loom.quests, q = Q.open ? Q.byId(Q.open) : null; if (q) { Q.restart(q); Q.say(q.name + ": started over.", "lime"); Q.check(); } },
+    follow: function () { var Q = client.loom.quests, q = Q.open ? Q.byId(Q.open) : null; if (q) { Q.follow = q.id; Q.check(); run_function("quests_render", [], "quests"); } },
+    edit: function () { var Q = client.loom.quests; if (Q.edit) Q.editDone(); else { Q.edit = true; Q.struck = {}; run_function("quests_render", [], "quests"); } },
+    strike: function (i) { var Q = client.loom.quests; Q.struck[i] = !Q.struck[i]; run_function("quests_render", [], "quests"); },
+    record: function () { client.loom.quests.say("recording comes in the next step of #376. For now: QUESTS NEW <name>, then QUESTS STEP … (QUESTS HELP).", "cyan"); }
+  };
+} catch (e) {}
+// "AGAIN IN 5 H" counts down, and a quest turns ready at its reset with no
+// game event to say so: the tab redraws once a minute (it sends nothing).
+// Replaced on each setup, stopped at uninstall.
+if (QU.clock) clearInterval(QU.clock);
+QU.clock = setInterval(function () { run_function("quests_render", [], "quests"); }, 60000);
+if (client.loom.notify) client.loom.notify("quests");

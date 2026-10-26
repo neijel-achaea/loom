@@ -24,6 +24,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [self](self.md) | Self | Character panel: afflictions, defences you watch, and SCORE details |
 | [vision](vision.md) | — | Alertness filter: hides city members, flags and reports enemies |
 | [waypoints](waypoints.md) | Waypoints | Rooms you save by name, listed by area or tag; one click walks you there |
+| [quests](quests.md) | Quests | Your own repeatable quests as steps, followed in a tab |
 
 ## Hunting and combat
 

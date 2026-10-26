@@ -331,6 +331,16 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `room_name` | state | 0.4 | your name, from GMCP |  |
 | `room_mark` | state | 1.0 | the remembered room (REMEMBER / GO BACK), with when (since 1.1) |  |
 
+## quests
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `quests_list` | data | 1.1 | the quests you've written: name, area, repeat, rewards and steps |  |
+| `quests_state` | data | 1.1 | per quest: the current step, kills counted, when last done and how many times |  |
+| `quests_folded` | setting | 1.1 | areas folded in the tab |  |
+| `quests_filter` | setting | 1.1 | `ready` or `waiting` when the tab lists only those (absent: all) |  |
+| `quests_daily` | setting | 1.1 | the daily reset as `hh:mm` on your clock (absent: 00:00) |  |
+
 ## roleplay
 
 | Variable | Kind | Since | Holds | Was |

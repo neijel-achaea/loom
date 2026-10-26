@@ -1,0 +1,83 @@
+{
+  "type": "group",
+  "name": "quests",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "quests_setup",
+      "enabled": true,
+      "code": "@file:quests_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "quests_render",
+      "enabled": true,
+      "code": "@file:quests_render.js"
+    },
+    {
+      "type": "function",
+      "name": "quests_help",
+      "enabled": true,
+      "code": "@file:quests_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Quests control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_quests.js"
+        }
+      ],
+      "text": "^quests(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Quests slain",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_slain.js"
+        }
+      ],
+      "text": "^You have slain (.+?)\\.?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Your own repeatable quests as steps in a tab, ticked as you play"
+}
