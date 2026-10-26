@@ -3,7 +3,7 @@
 *Your class's attacks on the F-keys, lit when they're ready, with battlerage cooldowns, attack lines tagged, dragon attacks and gold pickup.*
 
 <!-- loom:version hunting -->
-*This page describes hunting 1.1.0.*
+*This page describes hunting 1.1.1.*
 <!-- /loom:version -->
 
 ## What it is
