@@ -21,7 +21,7 @@ CJ.sigils = {
   concealment: { name: "an orb of concealment" },
   cube: { name: "a vibration-dampening cube" },
   dreamcatcher: { name: "a dreamcatcher" },
-  eye: { name: "an eye sigil" },
+  eye: { name: "an eye sigil", reagents: [[1, "obsidian"]], actions: "17, 1" },
   fist: { name: "a fist sigil", reagents: [[1, "silver"], [2, "horn"]], chant: "fartak ishla spooz tran", actions: "3x2,1" },
   flame: { name: "a flame sigil", reagents: [[1, "silver"]], chant: "flet lhar abe minlo eec", actions: "3x2,1" },
   key: { name: "a key sigil", reagents: [[1, "gold"]], actions: '3xchant "krolop escit yall", 1' },
