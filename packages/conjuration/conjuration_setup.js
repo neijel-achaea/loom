@@ -16,7 +16,7 @@ var CJ = client.loom.conjuration;
 // for a bare action 2. Add a recipe as you learn one.
 CJ.sigils = {
   bauble: { name: "a scented bauble" },
-  brooch: { name: "a brooch of Thoth", begin: "brooch of thoth", take: "brooch", reagents: [[1, "ice"], [2, "diamonddust"], [1, "horn"], [2, "silver"]], actions: 'chant "mortis troy tenkla", chant "mortis troy tenklu", chant "mortis troy tenkli", 3x6' },
+  brooch: { name: "a brooch of Thoth", begin: "brooch of thoth", take: "brooch", reagents: [[1, "ice"], [2, "dust"], [1, "horn"], [2, "silver"]], actions: 'chant "mortis troy tenkla", chant "mortis troy tenklu", chant "mortis troy tenkli", 3x6' },
   comprehension: { name: "a necklace of comprehension" },
   concealment: { name: "an orb of concealment" },
   cube: { name: "a vibration-dampening cube" },
@@ -83,6 +83,26 @@ CJ.parseActions = function (text, chant) {
     }
   }
   return { steps: out };
+};
+
+// Selfishness, from Char.Defences (true/false; null until the game says).
+// Reagents can't go into the ouroboros while it's up, so the ritual sends
+// GENEROSITY first and SELFISHNESS again once they're in.
+if (CJ.selfish === undefined) CJ.selfish = (client.loom.security && typeof client.loom.security.selfish == "boolean") ? client.loom.security.selfish : null;
+
+// Have the rift (from IR COMMODITIES, {word: count}) cover the reagents?
+// A reagent matches a rift entry carrying it as a whole word ("silver" is
+// "silver bar", "horn" is "piece of stag's horn"). "" when it does, else why.
+CJ.riftShort = function (reagents, have) {
+  var miss = [];
+  for (var i = 0; i < reagents.length; i++) {
+    var want = reagents[i][0], word = reagents[i][1].toLowerCase(), got = 0;
+    for (var k in have) {
+      if (have.hasOwnProperty(k) && new RegExp("(^|\\s)" + word.replace(/[^a-z' ]/g, "") + "(\\s|$)").test(k)) got += have[k];
+    }
+    if (got < want) miss.push(word + " (" + got + " of " + want + ")");
+  }
+  return miss.length ? "not enough in the rift: " + miss.join(", ") : "";
 };
 
 // The ouroboros the reagents go into (conjuration_ouroboros), and the one

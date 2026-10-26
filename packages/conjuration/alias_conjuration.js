@@ -20,7 +20,7 @@ if (cjSub === "" || cjSub === "status") {
     var cjS0 = CJ.run.steps[CJ.run.i];
     var cjCh = 0, cjChN = 0;
     for (var cjK = 0; cjK < CJ.run.steps.length; cjK++) { if (/^chant /.test(CJ.run.steps[cjK].cmd)) { cjChN++; if (cjK <= CJ.run.i) cjCh++; } }
-    cjSay("making " + CJ.sigils[CJ.run.sigil].name + ": step " + (CJ.run.i + 1) + " of " + CJ.run.steps.length + " (" + cjS0.cmd + (/^chant /.test(cjS0.cmd) ? ", chant " + cjCh + " of " + cjChN : "") + "), " + ({ send: "sending", expect: "waiting for the game", bal: "waiting for balance", retry: "waiting to send it again", held: "held while triggers are paused" })[CJ.run.state] + ". CONJURATION STOP abandons it.");
+    cjSay("making " + CJ.sigils[CJ.run.sigil].name + ": step " + (CJ.run.i + 1) + " of " + CJ.run.steps.length + " (" + cjS0.cmd + (/^chant /.test(cjS0.cmd) ? ", chant " + cjCh + " of " + cjChN : "") + "), " + ({ send: "sending", expect: "waiting for the game", rift: "reading the rift", bal: "waiting for balance", retry: "waiting to send it again", held: "held while triggers are paused" })[CJ.run.state] + ". CONJURATION STOP abandons it.");
   }
   cjSay("recipes known: " + cjKnown().join(", ") + ". CONJURATION <sigil> to make one; CONJURATION HELP for commands.");
 } else if (cjSub === "help") {
@@ -70,17 +70,22 @@ if (cjSub === "" || cjSub === "status") {
     // expression), whether it takes balance].
     var cjO = "ouroboros" + CJ.ouroboros;
     var cjSteps = [];
+    // First the rift: nothing is taken out unless every reagent is there.
+    cjSteps.push({ cmd: "ir commodities", expect: "^Glancing into your rift", rift: true });
+    var cjSelf = CJ.selfish === true;
+    if (cjSelf) cjSteps.push({ cmd: "generosity", expect: "^A feeling of generosity spreads throughout you\\.$", eq: true });
     for (var cjR = 0; cjR < S.reagents.length; cjR++) {
       cjSteps.push({ cmd: "outr " + (S.reagents[cjR][0] > 1 ? S.reagents[cjR][0] + " " : "") + S.reagents[cjR][1] });
     }
     for (var cjP = 0; cjP < S.reagents.length; cjP++) {
       for (var cjQ = 0; cjQ < S.reagents[cjP][0]; cjQ++) cjSteps.push({ cmd: "put " + S.reagents[cjP][1] + " in " + cjO });
     }
+    if (cjSelf) cjSteps.push({ cmd: "selfishness", expect: "^You rub your hands together greedily\\.$", eq: true });
     cjSteps.push({ cmd: "begin creation of " + (S.begin || cjSub + " sigil"), expect: "indicating that you may begin" });
     for (var cjA = 0; cjA < cjPa.steps.length; cjA++) cjSteps.push(cjPa.steps[cjA]);
     cjSteps.push({ cmd: "end ritual", expect: "^The ouroboros flashes" });
     cjSteps.push({ cmd: "get " + (S.take || "sigil") + " from ouroboros" + (CJ.sigilFrom || CJ.ouroboros), expect: "^You take .* from .*ouroboros" });
-    CJ.run = { sigil: cjSub, steps: cjSteps, i: 0, state: "send", tries: 0, prompts: 0, sawLost: false };
+    CJ.run = { sigil: cjSub, reagents: S.reagents, have: {}, steps: cjSteps, i: 0, state: "send", tries: 0, prompts: 0, sawLost: false };
     cjSay("making " + S.name + ", one step at a time (" + cjSteps.length + " steps).");
     run_function("conjuration_step", [], "conjuration");
   }
