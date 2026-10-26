@@ -78,14 +78,14 @@ if (cjSub === "" || cjSub === "status") {
     var cjSelf = CJ.selfish === true;
     if (cjSelf) cjSteps.push({ cmd: "generosity", expect: "^A feeling of generosity spreads throughout you\\.$", eq: true });
     for (var cjR = 0; cjR < S.reagents.length; cjR++) {
-      cjSteps.push({ cmd: "outr " + (S.reagents[cjR][0] > 1 ? S.reagents[cjR][0] + " " : "") + S.reagents[cjR][1] });
+      cjSteps.push({ cmd: "outr " + (S.reagents[cjR][0] > 1 ? S.reagents[cjR][0] + " " : "") + S.reagents[cjR][1], expect: CJ.outrLine });
     }
     // Things the actions use up from your inventory (kola): out, never in.
     for (var cjK2 = 0; cjK2 < cjPa.carry.length; cjK2++) {
-      cjSteps.push({ cmd: "outr " + (cjPa.carry[cjK2][0] > 1 ? cjPa.carry[cjK2][0] + " " : "") + cjPa.carry[cjK2][1] });
+      cjSteps.push({ cmd: "outr " + (cjPa.carry[cjK2][0] > 1 ? cjPa.carry[cjK2][0] + " " : "") + cjPa.carry[cjK2][1], expect: CJ.outrLine });
     }
     for (var cjP = 0; cjP < S.reagents.length; cjP++) {
-      for (var cjQ = 0; cjQ < S.reagents[cjP][0]; cjQ++) cjSteps.push({ cmd: "put " + S.reagents[cjP][1] + " in " + cjO });
+      for (var cjQ = 0; cjQ < S.reagents[cjP][0]; cjQ++) cjSteps.push({ cmd: "put " + S.reagents[cjP][1] + " in " + cjO, expect: CJ.putLine });
     }
     if (cjSelf) cjSteps.push({ cmd: "selfishness", expect: "^You rub your hands together greedily\\.$", eq: true });
     cjSteps.push({ cmd: "begin creation of " + (S.begin || cjSub + " sigil"), expect: "indicating that you may begin" });

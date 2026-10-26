@@ -94,6 +94,11 @@ CJ.parseActions = function (text, chant) {
   return { steps: out, carry: cl };
 };
 
+// The game answers each OUTR and PUT on its own (and with its own prompt),
+// so each waits for its line like any other step.
+CJ.outrLine = "^You remove [\\d,]+ .*, bringing the total in the rift to";
+CJ.putLine = "^You put .* into .*ouroboros";
+
 // Selfishness, from Char.Defences (true/false; null until the game says).
 // Reagents can't go into the ouroboros while it's up, so the ritual sends
 // GENEROSITY first and SELFISHNESS again once they're in.

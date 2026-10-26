@@ -1,8 +1,7 @@
 // conjuration_step -- sends the ritual under way (client.loom.conjuration.run)
-// one step at a time. Steps that need nothing back (outr, put) go straight
-// on; a step with an expected reply waits for it (trigger_ritual), and one
-// that takes balance then waits for balance to come back (onGMCP), so the
-// server's queue only ever holds one ritual command. Nothing is sent while
+// one step at a time. Each step waits for its reply (trigger_ritual), and
+// one that takes balance then waits for balance to come back (onGMCP), so
+// the server's queue only ever holds one ritual command. Nothing is sent while
 // triggers are paused; the ritual picks up again when they aren't.
 //
 // run.state: "send" (send step i now), "expect" (sent, waiting for its line),
