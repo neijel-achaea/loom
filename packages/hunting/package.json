@@ -1095,7 +1095,7 @@
               "script": "@file:rage__trigger_you_can_use_another_battlerage_ability.js"
             }
           ],
-          "text": "^You can use another Battlerage ability again\\. Available abilities: (.+)$",
+          "text": "^You can use another Battlerage ability again\\.(?:\\s+Available abilities:\\s*(.*))?$",
           "matching": "regexp",
           "whole_words": true,
           "case_sensitive": true

@@ -41,6 +41,9 @@ client.loom.hooks.hunting.line = function (args) {
         // clears by itself after HU.globMaxMs, so the keys and the basher
         // can't wait for ever.
         HU.globAt = Date.now();
+        // The ability that started it: its own ready line ends the global
+        // cooldown too (its cooldown outlasts the global one).
+        HU.globBy = huRow[2];
         setTimeout(function () {
           var H2 = client.loom.hunting;
           if (H2 && !H2.glob && Date.now() - (H2.globAt || 0) >= (H2.globMaxMs || 30000) - 50) { H2.glob = true; run_function("hunting_highlight", [], "hunting"); }
