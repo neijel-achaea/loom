@@ -28,6 +28,8 @@ The pause is the Nexus variable `pauseTriggers`; your own reflexes can use it to
 
 **Keys are wrong after changing class.** `HUNTING BUTTONS` lays them out again.
 
+**You use your own command separator** (Nexus settings, instead of `|`). Loom reads it: a key that sends two commands (Druid's Maul, wreathe then maul) is laid out with your separator, and the basher splits keys on yours as well as on `|`. After changing the separator, `HUNTING BUTTONS` (or a page reload) lays the keys out again. Avoid `!` as a separator: hunting's keys use the game's queue flags (`queue add b!wu!t!p …`), which Nexus would then cut apart.
+
 ## Updates and versions
 
 **Is my package up to date?** `LOOM UPDATES` lists the packages here that are older than the newest build. To update, import the newer `.nxs` over the old one: your data and settings stay.
