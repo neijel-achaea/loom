@@ -339,7 +339,8 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `questbook_state` | data | 1.1 | per quest: the current step, kills counted, when last done and how many times |  |
 | `questbook_folded` | setting | 1.1 | areas folded in the tab |  |
 | `questbook_filter` | setting | 1.1 | `ready` or `waiting` when the tab lists only those (absent: all) |  |
-| `questbook_daily` | setting | 1.1 | the daily reset as `hh:mm` on your clock (absent: 00:00) |  |
+| `questbook_midnight` | setting | 1.1 | the game's midnight as `hh:mm` on your clock, when monthly quests reset (absent: 02:00) |  |
+| `questbook_year` | data | 1.1 | when an Achaean year began (ms), from the game's date line |  |
 
 ## roleplay
 

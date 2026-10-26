@@ -64,6 +64,22 @@
     },
     {
       "type": "trigger",
+      "name": "Questbook date",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_date.js"
+        }
+      ],
+      "text": "^(?:It is now|Today is) the (\\d+)(?:st|nd|rd|th) of (\\w+), (\\d+) years after",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "Questbook slain",
       "enabled": true,
       "actions": [
