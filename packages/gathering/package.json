@@ -68,6 +68,14 @@
       "enabled": true,
       "actions": [
         {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
           "type": "script",
           "enabled": true,
           "script": "@file:trigger_success.js"
@@ -83,6 +91,14 @@
       "name": "Gather seeds",
       "enabled": true,
       "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
         {
           "type": "script",
           "enabled": true,
@@ -100,6 +116,14 @@
       "enabled": true,
       "actions": [
         {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
           "type": "script",
           "enabled": true,
           "script": "@file:trigger_gold.js"
@@ -115,6 +139,14 @@
       "name": "Gather failure",
       "enabled": true,
       "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#ff0074",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
         {
           "type": "script",
           "enabled": true,

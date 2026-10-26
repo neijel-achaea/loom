@@ -10,7 +10,7 @@ var GA = client.loom.gathering;
 // busy (#318): true while a GATHER or the rift reading is out, or while the
 // room's queue is still being worked through, so Here's probe and other
 // packages wait their turn. 10 s without a send no longer counts.
-client.loom.registry.gathering = { version: "0.1.1", keyword: "GATHERING", desc: "{{description}}", busy: function () {
+client.loom.registry.gathering = { version: "0.1.2", keyword: "GATHERING", desc: "{{description}}", busy: function () {
   var g = client.loom.gathering;
   return !!(g && g.on && (g.current || g.reading || (g.queue && g.queue.length)) && Date.now() - (g.sentAt || 0) < 10000);
 } };
