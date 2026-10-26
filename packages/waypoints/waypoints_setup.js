@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.waypoints) client.loom.waypoints = {};
-client.loom.registry.waypoints = { version: "0.2.0", keyword: "WAYPOINTS", desc: "{{description}}",
+client.loom.registry.waypoints = { version: "0.2.1", keyword: "WAYPOINTS", desc: "{{description}}",
   redraw: function () { run_function("waypoints_render", [], "waypoints"); } };
 var WP = client.loom.waypoints;
 
@@ -74,6 +74,8 @@ WP.split = function (text) {
   if (m && WP.byId(m[1])) return { w: WP.byId(m[1]), rest: (m[2] || "").trim() };
   return null;
 };
+// Waypoints in name order (Ricardo), ignoring case.
+WP.byNameOrder = function (a, b) { var x = a.name.toLowerCase(), y = b.name.toLowerCase(); return x < y ? -1 : (x > y ? 1 : 0); };
 WP.label = function (w) { return w.name + " (" + w.id + ")"; };
 
 WP.add = function (name) {

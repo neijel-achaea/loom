@@ -3,7 +3,7 @@
 *Rooms you save by name, listed by area or by tag in a tab; one click walks you there.*
 
 <!-- loom:version waypoints -->
-*This page describes waypoints 0.2.0.*
+*This page describes waypoints 0.2.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,6 +14,7 @@ Waypoints keeps the rooms you want to come back to (a hunting spot, a shop, your
 
 - **By area.** The area you're in comes first, the others follow by name. Click an area's header to fold it: a folded area keeps its count and lists its waypoints' names on the header line. Folding is remembered.
 - **Or by tag.** Tag waypoints with your own words (`WAYPOINTS TAG rat spot hunting`), as many as you like, and switch the tab between **AREA** and **TAG** on its title line (or `WAYPOINTS VIEW AREA|TAG`; the choice is kept). By tag, a waypoint sits under each of its tags, tags in alphabetical order, the untagged last; tag groups fold like areas.
+- **In name order.** Within each area or tag, waypoints are listed by name.
 - **Two lines a row.** The flag, the name you gave it and its tags as small chips, with the room number on the right; under it, the game's room name, its environment (its area when grouped by tag) and your note.
 - **Where you are.** A waypoint you're standing in is highlighted and reads `HERE`.
 - **Adding and removing.** `⊕ ADD HERE` on the title line, shown when the room you're in isn't saved yet, saves it under the room's own title (with its number added if another waypoint has that name); `WAYPOINTS RENAME` gives it your own. Hover a row for its `×`, which removes it at once.

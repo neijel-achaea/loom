@@ -54,6 +54,7 @@ order.sort(function (x, y) {
   else { if (x === here.area) return -1; if (y === here.area) return 1; }
   return x.toLowerCase() < y.toLowerCase() ? -1 : (x.toLowerCase() > y.toLowerCase() ? 1 : 0);
 });
+for (var so = 0; so < order.length; so++) groups[order[so]].sort(WP.byNameOrder);
 WP.areasDrawn = order.slice();
 var nGroups = 0;
 for (var ng = 0; ng < order.length; ng++) if (order[ng] !== "tag:") nGroups++;

@@ -18,6 +18,7 @@ if (wpCmd === "" || wpCmd === "status") {
   var wpBy = {}, wpOrd = [];
   for (var wpJ = 0; wpJ < WP.list.length; wpJ++) { var wpB = WP.list[wpJ].area || "unknown area"; if (!wpBy[wpB]) { wpBy[wpB] = []; wpOrd.push(wpB); } wpBy[wpB].push(WP.list[wpJ]); }
   wpOrd.sort();
+  for (var wpZ = 0; wpZ < wpOrd.length; wpZ++) wpBy[wpOrd[wpZ]].sort(WP.byNameOrder);
   for (var wpK = 0; wpK < wpOrd.length; wpK++) {
     display_notice("[waypoints] " + wpOrd[wpK] + ":", "cyan");
     for (var wpL = 0; wpL < wpBy[wpOrd[wpK]].length; wpL++) {
