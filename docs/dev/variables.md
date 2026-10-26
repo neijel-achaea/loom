@@ -178,6 +178,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `hunting_autogold` | setting | 0.2 | pick up and put away gold | `autogold` |
 | `hunting_after_form` | setting | 0.2 | command sent when dragonform rises or falls |  |
 | `hunting_party_target` | setting | 0.2 | party target announcements |  |
+| `hunting_highlight` | setting | 1.1 | F-keys light when ready ("off": never; absent = on) |  |
 | `hunting_mains` | setting | 0.3 | main attack per class, chosen by hand |  |
 | `hunting_mains_added` | setting | 0.3 | extra main attacks added by hand |  |
 | `hunting_class` | state | 0.2 | your class, from GMCP |  |

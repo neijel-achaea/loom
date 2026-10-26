@@ -18,6 +18,7 @@ var hlRows = [
   ["HUNTING MAIN [name]", "your class's main attack on F1 (no name: list them); dragons: GUT, INCANTATION or AUTO, as DRAGONMODE"],
   ["HUNTING MAIN <name> = <command>", "add one for this class, e.g. to try an attack; empty command removes it"],
   ["HUNTING TOGGLE <name> [ON|OFF]", "class toggles on the F-keys, e.g. the Serpent's SNEAK and WEAVE"],
+  ["HUNTING HIGHLIGHT [ON|OFF]", "light keys when ready (default ON); OFF: no key lights, the basher's STOP included"],
   ["HUNTING BUTTONS", "lay out the F-keys again"],
   ["HUNTING RAGE", "rage, cooldowns and tracked keys"],
   ["HUNTING RESET", "clear rage cooldowns, lay out the F-keys again"],

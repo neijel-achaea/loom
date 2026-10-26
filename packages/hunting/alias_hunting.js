@@ -41,6 +41,19 @@ else if (huSub === "autogold") {
     display_notice("[hunting] autogold is ON, ALL or OFF.", "orange");
   }
 }
+else if (huSub === "highlight") {
+  // One switch for every key (Ricardo, #409): off = nothing lights, the
+  // basher's STOP key included.
+  if (huVal === "on" || huVal === "off") {
+    set_variable("hunting_highlight", huVal);
+    run_function("hunting_buttons", [], "hunting");
+    display_notice("[hunting] F-key highlights " + huVal.toUpperCase() + ".", "lime");
+  } else if (huVal === "") {
+    display_notice("[hunting] F-key highlights are " + (get_variable("hunting_highlight") == "off" ? "OFF" : "ON") + ". HUNTING HIGHLIGHT ON or OFF.", C);
+  } else {
+    display_notice("[hunting] highlights are ON or OFF.", "orange");
+  }
+}
 else if (huSub === "partytarget") {
   if (huVal === "") {
     var huPt = get_variable("hunting_party_target");
