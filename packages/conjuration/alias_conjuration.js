@@ -61,8 +61,8 @@ if (cjSub === "" || cjSub === "status") {
     cjSay("can't make " + S.name + " yet: " + cjPa.err + ".", "orange");
   } else if (!CJ.ouroboros) {
     cjSay("set your ouroboros first: CONJURATION OUROBOROS <number>.", "orange");
-  } else if (cjPa.coins && CJ.gold !== null && CJ.gold < cjPa.coins) {
-    cjSay("the ritual for " + S.name + " flips " + (cjPa.coins > 1 ? cjPa.coins + " coins" : "a coin") + ", and you have " + CJ.gold + " sovereign" + (CJ.gold == 1 ? "" : "s") + " on hand: GG " + (cjPa.coins - CJ.gold) + " first. Nothing was sent.", "orange");
+  } else if (cjPa.coins && (CJ.gold === null || CJ.gold < cjPa.coins) && !(client.loom.security && client.loom.security.backpack)) {
+    cjSay("the ritual for " + S.name + " flips " + (cjPa.coins > 1 ? cjPa.coins + " coins" : "a coin") + ", and you have " + (CJ.gold === null ? "an unknown number of" : CJ.gold) + " sovereign" + (CJ.gold == 1 ? "" : "s") + " on hand: take " + (cjPa.coins > 1 ? "them" : "one") + " out of your pack first (security's GG does it once SECURITY BACKPACK is set). Nothing was sent.", "orange");
   } else if (get_variable("pauseTriggers") === "on") {
     cjSay("triggers are paused, so nothing was sent.", "orange");
   } else if (CJ.run) {
@@ -77,6 +77,10 @@ if (cjSub === "" || cjSub === "status") {
     // too, and check once the last part has been read.
     cjSteps.push({ cmd: "ir commodities", expect: "^Glancing into your rift", rift: true, riftLast: !cjPa.carry.length });
     if (cjPa.carry.length) cjSteps.push({ cmd: "ir plants", expect: "^Glancing into your rift", rift: true, riftLast: true });
+    // Coins for FLIPCOIN: whatever's short comes out of the pack through
+    // security's GG (which tells antitheft the gold is yours).
+    var cjShort = cjPa.coins ? cjPa.coins - (CJ.gold === null ? 0 : CJ.gold) : 0;
+    if (cjShort > 0) cjSteps.push({ cmd: "gg " + cjShort, expect: "^You get \\d+ gold sovereigns? from" });
     var cjSelf = CJ.selfish === true;
     if (cjSelf) cjSteps.push({ cmd: "generosity", expect: "^A feeling of generosity spreads throughout you\\.$", eq: true });
     for (var cjR = 0; cjR < S.reagents.length; cjR++) {

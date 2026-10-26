@@ -14,7 +14,7 @@ Making a sigil or conjured item is a long string of commands: take the reagents 
 
 1. `IR COMMODITIES` (and `IR PLANTS` when the recipe crushes kola), and stops before taking anything out if the rift is short of a reagent ("not enough in the rift: dust (1 of 2)").
 2. If selfishness is up, `GENEROSITY` first (reagents can't go into the ouroboros otherwise).
-3. `OUTR` each reagent from the rift and `PUT` it in your ouroboros, then `SELFISHNESS` again if it was up. A recipe that crushes kola also takes one kola nut out per crush (kept in your inventory, not put in); kola is part of the rift check. A recipe that flips a coin needs that many sovereigns on hand: if you have fewer, it tells you how many to `GG` and sends nothing.
+3. `OUTR` each reagent from the rift and `PUT` it in your ouroboros, then `SELFISHNESS` again if it was up. A recipe that crushes kola also takes one kola nut out per crush (kept in your inventory, not put in); kola is part of the rift check. A recipe that flips a coin needs a sovereign on hand per flip: whatever's short is taken out of your pack with security's `GG` after the rift check (without security's backpack set, it tells you instead and sends nothing).
 4. `BEGIN CREATION OF FLAME SIGIL`, then waits for the game to say you may begin.
 5. The item's actions as its AB scroll lists them: for the flame sigil, chant three times and ring the bell; for the brooch of Thoth, three different chants and three claps. Each waits for its line and for balance.
 6. `END RITUAL`, then takes the item from the ouroboros.
