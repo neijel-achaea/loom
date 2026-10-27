@@ -23,6 +23,7 @@ var hlRows = [
   ["QUESTBOOK REWARD RENOWN|XP|GOLD <n>", "what it gives (0 takes it off)"],
   ["QUESTBOOK REWARD ITEM <text> | CLEAR", "an item it gives, or clear the rewards"],
   ["QUESTBOOK RENAME <new name>", "rename the open quest"],
+  ["QUESTBOOK AREA [name]", "move the open quest to the area you're in, or to that area"],
   ["QUESTBOOK REMOVE <name|number> CONFIRM", "forget a quest and its record"],
   ["Backup (one quest at a time):"],
   ["QUESTBOOK EXPORT [name|number]", "a quest (the open one if none named) as a short code, copied to your clipboard when the browser allows (also EXPORT in the tab)"],
