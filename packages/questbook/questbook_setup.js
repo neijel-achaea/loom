@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.5.0", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.5.1", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 

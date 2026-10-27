@@ -102,6 +102,19 @@ if (quCmd === "" || quCmd === "status") {
       }
     }
   }
+} else if (quCmd === "area") {
+  // The open quest's area: the one you're in, or a name (an area you already
+  // have quests in keeps its spelling, so the tab doesn't split it by case).
+  if (quNeedOpen()) {
+    var quAr = quRest.replace(/\s+/g, " ").substring(0, QU.capName || 80);
+    if (!quAr) quAr = (QU.here && QU.here.area) || "";
+    if (!quAr) QU.say("no area yet: move or LOOK first, or QUESTBOOK AREA <name>.", "orange");
+    else {
+      for (var quAi = 0; quAi < QU.list.length; quAi++) if (QU.list[quAi].area && QU.list[quAi].area.toLowerCase() === quAr.toLowerCase()) { quAr = QU.list[quAi].area; break; }
+      if (quAr === quOpen.area) QU.say(quOpen.name + " is already in " + quAr + ".", "cyan");
+      else { var quWas = quOpen.area; quOpen.area = quAr; QU.save(); QU.say(quOpen.name + " moved to " + quAr + (quWas ? " (was " + quWas + ")" : "") + ".", "lime"); }
+    }
+  }
 } else if (quCmd === "rename") {
   if (quNeedOpen()) {
     if (!quRest) QU.say("QUESTBOOK RENAME <new name> (the quest open in the tab).", "orange");
