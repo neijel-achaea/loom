@@ -3,14 +3,14 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.4.1.*
+*This page describes questbook 0.5.0.*
 <!-- /loom:version -->
 
 ## What it is
 
 Questbook (the Questing Companion) keeps the quests you do again and again (most daily, a few yearly) as lists of steps you write yourself, and walks you through them every time. They're listed in a custom tab named **Quests**. (The command is `QUESTBOOK`: `QUESTS` is the game's own.)
 
-- **Yours alone.** You build your quests as you play; there is no export, import or sharing. They're kept per character, like every Nexus setting.
+- **Yours, kept per character** like every Nexus setting. You build your quests as you play. To keep a copy or move one to another character, `QUESTBOOK EXPORT` turns a quest into a short code and `QUESTBOOK IMPORT` adds it back (see [Backing up a quest](#backing-up-a-quest)).
 - **A guide, never a bot.** A step can be one click (walk there, send the line), but nothing runs by itself.
 - **By area.** The list groups quests by the area they start in, the area you're in first; areas fold (remembered), and a folded area shows how many are ready and waiting. Each quest takes two lines: its name with a status chip on the right (`STEP 3 OF 7` while under way, `READY`, or `✓ AGAIN IN 5 H`), then its rewards, how it repeats and how many times you've done it. **ALL · READY · WAITING** filters the list (kept).
 - **Following one.** Click a quest to open it: its rewards, a progress bar, and its steps two lines each, done ones ticked, the current one highlighted with its button. A quest you can do now is *followed*: its current step ticks by itself as you play. A quest that's waiting is only shown (START OVER follows it anyway).
@@ -32,6 +32,16 @@ In the tab each step shows a small icon; hover it for what it is. Commands start
 When the last step ticks, the quest is done: its count goes up, it's stamped with the time and it waits for its next reset.
 
 *Recording a quest as you play it (● RECORD NEW) is the next step of the package; for now quests are written with commands.*
+
+### Backing up a quest
+
+`QUESTBOOK EXPORT [name|number]` (or **EXPORT** under an open quest) turns one quest into a code like `QB1zTZA9TsNAF…`: its name, area, repeat, rewards and steps, written small and compressed. Where you are in it and how often you've done it stay behind. The code shows below the notice (click it once to select all of it) and goes to your clipboard when the browser allows it. Keep it wherever you keep notes.
+
+`QUESTBOOK IMPORT <code>` (or **IMPORT** above the list, which takes the code in a paste box) adds the quest back at once as a new quest, open in the tab and not followed. Its name gets a number when yours is taken. One quest per code; there's no bulk export.
+
+The code holds only letters, digits, `-` and `_`, so quotes, accents, `|` or line breaks in your steps can't break it, and spaces or line breaks a paste picks up are ignored. It ends with a checksum: a code cut short or changed on the way is refused, never half-imported. If your command separator is `-` or `_`, use IMPORT in the tab (the typed line would be split).
+
+**What you do with a code is up to you.** It's a backup tool: Loom doesn't send, share or fetch codes. A code you got from someone else can say anything, so every import ends with a warning. A command step is sent exactly as written, through your aliases, when you click its button: read every step before you use it, and fix or drop the ones you don't want with EDIT STEPS.
 
 ## Commands
 
@@ -58,6 +68,9 @@ When the last step ticks, the quest is done: its count goes up, it's stamped wit
 | `QUESTBOOK REWARD ITEM <text> \| CLEAR` | an item it gives, or clear the rewards |
 | `QUESTBOOK RENAME <new name>` | rename the open quest |
 | `QUESTBOOK REMOVE <name\|number> CONFIRM` | forget a quest and its record |
+| **Backup (one quest at a time):** | |
+| `QUESTBOOK EXPORT [name\|number]` | a quest (the open one if none named) as a short code, copied to your clipboard when the browser allows (also EXPORT in the tab) |
+| `QUESTBOOK IMPORT <code>` | add a quest back from its code, as a new quest, not followed (also IMPORT in the tab, which takes a paste in a box). Read every step before you use one from someone else |
 | **Following:** | |
 | `QUESTBOOK NEXT` | tick the current step by hand |
 | `QUESTBOOK BACK` | one step back |
@@ -113,4 +126,6 @@ Questbook reads nothing from other packages. With **waypoints** installed, Loom'
 
 - **The tab stays empty.** Check the custom tab is named exactly `Quests`, then `QUESTBOOK RESET`.
 - **A step doesn't tick.** Only the quest you follow ticks, and only its current step. A command ticks when you send it with its button; typed by hand, tick it with `QUESTBOOK NEXT` (or click the next step). KILL matches the mob's name in the `You have slain …` line: use a few words of it (`rat`). `QUESTBOOK DEBUG` shows the current step.
+- **IMPORT says the code is incomplete.** Copy the whole code again (it's long and wraps; one click selects all of it). With a command separator of `-` or `_`, paste it with IMPORT in the tab.
+- **IMPORT says the browser can't unpack compressed codes.** Codes starting `QB1z` need a browser with built-in compression (any current one); update the browser, or ask for the quest again.
 - **A click doesn't walk or send.** Nothing is sent while Loom is paused (`LOOM PAUSE ON`). `PATH FIND` needs a route the game knows.

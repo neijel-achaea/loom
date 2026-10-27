@@ -4,10 +4,11 @@
 //   - the list, by area (the area you're in first; areas fold, remembered):
 //     two lines a quest, its name and a status chip (STEP 3 OF 7, READY,
 //     AGAIN IN 5 H), then its rewards, repeat and record; filters All ·
-//     Ready · Waiting; ● RECORD NEW (recording is #376's next step);
+//     Ready · Waiting; IMPORT (a backup code) and ● RECORD NEW (recording is
+//     #376's next step);
 //   - one quest: rewards, a progress bar, its steps two lines each with the
 //     current one highlighted and its button (WALK, the line to send, DONE),
-//     START OVER and EDIT STEPS, when it was last done.
+//     START OVER, EDIT STEPS and EXPORT, when it was last done.
 if (!client.loom || !client.loom.questbook || !client.loom.questbook.list) run_function("questbook_setup", [], "questbook");
 var QU = client.loom.questbook;
 var TH = (client.loom && client.loom.theme) || {};
@@ -88,7 +89,7 @@ if (!open) {
   html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:5px;">';
   html += '<span style="display:flex;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">show</span>';
   html += '<span style="border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;">' + seg("all", "ALL") + seg("ready", "READY") + seg("waiting", "WAITING") + '</span></span>';
-  html += chip('<span style="font-family:' + SYM + ';color:#ff6a5e;">&#9679;</span> RECORD NEW', 'record()', MUTED, DEEP, 'record a new quest as you play (coming next; for now QUESTBOOK NEW <name>)');
+  html += '<span style="display:flex;gap:6px;">' + chip('IMPORT', 'importAsk()', MUTED, DEEP, 'add a quest from a backup code (QUESTBOOK IMPORT <code>)') + chip('<span style="font-family:' + SYM + ';color:#ff6a5e;">&#9679;</span> RECORD NEW', 'record()', MUTED, DEEP, 'record a new quest as you play (coming next; for now QUESTBOOK NEW <name>)') + '</span>';
   html += '</div>';
 
   function shown(q) {
@@ -221,7 +222,7 @@ if (!open) {
 
   // Footer.
   html += '<div style="margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">';
-  html += '<span style="display:flex;gap:6px;">' + chip('START OVER', 'restart()', MUTED, DEEP, 'back to step 1, and follow this quest') + chip(QU.edit ? 'DONE EDITING' : 'EDIT STEPS', 'edit()', QU.edit ? AMBER : MUTED, QU.edit ? AMBER : DEEP, QU.edit ? 'drop the struck steps' : 'strike steps out') + '</span>';
+  html += '<span style="display:flex;gap:6px;">' + chip('START OVER', 'restart()', MUTED, DEEP, 'back to step 1, and follow this quest') + chip(QU.edit ? 'DONE EDITING' : 'EDIT STEPS', 'edit()', QU.edit ? AMBER : MUTED, QU.edit ? AMBER : DEEP, QU.edit ? 'drop the struck steps' : 'strike steps out') + (QU.edit ? '' : chip('EXPORT', 'exportOpen()', MUTED, DEEP, 'this quest as a backup code, copied to your clipboard (QUESTBOOK EXPORT)')) + '</span>';
   html += '<span style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">' + (st.last ? 'last done ' + QU.ago(st.last) + ' &middot; ' : '') + record(q1) + '</span></div>';
 }
 html += '</div>';
