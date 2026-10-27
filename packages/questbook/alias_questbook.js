@@ -122,6 +122,14 @@ if (quCmd === "" || quCmd === "status") {
     QU.save();
     QU.say("forgot " + quQ.name + ".", "lime");
   }
+} else if (quCmd === "export" || quCmd === "backup") {
+  // One quest at a time (Ricardo): the named one, else the one open.
+  quQ = quRest ? QU.find(quRest) : quOpen;
+  if (quQ) QU.exportQuest(quQ);
+  else QU.say(quRest ? "no quest '" + quRest + "'. QUESTBOOK EXPORT <name|number>." : "QUESTBOOK EXPORT <name|number> (or open the quest first).", "orange");
+} else if (quCmd === "import") {
+  if (!quRest) QU.say("QUESTBOOK IMPORT <code>, or IMPORT in the Quests tab to paste it in a box.", "orange");
+  else QU.importCode(quRest);
 } else if (quCmd === "show") {
   var quSh = quRest.toLowerCase();
   if (quSh === "all" || quSh === "ready" || quSh === "waiting") { QU.setFilter(quSh); QU.say("the tab shows " + (quSh === "all" ? "every quest" : (quSh === "ready" ? "quests you can do now (and those under way)" : "quests waiting for their reset")) + ".", "lime"); }

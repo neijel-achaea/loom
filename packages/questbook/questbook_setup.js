@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.4.1", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.5.0", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
@@ -469,6 +469,171 @@ QU.onSlain = function (what) {
   QU.saveState();
 };
 
+// --- Backup: one quest as a code ------------------------------------------
+// A backup tool (Ricardo, 2026-10-27): EXPORT turns one quest into a short
+// code, IMPORT adds a quest from one. Who gets a code and what they do with
+// it is up to them, so every import ends with a warning to check its steps.
+// The code: "QB1", "z" (compressed) or "p" (plain), then base64url of the
+// payload and a 4-byte checksum of it. Letters, digits, - and _ only, so
+// quotes, accents, | and line breaks inside the quest can't break it; the
+// checksum catches a code cut short or mangled on the way.
+// The payload is the quest written small (QU.pack): { n name, a area, r
+// repeat (absent: daily), w rewards { r, x, g, i }, s steps }, a step as
+// "a command" | ["g", room, name, area if not the quest's] | ["k", mob, n]
+// | ["n", text]. Progress, record, folds and filters never travel.
+QU.codeVersion = 1;
+QU.capSteps = 200; QU.capText = 300; QU.capName = 80; QU.capItems = 20;
+QU.pack = function (q) {
+  var o = { n: q.name };
+  if (q.area) o.a = q.area;
+  if (q.repeat !== "daily") o.r = q.repeat.charAt(0);
+  var r = q.rewards, w = {};
+  if (r.renown) w.r = r.renown;
+  if (r.xp) w.x = r.xp;
+  if (r.gold) w.g = r.gold;
+  if (r.items.length) w.i = r.items.slice();
+  for (var k in w) if (w.hasOwnProperty(k)) { o.w = w; break; }
+  o.s = [];
+  for (var i = 0; i < q.steps.length; i++) {
+    var s = q.steps[i];
+    if (s.k === "do") o.s.push(s.cmd);
+    else if (s.k === "go") {
+      var g = ["g", Number(s.room)];
+      if (s.name || s.area !== q.area) g.push(s.name || "");
+      if (s.area !== q.area) g.push(s.area || "");
+      o.s.push(g);
+    }
+    else if (s.k === "kill") o.s.push(s.n > 1 ? ["k", s.what, s.n] : ["k", s.what]);
+    else o.s.push(["n", s.text]);
+  }
+  return o;
+};
+// The payload back into a quest, through the same checks as a saved one,
+// with lengths capped. -> { q } or { err }.
+QU.unpack = function (o) {
+  if (!o || typeof o != "object" || Array.isArray(o)) return { err: "the code holds no quest." };
+  var cut = function (v, n) { return String(v == null ? "" : v).replace(/[\r\n\t]+/g, " ").trim().substring(0, n); };
+  var name = cut(o.n, QU.capName);
+  if (!name) return { err: "the quest in the code has no name." };
+  var area = cut(o.a, QU.capName);
+  var rep = { d: "daily", m: "monthly", y: "yearly", n: "none" }[String(o.r || "d")] || "daily";
+  var w = (o.w && typeof o.w == "object") ? o.w : {}, items = [];
+  if (Array.isArray(w.i)) for (var i = 0; i < w.i.length && items.length < QU.capItems; i++) { var it = cut(w.i[i], QU.capName); if (it) items.push(it); }
+  var num = function (v) { return Math.max(0, Math.min(1e9, Math.floor(Number(v) || 0))); };
+  if (!Array.isArray(o.s)) return { err: "the quest in the code has no steps." };
+  if (o.s.length > QU.capSteps) return { err: "the quest in the code has more than " + QU.capSteps + " steps." };
+  var steps = [], dropped = 0;
+  for (var j = 0; j < o.s.length; j++) {
+    var e = o.s[j], s = null;
+    if (typeof e == "string") s = { k: "do", cmd: cut(e, QU.capText) };
+    else if (Array.isArray(e) && e[0] === "g") s = { k: "go", room: String(Math.floor(Number(e[1]) || 0) || ""), name: cut(e[2], QU.capName), area: e.length > 3 ? cut(e[3], QU.capName) : area };
+    else if (Array.isArray(e) && e[0] === "k") s = { k: "kill", what: cut(e[1], QU.capText), n: e[2] };
+    else if (Array.isArray(e) && e[0] === "n") s = { k: "note", text: cut(e[1], QU.capText) };
+    s = QU.cleanStep(s);
+    if (s) steps.push(s); else dropped++;
+  }
+  return { dropped: dropped, q: { name: name, area: area, repeat: rep,
+    rewards: { renown: num(w.r), xp: num(w.x), gold: num(w.g), items: items }, steps: steps } };
+};
+QU.b64 = function (bytes) {
+  var bin = "";
+  for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+QU.unb64 = function (t) {
+  var b = t.replace(/-/g, "+").replace(/_/g, "/");
+  while (b.length % 4) b += "=";
+  var bin = atob(b), out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+};
+// FNV-1a, 32 bits, as 4 bytes.
+QU.sum = function (bytes) {
+  var h = 0x811c9dc5;
+  for (var i = 0; i < bytes.length; i++) { h ^= bytes[i]; h = Math.imul(h, 0x01000193) >>> 0; }
+  return [h >>> 24, (h >>> 16) & 255, (h >>> 8) & 255, h & 255];
+};
+// The browser's own deflate (CompressionStream), when it has one.
+QU.canZip = function () {
+  try { new CompressionStream("deflate-raw"); new DecompressionStream("deflate-raw"); return typeof Response == "function" && typeof Blob == "function"; }
+  catch (e) { return false; }
+};
+QU.zip = function (bytes, undo) {
+  var st = undo ? new DecompressionStream("deflate-raw") : new CompressionStream("deflate-raw");
+  return new Response(new Blob([bytes]).stream().pipeThrough(st)).arrayBuffer().then(function (b) { return new Uint8Array(b); });
+};
+// A quest -> Promise of its code (the shorter of compressed and plain).
+QU.encode = function (q) {
+  var plain = new TextEncoder().encode(JSON.stringify(QU.pack(q)));
+  var finish = function (mode, body) {
+    var all = new Uint8Array(body.length + 4);
+    all.set(body); all.set(QU.sum(body), body.length);
+    return "QB" + QU.codeVersion + mode + QU.b64(all);
+  };
+  if (!QU.canZip()) return Promise.resolve(finish("p", plain));
+  return QU.zip(plain).then(function (z) { return z.length < plain.length ? finish("z", z) : finish("p", plain); },
+    function () { return finish("p", plain); });
+};
+// A code -> Promise of { q, dropped } or { err }. Spaces and line breaks
+// inside it (a wrapped paste) are ignored.
+QU.decode = function (text) {
+  var t = String(text || "").replace(/\s+/g, "");
+  var m = /^QB(\d+)([zp])([A-Za-z0-9_-]+)$/.exec(t);
+  if (!m) return Promise.resolve({ err: /^QB\d/.test(t) ? "that code has characters a quest code never has: copy it again." : "that isn't a quest code (they start with QB1)." });
+  if (Number(m[1]) > QU.codeVersion) return Promise.resolve({ err: "that code was made by a newer Questbook: update questbook first." });
+  var all;
+  try { all = QU.unb64(m[3]); } catch (e) { all = null; }
+  if (!all || all.length < 5) return Promise.resolve({ err: "that code is cut short: copy all of it." });
+  var body = all.subarray(0, all.length - 4), sum = QU.sum(body);
+  for (var i = 0; i < 4; i++) if (all[all.length - 4 + i] !== sum[i]) return Promise.resolve({ err: "that code is incomplete or changed on the way: copy all of it again (or use IMPORT in the Quests tab, if your command separator is - or _)." });
+  var read = function (bytes) {
+    var o;
+    try { o = JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { return { err: "the code's quest can't be read." }; }
+    return QU.unpack(o);
+  };
+  if (m[2] === "p") return Promise.resolve(read(body));
+  if (!QU.canZip()) return Promise.resolve({ err: "this browser can't unpack compressed codes." });
+  return QU.zip(body, true).then(read, function () { return { err: "the code's quest can't be unpacked." }; });
+};
+// EXPORT: the code as a line you select with one click, and on the clipboard
+// when the browser allows it.
+QU.exportQuest = function (q) {
+  return QU.encode(q).then(function (code) {
+    QU.lastCode = code;
+    QU.say("backup of " + q.name + " (" + q.steps.length + (q.steps.length === 1 ? " step" : " steps") + ", " + code.length + " characters). QUESTBOOK IMPORT <code> adds it back, here or on another character:", "cyan");
+    var hasHtml = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
+    if (hasHtml) nexusclient.add_html_line('<span title="click once to select all of it" style="font-family:\'Courier New\',monospace;color:#e0b46c;word-break:break-all;user-select:all;-webkit-user-select:all;cursor:text;">' + code + '</span>');
+    else display_notice(code, "#e0b46c");
+    var copied = function () { QU.say("copied to your clipboard.", "lime"); };
+    var noCopy = function () { QU.say("not copied (the browser didn't allow it): click the code once to select it, then copy it.", "cyan"); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(copied, noCopy);
+      else noCopy();
+    } catch (e) { noCopy(); }
+    return code;
+  }, function () { QU.say("couldn't make a code for " + q.name + ".", "orange"); });
+};
+// IMPORT: added at once as a new quest (Ricardo), opened in the tab without
+// following it, with a warning to check its steps before sending them.
+QU.importCode = function (text) {
+  return QU.decode(text).then(function (r) {
+    if (r.err) { QU.say("not imported: " + r.err, "orange"); return null; }
+    var q = r.q, base = q.name, n = 2;
+    while (QU.byName(q.name)) q.name = base + " " + (n++);
+    q.id = QU.nextId(); q.at = Date.now();
+    if (!q.area && QU.here && QU.here.area) q.area = QU.here.area;
+    QU.list.push(q);
+    QU.save();
+    QU.openQuest(q, true);
+    var cmds = 0;
+    for (var i = 0; i < q.steps.length; i++) if (q.steps[i].k === "do") cmds++;
+    QU.say("imported " + q.name + " (" + q.id + (q.area ? ", " + q.area : "") + ", " + q.steps.length + (q.steps.length === 1 ? " step" : " steps") +
+      (base !== q.name ? "; " + base + " was taken" : "") + (r.dropped ? "; " + r.dropped + " unreadable step" + (r.dropped === 1 ? "" : "s") + " left out" : "") + "). It's open in the Quests tab, not followed.", "lime");
+    QU.say("Be mindful: a quest from a code may not be what it says. Read every step before you click it" + (cmds ? ": its " + cmds + " command step" + (cmds === 1 ? " is" : "s are") + " sent exactly as written, through your aliases" : "") + ". EDIT STEPS fixes or drops any you don't want.", "orange");
+    return q;
+  }, function () { QU.say("not imported: the code couldn't be read.", "orange"); return null; });
+};
+
 // --- Tab helpers ----------------------------------------------------------
 QU.setFilter = function (f) {
   QU.filter = (f === "ready" || f === "waiting") ? f : "all";
@@ -555,6 +720,16 @@ try {
         for (var j = 0; j < all.length; j++) { if (all[j].offsetParent !== null) return all[j]; }
       }
       return null;
+    },
+    // EXPORT (one quest's view) and IMPORT (the list): the paste goes through
+    // the browser's own box, never the input line, so the command separator
+    // can't cut it.
+    exportOpen: function () { var Q = client.loom.questbook, q = Q.open ? Q.byId(Q.open) : null; if (q) Q.exportQuest(q); },
+    importAsk: function () {
+      var Q = client.loom.questbook, t = null, ok = typeof window.prompt == "function";
+      if (ok) { try { t = window.prompt("Paste a quest code (it starts with QB1). Check its steps before you use them."); } catch (e) { ok = false; } }
+      if (!ok) { Q.say("no box for pasting here: use QUESTBOOK IMPORT <code>.", "cyan"); return; }
+      if (t !== null && String(t).trim()) Q.importCode(t);
     },
     strike: function (i) { var Q = client.loom.questbook; Q.struck[i] = !Q.struck[i]; run_function("questbook_render", [], "questbook"); },
     record: function () { client.loom.questbook.say("recording comes in the next step of #376. For now: QUESTBOOK NEW <name>, then QUESTBOOK STEP … (QUESTBOOK HELP).", "cyan"); }
