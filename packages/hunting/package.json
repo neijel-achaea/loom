@@ -174,6 +174,22 @@
           "matching": "regexp",
           "whole_words": true,
           "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:multiclass__trigger_you_cease_your_transformation.js"
+            }
+          ],
+          "text": "^You cease your transformation into Dragonform\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
         }
       ]
     },

@@ -3,7 +3,7 @@
 *Your class's attacks on the F-keys, lit when they're ready, with battlerage cooldowns, attack lines tagged, dragon attacks and gold pickup.*
 
 <!-- loom:version hunting -->
-*This page describes hunting 1.2.0.*
+*This page describes hunting 1.2.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -72,6 +72,8 @@ Some classes have something a key switches on and off, such as the Serpent's sne
 `HUNTING DRAGONMODE PHY` attacks with gut, `MAG` with incantation, `AUTO` with whichever of endurance (gut) or willpower (incantation) is fuller. F8 shows and switches the mode. A dragon's `HUNTING MAIN` lists the same three and switches with `HUNTING MAIN GUT`, `INCANTATION` or `AUTO`; dragons can't add main attacks of their own.
 
 `HUNTING AFTERFORM DEFCON INIT` sends a command whenever dragonform rises or falls, to raise the right defences for the new form; `OFF` sends nothing.
+
+While dragonform is rising, Loom is paused (anything sent would interrupt it), and it resumes at the roar. If you stop the change yourself ("You cease your transformation into Dragonform."), Loom resumes then.
 
 ### Gold
 
