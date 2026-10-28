@@ -205,7 +205,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
-| `huntstats_party` | setting | 0.4 | the party, by hand |  |
+| `huntstats_party` | state | 0.4 | the party, by hand; cleared at every load (1.1) |  |
 | `huntstats_weights` | setting | 0.4 | HUNTSTATS SUGGEST weights |  |
 | `huntstats_splittell` | setting | 0.4 | also send the split to party tell |  |
 | `huntstats_tank` | setting | 0.5 | max health a second you heal back (colours damage taken) |  |

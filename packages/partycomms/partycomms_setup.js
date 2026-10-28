@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.partycomms) client.loom.partycomms = {};
-client.loom.registry.partycomms = { version: "1.0.0", keyword: "PARTYCOMMS", desc: "{{description}}",
+client.loom.registry.partycomms = { version: "1.0.1", keyword: "PARTYCOMMS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { if (client.loom.partycomms) client.loom.partycomms.lastRender = 0; run_function("partycomms_render", [], "partycomms"); } };
 var PC = client.loom.partycomms;
@@ -67,6 +67,7 @@ if (!PC.tInfo) PC.tInfo = { id: "", name: "", hp: "" };
 if (!PC.tName) PC.tName = { id: "", name: "" };
 if (!PC.ih) PC.ih = { on: false, at: 0, tail: 0, id: "" };
 // Party members heard from, by name: their last report and when it came.
+// Emptied at every load (onLoad/onInstall, #421).
 if (!PC.members) PC.members = {};
 if (!PC.sent) PC.sent = { at: 0, hp: -1, mp: -1, tid: "", tname: "", thp: "" };
 if (PC.lastRender === undefined) PC.lastRender = 0;
