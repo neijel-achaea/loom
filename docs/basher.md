@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.0.1.*
+*This page describes basher 1.0.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -47,7 +47,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 | **Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system.** | |
 | **A shielded target is razed with your class's shieldbreak when you have the rage (BASHER RAZE); dragons Blast it on recovery while their dragonbreath is up; otherwise attacks wait for the shield to fade.** | |
 | **While on, "You are confused as to the effects of the venom." sends DIAGNOSE on the next recovery, once per confusion.** | |
-| **It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed.** | |
+| **It attacks only a living mob in the room (never a player), one attack per recovery; with ACTIVE mobs in the area's kill order (Basher tab) it goes on down it while the room has some, without them it finishes the fight it started with; then the run ends (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed.** | |
 <!-- /loom:commands -->
 
 ### Starting and stopping
@@ -60,7 +60,7 @@ When the room runs out of targets the run ends and the basher stays primed: "run
 
 <img src="img/fkeys.png" alt="The F-key bar during a run: F1 has become the STOP key.">
 
-The basher also switches itself off after 3 attacks in a row that took no balance: something is wrong (no target, a wrong command), and it won't keep sending blindly. It sends nothing at all while `pauseTriggers` is on (`LOOM PAUSE ON`).
+The basher also ends the run after 3 attacks in a row that took no balance: something is wrong (no target, a wrong command), and it won't keep sending blindly. It stays primed, so your next attack starts a new run. It sends nothing at all while `pauseTriggers` is on (`LOOM PAUSE ON`).
 
 ### The main attack
 
@@ -106,7 +106,7 @@ The **Basher** tab lists the mob types of the area you're in, in kill order.
 - While primed, the basher keeps your target on the top active mob in the room, using the game's own `settarget`, but only when that changes (a mob arrives, dies or leaves, or you edit the list). A target you pick yourself stays until then. It never attacks on its own.
 - In a run, after each kill it takes the next one: active types by the list's order, then the room's order. When none are left, the run ends.
 
-An area with no active types works without the list: the basher follows your own target, and after a kill carries on with the next mob of the same name.
+An area with no active types works without the list: the basher follows your own target, finishes that fight, and ends the run (still primed); attack again for the next one, even another mob of the same name.
 
 Named NPCs are best left ignored.
 
@@ -138,7 +138,7 @@ Each link is on as soon as both packages are installed; `LOOM LINKS` lists them,
 ## Troubleshooting
 
 - **`BASHER ON` but nothing happens.** It waits for your own first attack. `BASHER` says why it isn't attacking.
-- **It switched itself off.** Three attacks took no balance in a row: check your target is a mob here and `HUNTING MAIN` is the right attack.
+- **It stopped attacking with "attacks took no balance or equilibrium".** Three attacks took no balance in a row, so the run ended (still primed): check your target is a mob here and `HUNTING MAIN` is the right attack, then attack again.
 - **It never razes.** Check `BASHER RAZE`, your rage, and whether your class has a shieldbreak key (see above).
 - **It stopped after someone arrived.** That's the design: it finishes the fight in progress and waits primed. Attack again to carry on. If you'd rather it kept going (a busy hunting ground, a long tell conversation), `BASHER INTERRUPT OFF`; `BASHER` reminds you while it's off.
 - **A mob type isn't targeted.** New types join ignored; switch them ACTIVE in the Basher tab.

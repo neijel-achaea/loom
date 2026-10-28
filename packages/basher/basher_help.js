@@ -20,7 +20,7 @@ var hlRows = [
   ["Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system."],
   ["A shielded target is razed with your class's shieldbreak when you have the rage (BASHER RAZE); dragons Blast it on recovery while their dragonbreath is up; otherwise attacks wait for the shield to fade."],
   ["While on, \"You are confused as to the effects of the venom.\" sends DIAGNOSE on the next recovery, once per confusion."],
-  ["It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed."]
+  ["It attacks only a living mob in the room (never a player), one attack per recovery; with ACTIVE mobs in the area's kill order (Basher tab) it goes on down it while the room has some, without them it finishes the fight it started with; then the run ends (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {
