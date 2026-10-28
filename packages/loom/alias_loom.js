@@ -118,13 +118,16 @@ if (sub === "" || sub === "list" || sub === "status") {
   var tmCap = function (t) { return t.charAt(0).toUpperCase() + t.slice(1); };
   var tmSay = function (changed) {
     var ch = TM.themeChoice();
+    // The chosen theme, as it will be once PK MODE (if on) ends.
+    var pkOn = !!TM.themePk; TM.themePk = false;
     var nm = TM.themeName();
+    TM.themePk = pkOn;
     var city = String(get_variable("loom_city") || "");
     var msg;
     if (ch === "off") msg = "off: each tab keeps its own colours";
     else if (ch === "auto") msg = "following your city: " + (nm ? TM.themes[nm].label : (city === "none" ? "you have no city, so each tab keeps its own colours" : (city ? tmCap(city) + " has no theme, so each tab keeps its own colours" : "no city seen yet (it comes at login), so each tab keeps its own colours")));
     else msg = TM.themes[nm].label;
-    display_notice("[loom] tab theme " + (changed ? "now " : "") + msg + ".", changed ? "lime" : C);
+    display_notice("[loom] tab theme " + (changed ? "now " : "") + msg + (pkOn ? "; PK MODE's magenta shows until it's off" : "") + ".", changed ? "lime" : C);
   };
   if (val === "") {
     tmSay(false);

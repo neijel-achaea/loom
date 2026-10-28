@@ -195,6 +195,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `hunting_class` | state | 0.2 | your class, from GMCP |  |
 | `hunting_name` | state | 0.3 | your name, from GMCP |  |
 | `hunting_toggles` | state | 0.3 | toggle keys; cleared at every load |  |
+| `hunting_pk` | data | 1.1 | your PK MODE keys per class: {Class: {"3": [label, command]}} |  |
 | `dragonMode` | legacy | 0.1 | old name of hunting_dragon_mode |  |
 | `dragonAttack` | legacy | 0.1 | old name of hunting_dragon_attack |  |
 | `autogold` | legacy | 0.1 | old name of hunting_autogold |  |
