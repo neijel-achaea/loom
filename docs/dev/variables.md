@@ -328,6 +328,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `room_loyal_ignore` | setting | 1.0 | owners that are places, not loyals |  |
 | `room_loyals` | data | 1.1 | loyals found, remembered across sessions (500 at most) |  |
 | `room_newbies` | data | 0.5 | players seen with newbie titles |  |
+| `room_novice_titles` | setting | 1.1 | the newbie titles that get the leaf (JSON list; absent = Uaithne, Ithin, Tuqad) |  |
 | `room_name` | state | 0.4 | your name, from GMCP |  |
 | `room_mark` | state | 1.0 | the remembered room (REMEMBER / GO BACK), with when (since 1.1) |  |
 

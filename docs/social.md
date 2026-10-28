@@ -103,7 +103,7 @@ Social works on its own. Other packages read its lists when they're installed: *
 | `standings-social` | standings | With `SOCIAL COLOURS STANDINGS`, names take their standing band's colour everywhere (game text, Online, and Here and Comms). Groups are ignored in this mode: people not on your books stay plain. |
 | `ledger-online` | ledger | A quill ✎ in Online on people your open ledger items name (as a capitalised word), with the count when there are several: red when one is overdue, amber when one is due within 5 days. The items on hover. |
 | `ledger-login` | ledger | Those items after the login notice: "Ana has awoken. · ledger: #1 Return the book (in 1d)", three at most, then "+N more". |
-| `room-social` | room | A green leaf on people last seen with a newbie title (Uaithne, Ithin, Tuqad). |
+| `room-social` | room | A green leaf on people last seen with a newbie title (`ROOM NOVICE`; Uaithne, Ithin, Tuqad by default). |
 
 Social also feeds others:
 

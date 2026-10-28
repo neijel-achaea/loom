@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.1.3", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.1.4", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -112,10 +112,27 @@ try {
 // see no titles (Online, Comms) the names are remembered (room_newbies,
 // name -> when last seen with the title) and forgotten once the player is
 // seen without it. Helpers rebuilt on every run, the list kept.
-R.newbieTitles = ["Uaithne", "Ithin", "Tuqad"];
+// The titles are the player's (#389, ROOM NOVICE): Eleusis's three by
+// default, saved as room_novice_titles (JSON list) only when changed.
+R.newbieDefault = ["Uaithne", "Ithin", "Tuqad"];
+R.newbieTitles = R.newbieDefault.slice(0);
+try {
+  var rmNt = JSON.parse(get_variable("room_novice_titles") || "null");
+  if (Array.isArray(rmNt)) R.newbieTitles = rmNt.filter(function (t) { return typeof t == "string" && /^[A-Za-z']+$/.test(t); });
+} catch (e) {}
+R.saveNovice = function () {
+  var same = R.newbieTitles.length === R.newbieDefault.length && R.newbieTitles.every(function (t, i) { return t === R.newbieDefault[i]; });
+  try { if (same) delete_variable("room_novice_titles"); else set_variable("room_novice_titles", JSON.stringify(R.newbieTitles)); } catch (e) {}
+  // Names remembered under a title no longer listed are forgotten.
+  var lc = R.newbieTitles.map(function (t) { return t.toLowerCase(); });
+  for (var k in R.newbies) { if (R.newbies.hasOwnProperty(k) && lc.indexOf(String(R.newbies[k].title).toLowerCase()) < 0) delete R.newbies[k]; }
+  R.saveNewbies();
+  if (client.loom.notify) client.loom.notify("room");
+};
 R.newbieTitle = function (name, full) {
   var words = String(full || "").split(/[^A-Za-z']+/);
-  for (var i = 0; i < words.length; i++) { if (words[i] !== name && R.newbieTitles.indexOf(words[i]) >= 0) return words[i]; }
+  var lc = R.newbieTitles.map(function (t) { return t.toLowerCase(); });
+  for (var i = 0; i < words.length; i++) { if (words[i] && words[i] !== name && lc.indexOf(words[i].toLowerCase()) >= 0) return words[i]; }
   return "";
 };
 if (!R.newbies) {
