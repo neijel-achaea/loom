@@ -23,6 +23,33 @@ if (rmSub === "" || rmSub === "status") {
   } else {
     rmSay("the description starts " + (R.descOpen ? "open" : "folded") + ". ROOM DESC OPEN or FOLDED to change it; clicking it flips it too.");
   }
+} else if (rmSub === "novice") {
+  // ROOM NOVICE (#389): the titles that get the green leaf.
+  var rmNv = rmW[1] || "", rmNw = String(args[1] || "").trim().split(/\s+/).slice(2);
+  var rmTl = function () { return R.newbieTitles.length ? R.newbieTitles.join(", ") : "none"; };
+  if (rmNv === "") {
+    rmSay("titles that get the green leaf: " + rmTl() + ". ROOM NOVICE ADD|REMOVE <title>, or RESET for " + R.newbieDefault.join(", ") + ".");
+  } else if (rmNv === "add" || rmNv === "remove") {
+    if (rmNw.length !== 1 || !/^[A-Za-z']+$/.test(rmNw[0])) rmSay("one word, the title as the game shows it: ROOM NOVICE " + rmNv.toUpperCase() + " Ithin.", "orange");
+    else {
+      var rmT = rmNw[0].charAt(0).toUpperCase() + rmNw[0].slice(1);
+      var rmAt = -1;
+      for (var rmTi = 0; rmTi < R.newbieTitles.length; rmTi++) if (R.newbieTitles[rmTi].toLowerCase() === rmT.toLowerCase()) rmAt = rmTi;
+      if (rmNv === "add" && rmAt >= 0) rmSay(rmT + " is already listed: " + rmTl() + ".");
+      else if (rmNv === "remove" && rmAt < 0) rmSay(rmT + " isn't listed: " + rmTl() + ".", "orange");
+      else {
+        if (rmNv === "add") R.newbieTitles.push(rmT); else R.newbieTitles.splice(rmAt, 1);
+        R.saveNovice();
+        rmSay((rmNv === "add" ? "added " : "removed ") + rmT + ". Titles: " + rmTl() + ".", "lime");
+      }
+    }
+  } else if (rmNv === "reset") {
+    R.newbieTitles = R.newbieDefault.slice(0);
+    R.saveNovice();
+    rmSay("titles back to " + rmTl() + ".", "lime");
+  } else {
+    rmSay("ROOM NOVICE, ROOM NOVICE ADD|REMOVE <title>, ROOM NOVICE RESET.", "orange");
+  }
 } else if (rmSub === "probe") {
   var rmPv = rmW[1] || "";
   if (rmPv === "debug") {

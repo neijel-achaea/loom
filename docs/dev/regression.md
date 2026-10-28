@@ -136,7 +136,7 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 - [ ] **Nothing lost to a probe:** walk quickly, and follow someone, through rooms where new mobs appear: nothing is probed in rooms you pass through, every room's title and description show, and no probe answer ("What do you wish to examine?") shows; in a room where mobs attack on arrival, nothing is probed while you're being hit; someone saying something or sending a tell while you move: shown. `ROOM PROBE DEBUG` after a probe lists only the mob's own lines.
 - [ ] Targeting (click, `ST`, an alias, `tar`): the right mob glows with its health, at once; after it dies the glow moves to the next row. Target a player: red glow; `ST RAT` afterwards moves it to a rat.
 - [ ] A small room fills the whole tab.
-- [ ] Newbies (Uaithne, Ithin, Tuqad): green leaf, title on hover. `CWHO` teaches the list.
+- [ ] Newbies (Uaithne, Ithin, Tuqad): green leaf, title on hover. `CWHO` teaches the list. `ROOM NOVICE ADD <another city's title>`: its players get the leaf; `REMOVE Ithin`: Ithin leaves go (Here, Online, Comms); `ROOM NOVICE RESET` and a reload: the three again.
 - [ ] **Social:** names coloured in every line, your own in yellow. `SOCIAL ADD friends <someone in the room>`: colour changes at once. `SOCIAL LIST`, `DEL`.
 - [ ] Watched people logging in and out: "has awoken" / "has drifted into slumber". No `QW` output in the main window, even lagged, and no "(N total)." line when nobody is hidden.
 - [ ] `SOCIAL POLL EVERY 15`: Online's "last poll" moves every 15 s, kept after a reimport; `EVERY 2` refused; `EVERY 5` back to the default.
