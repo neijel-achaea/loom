@@ -686,7 +686,11 @@ B.tick = function () {
   if (B.sentAt) {
     B.misses++;
     if (B.misses >= B.maxMisses) {
-      B.stop("[basher] OFF: " + B.misses + " attacks took no balance or equilibrium. Check your target and HUNTING MAIN, then BASHER ON.", "orange");
+      // The run ends, the basher stays primed (#428, Ricardo): your next
+      // attack starts a new run.
+      var nM = B.misses;
+      B.run = false; B.sentAt = 0; B.misses = 0; B.why = ""; B.lastFight = null; B.autoTop = ""; B.draw();
+      display_notice("[basher] " + nM + " attacks took no balance or equilibrium: run over, still primed. Check your target and HUNTING MAIN, then attack to start again.", "orange");
       return;
     }
   }

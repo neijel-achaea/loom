@@ -60,7 +60,7 @@ When the room runs out of targets the run ends and the basher stays primed: "run
 
 <img src="img/fkeys.png" alt="The F-key bar during a run: F1 has become the STOP key.">
 
-The basher also switches itself off after 3 attacks in a row that took no balance: something is wrong (no target, a wrong command), and it won't keep sending blindly. It sends nothing at all while `pauseTriggers` is on (`LOOM PAUSE ON`).
+The basher also ends the run after 3 attacks in a row that took no balance: something is wrong (no target, a wrong command), and it won't keep sending blindly. It stays primed, so your next attack starts a new run. It sends nothing at all while `pauseTriggers` is on (`LOOM PAUSE ON`).
 
 ### The main attack
 
@@ -138,7 +138,7 @@ Each link is on as soon as both packages are installed; `LOOM LINKS` lists them,
 ## Troubleshooting
 
 - **`BASHER ON` but nothing happens.** It waits for your own first attack. `BASHER` says why it isn't attacking.
-- **It switched itself off.** Three attacks took no balance in a row: check your target is a mob here and `HUNTING MAIN` is the right attack.
+- **It stopped attacking with "attacks took no balance or equilibrium".** Three attacks took no balance in a row, so the run ended (still primed): check your target is a mob here and `HUNTING MAIN` is the right attack, then attack again.
 - **It never razes.** Check `BASHER RAZE`, your rage, and whether your class has a shieldbreak key (see above).
 - **It stopped after someone arrived.** That's the design: it finishes the fight in progress and waits primed. Attack again to carry on. If you'd rather it kept going (a busy hunting ground, a long tell conversation), `BASHER INTERRUPT OFF`; `BASHER` reminds you while it's off.
 - **A mob type isn't targeted.** New types join ignored; switch them ACTIVE in the Basher tab.

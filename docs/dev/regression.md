@@ -103,7 +103,7 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 - [ ] Target a player by name: nothing sent.
 - [ ] `BASHER STOP` mid-fight: stops at once.
 - [ ] **F1:** primed, F1 is unchanged; once a run starts, F1 is a lit STOP key. Pressing it ends the run, the basher stays primed and F1 is the main attack again; the next attack starts a new run. A run that ends by itself (room cleared, wimpy): F1 back too.
-- [ ] Three attacks that took no balance: it switches itself off.
+- [ ] Three attacks that took no balance: the run ends with an orange notice, still primed (`BASHER` says PRIMED); your next attack starts a new run.
 - [ ] Venom confusion: one `DIAGNOSE` on the next recovery.
 - [ ] **Rage:** `BASHER RAGE` shows the order (Blue Dragon: Ague > Override > Dragonchill > Frostwave, keeping Override); during a run abilities go out on their own, one per global cooldown, without delaying the main attack. `BASHER RAGE OFF` stops it; the keys still light.
 - [ ] **Shields:** a shield holds attacks; with the rage, the shieldbreak goes out at once ("shield razed") and attacks resume; without it, the notice says what's missing. No double raze. *Dragon:* Blast on recovery while dragonbreath is up; without breath, "no dragonbreath" and it waits.
