@@ -48,6 +48,8 @@ else if (huSub === "pk") {
       var huB = client.loom.basher;
       if (huOn && huB && huB.on && huB.stop) huB.stop("[basher] OFF: PK MODE.", "orange");
       run_function("hunting_buttons", [], "hunting");
+      // Every tab in the PK colours while it lasts (loom's theme).
+      if (client.loom.loom && client.loom.loom.themeSetPk) client.loom.loom.themeSetPk(huOn);
       if (huOn) display_notice("[hunting] PK MODE ON: " + (huPkN ? huPkN + " PK key" + (huPkN === 1 ? "" : "s") + " for " + (huCls || "this class") + ", the rest as in hunting" : "no PK keys set for " + (huCls || "this class") + " yet (HUNTING PK SET F<n> <label> <command>)") + ". Ctrl+F12 or HUNTING PK to switch back.", "lime");
       else display_notice("[hunting] PK MODE OFF: hunting keys back.", "lime");
     }

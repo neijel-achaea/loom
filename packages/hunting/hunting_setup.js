@@ -38,6 +38,7 @@ if (!HU.mainsAdded) {
 // hunting layout. Keys you didn't set keep their hunting key. Ctrl+F12 (the
 // package's keybind) and HUNTING PK switch. PK keys are never lit.
 HU.pk = false;
+if (client.loom.loom && client.loom.loom.themeSetPk) client.loom.loom.themeSetPk(false);
 HU.pkKeys = {};
 try { HU.pkKeys = JSON.parse(get_variable("hunting_pk") || "{}") || {}; } catch (e) { HU.pkKeys = {}; }
 if (typeof HU.pkKeys != "object" || Array.isArray(HU.pkKeys)) HU.pkKeys = {};

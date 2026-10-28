@@ -32,6 +32,20 @@ L.themes = {
   targossas: { label: "Targossas, golds",      acc: "#ecd27e", deep: "#7c6830", hi: "#fbf4dc", txt: "#ebe5d2", muted: "#918a74", dim: "#6b6553", rule: "#2e2919", track: "#221e12", bg: "#13110a", panel: "#1d1a10", edge: "#3b3420", sel: "#2b2612" }
 };
 
+// PK MODE's theme (Ricardo, 2026-10-28): while hunting's PK MODE is on,
+// every tab takes this palette whatever LOOM THEME says, so it's plain you
+// are set for PvP. Hot magenta: no city's hue, and no colour that means
+// something (the target's red glow, warnings, good/bad) is near it. Not a
+// LOOM THEME choice. L.themePk follows hunting's HU.pk (off at every load).
+L.themePkPalette = { label: "PK MODE, hot magenta", acc: "#ff4fa3", deep: "#8a2457", hi: "#ffeef7", txt: "#f1e1ea", muted: "#9a8590", dim: "#71606a", rule: "#3a1d2c", track: "#2a1420", bg: "#160a10", panel: "#22101a", edge: "#4d2338", sel: "#381427" };
+L.themePk = !!(client.loom.hunting && client.loom.hunting.pk);
+L.themeSetPk = function (on) {
+  on = !!on;
+  if (on === L.themePk) return false;
+  L.themePk = on;
+  return L.themeApply();
+};
+
 // The saved choice: "auto", "off" or a city.
 L.themeChoice = function () {
   var c = String(get_variable("loom_theme") || "auto").toLowerCase();
@@ -40,6 +54,7 @@ L.themeChoice = function () {
 
 // The city whose theme is in use, or "" for none.
 L.themeName = function () {
+  if (L.themePk) return "pk";
   var c = L.themeChoice();
   if (c === "off") return "";
   if (c === "auto") c = String(get_variable("loom_city") || "").toLowerCase();
@@ -50,9 +65,10 @@ L.themeName = function () {
 L.themeApply = function () {
   var n = L.themeName();
   var t = null;
-  if (n) {
+  var pal = n === "pk" ? L.themePkPalette : L.themes[n];
+  if (n && pal) {
     t = {};
-    for (var k in L.themes[n]) if (k !== "label") t[k] = L.themes[n][k];
+    for (var k in pal) if (k !== "label") t[k] = pal[k];
   }
   client.loom.theme = t;
   if (n === (L.themeNow || "")) return false;

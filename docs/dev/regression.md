@@ -57,7 +57,7 @@ And for the suite:
 - [ ] *Dragon:* use a rage ability, shift form, shift back: the rage keys light again (the shared cooldown never stays stuck), and the basher fires rage.
 - [ ] Toggles (Sneak, Weave, Block): the key reads ON/OFF without lighting; typed by hand, the key follows; reload: OFF.
 - [ ] `HUNTING HIGHLIGHT OFF`: every key goes dark at once and stays dark (rage, F1, the basher's STOP); the basher still fires rage. `ON`: keys light again. Survives a reload.
-- [ ] PK MODE: `HUNTING PK SET F3 Test say pk test`; Ctrl+F12: F3 reads Test (unlit), the other keys unchanged, the basher switches OFF and `BASHER ON` is refused; Ctrl+F12 again: hunting keys back. Reload: PK MODE off, the PK key kept (`HUNTING PK LIST`).
+- [ ] PK MODE: `HUNTING PK SET F3 Test say pk test`; Ctrl+F12: F3 reads Test (unlit), the other keys unchanged, the basher switches OFF and `BASHER ON` is refused; every tab turns magenta (LOOM THEME says so); Ctrl+F12 again: hunting keys and your theme back. Reload: PK MODE off, the PK key kept (`HUNTING PK LIST`).
 - [ ] F8–F12 need Button Count 12; the install notice and `HUNTING HELP` say so.
 - [ ] *Command separator* (#410): set Nexus's separator to `;`, `HUNTING BUTTONS`: as Druid, Maul sends wreathe then maul (two commands); the basher's run does the same; a key of your own written `a;b` works by hand and in the basher. Back to `|`: the same.
 

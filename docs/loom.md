@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.0.2.*
+*This page describes loom 1.0.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -103,6 +103,7 @@ Every custom tab can take one city's colours, so the tabs read as one family. By
 | Targossas | golds |
 
 - `LOOM THEME <city>` uses that city's colours whatever your city is.
+- While hunting's [PK MODE](hunting.md#pk-mode) is on, every tab turns **hot magenta**, whatever the theme (even OFF), so it's plain you're set for PvP; your theme comes back when PK MODE ends. Colours that mean something stay as they are.
 - `LOOM THEME AUTO` goes back to following your city.
 - `LOOM THEME OFF` gives each tab its own colours, as before themes existed.
 
