@@ -152,13 +152,14 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 - [ ] `COMMS CLEAR` asks; `COMMS CLEAR <channel> CONFIRM` clears that channel only.
 - [ ] **Standings:** a nudge and `UNDO`; `STANDINGS <name>` shows history, tags, social chips; `SET`; `TAG` and `@tag`; `REVIEW`, `OK`, `SKIP`.
 - [ ] **Vision:** a city member in alertness range: line hidden (`VISION HIDE OFF` shows it); an enemy: line coloured, party alert on the set channel.
-- [ ] **PartyComms** *(party)*: `PARTYCOMMS TEST` shows two chips with levels, `CLEAR` removes them; `PARTYCOMMS` says "as Name (Class level)" (after a `SCORE` or a relog); in a party, chips for each member with class, level, bars, rage and target (green when shared); no reports or IH lines in the main window; leaving the party switches sharing off with a notice.
+- [ ] **PartyComms** *(party)*: `PARTYCOMMS TEST` shows two chips with levels, `CLEAR` removes them; `PARTYCOMMS` says "as Name (Class level)" (after a `SCORE` or a relog); in a party, chips for each member with class, level, bars, rage and target (green when shared); no reports or IH lines in the main window; leaving the party switches sharing off with a notice. Reload with members showing: the tab is empty until their next reports, and Here shows no party targets meanwhile.
 
 ## 7. Hunting records
 
 - [ ] **Huntstats:** hunt a few minutes: `HUNTSTATS` shows the area, rates, kills, next level, Dragonhood (not on a dragon). The Stats tab's top shows the hunt under way, updating after each kill.
 - [ ] Refresh mid-hunt: "resumed hunt in …". Leave the area: filed with a notice; in `HUNTSTATS LOG`, `AREAS` and the tab.
 - [ ] A visit under a minute: nothing filed.
+- [ ] `HUNTSTATS PARTY ADD Ana Bor`, then reload: `HUNTSTATS PARTY` says no party.
 - [ ] `HUNTSTATS SUGGEST`: ten areas; one just hunted says "last today". `SUGGEST WEIGHTS 50 50 0` reorders and survives a reload.
 - [ ] *(party)* `PARTY ADD`; people walking through aren't listed; `SPLIT` mid-hunt and at the end; a bystander picking up gold changes nothing; `SPLIT REPORT` reaches party tell; `SPLIT TELL ON` sends it at the end.
 - [ ] **DmgChart:** a fight fills both donuts and the rates; crits in the right tier rows (a party member's not counted); bleeding is its own slice and doesn't keep the fight going; a new denizen starts a new fight.

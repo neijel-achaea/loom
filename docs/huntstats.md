@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 1.0.0.*
+*This page describes huntstats 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -39,7 +39,7 @@ Your area and level come from the game (GMCP); experience, gold and kills from t
 | `HUNTSTATS SUGGEST WEIGHTS <x> <g> <v>` | how much xp, gold and variety count (default 70 25 5) |
 | `HUNTSTATS FLUSH` | file the hunt under way now |
 | `HUNTSTATS PARTY` | who you're hunting with |
-| `HUNTSTATS PARTY ADD <names>` | add people to the party (kept until removed) |
+| `HUNTSTATS PARTY ADD <names>` | add people to the party (kept until removed, or the next load) |
 | `HUNTSTATS PARTY DEL <names>` | remove people from the party |
 | `HUNTSTATS PARTY CLEAR` | back to hunting alone |
 | `HUNTSTATS SPLIT` | the party's gold so far and the transfers that even it out |
@@ -86,7 +86,7 @@ With **dmgchart** installed, each hunt also records the damage you took per seco
 
 ### Hunting with a party
 
-Huntstats doesn't guess who you hunt with: you tell it. `HUNTSTATS PARTY ADD Ana Bor` adds people; the party stays until you remove them (`PARTY DEL`) or `PARTY CLEAR`, across hunts and reloads. Each hunt starts with the party as it stands, and anyone added during a hunt joins it.
+Huntstats doesn't guess who you hunt with: you tell it. `HUNTSTATS PARTY ADD Ana Bor` adds people; the party stays until you remove them (`PARTY DEL`) or `PARTY CLEAR`, across hunts, and starts empty again at every load (a page reload or a reimport). Each hunt starts with the party as it stands, and anyone added during a hunt joins it.
 
 **The gold split.** During a party hunt, Huntstats follows the gold in each person's hands: picked up, dropped, given to someone in the party. Gold leaving to someone outside the party leaves the pot, and someone who put in their own gold is paid back. `HUNTSTATS SPLIT` shows each person's share so far and the fewest transfers that even it out (largest debtor pays largest creditor first). When the hunt is filed, the split is shown again. `HUNTSTATS SPLIT REPORT` sends it to party tell, one line per person, and `HUNTSTATS SPLIT TELL ON` sends it there on its own when a party hunt ends.
 

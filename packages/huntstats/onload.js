@@ -11,6 +11,10 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
     document.head.appendChild(tiSt);
   }
 }
+// The party starts empty at every load (#421, Ricardo): HUNTSTATS PARTY ADD
+// again for a new session's party.
+try { delete_variable("huntstats_party"); } catch (e) {}
+if (client.loom && client.loom.huntstats) client.loom.huntstats.party = [];
 run_function("huntstats_setup", [], "huntstats");
 run_function("huntstats_render", [], "huntstats");
 // The two-line scripts' work (#136): made afresh, so a reimport replaces it.

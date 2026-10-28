@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "1.0.0", keyword: "HUNTSTATS", desc: "{{description}}",
+client.loom.registry.huntstats = { version: "1.0.1", keyword: "HUNTSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("huntstats_render", [], "huntstats"); } };
 var HS = client.loom.huntstats;
@@ -93,7 +93,8 @@ HS.xpToDragon = function () {
 };
 HS.dur = function (ms) { var m = Math.floor(ms / 60000); return Math.floor(m / 60) + "h " + (m % 60) + "m"; };
 // The party (#87): names added by hand with HUNTSTATS PARTY ADD, kept until
-// removed or cleared, across hunts and reloads (saved as huntstats_party).
+// removed or cleared, across hunts (saved as huntstats_party); emptied at
+// every load (#421: onLoad/onInstall delete it before this runs).
 // Each hunt starts with the party as it stands, and names added during a
 // hunt join it; the hunt's players are what the log and the tab show.
 if (!HS.party) {

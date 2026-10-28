@@ -12,7 +12,7 @@ var hlRows = [
   ["HUNTSTATS SUGGEST WEIGHTS <x> <g> <v>", "how much xp, gold and variety count (default 70 25 5)"],
   ["HUNTSTATS FLUSH", "file the hunt under way now"],
   ["HUNTSTATS PARTY", "who you're hunting with"],
-  ["HUNTSTATS PARTY ADD <names>", "add people to the party (kept until removed)"],
+  ["HUNTSTATS PARTY ADD <names>", "add people to the party (kept until removed, or the next load)"],
   ["HUNTSTATS PARTY DEL <names>", "remove people from the party"],
   ["HUNTSTATS PARTY CLEAR", "back to hunting alone"],
   ["HUNTSTATS SPLIT", "the party's gold so far and the transfers that even it out"],

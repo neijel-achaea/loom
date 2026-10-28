@@ -3,7 +3,7 @@
 *Shares your vitals, rage and target with your party, and shows everyone's in the Party tab.*
 
 <!-- loom:version partycomms -->
-*This page describes partycomms 1.0.0.*
+*This page describes partycomms 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -17,7 +17,7 @@ When everyone in a party runs PartyComms, each of you can see how the others are
 - rage,
 - their target, in green when it's the same as yours.
 
-A member who hasn't reported for 12 seconds fades (a lost connection, or they left); after two minutes they're dropped.
+A member who hasn't reported for 12 seconds fades (a lost connection, or they left); after two minutes they're dropped. After a page reload or a reimport the tab starts empty, and members come back as their next reports arrive.
 
 Your vitals, rage, class and target come from the game (GMCP). When the game doesn't say what your target is, PartyComms looks it up quietly with `IH` and hides the reply.
 
