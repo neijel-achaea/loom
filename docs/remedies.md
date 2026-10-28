@@ -54,6 +54,7 @@ Remedies reads nothing from other packages yet. A reminder when a remedy runs lo
 
 ## Troubleshooting
 
+- **"Loom is paused"**: something (you, `LOOM PAUSE ON`, or a package waiting on the game) paused Loom; `LOOM PAUSE OFF` and try again. A run that gets paused says so and waits.
 - **"set your pot first"** or **"is not a pot"**: `REMEDIES POT <pot>` with the id your inventory shows.
 - **"the rift took only N of M sips"**: your rift is full of that remedy. The rest is still in the pot; use it or empty the pot before the next run. `REMEDIES CAPS` lists the limits learnt; `REMEDIES CAPS CLEAR` forgets them (if your rift has grown).
 - **"no answer to BREW after 8 s: stopped."**: the game said something Remedies doesn't know. Paste the line in a [bug report](https://github.com/neijel-achaea/loom/issues/new/choose).

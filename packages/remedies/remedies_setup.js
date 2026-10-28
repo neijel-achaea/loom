@@ -103,6 +103,7 @@ RM.othersBusy = function () {
 // sentAt, readQ ["elixir","salve"] }.
 RM.start = function (dry) {
   if (RM.run) { RM.say("a run is already under way. REMEDIES STOP ends it.", "orange"); return; }
+  if (RM.paused()) { RM.say("Loom is paused, so nothing would be sent. LOOM PAUSE OFF, then try again.", "orange"); return; }
   if (!dry && !RM.pot) { RM.say("set your pot first: REMEDIES POT <pot>, e.g. REMEDIES POT pot123456.", "orange"); return; }
   RM.run = { dry: !!dry, readQ: ["elixir", "salve"], plan: null, i: 0, left: 0, out: "", brewed: 0, done: [], skipped: [], full: [], sentAt: 0, potRetry: false };
   RM.say(dry ? "reading your rift to see what's short…" : "reading your rift, then brewing in " + RM.pot + "… REMEDIES STOP ends it.", "lime");
@@ -131,7 +132,10 @@ RM.summary = function (r) {
 RM.pump = function () {
   var r = RM.run;
   if (!r || r.out) return;
-  if (RM.paused() || !RM.bal || !RM.eq || RM.othersBusy()) return;
+  // Paused mid-run: say so once, and carry on when it's lifted.
+  if (RM.paused()) { if (!r.toldPause) { r.toldPause = true; RM.say("Loom is paused: the run waits. LOOM PAUSE OFF to carry on, REMEDIES STOP to end it.", "orange"); } return; }
+  r.toldPause = false;
+  if (!RM.bal || !RM.eq || RM.othersBusy()) return;
   if (r.readQ.length) {
     var kind = r.readQ.shift();
     RM.reading = { kind: kind, rule: 0, own: true };
