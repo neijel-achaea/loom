@@ -99,7 +99,7 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 
 - [ ] `BASHER`: OFF, with your class's main attack. `BASHER ON`: primed, the curing reminder once, nothing sent until you attack.
 - [ ] Your first attack starts the run (lime). One attack per recovery, no double sends.
-- [ ] Several mobs of the same name (no kill order in the area): it carries on until none is left, then "run over, still primed". Attack in the next room: starts again.
+- [ ] Several mobs of the same name (no ACTIVE mobs in the area's list), also with a word target (`tar rat`): it kills the one you attacked, then "run over, still primed"; attack again: the next one. Attack in the next room: starts again.
 - [ ] Target a player by name: nothing sent.
 - [ ] `BASHER STOP` mid-fight: stops at once.
 - [ ] **F1:** primed, F1 is unchanged; once a run starts, F1 is a lit STOP key. Pressing it ends the run, the basher stays primed and F1 is the main attack again; the next attack starts a new run. A run that ends by itself (room cleared, wimpy): F1 back too.

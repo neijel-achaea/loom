@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "1.0.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "1.0.2", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -296,26 +296,22 @@ B.resolve = function () {
   var useGame = !!(g && (g.id || g.name) && (!tv || (g.at || 0) >= (B.tarAt || 0)));
   var tar = useGame ? String(g.id || g.name) : tv;
   if (!tar) return { tar: "", why: "no target" };
+  // The mob this run is on, once it's dead or gone (#399, Ricardo): that
+  // fight is over. With a kill order here, target() takes the next one from
+  // it; without one the run ends and the basher waits primed (a word target
+  // like "rat" never carries on to the next rat).
+  if (B.run && B.runId && B.roomKnown && !(B.room[B.runId] && mob(B.room[B.runId]))) return { tar: tar, why: "fight over, no kill order in this area" };
   if (B.players[tar.toLowerCase()]) return { tar: tar, why: tar + " is a player here: not attacking" };
   if (!B.roomKnown) return { tar: tar, id: /^\d+$/.test(tar) ? tar : "", why: "" };
   if (/^\d+$/.test(tar)) {
     var it = B.room[tar];
-    if (it && mob(it)) { if (B.run) B.runName = it.name; return { tar: tar, id: tar, name: it.name, why: "" }; }
-    // That one is dead or gone: during a run, the next living mob with the
-    // same name (Ricardo: it goes on until the room runs out of targets).
-    if (B.run && B.runName) {
-      for (var nx = 0; nx < B.order.length; nx++) {
-        var nit = B.room[B.order[nx]];
-        if (nit && mob(nit) && nit.name === B.runName) return { tar: B.order[nx], id: B.order[nx], name: B.runName, why: "" };
-      }
-      return { tar: tar, why: "no more " + B.runName.replace(/^(a|an|the|some)\s+/i, "") + " here" };
-    }
+    if (it && mob(it)) { if (B.run) B.runId = tar; return { tar: tar, id: tar, name: it.name, why: "" }; }
     return { tar: tar, why: "target " + tar + " isn't here" };
   }
   var re = new RegExp("\\b" + tar.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b");
   for (var oi = 0; oi < B.order.length; oi++) {
     var oit = B.room[B.order[oi]];
-    if (oit && mob(oit) && re.test(String(oit.name).toLowerCase())) return { tar: tar, id: B.order[oi], name: oit.name, why: "" };
+    if (oit && mob(oit) && re.test(String(oit.name).toLowerCase())) { if (B.run) B.runId = B.order[oi]; return { tar: tar, id: B.order[oi], name: oit.name, why: "" }; }
   }
   return { tar: tar, why: "no " + tar + " here" };
 };
@@ -323,8 +319,9 @@ B.resolve = function () {
 // The target, with priorities (#123): your target while it's a living mob
 // here; in a run, once it's gone (dead, left, or the game cleared the target
 // after the kill), the next one: by the area's list when it has active mobs
-// (the basher sets your target to it), else the next mob with the same name
-// (0.1's carry-on). A finished last fight (#122) never chains.
+// (the basher sets your target to it); without active mobs the run ends
+// after the fight it started with (#399). A finished last fight (#122) never
+// chains.
 B.target = function () {
   var r = B.resolve();
   if (!r.why || !B.run || B.lastFight || !B.roomKnown) return r;
@@ -332,16 +329,10 @@ B.target = function () {
     var q = B.queue();
     if (q.length) {
       if (B.autoTop !== q[0].id || String((B.game || {}).id) !== q[0].id) B.setTarget(q[0].id);
+      B.runId = q[0].id;
       return { tar: q[0].id, id: q[0].id, name: q[0].name, why: "" };
     }
     return { tar: r.tar, why: "no more listed mobs here" };
-  }
-  if (B.runName) {
-    for (var i = 0; i < B.order.length; i++) {
-      var it = B.room[B.order[i]];
-      if (it && /m/.test(it.attrib || "") && !/d/.test(it.attrib || "") && it.name === B.runName) return { tar: B.order[i], id: B.order[i], name: it.name, why: "" };
-    }
-    return { tar: r.tar, why: "no more " + B.runName.replace(/^(a|an|the|some)\s+/i, "") + " here" };
   }
   return r;
 };
@@ -834,7 +825,7 @@ B.end = function (why) {
 B.begin = function () {
   if (!B.on || B.run) return;
   B.run = true;
-  B.runName = "";
+  B.runId = "";
   B.lastFight = null;
   B.draw();
   B.sentAt = 0; B.misses = 0;

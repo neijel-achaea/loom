@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.0.1.*
+*This page describes basher 1.0.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -47,7 +47,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 | **Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system.** | |
 | **A shielded target is razed with your class's shieldbreak when you have the rage (BASHER RAZE); dragons Blast it on recovery while their dragonbreath is up; otherwise attacks wait for the shield to fade.** | |
 | **While on, "You are confused as to the effects of the venom." sends DIAGNOSE on the next recovery, once per confusion.** | |
-| **It attacks only a living mob in the room (never a player), keeps going while the room has more of your target (one attack per recovery), ends the run when it has none (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed.** | |
+| **It attacks only a living mob in the room (never a player), one attack per recovery; with ACTIVE mobs in the area's kill order (Basher tab) it goes on down it while the room has some, without them it finishes the fight it started with; then the run ends (still primed), and sends nothing while pauseTriggers is on. It always loads OFF. Its only move is wimpy's one step back the way you came; then the run is over and it stays primed.** | |
 <!-- /loom:commands -->
 
 ### Starting and stopping
@@ -106,7 +106,7 @@ The **Basher** tab lists the mob types of the area you're in, in kill order.
 - While primed, the basher keeps your target on the top active mob in the room, using the game's own `settarget`, but only when that changes (a mob arrives, dies or leaves, or you edit the list). A target you pick yourself stays until then. It never attacks on its own.
 - In a run, after each kill it takes the next one: active types by the list's order, then the room's order. When none are left, the run ends.
 
-An area with no active types works without the list: the basher follows your own target, and after a kill carries on with the next mob of the same name.
+An area with no active types works without the list: the basher follows your own target, finishes that fight, and ends the run (still primed); attack again for the next one, even another mob of the same name.
 
 Named NPCs are best left ignored.
 
