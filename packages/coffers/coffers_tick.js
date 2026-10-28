@@ -99,6 +99,8 @@ if (g !== undefined && b !== undefined) {
       display_notice("[coffers] " + F.n(-d) + " gold just left the purse. Session " + F.s(S.inn - S.out) + ".", "orange");
     }
   }
+  // A big spend proposes earning it back; recovering withdraws it (#234).
+  if (CO.recoupCheck) CO.recoupCheck(W, d);
 
   if (!R.peak || W > R.peak.w) { R.peak = { w: W, t: now }; }
   // The ratchet stores the threshold reached, not the table index, so the

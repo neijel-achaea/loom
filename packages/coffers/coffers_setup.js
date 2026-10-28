@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "1.0.1", keyword: "COFFERS", desc: "{{description}}",
+client.loom.registry.coffers = { version: "1.1.0", keyword: "COFFERS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("coffers_render", [], "coffers"); } };
 var CO = client.loom.coffers;
@@ -208,6 +208,38 @@ CO.entry = {
     if (n || dropped) CO.saveProposals();
     if (n) run_function("coffers_render", [], "coffers");
     return n;
+  }
+};
+
+// Recoup (#234, Ricardo): one loss of at least CO.recoup gold (coffers_recoup,
+// default 20,000, 0 = OFF) proposes a goal to earn it back, through coffers'
+// own proposals (source "coffers", key "recoup"). CO.recoupBase is the
+// fortune before the first such spend (coffers_recoup_base); a later big
+// spend adds to the same proposal (the whole gap to that fortune). Withdrawn
+// once the fortune is back to the base; the base is let go once the
+// proposal is accepted or wiped (neither pending nor dismissed).
+if (CO.recoup === undefined) { CO.recoup = gcNum("coffers_recoup", 20000, 0, 2000000000); }
+if (CO.recoupBase === undefined) { CO.recoupBase = gcNum("coffers_recoup_base", 0, 0, 2000000000000); }
+CO.recoupSave = function () { try { if (CO.recoupBase > 0) set_variable("coffers_recoup_base", String(CO.recoupBase)); else delete_variable("coffers_recoup_base"); } catch (e) {} };
+CO.recoupPending = function () {
+  for (var i = 0; i < CO.proposals.length; i++) if (CO.proposals[i].src === "coffers" && CO.proposals[i].key === "recoup") return true;
+  return !!CO.dismissed["coffers|recoup"];
+};
+CO.recoupClear = function () {
+  CO.entry.withdraw("coffers", "recoup");
+  if (CO.recoupBase > 0) { CO.recoupBase = 0; CO.recoupSave(); }
+};
+// Called by coffers_tick with the fortune now and the change since the last reading.
+CO.recoupCheck = function (W, d) {
+  if (!(CO.recoup > 0)) { if (CO.recoupBase > 0 || CO.recoupPending()) CO.recoupClear(); return; }
+  if (CO.recoupBase > 0) {
+    if (W >= CO.recoupBase) { CO.recoupClear(); return; }
+    if (!CO.recoupPending() && !(d < 0 && -d >= CO.recoup)) { CO.recoupBase = 0; CO.recoupSave(); }
+  }
+  if (d < 0 && -d >= CO.recoup) {
+    if (!(CO.recoupBase > 0)) { CO.recoupBase = W - d; CO.recoupSave(); }
+    var gap = CO.recoupBase - W;
+    CO.entry.propose({ source: "coffers", key: "recoup", amount: gap, why: "earn back the " + CO.f.n(gap) + " gold you spent" });
   }
 };
 

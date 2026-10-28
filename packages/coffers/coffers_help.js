@@ -13,6 +13,7 @@ var hlRows = [
   ["COFFERS ACCEPT [n]", "add a proposed goal to yours, or make it your goal (the first by default)"],
   ["COFFERS DISMISS [n]", "drop it; it stays away until its reason clears"],
   ["COFFERS BIGCOIN <amount|OFF>", "announce single gains or losses this large"],
+  ["COFFERS RECOUP <amount|OFF>", "a single spend this large proposes a goal to earn it back (default 20,000)"],
   ["COFFERS GRAPH [SESSION|LONG] [ON|OFF]", "show or hide the graphs"],
   ["COFFERS SIZE <40-400>", "graph height (default 105)"],
   ["COFFERS SPAN SESSION <15-720>", "minutes the session graph covers"],

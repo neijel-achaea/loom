@@ -205,6 +205,17 @@ else if (c === "bigcoin") {
   else if (bv < 0) { say("could not read '" + p1 + "' as an amount.", "orange"); }
   else { CO.big = bv; save("coffers_bigcoin", String(bv)); say(bv > 0 ? "announcing single changes of " + F.n(bv) + "+ gold." : "big-coin announcements off.", "lime"); }
 }
+else if (c === "recoup") {
+  // COFFERS RECOUP <amount|OFF> (#234): a single spend this large proposes a goal to earn it back.
+  var rv = p1 === "off" ? 0 : amt(p1);
+  if (p1 === "") { say(CO.recoup > 0 ? "a single spend of " + F.n(CO.recoup) + "+ gold proposes a goal to earn it back" + (CO.recoupBase > 0 ? " (pending: back to " + F.n(CO.recoupBase) + ")" : "") + ". COFFERS RECOUP <amount> or OFF to change it." : "recoup proposals are off. COFFERS RECOUP 20000 (or 20k) turns them on."); }
+  else if (rv < 0) { say("could not read '" + p1 + "' as an amount.", "orange"); }
+  else {
+    CO.recoup = rv; save("coffers_recoup", String(rv));
+    if (!(rv > 0)) CO.recoupClear();
+    say(rv > 0 ? "a single spend of " + F.n(rv) + "+ gold now proposes earning it back." : "recoup proposals off.", "lime");
+  }
+}
 else if (c === "csv") {
   var cw2 = p1 || "days";
   if (cw2 === "session") {
@@ -228,6 +239,7 @@ else if (c === "wipe") {
     CO.goal = 0; CO.goalBase = -1; CO.goalT = 0; CO.goalDone = false; CO.goalSrc = "";
     save("coffers_goal", "0"); save("coffers_goal_base", "-1"); save("coffers_goal_t", "0"); save("coffers_goal_done", "0"); save("coffers_goal_src", "");
     CO.proposals = []; CO.dismissed = {}; CO.saveProposals();
+    CO.recoupBase = 0; CO.recoupSave();
     CO.force = true;
     say("ledger burned. Fresh books open at the next prompt.", "orange");
     render();
@@ -246,7 +258,7 @@ else if (c === "debug") {
   say("live: " + JSON.stringify(CO.live));
   say("open session: " + JSON.stringify(CO.sess));
   say("buffers: " + CO.min.length + " minute point(s), " + CO.days.length + " day(s), " + CO.sessions.length + " closed session(s).");
-  say("settings: span " + CO.mins + "m/" + CO.daySpan + "d, gap " + CO.gap + "m, bigcoin " + CO.big + ", goal " + CO.goal + " from " + CO.goalBase + ", height " + CO.chartH + ".");
+  say("settings: span " + CO.mins + "m/" + CO.daySpan + "d, gap " + CO.gap + "m, bigcoin " + CO.big + ", recoup " + CO.recoup + (CO.recoupBase > 0 ? " to " + CO.recoupBase : "") + ", goal " + CO.goal + " from " + CO.goalBase + ", height " + CO.chartH + ".");
 }
 else if (c === "help") { run_function("coffers_help", [], "coffers"); }
 else { say("unknown command '" + c + "'. COFFERS HELP for commands.", "orange"); }
