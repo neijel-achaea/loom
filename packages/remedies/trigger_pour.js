@@ -1,4 +1,4 @@
-// "You carefully pour N sips of X from <pot> into your rift, bringing the
+// "You carefully pour N sips (salves: applications) of X from <pot> into your rift, bringing the
 // total stored sips to M."
 var RM = client.loom && client.loom.remedies;
 if (RM && RM.run) {

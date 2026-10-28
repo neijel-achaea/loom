@@ -10,7 +10,7 @@ if (!client.loom.remedies) client.loom.remedies = {};
 var RM = client.loom.remedies;
 // busy (#318): true while a run has a command out, so Here's probe and
 // other packages wait their turn (and a run waits for theirs).
-client.loom.registry.remedies = { version: "0.1.1", keyword: "REMEDIES", desc: "{{description}}", busy: function () {
+client.loom.registry.remedies = { version: "0.1.2", keyword: "REMEDIES", desc: "{{description}}", busy: function () {
   var r = client.loom.remedies;
   return !!(r && r.run && r.run.out && Date.now() - (r.run.sentAt || 0) < r.timeoutMs);
 } };
@@ -56,6 +56,8 @@ RM.eq = true;
 RM.reading = null;        // the IR listing being read: { kind, rule }
 RM.say = function (t, c) { display_notice("[remedies] " + t, c || "cyan"); };
 RM.paused = function () { return get_variable("pauseTriggers") == "on"; };
+// Elixirs come in sips, salves in applications (the pour line's own words).
+RM.unit = function (name) { var s = RM.stock[name]; return s && s.kind == "salve" ? "applications" : "sips"; };
 RM.n = function (x) { return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
 
 // The level a remedy is topped up to: your target, never above the rift's cap.
@@ -121,7 +123,7 @@ RM.stop = function (why, colour) {
 RM.summary = function (r) {
   if (r.dry || !r.plan) return;
   var parts = [];
-  for (var i = 0; i < r.done.length; i++) parts.push(r.done[i].name + " " + RM.n(r.done[i].sips) + " sips");
+  for (var i = 0; i < r.done.length; i++) parts.push(r.done[i].name + " " + RM.n(r.done[i].sips) + " " + RM.unit(r.done[i].name));
   var msg = parts.length ? "brewed " + parts.join(", ") : "nothing brewed";
   if (r.skipped.length) msg += "; skipped " + r.skipped.join(", ");
   if (r.full.length) msg += "; rift full for " + r.full.join(", ");
@@ -224,7 +226,7 @@ RM.brewed = function () {
   return true;
 };
 // "You carefully pour N sips of X from … into your rift, bringing the total
-// stored sips to M."
+// stored sips to M." (salves: "N applications of a caloric salve")
 RM.poured = function (sips, total) {
   var r = RM.run, it = RM.cur();
   if (!r || r.out != "pour" || !it) return false;
@@ -240,7 +242,7 @@ RM.poured = function (sips, total) {
     // The rift took less than the pot held: that's its cap for this one.
     RM.caps[it.name] = total;
     RM.save();
-    RM.stop("the rift took only " + sips + " of " + want + " sips of " + it.name + " (its limit is " + RM.n(total) + "; your target now stops there). " + (want - sips) + " sips are still in " + RM.pot + ": use or empty them before brewing again.");
+    RM.stop("the rift took only " + sips + " of " + want + " " + RM.unit(it.name) + " of " + it.name + " (its limit is " + RM.n(total) + "; your target now stops there). " + (want - sips) + " " + RM.unit(it.name) + " are still in " + RM.pot + ": use or empty them before brewing again.");
     return true;
   }
   RM.save();
@@ -254,7 +256,7 @@ RM.full = function () {
   r.out = "";
   RM.caps[it.name] = RM.stock[it.name] ? RM.stock[it.name].n : 0;
   RM.save();
-  RM.stop("your rift is already full of " + it.name + " (" + RM.n(RM.caps[it.name]) + "; your target now stops there). " + (r.brewed * RM.sipsPerUnit) + " sips are still in " + RM.pot + ".");
+  RM.stop("your rift is already full of " + it.name + " (" + RM.n(RM.caps[it.name]) + "; your target now stops there). " + (r.brewed * RM.sipsPerUnit) + " " + RM.unit(it.name) + " are still in " + RM.pot + ".");
   return true;
 };
 // "<pot> is empty." in answer to our pour: nothing was in it.

@@ -99,7 +99,7 @@
           "script": "@file:trigger_pour.js"
         }
       ],
-      "text": "^You carefully pour ([\\d,]+) sips of (.+) from (.+) into your rift, bringing the total stored sips to ([\\d,]+)\\.$",
+      "text": "^You carefully pour ([\\d,]+) (?:sips|applications) of (.+) from (.+) into your rift, bringing the total stored sips to ([\\d,]+)\\.$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true

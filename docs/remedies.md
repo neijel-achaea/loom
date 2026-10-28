@@ -3,14 +3,14 @@
 *Tops up the elixirs and salves in your rift: brews each one in your pot, pours it into the rift, and stops when they're all at their targets.*
 
 <!-- loom:version remedies -->
-*This page describes remedies 0.1.1.*
+*This page describes remedies 0.1.2.*
 <!-- /loom:version -->
 
 ## What it is
 
 Remedies is for the Remedies trade skill. `REMEDIES BREW` reads your rift (`IR ELIXIR`, then `IR SALVE`, both hidden), works out how far each elixir and salve is below its **target**, and brews what's missing in your pot, one remedy after another: `BREW 20 HEALTH IN POT123456`, then `POUR POT123456 IN RIFT`, and on to the next. Each step waits for the game's answer to the one before, and for your balance. When everything is done it says what it brewed, and stops.
 
-- A unit is 50 sips; at most 20 units (1,000 sips) go into the pot at once, so a big shortfall is brewed in rounds.
+- A unit is 50 sips (applications, for salves); at most 20 units (1,000 sips) go into the pot at once, so a big shortfall is brewed in rounds.
 - It never goes over a target: a remedy less than 50 sips short is left alone.
 - Targets: health and mana 2,000, every other remedy 1,000, unless you set your own.
 - Ingredients come from your rift. A remedy whose ingredients are missing is skipped and named at the end.
