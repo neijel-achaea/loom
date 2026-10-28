@@ -90,6 +90,23 @@
           "whole_words": false,
           "case_sensitive": false,
           "prefix_suffix": true
+        },
+        {
+          "type": "keybind",
+          "name": "Ctrl+F12 PK MODE",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "command",
+              "enabled": true,
+              "command": "hunting pk",
+              "prefix_suffix": false
+            }
+          ],
+          "key": "123",
+          "key_alt": false,
+          "key_ctrl": true,
+          "key_shift": false
         }
       ]
     },

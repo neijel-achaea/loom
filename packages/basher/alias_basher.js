@@ -9,7 +9,9 @@ if (bsSub === "" || bsSub === "status") {
   run_function("basher_help", [], "basher");
 } else if (bsSub === "on") {
   var bsHu = B.hunting();
-  if (!bsHu) {
+  if (bsHu && bsHu.pk) {
+    display_notice("[basher] PK MODE is on: it hunts denizens only. HUNTING PK OFF (or Ctrl+F12) first.", "orange");
+  } else if (!bsHu) {
     display_notice("[basher] needs the hunting package: it takes the attack from there. Nothing sent.", "orange");
   } else if (!B.main()) {
     display_notice("[basher] no main attack for " + (bsHu.cls || "this class") + " in hunting. HUNTING MAIN lists them; nothing sent.", "orange");

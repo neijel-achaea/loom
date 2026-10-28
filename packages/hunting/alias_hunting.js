@@ -31,6 +31,53 @@ else if (huSub === "dragonmode") {
     run_function("hunting_buttons", [], "hunting");
   }
 }
+else if (huSub === "pk") {
+  // HUNTING PK [ON|OFF|LIST|SET F<n> <label> <command>|CLEAR F<n>|CLEAR ALL [CONFIRM]] (#342, early).
+  var huPw = huRest.split(/\s+/);
+  var huPv = (huPw[0] || "").toLowerCase();
+  var huCls = HU.cls || "";
+  var huPkT = HU.pkFor(huCls);
+  var huPkN = 0; for (var huPq in huPkT) if (huPkT.hasOwnProperty(huPq)) huPkN++;
+  var huFk = function (s) { var m = /^f?(\d{1,2})$/i.exec(String(s || "")); var n = m ? to_number(m[1]) : 0; return n >= 1 && n <= 12 ? n : 0; };
+  if (huPv === "" || huPv === "on" || huPv === "off") {
+    var huOn = huPv === "" ? !HU.pk : huPv === "on";
+    if (huOn === HU.pk) display_notice("[hunting] PK MODE is already " + (HU.pk ? "ON" : "OFF") + ".", C);
+    else {
+      HU.pk = huOn;
+      // The basher stops on the way into PK (Ricardo): it hunts denizens.
+      var huB = client.loom.basher;
+      if (huOn && huB && huB.on && huB.stop) huB.stop("[basher] OFF: PK MODE.", "orange");
+      run_function("hunting_buttons", [], "hunting");
+      if (huOn) display_notice("[hunting] PK MODE ON: " + (huPkN ? huPkN + " PK key" + (huPkN === 1 ? "" : "s") + " for " + (huCls || "this class") + ", the rest as in hunting" : "no PK keys set for " + (huCls || "this class") + " yet (HUNTING PK SET F<n> <label> <command>)") + ". Ctrl+F12 or HUNTING PK to switch back.", "lime");
+      else display_notice("[hunting] PK MODE OFF: hunting keys back.", "lime");
+    }
+  } else if (huPv === "list") {
+    var huL = [];
+    for (var huLi = 1; huLi <= 12; huLi++) { var huLr = huPkT[String(huLi)]; if (huLr) huL.push("F" + huLi + " " + huLr[0] + " = " + huLr[1]); }
+    display_notice("[hunting] PK MODE " + (HU.pk ? "ON" : "OFF") + "; PK keys for " + (huCls || "this class") + ": " + (huL.length ? huL.join(" · ") : "none") + ". HUNTING PK SET F<n> <label> <command>.", C);
+  } else if (huPv === "set") {
+    var huSk = huFk(huPw[1]), huSl = huPw[2] || "", huSc = huPw.slice(3).join(" ");
+    if (!huCls) display_notice("[hunting] your class isn't known yet (it comes from GMCP at login, or SCORE).", "orange");
+    else if (!huSk || !huSl || !huSc) display_notice("[hunting] HUNTING PK SET F<1-12> <label> <command>, e.g. HUNTING PK SET F3 Ague staffcast ague at @tar. The label is one word.", "orange");
+    else {
+      if (!HU.pkKeys[huCls]) HU.pkKeys[huCls] = {};
+      HU.pkKeys[huCls][String(huSk)] = [huSl, huSc];
+      HU.pkSave();
+      if (HU.pk) run_function("hunting_buttons", [], "hunting");
+      display_notice("[hunting] PK key F" + huSk + " for " + huCls + ": " + huSl + " = " + huSc + ".", "lime");
+    }
+  } else if (huPv === "clear") {
+    var huCk = huFk(huPw[1]);
+    if ((huPw[1] || "").toLowerCase() === "all") {
+      if ((huPw[2] || "").toLowerCase() !== "confirm") display_notice("[hunting] this clears " + (huPkN === 1 ? "the PK key" : "all " + huPkN + " PK keys") + " for " + (huCls || "this class") + ". HUNTING PK CLEAR ALL CONFIRM to go ahead.", "orange");
+      else { delete HU.pkKeys[huCls]; HU.pkSave(); if (HU.pk) run_function("hunting_buttons", [], "hunting"); display_notice("[hunting] PK keys for " + (huCls || "this class") + " cleared.", "orange"); }
+    } else if (!huCk) display_notice("[hunting] HUNTING PK CLEAR F<1-12>, or CLEAR ALL CONFIRM.", "orange");
+    else if (!huPkT[String(huCk)]) display_notice("[hunting] no PK key on F" + huCk + " for " + (huCls || "this class") + ".", C);
+    else { delete HU.pkKeys[huCls][String(huCk)]; HU.pkSave(); if (HU.pk) run_function("hunting_buttons", [], "hunting"); display_notice("[hunting] PK key F" + huCk + " cleared: it's the hunting key again.", "lime"); }
+  } else {
+    display_notice("[hunting] HUNTING PK [ON|OFF], PK LIST, PK SET F<n> <label> <command>, PK CLEAR F<n> | ALL.", "orange");
+  }
+}
 else if (huSub === "autogold") {
   if (huVal === "on" || huVal === "off" || huVal === "all") {
     set_variable("hunting_autogold", huVal);

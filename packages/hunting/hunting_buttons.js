@@ -34,8 +34,18 @@ HU.slots = {};
 HU.main = [];
 run_function("hunting_mainlist", [], "hunting");
 
+// PK MODE (#342): your PK keys for this class replace those keys, unlit; the
+// others stay as they are.
+var huPk = HU.pk ? HU.pkFor() : {};
 for (var huK = 1; huK <= 12; huK++) {
   buttons_set_highlight(huK, 0);
+  var huPkRow = huPk[String(huK)];
+  if (Array.isArray(huPkRow) && huPkRow.length >= 2) {
+    var huPkSep = (client._settings && typeof client._settings.stack_delimiter == "string" && client._settings.stack_delimiter) || "|";
+    buttons_set_label(huK, String(huPkRow[0]));
+    buttons_set_commands(huK, String(huPkRow[1]).split(/\s*\|\s*/).join(huPkSep));
+    continue;
+  }
   var huRow = huRows[huK - 1] || ["", ""];
   var huLabel = huRow[0];
   var huCmd = huRow[1];
@@ -66,7 +76,7 @@ for (var huK = 1; huK <= 12; huK++) {
   // END, which ends the run and leaves the basher primed. Primed or off, F1
   // is the class's own key again; the basher redraws these keys when its run
   // starts or ends.
-  if (huK == 1 && client.loom.basher && client.loom.basher.run) {
+  if (huK == 1 && client.loom.basher && client.loom.basher.run && !HU.pk) {
     buttons_set_label(1, "STOP");
     buttons_set_commands(1, "basher end");
     buttons_set_highlight(1, get_variable("hunting_highlight") != "off" ? 1 : 0);
@@ -89,5 +99,5 @@ for (var huK = 1; huK <= 12; huK++) {
   if (huRow[2] == "main") HU.main.push(huK);
 }
 
-if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.cls || "no class") + (HU.spec ? ", spec " + HU.spec : "") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");
+if (get_variable("debug") == "on") display_notice("[debug][hunting] buttons for " + (HU.pk ? "PK, " : "") + (HU.cls || "no class") + (HU.spec ? ", spec " + HU.spec : "") + (huEntry ? "" : " (not configured yet: generic keys)"), "cyan");
 run_function("hunting_highlight", [], "hunting");

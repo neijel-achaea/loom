@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "1.1.2", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "1.2.0", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -32,6 +32,21 @@ if (!HU.mainsAdded) {
 }
 // Class toggles' state (sneak, weave...): { name: "on" | "off" }, kept
 // across HUNTING BUTTONS and RESET; onLoad sets them all OFF.
+// PK MODE (#342, early: Ricardo 2026-10-28). Your own PvP keys per class,
+// saved as hunting_pk {Class: {"1".."12": [label, command]}}; HUNTING PK SET
+// fills them. HU.pk (on/off) is never remembered: every load starts in the
+// hunting layout. Keys you didn't set keep their hunting key. Ctrl+F12 (the
+// package's keybind) and HUNTING PK switch. PK keys are never lit.
+HU.pk = false;
+HU.pkKeys = {};
+try { HU.pkKeys = JSON.parse(get_variable("hunting_pk") || "{}") || {}; } catch (e) { HU.pkKeys = {}; }
+if (typeof HU.pkKeys != "object" || Array.isArray(HU.pkKeys)) HU.pkKeys = {};
+HU.pkSave = function () {
+  var any = false;
+  for (var c in HU.pkKeys) { if (HU.pkKeys.hasOwnProperty(c)) { var n = 0; for (var k in HU.pkKeys[c]) if (HU.pkKeys[c].hasOwnProperty(k)) n++; if (n) any = true; else delete HU.pkKeys[c]; } }
+  try { if (any) set_variable("hunting_pk", JSON.stringify(HU.pkKeys)); else delete_variable("hunting_pk"); } catch (e) {}
+};
+HU.pkFor = function (cls) { var t = HU.pkKeys[cls || HU.cls]; return (t && typeof t == "object") ? t : {}; };
 if (!HU.toggles) {
   HU.toggles = {};
   try { HU.toggles = JSON.parse(get_variable("hunting_toggles") || "{}") || {}; } catch (e) { HU.toggles = {}; }
