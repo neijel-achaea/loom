@@ -167,6 +167,7 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 - [ ] `DMGCHART START test`, fights, `END`: saved; `LIST`, `SHOW <n>`, `LIVE`. A reload mid-recording resumes it; `DMGCHART RESET` mid-recording clears the live fight and the recording carries on.
 - [ ] **LevelGraph:** `LEVELGRAPH` level with decimals and rates, the session (since when, how long) and the time to the next level; the minute graph moves once a minute; `GRAPH LONG OFF`/`ON`, `SIZE 140`.
 - [ ] Sessions: the Level tab's "This session" counts from your first prompt; `LEVELGRAPH NEW` restarts it; more than 30 minutes logged off starts a new one at login; `LEVELGRAPH GAP 60` kept after a reload.
+- [ ] Die (or let a denizen kill you): a red skull and dashed line on the minute graph at that time; hover: "Slain by <killer> at HH:MM"; still there after a reload; gone once older than the graph's span or after `WIPE CONFIRM`.
 
 ## 8. Money, items and calendar
 

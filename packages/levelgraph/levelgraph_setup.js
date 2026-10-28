@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.levelgraph) client.loom.levelgraph = {};
-client.loom.registry.levelgraph = { version: "1.0.0", keyword: "LEVELGRAPH", desc: "{{description}}",
+client.loom.registry.levelgraph = { version: "1.0.1", keyword: "LEVELGRAPH", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("levelgraph_render", [], "levelgraph"); } };
 var LG = client.loom.levelgraph;
@@ -107,6 +107,21 @@ if (LG.sess === undefined) {
 LG.saveSess = function () {
   try { if (LG.sess) set_variable("levelgraph_sess", JSON.stringify(LG.sess)); else delete_variable("levelgraph_sess"); } catch (e) {}
   LG.sessSaved = Math.floor(Date.now() / 1000);
+};
+// Deaths (#336): [[unix seconds, killer], ...], newest last, saved as
+// levelgraph_deaths. Kept as long as the minute graph can show them (its span),
+// at most LG.deathCap.
+LG.deathCap = 50;
+if (!Array.isArray(LG.deaths)) {
+  var lgDs = null;
+  try { lgDs = JSON.parse(get_variable("levelgraph_deaths") || "[]"); } catch (e) { lgDs = null; }
+  LG.deaths = Array.isArray(lgDs) ? lgDs.filter(function (d) { return Array.isArray(d) && d[0] > 0 && typeof d[1] == "string"; }) : [];
+}
+LG.addDeath = function (by) {
+  var now = Math.floor(Date.now() / 1000), keep = now - LG.mins * 60;
+  LG.deaths.push([now, by || "?"]);
+  LG.deaths = LG.deaths.filter(function (d) { return d[0] >= keep; }).slice(-LG.deathCap);
+  try { set_variable("levelgraph_deaths", JSON.stringify(LG.deaths)); } catch (e) {}
 };
 // The open session's figures, or null: {span (s), gain (levels), perHour, togo (s, -1 unknown), p0, s}.
 LG.sessFigures = function (cur) {

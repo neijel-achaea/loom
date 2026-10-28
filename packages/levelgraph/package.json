@@ -79,6 +79,22 @@
    "whole_words": false,
    "case_sensitive": false,
    "prefix_suffix": true
+  },
+  {
+   "type": "trigger",
+   "name": "levelgraph death",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "@file:trigger_death.js"
+    }
+   ],
+   "text": "^You have been slain by (.+?)\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
   }
  ],
  "description": "Level progress graphs per minute and per day, time to next level"

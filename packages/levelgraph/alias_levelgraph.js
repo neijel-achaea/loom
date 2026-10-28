@@ -89,15 +89,17 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
     LG.day = [];
     LG.sess = null;
     LG.saveSess();
+    LG.deaths = [];
+    try { delete_variable("levelgraph_deaths"); } catch (e) {}
     set_variable("levelgraph_min", "[]");
     set_variable("levelgraph_day", "[]");
     run_function("levelgraph_render", [], "levelgraph");
     lgSay("both level buffers and the session cleared.", "orange");
   } else {
-    lgSay("this clears BOTH the minute and long-term buffers, and the session. LEVELGRAPH WIPE CONFIRM to proceed.", "orange");
+    lgSay("this clears BOTH the minute and long-term buffers, the session and the deaths marked. LEVELGRAPH WIPE CONFIRM to proceed.", "orange");
   }
 } else if (lgSub === "debug") {
-  lgSay("level=" + LG.level + " nl=" + LG.nl + " min=" + LG.min.length + " day=" + LG.day.length + " graphs " + LG.graphSess + "/" + LG.graphLong + " height " + LG.chartH + " spans " + LG.mins + "m/" + LG.days + "d gap " + LG.gap + "m session " + JSON.stringify(LG.sess));
+  lgSay("level=" + LG.level + " nl=" + LG.nl + " min=" + LG.min.length + " day=" + LG.day.length + " graphs " + LG.graphSess + "/" + LG.graphLong + " height " + LG.chartH + " spans " + LG.mins + "m/" + LG.days + "d gap " + LG.gap + "m session " + JSON.stringify(LG.sess) + " deaths " + JSON.stringify(LG.deaths));
 } else {
   lgSay("unknown command '" + lgSub + "'. LEVELGRAPH HELP for commands.", "orange");
 }

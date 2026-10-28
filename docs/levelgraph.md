@@ -3,7 +3,7 @@
 *Your progress through the levels as graphs, per minute and per day, with rates and the time to your next level.*
 
 <!-- loom:version levelgraph -->
-*This page describes levelgraph 1.0.0.*
+*This page describes levelgraph 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -13,7 +13,7 @@ LevelGraph follows your level and how far you are into it, and draws them in the
 - **Your level** as the big figure, with how far into it you are.
 - **This session**: how much of a level you've gained since the session started, per hour ("+38% = 19%/hr"), and how long the next level will take at that rate. A session starts with your first prompt, and ends when you start a new one with `LEVELGRAPH NEW` or after 30 minutes without a prompt (`LEVELGRAPH GAP`), as in Coffers.
 - **The long term**: levels gained per day.
-- **A minute-by-minute graph** over the last 2 hours. Its span is separate from the session: a 3-hour session still counts from its start.
+- **A minute-by-minute graph** over the last 2 hours. Its span is separate from the session: a 3-hour session still counts from its start. A red skull and a dashed line mark each time you died; hover it to see who killed you and when.
 - **A long-term graph**: one point per day over the last 100 days.
 
 <img src="img/level.png" width="380" alt="The Level tab: progress to the next level, this session and the long term, and both graphs.">
@@ -68,4 +68,5 @@ LevelGraph reads nothing from other packages and no other package reads it. For 
 ## Troubleshooting
 
 - **The graph is flat at the start.** It needs a few minutes of points to draw a slope.
-- **`LEVELGRAPH WIPE CONFIRM`** clears both graphs. There's no undo.
+- **A death isn't marked.** The skull comes from the line "You have been slain by …". If your death reads differently, report the line.
+- **`LEVELGRAPH WIPE CONFIRM`** clears both graphs and the deaths marked. There's no undo.

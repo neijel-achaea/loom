@@ -17,6 +17,7 @@ var RULE = TH.rule || "#26353e";
 var TRACK = TH.track || "#1a252c";
 var BG = TH.bg || "#0f1418";
 var UP = "#8fe0c8";
+var DEATH = "#d9534f";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 
@@ -41,7 +42,7 @@ function fmtT(sec, span, dayScale) {
   return d.getHours() + ":" + pad2(d.getMinutes());
 }
 
-function lvlChart(hs, W, H, accent, dayScale) {
+function lvlChart(hs, W, H, accent, dayScale, deaths) {
   var fs = Math.max(7, Math.min(10, Math.round(H * 0.085)));
   var y0 = Math.round(fs * 0.9);
   var y1 = H - Math.round(fs * 1.9);
@@ -94,6 +95,18 @@ function lvlChart(hs, W, H, accent, dayScale) {
   svg += '<path d="' + area + '" fill="' + accent + '" fill-opacity="0.13" stroke="none"/>';
   svg += '<path d="' + line + '" fill="none" stroke="' + accent + '" stroke-width="1.5" stroke-linejoin="round"/>';
   svg += '<circle cx="' + lx + '" cy="' + ly + '" r="2.4" fill="' + BRIGHT + '"/>';
+  // Deaths (#336): a thin red rule and a skull at the top, the killer on hover.
+  for (var di = 0; deaths && di < deaths.length; di++) {
+    var dt = deaths[di][0];
+    if (dt < tmin || dt > tmax + 60) continue;
+    var dx = n1(x0 + ((Math.min(dt, tmax) - tmin) / (tmax - tmin)) * (x1 - x0));
+    var dTip = "Slain by " + String(deaths[di][1]).replace(/&/g, "&amp;").replace(/</g, "&lt;") + " at " + fmtT(dt, 0, false);
+    svg += '<g style="cursor:default;"><title>' + dTip + '</title>';
+    svg += '<line x1="' + dx + '" y1="' + (y0 + 7) + '" x2="' + dx + '" y2="' + y1 + '" stroke="' + DEATH + '" stroke-width="0.8" stroke-dasharray="2,2"/>';
+    svg += '<g transform="translate(' + n1(dx - 4.5) + ',' + (y0 - 4) + ')"><path d="M4.5 0C2 0 0 1.8 0 4.2c0 1.5.7 2.6 1.8 3.2V9h5.4V7.4C8.3 6.8 9 5.7 9 4.2 9 1.8 7 0 4.5 0Z" fill="' + DEATH + '"/>';
+    svg += '<circle cx="3" cy="4.3" r="1.1" fill="' + BG + '"/><circle cx="6" cy="4.3" r="1.1" fill="' + BG + '"/><rect x="3.4" y="7.4" width="0.7" height="1.6" fill="' + BG + '"/><rect x="4.9" y="7.4" width="0.7" height="1.6" fill="' + BG + '"/></g>';
+    svg += '<rect x="' + n1(dx - 6) + '" y="' + (y0 - 5) + '" width="12" height="' + n1(y1 - y0 + 5) + '" fill="transparent"/></g>';
+  }
   svg += '<text x="' + x0 + '" y="' + (H - 3) + '" font-family="' + MONO + '" font-size="' + fs + '" fill="' + MUTED + '">' + fmtT(first[0], span, dayScale) + '</text>';
   svg += '<text x="' + x1 + '" y="' + (H - 3) + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fs + '" fill="' + MUTED + '">' + fmtT(last[0], span, dayScale) + '</text>';
   return svg + '</svg>';
@@ -186,7 +199,7 @@ if (!cur) {
   html += cols + '</div>';
 
   if (LG.graphSess) {
-    html += section("Last " + LG.mins + " minutes", mins.length < 2 ? quiet("Collecting. A point lands every minute that your experience moves.") : lvlChart(mins, 640, LG.chartH, ACC, false), ACC);
+    html += section("Last " + LG.mins + " minutes", mins.length < 2 ? quiet("Collecting. A point lands every minute that your experience moves.") : lvlChart(mins, 640, LG.chartH, ACC, false, LG.deaths), ACC);
   }
   if (LG.graphLong) {
     html += section("Last " + LG.days + " days", days.length < 2 ? quiet("Collecting. One point is kept per day.") : lvlChart(days, 640, LG.chartH, ACC2, true), ACC2);

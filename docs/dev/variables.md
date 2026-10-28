@@ -243,6 +243,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `levelgraph_span_days` | setting | 0.2 | days the long graph covers | `lvl_span_days` |
 | `levelgraph_gap` | setting | 1.0 | minutes without a prompt that close a session |  |
 | `levelgraph_sess` | data | 1.0 | the open session |  |
+| `levelgraph_deaths` | data | 1.1 | deaths within the minute graph's span: [[unix seconds, killer], …] |  |
 | `levelgraph_min` | data | 0.2 | level readings, per minute | `lvl_min` |
 | `levelgraph_day` | data | 0.2 | level per day | `lvl_day`, `lvl_hist` |
 | `lvl_min` | legacy | 0.1 | old name of levelgraph_min |  |
