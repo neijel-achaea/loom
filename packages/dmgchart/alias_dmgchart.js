@@ -47,11 +47,10 @@ if (sub == "gap") {
       display_notice("[dmgchart] warns when health lasts drops below " + wv + "s", "lime");
     }
   }
-} else if (sub == "reset" || sub == "rebuild") {
+} else if (sub == "reset") {
   // DMGCHART RESET (#137): clears the live fight and rebuilds the namespace
-  // from the saved variables; REBUILD, its old name, works until Loom 1.1.
+  // from the saved variables (REBUILD, its old name, went in Loom 1.1).
   // A recording in progress is saved first, so it resumes where it was.
-  if (sub == "rebuild") display_notice("[dmgchart] DMGCHART REBUILD is now DMGCHART RESET.", "orange");
   // The damage record other packages read (huntstats) is kept too.
   if (d.sess) { set_variable("dmgchart_open", JSON.stringify(d.sess)); }
   client.loom.dmgchart = { hp: d.hp, rec: d.rec, recFrom: d.recFrom };

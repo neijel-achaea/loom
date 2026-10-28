@@ -87,9 +87,8 @@ else if (W[0].toLowerCase() === "skip") {
   if (DB.pending.length === 0) { say("nothing waiting for review."); }
   else { var sk = DB.pending.shift(); F.save(); say("dismissed: " + sk.who + " — " + sk.why + "." + (DB.pending.length ? " " + DB.pending.length + " more waiting." : ""), "lime"); render(); }
 }
-else if (W[0].toLowerCase() === "reset" || W[0].toLowerCase() === "rebuild") {
-  // STANDINGS RESET (#137); REBUILD, its old name, works until Loom 1.1.
-  if (W[0].toLowerCase() === "rebuild") say("STANDINGS REBUILD is now STANDINGS RESET.", "orange");
+else if (W[0].toLowerCase() === "reset") {
+  // STANDINGS RESET (#137; REBUILD, its old name, went in Loom 1.1).
   client.loom.standings.F = undefined;
   run_function("standings_ensure", [], "standings");
   F = client.loom.standings.F;

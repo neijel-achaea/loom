@@ -233,9 +233,8 @@ else if (c === "wipe") {
     render();
   }
 }
-else if (c === "reset" || c === "rebuild") {
-  // COFFERS RESET (#137); REBUILD, its old name, works until Loom 1.1.
-  if (c === "rebuild") say("COFFERS REBUILD is now COFFERS RESET.", "orange");
+else if (c === "reset") {
+  // COFFERS RESET (#137; REBUILD, its old name, went in Loom 1.1).
   CO.f = undefined;
   CO.tiers = undefined;
   if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
