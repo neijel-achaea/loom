@@ -14,7 +14,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.roleplay) client.loom.roleplay = {};
-client.loom.registry.roleplay = { version: "0.3.29", keyword: "ROLEPLAY", desc: "{{description}}" };
+client.loom.registry.roleplay = { version: "0.3.30", keyword: "ROLEPLAY", desc: "{{description}}" };
 var RP = client.loom.roleplay;
 
 function rpGet(n) { var v; try { v = get_variable(n); } catch (e) { v = undefined; } return (v === undefined || v === null || ("" + v) === "undefined") ? "" : "" + v; }
@@ -93,13 +93,14 @@ if (RP.on === undefined) RP.on = rpGet("roleplay_aem_on") === "1";
 if (!RP.defs) RP.defs = {};
 if (!RP.affs) RP.affs = {};
 if (RP.hurtAt === undefined) RP.hurtAt = 0;
+if (RP.actAt === undefined) RP.actAt = 0;
 if (RP.sentAt === undefined) RP.sentAt = 0;
 if (RP.last === undefined) RP.last = "";
 if (RP.sent === undefined) RP.sent = 0;
 if (RP.held === undefined) RP.held = "";
 
 RP.retryMs = 60000;     // held back: look again in a minute
-RP.fightMs = 30000;     // health lost this recently counts as a fight
+RP.fightMs = 30000;     // health lost, or balance or equilibrium used, this recently counts as a fight (#423)
 RP.bumpMs = 60000;      // your own say or emote pushes the next one back this much
 RP.echoMs = 5000;       // your emote's echo right after sending isn't "you"
 
@@ -242,6 +243,7 @@ RP.holdWhy = function () {
     if (RP.affs[q]) return q;
   }
   if (RP.hurtAt && Date.now() - RP.hurtAt < RP.fightMs) return "fighting";
+  if (RP.actAt && Date.now() - RP.actAt < RP.fightMs) return "busy (balance or equilibrium used)";
   return "";
 };
 RP.send = function (e) {

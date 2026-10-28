@@ -3,7 +3,7 @@
 *Ambient emotes in your own voice: small gestures sent every few minutes, written per race and per class.*
 
 <!-- loom:version roleplay -->
-*This page describes roleplay 0.3.29.*
+*This page describes roleplay 0.3.30.*
 <!-- /loom:version -->
 
 ## What it is
@@ -94,7 +94,7 @@ It holds back on its own, and tries again a minute later:
 
 - while Loom is paused (`LOOM PAUSE ON`);
 - while you're hidden, shrouded, cloaked or phased, or asleep, prone, stunned or in aeon (`ROLEPLAY QUIET` lists them, by the names the game gives them; `QUIET ADD|REMOVE <name>` changes the list);
-- in a fight: you lost health in the last 30 seconds.
+- in a fight: you lost health, or used balance or equilibrium (an attack, but also harvesting and the like), in the last 30 seconds.
 
 When you speak or yell (in any voice or accent: it's read from the game's GMCP, not the line) or emote yourself, the next ambient emote waits a minute longer, up to the longest wait from now. In the middle of a conversation it steps aside instead of talking over you.
 
