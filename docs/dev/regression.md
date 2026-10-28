@@ -53,7 +53,7 @@ And for the suite:
 - [ ] Criticals highlighted by tier; your own only.
 - [ ] `HUNTING AUTOGOLD ON`: gold from your kill is picked up (into the backpack with security); someone else's kill: left. `ALL`: anyone's. `OFF`: none.
 - [ ] Change class or form: keys and rage costs switch; `HUNTING RAGE` shows only the new class's abilities, cooldowns empty.
-- [ ] *Dragon:* F8 cycles PHY → MAG → AUTO; in AUTO, F1 flips between Gut and Incantation as endurance and willpower drain. `HUNTING AFTERFORM DEFCON INIT`, then dragonform: nothing is sent during the transformation (triggers paused, elder dragons too), init after the roar and after it melts.
+- [ ] *Dragon:* F8 cycles PHY → MAG → AUTO; in AUTO, F1 flips between Gut and Incantation as endurance and willpower drain. `HUNTING AFTERFORM DEFCON INIT`, then dragonform: nothing is sent during the transformation (triggers paused, elder dragons too), init after the roar and after it melts. Start dragonform and interrupt it: "dragonform interrupted: Loom resumes.", `LOOM` no longer paused.
 - [ ] *Dragon:* use a rage ability, shift form, shift back: the rage keys light again (the shared cooldown never stays stuck), and the basher fires rage.
 - [ ] Toggles (Sneak, Weave, Block): the key reads ON/OFF without lighting; typed by hand, the key follows; reload: OFF.
 - [ ] `HUNTING HIGHLIGHT OFF`: every key goes dark at once and stays dark (rage, F1, the basher's STOP); the basher still fires rage. `ON`: keys light again. Survives a reload.
