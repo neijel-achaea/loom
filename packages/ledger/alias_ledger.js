@@ -150,9 +150,8 @@ if (lgSub === "" || lgSub === "status") {
     var all = lgLoad();
     lgSay("day " + LG.day + " | items " + all.length + " | seq " + get_variable("ledger_seq") + " | armed " + (LG.armed ? "yes" : "no") + " | inblock " + (LG.inBlock ? "yes" : "no") + " | pause " + (get_variable("pauseTriggers") || "unset") + " | debug " + (LG.debug ? "ON" : "OFF") + ". LEDGER DEBUG ON/OFF.");
   }
-} else if (lgSub === "reset" || lgSub === "rebuild") {
-  // LEDGER RESET (#137); REBUILD, its old name, works until Loom 1.1.
-  if (lgSub === "rebuild") lgSay("LEDGER REBUILD is now LEDGER RESET.", "orange");
+} else if (lgSub === "reset") {
+  // LEDGER RESET (#137; REBUILD, its old name, went in Loom 1.1).
   client.loom.ledger = {};
   run_function("ledger_setup", [], "ledger");
   run_function("ledger_render", [], "ledger");

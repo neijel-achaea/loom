@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 1.0.0.*
+*This page describes coffers 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -116,7 +116,7 @@ Other packages can suggest a goal through Loom's integrations (see [Working with
 | Command | What it does |
 | --- | --- |
 | `COFFERS WIPE CONFIRM` | Burns everything: graphs, days, sessions, records, your goal, pending proposals and dismissals. Only your settings stay. `COFFERS WIPE` alone only asks for confirmation. |
-| `COFFERS RESET` | Rebuilds the formatting helpers and the rank table, after editing them, without reloading the page. Your books are untouched. (`COFFERS REBUILD`, its old name, works until Loom 1.1.) |
+| `COFFERS RESET` | Rebuilds the formatting helpers and the rank table, after editing them, without reloading the page. Your books are untouched. |
 | `COFFERS DEBUG` | Shows the raw state: the last gold and bank readings, the open session, how much is stored, and the settings. Useful when reporting a problem. |
 
 ## Setting it up

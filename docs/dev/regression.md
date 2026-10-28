@@ -32,7 +32,7 @@ For each package:
 - [ ] A setting changed: lime.
 - [ ] `<PACKAGE> DEBUG`: its internal state, in cyan.
 - [ ] A command that throws away recorded data (`WIPE`, `CLEAR`, `DISCARD`, `FORGET`): without `CONFIRM` it says what would be lost, in orange; with it, done.
-- [ ] `<PACKAGE> RESET` (where it exists): working state rebuilt, the player's records kept. The old spelling `REBUILD` (coffers, standings, ledger, dmgchart) still works and says it's now `RESET`.
+- [ ] `<PACKAGE> RESET` (where it exists): working state rebuilt, the player's records kept. The old spelling `REBUILD` (coffers, standings, ledger, dmgchart) is an unknown command.
 - [ ] Its tab (if any): the panel colour reaches the bottom of the tab, also after resizing it; the icon shows after a reload.
 
 And for the suite:
