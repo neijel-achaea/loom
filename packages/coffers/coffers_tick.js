@@ -72,6 +72,9 @@ if (g !== undefined && b !== undefined) {
   var S = CO.sess;
   S.last = now;
 
+  // The recoup threshold as it stood before this reading (#234): a spend
+  // mustn't lower the per-day figure it is measured against.
+  var rcLine = CO.recoupLine ? CO.recoupLine() : 0;
   if (feedMin()) { changed = true; }
   if (feedDay()) { changed = true; }
   var T = CO.days[CO.days.length - 1];
@@ -100,7 +103,7 @@ if (g !== undefined && b !== undefined) {
     }
   }
   // A big spend proposes earning it back; recovering withdraws it (#234).
-  if (CO.recoupCheck) CO.recoupCheck(W, d);
+  if (CO.recoupCheck) CO.recoupCheck(W, d, rcLine);
 
   if (!R.peak || W > R.peak.w) { R.peak = { w: W, t: now }; }
   // The ratchet stores the threshold reached, not the table index, so the

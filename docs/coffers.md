@@ -38,7 +38,7 @@ Everything goes through one command, `COFFERS`. Commands aren't case-sensitive. 
 | `COFFERS ACCEPT [n]` | add a proposed goal to yours, or make it your goal (the first by default) |
 | `COFFERS DISMISS [n]` | drop it; it stays away until its reason clears |
 | `COFFERS BIGCOIN <amount\|OFF>` | announce single gains or losses this large |
-| `COFFERS RECOUP <amount\|OFF>` | a single spend this large proposes a goal to earn it back (default 20,000) |
+| `COFFERS RECOUP [<amount>\|DAY\|OFF]` | a single spend this large proposes a goal to earn it back (default DAY: your average gold per day) |
 | `COFFERS GRAPH [SESSION\|LONG] [ON\|OFF]` | show or hide the graphs |
 | `COFFERS SIZE <40-400>` | graph height (default 105) |
 | `COFFERS SPAN SESSION <15-720>` | minutes the session graph covers |
@@ -99,12 +99,13 @@ Other packages can suggest a goal through Loom's integrations (see [Working with
 
 ### Earning back a big spend
 
-Coffers proposes goals of its own too. When a single spend of 20,000 gold or more leaves your fortune (a new weapon, sigils, repairs), it proposes earning it back ("coffers proposes a goal: earn 45,000 gold — earn back the 45,000 gold you spent"), through the same `PROPOSED` / `ACCEPT` / `DISMISS` as above. Another big spend before you've recovered adds to the same proposal: it always asks for the whole way back to the fortune you had before the first one. Once your fortune is back there, the proposal goes away by itself. Moving gold to or from the bank never counts.
+Coffers proposes goals of its own too. When a single spend of more than a day's earnings leaves your fortune (a new weapon, sigils, repairs), it proposes earning it back ("coffers proposes a goal: earn 45,000 gold — earn back the 45,000 gold you spent"), through the same `PROPOSED` / `ACCEPT` / `DISMISS` as above. Another big spend before you've recovered adds to the same proposal: it always asks for the whole way back to the fortune you had before the first one. Once your fortune is back there, the proposal goes away by itself. Moving gold to or from the bank never counts.
 
 | Command | What it does |
 | --- | --- |
 | `COFFERS RECOUP` | Shows the threshold, and the fortune a pending proposal aims to get you back to. |
-| `COFFERS RECOUP <amount>` | Sets the threshold (`50000`, `50k`). |
+| `COFFERS RECOUP DAY` | The default: the threshold is your average gold per day, the "/day" figure over the Day by day graph. Until that's known (under a day kept, or your fortune hasn't grown), 20,000. |
+| `COFFERS RECOUP <amount>` | A fixed threshold instead (`50000`, `50k`). |
 | `COFFERS RECOUP OFF` | No recoup proposals; a pending one is withdrawn. |
 
 ### Notices

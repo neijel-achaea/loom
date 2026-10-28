@@ -211,14 +211,36 @@ CO.entry = {
   }
 };
 
-// Recoup (#234, Ricardo): one loss of at least CO.recoup gold (coffers_recoup,
-// default 20,000, 0 = OFF) proposes a goal to earn it back, through coffers'
+// Recoup (#234, Ricardo): one loss of at least the threshold proposes a goal
+// to earn it back, through coffers' own proposals. The threshold (Ricardo):
+// by default your average gold per day, the Day by day graph's "/day"
+// figure (CO.recoup = -1, coffers_recoup absent or "day"); 20,000 while that
+// isn't known yet (under a day kept, or not positive). A fixed amount, or 0 =
+// OFF, with COFFERS RECOUP <amount|OFF>. Through coffers'
 // own proposals (source "coffers", key "recoup"). CO.recoupBase is the
 // fortune before the first such spend (coffers_recoup_base); a later big
 // spend adds to the same proposal (the whole gap to that fortune). Withdrawn
 // once the fortune is back to the base; the base is let go once the
 // proposal is accepted or wiped (neither pending nor dismissed).
-if (CO.recoup === undefined) { CO.recoup = gcNum("coffers_recoup", 20000, 0, 2000000000); }
+if (CO.recoup === undefined) {
+  var rcRaw = gcRaw("coffers_recoup");
+  CO.recoup = (rcRaw === undefined || rcRaw === null || rcRaw === "" || String(rcRaw).toLowerCase() === "day") ? -1 : gcNum("coffers_recoup", -1, 0, 2000000000);
+}
+CO.recoupFallback = 20000;
+// Gold per day over the day buffer (as the tab shows it), or 0 when not known.
+CO.perDay = function () {
+  var D = CO.days || [];
+  if (D.length < 2) return 0;
+  var span = (D[D.length - 1][0] - D[0][0]) / 86400;
+  if (span < 1) return 0;
+  var gain = (D[D.length - 1][1] + D[D.length - 1][2]) - (D[0][1] + D[0][2]);
+  return gain > 0 ? Math.round(gain / span) : 0;
+};
+// The threshold in force now: 0 = off.
+CO.recoupLine = function () {
+  if (CO.recoup >= 0) return CO.recoup;
+  return CO.perDay() || CO.recoupFallback;
+};
 if (CO.recoupBase === undefined) { CO.recoupBase = gcNum("coffers_recoup_base", 0, 0, 2000000000000); }
 CO.recoupSave = function () { try { if (CO.recoupBase > 0) set_variable("coffers_recoup_base", String(CO.recoupBase)); else delete_variable("coffers_recoup_base"); } catch (e) {} };
 CO.recoupPending = function () {
@@ -229,14 +251,16 @@ CO.recoupClear = function () {
   CO.entry.withdraw("coffers", "recoup");
   if (CO.recoupBase > 0) { CO.recoupBase = 0; CO.recoupSave(); }
 };
-// Called by coffers_tick with the fortune now and the change since the last reading.
-CO.recoupCheck = function (W, d) {
-  if (!(CO.recoup > 0)) { if (CO.recoupBase > 0 || CO.recoupPending()) CO.recoupClear(); return; }
+// Called by coffers_tick with the fortune now, the change since the last
+// reading, and the threshold read before this reading touched the day rows.
+CO.recoupCheck = function (W, d, line) {
+  if (line === undefined) line = CO.recoupLine();
+  if (!(line > 0)) { if (CO.recoupBase > 0 || CO.recoupPending()) CO.recoupClear(); return; }
   if (CO.recoupBase > 0) {
     if (W >= CO.recoupBase) { CO.recoupClear(); return; }
-    if (!CO.recoupPending() && !(d < 0 && -d >= CO.recoup)) { CO.recoupBase = 0; CO.recoupSave(); }
+    if (!CO.recoupPending() && !(d < 0 && -d >= line)) { CO.recoupBase = 0; CO.recoupSave(); }
   }
-  if (d < 0 && -d >= CO.recoup) {
+  if (d < 0 && -d >= line) {
     if (!(CO.recoupBase > 0)) { CO.recoupBase = W - d; CO.recoupSave(); }
     var gap = CO.recoupBase - W;
     CO.entry.propose({ source: "coffers", key: "recoup", amount: gap, why: "earn back the " + CO.f.n(gap) + " gold you spent" });

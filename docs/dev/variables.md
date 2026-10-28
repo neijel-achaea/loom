@@ -69,7 +69,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `coffers_rec` | data | 0.2 | records | `gc_rec` |
 | `coffers_proposals` | data | 0.5 | goals other packages proposed |  |
 | `coffers_dismissed` | data | 0.5 | proposals dismissed until withdrawn |  |
-| `coffers_recoup` | setting | 1.1 | single spend that proposes earning it back (0 = OFF; absent = 20,000) |  |
+| `coffers_recoup` | setting | 1.1 | single spend that proposes earning it back (0 = OFF; absent = DAY: average gold per day, 20,000 until known) |  |
 | `coffers_recoup_base` | data | 1.1 | fortune before the big spend a pending recoup proposal aims back to |  |
 | `gc_min` | legacy | 0.1 | old name of coffers_min |  |
 | `gc_days` | legacy | 0.1 | old name of coffers_days |  |

@@ -171,7 +171,7 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 ## 8. Money, items and calendar
 
 - [ ] **Coffers:** "the books are open" within a prompt or two of login. Deposit/withdraw: no change to the session. Pick up or spend: counted. Big gain: lime "Ka-ching"; big loss: orange.
-- [ ] Recoup: spend 20,000+ in one go: "coffers proposes a goal: earn N gold — earn back…"; a second big spend raises the same proposal; earn it back (fortune at the old level): it goes away. `COFFERS RECOUP OFF` withdraws a pending one; `COFFERS RECOUP 50k` kept after a reload.
+- [ ] Recoup: `COFFERS RECOUP` names the threshold (your /day figure, or 20,000 before it's known); spend more than that in one go: "coffers proposes a goal: earn N gold — earn back…"; a second big spend raises the same proposal; earn it back (fortune at the old level): it goes away. `COFFERS RECOUP OFF` withdraws a pending one; `COFFERS RECOUP 50k` kept after a reload.
 - [ ] `COFFERS SESSIONS`, `DAYS`, `CSV`; `GOAL 10k` and its bar; `WIPE` warns; `WIPE CONFIRM` clears books, goal and proposals.
 - [ ] Proposals: accepted while a goal is under way, it adds to that goal (earned so far kept, both sources in the tab); with the goal reached, a fresh goal from now; `COFFERS GOAL 50k` replaces whatever goal there was.
 - [ ] **Ledger:** the digest prints at login, `DATE` lines hidden; dates read "12th Valnuary". `LEDGER ADD test @ +1 days`, `DONE`; a repeating one moves to its next date; `DROP`; `TOUCH` a standing item. An item another package adds right after login reads "fresh" once the date is known (never "untouched 12280mo").
