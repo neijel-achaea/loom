@@ -6,7 +6,10 @@
 var B = client.loom && client.loom.basher;
 if (B && B.on) {
   var bsLine = String(args[1] || "");
-  if (!B.affLine(bsLine) && !B.razeLine(bsLine)) {
+  // Stunned or knocked down (Ricardo's log 2026-10-28): the attack never went
+  // out, so it isn't a miss; it goes again on the next recovery.
+  if (B.run && /^(?:You are too stunned to be able to do anything\.|You must be standing first\.)$/.test(bsLine)) { B.misses = 0; B.sentAt = Date.now(); }
+  else if (!B.affLine(bsLine) && !B.razeLine(bsLine)) {
     if (!B.run && B.isAttack(bsLine)) B.begin();
     else if (B.run && !B.roomKnown && /^You have slain /.test(bsLine)) B.end("your target is dead and this room's list isn't known yet");
   }

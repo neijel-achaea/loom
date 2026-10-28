@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.0.2.*
+*This page describes basher 1.0.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -138,7 +138,8 @@ Each link is on as soon as both packages are installed; `LOOM LINKS` lists them,
 ## Troubleshooting
 
 - **`BASHER ON` but nothing happens.** It waits for your own first attack. `BASHER` says why it isn't attacking.
-- **It stopped attacking with "attacks took no balance or equilibrium".** Three attacks took no balance in a row, so the run ended (still primed): check your target is a mob here and `HUNTING MAIN` is the right attack, then attack again.
+- **It stopped attacking with "attacks took no balance or equilibrium".** Three attacks took no balance in a row, so the run ended (still primed): check your target is a mob here and `HUNTING MAIN` is the right attack, then attack again. Attacks that bounce off being stunned or knocked down ("You are too stunned…", "You must be standing first.") don't count: they go again on the next recovery.
+- **Blackout, or anything that hides your own lines.** Some attacks (a throat thrust that chokes you) black you out for a few seconds: the game stops showing what *you* do. The basher reads balance, equilibrium and rage from the game's data, not from those lines, so it keeps going; a shieldbreak whose line was hidden counts as landed when its rage is seen spent.
 - **It never razes.** Check `BASHER RAZE`, your rage, and whether your class has a shieldbreak key (see above).
 - **It stopped after someone arrived.** That's the design: it finishes the fight in progress and waits primed. Attack again to carry on. If you'd rather it kept going (a busy hunting ground, a long tell conversation), `BASHER INTERRUPT OFF`; `BASHER` reminds you while it's off.
 - **A mob type isn't targeted.** New types join ignored; switch them ACTIVE in the Basher tab.

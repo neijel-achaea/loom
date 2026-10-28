@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "1.0.2", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "1.0.3", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -129,6 +129,7 @@ B.tickMs = 250;    // how often the loop looks
 B.retryMs = 2500;  // an attack that took no balance by then is counted as a miss
 B.maxMisses = 3;   // that many in a row: the basher switches itself off
 B.rageRetryMs = 2500; // a rage ability not seen used by then may be sent again
+B.razeRageMs = 4000;  // a raze's rage seen spent this soon after sending counts as landed
 
 // Hunting, read only. Undefined when it isn't installed (or not set up yet).
 B.hunting = function () {
@@ -574,12 +575,27 @@ B.razeNote = function () {
 B.razeTick = function () {
   if (get_variable("basher_raze") == "off" || get_variable("pauseTriggers") == "on") return;
   var r = B.razeCmd();
-  if (!r || to_number((B.hunting() || {}).rage) < r.cost) return;
+  if (!r) return;
+  var rage = to_number((B.hunting() || {}).rage);
   var now = Date.now();
+  // The raze's own line can go unseen (blackout hides your own actions'
+  // lines, Ricardo's log 2026-10-28): its rage spent, read from GMCP, says
+  // it landed. A drop of the cost (less a little gained meanwhile) within
+  // B.razeRageMs of sending counts as the shield razed.
+  if (B.razeAt && B.razeRage !== null && B.razeRage !== undefined && now - B.razeAt < B.razeRageMs && rage <= B.razeRage - r.cost + 3) {
+    var tn = B.targetName();
+    B.razeAt = 0; B.razeRage = null;
+    if (tn && B.shields[tn]) {
+      delete B.shields[tn];
+      if (B.on && B.run) display_notice("[basher] " + tn + "'s shield razed (its rage spent): attacking again.", "lime");
+    }
+    return;
+  }
+  if (rage < r.cost) return;
   if (B.razeAt && now - B.razeAt < B.rageRetryMs) return;
   var cmds = B.prep(r.cmd, B.target().tar);
   for (var i = 0; i < cmds.length; i++) send_command(cmds[i], 1);
-  B.razeAt = now;
+  B.razeAt = now; B.razeRage = rage;
   if (get_variable("debug") == "on") display_notice("[debug][basher] raze " + r.name + ": " + cmds.join(" | "), "cyan");
 };
 // A line saying the shield is gone without fading: your raze's own line (the
