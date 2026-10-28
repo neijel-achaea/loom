@@ -56,6 +56,7 @@ The packages below send commands without you typing each one. Check them against
 | [magi](magi.md) | Picks up pearls; a refine run sends `REFINE` until done; **opens a sonic portal when a city member tells you "Gate."** (off by default) | `MAGI PEARLS OFF`, `REFINE STOP`, `PORTAL OFF` |
 | [civic](civic.md) | **Accepts lesson requests** from others (not enemies) | `LOOM PAUSE ON` |
 | [conjuration](conjuration.md) | A ritual's steps, one after another | the ritual ends, `CONJURATION STOP` |
+| [remedies](remedies.md) | After `REMEDIES BREW`: brews and pours each remedy up to its target, one after another | everything topped up, a problem it can't solve, `REMEDIES STOP` |
 | [talpieces](talpieces.md) | Queues `TALISMAN COMBINE` for each row of your listing (on by default) | `TALPIECES COMBINE OFF` |
 | [defcon](defcon.md) | Sets curing priorities; raises insomnia when it clears; a pear when you choke underwater; setup commands at login | `DEFCON INIT AUTO OFF` for the login part |
 | [security](security.md) | Puts back watched items and backpack gold that are taken | `SECURITY ANTITHEFT OFF` |
