@@ -6,7 +6,7 @@ if (!client.loom) client.loom = {};
 if (!client.loom.hooks) client.loom.hooks = {};
 if (!client.loom.hooks.roleplay) client.loom.hooks.roleplay = {};
 
-// Who you are (name, race, class, gender), your health (a fight holds the
+// Who you are (name, race, class, gender), your health and balance (a fight holds the
 // emotes back), and the defences and afflictions in ROLEPLAY QUIET.
 client.loom.hooks.roleplay.gmcp = function (args) {
   var rpM = String((args && args.gmcp_method) || "");
@@ -30,6 +30,12 @@ client.loom.hooks.roleplay.gmcp = function (args) {
       if (RP.lastHp !== undefined && hp < RP.lastHp) RP.hurtAt = Date.now();
       RP.lastHp = hp;
     }
+    // Balance or equilibrium spent (an attack, but also harvesting and the
+    // like): a fight may be on even without health lost (#423).
+    var bal = String(rpA.bal), eq = String(rpA.eq);
+    if ((RP.lastBal === "1" && bal === "0") || (RP.lastEq === "1" && eq === "0")) RP.actAt = Date.now();
+    if (bal === "0" || bal === "1") RP.lastBal = bal;
+    if (eq === "0" || eq === "1") RP.lastEq = eq;
   } else if (rpM === "Char.Name" || rpM === "Char.Status") {
     if (rpA.name && String(rpA.name) !== RP.me) { RP.me = String(rpA.name); set_variable("roleplay_name", RP.me); }
     // Not sent by Achaea today (SCORE's line is read instead), kept in case it is.
