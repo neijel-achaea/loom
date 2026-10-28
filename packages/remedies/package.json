@@ -1,0 +1,125 @@
+{
+  "type": "group",
+  "name": "remedies",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "remedies_setup",
+      "enabled": true,
+      "code": "@file:remedies_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "remedies_help",
+      "enabled": true,
+      "code": "@file:remedies_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Remedies control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_remedies.js"
+        }
+      ],
+      "text": "^remedies(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift listing",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift.js"
+        }
+      ],
+      "text": "^(?:Glancing into your rift, you see:|Elixirs|Salves|-{20,}|\\s*\\[\\s*[\\d,]+\\]\\s.*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Brew done",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_brew.js"
+        }
+      ],
+      "text": "^You place your ingredients into .+, leaving you with .+\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Pour into rift",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_pour.js"
+        }
+      ],
+      "text": "^You carefully pour ([\\d,]+) sips of (.+) from (.+) into your rift, bringing the total stored sips to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Brew and pour answers",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_answer.js"
+        }
+      ],
+      "text": "^(?:That pot already contains .+!|You lack the required ingredients to brew that\\.|That is not a pot\\.|Your rift is already full\\.|.+ is empty\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Tops up the elixirs and salves in your rift: brews in your pot, pours, stops"
+}

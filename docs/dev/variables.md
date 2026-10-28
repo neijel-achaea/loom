@@ -166,6 +166,15 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `gathering_map` | data | 1.1 | material name to rift name |  |
 | `gathering_stock` | data | 1.1 | rift stock last read |  |
 
+## remedies
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `remedies_pot` | setting | 1.1 | the pot to brew in (its id) |  |
+| `remedies_targets` | setting | 1.1 | your own targets per remedy (defaults otherwise) |  |
+| `remedies_stock` | data | 1.1 | the rift's elixirs and salves as last read |  |
+| `remedies_caps` | data | 1.1 | the most the rift took of each, learnt from short pours |  |
+
 ## harvesting
 
 | Variable | Kind | Since | Holds | Was |
