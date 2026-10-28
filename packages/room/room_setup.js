@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.1.2", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.1.3", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -216,6 +216,7 @@ R.probeAdd = function (it) {
   var id = String(it.id);
   if (R.loyal.hasOwnProperty(id) || R.probeQ.indexOf(id) >= 0 || (R.probing && R.probing.id === id)) return;
   if (R.loyalsKnown(id, String(it.name || "a mob"))) { if (client.loom.notify) client.loom.notify("room"); return; }
+  if (R.basherActive(String(it.name || ""))) return;
   R.probeQ.push(id);
   R.probeSince[id] = Date.now();
 };
@@ -227,6 +228,15 @@ R.probeWakeIn = function (ms) {
     // A timer runs between packets: nothing of a packet is still coming.
     R.probeAtPrompt = true; R.probeNext(); R.probeAtPrompt = false;
   }, Math.max(20, ms + 20));
+};
+// Whether the basher hunts mobs of this name in this area (#422, Ricardo):
+// ACTIVE in its list, read through the basher-room link. Those are ordinary
+// denizens, so they aren't probed. Ignored entries (named NPCs, new types)
+// still are. With the basher missing or the link off, false: probe as before.
+R.basherActive = function (name) {
+  var LL = client.loom.loom;
+  var q = (LL && LL.answer) ? LL.answer("room", "room.queue", {}) : undefined;
+  return !!(q && q.active && name && q.active[name] === true);
 };
 // Whether the basher is fighting (its run, read through the basher-room link).
 R.probeBusy = function () {
