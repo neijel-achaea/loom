@@ -262,6 +262,14 @@ B.rageTick = function () {
   var hu = B.hunting();
   var now = Date.now();
   if (B.rageSent) {
+    // Its line can go unseen (blackout, #433): its rage seen spent counts as
+    // used, and so does the game refusing it as too soon. Either way its
+    // cooldown runs (hunting's cd) until hunting sees "You can use X again."
+    var rgNow = to_number(hu.rage), rgCost = to_number((hu.costs || {})[B.rageSent.name]);
+    if (hu.cd[B.rageSent.name] !== false && (B.rageSent.soon || (rgCost > 0 && B.rageSent.rage !== undefined && now - B.rageSent.at < B.razeRageMs && rgNow <= B.rageSent.rage - rgCost + 3))) {
+      hu.cd[B.rageSent.name] = false;
+      if (get_variable("debug") == "on") display_notice("[debug][basher] " + B.rageSent.name + " counted as used (" + (B.rageSent.soon ? "too soon" : "rage spent") + ")", "cyan");
+    }
     // Seen used: hunting put it (or the global cooldown) on cooldown from its
     // line. The ability's own cooldown outlasts the global one, so this holds
     // even if the global cooldown cleared between two looks.
@@ -272,7 +280,7 @@ B.rageTick = function () {
   if (!r) return;
   var cmds = B.prep(r.cmd, B.target().tar);
   for (var i = 0; i < cmds.length; i++) send_command(cmds[i], 1);
-  B.rageSent = { name: r.name, at: now };
+  B.rageSent = { name: r.name, at: now, rage: to_number(hu.rage) };
   if (get_variable("debug") == "on") display_notice("[debug][basher] rage " + r.name + ": " + cmds.join(" | "), "cyan");
 };
 
