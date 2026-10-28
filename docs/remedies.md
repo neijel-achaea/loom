@@ -3,7 +3,7 @@
 *Tops up the elixirs and salves in your rift: brews each one in your pot, pours it into the rift, and stops when they're all at their targets.*
 
 <!-- loom:version remedies -->
-*This page describes remedies 0.1.0.*
+*This page describes remedies 0.1.1.*
 <!-- /loom:version -->
 
 ## What it is

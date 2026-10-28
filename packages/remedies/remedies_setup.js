@@ -10,7 +10,7 @@ if (!client.loom.remedies) client.loom.remedies = {};
 var RM = client.loom.remedies;
 // busy (#318): true while a run has a command out, so Here's probe and
 // other packages wait their turn (and a run waits for theirs).
-client.loom.registry.remedies = { version: "0.1.0", keyword: "REMEDIES", desc: "{{description}}", busy: function () {
+client.loom.registry.remedies = { version: "0.1.1", keyword: "REMEDIES", desc: "{{description}}", busy: function () {
   var r = client.loom.remedies;
   return !!(r && r.run && r.run.out && Date.now() - (r.run.sentAt || 0) < r.timeoutMs);
 } };
@@ -113,6 +113,7 @@ RM.stop = function (why, colour) {
   var r = RM.run;
   RM.run = null;
   RM.reading = null;
+  clearTimeout(RM.kickT);
   if (why) RM.say(why, colour || "orange");
   RM.summary(r);
 };
@@ -174,6 +175,15 @@ RM.prompt = function () {
   }
   RM.pump();
 };
+// The next step after an answer. The prompt that came with the answer may
+// have been read before its lines (Vitals ahead of the text), and an idle
+// character gets no further prompt: so go on shortly after the answer
+// instead of waiting for one. Not after a brew: its balance recovery brings
+// a prompt, and the pour waits for it.
+RM.kick = function () {
+  clearTimeout(RM.kickT);
+  RM.kickT = setTimeout(function () { var R = client.loom.remedies; R.kickT = null; if (R.run) R.pump(); }, 150);
+};
 RM.cur = function () { var r = RM.run; return r && r.plan ? r.plan[r.i] : null; };
 
 // ---- Answers -------------------------------------------------------------
@@ -197,7 +207,7 @@ RM.rule = function () {
 // A listing ended (its second rule), or the game said the rift has none.
 RM.listed = function () {
   RM.reading = null;
-  if (RM.run && RM.run.out == "read") { RM.run.out = ""; RM.save(); }
+  if (RM.run && RM.run.out == "read") { RM.run.out = ""; RM.save(); RM.kick(); }
 };
 // "You place your ingredients into …, leaving you with …."
 RM.brewed = function () {
@@ -230,6 +240,7 @@ RM.poured = function (sips, total) {
     return true;
   }
   RM.save();
+  RM.kick();
   return true;
 };
 // "Your rift is already full."
@@ -248,6 +259,7 @@ RM.empty = function () {
   if (!r || r.out != "pour") return false;
   r.out = "";
   r.brewed = 0;
+  RM.kick();
   return true;
 };
 // "That pot already contains X!": pour it into the rift first, then brew again.
@@ -288,6 +300,7 @@ RM.oldPoured = function (ok, total, what) {
     }
   }
   if (!ok) { RM.stop(RM.pot + " still holds something the rift won't take: empty it, then REMEDIES BREW again."); }
+  else RM.kick();
   return true;
 };
 // "You lack the required ingredients to brew that.": skip it, go on.
@@ -297,6 +310,7 @@ RM.noIngredients = function () {
   r.out = "";
   r.skipped.push(it.name + " (no ingredients)");
   r.left = 0;
+  RM.kick();
   return true;
 };
 // "That is not a pot."
