@@ -57,6 +57,15 @@ if (shCmd === "" || shCmd === "list") {
   if (!shRest) SH.say("SHOPPING WALK <shop|number>, or WALK on a shop's line in the tab.", "orange");
   else if (!shTo) SH.say("no shop '" + shRest + "' on the list.", "orange");
   else SH.walk(shTo);
+} else if (shCmd === "skip" || shCmd === "unskip") {
+  var shPool = shCmd === "skip" ? SH.byShop().map(function (x) { return x.shop; }) : SH.skipList(), shSk2 = "";
+  if (/^\d+$/.test(shRest) && shCmd === "skip") shSk2 = shPool[Number(shRest) - 1] || "";
+  else if (shRest) { var shSq = SH.key(shRest); shSk2 = shPool.filter(function (x) { return SH.key(x) === shSq; })[0] || shPool.filter(function (x) { return SH.key(x).indexOf(shSq) === 0; })[0] || ""; }
+  if (shCmd === "unskip" && shRest.toLowerCase() === "all") SH.unskip("all");
+  else if (!shRest) SH.say(SH.skipList().length ? "skipped: " + SH.skipList().join(", ") + ". SHOPPING UNSKIP <shop>|ALL." : "no shops skipped. SHOPPING SKIP <shop|number> moves a shop's items elsewhere.");
+  else if (!shSk2) SH.say("no " + (shCmd === "skip" ? "shop" : "skipped shop") + " '" + shRest + "'.", "orange");
+  else if (shCmd === "skip") SH.skipShop(shSk2);
+  else SH.unskip(shSk2);
 } else if (shCmd === "here") {
   var shHs = SH.byShop().map(function (x) { return x.shop; }), shHt = "";
   if (/^\d+$/.test(shRest)) shHt = shHs[Number(shRest) - 1] || "";

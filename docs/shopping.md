@@ -3,7 +3,7 @@
 *A shopping list priced from the city's directory, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 0.1.5.*
+*This page describes shopping 0.1.6.*
 <!-- /loom:version -->
 
 ## What it is
@@ -17,6 +17,7 @@ Shopping keeps a list of what you mean to buy, and where. `SHOPPING ADD 5 tinder
 - **Which one?** A word can match different items (`DIRECTORY VIAL` lists oaken, sandstone and marble vials). Shopping then lists them, cheapest first, in a box at the top of the tab and as notices: click one, or `SHOPPING PICK <number>`. At one price, items sold at a shop already on your list come first, marked ⚑.
 - **Adding again.** Adding an item that's already on the list adds to its quantity and takes the fresh price and shops.
 - **Removing.** Hover a row for its `×`, or `SHOPPING REMOVE <number|item> [n]` to take some or all of it off.
+- **Skipping a shop.** The `×` on a shop's line (or `SHOPPING SKIP <shop|number>`) leaves that shop out: its items move to their next cheapest shops, and the notice says how much more that costs. Items sold nowhere else stay, marked. Skipped shops are listed under the list; click one (or `SHOPPING UNSKIP <shop>|ALL`) to use it again.
 
 Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Each shop's line has a **WALK** button that sends the game's `WALKTO <shop>` once (or `SHOPPING WALK <shop|number>`); the game stops the walk at a closed door or anything else in the way. Inside a shop on the list, its heading reads ◉ HERE and each of its items gets a **BUY** button that sends `BUY <how many> <the word you added it by>` once (or `SHOPPING BUY <number|item>`, refused elsewhere); when the game says you paid and received it (`You pay 80 sovereigns and receive a group of 10 cohosh roots.`), the item comes off the list, or only what you got of it when that's fewer. A shop is recognised by its room's name; when a shop's room has another name, stand in it and type `SHOPPING HERE <shop>` once. Otherwise Shopping sends only `DIRECTORY` when you add something.
 
@@ -32,6 +33,8 @@ Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) ca
 | `SHOPPING WALK <shop\|number>` | walk to a shop on the list (WALKTO <shop>), as WALK on its line in the tab |
 | `SHOPPING BUY <number\|item>` | in its shop: buy the wanted amount (BUY <n> <word you added it by>), as BUY on its line |
 | `SHOPPING HERE [shop\|number]` | which shop you're in; with a shop: this room is it (when its room name differs) |
+| `SHOPPING SKIP [shop\|number]` | leave a shop out: its items move to their next cheapest shops (× on its line); bare: the skipped ones |
+| `SHOPPING UNSKIP <shop>\|ALL` | use a skipped shop again (or click it under the list) |
 | `SHOPPING CLEAR CONFIRM` | wipe the whole list |
 | `SHOPPING RESET` | reload the saved list, redraw the tab |
 | `SHOPPING DEBUG` | internal state |

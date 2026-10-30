@@ -9,7 +9,7 @@ if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.1.5", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.1.6", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () { var q = client.loom.shopping.q; return !!(q && q.sent && Date.now() - q.at < client.loom.shopping.giveUpMs); } };
 
@@ -48,6 +48,10 @@ for (var shI = 0; shI < shRaw.length; shI++) {
   SH.list.push({ desc: String(shE.desc).trim(), word: String(shE.word || "").trim(), n: Math.max(1, Math.min(9999, Math.floor(Number(shE.n)) || 1)),
     shops: shOs, shop: String(shE.shop).trim(), price: shPrice, cur: shCur, area: String(shE.area || ""), at: Number(shE.at) || 0 });
 }
+// shopping_skip = [shop, …]: shops you'd rather not visit (SHOPPING SKIP).
+SH.skip = {};
+var shSk = SH.readList("shopping_skip");
+for (var shSi = 0; shSi < shSk.length; shSi++) if (typeof shSk[shSi] == "string" && shSk[shSi].trim()) SH.skip[shSk[shSi].trim()] = true;
 SH.q = null;          // the DIRECTORY being read: { word, n, sent, at, prompts, head, rules, rows, descAt, shopAt }
 SH.choices = null;    // different items for one word, waiting for PICK: { word, n, area, opts: [{ desc, rows }] }
 SH.giveUpMs = 5000;   // a DIRECTORY that never answers
@@ -83,11 +87,15 @@ SH.save = function () {
 // the rest, fewest choices first, each to the choice already holding the
 // most items (the directory's order breaks ties). Run on every change, so
 // an earlier item moves when a later one makes a shop worth the stop.
+// Skipped shops (SHOPPING SKIP) are left out while another shop sells the
+// item; an item sold only there stays with it.
 SH.cands = function (it) {
-  var low = null, cur = it.shops.length ? it.shops[0].c : "gp", out = [], enough = [];
-  for (var i = 0; i < it.shops.length; i++) if (it.shops[i].c === cur && (low === null || it.shops[i].p < low)) low = it.shops[i].p;
-  for (var j = 0; j < it.shops.length; j++) {
-    var o = it.shops[j];
+  var open = it.shops.filter(function (o) { return !SH.skip[o.s]; });
+  if (!open.length) open = it.shops;
+  var low = null, cur = open.length ? open[0].c : "gp", out = [], enough = [];
+  for (var i = 0; i < open.length; i++) if (open[i].c === cur && (low === null || open[i].p < low)) low = open[i].p;
+  for (var j = 0; j < open.length; j++) {
+    var o = open[j];
     if (o.c !== cur || o.p !== low) continue;
     out.push(o);
     if (o.k < 0 || o.k >= it.n) enough.push(o);
@@ -392,6 +400,30 @@ SH.received = function (what) {
   SH.say("bought " + hit.desc + ": off the list. " + (SH.list.length ? SH.list.length + " left, about " + SH.sumText(SH.total()) + "." : "The list is done."), "lime");
 };
 
+// SKIP: move a shop's items to their next cheapest shops; UNSKIP undoes it.
+SH.skipList = function () { var out = []; for (var k in SH.skip) if (SH.skip.hasOwnProperty(k) && SH.skip[k]) out.push(k); return out.sort(); };
+SH.saveSkip = function () { var l = SH.skipList(); if (l.length) set_variable("shopping_skip", JSON.stringify(l)); else delete_variable("shopping_skip"); };
+SH.skipShop = function (shop) {
+  var before = {}, items = SH.list.filter(function (it) { return it.shop === shop; });
+  for (var i = 0; i < items.length; i++) before[items[i].desc] = items[i].n * items[i].price;
+  SH.skip[shop] = true;
+  SH.saveSkip();
+  SH.save();
+  var moved = [], stuck = [], extra = 0;
+  for (var j = 0; j < items.length; j++) {
+    if (items[j].shop === shop) stuck.push(items[j].desc);
+    else { moved.push(items[j].desc + " → " + items[j].shop); extra += items[j].n * items[j].price - before[items[j].desc]; }
+  }
+  SH.say("skipping " + shop + "." + (moved.length ? " Moved: " + moved.join(", ") + (extra > 0 ? " (" + SH.money(extra) + " more)" : "") + "." : "") +
+    (stuck.length ? " Sold only there, so staying: " + stuck.join(", ") + "." : "") + " SHOPPING UNSKIP " + shop + " to undo.", stuck.length ? "orange" : "lime");
+};
+SH.unskip = function (shop) {
+  if (shop === "all") SH.skip = {}; else delete SH.skip[shop];
+  SH.saveSkip();
+  SH.save();
+  SH.say(shop === "all" ? "no shops skipped." : shop + " is back. Total " + SH.sumText(SH.total()) + ".", "lime");
+};
+
 // The tab's clicks. Its page shares window with the scripts but can't reach
 // client.loom in every Nexus, so these closures carry them.
 try {
@@ -399,6 +431,8 @@ try {
     remove: function (i) { var S = client.loom.shopping, it = S.ordered()[i]; if (it) S.remove(it); },
     pick: function (i) { client.loom.shopping.pick(i + 1); },
     buy: function (i) { var S = client.loom.shopping, it = S.ordered()[i]; if (it) S.buy(it); },
+    skip: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.skipShop(g[i]); },
+    unskip: function (i) { var S = client.loom.shopping, l = S.skipList(); if (l[i] !== undefined) S.unskip(l[i]); },
     walk: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.walk(g[i]); },
     cancel: function () { client.loom.shopping.cancelPick(); }
   };

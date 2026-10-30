@@ -59,11 +59,13 @@ if (C) {
 var num = 0;
 for (var g = 0; g < groups.length; g++) {
   var G = groups[g];
-  html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">';
+  html += '<div class="loom-sh-row" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">';
   html += '<span style="min-width:0;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;font-size:13px;color:' + AMBER + ';"><span style="font-family:' + SYM + ';color:' + DEEP + ';margin-right:4px;">&#9873;</span>' + esc(G.shop) + (G.shop === inShop ? ' <span style="font-family:' + MONO + ';font-variant:normal;letter-spacing:0.08em;font-size:9px;color:' + AMBER + ';">&#9673; HERE</span>' : '') + '</span>';
   html += '<span style="flex:none;white-space:nowrap;color:' + GOLD + ';">' + esc(SH.sumText(G.sum)) + (G.shop === inShop ? '' :
-    '<span onclick="window.loomShopping&&window.loomShopping.walk(' + g + ')" title="walk to ' + esc(G.shop) + ' (' + esc(SH.walkCmd) + ' ' + esc(G.shop) + ')" style="cursor:pointer;margin-left:8px;padding:0 5px;border:1px solid ' + AMBER + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">WALK</span>') + '</span></div>';
+    '<span onclick="window.loomShopping&&window.loomShopping.walk(' + g + ')" title="walk to ' + esc(G.shop) + ' (' + esc(SH.walkCmd) + ' ' + esc(G.shop) + ')" style="cursor:pointer;margin-left:8px;padding:0 5px;border:1px solid ' + AMBER + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">WALK</span>') +
+    '<span class="loom-sh-x" onclick="window.loomShopping&&window.loomShopping.skip(' + g + ')" title="skip ' + esc(G.shop) + ': its items move to their next cheapest shops (SHOPPING UNSKIP to undo)" style="cursor:pointer;margin-left:6px;color:#ff9a4c;">&times;</span></span></div>';
   if (G.area) html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + DIM + ';padding-left:17px;margin-top:-2px;">' + esc(G.area) + '</div>';
+  if (SH.skip[G.shop]) html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:#ff9a4c;padding-left:17px;">skipped, but these are sold nowhere else</div>';
   for (var k = 0; k < G.items.length; k++) {
     var it = G.items[k];
     // Hover: every shop the directory listed, cheapest first.
@@ -81,7 +83,13 @@ for (var g = 0; g < groups.length; g++) {
 if (!nItems && !C && !SH.q) {
   html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">Nothing on the list. In a city, SHOPPING ADD [n] &lt;item&gt; looks it up in the directory and puts it under its cheapest shop.</div>';
 }
-html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices are the directory\'s: a shopkeeper\'s policy can change them. Hover an item for every shop that sells it; ⚑ in a choice: sold at a shop already on the list; × removes an item.</div>';
+var skipped = SH.skipList();
+if (skipped.length) {
+  html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-size:11px;color:' + MUTED + ';">Skipped: ';
+  for (var sk = 0; sk < skipped.length; sk++) html += (sk ? ', ' : '') + '<span onclick="window.loomShopping&&window.loomShopping.unskip(' + sk + ')" title="click to use ' + esc(skipped[sk]) + ' again" style="cursor:pointer;text-decoration:line-through;color:' + DIM + ';">' + esc(skipped[sk]) + '</span>';
+  html += ' <span style="font-style:italic;">(click one to use it again)</span></div>';
+}
+html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices are the directory\'s: a shopkeeper\'s policy can change them. Hover an item for every shop that sells it; ⚑ in a choice: sold at a shop already on the list; × removes an item, or on a shop\'s line skips that shop.</div>';
 html += '</div>';
 
 // The whole tab in the panel's colour (#355); the × shows on a row's hover.
