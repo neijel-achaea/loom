@@ -2,14 +2,14 @@
 // finds the namespace missing. Shopping: a list of what you mean to buy,
 // each item priced and placed by the game's DIRECTORY (the cheapest shop in
 // the city you're in), grouped by shop in the Shopping tab with a subtotal
-// per shop and a likely total. It only keeps the list: nothing buys; WALK sends the game's WALKTO once per click.
+// per shop and a likely total. It only keeps the list: WALK and BUY send the game's WALKTO and BUY once per click.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.1.2", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.1.3", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () { var q = client.loom.shopping.q; return !!(q && q.sent && Date.now() - q.at < client.loom.shopping.giveUpMs); } };
 
@@ -319,12 +319,22 @@ SH.walk = function (shop) {
   SH.say("walking to " + shop + ".");
 };
 
+// BUY on an item's line: "buy <n> <word you looked it up by>", once per
+// click, in whichever shop you're standing in. The list isn't changed.
+SH.buyCmd = function (it) { return "buy " + it.n + " " + it.word; };
+SH.buy = function (it) {
+  if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to buy).", "orange"); return; }
+  if (!it.word) { SH.say("no word to buy " + it.desc + " by: add it again.", "orange"); return; }
+  send_command(SH.buyCmd(it), 1);
+};
+
 // The tab's clicks. Its page shares window with the scripts but can't reach
 // client.loom in every Nexus, so these closures carry them.
 try {
   window.loomShopping = {
     remove: function (i) { var S = client.loom.shopping, it = S.ordered()[i]; if (it) S.remove(it); },
     pick: function (i) { client.loom.shopping.pick(i + 1); },
+    buy: function (i) { var S = client.loom.shopping, it = S.ordered()[i]; if (it) S.buy(it); },
     walk: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.walk(g[i]); },
     cancel: function () { client.loom.shopping.cancelPick(); }
   };

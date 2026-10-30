@@ -9,10 +9,11 @@ var hlRows = [
   ["SHOPPING PICK <number>", "when the directory found different items for a word, the one you mean (or click it in the tab)"],
   ["SHOPPING REMOVE <number|item> [n]", "take an item off the list, or only n of it (also the × on its row in the tab)"],
   ["SHOPPING WALK <shop|number>", "walk to a shop on the list (WALKTO <shop>), as WALK on its line in the tab"],
+  ["SHOPPING BUY <number|item>", "buy the wanted amount where you stand (BUY <n> <word you added it by>), as BUY on its line"],
   ["SHOPPING CLEAR CONFIRM", "wipe the whole list"],
   ["SHOPPING RESET", "reload the saved list, redraw the tab"],
   ["SHOPPING DEBUG", "internal state"],
-  ["Prices are the directory's: a shopkeeper's policy can change them. Nothing buys, and walking is one click at a time."],
+  ["Prices are the directory's: a shopkeeper's policy can change them. WALK and BUY send one command per click; nothing runs on its own."],
   ["The tab is a custom tab named Shopping."]
 ];
 var hlW = 0;

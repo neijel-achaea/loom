@@ -43,6 +43,12 @@ if (shCmd === "" || shCmd === "list") {
   else if (!shF) SH.say("no item '" + shWhat + "' on the list. SHOPPING lists them, numbered.", "orange");
   else if (Array.isArray(shF)) SH.say("'" + shWhat + "' matches " + shF.map(function (x) { return x.desc; }).join(", ") + ": use its number from SHOPPING.", "orange");
   else SH.remove(shF, shCount);
+} else if (shCmd === "buy") {
+  var shB = shRest ? SH.find(shRest) : null;
+  if (!shRest) SH.say("SHOPPING BUY <number|item>, or BUY on its line in the tab.", "orange");
+  else if (!shB) SH.say("no item '" + shRest + "' on the list. SHOPPING lists them, numbered.", "orange");
+  else if (Array.isArray(shB)) SH.say("'" + shRest + "' matches " + shB.map(function (x) { return x.desc; }).join(", ") + ": use its number from SHOPPING.", "orange");
+  else SH.buy(shB);
 } else if (shCmd === "walk") {
   // A shop by its name (any case, or the start of it) or its place in SHOPPING's list.
   var shShops = SH.byShop().map(function (x) { return x.shop; }), shTo = "";

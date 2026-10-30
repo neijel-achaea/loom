@@ -72,6 +72,7 @@ for (var g = 0; g < groups.length; g++) {
     html += '<div class="loom-sh-row" title="' + esc(also) + '" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 4px 2px 17px;border-bottom:1px dotted ' + RULE + ';">';
     html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) + (short ? ' <span style="font-family:' + SYM + ';color:#ff9a4c;" title="only ' + SH.n(it.stock) + ' in stock">&#9888;</span>' : '') + '</span>';
     html += '<span style="flex:none;white-space:nowrap;color:' + MUTED + ';">' + (it.n > 1 ? esc(SH.money(it.price, it.cur)) + ' ea &middot; ' : '') + '<span style="color:' + TXT + ';">' + esc(SH.money(it.n * it.price, it.cur)) + '</span>';
+    html += '<span onclick="window.loomShopping&&window.loomShopping.buy(' + num + ')" title="' + esc(SH.buyCmd(it)) + ' (you must be in ' + esc(it.shop) + ')" style="cursor:pointer;margin-left:8px;padding:0 4px;border:1px solid ' + DEEP + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">BUY</span>';
     html += '<span class="loom-sh-x" onclick="window.loomShopping&&window.loomShopping.remove(' + num + ')" title="remove ' + esc(it.desc) + ' from the list" style="cursor:pointer;margin-left:6px;color:#ff9a4c;">&times;</span></span></div>';
     num++;
   }
