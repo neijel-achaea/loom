@@ -9,7 +9,7 @@ if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.1.4", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.1.5", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () { var q = client.loom.shopping.q; return !!(q && q.sent && Date.now() - q.at < client.loom.shopping.giveUpMs); } };
 
@@ -354,13 +354,42 @@ SH.setHere = function (shop) {
 };
 
 // BUY on an item's line: "buy <n> <word you looked it up by>", once per
-// click, shown only in that item's shop. The list isn't changed.
+// click, shown only in that item's shop. What the game hands over comes
+// off the list (received).
 SH.buyCmd = function (it) { return "buy " + it.n + " " + it.word; };
 SH.buy = function (it) {
   if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to buy).", "orange"); return; }
   if (!it.word) { SH.say("no word to buy " + it.desc + " by: add it again.", "orange"); return; }
   if (SH.shopHere() !== it.shop) { SH.say("you're not in " + it.shop + ": WALK there first (or SHOPPING HERE " + it.shop + " if this room is it).", "orange"); return; }
+  SH.lastBuy = { it: it, at: Date.now() };
   send_command(SH.buyCmd(it), 1);
+};
+
+// "You pay 80 sovereigns and receive a group of 10 cohosh roots.": what
+// you received comes off the list, the line going once it's all there.
+// Looked for among the items of the shop you're in (any shop when you're
+// in none), the last one you clicked BUY for first: its description, the
+// same without a bulk "a group of N", or the word you added it by.
+SH.received = function (what) {
+  var w = String(what || "").trim(), got = 1, m;
+  if ((m = /^(?:a|an|one) (?:group|bundle|bunch|pile) of ([\d,]+) (.+)$/i.exec(w))) { got = Number(m[1].replace(/,/g, "")); w = m[2]; }
+  else if ((m = /^([\d,]+) (.+)$/.exec(w))) { got = Number(m[1].replace(/,/g, "")); w = m[2]; }
+  var here = SH.shopHere(), pool = SH.list.filter(function (it) { return !here || it.shop === here; });
+  if (SH.lastBuy && Date.now() - SH.lastBuy.at < 30000 && pool.indexOf(SH.lastBuy.it) >= 0) { pool.splice(pool.indexOf(SH.lastBuy.it), 1); pool.unshift(SH.lastBuy.it); }
+  var k = SH.key(w), kA = SH.key(String(what || "")), hit = null;
+  for (var i = 0; i < pool.length && !hit; i++) if (SH.key(pool[i].desc) === k || SH.key(pool[i].desc) === kA) hit = pool[i];
+  for (var j = 0; j < pool.length && !hit; j++) if (pool[j].word && new RegExp("\\b" + pool[j].word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(w)) hit = pool[j];
+  if (!hit) return;
+  SH.lastBuy = null;
+  if (got < hit.n) {
+    hit.n -= got;
+    SH.save();
+    SH.say("bought " + got + " " + hit.desc + "; " + hit.n + " still to buy.", "lime");
+    return;
+  }
+  SH.list.splice(SH.list.indexOf(hit), 1);
+  SH.save();
+  SH.say("bought " + hit.desc + ": off the list. " + (SH.list.length ? SH.list.length + " left, about " + SH.sumText(SH.total()) + "." : "The list is done."), "lime");
 };
 
 // The tab's clicks. Its page shares window with the scripts but can't reach

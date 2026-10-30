@@ -64,6 +64,22 @@
     },
     {
       "type": "trigger",
+      "name": "Bought",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_receive.js"
+        }
+      ],
+      "text": "^You pay [\\d,]+ (?:gold )?sovereigns? and receive (.+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "Directory table",
       "enabled": true,
       "actions": [

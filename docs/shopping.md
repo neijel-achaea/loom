@@ -3,7 +3,7 @@
 *A shopping list priced from the city's directory, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 0.1.4.*
+*This page describes shopping 0.1.5.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,7 +18,7 @@ Shopping keeps a list of what you mean to buy, and where. `SHOPPING ADD 5 tinder
 - **Adding again.** Adding an item that's already on the list adds to its quantity and takes the fresh price and shops.
 - **Removing.** Hover a row for its `×`, or `SHOPPING REMOVE <number|item> [n]` to take some or all of it off.
 
-Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Each shop's line has a **WALK** button that sends the game's `WALKTO <shop>` once (or `SHOPPING WALK <shop|number>`); the game stops the walk at a closed door or anything else in the way. Inside a shop on the list, its heading reads ◉ HERE and each of its items gets a **BUY** button that sends `BUY <how many> <the word you added it by>` once (or `SHOPPING BUY <number|item>`, refused elsewhere); the list isn't changed, so take the item off once you have it. A shop is recognised by its room's name; when a shop's room has another name, stand in it and type `SHOPPING HERE <shop>` once. Otherwise Shopping sends only `DIRECTORY` when you add something.
+Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Each shop's line has a **WALK** button that sends the game's `WALKTO <shop>` once (or `SHOPPING WALK <shop|number>`); the game stops the walk at a closed door or anything else in the way. Inside a shop on the list, its heading reads ◉ HERE and each of its items gets a **BUY** button that sends `BUY <how many> <the word you added it by>` once (or `SHOPPING BUY <number|item>`, refused elsewhere); when the game says you paid and received it (`You pay 80 sovereigns and receive a group of 10 cohosh roots.`), the item comes off the list, or only what you got of it when that's fewer. A shop is recognised by its room's name; when a shop's room has another name, stand in it and type `SHOPPING HERE <shop>` once. Otherwise Shopping sends only `DIRECTORY` when you add something.
 
 ## Commands
 
