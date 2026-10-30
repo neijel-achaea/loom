@@ -9,7 +9,7 @@ if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.1.3", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.1.4", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () { var q = client.loom.shopping.q; return !!(q && q.sent && Date.now() - q.at < client.loom.shopping.giveUpMs); } };
 
@@ -51,7 +51,13 @@ for (var shI = 0; shI < shRaw.length; shI++) {
 SH.q = null;          // the DIRECTORY being read: { word, n, sent, at, prompts, head, rules, rows, descAt, shopAt }
 SH.choices = null;    // different items for one word, waiting for PICK: { word, n, area, opts: [{ desc, rows }] }
 SH.giveUpMs = 5000;   // a DIRECTORY that never answers
-if (SH.here === undefined) SH.here = null;  // { area } from Room.Info
+if (SH.here === undefined) SH.here = null;  // { area, id, name } from Room.Info
+// shopping_rooms = { shop: room number }: the room each shop was found in,
+// learnt when a room's name is the shop's name or set by SHOPPING HERE.
+SH.rooms = {};
+var shRm = get_variable("shopping_rooms");
+if (typeof shRm == "string") { try { shRm = JSON.parse(shRm); } catch (e) { shRm = null; } }
+if (shRm && typeof shRm == "object" && !Array.isArray(shRm)) for (var shRk in shRm) if (shRm.hasOwnProperty(shRk) && /^\d+$/.test(String(shRm[shRk]))) SH.rooms[shRk] = String(shRm[shRk]);
 
 SH.say = function (msg, col) { display_notice("[shopping] " + msg, col || "cyan"); };
 SH.n = function (x) { return String(Math.round(x)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
@@ -319,12 +325,41 @@ SH.walk = function (shop) {
   SH.say("walking to " + shop + ".");
 };
 
+// The shop on the list you're standing in, or "": the room whose number is
+// known for it, or a room named like it (then its number is learnt).
+SH.nameKey = function (s) { return SH.key(s).replace(/^the\s+/, "").replace(/[^a-z0-9 ]/g, ""); };
+SH.saveRooms = function () {
+  var any = false;
+  for (var k in SH.rooms) if (SH.rooms.hasOwnProperty(k)) { any = true; break; }
+  if (any) set_variable("shopping_rooms", JSON.stringify(SH.rooms)); else delete_variable("shopping_rooms");
+};
+SH.shopHere = function () {
+  var H = SH.here;
+  if (!H || !H.id) return "";
+  var shops = {};
+  for (var i = 0; i < SH.list.length; i++) shops[SH.list[i].shop] = 1;
+  for (var s in shops) if (SH.rooms[s] === H.id) return s;
+  for (var t in shops) {
+    if (SH.rooms[t] === undefined && SH.nameKey(t) && SH.nameKey(t) === SH.nameKey(H.name)) { SH.rooms[t] = H.id; SH.saveRooms(); return t; }
+  }
+  return "";
+};
+// SHOPPING HERE <shop>: this room is that shop (when its name differs).
+SH.setHere = function (shop) {
+  if (!SH.here || !SH.here.id) { SH.say("no room yet: move or LOOK first.", "orange"); return; }
+  SH.rooms[shop] = SH.here.id;
+  SH.saveRooms();
+  SH.say(shop + " is room " + SH.here.id + " (" + (SH.here.name || "?") + "): BUY shows here for its items.", "lime");
+  run_function("shopping_render", [], "shopping");
+};
+
 // BUY on an item's line: "buy <n> <word you looked it up by>", once per
-// click, in whichever shop you're standing in. The list isn't changed.
+// click, shown only in that item's shop. The list isn't changed.
 SH.buyCmd = function (it) { return "buy " + it.n + " " + it.word; };
 SH.buy = function (it) {
   if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to buy).", "orange"); return; }
   if (!it.word) { SH.say("no word to buy " + it.desc + " by: add it again.", "orange"); return; }
+  if (SH.shopHere() !== it.shop) { SH.say("you're not in " + it.shop + ": WALK there first (or SHOPPING HERE " + it.shop + " if this room is it).", "orange"); return; }
   send_command(SH.buyCmd(it), 1);
 };
 

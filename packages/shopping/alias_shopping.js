@@ -57,6 +57,13 @@ if (shCmd === "" || shCmd === "list") {
   if (!shRest) SH.say("SHOPPING WALK <shop|number>, or WALK on a shop's line in the tab.", "orange");
   else if (!shTo) SH.say("no shop '" + shRest + "' on the list.", "orange");
   else SH.walk(shTo);
+} else if (shCmd === "here") {
+  var shHs = SH.byShop().map(function (x) { return x.shop; }), shHt = "";
+  if (/^\d+$/.test(shRest)) shHt = shHs[Number(shRest) - 1] || "";
+  else if (shRest) { var shHq = SH.key(shRest); shHt = shHs.filter(function (x) { return SH.key(x) === shHq; })[0] || shHs.filter(function (x) { return SH.key(x).indexOf(shHq) === 0; })[0] || ""; }
+  if (!shRest) { var shIn = SH.shopHere(); SH.say(shIn ? "you're in " + shIn + "." : "this room isn't a shop on the list. SHOPPING HERE <shop|number> if it is."); }
+  else if (!shHt) SH.say("no shop '" + shRest + "' on the list.", "orange");
+  else SH.setHere(shHt);
 } else if (shCmd === "clear") {
   if (shRest.toLowerCase() === "confirm") SH.clear();
   else SH.say("SHOPPING CLEAR CONFIRM wipes the whole list (" + SH.list.length + (SH.list.length === 1 ? " item" : " items") + ").", "orange");

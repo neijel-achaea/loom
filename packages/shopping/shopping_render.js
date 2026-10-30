@@ -22,6 +22,7 @@ function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").
 
 var groups = SH.byShop();
 SH.shopsDrawn = groups.map(function (x) { return x.shop; });
+var inShop = SH.shopHere();
 var total = SH.total();
 var nItems = SH.list.length;
 
@@ -59,9 +60,9 @@ var num = 0;
 for (var g = 0; g < groups.length; g++) {
   var G = groups[g];
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">';
-  html += '<span style="min-width:0;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;font-size:13px;color:' + AMBER + ';"><span style="font-family:' + SYM + ';color:' + DEEP + ';margin-right:4px;">&#9873;</span>' + esc(G.shop) + '</span>';
-  html += '<span style="flex:none;white-space:nowrap;color:' + GOLD + ';">' + esc(SH.sumText(G.sum)) +
-    '<span onclick="window.loomShopping&&window.loomShopping.walk(' + g + ')" title="walk to ' + esc(G.shop) + ' (' + esc(SH.walkCmd) + ' ' + esc(G.shop) + ')" style="cursor:pointer;margin-left:8px;padding:0 5px;border:1px solid ' + AMBER + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">WALK</span></span></div>';
+  html += '<span style="min-width:0;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;font-size:13px;color:' + AMBER + ';"><span style="font-family:' + SYM + ';color:' + DEEP + ';margin-right:4px;">&#9873;</span>' + esc(G.shop) + (G.shop === inShop ? ' <span style="font-family:' + MONO + ';font-variant:normal;letter-spacing:0.08em;font-size:9px;color:' + AMBER + ';">&#9673; HERE</span>' : '') + '</span>';
+  html += '<span style="flex:none;white-space:nowrap;color:' + GOLD + ';">' + esc(SH.sumText(G.sum)) + (G.shop === inShop ? '' :
+    '<span onclick="window.loomShopping&&window.loomShopping.walk(' + g + ')" title="walk to ' + esc(G.shop) + ' (' + esc(SH.walkCmd) + ' ' + esc(G.shop) + ')" style="cursor:pointer;margin-left:8px;padding:0 5px;border:1px solid ' + AMBER + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">WALK</span>') + '</span></div>';
   if (G.area) html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + DIM + ';padding-left:17px;margin-top:-2px;">' + esc(G.area) + '</div>';
   for (var k = 0; k < G.items.length; k++) {
     var it = G.items[k];
@@ -72,7 +73,7 @@ for (var g = 0; g < groups.length; g++) {
     html += '<div class="loom-sh-row" title="' + esc(also) + '" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 4px 2px 17px;border-bottom:1px dotted ' + RULE + ';">';
     html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) + (short ? ' <span style="font-family:' + SYM + ';color:#ff9a4c;" title="only ' + SH.n(it.stock) + ' in stock">&#9888;</span>' : '') + '</span>';
     html += '<span style="flex:none;white-space:nowrap;color:' + MUTED + ';">' + (it.n > 1 ? esc(SH.money(it.price, it.cur)) + ' ea &middot; ' : '') + '<span style="color:' + TXT + ';">' + esc(SH.money(it.n * it.price, it.cur)) + '</span>';
-    html += '<span onclick="window.loomShopping&&window.loomShopping.buy(' + num + ')" title="' + esc(SH.buyCmd(it)) + ' (you must be in ' + esc(it.shop) + ')" style="cursor:pointer;margin-left:8px;padding:0 4px;border:1px solid ' + DEEP + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">BUY</span>';
+    if (G.shop === inShop) html += '<span onclick="window.loomShopping&&window.loomShopping.buy(' + num + ')" title="' + esc(SH.buyCmd(it)) + '" style="cursor:pointer;margin-left:8px;padding:0 4px;border:1px solid ' + DEEP + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">BUY</span>';
     html += '<span class="loom-sh-x" onclick="window.loomShopping&&window.loomShopping.remove(' + num + ')" title="remove ' + esc(it.desc) + ' from the list" style="cursor:pointer;margin-left:6px;color:#ff9a4c;">&times;</span></span></div>';
     num++;
   }

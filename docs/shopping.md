@@ -3,7 +3,7 @@
 *A shopping list priced from the city's directory, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 0.1.3.*
+*This page describes shopping 0.1.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,7 +18,7 @@ Shopping keeps a list of what you mean to buy, and where. `SHOPPING ADD 5 tinder
 - **Adding again.** Adding an item that's already on the list adds to its quantity and takes the fresh price and shops.
 - **Removing.** Hover a row for its `×`, or `SHOPPING REMOVE <number|item> [n]` to take some or all of it off.
 
-Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Each shop's line has a **WALK** button that sends the game's `WALKTO <shop>` once (or `SHOPPING WALK <shop|number>`); the game stops the walk at a closed door or anything else in the way. Each item's line has a **BUY** button that sends `BUY <how many> <the word you added it by>` once, in whatever shop you're standing in (or `SHOPPING BUY <number|item>`); the list isn't changed, so take the item off once you have it. Otherwise Shopping sends only `DIRECTORY` when you add something.
+Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Each shop's line has a **WALK** button that sends the game's `WALKTO <shop>` once (or `SHOPPING WALK <shop|number>`); the game stops the walk at a closed door or anything else in the way. Inside a shop on the list, its heading reads ◉ HERE and each of its items gets a **BUY** button that sends `BUY <how many> <the word you added it by>` once (or `SHOPPING BUY <number|item>`, refused elsewhere); the list isn't changed, so take the item off once you have it. A shop is recognised by its room's name; when a shop's room has another name, stand in it and type `SHOPPING HERE <shop>` once. Otherwise Shopping sends only `DIRECTORY` when you add something.
 
 ## Commands
 
@@ -30,7 +30,8 @@ Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) ca
 | `SHOPPING PICK <number>` | when the directory found different items for a word, the one you mean (or click it in the tab) |
 | `SHOPPING REMOVE <number\|item> [n]` | take an item off the list, or only n of it (also the × on its row in the tab) |
 | `SHOPPING WALK <shop\|number>` | walk to a shop on the list (WALKTO <shop>), as WALK on its line in the tab |
-| `SHOPPING BUY <number\|item>` | buy the wanted amount where you stand (BUY <n> <word you added it by>), as BUY on its line |
+| `SHOPPING BUY <number\|item>` | in its shop: buy the wanted amount (BUY <n> <word you added it by>), as BUY on its line |
+| `SHOPPING HERE [shop\|number]` | which shop you're in; with a shop: this room is it (when its room name differs) |
 | `SHOPPING CLEAR CONFIRM` | wipe the whole list |
 | `SHOPPING RESET` | reload the saved list, redraw the tab |
 | `SHOPPING DEBUG` | internal state |

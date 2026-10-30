@@ -180,6 +180,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
 | `shopping_list` | data | 1.1 | the list: each item's description, the word looked up, quantity, every shop the directory listed (price, stock), the one it's under, and the area |  |
+| `shopping_rooms` | data | 1.1 | the room number of each shop, learnt from its room's name or set with `SHOPPING HERE` |  |
 
 ## harvesting
 
