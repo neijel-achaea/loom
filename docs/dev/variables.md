@@ -175,6 +175,12 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `remedies_stock` | data | 1.1 | the rift's elixirs and salves as last read |  |
 | `remedies_caps` | data | 1.1 | the most the rift took of each, learnt from short pours |  |
 
+## shopping
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `shopping_list` | data | 1.1 | the list: each item's description, the word looked up, quantity, price, the shops at that price, the one it's under, and the area |  |
+
 ## harvesting
 
 | Variable | Kind | Since | Holds | Was |
