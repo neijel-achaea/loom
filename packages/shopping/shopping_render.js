@@ -46,7 +46,8 @@ if (C) {
   for (var c = 0; c < C.opts.length; c++) {
     var o = C.opts[c], low = SH.cheapest(o);
     html += '<div class="loom-sh-pick" onclick="window.loomShopping&&window.loomShopping.pick(' + c + ')" title="put ' + esc(o.desc) + ' on the list (SHOPPING PICK ' + (c + 1) + ')" style="cursor:pointer;display:flex;justify-content:space-between;gap:8px;padding:2px 2px;border-bottom:1px dotted ' + RULE + ';">';
-    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="color:' + MUTED + ';font-family:' + MONO + ';font-size:10px;margin-right:5px;">' + (c + 1) + '.</span>' + esc(o.desc) + '</span>';
+    var onl = SH.optOnList(o);
+    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="color:' + MUTED + ';font-family:' + MONO + ';font-size:10px;margin-right:5px;">' + (c + 1) + '.</span>' + esc(o.desc) + (onl ? ' <span style="font-family:' + SYM + ';color:' + AMBER + ';" title="sold at ' + esc(onl) + ', already on your list">&#9873;</span>' : '') + '</span>';
     html += '<span style="flex:none;white-space:nowrap;color:' + MUTED + ';">' + o.rows.length + (o.rows.length === 1 ? ' shop' : ' shops') + ' &middot; from <span style="color:' + GOLD + ';">' + esc(SH.money(low.price, low.cur)) + '</span></span></div>';
   }
   html += '</div>';
@@ -62,9 +63,12 @@ for (var g = 0; g < groups.length; g++) {
   if (G.area) html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + DIM + ';padding-left:17px;margin-top:-2px;">' + esc(G.area) + '</div>';
   for (var k = 0; k < G.items.length; k++) {
     var it = G.items[k];
-    var also = it.cheap.length > 1 ? 'also at ' + it.cheap.filter(function (s) { return s !== it.shop; }).join(', ') + ' for the same price' : 'the only shop at this price';
+    // Hover: every shop the directory listed, cheapest first.
+    var others = it.shops.slice().sort(function (a, b) { return a.p - b.p; }).map(function (o) { return (o.s === it.shop ? '• ' : '  ') + o.s + ': ' + SH.money(o.p, o.c) + (o.k >= 0 ? ' (' + SH.n(o.k) + ' in stock)' : ''); });
+    var short = it.stock >= 0 && it.stock < it.n;
+    var also = (short ? 'only ' + SH.n(it.stock) + ' in stock here\n' : '') + others.join('\n');
     html += '<div class="loom-sh-row" title="' + esc(also) + '" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 4px 2px 17px;border-bottom:1px dotted ' + RULE + ';">';
-    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) + '</span>';
+    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) + (short ? ' <span style="font-family:' + SYM + ';color:#ff9a4c;" title="only ' + SH.n(it.stock) + ' in stock">&#9888;</span>' : '') + '</span>';
     html += '<span style="flex:none;white-space:nowrap;color:' + MUTED + ';">' + (it.n > 1 ? esc(SH.money(it.price, it.cur)) + ' ea &middot; ' : '') + '<span style="color:' + TXT + ';">' + esc(SH.money(it.n * it.price, it.cur)) + '</span>';
     html += '<span class="loom-sh-x" onclick="window.loomShopping&&window.loomShopping.remove(' + num + ')" title="remove ' + esc(it.desc) + ' from the list" style="cursor:pointer;margin-left:6px;color:#ff9a4c;">&times;</span></span></div>';
     num++;
@@ -73,7 +77,7 @@ for (var g = 0; g < groups.length; g++) {
 if (!nItems && !C && !SH.q) {
   html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">Nothing on the list. In a city, SHOPPING ADD [n] &lt;item&gt; looks it up in the directory and puts it under its cheapest shop.</div>';
 }
-html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices are the directory\'s: a shopkeeper\'s policy can change them. Hover an item for other shops at the same price; × removes it.</div>';
+html += '<div style="margin-top:auto;padding-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices are the directory\'s: a shopkeeper\'s policy can change them. Hover an item for every shop that sells it; ⚑ in a choice: sold at a shop already on the list; × removes an item.</div>';
 html += '</div>';
 
 // The whole tab in the panel's colour (#355); the × shows on a row's hover.

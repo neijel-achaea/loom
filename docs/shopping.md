@@ -3,7 +3,7 @@
 *A shopping list priced from the city's directory, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 0.1.0.*
+*This page describes shopping 0.1.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -11,8 +11,10 @@
 Shopping keeps a list of what you mean to buy, and where. `SHOPPING ADD 5 tinderbox` looks the item up with the game's `DIRECTORY` in the city you're in (the table is hidden while it's read) and puts it under the shop that sells it cheapest. The custom tab named **Shopping** groups the list by shop, so you can see what to buy in each one and how much gold it's likely to cost.
 
 - **By shop.** Each shop with its subtotal and the area it was looked up in, then its items: how many, the price of one, and the line total. The title line counts items and shops and gives the likely total.
-- **Fewest stops.** When several shops sell an item at its lowest price, it goes to a shop the list visits anyway, so equal prices don't add a stop. This is checked again whenever the list changes. Hover an item to see the other shops at that price.
-- **Which one?** A word can match different items (`DIRECTORY VIAL` lists oaken, sandstone and marble vials). Shopping then lists them, cheapest first, in a box at the top of the tab and as notices: click one, or `SHOPPING PICK <number>`.
+- **Every shop kept.** Each item keeps every shop the directory listed, with its price and, for bulk items, its stock. Hover an item to see them, cheapest first.
+- **Cheapest, then fewest stops.** An item goes to the cheapest shop; among shops at that price, those with enough stock come first, and then a shop the list visits anyway, so equal prices don't add a stop. This is worked out again whenever the list changes, so an item added earlier moves when a later one makes another shop a stop anyway. When even the chosen shop has too few in stock, the row shows ⚠.
+- **Bulk items.** Herbs and other goods sold in bulk are priced for one (`9gp ea`), and the directory puts the shop's stock in front of the name (`1387 kuzu roots`). Shopping takes the count off, so the same goods from different shops are one item: `10 × kuzu roots`.
+- **Which one?** A word can match different items (`DIRECTORY VIAL` lists oaken, sandstone and marble vials). Shopping then lists them, cheapest first, in a box at the top of the tab and as notices: click one, or `SHOPPING PICK <number>`. At one price, items sold at a shop already on your list come first, marked ⚑.
 - **Adding again.** Adding an item that's already on the list adds to its quantity and takes the fresh price and shops.
 - **Removing.** Hover a row for its `×`, or `SHOPPING REMOVE <number|item> [n]` to take some or all of it off.
 
