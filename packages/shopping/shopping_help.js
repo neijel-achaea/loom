@@ -8,10 +8,11 @@ var hlRows = [
   ["SHOPPING ADD [n] <item>", "look it up with DIRECTORY (in a city) and list n of it under its cheapest shop; again adds to the quantity"],
   ["SHOPPING PICK <number>", "when the directory found different items for a word, the one you mean (or click it in the tab)"],
   ["SHOPPING REMOVE <number|item> [n]", "take an item off the list, or only n of it (also the × on its row in the tab)"],
+  ["SHOPPING WALK <shop|number>", "walk to a shop on the list (WALKTO <shop>), as WALK on its line in the tab"],
   ["SHOPPING CLEAR CONFIRM", "wipe the whole list"],
   ["SHOPPING RESET", "reload the saved list, redraw the tab"],
   ["SHOPPING DEBUG", "internal state"],
-  ["Prices are the directory's: a shopkeeper's policy can change them. Nothing walks or buys."],
+  ["Prices are the directory's: a shopkeeper's policy can change them. Nothing buys, and walking is one click at a time."],
   ["The tab is a custom tab named Shopping."]
 ];
 var hlW = 0;

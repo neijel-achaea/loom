@@ -43,6 +43,14 @@ if (shCmd === "" || shCmd === "list") {
   else if (!shF) SH.say("no item '" + shWhat + "' on the list. SHOPPING lists them, numbered.", "orange");
   else if (Array.isArray(shF)) SH.say("'" + shWhat + "' matches " + shF.map(function (x) { return x.desc; }).join(", ") + ": use its number from SHOPPING.", "orange");
   else SH.remove(shF, shCount);
+} else if (shCmd === "walk") {
+  // A shop by its name (any case, or the start of it) or its place in SHOPPING's list.
+  var shShops = SH.byShop().map(function (x) { return x.shop; }), shTo = "";
+  if (/^\d+$/.test(shRest)) shTo = shShops[Number(shRest) - 1] || "";
+  else if (shRest) { var shQ = SH.key(shRest); shTo = shShops.filter(function (x) { return SH.key(x) === shQ; })[0] || shShops.filter(function (x) { return SH.key(x).indexOf(shQ) === 0; })[0] || ""; }
+  if (!shRest) SH.say("SHOPPING WALK <shop|number>, or WALK on a shop's line in the tab.", "orange");
+  else if (!shTo) SH.say("no shop '" + shRest + "' on the list.", "orange");
+  else SH.walk(shTo);
 } else if (shCmd === "clear") {
   if (shRest.toLowerCase() === "confirm") SH.clear();
   else SH.say("SHOPPING CLEAR CONFIRM wipes the whole list (" + SH.list.length + (SH.list.length === 1 ? " item" : " items") + ").", "orange");

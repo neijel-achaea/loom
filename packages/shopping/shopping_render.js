@@ -21,6 +21,7 @@ var SYM = "'Segoe UI Symbol','DejaVu Sans',sans-serif";
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
 var groups = SH.byShop();
+SH.shopsDrawn = groups.map(function (x) { return x.shop; });
 var total = SH.total();
 var nItems = SH.list.length;
 
@@ -59,7 +60,8 @@ for (var g = 0; g < groups.length; g++) {
   var G = groups[g];
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:8px 0 2px;border-top:1px solid ' + RULE + ';padding-top:5px;">';
   html += '<span style="min-width:0;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;font-size:13px;color:' + AMBER + ';"><span style="font-family:' + SYM + ';color:' + DEEP + ';margin-right:4px;">&#9873;</span>' + esc(G.shop) + '</span>';
-  html += '<span style="flex:none;white-space:nowrap;color:' + GOLD + ';">' + esc(SH.sumText(G.sum)) + '</span></div>';
+  html += '<span style="flex:none;white-space:nowrap;color:' + GOLD + ';">' + esc(SH.sumText(G.sum)) +
+    '<span onclick="window.loomShopping&&window.loomShopping.walk(' + g + ')" title="walk to ' + esc(G.shop) + ' (' + esc(SH.walkCmd) + ' ' + esc(G.shop) + ')" style="cursor:pointer;margin-left:8px;padding:0 5px;border:1px solid ' + AMBER + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">WALK</span></span></div>';
   if (G.area) html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + DIM + ';padding-left:17px;margin-top:-2px;">' + esc(G.area) + '</div>';
   for (var k = 0; k < G.items.length; k++) {
     var it = G.items[k];

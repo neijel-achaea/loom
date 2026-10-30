@@ -3,7 +3,7 @@
 *A shopping list priced from the city's directory, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 0.1.1.*
+*This page describes shopping 0.1.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,7 +18,7 @@ Shopping keeps a list of what you mean to buy, and where. `SHOPPING ADD 5 tinder
 - **Adding again.** Adding an item that's already on the list adds to its quantity and takes the fresh price and shops.
 - **Removing.** Hover a row for its `×`, or `SHOPPING REMOVE <number|item> [n]` to take some or all of it off.
 
-Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Shopping only keeps the list: it sends `DIRECTORY` when you add something, and nothing else. It doesn't walk or buy.
+Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Each shop's line has a **WALK** button that sends the game's `WALKTO <shop>` once (or `SHOPPING WALK <shop|number>`); the game stops the walk at a closed door or anything else in the way. Otherwise Shopping sends only `DIRECTORY` when you add something. It never buys.
 
 ## Commands
 
@@ -29,10 +29,11 @@ Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) ca
 | `SHOPPING ADD [n] <item>` | look it up with DIRECTORY (in a city) and list n of it under its cheapest shop; again adds to the quantity |
 | `SHOPPING PICK <number>` | when the directory found different items for a word, the one you mean (or click it in the tab) |
 | `SHOPPING REMOVE <number\|item> [n]` | take an item off the list, or only n of it (also the × on its row in the tab) |
+| `SHOPPING WALK <shop\|number>` | walk to a shop on the list (WALKTO <shop>), as WALK on its line in the tab |
 | `SHOPPING CLEAR CONFIRM` | wipe the whole list |
 | `SHOPPING RESET` | reload the saved list, redraw the tab |
 | `SHOPPING DEBUG` | internal state |
-| **Prices are the directory's: a shopkeeper's policy can change them. Nothing walks or buys.** | |
+| **Prices are the directory's: a shopkeeper's policy can change them. Nothing buys, and walking is one click at a time.** | |
 | **The tab is a custom tab named Shopping.** | |
 <!-- /loom:commands -->
 

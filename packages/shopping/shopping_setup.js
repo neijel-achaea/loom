@@ -2,14 +2,14 @@
 // finds the namespace missing. Shopping: a list of what you mean to buy,
 // each item priced and placed by the game's DIRECTORY (the cheapest shop in
 // the city you're in), grouped by shop in the Shopping tab with a subtotal
-// per shop and a likely total. It only keeps the list: nothing walks or buys.
+// per shop and a likely total. It only keeps the list: nothing buys; WALK sends the game's WALKTO once per click.
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.1.1", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.1.2", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () { var q = client.loom.shopping.q; return !!(q && q.sent && Date.now() - q.at < client.loom.shopping.giveUpMs); } };
 
@@ -310,12 +310,22 @@ SH.clear = function () {
 
 SH.place();
 
+// WALK on a shop's line: the game's own walking, sent once per click; the
+// game stops it at a closed door or anything else in the way.
+SH.walkCmd = "walkto";
+SH.walk = function (shop) {
+  if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
+  send_command(SH.walkCmd + " " + shop, 1);
+  SH.say("walking to " + shop + ".");
+};
+
 // The tab's clicks. Its page shares window with the scripts but can't reach
 // client.loom in every Nexus, so these closures carry them.
 try {
   window.loomShopping = {
     remove: function (i) { var S = client.loom.shopping, it = S.ordered()[i]; if (it) S.remove(it); },
     pick: function (i) { client.loom.shopping.pick(i + 1); },
+    walk: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.walk(g[i]); },
     cancel: function () { client.loom.shopping.cancelPick(); }
   };
 } catch (e) {}
