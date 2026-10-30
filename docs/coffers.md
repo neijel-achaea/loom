@@ -192,6 +192,7 @@ Coffers works on its own and reads nothing from other packages. Installed alongs
 | Link | With | What it does |
 | --- | --- | --- |
 | `huntstats-coffers` | huntstats | When you start hunting in an area with hunts on record, proposes a goal 10% over your average hunt there (total gold there ÷ hunts, rounded up to 100): "10% over your average hunt in Annwyn (24,300 gold over 6 hunts)". It's taken back when the hunt ends, filed or left. |
+| `coffers-shopping` | shopping | GOAL next to Shopping's total makes the gold the list still needs a goal here at once: added to a goal under way, or a new goal. |
 | `coffers-standings` | standings | When someone gives you 5,000 gold or more at once, standings gets a small friendly dealing with them (+) to review. Gold from someone in your huntstats party is the split being settled, so it's skipped. Each gift is looked at once. |
 
 How proposals behave:

@@ -9,7 +9,7 @@ if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.1.6", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.1.7", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () { var q = client.loom.shopping.q; return !!(q && q.sent && Date.now() - q.at < client.loom.shopping.giveUpMs); } };
 
@@ -52,6 +52,8 @@ for (var shI = 0; shI < shRaw.length; shI++) {
 SH.skip = {};
 var shSk = SH.readList("shopping_skip");
 for (var shSi = 0; shSi < shSk.length; shSi++) if (typeof shSk[shSi] == "string" && shSk[shSi].trim()) SH.skip[shSk[shSi].trim()] = true;
+// shopping_goal: the gold already made a coffers goal from this list (GOAL).
+SH.goalAdded = Math.max(0, Number(get_variable("shopping_goal")) || 0);
 SH.q = null;          // the DIRECTORY being read: { word, n, sent, at, prompts, head, rules, rows, descAt, shopAt }
 SH.choices = null;    // different items for one word, waiting for PICK: { word, n, area, opts: [{ desc, rows }] }
 SH.giveUpMs = 5000;   // a DIRECTORY that never answers
@@ -75,6 +77,7 @@ SH.byDesc = function (desc) {
 
 SH.save = function () {
   SH.place();
+  if (!SH.list.length && SH.goalAdded) { SH.goalAdded = 0; delete_variable("shopping_goal"); }
   if (SH.list.length) set_variable("shopping_list", JSON.stringify(SH.list)); else delete_variable("shopping_list");
   if (client.loom.notify) client.loom.notify("shopping");
   run_function("shopping_render", [], "shopping");
@@ -424,6 +427,25 @@ SH.unskip = function (shop) {
   SH.say(shop === "all" ? "no shops skipped." : shop + " is back. Total " + SH.sumText(SH.total()) + ".", "lime");
 };
 
+// GOAL (with coffers, link coffers-shopping): the list's gold total as a
+// coffers goal. Only what wasn't made a goal already is added, so a second
+// click after adding items adds just the new part.
+SH.goalLink = function () {
+  var L = client.loom.loom;
+  var a = (L && L.answer) ? L.answer("shopping", "shopping.goal") : undefined;
+  return a && typeof a.set == "function" ? a : null;
+};
+SH.goal = function () {
+  var g = SH.goalLink(), gp = SH.total().gp || 0, add = gp - SH.goalAdded;
+  if (!g) { SH.say("needs coffers installed (and LOOM LINK coffers-shopping ON).", "orange"); return; }
+  if (!gp) { SH.say("nothing in gold on the list.", "orange"); return; }
+  if (add <= 0) { SH.say("the list's " + SH.money(gp) + " is in your coffers goal already (" + SH.money(SH.goalAdded) + " added).", "cyan"); return; }
+  if (!g.set(add, SH.goalAdded ? "more shopping: the list is now " + SH.money(gp) : "the shopping list: " + SH.list.length + (SH.list.length === 1 ? " item" : " items") + " in " + SH.byShop().length + (SH.byShop().length === 1 ? " shop" : " shops"))) { SH.say("coffers didn't take the goal (COFFERS PROPOSED to see why).", "orange"); return; }
+  SH.goalAdded = gp;
+  set_variable("shopping_goal", String(gp));
+  run_function("shopping_render", [], "shopping");
+};
+
 // The tab's clicks. Its page shares window with the scripts but can't reach
 // client.loom in every Nexus, so these closures carry them.
 try {
@@ -433,6 +455,7 @@ try {
     buy: function (i) { var S = client.loom.shopping, it = S.ordered()[i]; if (it) S.buy(it); },
     skip: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.skipShop(g[i]); },
     unskip: function (i) { var S = client.loom.shopping, l = S.skipList(); if (l[i] !== undefined) S.unskip(l[i]); },
+    goal: function () { client.loom.shopping.goal(); },
     walk: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.walk(g[i]); },
     cancel: function () { client.loom.shopping.cancelPick(); }
   };

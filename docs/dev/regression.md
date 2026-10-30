@@ -230,6 +230,7 @@ With every package installed, each link does its part, and switching it off (`LO
 - [ ] `sigils-ledger`: one "Sigil patrol" item with a due date; a monolith closer to expiry moves the date; `SIGILS CLEAR CONFIRM` takes it back.
 - [ ] `self-ledger`: an explorer rank drop adds "Explore a new area"; it stays after recovery and reload; a later drop brings a new one.
 - [ ] `huntstats-coffers`: starting a hunt in a known area proposes a goal (~10% over the average); `COFFERS ACCEPT` keeps it after the hunt; not accepted, leaving takes it back; a new area: none.
+- [ ] `coffers-shopping`: GOAL by Shopping's total sets (or adds to) the coffers goal; ✓ GOAL until items are added, then GOAL adds only the new gold. Off: no GOAL, `SHOPPING GOAL` refused.
 - [ ] `coffers-standings`: 5,000+ gold from someone outside your party suggests a +; less, or from the party: nothing.
 - [ ] `huntstats-standings` *(party)*: a 30-minute party hunt suggests a + with each member; shorter: nothing.
 - [ ] `dmgchart-huntstats`: the filing notice ends "took N/s (max hit M)"; Stats tab and `AREAS` show it, coloured by `HUNTSTATS TANK`. Reload mid-hunt: no damage figures for that hunt.

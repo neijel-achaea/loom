@@ -773,3 +773,32 @@ L.addLink({
     }
   }
 });
+
+// coffers -> shopping (Ricardo): GOAL next to Shopping's total makes the
+// gold the list still needs a coffers goal, at once (the player clicked it):
+// proposed under source shopping, key list, then accepted as COFFERS ACCEPT
+// does (added to a goal under way, or a new goal). Answers shopping.goal ->
+// set(amount, why) -> true when coffers took it.
+L.addLink({
+  id: "coffers-shopping", src: "coffers", dst: "shopping", issue: 0,
+  desc: "GOAL next to Shopping's total makes the gold the list needs a coffers goal",
+  answers: {
+    "shopping.goal": function () {
+      var co = client.loom.coffers;
+      if (!co || !co.entry || !co.entry.propose) return undefined;
+      return {
+        set: function (amount, why) {
+          var c2 = client.loom.coffers;
+          c2.entry.withdraw("shopping", "list");
+          if (!c2.entry.propose({ source: "shopping", key: "list", amount: amount, why: why })) return false;
+          var P = c2.proposals || [], n = 0;
+          for (var i = 0; i < P.length; i++) if (P[i].src === "shopping" && P[i].key === "list") n = i + 1;
+          if (!n) return false;
+          c2.args = ["accept", String(n), ""];
+          run_function("coffers_cmd", [], "coffers");
+          return true;
+        }
+      };
+    }
+  }
+});

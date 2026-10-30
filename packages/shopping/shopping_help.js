@@ -13,6 +13,7 @@ var hlRows = [
   ["SHOPPING HERE [shop|number]", "which shop you're in; with a shop: this room is it (when its room name differs)"],
   ["SHOPPING SKIP [shop|number]", "leave a shop out: its items move to their next cheapest shops (× on its line); bare: the skipped ones"],
   ["SHOPPING UNSKIP <shop>|ALL", "use a skipped shop again (or click it under the list)"],
+  ["SHOPPING GOAL", "with coffers: the list's gold as a coffers goal (GOAL by the total; only what isn't a goal yet)"],
   ["SHOPPING CLEAR CONFIRM", "wipe the whole list"],
   ["SHOPPING RESET", "reload the saved list, redraw the tab"],
   ["SHOPPING DEBUG", "internal state"],

@@ -25,6 +25,14 @@ SH.shopsDrawn = groups.map(function (x) { return x.shop; });
 var inShop = SH.shopHere();
 var total = SH.total();
 var nItems = SH.list.length;
+// GOAL: with coffers (link coffers-shopping), the gold not yet a goal.
+var goalChip = '';
+if ((total.gp || 0) > 0 && SH.goalLink()) {
+  var goalNew = total.gp - SH.goalAdded;
+  goalChip = goalNew > 0
+    ? '<span onclick="window.loomShopping&&window.loomShopping.goal()" title="make ' + esc(SH.money(goalNew)) + ' a goal in coffers' + (SH.goalAdded ? ' (' + esc(SH.money(SH.goalAdded)) + ' added already)' : '') + '" style="cursor:pointer;margin-left:8px;padding:0 5px;border:1px solid ' + GOLD + ';color:' + GOLD + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">GOAL</span>'
+    : '<span title="the list\'s gold is in your coffers goal" style="margin-left:8px;padding:0 5px;border:1px solid ' + DEEP + ';color:' + DIM + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">&#10003; GOAL</span>';
+}
 
 var html = '<div id="loom-shopping" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;">';
 
@@ -32,7 +40,7 @@ var html = '<div id="loom-shopping" style="font-family:' + MONO + ';font-size:10
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + AMBER + ';">Shopping</span>';
 html += '<span style="color:' + MUTED + ';">' + (nItems ? nItems + (nItems === 1 ? ' item' : ' items') + ' &middot; ' + groups.length + (groups.length === 1 ? ' shop' : ' shops') + ' &middot; ' : '') +
-  '<span style="color:' + (nItems ? GOLD : MUTED) + ';font-size:12px;" title="at the prices the directory listed; a shopkeeper\'s own policy can change them">~' + esc(SH.sumText(total)) + '</span></span></div>';
+  '<span style="color:' + (nItems ? GOLD : MUTED) + ';font-size:12px;" title="at the prices the directory listed; a shopkeeper\'s own policy can change them">~' + esc(SH.sumText(total)) + '</span>' + goalChip + '</span></div>';
 
 // Looking something up.
 if (SH.q) {

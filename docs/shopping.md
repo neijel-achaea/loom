@@ -3,7 +3,7 @@
 *A shopping list priced from the city's directory, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 0.1.6.*
+*This page describes shopping 0.1.7.*
 <!-- /loom:version -->
 
 ## What it is
@@ -35,6 +35,7 @@ Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) ca
 | `SHOPPING HERE [shop\|number]` | which shop you're in; with a shop: this room is it (when its room name differs) |
 | `SHOPPING SKIP [shop\|number]` | leave a shop out: its items move to their next cheapest shops (× on its line); bare: the skipped ones |
 | `SHOPPING UNSKIP <shop>\|ALL` | use a skipped shop again (or click it under the list) |
+| `SHOPPING GOAL` | with coffers: the list's gold as a coffers goal (GOAL by the total; only what isn't a goal yet) |
 | `SHOPPING CLEAR CONFIRM` | wipe the whole list |
 | `SHOPPING RESET` | reload the saved list, redraw the tab |
 | `SHOPPING DEBUG` | internal state |
@@ -56,7 +57,13 @@ Build the list as you think of things, wherever in the city you are: the directo
 
 ## Working with other packages
 
-Shopping reads nothing from other packages. Like every package that sends a command and reads its answer, it waits while another package is waiting on an answer of its own, and others wait for its `DIRECTORY`.
+With **coffers** installed, a **GOAL** button sits next to the total: it makes the list's gold a coffers goal at once (added to a goal under way, or a new goal), and turns into ✓ GOAL. Add items later and GOAL comes back, adding only the new gold (`SHOPPING GOAL` does the same). The link can be switched off like any other; `LOOM LINKS` lists them.
+
+| Link | With | What it does |
+| --- | --- | --- |
+| `coffers-shopping` | coffers | GOAL next to the total makes the gold the list still needs a coffers goal. |
+
+Like every package that sends a command and reads its answer, it waits while another package is waiting on an answer of its own, and others wait for its `DIRECTORY`.
 
 ## Troubleshooting
 

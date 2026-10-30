@@ -73,6 +73,8 @@ if (shCmd === "" || shCmd === "list") {
   if (!shRest) { var shIn = SH.shopHere(); SH.say(shIn ? "you're in " + shIn + "." : "this room isn't a shop on the list. SHOPPING HERE <shop|number> if it is."); }
   else if (!shHt) SH.say("no shop '" + shRest + "' on the list.", "orange");
   else SH.setHere(shHt);
+} else if (shCmd === "goal") {
+  SH.goal();
 } else if (shCmd === "clear") {
   if (shRest.toLowerCase() === "confirm") SH.clear();
   else SH.say("SHOPPING CLEAR CONFIRM wipes the whole list (" + SH.list.length + (SH.list.length === 1 ? " item" : " items") + ").", "orange");
