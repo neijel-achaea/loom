@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.defcon) client.loom.defcon = {};
-client.loom.registry.defcon = { version: "1.0.0", keyword: "DEFCON", desc: "{{description}}" };
+client.loom.registry.defcon = { version: "1.1.0", keyword: "DEFCON", desc: "{{description}}" };
 
 var D = client.loom.defcon;
 
@@ -38,12 +38,14 @@ if (!get_variable("defcon_autoinit")) set_variable("defcon_autoinit", "on");
 // game's defence list (GMCP, DEF): the look reports the defence-list name,
 // so Self can match it. Add pairs here as they turn up.
 D.defNames = { mass: "density" };
+// Skill defences not learned yet (#173): D.isOff, D.skillCheck.
+run_function("defcon_skills", [], "defcon");
 D.look = {
   wanted: function () {
     if (!D.tbl || !D.tbl.defs || D.level === undefined || D.level === null) return undefined;
     var out = [];
     for (var i = 0; i < D.tbl.defs.length; i++) {
-      if (D.tbl.defs[i][1] < D.level) continue;
+      if (D.tbl.defs[i][1] < D.level || (D.isOff && D.isOff(D.tbl.defs[i][0]))) continue;
       var nm = String(D.tbl.defs[i][0]).toLowerCase();
       out.push(D.defNames[nm] || nm);
     }

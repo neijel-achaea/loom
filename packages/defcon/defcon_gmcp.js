@@ -20,6 +20,9 @@ client.loom.hooks.defcon.gmcp = function (args) {
     // class's curing list, so just say what level it was left at.
     if (dcWas && dcWas !== D.cls && D.upDone) {
       run_function("defcon_table", [], "defcon");
+      // Another class, other skills (#173); its groups come again from GMCP.
+      D.groups = null;
+      if (D.skillCheck) D.skillCheck("class");
       display_notice("[defcon] " + D.tbl.name + ": " + ((D.level === undefined || D.level === null) ? "no DEFCON level set in this class yet." : "DEFCON " + D.level + "."), "cyan");
     }
     // First class message of the session: send the init commands if DEFCON
@@ -29,6 +32,10 @@ client.loom.hooks.defcon.gmcp = function (args) {
       if (get_variable("defcon_autoinit") == "on") run_function("defcon_up", [], "defcon");
     }
   }
+
+  // Skill groups and their abilities (#173, defcon_skills).
+  if (args.gmcp_method == "Char.Skills.Groups" && D.skillGroups) D.skillGroups(args.gmcp_args);
+  if (args.gmcp_method == "Char.Skills.List" && D.skillList) D.skillList(dcG);
 
   // Morph (Druid, Sentinel), from charstats: a change completes a pending
   // DEFCON UP morph (defcon_aftermorph).

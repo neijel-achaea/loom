@@ -15,7 +15,7 @@ for (var dcT = 1; dcT <= 5; dcT++) {
   var dcRow = [];
   for (var dcI = 0; dcI < T.defs.length; dcI++) {
     var dcD = T.defs[dcI];
-    if (dcD[1] === dcT) dcRow.push((T.mine[dcD[0]] ? "*" : "") + dcD[0] + " (" + dcD[2] + (dcD[3] ? ", off below" : "") + ")");
+    if (dcD[1] === dcT) dcRow.push((T.mine[dcD[0]] ? "*" : "") + dcD[0] + " (" + dcD[2] + (dcD[3] ? ", off below" : "") + (D.isOff && D.isOff(dcD[0]) ? ", not learned" : "") + ")");
   }
   display_notice("  " + dcT + (dcT >= dcLvl ? " kept  " : " down  ") + (dcRow.join(", ") || "-"), dcT >= dcLvl ? "lime" : C);
 }

@@ -25,3 +25,6 @@ if (dcAfter.length) {
 }
 for (var dcI = 0; dcI < dcCmds.length; dcI++) send_command(dcCmds[dcI]);
 display_notice("[defcon] init sent for " + D.tbl.name + (D.tbl.known ? "" : " (class not configured yet: common defences only)") + (D.afterMorph ? "; the rest once the morph completes" : "") + ".", "lime");
+// Which skill defences this character has learned (#173): asked at every
+// DEFCON INIT, so at login too.
+if (D.skillCheck) D.skillCheck("init");

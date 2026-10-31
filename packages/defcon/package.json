@@ -29,6 +29,12 @@
     },
     {
       "type": "function",
+      "name": "defcon_skills",
+      "enabled": true,
+      "code": "@file:defcon_skills.js"
+    },
+    {
+      "type": "function",
       "name": "onGMCP",
       "enabled": true,
       "code": "@file:ongmcp.js"
