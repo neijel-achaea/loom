@@ -17,10 +17,16 @@ var SIZES = [0, 0.5, 1.5, 4];
 // Nemesis, Hostile, Strained, Neutral, Acquaintance, Friend, Soulmate. Only
 // the names changed; the thresholds and colours are as before, and nothing
 // stores a band name (bands are always worked out from the score).
-// [up to, name, colour, icon]: the icon stands in for the name where room is
-// short (the Online tab, with the name on hover); text symbols, so they take
-// the band's colour (shown with U+FE0E so no font draws them as emoji).
-var BANDS = [[-6, "Nemesis", "#d9534f", "\u2620"], [-2.5, "Hostile", "#e07a4f", "\u2694"], [-0.5, "Strained", "#d8b45a", "\u26a0"], [0.5, "Neutral", "#9a9aa3", "\u25cb"], [2.5, "Acquaintance", "#8fc3d8", "\u263a"], [6, "Friend", "#5a9be0", "\u2665"], [10.01, "Soulmate", "#7b8ff0", "\u2766"]];
+// [up to, name, colour, icon, svg]: the icon stands in for the name where
+// room is short (the Online tab, with the name on hover); text symbols, so
+// they take the band's colour (shown with U+FE0E so no font draws them as
+// emoji). Icons (Ricardo, 2026-10-31): skull, crossed swords, warning sign,
+// circle, handshake, smiley, heart. No font has a text handshake, so
+// Acquaintance also carries an inline SVG (Lucide "handshake", ISC licence)
+// drawn in the band's colour where a tab can show HTML; plain-text places
+// (notices, hovers) fall back to the handshake emoji.
+var HANDSHAKE = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-0.15em"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg>';
+var BANDS = [[-6, "Nemesis", "#d9534f", "\u2620"], [-2.5, "Hostile", "#e07a4f", "\u2694"], [-0.5, "Strained", "#d8b45a", "\u26a0"], [0.5, "Neutral", "#9a9aa3", "\u25cb"], [2.5, "Acquaintance", "#8fc3d8", "\ud83e\udd1d", HANDSHAKE], [6, "Friend", "#5a9be0", "\u263a"], [10.01, "Soulmate", "#7b8ff0", "\u2665"]];
 var MONTHS = ["Sarapin", "Daedalan", "Aeguary", "Miraman", "Scarlatan", "Ero", "Valnuary", "Lupar", "Phaestian", "Chronos", "Glacian", "Mayan"];
 
 // Standing from a log: each nudge counts for less the closer the standing
@@ -134,7 +140,7 @@ function stSave() {
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "1.0.1", keyword: "STANDINGS", desc: "{{description}}",
+client.loom.registry.standings = { version: "1.0.2", keyword: "STANDINGS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("standings_render", [], "standings"); } };
 var ST = client.loom.standings;
@@ -237,6 +243,6 @@ ST.look = {
     var since = Math.floor(new Date().getTime() / 1000) - ST.recentDays * 86400;
     var sum = 0, n = 0;
     for (var i = 0; i < e.log.length; i++) { if (e.log[i][0] >= since) { sum += e.log[i][2] || 0; n++; } }
-    return { band: b[1], colour: b[2], icon: b[3] || "", score: e.s, trend: sum > 0 ? 1 : (sum < 0 ? -1 : 0), recent: n };
+    return { band: b[1], colour: b[2], icon: b[3] || "", svg: b[4] || "", score: e.s, trend: sum > 0 ? 1 : (sum < 0 ? -1 : 0), recent: n };
   }
 };

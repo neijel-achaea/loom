@@ -3,7 +3,7 @@
 *How you stand with people and organisations, kept as a ledger of dealings, from Nemesis to Soulmate.*
 
 <!-- loom:version standings -->
-*This page describes standings 1.0.1.*
+*This page describes standings 1.0.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,9 +18,9 @@ Standings keeps a book of the people you deal with. Each time something happens 
 | Hostile | -6 | -2.5 | ⚔ |
 | Strained | -2.5 | -0.5 | ⚠ |
 | Neutral | -0.5 | 0.5 | ○ |
-| Acquaintance | 0.5 | 2.5 | ☺ |
-| Friend | 2.5 | 6 | ♥ |
-| Soulmate | 6 | 10 | ❦ |
+| Acquaintance | 0.5 | 2.5 | 🤝 (drawn in the band's colour in Online) |
+| Friend | 2.5 | 6 | ☺ |
+| Soulmate | 6 | 10 | ♥ |
 
 **Trust is slow to earn and quick to lose.** A nudge counts for less the closer the standing already is to the end it pushes toward: the tenth kindness to a friend moves them less than the first, while a slight to a friend costs more than the same slight to a stranger.
 
@@ -111,7 +111,7 @@ Where your standings show:
 | Link | With | What it does |
 | --- | --- | --- |
 | `standings-online` | social | A column in the Online tab: the band's icon in its colour, an arrow when it moved in the last 3 days; band, score and recent dealings on hover. |
-| `standings-login` | social | The icon in the login notice: "Ana ♥ has awoken." |
+| `standings-login` | social | The icon in the login notice: "Ana ☺ has awoken." |
 | `standings-social` | social | With `SOCIAL COLOURS STANDINGS`, names everywhere take their band's colour. |
 | `standings-comms` | comms | Your standing on hover over a talker's name. |
 
