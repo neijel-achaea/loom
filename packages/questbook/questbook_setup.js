@@ -5,11 +5,11 @@
 // there, send the line), but nothing runs by itself.
 //
 // Step 1 (Ricardo, 2026-10-26): the list and following a quest, with steps
-// added by command. Recording comes next.
+// added by command (recording as you play was dropped, Ricardo 2026-10-31).
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.5.1", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.5.2", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
@@ -696,9 +696,13 @@ try {
     pen: function (i) {
       var Q = client.loom.questbook, q = Q.open ? Q.byId(Q.open) : null;
       if (!q || !q.steps[i]) return;
-      var v = "questbook step edit " + (i + 1) + " " + Q.stepSpec(q.steps[i]);
+      window.loomQuestbook.put("questbook step edit " + (i + 1) + " " + Q.stepSpec(q.steps[i]));
+    },
+    // + NEW: "questbook new " into the input line, for the quest's name.
+    newAsk: function () { window.loomQuestbook.put("questbook new "); },
+    put: function (v) {
       var inp = window.loomQuestbook.input();
-      if (!inp) { Q.say("couldn't find the input line. Type: " + v, "orange"); return; }
+      if (!inp) { client.loom.questbook.say("couldn't find the input line. Type: " + v, "orange"); return; }
       try {
         var desc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(inp), "value");
         if (desc && desc.set) desc.set.call(inp, v); else inp.value = v;
@@ -731,8 +735,7 @@ try {
       if (!ok) { Q.say("no box for pasting here: use QUESTBOOK IMPORT <code>.", "cyan"); return; }
       if (t !== null && String(t).trim()) Q.importCode(t);
     },
-    strike: function (i) { var Q = client.loom.questbook; Q.struck[i] = !Q.struck[i]; run_function("questbook_render", [], "questbook"); },
-    record: function () { client.loom.questbook.say("recording comes in the next step of #376. For now: QUESTBOOK NEW <name>, then QUESTBOOK STEP … (QUESTBOOK HELP).", "cyan"); }
+    strike: function (i) { var Q = client.loom.questbook; Q.struck[i] = !Q.struck[i]; run_function("questbook_render", [], "questbook"); }
   };
   if (!window.loomQuestbookFocus) {
     window.loomQuestbookFocus = true;

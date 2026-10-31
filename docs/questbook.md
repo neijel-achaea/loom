@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.5.1.*
+*This page describes questbook 0.5.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -12,7 +12,7 @@ Questbook (the Questing Companion) keeps the quests you do again and again (most
 
 - **Yours, kept per character** like every Nexus setting. You build your quests as you play. To keep a copy or move one to another character, `QUESTBOOK EXPORT` turns a quest into a short code and `QUESTBOOK IMPORT` adds it back (see [Backing up a quest](#backing-up-a-quest)).
 - **A guide, never a bot.** A step can be one click (walk there, send the line), but nothing runs by itself.
-- **By area.** The list groups quests by the area they start in (the area you were in at `QUESTBOOK NEW`; `QUESTBOOK AREA [name]` moves the open quest), the area you're in first; areas fold (remembered), and a folded area shows how many are ready and waiting. Each quest takes two lines: its name with a status chip on the right (`STEP 3 OF 7` while under way, `READY`, or `✓ AGAIN IN 5 H`), then its rewards, how it repeats and how many times you've done it. **ALL · READY · WAITING** filters the list (kept).
+- **By area.** The list groups quests by the area they start in (the area you were in at `QUESTBOOK NEW`, or **+ NEW** above the list, which puts that command in your input line; `QUESTBOOK AREA [name]` moves the open quest), the area you're in first; areas fold (remembered), and a folded area shows how many are ready and waiting. Each quest takes two lines: its name with a status chip on the right (`STEP 3 OF 7` while under way, `READY`, or `✓ AGAIN IN 5 H`), then its rewards, how it repeats and how many times you've done it. **ALL · READY · WAITING** filters the list (kept).
 - **Following one.** Click a quest to open it: its rewards, a progress bar, and its steps two lines each, done ones ticked, the current one highlighted with its button. A quest you can do now is *followed*: its current step ticks by itself as you play. A quest that's waiting is only shown (START OVER follows it anyway).
 - **Repeats, in Achaean time.** An Achaean day is a real hour, a month a real day and a year 12 real days. **Daily** quests are ready again at the top of every hour; **monthly** ones every day at the game's midnight (`QUESTBOOK MIDNIGHT <hh:mm>` on your own clock, default 02:00, which is the game's midnight seen from Central Europe); **yearly** ones on 1st Sarapin, every 12 days. Questbook learns when 1st Sarapin falls from the game's date line, so type `DATE` once (until then a yearly quest is ready 12 days after you finished it). **None**: a quest done once stays done (`✓ DONE`).
 
@@ -30,8 +30,6 @@ Most steps are commands: anything after `QUESTBOOK STEP` that isn't GO, KILL or 
 In the tab each step shows a small icon; hover it for what it is. Commands starting with GREET, TALK, ASK, SAY, GET, BUY, GIVE or DROP have their own icons, the rest a prompt. Click any step to make it the current one (the steps before it count as done). `QUESTBOOK NEXT` ticks the current step by hand, `QUESTBOOK BACK` steps back.
 
 When the last step ticks, the quest is done: its count goes up, it's stamped with the time and it waits for its next reset.
-
-*Recording a quest as you play it (● RECORD NEW) is the next step of the package; for now quests are written with commands.*
 
 ### Backing up a quest
 
