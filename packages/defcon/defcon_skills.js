@@ -45,17 +45,30 @@ D.abilityOf = function (def) {
   var a = D.defNames && D.defNames[n];
   return (a && D.abilities[a]) ? a : "";
 };
+// The ability an INIT command uses: its first word, after any
+// "queue add <queue>" ("queue add eq simultaneity" -> simultaneity).
+D.cmdAbility = function (cmd) {
+  var c = String(cmd || "").trim().replace(/^queue\s+(?:add|addclear|prepend)\s+\S+\s+/i, "");
+  return D.abilityOf(c.split(/\s+/)[0]);
+};
+D.cmdOff = function (cmd) {
+  var a = D.cmdAbility(cmd);
+  return !!(a && D.unlearned[a]);
+};
 // A defence left out because its ability isn't learned.
 D.isOff = function (def) {
   var a = D.abilityOf(def);
   return !!(a && D.unlearned[a]);
 };
 
-D.skillCheck = function (why) {
+// then: run DEFCON INIT once the check is over (defcon_up, #173).
+D.skillCheck = function (why, then) {
   if (typeof send_GMCP != "function") return false;
   D.skillUnwrap();
   if (D.sk && D.sk.t) clearTimeout(D.sk.t);
-  var sk = { why: why || "", phase: "groups", lists: {}, ask: {}, unlearned: {}, learned: {}, at: Date.now() };
+  // A check already under way that was to run INIT still runs it.
+  var thenInit = !!then || !!(D.sk && D.sk.thenInit);
+  var sk = { why: why || "", phase: "groups", lists: {}, ask: {}, unlearned: {}, learned: {}, at: Date.now(), thenInit: thenInit };
   D.sk = sk;
   sk.t = setTimeout(function () { if (D.sk === sk) D.skillFinish("timeout"); }, D.skillMs);
   try { send_GMCP("Char.Skills.Get", {}); } catch (e) {}
@@ -115,6 +128,12 @@ D.skillInfo = function () {
   for (var i = 0; i < defs.length; i++) {
     var a = D.abilityOf(defs[i][0]);
     if (a && !sk.ask[a]) { sk.ask[a] = D.abilities[a]; n++; }
+  }
+  // INIT's commands too (insomnia, simultaneity…).
+  var cmds = (D.common || []).concat((D.tbl && D.tbl.init) || [], (D.tbl && D.tbl.aftermorph) || []);
+  for (var c = 0; c < cmds.length; c++) {
+    var ca = D.cmdAbility(cmds[c]);
+    if (ca && !sk.ask[ca]) { sk.ask[ca] = D.abilities[ca]; n++; }
   }
   if (!n) { D.skillFinish("no skills"); return; }
   if (!D.skillWrap()) { D.skillFinish("no handler"); return; }
@@ -224,4 +243,5 @@ D.skillFinish = function (how) {
     if (!D.timer) run_function("defcon_drain", [], "defcon");
   }
   if (client.loom.notify) client.loom.notify("defcon");
+  if (sk.thenInit) { D.initGo = true; run_function("defcon_up", [], "defcon"); }
 };
