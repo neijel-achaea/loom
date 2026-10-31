@@ -130,6 +130,22 @@
     },
     {
       "type": "trigger",
+      "name": "huntstats follow",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_follow.js"
+        }
+      ],
+      "text": "^(?:You begin to follow [A-Z][a-z]+\\.|[A-Z][a-z]+ begins to follow you\\.|You follow [A-Z][a-z]+ .+|[A-Z][a-z]+ follows you \\w+\\.|You cease to follow [A-Z][a-z]+.*|You move about quickly and lose [A-Z][a-z]+.*|[A-Z][a-z]+ has left the group\\.|[A-Z][a-z]+ is not following or leading you\\.|You are in no group at present\\.)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "",
       "enabled": true,
       "actions": [

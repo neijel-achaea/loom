@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 1.0.1.*
+*This page describes huntstats 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -38,9 +38,9 @@ Your area and level come from the game (GMCP); experience, gold and kills from t
 | `HUNTSTATS SUGGEST` | the ten best areas to hunt next, by xp/hr, gold/hr and how long since you went |
 | `HUNTSTATS SUGGEST WEIGHTS <x> <g> <v>` | how much xp, gold and variety count (default 70 25 5) |
 | `HUNTSTATS FLUSH` | file the hunt under way now |
-| `HUNTSTATS PARTY` | who you're hunting with |
+| `HUNTSTATS PARTY` | who you're hunting with: added by hand, and whoever follows you or you follow |
 | `HUNTSTATS PARTY ADD <names>` | add people to the party (kept until removed, or the next load) |
-| `HUNTSTATS PARTY DEL <names>` | remove people from the party |
+| `HUNTSTATS PARTY DEL <names>` | remove people from the party (someone following stays out until they begin to follow again) |
 | `HUNTSTATS PARTY CLEAR` | back to hunting alone |
 | `HUNTSTATS SPLIT` | the party's gold so far and the transfers that even it out |
 | `HUNTSTATS SPLIT REPORT` | send the split to party tell now, one line per person |
@@ -86,7 +86,9 @@ With **dmgchart** installed, each hunt also records the damage you took per seco
 
 ### Hunting with a party
 
-Huntstats doesn't guess who you hunt with: you tell it. `HUNTSTATS PARTY ADD Ana Bor` adds people; the party stays until you remove them (`PARTY DEL`) or `PARTY CLEAR`, across hunts, and starts empty again at every load (a page reload or a reimport). Each hunt starts with the party as it stands, and anyone added during a hunt joins it.
+**Following counts.** Whoever follows you, or whom you follow, is in the party of the area's hunt while the following lasts: "Ana begins to follow you" adds her at once (with a notice), and each new area's hunt starts with her as long as she's still following. When the following ends (you lose her, she's left behind, you cease to follow, or you walk off on your own), she stays in the hunt of the area you're in, since she hunted there, but no longer carries into the next one. `HUNTSTATS PARTY DEL Ana` leaves her out even while she follows, until she begins to follow you again. `HUNTSTATS PARTY` lists who's following.
+
+**By hand.** For people hunting with you without following, `HUNTSTATS PARTY ADD Ana Bor` adds people; the party stays until you remove them (`PARTY DEL`) or `PARTY CLEAR`, across hunts, and starts empty again at every load (a page reload or a reimport). Each hunt starts with the party as it stands, and anyone added during a hunt joins it.
 
 **The gold split.** During a party hunt, Huntstats follows the gold in each person's hands: picked up, dropped, given to someone in the party. Gold leaving to someone outside the party leaves the pot, and someone who put in their own gold is paid back. `HUNTSTATS SPLIT` shows each person's share so far and the fewest transfers that even it out (largest debtor pays largest creditor first). When the hunt is filed, the split is shown again. `HUNTSTATS SPLIT REPORT` sends it to party tell, one line per person, and `HUNTSTATS SPLIT TELL ON` sends it there on its own when a party hunt ends.
 
