@@ -39,6 +39,7 @@ And for the suite:
 
 - [ ] `LOOM PAUSE ON`: nothing is sent by any package (walk with harvesting, patrolling and sigils on; fish; hunt with the basher primed). `LOOM PAUSE OFF`: all resume.
 - [ ] Sleep and meditate: Loom pauses on its own and resumes when you wake or finish.
+- [ ] `SHIPRETURN GO` (in a room with mobs not yet probed): Loom pauses at "You stand still…", no probe answers or QW list show during the call, Loom resumes on arrival at the ship. Interrupt one (move): "Thoughts of the vast ocean… fade", `LOOM` no longer paused.
 - [ ] `QUIT` mid-hunt: the hunt is filed, herbs go to the rift, gold to the backpack, then you quit.
 - [ ] **Themes:** at login the tabs take your city's theme (`LOOM THEME` says which and why). `LOOM THEME MHALDOR`, then `CYRENE`: every open tab changes at once, whole background included; targets, afflictions, plant, standing and group colours read the same in each. `LOOM THEME OFF`: each tab's own colours; `AUTO`: your city's. A cityless character: `LOOM THEME` says so.
 - [ ] **`LOOM PERF`:** `LOOM PERF DATA` prints sizes per package at once; `LOOM PERF 60` while hunting or walking prints its report by itself, with package names and trigger patterns; `LOOM PERF 30` then `STOP` prints early, and nothing feels different afterwards.
