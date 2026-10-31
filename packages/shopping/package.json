@@ -1,0 +1,99 @@
+{
+  "type": "group",
+  "name": "shopping",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "shopping_setup",
+      "enabled": true,
+      "code": "@file:shopping_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "shopping_render",
+      "enabled": true,
+      "code": "@file:shopping_render.js"
+    },
+    {
+      "type": "function",
+      "name": "shopping_help",
+      "enabled": true,
+      "code": "@file:shopping_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Shopping control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_shopping.js"
+        }
+      ],
+      "text": "^shopping(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Bought",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_receive.js"
+        }
+      ],
+      "text": "^You pay [\\d,]+ (?:gold )?sovereigns? and receive (.+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Directory table",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_directory.js"
+        }
+      ],
+      "text": "^(?:Price\\s+Item description\\s+Shop\\s*|-{20,}|\\s*[\\d,]+\\s*(?:gp|cr|mc)\\b.*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "A shopping list priced from the city's directory, grouped by shop in a tab"
+}

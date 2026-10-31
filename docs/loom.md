@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.0.3.*
+*This page describes loom 1.0.4.*
 <!-- /loom:version -->
 
 ## What it is
@@ -85,6 +85,7 @@ Every link:
 | `waypoints-room` | [waypoints](waypoints.md) | [room](room.md) | A saved waypoint's name as a tag in Here, its note on hover |
 | `waypoints-questbook` | [waypoints](waypoints.md) | [questbook](questbook.md) | A quest's GO step shows the waypoint's name when its room is one |
 | `room-waypoints` | [room](room.md) | [waypoints](waypoints.md) | Here's remembered room pinned at the top of Waypoints, with GO BACK |
+| `coffers-shopping` | [coffers](coffers.md) | [shopping](shopping.md) | GOAL next to Shopping's total makes the gold the list needs a coffers goal |
 <!-- /loom:links -->
 
 Each package's page explains its links in more detail.
