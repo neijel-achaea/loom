@@ -130,6 +130,22 @@
     },
     {
       "type": "trigger",
+      "name": "defcon learned",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_learned.js"
+        }
+      ],
+      "text": "^You have learned the ([A-Za-z' -]+) ability!$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "",
       "enabled": true,
       "actions": [

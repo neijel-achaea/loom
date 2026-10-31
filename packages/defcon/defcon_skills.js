@@ -160,6 +160,32 @@ D.skillUnwrap = function () {
   D.skW = null;
 };
 
+// "You have learned the SECRETS ability!" (Ricardo, 2026-10-31): the line
+// names the ability, so it's marked learned at once, with no question to the
+// game; a defence it stands for goes back into curing at the current level.
+D.skillLearned = function (name) {
+  var a = String(name || "").toLowerCase().trim();
+  if (!a || !D.unlearned[a]) return;
+  delete D.unlearned[a];
+  run_function("defcon_table", [], "defcon");
+  var defs = (D.tbl && D.tbl.defs) || [], back = [], q = [], lvl = D.level;
+  for (var i = 0; i < defs.length; i++) {
+    if (D.abilityOf(defs[i][0]) !== a) continue;
+    back.push(defs[i][0]);
+    if (lvl !== undefined && lvl !== null && defs[i][1] >= lvl) q.push("curing priority defence " + defs[i][0] + " " + defs[i][2]);
+  }
+  if (!back.length) return;
+  var off = [];
+  for (var j = 0; j < defs.length; j++) { if (D.isOff(defs[j][0])) off.push(defs[j][0]); }
+  D.skillSaid = off.slice().sort().join(",");
+  display_notice("[defcon] " + back.join(", ") + " learned: back in curing" + (q.length ? " at DEFCON " + lvl : "") + ".", "lime");
+  if (q.length) {
+    D.queue = (D.queue || []).concat(q);
+    if (!D.timer) run_function("defcon_drain", [], "defcon");
+  }
+  if (client.loom.notify) client.loom.notify("defcon");
+};
+
 // The check is over: what changed reaches curing at the current level.
 D.skillFinish = function (how) {
   var sk = D.sk;
