@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.0.4.*
+*This page describes loom 1.0.5.*
 <!-- /loom:version -->
 
 ## What it is
@@ -13,7 +13,7 @@ Every other package works on its own. The **loom** package is what ties them tog
 - **`LOOM`** lists the packages installed, with their versions and the command each answers to. A package you uninstalled drops off at once (LOOM checks Nexus's own package list), and a retired Loom package still installed (crystalism, artificing, elementalism) is named in orange, with what replaces it. Packages of your own that aren't part of Loom are left out.
 - **Updates.** `LOOM UPDATES` compares your packages with the newest builds on GitHub and lists the ones that are behind. The same check runs once at login, silently unless something is out of date.
 - **Integrations.** Every link between two packages lives here: social's colours in the Here tab, ledger reminders from harvesting, coffers goals from huntstats, and the rest (the full list is below). `LOOM LINKS` shows each one's state; `LOOM LINK <id> OFF` switches one off.
-- **Pause.** `LOOM PAUSE ON` stops every package from sending commands to the game, for anything that something sent would interrupt. Loom also pauses by itself while you sleep, meditate or wade into the Mnemosyne, and resumes when you're done.
+- **Pause.** `LOOM PAUSE ON` stops every package from sending commands to the game, for anything that something sent would interrupt. Loom also pauses by itself while you sleep, meditate, wade into the Mnemosyne or call your ship with SHIPRETURN, and resumes when you're done (or the call is interrupted).
 - **Quitting.** `QUIT` (or `QQ`) files the hunt under way in huntstats, puts your herbs in the rift (`INR ALL`) and your gold in your backpack (`PG`, with security), then quits.
 - **Small helpers.** It agrees on its own to converting up to 100 bound credits into lessons, and highlights a few lines (a new level reached by someone, renown gained).
 
@@ -135,7 +135,7 @@ Mostly nothing: Loom works in the background. Use `LOOM PAUSE ON` before anythin
 
 - **A package is missing from `LOOM`.** It may predate the registry: the retired **groves** and **reclamation** don't register, so `LOOM` and `LOOM UPDATES` don't see them.
 - **`LOOM` says a package is retired.** It has been replaced or removed (crystalism and artificing by **magi**, elementalism with nothing); uninstall it in Nexus's package manager. Its settings have already moved to the package that replaced it.
-- **Nothing is being sent.** Loom may be paused: `LOOM PAUSE OFF`. It pauses itself while you sleep or meditate.
+- **Nothing is being sent.** Loom may be paused: `LOOM PAUSE OFF`. It pauses itself while you sleep, meditate or call your ship (SHIPRETURN).
 - **An integration does nothing.** `LOOM LINKS` shows whether it's on, off or waiting for a package.
 - **The client feels slow.** `LOOM PERF` while it happens, then report the package at the top with a [bug report](https://github.com/neijel-achaea/loom/issues/new/choose).
 - **The tab theme isn't your city's.** Loom learns your city at login, so log in again once after installing it, or choose one by hand with `LOOM THEME <city>`. `LOOM THEME` says which theme is in use and why.

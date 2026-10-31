@@ -599,6 +599,54 @@
       "enabled": true,
       "actions": [
         {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_stand_still_casting_your_thoughts.js"
+        }
+      ],
+      "text": "^You stand still\\, casting your thoughts toward the vast ocean and your ship\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_you_feel_yourself_drawn_through_a_dense.js"
+        }
+      ],
+      "text": "^You feel yourself drawn through a dense mist towards your ship\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_thoughts_of_the_vast_ocean_and_your.js"
+        }
+      ],
+      "text": "^Thoughts of the vast ocean and your ship fade from your mind\\'s eye\\.$",
+      "matching": "regexp",
+      "whole_words": true,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
           "type": "highlight",
           "enabled": true,
           "highlight_fg": "#00d7ff",
