@@ -143,7 +143,8 @@ if (dcOk) {
     for (var dcD in dcNames) {
       if (!dcNames.hasOwnProperty(dcD)) continue;
       var dcO = dcRowOf(dcOld, dcD), dcNw = dcRowOf(dcNew, dcD);
-      var dcWas = !!(dcO && dcO[1] >= dcLvl), dcIs = !!(dcNw && dcNw[1] >= dcLvl);
+      var dcOffD = D.isOff && D.isOff(dcD);
+      var dcWas = !!(dcO && dcO[1] >= dcLvl) && !dcOffD, dcIs = !!(dcNw && dcNw[1] >= dcLvl) && !dcOffD;
       if (dcIs && (!dcWas || dcO[2] !== dcNw[2])) dcQ.push("curing priority defence " + dcD + " " + dcNw[2]);
       else if (!dcIs && dcWas) {
         dcQ.push("curing priority defence " + dcD + " reset");

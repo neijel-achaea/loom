@@ -3,7 +3,7 @@
 *Defence readiness for any class: one number from 5 (bare minimum) to 1 (full alert) decides which defences the game's curing keeps up.*
 
 <!-- loom:version defcon -->
-*This page describes defcon 1.0.0.*
+*This page describes defcon 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -54,6 +54,8 @@ A few extras come with it: insomnia is put back when it clears, a pear is fetche
 ### Levels
 
 `DEFCON 3` sets the level for the class you're in, and sends the curing changes one every quarter second. Setting the level you're already at sends everything again, which resyncs the game's list if it got out of step. `DEFCON` alone shows the level, the class's table and whether INIT runs at login. Until you set a level in a class, it counts as 5 and nothing has been sent.
+
+**Skills you haven't learned yet** are left out at every level. At each `DEFCON INIT` (so at login, with INIT AUTO on) and when your class changes, DEFCON asks the game quietly which of the table's skill defences this character has learned, and says which it left out: `[defcon] not learned yet, left out of curing: nightsight, thirdeye.` Without this, curing would try a defence you can't raise over and over. `DEFCON INIT` waits for the check (a second or two, at most 8) and leaves out its own commands for abilities you haven't learned too (`insomnia`, `queue add eq simultaneity`), naming them in its notice. Learn one and it goes back into curing at once (DEFCON reads the game's "You have learned the … ability!" line); `DEFCON INIT` also rechecks everything. Herbs, salves and elixirs are never left out. `DEFCON` and `DEFCON LIST` show what's left out (`not learned`).
 
 `DEFCON OFF` turns the game's defence upkeep off altogether (`CURING DEFENCES OFF`); `DEFCON ON` turns it back on.
 
@@ -115,5 +117,5 @@ Each class's defaults live in one file under `packages/defcon/classes/`; the [RE
 
 - **"not configured yet: general defences".** Your class has no file: you get the defences every class shares, and only the common setup commands.
 - **A defence keeps dropping and coming back.** It's in the table at your level and the game re-raises it. Raise its tier (`DEFCON SET <def> <higher tier>`) or remove it.
-- **A defence isn't raised.** Check the name matches `DEF`, and that `DEFCON ON` (defence upkeep) and `CURING ON` are set. `DEFCON <same level>` resends everything.
+- **A defence isn't raised.** If `DEFCON LIST` says `not learned`, the game told DEFCON you don't have that ability: learn it, then `DEFCON INIT`. Otherwise check the name matches `DEF`, and that `DEFCON ON` (defence upkeep) and `CURING ON` are set. `DEFCON <same level>` resends everything.
 - **`DEFCON UP` or `AUTOUP` is an unknown command.** They were renamed to `DEFCON INIT` and `DEFCON INIT AUTO` in 0.4, and the old names were removed before Loom 1.0.

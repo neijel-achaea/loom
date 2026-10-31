@@ -13,8 +13,10 @@ var dcQueue = [];
 
 for (var dcI = 0; dcI < dcDefs.length; dcI++) {
   var dcName = dcDefs[dcI][0];
-  var dcWant = dcDefs[dcI][1] >= dcLevel;
-  var dcHad = dcDefs[dcI][1] >= dcOld;
+  // A skill not learned yet is never wanted (#173): reset like a lower tier.
+  var dcOff = D.isOff && D.isOff(dcName);
+  var dcWant = dcDefs[dcI][1] >= dcLevel && !dcOff;
+  var dcHad = dcDefs[dcI][1] >= dcOld && !dcOff;
   var dcRelax = dcDefs[dcI][3];
   if (dcWant && (dcResync || !dcHad)) {
     dcQueue.push("curing priority defence " + dcName + " " + dcDefs[dcI][2]);
