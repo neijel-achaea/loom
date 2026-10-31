@@ -23,7 +23,9 @@ function standCell(n) {
   var arrow = st.trend > 0 ? ' &#9650;' : (st.trend < 0 ? ' &#9660;' : '');
   var sc = (st.score > 0 ? "+" : "") + (Math.round(st.score * 10) / 10).toFixed(1);
   var tip = st.band + " " + sc + (st.recent ? ", " + st.recent + " dealing" + (st.recent === 1 ? "" : "s") + " in the last few days" + (st.trend > 0 ? ", up" : (st.trend < 0 ? ", down" : "")) : "");
-  var mark = st.icon ? '<span class="lo-sym">' + esc(st.icon) + '\ufe0e</span>' : esc(st.band);
+  // A band may bring its own drawing (Acquaintance's handshake has no text
+  // symbol); it is standings' own markup, drawn in the band's colour.
+  var mark = st.svg ? '<span class="lo-sym">' + st.svg + '</span>' : (st.icon ? '<span class="lo-sym">' + esc(st.icon) + '\ufe0e</span>' : esc(st.band));
   return '<span class="lo-st lo-stv" title="' + esc(tip) + '" style="color:' + esc(st.colour) + ';">' + mark + '<span class="lo-arw">' + arrow + '</span></span>';
 }
 // The ledger column (#197, from ledger through loom's link ledger-online):

@@ -213,7 +213,7 @@ With every package installed, each link does its part, and switching it off (`LO
 - [ ] `social-comms`: talkers, Tells and the conversation header coloured. Off: game colours, Here unaffected.
 - [ ] `standings-online`: band icon column in Online, arrow after a recent nudge, details on hover.
 - [ ] `standings-comms`: standing on hover in Comms only.
-- [ ] `standings-login`: "Ana ♥ has awoken."
+- [ ] `standings-login`: "Ana ☺ has awoken." (a Friend; an Acquaintance shows the handshake emoji)
 - [ ] `standings-social`: with `SOCIAL COLOURS STANDINGS`, band colours everywhere; people not on the books plain. A nudge across a band changes the colour.
 - [ ] `ledger-online` and `ledger-login`: an item naming a watched person puts an amber quill on their Online row (red when overdue, a count for several), and the items after their "has awoken". `DONE`: the quill goes at once.
 - [ ] `room-social` and `room-comms`: the newbie leaf in Online and Comms.

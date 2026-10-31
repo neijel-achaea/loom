@@ -89,15 +89,35 @@ function history(log, W, H) {
 }
 // One dealing as a ledger line: when, the nudge, the note, the standing after.
 function isSet(e) { return e.length > 4 && typeof e[4] === "number"; }
-function dealing(e, after, who) {
+// Column widths for a run of ledger lines (Ricardo: the columns wandered
+// with long dates and names): the date and name columns are as wide as the
+// longest one shown, in ch of their own font, so every row lines up.
+function widths(dates, names) {
+  var W = { d: 0, n: 0 };
+  for (var i = 0; i < dates.length; i++) { W.d = Math.max(W.d, String(dates[i]).length); }
+  for (var j = 0; j < names.length; j++) { W.n = Math.max(W.n, String(names[j] || "").length); }
+  return W;
+}
+function dateCell(t, W) { return '<span style="color:' + MUTED + ';flex:0 0 auto;width:' + W.d + 'ch;white-space:nowrap;">' + t + '</span>'; }
+function nameCell(n, W) { return '<span style="color:' + TXT + ';flex:0 0 auto;width:' + (W.n + 1) + 'ch;font-family:' + SERIF + ';font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(n) + '</span>'; }
+function dealing(e, after, who, W) {
   var mark = isSet(e) ? '<span style="color:' + STEEL + ';">set</span>' : stepTxt(e[2]);
   if (isSet(e) && after === null) { after = e[4]; }
-  return '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;">' +
-    '<span style="color:' + MUTED + ';min-width:8.5em;white-space:nowrap;">' + when(e) + '</span>' +
-    (who ? '<span style="color:' + TXT + ';min-width:5.5em;font-family:' + SERIF + ';font-size:11px;">' + esc(who) + '</span>' : '') +
-    '<span style="min-width:2.4em;">' + mark + '</span>' +
+  return '<div style="display:flex;gap:8px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;">' +
+    dateCell(when(e), W) +
+    (who ? nameCell(who, W) : '') +
+    '<span style="flex:0 0 auto;width:4ch;">' + mark + '</span>' +
     '<span style="flex:1 1 auto;min-width:0;color:' + TXT + ';">' + esc(e[3] || "") + '</span>' +
     (after !== null ? '<span style="white-space:nowrap;color:' + F.band(after)[2] + ';">' + F.signed(after) + '</span>' : '') + '</div>';
+}
+// A run of dealings, lined up: items are [entry, after, who].
+function dealings(items) {
+  var ds = [], ns = [];
+  for (var i = 0; i < items.length; i++) { ds.push(when(items[i][0])); ns.push(items[i][2]); }
+  var W = widths(ds, ns);
+  var out = "";
+  for (var j = 0; j < items.length; j++) { out += dealing(items[j][0], items[j][1], items[j][2], W); }
+  return out;
 }
 function personRow(e) {
   var b = F.band(e.s);
@@ -108,15 +128,20 @@ function personRow(e) {
     '<span style="color:' + MUTED + ';min-width:5.5em;text-align:right;">' + F.dealings(e) + ' dealt</span></div>';
 }
 function pendingRows(filterKey) {
+  var list = [];
+  for (var i = 0; i < DB.pending.length; i++) { if (!filterKey || F.key(DB.pending[i].who) === filterKey) { list.push(DB.pending[i]); } }
+  if (!list.length) { return ""; }
+  var ds = [], ns = [];
+  for (var j = 0; j < list.length; j++) { ds.push(list[j].ic > 0 ? F.icTxt(list[j].ic) : F.realTxt(list[j].t)); ns.push(filterKey ? "" : list[j].who); }
+  var W = widths(ds, ns);
   var out = "";
-  for (var i = 0; i < DB.pending.length; i++) {
-    var p = DB.pending[i];
-    if (filterKey && F.key(p.who) !== filterKey) { continue; }
-    out += '<div style="display:flex;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="color:' + MUTED + ';min-width:8.5em;">' + (p.ic > 0 ? F.icTxt(p.ic) : F.realTxt(p.t)) + '</span>' +
-      (filterKey ? '' : '<span style="font-family:' + SERIF + ';font-size:11px;min-width:5.5em;">' + esc(p.who) + '</span>') +
-      '<span style="flex:1 1 auto;">' + esc(p.why) + (p.src ? ' <span style="color:' + MUTED + ';">\u00b7 ' + esc(p.src) + '</span>' : '') + '</span><span>' + stepTxt(p.step) + '?</span></div>';
+  for (var k = 0; k < list.length; k++) {
+    var p = list[k];
+    out += '<div style="display:flex;gap:8px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;">' + dateCell(ds[k], W) +
+      (filterKey ? '' : nameCell(p.who, W)) +
+      '<span style="flex:1 1 auto;min-width:0;">' + esc(p.why) + (p.src ? ' <span style="color:' + MUTED + ';">\u00b7 ' + esc(p.src) + '</span>' : '') + '</span><span style="flex:0 0 auto;white-space:nowrap;">' + stepTxt(p.step) + '?</span></div>';
   }
-  if (out) { out += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">STANDINGS OK records the first as suggested, STANDINGS SKIP dismisses it.</div>'; }
+  out += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">STANDINGS OK records the first as suggested, STANDINGS SKIP dismisses it.</div>';
   return out;
 }
 
@@ -175,11 +200,12 @@ if (vk && vk.charAt(0) !== "@" && E) {
   if (pr) { html += section("Awaiting review", pr); }
   if (E.log.length > 1) { html += section("Over time", history(E.log, 640, 90)); }
 
-  var dl = "";
   var sub = [];
   var afters = [];
+  var dli = [];
   for (var a = 0; a < E.log.length; a++) { sub.push(E.log[a]); afters.push(F.score(sub)); }
-  for (var c = E.log.length - 1; c >= 0 && c >= E.log.length - 25; c--) { dl += dealing(E.log[c], E.log[c][2] !== 0 ? afters[c] : null, null); }
+  for (var c = E.log.length - 1; c >= 0 && c >= E.log.length - 25; c--) { dli.push([E.log[c], E.log[c][2] !== 0 ? afters[c] : null, null]); }
+  var dl = dealings(dli);
   html += section("The record" + (E.log.length > 25 ? ", latest 25 of " + E.log.length : ""), dl || quiet("Nothing recorded yet."));
 }
 else if (vk && vk.charAt(0) === "@") {
@@ -201,11 +227,12 @@ else if (vk && vk.charAt(0) === "@") {
   for (var m2 = 0; m2 < mem.length; m2++) { mr += personRow(mem[m2]); }
   html += section("Members", mr || quiet("No one carries this tag yet. STANDINGS &lt;name&gt; TAG " + esc(tag)));
   if (E && E.log.length) {
-    var ol = "";
     var osub = [];
     var oaft = [];
+    var oli = [];
     for (var oa = 0; oa < E.log.length; oa++) { osub.push(E.log[oa]); oaft.push(F.score(osub)); }
-    for (var oc = E.log.length - 1; oc >= 0 && oc >= E.log.length - 15; oc--) { ol += dealing(E.log[oc], E.log[oc][2] !== 0 ? oaft[oc] : null, null); }
+    for (var oc = E.log.length - 1; oc >= 0 && oc >= E.log.length - 15; oc--) { oli.push([E.log[oc], E.log[oc][2] !== 0 ? oaft[oc] : null, null]); }
+    var ol = dealings(oli);
     html += section("Dealings with " + esc(tag) + " itself", ol);
   }
 }
@@ -225,8 +252,9 @@ else {
     for (var r = 0; r < people.length; r++) { for (var rl = 0; rl < people[r].log.length; rl++) { rec.push([people[r].log[rl], people[r].name]); } }
     var rr, rj, rt;
     for (rr = 1; rr < rec.length; rr++) { rt = rec[rr]; rj = rr - 1; while (rj >= 0 && rec[rj][0][0] < rt[0][0]) { rec[rj + 1] = rec[rj]; rj--; } rec[rj + 1] = rt; }
-    var rd = "";
-    for (rr = 0; rr < rec.length && rr < 10; rr++) { rd += dealing(rec[rr][0], null, rec[rr][1]); }
+    var rdi = [];
+    for (rr = 0; rr < rec.length && rr < 10; rr++) { rdi.push([rec[rr][0], null, rec[rr][1]]); }
+    var rd = dealings(rdi);
     html += section("Recent dealings", rd);
     people.sort(byStanding);
     var hiR = "", loR = "";

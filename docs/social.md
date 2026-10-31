@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 1.0.0.*
+*This page describes social 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -99,7 +99,7 @@ Social works on its own. Other packages read its lists when they're installed: *
 | Link | With | What it does |
 | --- | --- | --- |
 | `standings-online` | standings | A column in Online with your standing with each person: the band's icon in its colour, an arrow when it moved in the last few days; band, score and recent dealings on hover. Empty for people not on your books. |
-| `standings-login` | standings | The band's icon in the login notice: "Ana ♥ has awoken." |
+| `standings-login` | standings | The band's icon in the login notice: "Ana ☺ has awoken." |
 | `standings-social` | standings | With `SOCIAL COLOURS STANDINGS`, names take their standing band's colour everywhere (game text, Online, and Here and Comms). Groups are ignored in this mode: people not on your books stay plain. |
 | `ledger-online` | ledger | A quill ✎ in Online on people your open ledger items name (as a capitalised word), with the count when there are several: red when one is overdue, amber when one is due within 5 days. The items on hover. |
 | `ledger-login` | ledger | Those items after the login notice: "Ana has awoken. · ledger: #1 Return the book (in 1d)", three at most, then "+N more". |
