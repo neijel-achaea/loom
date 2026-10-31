@@ -4,8 +4,8 @@
 //   - the list, by area (the area you're in first; areas fold, remembered):
 //     two lines a quest, its name and a status chip (STEP 3 OF 7, READY,
 //     AGAIN IN 5 H), then its rewards, repeat and record; filters All ·
-//     Ready · Waiting; IMPORT (a backup code) and ● RECORD NEW (recording is
-//     #376's next step);
+//     Ready · Waiting; IMPORT (a backup code) and + NEW (puts QUESTBOOK NEW
+//     in the input line);
 //   - one quest: rewards, a progress bar, its steps two lines each with the
 //     current one highlighted and its button (WALK, the line to send, DONE),
 //     START OVER, EDIT STEPS and EXPORT, when it was last done.
@@ -81,7 +81,7 @@ if (!open) {
   html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + AMBER + ';">Quests</span>';
   html += '<span style="color:' + MUTED + ';">' + head + '</span></div>';
 
-  // Filters and RECORD NEW.
+  // Filters, IMPORT and + NEW.
   function seg(v, lbl) {
     var on = QU.filter === v;
     return '<span onclick="' + click("filter('" + v + "')") + '" title="show ' + (v === "all" ? "every quest" : v) + '" style="cursor:pointer;padding:0 4px;' + (on ? 'background:' + DEEP + ';color:' + TXT + ';' : 'color:' + MUTED + ';') + '">' + lbl + '</span>';
@@ -89,7 +89,7 @@ if (!open) {
   html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:5px;">';
   html += '<span style="display:flex;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">show</span>';
   html += '<span style="border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;">' + seg("all", "ALL") + seg("ready", "READY") + seg("waiting", "WAITING") + '</span></span>';
-  html += '<span style="display:flex;gap:6px;">' + chip('IMPORT', 'importAsk()', MUTED, DEEP, 'add a quest from a backup code (QUESTBOOK IMPORT <code>)') + chip('<span style="font-family:' + SYM + ';color:#ff6a5e;">&#9679;</span> RECORD NEW', 'record()', MUTED, DEEP, 'record a new quest as you play (coming next; for now QUESTBOOK NEW <name>)') + '</span>';
+  html += '<span style="display:flex;gap:6px;">' + chip('IMPORT', 'importAsk()', MUTED, DEEP, 'add a quest from a backup code (QUESTBOOK IMPORT <code>)') + chip('+ NEW', 'newAsk()', MUTED, DEEP, 'a new quest: QUESTBOOK NEW <name> in the input line, then add its steps') + '</span>';
   html += '</div>';
 
   function shown(q) {
