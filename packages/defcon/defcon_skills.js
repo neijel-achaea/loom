@@ -26,6 +26,16 @@ if (!D.abilities) D.abilities = {};
 if (!D.unlearned) D.unlearned = {};
 if (D.sk === undefined) D.sk = null;
 D.skillMs = 8000;
+// Some groups never answer a list request (Ricardo's Serpent alt, 2026-10-31:
+// Constitution, Thermology, Frost, Antidotes, Fitness, Galvanism and
+// Philosophy, likely groups without abilities of their own), so the lists
+// aren't all waited for: each one that comes restarts a short wait
+// (D.skillListMs), and when none has come for that long the check goes on.
+D.skillListMs = 1500;
+D.skillListWait = function (sk, ms) {
+  clearTimeout(sk.lt);
+  sk.lt = setTimeout(function () { if (D.sk === sk && sk.phase === "lists") D.skillInfo(); }, ms);
+};
 D.skillMark = /^\s*\*+\s*You have not yet learned this ability/i;
 
 // The ability a defence stands for, or "" when it isn't one.
@@ -64,7 +74,8 @@ D.skillLists = function () {
     sk.lists[gs[i]] = 1;
     try { send_GMCP("Char.Skills.Get", { group: gs[i] }); } catch (e) {}
   }
-  if (!gs.length) D.skillFinish("no groups");
+  if (!gs.length) { D.skillFinish("no groups"); return; }
+  D.skillListWait(sk, D.skillListMs * 2);
 };
 
 // From the GMCP hook: Char.Skills.Groups and Char.Skills.List.
@@ -88,7 +99,7 @@ D.skillList = function (g) {
   var sk = D.sk;
   if (!sk || sk.phase !== "lists" || !sk.lists[grp]) return;
   delete sk.lists[grp];
-  for (var k in sk.lists) { if (sk.lists.hasOwnProperty(k)) return; }
+  for (var k in sk.lists) { if (sk.lists.hasOwnProperty(k)) { D.skillListWait(sk, D.skillListMs); return; } }
   D.skillInfo();
 };
 
@@ -96,6 +107,8 @@ D.skillList = function (g) {
 D.skillInfo = function () {
   var sk = D.sk;
   if (!sk) return;
+  clearTimeout(sk.lt);
+  sk.silent = Object.keys(sk.lists);
   sk.phase = "info";
   run_function("defcon_table", [], "defcon");
   var defs = (D.tbl && D.tbl.defs) || [], n = 0;
@@ -153,13 +166,14 @@ D.skillFinish = function (how) {
   if (!sk) return;
   D.sk = null;
   clearTimeout(sk.t);
+  clearTimeout(sk.lt);
   D.skillUnwrap();
   // Abilities that went unanswered keep what the last check found.
   var was = D.unlearned, now = {};
   for (var a in was) { if (was.hasOwnProperty(a) && sk.ask.hasOwnProperty(a)) now[a] = 1; }
   for (var u in sk.unlearned) { if (sk.unlearned.hasOwnProperty(u)) now[u] = 1; }
   D.unlearned = now;
-  D.skillLast = { how: how, why: sk.why, at: Date.now(), asked: Object.keys(sk.learned).length + Object.keys(sk.unlearned).length, unanswered: Object.keys(sk.ask) };
+  D.skillLast = { how: how, why: sk.why, at: Date.now(), asked: Object.keys(sk.learned).length + Object.keys(sk.unlearned).length, unanswered: Object.keys(sk.ask), silent: sk.silent || Object.keys(sk.lists) };
   run_function("defcon_table", [], "defcon");
   var defs = (D.tbl && D.tbl.defs) || [], off = [], q = [];
   var lvl = D.level, first = !D.skillDone;
