@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "1.0.1", keyword: "HUNTSTATS", desc: "{{description}}",
+client.loom.registry.huntstats = { version: "1.1.0", keyword: "HUNTSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("huntstats_render", [], "huntstats"); } };
 var HS = client.loom.huntstats;
@@ -140,14 +140,83 @@ HS.tankTone = function (dps) {
   return { colour: "#ff6a5e", word: "more than you heal", cap: cap };
 };
 HS.saveParty = function () { try { set_variable("huntstats_party", JSON.stringify(HS.party)); } catch (e) {} };
+// Following (#188, Ricardo): following someone, or being followed, is enough
+// to put them in the hunt of the area you're in. Kept in memory only:
+//   HS.follow   name -> 1 while following you or followed by you; each new
+//               hunt (area) starts with them as well as the hand-made party
+//   HS.leader   whom you follow ("" when nobody)
+//   HS.followOff  name -> 1 for names taken out with HUNTSTATS PARTY DEL:
+//               their move lines don't bring them back until they begin to
+//               follow again (the hand-made choice wins, #188)
+// Someone who stops following stays in the current area's hunt (they hunted
+// there), but no longer carries into the next one.
+// Game lines (Ricardo's log, 2026-10-24): "You begin to follow X." / "X
+// begins to follow you." start; "You follow X <dir> to <room>." / "X follows
+// you <dir>." on each move ("ether" for non-walking moves); "You cease to
+// follow X, <title>." / "You move about quickly and lose X, <title>." / "X
+// has left the group." / "X is not following or leading you." end; "You are
+// in no group at present." ends all. Walking off on your own ends following
+// with no line at all: a move with no "You follow <leader>" around it
+// (HS.followMoved, from Room.Info) ends it.
+if (!HS.follow) HS.follow = {};
+if (!HS.followOff) HS.followOff = {};
+if (HS.leader === undefined) HS.leader = "";
+if (!HS.leaderAt) HS.leaderAt = 0;
+HS.followJoin = function (who, begin) {
+  if (!who) return;
+  if (begin) delete HS.followOff[who];
+  else if (HS.followOff[who]) return;
+  HS.follow[who] = 1;
+  if (HS.cur && HS.cur.area !== undefined) {
+    if (!HS.cur.players) HS.cur.players = {};
+    if (!HS.cur.players[who]) {
+      HS.cur.players[who] = 1;
+      HS.save(true);
+      if (begin) display_notice("[huntstats] " + who + " is in this hunt's party while following (HUNTSTATS PARTY DEL " + who + " to leave them out).", "cyan");
+      try { run_function("huntstats_render", [], "huntstats"); } catch (e) {}
+    }
+  }
+};
+HS.followEnd = function (who) {
+  if (!who) return;
+  delete HS.follow[who];
+  if (HS.leader === who) HS.leader = "";
+};
+HS.followLine = function (line) {
+  var m;
+  line = String(line || "");
+  if ((m = /^You begin to follow ([A-Z][a-z]+)\.$/.exec(line))) { HS.leader = m[1]; HS.leaderAt = Date.now(); HS.followJoin(m[1], true); }
+  else if ((m = /^([A-Z][a-z]+) begins to follow you\.$/.exec(line))) HS.followJoin(m[1], true);
+  else if ((m = /^You follow ([A-Z][a-z]+) /.exec(line))) { HS.leader = m[1]; HS.leaderAt = Date.now(); HS.followJoin(m[1], false); }
+  else if ((m = /^([A-Z][a-z]+) follows you \w+\.$/.exec(line))) HS.followJoin(m[1], false);
+  else if ((m = /^You cease to follow ([A-Z][a-z]+)\b/.exec(line))) HS.followEnd(m[1]);
+  else if ((m = /^You move about quickly and lose ([A-Z][a-z]+)\b/.exec(line))) HS.followEnd(m[1]);
+  else if ((m = /^([A-Z][a-z]+) (?:has left the group|is not following or leading you)\.$/.exec(line))) HS.followEnd(m[1]);
+  else if (/^You are in no group at present\.$/.test(line)) { HS.follow = {}; HS.leader = ""; }
+};
+// A room change: following someone, the "You follow <leader>" line comes in
+// the same packet, before or after Room.Info, but with lag the room's text
+// can trail the follow line by 2 s (Ricardo's log, 14:37:03 → 14:37:05).
+// Checked a moment later: none within 3 s of the move means you walked off
+// on your own.
+HS.followMs = 3000;
+HS.followMoved = function () {
+  if (!HS.leader) return;
+  var at = Date.now();
+  clearTimeout(HS.followT);
+  HS.followT = setTimeout(function () {
+    if (HS.leader && Math.abs(HS.leaderAt - at) > HS.followMs) HS.followEnd(HS.leader);
+  }, HS.followMs);
+};
 // fresh(): empty accumulators for a new hunt, keeping the area; the party
-// carries over.
+// and whoever is following or followed carry over.
 HS.fresh = function () {
   if (!HS.cur) HS.cur = {};
   HS.cur.xp = 0; HS.cur.gold = 0; HS.cur.kills = 0;
   HS.cur.firstXpAt = 0; HS.cur.lastXpAt = 0;
   HS.cur.startDragonPct = null; HS.cur.players = {};
   for (var fI = 0; fI < HS.party.length; fI++) HS.cur.players[HS.party[fI]] = 1;
+  for (var fK in HS.follow) { if (HS.follow.hasOwnProperty(fK) && !HS.followOff[fK]) HS.cur.players[fK] = 1; }
   HS.cur.ledger = {}; HS.cur.unknown = [];
 };
 // The gold split (#89). HS.cur.ledger holds each of the hunt's people's net

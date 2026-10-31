@@ -176,7 +176,10 @@ if (hsSub === "" || hsSub === "status") {
   var hsBad = [];
   for (var hsB = 0; hsB < hsNames.length; hsB++) { if (!/^[A-Z][a-z]+$/.test(hsNames[hsB])) hsBad.push(hsNames[hsB]); }
   if (hsP1 === "" || hsP1 === "list") {
-    hsSay(HS.party.length ? "party: " + HS.party.join(", ") + ". HUNTSTATS PARTY ADD/DEL <name> or CLEAR to change it." : "no party: you're hunting alone. HUNTSTATS PARTY ADD <name> to add someone.", "cyan");
+    var hsFl = [];
+    for (var hsFk in (HS.follow || {})) { if (HS.follow.hasOwnProperty(hsFk) && !HS.followOff[hsFk]) hsFl.push(hsFk + (HS.leader === hsFk ? " (you follow)" : "")); }
+    hsSay(HS.party.length ? "party: " + HS.party.join(", ") + ". HUNTSTATS PARTY ADD/DEL <name> or CLEAR to change it." : "no party added by hand. HUNTSTATS PARTY ADD <name> to add someone.", "cyan");
+    hsSay(hsFl.length ? "following: " + hsFl.join(", ") + " (in each area's hunt while following)." : "nobody following you or followed.", "cyan");
   } else if ((hsP1 === "add" || hsP1 === "del" || hsP1 === "remove") && hsNames.length === 0) {
     hsSay("usage: HUNTSTATS PARTY " + (hsP1 === "add" ? "ADD" : "DEL") + " <name> [<name> ...]", "orange");
   } else if ((hsP1 === "add" || hsP1 === "del" || hsP1 === "remove") && hsBad.length) {
@@ -194,8 +197,13 @@ if (hsSub === "" || hsSub === "status") {
     var hsGone = [], hsMissing = [];
     for (var hsD = 0; hsD < hsNames.length; hsD++) {
       var hsAt = HS.party.indexOf(hsNames[hsD]);
-      if (hsAt >= 0) { HS.party.splice(hsAt, 1); hsGone.push(hsNames[hsD]); } else { hsMissing.push(hsNames[hsD]); }
+      // In the hunt or following (#188) counts as in the party too; someone
+      // following stays out until they begin to follow again.
+      var hsWas = hsAt >= 0 || !!(HS.cur && HS.cur.players && HS.cur.players[hsNames[hsD]]) || !!(HS.follow && HS.follow[hsNames[hsD]]);
+      if (hsAt >= 0) HS.party.splice(hsAt, 1);
       if (HS.cur && HS.cur.players) delete HS.cur.players[hsNames[hsD]];
+      if (HS.follow && HS.follow[hsNames[hsD]]) HS.followOff[hsNames[hsD]] = 1;
+      if (hsWas) hsGone.push(hsNames[hsD]); else hsMissing.push(hsNames[hsD]);
     }
     HS.saveParty();
     if (HS.cur) HS.save(true);
@@ -204,6 +212,7 @@ if (hsSub === "" || hsSub === "status") {
   } else if (hsP1 === "clear") {
     HS.party = [];
     HS.saveParty();
+    for (var hsFc in (HS.follow || {})) { if (HS.follow.hasOwnProperty(hsFc)) HS.followOff[hsFc] = 1; }
     if (HS.cur) { HS.cur.players = {}; HS.save(true); }
     hsSay("party cleared: you're hunting alone.", "lime");
   } else {

@@ -10,7 +10,8 @@ client.loom.hooks.huntstats.gmcp = function (args) {
   // Everything huntstats knows about where you are and how far along you are
   // comes from GMCP: Room.Info for the area, Char.Status and Char.Vitals for the
   // level and percent to next. Who hunted with you is the manual party list
-  // (HUNTSTATS PARTY, #87), not whoever was in the room.
+  // (HUNTSTATS PARTY, #87) plus whoever follows you or you follow (#188), not
+  // whoever was in the room.
   var hsM = "";
   var hsA = null;
   try { hsM = args.gmcp_method; hsA = args.gmcp_args; } catch (e) { hsM = ""; }
@@ -80,6 +81,12 @@ client.loom.hooks.huntstats.gmcp = function (args) {
   }
 
   if (hsM === "Room.Info" && hsA && hsA.area) {
+    // A new room (not the same one sent again): following ends if you walked
+    // off on your own (#188).
+    if (hsA.num !== undefined && String(hsA.num) !== HS.followRoom) {
+      HS.followRoom = String(hsA.num);
+      if (HS.followMoved) HS.followMoved();
+    }
     if (!HS.cur || HS.cur.area === undefined) {
       HS.fresh();
       HS.cur.area = hsA.area;

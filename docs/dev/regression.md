@@ -163,6 +163,7 @@ For each class you can play (one row each; the ones you can't, skip): F1 attacks
 - [ ] Refresh mid-hunt: "resumed hunt in …". Leave the area: filed with a notice; in `HUNTSTATS LOG`, `AREAS` and the tab.
 - [ ] A visit under a minute: nothing filed.
 - [ ] `HUNTSTATS PARTY ADD Ana Bor`, then reload: `HUNTSTATS PARTY` says no party.
+- [ ] Following: someone begins to follow you: "… is in this hunt's party while following", the Stats tab's party row shows them; walk into another area together: the new hunt has them. Lose them (`LOSE <name>`): still in this hunt, not in the next area's. `FOLLOW <name>`, then walk off on your own: `HUNTSTATS PARTY` no longer lists them as following. `HUNTSTATS PARTY DEL <name>` while they follow: out, and their moves don't bring them back until they begin to follow again.
 - [ ] `HUNTSTATS SUGGEST`: ten areas; one just hunted says "last today". `SUGGEST WEIGHTS 50 50 0` reorders and survives a reload.
 - [ ] *(party)* `PARTY ADD`; people walking through aren't listed; `SPLIT` mid-hunt and at the end; a bystander picking up gold changes nothing; `SPLIT REPORT` reaches party tell; `SPLIT TELL ON` sends it at the end.
 - [ ] **DmgChart:** a fight fills both donuts and the rates; crits in the right tier rows (a party member's not counted); bleeding is its own slice and doesn't keep the fight going; a new denizen starts a new fight.
