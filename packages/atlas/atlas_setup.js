@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.1.2", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.1.3", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); } };
 var AT = client.loom.atlas;
 

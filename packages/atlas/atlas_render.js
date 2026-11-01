@@ -172,7 +172,8 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     html += '<g stroke="' + MUTED + '" stroke-width="0.07" stroke-linecap="round">' + lines + '</g>';
     html += '<g stroke-width="0.07" stroke-linecap="round">' + stubs + '</g>';
     html += '<g stroke="' + BG + '" stroke-width="0.04">' + rooms + '</g>';
-    html += '<g fill="' + TXT + '" opacity="0.85" pointer-events="none">' + marks + '</g>';
+    // The arrows outlined in black so they read on light rooms too (Ricardo).
+    html += '<g fill="' + TXT + '" stroke="#000" stroke-width="0.06" stroke-linejoin="round" paint-order="stroke" pointer-events="none">' + marks + '</g>';
     html += ring + '</svg>';
     if (!list.length) html += '<div style="position:absolute;left:12px;top:12px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + (ids.length ? "Nothing explored on this level yet." : "This area isn't on the community map.") + '</div>';
   }
