@@ -158,7 +158,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       // As the stock map: one arrow in the middle of the room (▲ up, ▼ down,
       // ▶ in, ◀ out, as the stock map (Ricardo)); up and down together an hourglass (▼ over ▲, tips
       // meeting), in and out together the same on its side. With both pairs,
-      // up/down keep the middle and in/out sit small at the sides.
+      // up/down on the left half of the room, in/out on the right.
       var vU = ins.up, vD = ins.down, hI = ins["in"], hO = ins.out, both = (vU || vD) && (hI || hO);
       function tri(cx, cy, dir, w, h) {
         // dir: 0 up, 1 down, 2 left, 3 right; (cx, cy) the middle of the triangle's box.
@@ -169,15 +169,24 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
         else P = [[cx - b, cy - a], [cx + b, cy], [cx - b, cy + a]];
         return '<path d="M' + P.map(function (p) { return p[0].toFixed(3) + ' ' + p[1].toFixed(3); }).join(' L') + ' Z"/>';
       }
-      if (vU && vD) marks += tri(qx, qy - 0.075, 1, 0.3, 0.15) + tri(qx, qy + 0.075, 0, 0.3, 0.15);
-      else if (vU) marks += tri(qx, qy, 0, 0.32, 0.26);
-      else if (vD) marks += tri(qx, qy, 1, 0.32, 0.26);
-      if (both) {
-        if (hI) marks += tri(qx + 0.21, qy, 3, 0.18, 0.1);
-        if (hO) marks += tri(qx - 0.21, qy, 2, 0.18, 0.1);
-      } else if (hI && hO) marks += tri(qx - 0.075, qy, 3, 0.3, 0.15) + tri(qx + 0.075, qy, 2, 0.3, 0.15);
-      else if (hI) marks += tri(qx, qy, 3, 0.32, 0.26);
-      else if (hO) marks += tri(qx, qy, 2, 0.32, 0.26);
+      if (!both) {
+        if (vU && vD) marks += tri(qx, qy - 0.075, 1, 0.3, 0.15) + tri(qx, qy + 0.075, 0, 0.3, 0.15);
+        else if (vU) marks += tri(qx, qy, 0, 0.32, 0.26);
+        else if (vD) marks += tri(qx, qy, 1, 0.32, 0.26);
+        if (hI && hO) marks += tri(qx - 0.075, qy, 3, 0.3, 0.15) + tri(qx + 0.075, qy, 2, 0.3, 0.15);
+        else if (hI) marks += tri(qx, qy, 3, 0.32, 0.26);
+        else if (hO) marks += tri(qx, qy, 2, 0.32, 0.26);
+      } else {
+        // Both pairs (Ricardo: a big ▼ covered a small ▶): the room split in
+        // two, up/down on the left half, in/out on the right, the same size.
+        var lx = qx - 0.13, rx = qx + 0.13;
+        if (vU && vD) marks += tri(lx, qy - 0.06, 1, 0.2, 0.12) + tri(lx, qy + 0.06, 0, 0.2, 0.12);
+        else if (vU) marks += tri(lx, qy, 0, 0.22, 0.18);
+        else marks += tri(lx, qy, 1, 0.22, 0.18);
+        if (hI && hO) marks += tri(rx - 0.06, qy, 3, 0.2, 0.12) + tri(rx + 0.06, qy, 2, 0.2, 0.12);
+        else if (hI) marks += tri(rx, qy, 3, 0.22, 0.18);
+        else marks += tri(rx, qy, 2, 0.22, 0.18);
+      }
     }
     // ---- From other packages, through loom (#451): waypoints and quests ----
     var LL = client.loom.loom, pins = '';
@@ -196,13 +205,12 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       var P = list[pk], px = P.x, py = -P.y, w = wpAt[P.id], qs = qAt[P.id], ss = sAt[P.id];
       if (w) {
         // ⚑ in a circle at the top right corner (Ricardo), name and note on
-        // hover: a dark badge ringed in amber, so it never reads as a quest
-        // step (those are filled).
+        // hover: a light badge with a red pennant, apart from the quest badges.
         var fx = px + 0.27, fy = py - 0.27;
         pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc("⚑ " + w.name + (w.note ? " — " + w.note : "") + " (waypoint)") + '</title>' +
-          '<circle cx="' + fx.toFixed(2) + '" cy="' + fy.toFixed(2) + '" r="0.17" fill="' + BG + '" stroke="' + AMBER + '" stroke-width="0.045"/>' +
-          '<path d="M' + (fx - 0.06).toFixed(3) + ' ' + (fy + 0.11).toFixed(3) + ' V' + (fy - 0.11).toFixed(3) + '" stroke="' + TXT + '" stroke-width="0.035" stroke-linecap="round"/>' +
-          '<path d="M' + (fx - 0.06).toFixed(3) + ' ' + (fy - 0.11).toFixed(3) + ' l0.15 0.055 l-0.15 0.055 z" fill="' + AMBER + '"/></g>';
+          '<circle cx="' + fx.toFixed(2) + '" cy="' + fy.toFixed(2) + '" r="0.2" fill="#ece4d2" stroke="#000" stroke-width="0.045"/>' +
+          '<path d="M' + (fx - 0.07).toFixed(3) + ' ' + (fy + 0.13).toFixed(3) + ' V' + (fy - 0.13).toFixed(3) + '" stroke="#000" stroke-width="0.05" stroke-linecap="round"/>' +
+          '<path d="M' + (fx - 0.06).toFixed(3) + ' ' + (fy - 0.13).toFixed(3) + ' l0.18 0.065 l-0.18 0.065 z" fill="#c0392b" stroke="#000" stroke-width="0.02" stroke-linejoin="round"/></g>';
       }
       if (qs && qs.length) {
         // The followed quest's GO steps, numbered at the top left corner; the
