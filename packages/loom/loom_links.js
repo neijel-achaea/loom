@@ -29,11 +29,14 @@ L.linkOrder = [];
 // switched on, and once at load; debounced, so a burst of changes (a whole
 // IR listing) runs it once. It reads the source's look and calls the
 // destination's entry; switching off withdraws on its own (setLink).
+// source, optional: the name the link writes under in its destination when
+// it isn't the source package's own (#448: talpieces' daily aim writes as
+// talpieces-aim, so switching it off leaves talpieces-ledger's items alone).
 L.addLink = function (e) {
   if (!e || !e.id) return;
   var id = String(e.id).toLowerCase();
   if (!L.links[id]) L.linkOrder.push(id);
-  L.links[id] = { id: id, src: e.src, dst: e.dst, desc: e.desc || "", issue: e.issue || 0, change: e.change, answers: e.answers || {}, update: e.update };
+  L.links[id] = { id: id, src: e.src, dst: e.dst, desc: e.desc || "", issue: e.issue || 0, change: e.change, answers: e.answers || {}, update: e.update, source: e.source || e.src };
 };
 L.updateT = L.updateT || {};
 L.runUpdate = function (id) {
@@ -119,7 +122,7 @@ L.setLink = function (id, on) {
   if (was && !now) {
     var dn = client.loom[L.links[id].dst];
     if (dn && dn.entry && typeof dn.entry.withdraw === "function") {
-      try { dn.entry.withdraw(L.links[id].src); } catch (e) { display_notice("[loom] link " + id + " could not take back its items: " + e, "orange"); }
+      try { dn.entry.withdraw(L.links[id].source); } catch (e) { display_notice("[loom] link " + id + " could not take back its items: " + e, "orange"); }
     }
   }
   if (!was && now) L.runUpdate(id);
@@ -810,5 +813,88 @@ L.addLink({
         }
       };
     }
+  }
+});
+
+// #448 daily aims in the ledger (Ricardo): one small aim a day for levelling
+// and one for talisman pieces, sized to your own last 7 days (+10%, as
+// huntstats' hunt goal, #39). Set at the first update of the local calendar
+// day, standing (no due date). Reaching it: a lime notice, and the item goes
+// until tomorrow's aim; one a day at most. A DROP'd aim comes back the next
+// day. State per source in loom_aims: {day, base, to, text, done}, so a
+// reload doesn't bring back an aim already reached today.
+L.aimMore = 1.1;
+L.aims = {};
+try { L.aims = JSON.parse(get_variable("loom_aims") || "{}") || {}; } catch (e) { L.aims = {}; }
+if (typeof L.aims !== "object" || Array.isArray(L.aims)) L.aims = {};
+L.aimSave = function () {
+  var any = false;
+  for (var k in L.aims) { if (L.aims.hasOwnProperty(k)) { any = true; break; } }
+  try { if (any) set_variable("loom_aims", JSON.stringify(L.aims)); else delete_variable("loom_aims"); } catch (e) {}
+};
+L.aimDay = function () { var d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
+// cur: the source's figure now (null: unknown, nothing happens). make(cur)
+// -> {to, text, said} for today's aim (said: the reached notice), or null when there's no pace to size
+// one from.
+L.aimRun = function (src, cur, make) {
+  var lg = client.loom.ledger;
+  if (!lg || !lg.entry || typeof cur !== "number" || isNaN(cur)) return;
+  var S = L.aims[src], today = L.aimDay();
+  if (!S || typeof S !== "object" || S.day !== today) {
+    var a = make(cur);
+    if (!a) {
+      if (S) { lg.entry.withdraw(src, "aim", true); delete L.aims[src]; L.aimSave(); }
+      return;
+    }
+    // No item standing: withdrawing ends a DROP of yesterday's, so today's
+    // can be added. An unreached one standing is rewritten in place.
+    if (!lg.entry.get(src, "aim")) lg.entry.withdraw(src, "aim", true);
+    L.aims[src] = { day: today, base: cur, to: a.to, text: a.text, said: a.said, done: false };
+    L.aimSave();
+    lg.entry.upsert({ source: src, key: "aim", text: a.text });
+    return;
+  }
+  if (S.done || !(cur >= S.to)) return;
+  S.done = true;
+  L.aimSave();
+  var standing = !!lg.entry.get(src, "aim");
+  lg.entry.withdraw(src, "aim", true);
+  if (standing) display_notice("[ledger] ✓ Aim reached: " + S.said, "lime");
+};
+
+L.addLink({
+  id: "levelgraph-ledger", src: "levelgraph", dst: "ledger", issue: 448,
+  desc: "A daily levelling aim in the ledger, sized to your last 7 days",
+  update: function () {
+    var g = client.loom.levelgraph;
+    if (!g || !g.look || !g.look.progress) return;
+    L.aimRun("levelgraph", g.look.progress(), function (cur) {
+      var pace = g.look.pace(7);
+      if (!(pace > 0)) return null;
+      var gain = pace * L.aimMore, to = cur + gain, next = Math.floor(cur) + 1;
+      // The next level close by (within 1.5x the aim) is the aim instead.
+      if (to < next && next - cur <= gain * 1.5) to = next;
+      else to = Math.ceil(to * 100 - 1e-6) / 100;
+      var lvl = Math.floor(to + 1e-6), pct = Math.round((to - lvl) * 100);
+      var what = "level " + lvl + (pct ? " at " + pct + "%" : "");
+      return { to: to - 1e-6, text: "Reach " + what, said: what };
+    });
+  }
+});
+
+L.addLink({
+  id: "talpieces-aim-ledger", src: "talpieces", dst: "ledger", issue: 448,
+  source: "talpieces-aim",
+  desc: "A daily talisman pieces aim in the ledger, sized to your last 7 days",
+  update: function () {
+    var t = client.loom.talpieces;
+    if (!t || !t.look || !t.look.total) return;
+    L.aimRun("talpieces-aim", t.look.total(), function (cur) {
+      var pace = t.look.pace(7), left = t.look.goal() - cur;
+      if (!(pace > 0) || left <= 0) return null;
+      var n = Math.min(left, Math.ceil(pace * L.aimMore - 1e-6));
+      var what = n + " talisman piece" + (n === 1 ? "" : "s");
+      return { to: cur + n, text: "Collect " + what, said: "collected " + what };
+    });
   }
 });

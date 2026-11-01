@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.levelgraph) client.loom.levelgraph = {};
-client.loom.registry.levelgraph = { version: "1.0.1", keyword: "LEVELGRAPH", desc: "{{description}}",
+client.loom.registry.levelgraph = { version: "1.0.2", keyword: "LEVELGRAPH", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("levelgraph_render", [], "levelgraph"); } };
 var LG = client.loom.levelgraph;
@@ -132,4 +132,27 @@ LG.sessFigures = function (cur) {
   var perHour = span >= 60 ? gain / (span / 3600) : 0;
   var togo = perHour > 0 ? (1 - cur[2] / 100) / perHour * 3600 : -1;
   return { span: span, gain: gain, perHour: perHour, togo: togo, p0: S.p0, s: S.s };
+};
+
+// The read-only look other packages see through loom (#448): progress as
+// level + percent/100, and the pace over the last days. Defined on every run.
+//   look.progress() -> the latest progress, or null before any sample
+//   look.pace(days) -> levels a day over the last `days` days of the day
+//     buffer (7 if not given), or null with less than a day of history
+LG.look = {
+  progress: function () {
+    var a = (LG.min && LG.min.length) ? LG.min : (LG.day || []);
+    if (!a.length) return null;
+    var p = a[a.length - 1];
+    return p[1] + p[2] / 100;
+  },
+  pace: function (days) {
+    var hs = LG.day || [];
+    if (hs.length < 2) return null;
+    var last = hs[hs.length - 1], cut = last[0] - (days || 7) * 86400, ref = hs[0];
+    for (var i = hs.length - 1; i >= 0; i--) { if (hs[i][0] <= cut) { ref = hs[i]; break; } }
+    var span = (last[0] - ref[0]) / 86400;
+    if (span < 1) return null;
+    return ((last[1] + last[2] / 100) - (ref[1] + ref[2] / 100)) / span;
+  }
 };

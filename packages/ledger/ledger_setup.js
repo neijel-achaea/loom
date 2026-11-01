@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "1.0.2", keyword: "LEDGER", desc: "{{description}}",
+client.loom.registry.ledger = { version: "1.0.3", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;
@@ -72,8 +72,10 @@ if (LG.debug) display_notice("[ledger] set up (day " + LG.day + ")", "cyan");
 //     days from today; neither = a standing item. An existing item for that
 //     source and key is updated quietly (its due notice re-armed if the date
 //     moved); a new one is announced.
-//   entry.withdraw(source[, key]) -> how many items were taken back; for a
-//     condition that cleared, or a link switched off.
+//   entry.withdraw(source[, key[, quiet]]) -> how many items were taken
+//     back; for a condition that cleared, or a link switched off. quiet
+//     skips the "took back" notice, for a source that says why itself
+//     (#448: a daily aim reached).
 // The player may DONE or DROP a generated item: it then stays away
 // (ledger_dismissed) until its source withdraws it, i.e. until its
 // condition clears; if the condition comes back, so does the item.
@@ -128,7 +130,7 @@ LG.entry = {
     for (var i = 0; i < items.length; i++) { if (items[i].source === String(source) && items[i].key === String(key)) return JSON.parse(JSON.stringify(items[i])); }
     return null;
   },
-  withdraw: function (source, key) {
+  withdraw: function (source, key, quiet) {
     if (!source) return 0;
     var src = String(source), k = (key === undefined || key === null) ? null : String(key);
     var items;
@@ -145,7 +147,7 @@ LG.entry = {
     if (dropped) LG.saveDismissed();
     if (n) {
       set_variable("ledger_items", JSON.stringify(items));
-      display_notice("[ledger] " + src + " took back " + (n === 1 ? "#" + last.id + ": " + last.text : n + " items"), "cyan");
+      if (!quiet) display_notice("[ledger] " + src + " took back " + (n === 1 ? "#" + last.id + ": " + last.text : n + " items"), "cyan");
       run_function("ledger_render", [], "ledger");
     }
     return n;

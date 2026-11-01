@@ -65,7 +65,7 @@ Use some hysteresis where a value hovers around a line (harvesting adds its remi
 
 | Destination | Entry | What happens |
 | --- | --- | --- |
-| ledger | `entry.upsert({ source, key, text, due \| dueIn })` → item number; `entry.withdraw(source[, key])`; `entry.get(source, key)` | The item appears at once, marked with its source; an existing one for the same source and key is updated quietly. If the player `DONE`s or `DROP`s it, it stays away until the source withdraws it. |
+| ledger | `entry.upsert({ source, key, text, due \| dueIn })` → item number; `entry.withdraw(source[, key[, quiet]])` (quiet: no "took back" notice); `entry.get(source, key)` | The item appears at once, marked with its source; an existing one for the same source and key is updated quietly. If the player `DONE`s or `DROP`s it, it stays away until the source withdraws it. |
 | coffers | `entry.propose({ source, key, amount, why })`; `entry.withdraw(source[, key])` | A proposed goal, waiting for `COFFERS ACCEPT` or `DISMISS`. One per source and key; an accepted goal belongs to the player. |
 | standings | `entry.suggest({ who, step, why, source })`; `entry.withdraw(source[, who])` | A dealing waiting for `STANDINGS OK` or `SKIP`. One per source and person. |
 
@@ -98,7 +98,7 @@ When a package is uninstalled, its `onUninstall` calls `client.loom.gone("<pkg>"
 
 - A link is **on** as soon as both its packages are installed (present in `client.loom.registry`), unless the player switched it off.
 - `LOOM LINK <id> OFF` stores the id in `loom_links_off`; only switched-off ids are stored, so a link added in a later version starts on.
-- Switching a link off calls its destination's `entry.withdraw(<source>)` and redraws the destination, so whatever the link created goes with it.
+- Switching a link off calls its destination's `entry.withdraw(<source>)` and redraws the destination, so whatever the link created goes with it. A link that writes under another name than its source package (`source` in `L.addLink`, e.g. `talpieces-aim` for `talpieces-aim-ledger`) is withdrawn under that name, so two links from one package can be switched off apart.
 - In code: `L.linkOn(id)`, `L.linkState(id)` (`"on"`, `"off"`, `"waiting"` for a missing package).
 
 ## Adding a link

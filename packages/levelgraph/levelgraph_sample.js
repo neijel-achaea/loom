@@ -88,6 +88,11 @@ if (lv > 0) {
   }
 
   if (feedMin()) { wrote = true; }
+  // Progress moved: tell loom, for the daily aim in the ledger (#448).
+  if (LG.notedPrg !== prg) {
+    LG.notedPrg = prg;
+    if (client.loom.notify) client.loom.notify("levelgraph");
+  }
   if (feedDay()) { wrote = true; }
 
   // Trailing windows: anything older than the span simply falls off the front.

@@ -3,7 +3,7 @@
 *Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and when you'll finish at your pace.*
 
 <!-- loom:version talpieces -->
-*This page describes talpieces 1.0.0.*
+*This page describes talpieces 1.0.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -79,6 +79,8 @@ TalPieces reads nothing from other packages. With **ledger** installed, it adds 
 - **"Spare talisman pieces to trade (N): …"**, once you hold 16 or more pieces beyond what the set needs, listing them; it goes when you're back below 8, so one extra piece doesn't bring it back and forth.
 
 Like every ledger reminder from another package, it goes by itself when its condition clears. `LOOM LINK talpieces-ledger OFF` stops them.
+
+A second link, `talpieces-aim-ledger`, sets a **daily aim**: "Collect 21 talisman pieces", your pace over the last 7 days (the tab's *Pace, last 7 days*) plus 10%, counted from the day's first update. Reaching it gives a lime notice and the item goes until the next day's. `LOOM LINK talpieces-aim-ledger OFF` stops it and leaves the set and spares reminders alone.
 
 ## Troubleshooting
 

@@ -285,6 +285,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `loom_autoupdates` | setting | 0.3 | check for updates at login |  |
 | `loom_links_off` | setting | 0.5 | integrations switched off |  |
 | `loom_theme` | setting | 1.0 | tab theme |  |
+| `loom_aims` | state | 1.1 | today's daily aims in the ledger, per source: day, start, target, reached |  |
 | `loom_city` | state | 1.0 | your city, from GMCP (for the auto theme) |  |
 | `loom_updates_mode` | state | 0.3 | whether the update check is the automatic one |  |
 | `currentRoomId` | legacy | 0.1 | pre-Loom room tracking, deleted |  |
