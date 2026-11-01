@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.2.3", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.2.4", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -336,7 +336,9 @@ AT.roomInfo = function (g) {
   var wasG = AT.hereGame || null;
   AT.hereGame = gaid || null;
   AT.here = { id: id, area: aid > 0 ? aid : null, name: String(g.name || "").replace(/\s*\((?:indoors|outdoors|road)\)\s*$/i, "").slice(0, 120),
-    areaName: String(g.area || "").slice(0, 80), onMap: !!R };
+    areaName: String(g.area || "").slice(0, 80), onMap: !!R, exits: {} };
+  // The exits the game shows for this room: { destination: true }.
+  if (g.exits && typeof g.exits == "object") for (var ex in g.exits) if (g.exits.hasOwnProperty(ex) && atNum(g.exits[ex]) > 0) AT.here.exits[atNum(g.exits[ex])] = true;
   if (Array.isArray(g.explored) && gaid) {
     var ids = [];
     for (var i = 0; i < g.explored.length; i++) { var x = atNum(g.explored[i]); if (x > 0) ids.push(x); }

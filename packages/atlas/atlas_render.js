@@ -123,6 +123,10 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       var ins = { up: 0, down: 0, "in": 0, out: 0 }, exl = [];
       for (var d in Q.ex) {
         if (!Q.ex.hasOwnProperty(d)) continue;
+        // With fog, an exit shows only when it leads somewhere explored (the
+        // crowdmap has hidden exits too, Ricardo), or it's one the game lists
+        // for the room you're in.
+        if (fogOn && !AT.exAll[Q.ex[d]] && !(here && Q.id === here.id && H.exits && H.exits[Q.ex[d]])) continue;
         exl.push(d);
         if (ins.hasOwnProperty(d)) { ins[d] = 1; continue; }
         var v = DIR[d];
