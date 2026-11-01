@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.2.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.2.1", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -28,7 +28,10 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_tags = { area: [tag, …] }, your own groups for the Areas tab;
 //   atlas_hidden = [area, …], areas kept out of the Areas tab and totals;
 //   atlas_folded = { group key: true|false }, Areas tab folding (absent:
-//     open, except "unvisited" and "hidden", folded).
+//     open, except "unvisited", "uncounted" and "hidden", folded);
+//   atlas_uncounted = [area, …], areas you walked into whose room
+//     information came without an explored list: the game keeps no record of
+//     exploring them (inns and the like), so they stay out of the totals.
 // A variable that isn't readable starts afresh (#135).
 AT.fog = get_variable("atlas_fog") !== "off";
 AT.readJson = function (name) {
@@ -50,6 +53,14 @@ if (atT && typeof atT == "object" && !Array.isArray(atT)) for (var atA in atT) {
 AT.hidden = {};
 var atH = AT.readJson("atlas_hidden");
 if (Array.isArray(atH)) for (var atJ = 0; atJ < atH.length; atJ++) if (atNum(atH[atJ]) > 0) AT.hidden[atNum(atH[atJ])] = true;
+AT.uncounted = {};
+var atU = AT.readJson("atlas_uncounted");
+if (Array.isArray(atU)) for (var atV = 0; atV < atU.length; atV++) if (atNum(atU[atV]) > 0) AT.uncounted[atNum(atU[atV])] = true;
+AT.saveUncounted = function () {
+  var out = [];
+  for (var a in AT.uncounted) if (AT.uncounted.hasOwnProperty(a)) out.push(atNum(a));
+  if (out.length) set_variable("atlas_uncounted", JSON.stringify(out)); else delete_variable("atlas_uncounted");
+};
 AT.folded = {};
 var atF = AT.readJson("atlas_folded");
 if (atF && typeof atF == "object" && !Array.isArray(atF)) for (var atG in atF) if (atF.hasOwnProperty(atG) && typeof atF[atG] == "boolean") AT.folded[atG] = atF[atG];
@@ -291,12 +302,20 @@ AT.roomInfo = function (g) {
   var aid = atNum(co[0]);
   var R = AT.room(id);
   if (R) aid = R.a;
+  var was = AT.here ? AT.here.area : null;
   AT.here = { id: id, area: aid > 0 ? aid : null, name: String(g.name || "").replace(/\s*\((?:indoors|outdoors|road)\)\s*$/i, "").slice(0, 120),
     areaName: String(g.area || "").slice(0, 80), onMap: !!R };
   if (Array.isArray(g.explored) && AT.here.area) {
     var s = {};
     for (var i = 0; i < g.explored.length; i++) { var x = atNum(g.explored[i]); if (x > 0) s[x] = true; }
     AT.explored[AT.here.area] = s;
+    if (AT.uncounted[AT.here.area]) { delete AT.uncounted[AT.here.area]; AT.saveUncounted(); }
+  } else if (AT.here.area && was && was !== AT.here.area && !AT.explored[AT.here.area] && !AT.counts.hasOwnProperty(AT.here.area) && !AT.uncounted[AT.here.area]) {
+    // Walked into an area, and no explored list came with it, nor ever has:
+    // the game keeps no record of exploring it.
+    AT.uncounted[AT.here.area] = true;
+    AT.saveUncounted();
+    AT.areasHere = null;
   }
   // As Nexus does: the room you're in is explored (once the area's list is known).
   if (AT.here.area && AT.explored[AT.here.area]) AT.explored[AT.here.area][id] = true;
@@ -333,7 +352,8 @@ AT.count = function (aid) {
 };
 // The game's word order: the crowdmap's "Delos, the Isle of" reads "the Isle of Delos".
 AT.title = function (aid) {
-  if (AT.here && AT.here.area === aid && AT.here.areaName) return AT.here.areaName;
+  // One name per area, always the community map's (the game's name for the
+  // area you're in made the same area read two ways, Ricardo).
   // "Delos, the Isle of (Scarlattan Theatre)" -> "the Isle of Delos (Scarlattan
   // Theatre)", "Gheladan, Mount" -> "Mount Gheladan"; a name that isn't one of
   // these ("Bataoac, the Northern Giant") stays as it is.
@@ -399,7 +419,7 @@ AT.setHidden = function (aid, on) {
 };
 AT.isFolded = function (key) {
   if (AT.folded.hasOwnProperty(key)) return AT.folded[key];
-  return key === "unvisited" || key === "hidden";
+  return key === "unvisited" || key === "uncounted" || key === "hidden";
 };
 AT.fold = function (key) {
   AT.folded[key] = !AT.isFolded(key);

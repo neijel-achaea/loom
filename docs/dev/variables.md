@@ -34,6 +34,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `atlas_tags` | setting | 1.1 | per area: your tags for the Areas tab |  |
 | `atlas_hidden` | setting | 1.1 | areas kept out of the Areas tab and its totals |  |
 | `atlas_folded` | setting | 1.1 | Areas tab groups folded or opened (`unvisited` and `hidden` folded unless opened) |  |
+| `atlas_uncounted` | data | 1.1 | areas you walked into whose room information came without an explored list (the game keeps no record of exploring them) |  |
 
 The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (database `loom-atlas`), shared by every character on that browser.
 

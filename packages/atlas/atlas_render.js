@@ -89,7 +89,8 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     if (zs.length > 1) html += arrow('&#9660;', -1, dn, 'the level below') + '<span title="the level shown' + (hereLvl !== null && hereLvl !== V.z ? ' (you\'re on ' + lvl(hereLvl) + ')' : '') + '" style="color:' + (hereLvl !== null && hereLvl !== V.z ? AMBER : MUTED) + ';">level ' + lvl(V.z) + '</span>' + arrow('&#9650;', 1, up, 'the level above') + ' &middot; ';
     var mapped = AT.areaRooms(aid).length;
     html += nExpl >= 0 ? '<span title="rooms on the community map you\'ve explored here (from the game\'s record), of all the rooms it has in this area">' + nExpl + ' of ' + mapped + ' explored</span>'
-      : '<span title="the game tells which rooms you\'ve explored when you enter an area">' + mapped + ' rooms on the map</span>';
+      : (AT.uncounted[aid] ? '<span title="the game sent no explored rooms when you walked in: it keeps no record of exploring this area">' + mapped + ' rooms &middot; no exploration record</span>'
+      : '<span title="the game tells which rooms you\'ve explored when you enter an area">' + mapped + ' rooms on the map</span>');
     html += '</span></div>';
   }
 
@@ -194,7 +195,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
   // Footer: what's missing, where the map comes from.
   var foot = [];
   if (H && !here) foot.push("This room (" + H.id + ") isn't on the community map" + (aid ? "; showing its area." : "."));
-  if (M && aid && !expl) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");
+  if (M && aid && !expl && !AT.uncounted[aid]) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");
   if (AT.state == "loading" && M) foot.push(AT.note);
   if (M) foot.push("Community map version " + M.v + ". Drag to pan, click a room to walk there.");
   html += '<div style="margin-top:5px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">' + foot.map(esc).join(" ") + '</div>';
