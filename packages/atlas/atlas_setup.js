@@ -16,13 +16,43 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.1.4", keyword: "ATLAS", desc: "{{description}}",
-  redraw: function () { run_function("atlas_render", { full: true }, "atlas"); } };
+client.loom.registry.atlas = { version: "0.2.0", keyword: "ATLAS", desc: "{{description}}",
+  redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
 AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
-// Saved: atlas_fog = "off" while fog of war is off (absent: on).
+// Saved (per character, as every Nexus variable):
+//   atlas_fog = "off" while fog of war is off (absent: on);
+//   atlas_counts = { area: rooms explored there that are on the map },
+//     updated whenever the game sends an area's list or you explore a room;
+//   atlas_tags = { area: [tag, …] }, your own groups for the Areas tab;
+//   atlas_hidden = [area, …], areas kept out of the Areas tab and totals;
+//   atlas_folded = { group key: true|false }, Areas tab folding (absent:
+//     open, except "unvisited" and "hidden", folded).
+// A variable that isn't readable starts afresh (#135).
 AT.fog = get_variable("atlas_fog") !== "off";
+AT.readJson = function (name) {
+  var v = get_variable(name);
+  if (typeof v == "string") { try { v = JSON.parse(v); } catch (e) { v = null; } }
+  return v;
+};
+AT.counts = {};
+var atC = AT.readJson("atlas_counts");
+if (atC && typeof atC == "object" && !Array.isArray(atC)) for (var atK in atC) if (atC.hasOwnProperty(atK) && atNum(atK) > 0 && atNum(atC[atK]) >= 0) AT.counts[atNum(atK)] = atNum(atC[atK]);
+AT.tags = {};
+var atT = AT.readJson("atlas_tags");
+if (atT && typeof atT == "object" && !Array.isArray(atT)) for (var atA in atT) {
+  if (!atT.hasOwnProperty(atA) || !(atNum(atA) > 0) || !Array.isArray(atT[atA])) continue;
+  var atL = [];
+  for (var atI = 0; atI < atT[atA].length; atI++) { var atW = String(atT[atA][atI] || "").toLowerCase(); if (/^[a-z0-9][a-z0-9_-]*$/.test(atW) && atL.indexOf(atW) < 0) atL.push(atW); }
+  if (atL.length) AT.tags[atNum(atA)] = atL;
+}
+AT.hidden = {};
+var atH = AT.readJson("atlas_hidden");
+if (Array.isArray(atH)) for (var atJ = 0; atJ < atH.length; atJ++) if (atNum(atH[atJ]) > 0) AT.hidden[atNum(atH[atJ])] = true;
+AT.folded = {};
+var atF = AT.readJson("atlas_folded");
+if (atF && typeof atF == "object" && !Array.isArray(atF)) for (var atG in atF) if (atF.hasOwnProperty(atG) && typeof atF[atG] == "boolean") AT.folded[atG] = atF[atG];
 // Kept across a rerun of setup (a reimport): the map in memory, where you
 // are, the explored lists, the view.
 if (AT.map === undefined) AT.map = null;
@@ -151,8 +181,10 @@ AT.useMap = function (m, source) {
   AT.state = "ready";
   AT.note = "";
   if (AT.here) AT.placeView();
+  for (var a in AT.explored) if (AT.explored.hasOwnProperty(a)) AT.recount(atNum(a));
   if (client.loom.notify) client.loom.notify("atlas");
   run_function("atlas_render", { full: true }, "atlas");
+  run_function("atlas_areas_render", [], "atlas");
 };
 // Load the map: from the cache when its version is the latest (or the
 // latest can't be read), else downloaded. `force` downloads anyway.
@@ -271,6 +303,130 @@ AT.roomInfo = function (g) {
   if (AT.here.area) AT.envFetch(AT.here.area);
   AT.placeView();
   run_function("atlas_render", {}, "atlas");
+  // The Areas tab: when a count changed, or you crossed into another area.
+  var counted = AT.here.area ? AT.recount(AT.here.area) : false;
+  if (counted || AT.areasHere !== AT.here.area) { AT.areasHere = AT.here.area; run_function("atlas_areas_render", [], "atlas"); }
+};
+
+// ---- Exploration per area (the Areas tab) -------------------------------
+// The rooms you've explored in an area that are on the community map (so a
+// percentage never passes 100%), from the game's list. Saved when it changes.
+AT.countLive = function (aid) {
+  var s = AT.explored[aid];
+  if (!s || !AT.map) return -1;
+  var n = 0;
+  for (var id in s) if (s.hasOwnProperty(id)) { var R = AT.map.rooms[id]; if (R && R[0] === aid) n++; }
+  return n;
+};
+AT.recount = function (aid) {
+  var n = AT.countLive(aid);
+  if (n < 0 || AT.counts[aid] === n) return false;
+  AT.counts[aid] = n;
+  set_variable("atlas_counts", JSON.stringify(AT.counts));
+  return true;
+};
+// Explored in an area: live when its list came this session, else saved; -1 unknown.
+AT.count = function (aid) {
+  var n = AT.countLive(aid);
+  if (n >= 0) return n;
+  return AT.counts.hasOwnProperty(aid) ? AT.counts[aid] : -1;
+};
+// The game's word order: the crowdmap's "Delos, the Isle of" reads "the Isle of Delos".
+AT.title = function (aid) {
+  if (AT.here && AT.here.area === aid && AT.here.areaName) return AT.here.areaName;
+  // "Delos, the Isle of (Scarlattan Theatre)" -> "the Isle of Delos (Scarlattan
+  // Theatre)", "Gheladan, Mount" -> "Mount Gheladan"; a name that isn't one of
+  // these ("Bataoac, the Northern Giant") stays as it is.
+  var n = AT.areaName(aid), m = /^(.+?), ((?:the|mount)\b(?:.*?\bof)?)(\s*\([^)]*\))?$/i.exec(n);
+  return m ? (m[2] + " " + m[1] + (m[3] || "")).replace(/\s+/g, " ").trim() : n;
+};
+// Sorting by name ignores a leading "the".
+AT.sortKey = function (aid) { return AT.title(aid).toLowerCase().replace(/^the\s+/, ""); };
+// An area named at the start of a command's text: "here", its number, or its
+// name (the community map's or the game's, "the" optional, any case; the
+// longest name that fits). Returns { aid, rest } or null.
+AT.findArea = function (text) {
+  var t = String(text || "").trim(), tl = t.toLowerCase().replace(/\s+/g, " ");
+  var m = /^here(?:\s+(.*))?$/i.exec(t);
+  if (m) return AT.here && AT.here.area ? { aid: AT.here.area, rest: (m[1] || "").trim() } : null;
+  m = /^(\d+)(?:\s+(.*))?$/.exec(t);
+  if (m && AT.map && AT.map.areas[atNum(m[1])]) return { aid: atNum(m[1]), rest: (m[2] || "").trim() };
+  if (!AT.map) return null;
+  var best = null, bestLen = 0;
+  for (var a in AT.map.areas) {
+    if (!AT.map.areas.hasOwnProperty(a)) continue;
+    var names = [AT.map.areas[a].toLowerCase(), AT.title(atNum(a)).toLowerCase()];
+    names.push(names[1].replace(/^the /, ""));
+    for (var i = 0; i < names.length; i++) {
+      var n = names[i].replace(/\s+/g, " ");
+      if (n.length > bestLen && (tl === n || tl.indexOf(n + " ") === 0)) { best = atNum(a); bestLen = n.length; }
+    }
+  }
+  return best ? { aid: best, rest: t.substring(bestLen).trim() } : null;
+};
+AT.saveTags = function () {
+  var any = false;
+  for (var a in AT.tags) if (AT.tags.hasOwnProperty(a)) { any = true; break; }
+  if (any) set_variable("atlas_tags", JSON.stringify(AT.tags)); else delete_variable("atlas_tags");
+  run_function("atlas_areas_render", [], "atlas");
+};
+AT.tag = function (aid, words) {
+  var have = AT.tags[aid] || [], added = [], bad = [];
+  for (var i = 0; i < words.length; i++) {
+    var w = String(words[i] || "").toLowerCase();
+    if (!/^[a-z0-9][a-z0-9_-]*$/.test(w)) { bad.push(words[i]); continue; }
+    if (have.indexOf(w) < 0) { have.push(w); added.push(w); }
+  }
+  if (added.length) { AT.tags[aid] = have; AT.saveTags(); display_notice("[atlas] " + AT.title(aid) + " tagged " + added.join(", ") + ".", "lime"); }
+  if (bad.length) display_notice("[atlas] not a tag: " + bad.join(", ") + " (one word each: letters, digits, - and _).", "orange");
+  if (!added.length && !bad.length) display_notice("[atlas] " + AT.title(aid) + " has those tags already.", "cyan");
+};
+AT.untag = function (aid, words) {
+  var have = AT.tags[aid] || [], gone = [];
+  if (words.length === 1 && words[0].toLowerCase() === "all") { gone = have.slice(); have = []; }
+  else for (var i = 0; i < words.length; i++) { var k = have.indexOf(String(words[i]).toLowerCase()); if (k >= 0) { gone.push(have[k]); have.splice(k, 1); } }
+  if (!gone.length) { display_notice("[atlas] " + AT.title(aid) + " has no such tag" + (have.length ? " (its tags: " + have.join(", ") + ")" : "") + ".", "orange"); return; }
+  if (have.length) AT.tags[aid] = have; else delete AT.tags[aid];
+  AT.saveTags();
+  display_notice("[atlas] " + AT.title(aid) + ": removed tag " + gone.join(", ") + ".", "lime");
+};
+AT.setHidden = function (aid, on) {
+  if (on) AT.hidden[aid] = true; else delete AT.hidden[aid];
+  var out = [];
+  for (var a in AT.hidden) if (AT.hidden.hasOwnProperty(a)) out.push(atNum(a));
+  if (out.length) set_variable("atlas_hidden", JSON.stringify(out)); else delete_variable("atlas_hidden");
+  run_function("atlas_areas_render", [], "atlas");
+};
+AT.isFolded = function (key) {
+  if (AT.folded.hasOwnProperty(key)) return AT.folded[key];
+  return key === "unvisited" || key === "hidden";
+};
+AT.fold = function (key) {
+  AT.folded[key] = !AT.isFolded(key);
+  set_variable("atlas_folded", JSON.stringify(AT.folded));
+  run_function("atlas_areas_render", [], "atlas");
+};
+// Show an area in the Atlas tab without going there: its level with most
+// rooms, centred on them. The next move brings the view back to you.
+AT.showArea = function (aid) {
+  var ids = AT.areaRooms(aid);
+  if (!ids.length) return;
+  var byZ = {}, z = 0, most = -1;
+  for (var i = 0; i < ids.length; i++) { var R = AT.map.rooms[ids[i]]; byZ[R[3]] = (byZ[R[3]] || 0) + 1; }
+  for (var k in byZ) if (byZ.hasOwnProperty(k) && byZ[k] > most) { most = byZ[k]; z = Number(k); }
+  var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (var j = 0; j < ids.length; j++) {
+    var Q = AT.map.rooms[ids[j]];
+    if (Q[3] !== z) continue;
+    if (Q[1] < x0) x0 = Q[1]; if (Q[1] > x1) x1 = Q[1];
+    if (-Q[2] < y0) y0 = -Q[2]; if (-Q[2] > y1) y1 = -Q[2];
+  }
+  AT.view.area = aid; AT.view.z = z;
+  AT.view.cx = (x0 + x1) / 2; AT.view.cy = (y0 + y1) / 2;
+  var span = Math.max(x1 - x0, y1 - y0) + 3;
+  AT.view.span = span < AT.spanMin ? AT.spanMin : (span > AT.spanMax ? AT.spanMax : span);
+  run_function("atlas_render", { full: true }, "atlas");
+  display_notice("[atlas] showing " + AT.title(aid) + " in the Atlas tab (⌖ or your next step brings you back).", "cyan");
 };
 // The view follows you: your area, your level, centred on your room.
 // (SVG coordinates: x east, y south, so the map's y is turned over.)
@@ -379,7 +535,8 @@ AT.wheel = function (ev) {
 AT.look = {
   room: function (id) { var R = AT.room(id); return R ? { id: R.id, area: R.a, areaName: AT.areaName(R.a), x: R.x, y: R.y, z: R.z, name: R.n } : undefined; },
   here: function () { return AT.here ? { id: AT.here.id, area: AT.here.area, name: AT.here.name } : undefined; },
-  explored: function (aid) { var n = AT.exploredCount(aid); return n < 0 ? undefined : { explored: n, mapped: AT.areaRooms(aid).length }; }
+  explored: function (aid) { var n = AT.count(aid); return n < 0 ? undefined : { explored: n, mapped: AT.areaRooms(aid).length }; },
+  tags: function (aid) { return (AT.tags[aid] || []).slice(); }
 };
 
 // The tab's clicks: its page shares window with the scripts.
@@ -391,6 +548,8 @@ try {
     level: function (d) { client.loom.atlas.level(d); },
     fog: function () { client.loom.atlas.setFog(!client.loom.atlas.fog); },
     reload: function () { client.loom.atlas.load(true); },
+    fold: function (i) { var g = client.loom.atlas.groupsDrawn || []; if (g[i] !== undefined) client.loom.atlas.fold(g[i]); },
+    show: function (aid) { client.loom.atlas.showArea(aid); },
     down: function (ev) { client.loom.atlas.down(ev); },
     move: function (ev) { client.loom.atlas.move(ev); },
     up: function (ev) { client.loom.atlas.up(ev); },
@@ -399,5 +558,6 @@ try {
 } catch (e) {}
 
 AT.seedExplored();
+if (AT.map) for (var atS in AT.explored) if (AT.explored.hasOwnProperty(atS)) AT.recount(atNum(atS));
 if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); }
 if (client.loom.notify) client.loom.notify("atlas");

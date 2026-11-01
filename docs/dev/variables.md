@@ -30,6 +30,10 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
 | `atlas_fog` | setting | 1.1 | `off` while fog of war is off (absent: on) |  |
+| `atlas_counts` | data | 1.1 | per area: rooms on the community map you've explored there, from the game's lists |  |
+| `atlas_tags` | setting | 1.1 | per area: your tags for the Areas tab |  |
+| `atlas_hidden` | setting | 1.1 | areas kept out of the Areas tab and its totals |  |
+| `atlas_folded` | setting | 1.1 | Areas tab groups folded or opened (`unvisited` and `hidden` folded unless opened) |  |
 
 The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (database `loom-atlas`), shared by every character on that browser.
 

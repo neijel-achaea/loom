@@ -52,20 +52,14 @@ function col(e) {
   }
   return (envCol[e] = "hsl(" + Math.round(h) + "," + Math.round(sa * 38) + "%," + Math.round(30 + l * 18) + "%)");
 }
-// The community map names areas "Delos, the Isle of"; the game says
-// "the Isle of Delos".
-function areaTitle(aid) {
-  if (AT.here && AT.here.area === aid && AT.here.areaName) return AT.here.areaName;
-  var n = AT.areaName(aid), m = /^(.+?), (the(?: .+)?)$/i.exec(n);
-  return m ? m[2] + " " + m[1] : n;
-}
+function areaTitle(aid) { return AT.title(aid); }
 
 var H = AT.here, V = AT.view, M = AT.map;
 var aid = V.area;
 var here = H ? AT.room(H.id) : null;
 var expl = aid ? AT.explored[aid] : null;
 var fogOn = AT.fog && !!expl;
-var nExpl = expl ? Object.keys(expl).length : -1;
+var nExpl = aid ? AT.count(aid) : -1;
 var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
 
 {
@@ -94,7 +88,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     html += '<span style="flex:none;white-space:nowrap;">';
     if (zs.length > 1) html += arrow('&#9660;', -1, dn, 'the level below') + '<span title="the level shown' + (hereLvl !== null && hereLvl !== V.z ? ' (you\'re on ' + lvl(hereLvl) + ')' : '') + '" style="color:' + (hereLvl !== null && hereLvl !== V.z ? AMBER : MUTED) + ';">level ' + lvl(V.z) + '</span>' + arrow('&#9650;', 1, up, 'the level above') + ' &middot; ';
     var mapped = AT.areaRooms(aid).length;
-    html += nExpl >= 0 ? '<span title="rooms you\'ve explored here (the game\'s count) of the rooms in this area on the community map">' + nExpl + ' of ' + mapped + ' explored</span>'
+    html += nExpl >= 0 ? '<span title="rooms on the community map you\'ve explored here (from the game\'s record), of all the rooms it has in this area">' + nExpl + ' of ' + mapped + ' explored</span>'
       : '<span title="the game tells which rooms you\'ve explored when you enter an area">' + mapped + ' rooms on the map</span>';
     html += '</span></div>';
   }

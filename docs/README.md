@@ -23,7 +23,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [standings](standings.md) | Standings | Standings with adventurers and organisations, kept per character |
 | [self](self.md) | Self | Character panel: afflictions, defences you watch, and SCORE details |
 | [vision](vision.md) | — | Alertness filter: hides city members, flags and reports enemies |
-| [atlas](atlas.md) | Atlas | A map from the community crowdmap, with the rooms you've explored as fog of war |
+| [atlas](atlas.md) | Atlas, Areas | A map from the community crowdmap with fog of war; how much of each area you've explored |
 | [waypoints](waypoints.md) | Waypoints | Rooms you save by name, listed by area or tag; one click walks you there |
 | [questbook](questbook.md) | Quests | Your own repeatable quests as steps, followed in a tab |
 

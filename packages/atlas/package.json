@@ -41,6 +41,12 @@
     },
     {
       "type": "function",
+      "name": "atlas_areas_render",
+      "enabled": true,
+      "code": "@file:atlas_areas_render.js"
+    },
+    {
+      "type": "function",
       "name": "atlas_help",
       "enabled": true,
       "code": "@file:atlas_help.js"
