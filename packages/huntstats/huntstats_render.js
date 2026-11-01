@@ -66,7 +66,7 @@ for (var k in areas) {
     var a = areas[k];
     var hrs = a.ms / 3600000;
     arr.push({ area: k, xpHr: hrs > 0 ? Math.round(a.xp / hrs) : 0, goldHr: hrs > 0 ? Math.round(a.gold / hrs) : 0, sessions: a.sessions, ms: a.ms, dmg: dmgTxt(a.dmgIn, a.combatMs, a.maxHit || 0) });
-    lt.xp += a.xp || 0; lt.gold += a.gold || 0; lt.kills += a.kills || 0; lt.ms += a.ms || 0; lt.sessions += a.sessions || 0;
+    lt.xp += a.xp || 0; lt.gold += a.gold || 0; lt.kills += a.kills || 0; lt.pkills = (lt.pkills || 0) + (a.pkills || 0); lt.ms += a.ms || 0; lt.sessions += a.sessions || 0;
   }
 }
 arr.sort(byTime);
@@ -91,6 +91,7 @@ function lifeBox() {
   hb += row("xp / hr", lh > 0 ? thou(lt.xp / lh) : "&mdash;", MOSS);
   hb += row("gold / hr", lh > 0 ? thou(lt.gold / lh) : "&mdash;", GOLD);
   hb += row("kills", thou(lt.kills));
+  if (lt.pkills) hb += row("party", thou(lt.pkills));
   return box(hb, DEEP);
 }
 
@@ -105,6 +106,8 @@ if (live) {
   cb += row("experience", thou(C.xp));
   cb += row("gold", thou(C.gold || 0) + ' <span style="color:' + MUTED + ';">(' + thou((C.gold || 0) / cH) + '/hr)</span>', GOLD);
   cb += row("kills", String(C.kills || 0) + ' <span style="color:' + MUTED + ';">(' + Math.round((C.kills || 0) / cH) + '/hr)</span>');
+  // Kills by the party, once there are some.
+  if (C.pkills) cb += row("party", String(C.pkills) + ' <span style="color:' + MUTED + ';">(' + Math.round(C.pkills / cH) + '/hr)</span>');
   var cD = HSr.damage(C.firstXpAt);
   var cDt = cD ? dmgTxt(cD.dmg, cD.combatMs, cD.maxHit) : null;
   if (cDt) cb += row("taken", cDt);
@@ -176,6 +179,7 @@ if (log.length === 0) {
   lb += row("experience", thou(L.xp));
   lb += row("gold", thou(L.gold) + ' <span style="color:' + MUTED + ';">(' + thou(L.goldHr) + '/hr)</span>', GOLD);
   lb += row("kills", String(L.kills) + (L.ms > 0 ? ' <span style="color:' + MUTED + ';">(' + Math.round(L.kills / (L.ms / 3600000)) + '/hr)</span>' : ''));
+  if (L.pkills) lb += row("party", String(L.pkills) + (L.ms > 0 ? ' <span style="color:' + MUTED + ';">(' + Math.round(L.pkills / (L.ms / 3600000)) + '/hr)</span>' : ''));
   var lDt = L.combatMs ? dmgTxt(L.dmgIn, L.combatMs, L.maxHit) : null;
   if (lDt) lb += row("taken", lDt);
   if (L.dGain !== null && L.dGain !== undefined && L.dGain !== 0) { lb += row("dragonhood", '+' + L.dGain.toFixed(3) + '%', DRAGON); }
@@ -191,7 +195,7 @@ if (log.length === 0) {
     rs += '<div style="border-bottom:1px dotted ' + RULE + ';padding:2px 0 3px;">';
     rs += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';color:' + TXT + ';font-size:11px;">' + esc(s.area) + '</span>';
     rs += '<span style="color:' + MUTED + ';white-space:nowrap;">' + fmtDur(s.ms) + (s.at ? ' &middot; ' + ago(s.at) : '') + '</span></div>';
-    rs += '<div style="color:' + MUTED + ';"><span style="color:' + MOSS + ';">' + thou(s.xpHr) + '</span> xp/hr &middot; <span style="color:' + GOLD + ';">' + thou(s.gold) + '</span> gold &middot; ' + s.kills + ' kills';
+    rs += '<div style="color:' + MUTED + ';"><span style="color:' + MOSS + ';">' + thou(s.xpHr) + '</span> xp/hr &middot; <span style="color:' + GOLD + ';">' + thou(s.gold) + '</span> gold &middot; ' + s.kills + ' kills' + (s.pkills ? ' (party ' + s.pkills + ')' : '');
     if (s.dGain !== null && s.dGain !== undefined && s.dGain !== 0) { rs += ' &middot; <span style="color:' + DRAGON + ';">+' + s.dGain.toFixed(3) + '%</span>'; }
     rs += '</div>';
     if (s.players && s.players.length) {

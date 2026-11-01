@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "1.2.0", keyword: "HUNTSTATS", desc: "{{description}}",
+client.loom.registry.huntstats = { version: "1.3.0", keyword: "HUNTSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("huntstats_render", [], "huntstats"); } };
 var HS = client.loom.huntstats;
@@ -297,7 +297,7 @@ HS.followMoved = function () {
 // and whoever is following or followed carry over.
 HS.fresh = function () {
   if (!HS.cur) HS.cur = {};
-  HS.cur.xp = 0; HS.cur.gold = 0; HS.cur.kills = 0;
+  HS.cur.xp = 0; HS.cur.gold = 0; HS.cur.kills = 0; HS.cur.pkills = 0;
   HS.cur.firstXpAt = 0; HS.cur.lastXpAt = 0;
   HS.cur.startDragonPct = null; HS.cur.players = {};
   for (var fI = 0; fI < HS.party.length; fI++) HS.cur.players[HS.party[fI]] = 1;

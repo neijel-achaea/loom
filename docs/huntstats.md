@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 1.2.0.*
+*This page describes huntstats 1.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -92,6 +92,8 @@ With **dmgchart** installed, each hunt also records the damage you took per seco
 **Following counts.** Whoever follows you, or whom you follow, is in the party of the area's hunt while the following lasts: "Ana begins to follow you" adds her at once (with a notice), and each new area's hunt starts with her as long as she's still following. When the following ends (you lose her, she's left behind, you cease to follow, or you walk off on your own), she stays in the hunt of the area you're in, since she hunted there, but no longer carries into the next one. `HUNTSTATS PARTY DEL Ana` leaves her out even while she follows, until she begins to follow you again. `HUNTSTATS PARTY` lists who's following.
 
 **By hand.** For people hunting with you without following, `HUNTSTATS PARTY ADD Ana Bor` adds people; the party stays until you remove them (`PARTY DEL`) or `PARTY CLEAR`, across hunts, and starts empty again at every load (a page reload or a reimport). Each hunt starts with the party as it stands, and anyone added during a hunt joins it.
+
+**Party kills.** A kill by someone in the hunt's party ("A stout footsoldier has been slain by Ana.") is counted apart from yours, as **party**: in the Stats tab (This hunt, Last hunt, Lifetime, Recent hunts), in `HUNTSTATS`, `HUNTSTATS LOG` and the filing notice ("61 kills (party 40)"). Your own kills and kills an hour stay yours, so solo and party hunts in one area still compare. Kills by people outside the party aren't counted; hunts filed before this have no party figure.
 
 **The gold split.** During a party hunt, Huntstats follows the gold in each person's hands: picked up, dropped, given to someone in the party. Gold leaving to someone outside the party leaves the pot, and someone who put in their own gold is paid back. `HUNTSTATS SPLIT` shows each person's share so far and the fewest transfers that even it out (largest debtor pays largest creditor first). When the hunt is filed, the split is shown again. `HUNTSTATS SPLIT REPORT` sends it to party tell, one line per person, and `HUNTSTATS SPLIT TELL ON` sends it there on its own when a party hunt ends.
 

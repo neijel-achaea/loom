@@ -168,6 +168,22 @@
         {
           "type": "script",
           "enabled": true,
+          "script": "@file:trigger_party_slain.js"
+        }
+      ],
+      "text": "^(.+) has been slain by ([A-Z][a-z]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
           "script": "@file:trigger_level.js"
         }
       ],

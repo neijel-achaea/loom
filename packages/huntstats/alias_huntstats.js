@@ -139,7 +139,7 @@ if (hsSub === "" || hsSub === "status") {
       var s = log[i];
       var pl = (s.players && s.players.length) ? ("  party: " + s.players.join(", ")) : "";
       var dg = (s.dGain !== null && s.dGain !== undefined && s.dGain !== 0) ? ("  " + (s.dGain < 0 ? "" : "+") + s.dGain.toFixed(3) + "% dragon") : "";
-      display_notice("  " + s.area + " - " + HS.dur(s.ms) + ", " + s.xp.toLocaleString() + " xp (" + s.xpHr.toLocaleString() + "/hr), " + s.gold.toLocaleString() + " gold, " + s.kills + " kills" + (s.combatMs ? ", took " + Math.round(HS.rate(s.dmgIn, s.combatMs)).toLocaleString() + "/s (max hit " + s.maxHit.toLocaleString() + ")" : "") + dg + pl);
+      display_notice("  " + s.area + " - " + HS.dur(s.ms) + ", " + s.xp.toLocaleString() + " xp (" + s.xpHr.toLocaleString() + "/hr), " + s.gold.toLocaleString() + " gold, " + s.kills + " kills" + (s.pkills ? " (party " + s.pkills + ")" : "") + (s.combatMs ? ", took " + Math.round(HS.rate(s.dmgIn, s.combatMs)).toLocaleString() + "/s (max hit " + s.maxHit.toLocaleString() + ")" : "") + dg + pl);
     }
   }
 } else if (hsSub === "flush") {
@@ -237,7 +237,7 @@ if (hsSub === "" || hsSub === "status") {
 } else if (hsSub === "debug") {
   var T = HS.cur || {};
   hsSay("level=" + HS.level + " nl=" + HS.nl + " dragon=" + (HS.dragon() === null ? "?" : HS.dragon().toFixed(3)) + " resumed=" + !!HS.resumed);
-  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(",") + " party=" + HS.party.join(",") + " me=" + (HS.me || "?"));
+  hsSay("area=" + T.area + " xp=" + T.xp + " gold=" + T.gold + " kills=" + T.kills + " pkills=" + (T.pkills || 0) + " firstXpAt=" + T.firstXpAt + " lastXpAt=" + T.lastXpAt + " players=" + Object.keys(T.players || {}).join(",") + " party=" + HS.party.join(",") + " me=" + (HS.me || "?"));
 } else {
   hsSay("unknown command '" + hsSub + "'. HUNTSTATS HELP for commands.", "orange");
 }
