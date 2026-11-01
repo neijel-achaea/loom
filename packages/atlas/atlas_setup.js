@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.2.4", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.3.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -89,7 +89,8 @@ function atFloat(v) { var n = Number(v); return isFinite(n) ? n : 0; }
 // ---- The map ---------------------------------------------------------
 // In memory and in the cache, the crowdmap is kept compact:
 //   { v: version, at: ms, areas: { id: name },
-//     rooms: { id: [area, x, y, z, name, env, exits, specials] },
+//     rooms: { id: [area, x, y, z, name, env, exits, specials, fromGame] },
+//     (fromGame 1: a room the game's own map added, see "The game's own map")
 //     env: { envId: [r, g, b] } }
 // exits = { direction: room id }; specials = { command: room id } or 0.
 // Everything from the download is treated as data and checked as it's
@@ -196,6 +197,7 @@ AT.idb = function (mode, key, value) {
 AT.useMap = function (m, source) {
   m.byArea = null;
   AT.map = m;
+  for (var og in AT.official) if (AT.official.hasOwnProperty(og)) AT.officialApply(atNum(og));
   AT.source = source;
   AT.state = "ready";
   AT.note = "";
@@ -267,11 +269,107 @@ AT.envFetch = function (aid) {
   if (!(aid > 0) || AT.envAsked[aid] || typeof fetch != "function") return;
   AT.envAsked[aid] = true;
   fetch(AT.envUrl + aid + ".xml").then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); }).then(function (t) {
-    if (AT.envRead(t)) {
-      AT.idb("readwrite", "envs", AT.envs);
+    var envs = AT.envRead(t);
+    if (envs) AT.idb("readwrite", "envs", AT.envs);
+    var rooms = AT.officialRead(aid, t);
+    if (rooms) {
+      AT.official[aid] = { at: Date.now(), rooms: rooms };
+      AT.idb("readwrite", "official", AT.official);
+    }
+    var changed = rooms && AT.map ? AT.officialApply(aid) : false;
+    if (envs || changed) {
       run_function("atlas_render", { full: true }, "atlas");
+      if (changed) run_function("atlas_areas_render", [], "atlas");
     }
   }).catch(function () {});
+};
+
+// ---- The game's own map fills the crowdmap's gaps ------------------------------
+// The same file lists every room of the game area, with coordinates and
+// exits. It's always current but has no hidden exits or special paths; the
+// crowdmap has those but can lag behind changes to the game (Delos: room
+// 13927 missing, 14001 east leading past it, Ricardo). So, for each game area
+// you enter:
+//   - a room the crowdmap lacks is added, placed with the offset between the
+//     two maps' coordinates for that area (rooms in both tell it);
+//   - an exit the game lists replaces the crowdmap's in that direction (the
+//     game's is the current one); exits only the crowdmap has are kept.
+// Kept in the browser (key "official": { game area: { at, rooms } }) and laid
+// over the map again at each load.
+if (!AT.official || typeof AT.official != "object") AT.official = {};
+// rooms: { id: [x, y, z, name, env, exits] } from the file, checked as read.
+AT.officialRead = function (gaid, xml) {
+  var out = {}, n = 0, re = /<room\b([^>]*)>([\s\S]*?)<\/room>/gi, m;
+  function attr(a, k) { var x = new RegExp("\\b" + k + "=\"([^\"]*)\"").exec(a); return x ? x[1] : ""; }
+  function txt(v) { return String(v).replace(/&amp;/g, "&").replace(/&apos;|&#0*39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&[a-z#0-9]+;/gi, "").slice(0, 120); }
+  while ((m = re.exec(String(xml))) !== null) {
+    var id = atNum(attr(m[1], "id"));
+    if (!(id > 0)) continue;
+    var c = /<coord\b([^>]*)\/?>/i.exec(m[2]);
+    if (!c) continue;
+    var ex = {}, er = /<exit\b([^>]*)\/?>/gi, e;
+    while ((e = er.exec(m[2])) !== null) {
+      var d = attr(e[1], "direction").toLowerCase(), t = atNum(attr(e[1], "target"));
+      if (t > 0 && /^[a-z]{1,10}$/.test(d)) ex[d] = t;
+    }
+    out[id] = [atFloat(attr(c[1], "x")), atFloat(attr(c[1], "y")), atFloat(attr(c[1], "z")), txt(attr(m[1], "title")), atNum(attr(m[1], "environment")), ex];
+    n++;
+  }
+  return n ? out : null;
+};
+// Lay one game area's rooms over the map. True when anything changed.
+AT.officialApply = function (gaid) {
+  var O = AT.official[gaid], M = AT.map;
+  if (!O || !O.rooms || !M) return false;
+  var rooms = O.rooms, id, dx = [], dy = [], dz = [], added = 0, exits = 0;
+  // The offset between the two maps, per crowdmap area, from rooms in both.
+  var off = {};
+  for (id in rooms) {
+    if (!rooms.hasOwnProperty(id) || !M.rooms[id]) continue;
+    var C = M.rooms[id], G = rooms[id], k = C[0];
+    var o = off[k] || (off[k] = { x: [], y: [], z: [] });
+    o.x.push(C[1] - G[0]); o.y.push(C[2] - G[1]); o.z.push(C[3] - G[2]);
+  }
+  function median(a) { if (!a.length) return 0; a = a.slice().sort(function (p, q) { return p - q; }); return a[Math.floor(a.length / 2)]; }
+  for (var ka in off) if (off.hasOwnProperty(ka)) off[ka] = { x: median(off[ka].x), y: median(off[ka].y), z: median(off[ka].z), n: off[ka].x.length };
+  for (id in rooms) {
+    if (!rooms.hasOwnProperty(id)) continue;
+    var G2 = rooms[id], C2 = M.rooms[id];
+    if (C2) {
+      // Exits: the game's win in their direction.
+      var ex = C2[6] || (C2[6] = {});
+      for (var d in G2[5]) if (G2[5].hasOwnProperty(d) && ex[d] !== G2[5][d]) { ex[d] = G2[5][d]; exits++; }
+      continue;
+    }
+    // A room the crowdmap lacks: in the crowdmap area of its neighbours
+    // (the one most of them are in), else the game's area number.
+    var votes = {}, best = 0, area = M.areas[gaid] ? gaid : 0;
+    for (var d2 in G2[5]) if (G2[5].hasOwnProperty(d2)) { var N = M.rooms[G2[5][d2]]; if (N) votes[N[0]] = (votes[N[0]] || 0) + 1; }
+    for (var va in votes) if (votes.hasOwnProperty(va) && votes[va] > best) { best = votes[va]; area = atNum(va); }
+    if (!area) continue;
+    var o2 = off[area] || { x: 0, y: 0, z: 0 };
+    M.rooms[id] = [area, G2[0] + o2.x, G2[1] + o2.y, G2[2] + o2.z, G2[3], G2[4], JSON.parse(JSON.stringify(G2[5])), 0, 1];
+    added++;
+  }
+  if (added || exits) {
+    M.byArea = null;
+    M.patched = M.patched || {};
+    M.patched[gaid] = { rooms: added, exits: exits };
+    if (added) AT.rebuildKnown();
+  }
+  return !!(added || exits);
+};
+AT.officialLoad = function () {
+  AT.idb("readonly", "official").then(function (v) {
+    if (!v || typeof v != "object") return;
+    var any = false;
+    for (var g in v) {
+      if (!v.hasOwnProperty(g) || !(atNum(g) > 0) || !v[g] || typeof v[g].rooms != "object" || AT.official[g]) continue;
+      AT.official[g] = { at: atNum(v[g].at), rooms: v[g].rooms };
+      if (AT.map && AT.officialApply(atNum(g))) any = true;
+    }
+    if (any) { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); }
+  });
 };
 AT.envLoad = function () {
   AT.idb("readonly", "envs").then(function (v) {
@@ -611,5 +709,5 @@ try {
 
 AT.seedExplored();
 if (AT.map) { AT.rebuildKnown(); for (var atS in AT.known) if (AT.known.hasOwnProperty(atS)) AT.recount(atNum(atS)); }
-if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); }
+if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); AT.officialLoad(); }
 if (client.loom.notify) client.loom.notify("atlas");
