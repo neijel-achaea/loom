@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.1.4", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.2.0", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -199,6 +199,61 @@ R.saveLoyals = function () {
   }
   try { if (Object.keys(R.loyals).length) set_variable("room_loyals", JSON.stringify(R.loyals)); else delete_variable("room_loyals"); } catch (e) {}
 };
+// Kinds (Ricardo, 2026-11-01): city rooms are full of denizens, probed again
+// every session under new ids. A denizen loyal to a place (a city with its
+// title, "The Verdant Wilds of Eleusis", or "Luman Village") is remembered by
+// its name in that area: the next one of that name there isn't probed. Only
+// place answers: a player's loyal never answers with a place, so pets are
+// still probed by id, and so are mobs loyal to nobody (a Sentinel's panther
+// next to wild ones). A name that once answered with a player, or with
+// another place, is marked mixed (0) and always probed.
+//   R.kinds   "name|area" -> place text, or 0 for mixed; saved in room_kinds
+//   R.placeOf id -> place, for this session (hover; your own city's green)
+//   R.city    your city, from Char.Status ("Eleusis (2)" -> "Eleusis")
+R.kindsCap = 400;
+R.kinds = {};
+try {
+  var rmKs = JSON.parse(get_variable("room_kinds") || "{}");
+  if (rmKs && typeof rmKs == "object" && !Array.isArray(rmKs)) {
+    for (var rmKk in rmKs) { if (rmKs.hasOwnProperty(rmKk) && (typeof rmKs[rmKk] == "string" || rmKs[rmKk] === 0)) R.kinds[rmKk] = rmKs[rmKk]; }
+  }
+} catch (e) { R.kinds = {}; }
+if (!R.placeOf) R.placeOf = {};
+if (R.city === undefined) R.city = String(get_variable("room_city") || "");
+R.saveKinds = function () {
+  var ks = Object.keys(R.kinds);
+  // Beyond the cap, the oldest go first (kept in the order they came).
+  for (var i = 0; i < ks.length - R.kindsCap; i++) delete R.kinds[ks[i]];
+  try { if (Object.keys(R.kinds).length) set_variable("room_kinds", JSON.stringify(R.kinds)); else delete_variable("room_kinds"); } catch (e) {}
+};
+R.kindKey = function (name, area) { return String(name || "") + "|" + String(area || ""); };
+// A probe's result for a mob called name in area: owner (a player) or place.
+R.kindLearn = function (name, area, owner, place) {
+  if (!area) return;
+  var k = R.kindKey(name, area), had = R.kinds.hasOwnProperty(k) ? R.kinds[k] : undefined;
+  if (had === 0) return;
+  if (place && !owner) {
+    if (had === undefined) { R.kinds[k] = place; R.saveKinds(); }
+    else if (had !== place) { R.kinds[k] = 0; R.saveKinds(); }
+  } else if (had !== undefined) {
+    // The same name answered otherwise (someone's, or nobody's): never again.
+    R.kinds[k] = 0; R.saveKinds();
+  }
+};
+// Known by kind: true (R.loyal and R.placeOf set) when the name is a place's here.
+R.kindKnown = function (id, name) {
+  var area = R.info && R.info.area;
+  if (!area) return false;
+  var pl = R.kinds[R.kindKey(name, area)];
+  if (typeof pl != "string" || !pl) return false;
+  R.loyal[id] = "";
+  R.placeOf[id] = pl;
+  return true;
+};
+// Whether a place is your city: its name as a word in the place's text.
+R.placeIsMine = function (pl) {
+  return !!R.city && new RegExp("(^|\\W)" + R.city.replace(/[^A-Za-z]/g, "") + "(\\W|$)", "i").test(String(pl || ""));
+};
 // Keep (or drop) what a probe found about mob id, called name.
 R.loyalsKeep = function (id, name, owner) {
   if (owner && !R.loyalIgnored(owner)) { var now = Date.now(); R.loyals[id] = { n: name, o: owner, c: now, t: now }; R.saveLoyals(); }
@@ -233,6 +288,7 @@ R.probeAdd = function (it) {
   var id = String(it.id);
   if (R.loyal.hasOwnProperty(id) || R.probeQ.indexOf(id) >= 0 || (R.probing && R.probing.id === id)) return;
   if (R.loyalsKnown(id, String(it.name || "a mob"))) { if (client.loom.notify) client.loom.notify("room"); return; }
+  if (R.kindKnown(id, String(it.name || "a mob"))) return;
   if (R.basherActive(String(it.name || ""))) return;
   R.probeQ.push(id);
   R.probeSince[id] = Date.now();
@@ -314,10 +370,12 @@ R.probeNext = function () {
     var id = R.probeQ.shift();
     delete R.probeSince[id];
     var it = R.items[id];
+    // Another of its kind answered while it waited (five guards, one probe).
+    if (it && R.kindKnown(id, String(it.name || "a mob"))) { R.drawSoon(); continue; }
     if (it && !/d/.test(it.attrib || "")) {
       // Sent from a line (the room's exits line, a probe ending on a line):
       // the rest of this packet isn't the answer (p.sendPacket, probeLine).
-      var p = { id: id, name: String(it.name || "a mob"), at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt, foreign: 0, replayed: 0 };
+      var p = { id: id, name: String(it.name || "a mob"), area: (R.info && R.info.area) || "", place: "", at: Date.now(), owner: "", holding: false, health: false, lines: [], how: "", prompts: 0, sendPacket: !R.probeAtPrompt, foreign: 0, replayed: 0 };
       R.probing = p;
       clearTimeout(R.probeT);
       R.probeT = setTimeout(function () { if (R.probing === p) { p.how = "timeout"; R.probeEnd(false); } }, R.probeMs);
@@ -501,7 +559,7 @@ R.probeLine = function (line) {
     p.how = "gone"; R.probeEnd(false); return;
   }
   var m = /^(?:He|She|It|They) (?:is|are) loyal to (.+?)\.$/.exec(line);
-  if (m) { p.owner = R.loyalOwner(m[1]); return; }
+  if (m) { p.owner = R.loyalOwner(m[1]); if (!p.owner) p.place = m[1]; return; }
   if (p.holding) { p.how = "holding"; R.probeEnd(true); return; }
   if (/^You see nothing in it\.$/.test(line)) { p.how = "nothing"; R.probeEnd(true); return; }
   if (/ (?:is|are) holding:$/.test(line)) p.holding = true;
@@ -541,9 +599,11 @@ R.probeEnd = function (ok) {
   if (!ok && !p.health && p.how !== "gone" && p.lines.length) R.probeReplay(p);
   R.probeLast = { id: p.id, name: p.name, lines: p.lines, how: p.how || "?", ms: Date.now() - p.at, replayed: p.replayed || 0 };
   if (ok) {
-    if (Object.keys(R.loyal).length >= R.loyalCap) R.loyal = {};
+    if (Object.keys(R.loyal).length >= R.loyalCap) { R.loyal = {}; R.placeOf = {}; }
     R.loyal[p.id] = p.owner;
     R.loyalsKeep(p.id, p.name, p.owner);
+    if (p.place) R.placeOf[p.id] = p.place;
+    R.kindLearn(p.name, p.area, p.owner, p.place);
     // Silent (Ricardo): the loyal shows in Here, no notice.
     if (p.owner && !R.loyalIgnored(p.owner)) {
       if (client.loom.notify) client.loom.notify("room");

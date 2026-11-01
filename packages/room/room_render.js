@@ -270,6 +270,11 @@ if (!R.info) {
       if (loyMine) mfCol = OWNLOYAL;
       else ptyTag = ' <span style="font-family:' + SERIF + ';font-size:14px;color:' + loyCol + ';white-space:nowrap;text-shadow:none;">(' + esc(loy) + ')</span>' + ptyTag;
       mfTitle = "loyal to " + loy + (mfTitle ? " \u00b7 " + mfTitle : "");
+    } else if (!/d/.test(mob.attrib || "") && R.placeOf[mob.id]) {
+      // A place's denizen (kinds): your own city's in green (Ricardo), the
+      // place in the hover.
+      if (R.placeIsMine(R.placeOf[mob.id])) mfCol = OWNLOYAL;
+      mfTitle = "loyal to " + R.placeOf[mob.id] + (mfTitle ? " \u00b7 " + mfTitle : "");
     }
     var mid = String(mob.id);
     var rank = useQ ? BQ.order[mid] : undefined;

@@ -86,10 +86,10 @@ if (rmSub === "" || rmSub === "status") {
     }
   } else if (rmPv === "forget") {
     // The loyals remembered across sessions: recorded data, so CONFIRM.
-    var rmLn = Object.keys(R.loyals).length;
-    if (!rmLn) rmSay("no loyals remembered.");
-    else if ((rmW[2] || "").toLowerCase() !== "confirm") rmSay("this forgets the " + rmLn + " loyal" + (rmLn === 1 ? "" : "s") + " remembered from earlier sessions; each is probed again when next seen. ROOM PROBE FORGET CONFIRM to go ahead.", "orange");
-    else { R.loyals = {}; R.saveLoyals(); rmSay("forgot " + rmLn + " remembered loyal" + (rmLn === 1 ? "" : "s") + "; this session's stay marked.", "lime"); }
+    var rmLn = Object.keys(R.loyals).length, rmKn = Object.keys(R.kinds).length;
+    if (!rmLn && !rmKn) rmSay("no loyals or denizens remembered.");
+    else if ((rmW[2] || "").toLowerCase() !== "confirm") rmSay("this forgets the " + rmLn + " loyal" + (rmLn === 1 ? "" : "s") + " and " + rmKn + " kind" + (rmKn === 1 ? "" : "s") + " of denizen remembered from earlier sessions; each is probed again when next seen. ROOM PROBE FORGET CONFIRM to go ahead.", "orange");
+    else { R.loyals = {}; R.saveLoyals(); R.kinds = {}; R.saveKinds(); rmSay("forgot " + rmLn + " remembered loyal" + (rmLn === 1 ? "" : "s") + " and " + rmKn + " kind" + (rmKn === 1 ? "" : "s") + " of denizen; this session's stay marked.", "lime"); }
   } else if (rmPv === "on" || rmPv === "off") {
     R.probeOn = rmPv === "on";
     set_variable("room_probe", rmPv);
@@ -99,7 +99,7 @@ if (rmSub === "" || rmSub === "status") {
   } else {
     var rmLy = [];
     for (var rmLi in R.loyal) { if (R.loyal.hasOwnProperty(rmLi) && R.ownerOf(rmLi)) rmLy.push(rmLi + " (" + R.ownerOf(rmLi) + ")"); }
-    rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs known this session, " + Object.keys(R.loyals).length + " loyals remembered; this session's loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : (R.probeOthers().length ? " (after " + R.probeOthers().join(", ") + ")" : "")) : "") + ". ROOM PROBE ON|OFF to change it.");
+    rmSay("probing is " + (R.probeOn ? "on" : "off") + "; " + Object.keys(R.loyal).length + " mobs known this session, " + Object.keys(R.loyals).length + " loyals and " + Object.keys(R.kinds).length + " kinds of denizen remembered" + (R.city ? " (your city: " + R.city + ")" : "") + "; this session's loyals: " + (rmLy.length ? rmLy.join(", ") : "none") + (R.probeQ.length ? "; " + R.probeQ.length + " waiting" + (R.probeBusy() ? " (the basher is fighting)" : (R.probeOthers().length ? " (after " + R.probeOthers().join(", ") + ")" : "")) : "") + ". ROOM PROBE ON|OFF to change it.");
   }
 } else if (rmSub === "remember") {
   R.remember();

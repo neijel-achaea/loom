@@ -116,6 +116,12 @@ client.loom.hooks.room.gmcp = function (args) {
       if (rmTar !== R.lastTar) { R.lastTar = rmTar; R.tarAt = Date.now(); rmDraw = true; }
     } else if ((rmM === "Char.Name" || rmM === "Char.Status") && rmA && rmA.name) {
       rmDraw = false;
+      // Your city (kinds: your own city's denizens green), "Eleusis (2)".
+      if (rmM === "Char.Status" && rmA.city !== undefined) {
+        var rmCity = String(rmA.city || "").replace(/\s*\(.*$/, "").trim();
+        if (/^\(?none\)?$/i.test(rmCity)) rmCity = "";
+        if (rmCity !== R.city) { R.city = rmCity; try { if (rmCity) set_variable("room_city", rmCity); else delete_variable("room_city"); } catch (e) {} rmDraw = true; }
+      }
       if (String(rmA.name) !== R.me) { R.me = String(rmA.name); try { set_variable("room_name", R.me); } catch (e) {} rmDraw = true; }
     } else {
       rmDraw = false;
