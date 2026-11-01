@@ -25,6 +25,20 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `debug` | setting | 0.1 | "on" for extra notices from loom, hunting, fishing and basher |  |
 | `activeClass` | legacy | 0.1 | the class before hunting_class; still read when hunting_class is empty |  |
 
+## atlas
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `atlas_fog` | setting | 1.1 | `off` while fog of war is off (absent: on) |  |
+| `atlas_counts` | data | 1.1 | per area: rooms on the community map you've explored there, from the game's lists |  |
+| `atlas_tags` | setting | 1.1 | per area: your tags for the Areas tab |  |
+| `atlas_hidden` | setting | 1.1 | areas kept out of the Areas tab and its totals |  |
+| `atlas_folded` | setting | 1.1 | Areas tab groups folded or opened (`unvisited` and `hidden` folded unless opened) |  |
+| `atlas_uncounted` | data | 1.1 | areas you walked into whose room information came without an explored list (the game keeps no record of exploring them) |  |
+| `atlas_marks` | data | 1.1 | your marks on rooms: room → [icon, note] |  |
+
+The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (database `loom-atlas`), shared by every character on that browser.
+
 ## basher
 
 | Variable | Kind | Since | Holds | Was |

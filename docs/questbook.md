@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.5.2.*
+*This page describes questbook 0.5.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -120,6 +120,7 @@ Questbook reads nothing from other packages. With **waypoints** installed, Loom'
 | Link | With | What it does |
 | --- | --- | --- |
 | `waypoints-questbook` | waypoints | A GO step whose room is a saved waypoint shows the waypoint's name (⚑ name). |
+| `questbook-atlas` | atlas | On the Atlas map, the followed quest's GO steps are numbered on their rooms (the step you're on in amber), and a gold ! marks where each quest you can start now begins. |
 
 ## Troubleshooting
 

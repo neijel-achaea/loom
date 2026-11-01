@@ -1,0 +1,73 @@
+{
+  "type": "group",
+  "name": "atlas",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "atlas_setup",
+      "enabled": true,
+      "code": "@file:atlas_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "atlas_render",
+      "enabled": true,
+      "code": "@file:atlas_render.js"
+    },
+    {
+      "type": "function",
+      "name": "atlas_areas_render",
+      "enabled": true,
+      "code": "@file:atlas_areas_render.js"
+    },
+    {
+      "type": "function",
+      "name": "atlas_help",
+      "enabled": true,
+      "code": "@file:atlas_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Atlas control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_atlas.js"
+        }
+      ],
+      "text": "^atlas(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    }
+  ],
+  "description": "A map tab from the community crowdmap, with the rooms you've explored as fog"
+}
