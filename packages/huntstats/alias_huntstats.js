@@ -115,6 +115,20 @@ if (hsSub === "" || hsSub === "status") {
       if (sgHtml) nexusclient.add_html_line('<span style="font-family:\'Courier New\',monospace;white-space:pre">' + sgRows.join("\n") + '</span>');
     }
   }
+} else if (hsSub === "companions") {
+  // HUNTSTATS COMPANIONS: everyone you've hunted with, most time first.
+  var hsCm = HS.comps(), hsCk = Object.keys(hsCm);
+  hsCk.sort(function (a, b) { return hsCm[b].ms - hsCm[a].ms; });
+  if (!hsCk.length) hsSay("no companions yet: a hunt filed with someone in its party adds them.", "cyan");
+  else {
+    hsSay(hsCk.length + " companion" + (hsCk.length === 1 ? "" : "s") + ", most time hunted together first:", "cyan");
+    for (var hsCi = 0; hsCi < hsCk.length && hsCi < 20; hsCi++) {
+      var hsCe = hsCm[hsCk[hsCi]];
+      var hsCr = HS.compRecent(hsCe);
+      hsSay("  " + hsCk[hsCi] + ": " + HS.dur(hsCe.ms) + ", " + hsCe.h + " hunt" + (hsCe.h === 1 ? "" : "s") + (hsCr.h ? " (last 30 days: " + HS.dur(hsCr.ms) + ", " + hsCr.h + ")" : "") + (hsCe.a ? ", last in " + hsCe.a : ""), "cyan");
+    }
+    if (hsCk.length > 20) hsSay("  … and " + (hsCk.length - 20) + " more in the Stats tab.", "cyan");
+  }
 } else if (hsSub === "log") {
   var log = [];
   try { log = JSON.parse(get_variable("huntstats_log")) || []; } catch (e) { log = []; } if (!Array.isArray(log)) log = [];
@@ -139,10 +153,11 @@ if (hsSub === "" || hsSub === "status") {
   if (hsP1 === "confirm") {
     set_variable("huntstats_areas", "{}");
     set_variable("huntstats_log", "[]");
+    set_variable("huntstats_companions", "{}");
     run_function("huntstats_render", [], "huntstats");
-    hsSay("all area records and the log wiped", "orange");
+    hsSay("all area records, the log and companions wiped", "orange");
   } else {
-    hsSay("this clears ALL area records and the hunt log. HUNTSTATS WIPE CONFIRM to proceed.", "orange");
+    hsSay("this clears ALL area records, the hunt log and your companions. HUNTSTATS WIPE CONFIRM to proceed.", "orange");
   }
 } else if (hsSub === "split") {
   // HUNTSTATS SPLIT [REPORT | TELL ON|OFF] (#89): the gold split of the hunt

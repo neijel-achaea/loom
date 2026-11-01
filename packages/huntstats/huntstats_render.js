@@ -109,10 +109,55 @@ if (live) {
   var cDt = cD ? dmgTxt(cD.dmg, cD.combatMs, cD.maxHit) : null;
   if (cDt) cb += row("taken", cDt);
   var cP = [];
-  for (var cK in (C.players || {})) { if (C.players.hasOwnProperty(cK)) cP.push(cK); }
-  cb += row("party", cP.length ? esc(cP.join(", ")) : "alone");
+  for (var cK in (C.players || {})) {
+    if (!C.players.hasOwnProperty(cK)) continue;
+    var cCol = (client.loom.loom && client.loom.loom.answer) ? client.loom.loom.answer("huntstats", "person.colour", cK) : undefined;
+    cP.push(cCol ? '<span style="color:' + cCol + ';">' + esc(cK) + '</span>' : esc(cK));
+  }
+  cb += row("party", cP.length ? cP.join(", ") : "alone");
   if (dh !== null && C.startDragonPct !== null && C.startDragonPct !== undefined && dh - C.startDragonPct > 0) { cb += row("dragonhood", '+' + (dh - C.startDragonPct).toFixed(3) + '%', DRAGON); }
   html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">' + box(cb, MOSS) + lifeBox() + '</div>';
+}
+
+// The lower view's switch: RECENT HUNTS · COMPANIONS (Ricardo, 2026-11-01).
+var HSv = client.loom.huntstats;
+var comps = HSv.comps ? HSv.comps() : {};
+var compN = Object.keys(comps);
+function viewSeg(v, lbl) {
+  var on = (HSv.view || "hunts") === v;
+  return '<span onclick="window.loomHuntstats &amp;&amp; window.loomHuntstats.view(\'' + v + '\')" title="' + (v === "hunts" ? "the last five hunts" : "everyone you've hunted with") + '" style="display:inline-block;cursor:pointer;padding:3px 7px 2px;line-height:1.2;' + (on ? 'background:' + DEEP + ';color:' + TXT + ';' : 'color:' + MUTED + ';') + '">' + lbl + '</span>';
+}
+function viewSection(inner) {
+  var sw = '<span style="display:inline-flex;border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;font-family:' + SERIF + ';">' + viewSeg("hunts", "RECENT HUNTS") + viewSeg("companions", "COMPANIONS") + '</span>';
+  return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;"><div style="margin:0 0 4px;">' + sw + '</div>' + inner + '</div>';
+}
+// Companions (Ricardo): two boxes, as This hunt and Lifetime above. The last
+// 30 days and lifetime, most time together first; a name, its time and
+// hunts, the last hunt together in the hover.
+function compList() {
+  if (!compN.length) return quiet("No companions yet. Hunt with someone following you, or added with HUNTSTATS PARTY ADD, and they appear here once the hunt is filed.");
+  var LLc = client.loom.loom;
+  function nameOf(n, e) {
+    var col = (LLc && LLc.answer) ? LLc.answer("huntstats", "person.colour", n) : undefined;
+    return '<span style="font-family:' + SERIF + ';font-size:11px;color:' + (col || TXT) + ';" title="last hunted together ' + (e.l ? ago(e.l) : '') + (e.a ? ' in ' + esc(e.a) : '') + '">' + esc(n) + '</span>';
+  }
+  function side(title, list, col) {
+    var b = caps(title, MOSS);
+    if (!list.length) return box(b + quiet("Nobody."), col);
+    for (var i = 0; i < list.length; i++) {
+      b += '<div style="display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' + nameOf(list[i].n, list[i].e) + '<span style="white-space:nowrap;color:' + MUTED + ';"><span style="color:' + MOSS + ';">' + fmtDur(list[i].ms) + '</span> &middot; ' + list[i].h + '</span></div>';
+    }
+    return box(b, col);
+  }
+  var recent = [], life = [];
+  for (var ci = 0; ci < compN.length; ci++) {
+    var n = compN[ci], e = comps[n];
+    var rc = HSv.compRecent ? HSv.compRecent(e) : { h: 0, ms: 0 };
+    if (rc.h) recent.push({ n: n, e: e, h: rc.h, ms: rc.ms });
+    life.push({ n: n, e: e, h: e.h, ms: e.ms });
+  }
+  recent.sort(byTime); life.sort(byTime);
+  return '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + side("Last 30 days", recent, MOSS) + side("Lifetime", life, DEEP) + '</div>' + '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:3px;">time together &middot; hunts; hover a name for the last hunt together</div>';
 }
 
 if (log.length === 0) {
@@ -149,11 +194,21 @@ if (log.length === 0) {
     rs += '<div style="color:' + MUTED + ';"><span style="color:' + MOSS + ';">' + thou(s.xpHr) + '</span> xp/hr &middot; <span style="color:' + GOLD + ';">' + thou(s.gold) + '</span> gold &middot; ' + s.kills + ' kills';
     if (s.dGain !== null && s.dGain !== undefined && s.dGain !== 0) { rs += ' &middot; <span style="color:' + DRAGON + ';">+' + s.dGain.toFixed(3) + '%</span>'; }
     rs += '</div>';
-    if (s.players && s.players.length) { rs += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">with ' + esc(s.players.join(", ")) + '</div>'; }
+    if (s.players && s.players.length) {
+      // Each name in its Social colour (link social-huntstats).
+      var wn = [];
+      for (var wi = 0; wi < s.players.length; wi++) {
+        var wc = (client.loom.loom && client.loom.loom.answer) ? client.loom.loom.answer("huntstats", "person.colour", s.players[wi]) : undefined;
+        wn.push(wc ? '<span style="color:' + wc + ';">' + esc(s.players[wi]) + '</span>' : esc(s.players[wi]));
+      }
+      rs += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">with ' + wn.join(", ") + '</div>';
+    }
     rs += '</div>';
   }
-  html += section("Recent hunts", rs);
+  if ((HSv.view || "hunts") !== "companions") html += viewSection(rs);
 }
+if ((HSv.view || "hunts") === "companions") html += viewSection(compList());
+else if (log.length === 0 && compN.length) html += viewSection(quiet("No hunts in the log."));
 
 // Areas, by total time; each bar is its xp/hr against the best area.
 var ar = "";
