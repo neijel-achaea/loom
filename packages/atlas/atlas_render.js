@@ -156,11 +156,29 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       var faint = shown[Q.id] === 2;
       rooms += '<rect class="loom-atlas-r" x="' + (qx - 0.3) + '" y="' + (qy - 0.3) + '" width="0.6" height="0.6" rx="0.08" fill="' + col(Q.e) + '"' + (faint ? ' opacity="0.35"' : '') +
         ' onclick="window.loomAtlas&&window.loomAtlas.go(' + Q.id + ')"><title>' + esc((Q.n || "?") + " (" + Q.id + ")" + (AT.envs && AT.envs[Q.e] && AT.envs[Q.e].n ? " · " + AT.envs[Q.e].n : "") + (exl.length ? " · exits: " + exl.join(", ") : "") + (faint ? " · not explored" : "") + " · click to walk here") + '</title></rect>';
-      // Up ▲ top, down ▼ bottom, in ◀ left, out ▶ right, inside the room.
-      if (ins.up) marks += '<path d="M' + (qx - 0.11) + ' ' + (qy - 0.08) + ' l0.11 -0.15 l0.11 0.15 z"/>';
-      if (ins.down) marks += '<path d="M' + (qx - 0.11) + ' ' + (qy + 0.08) + ' l0.11 0.15 l0.11 -0.15 z"/>';
-      if (ins["in"]) marks += '<path d="M' + (qx - 0.08) + ' ' + (qy - 0.11) + ' l-0.15 0.11 l0.15 0.11 z"/>';
-      if (ins.out) marks += '<path d="M' + (qx + 0.08) + ' ' + (qy - 0.11) + ' l0.15 0.11 l-0.15 0.11 z"/>';
+      // As the stock map: one arrow in the middle of the room (▲ up, ▼ down,
+      // ◀ in, ▶ out); up and down together an hourglass (▼ over ▲, tips
+      // meeting), in and out together the same on its side. With both pairs,
+      // up/down keep the middle and in/out sit small at the sides.
+      var vU = ins.up, vD = ins.down, hI = ins["in"], hO = ins.out, both = (vU || vD) && (hI || hO);
+      function tri(cx, cy, dir, w, h) {
+        // dir: 0 up, 1 down, 2 left, 3 right; (cx, cy) the middle of the triangle's box.
+        var a = w / 2, b = h / 2, P;
+        if (dir === 0) P = [[cx - a, cy + b], [cx, cy - b], [cx + a, cy + b]];
+        else if (dir === 1) P = [[cx - a, cy - b], [cx, cy + b], [cx + a, cy - b]];
+        else if (dir === 2) P = [[cx + b, cy - a], [cx - b, cy], [cx + b, cy + a]];
+        else P = [[cx - b, cy - a], [cx + b, cy], [cx - b, cy + a]];
+        return '<path d="M' + P.map(function (p) { return p[0].toFixed(3) + ' ' + p[1].toFixed(3); }).join(' L') + ' Z"/>';
+      }
+      if (vU && vD) marks += tri(qx, qy - 0.075, 1, 0.3, 0.15) + tri(qx, qy + 0.075, 0, 0.3, 0.15);
+      else if (vU) marks += tri(qx, qy, 0, 0.32, 0.26);
+      else if (vD) marks += tri(qx, qy, 1, 0.32, 0.26);
+      if (both) {
+        if (hI) marks += tri(qx - 0.21, qy, 2, 0.18, 0.1);
+        if (hO) marks += tri(qx + 0.21, qy, 3, 0.18, 0.1);
+      } else if (hI && hO) marks += tri(qx - 0.075, qy, 3, 0.3, 0.15) + tri(qx + 0.075, qy, 2, 0.3, 0.15);
+      else if (hI) marks += tri(qx, qy, 2, 0.32, 0.26);
+      else if (hO) marks += tri(qx, qy, 3, 0.32, 0.26);
     }
     var ring = '';
     if (here && here.a === aid) {
