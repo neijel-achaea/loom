@@ -218,8 +218,20 @@ try {
     for (var rmKk in rmKs) { if (rmKs.hasOwnProperty(rmKk) && (typeof rmKs[rmKk] == "string" || rmKs[rmKk] === 0)) R.kinds[rmKk] = rmKs[rmKk]; }
   }
 } catch (e) { R.kinds = {}; }
-if (!R.placeOf) R.placeOf = {};
-if (R.city === undefined) R.city = String(get_variable("room_city") || "");
+// First run of kinds in this page (an update mid-session): mobs already
+// probed as nobody's were kept without their place, and wouldn't be probed
+// again; forgotten once, so they are, and their kind is learned.
+if (!R.placeOf) {
+  R.placeOf = {};
+  if (R.loyal) { for (var rmLy in R.loyal) { if (R.loyal.hasOwnProperty(rmLy) && R.loyal[rmLy] === "") delete R.loyal[rmLy]; } }
+}
+// The game sends your city only at login: imported later, room hasn't seen
+// it, so loom's (read only, kept for the city theme, lower case) stands in.
+if (!R.city) {
+  R.city = String(get_variable("room_city") || "");
+  var rmLc = String(get_variable("loom_city") || "");
+  if (!R.city && rmLc && rmLc !== "none") R.city = rmLc.charAt(0).toUpperCase() + rmLc.slice(1);
+}
 R.saveKinds = function () {
   var ks = Object.keys(R.kinds);
   // Beyond the cap, the oldest go first (kept in the order they came).
