@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "0.5.2", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "0.5.3", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
@@ -662,6 +662,10 @@ QU.editDone = function () {
 // The read-only look other packages see through loom: never its variables.
 //   look.quest(id) -> { name, area, status, step, steps } or undefined;
 //   look.following() -> the followed quest's { id, name, step, steps, kind }.
+//   look.marks() -> where quests lead, for a map (#451): { follow: { id, name,
+//     goes: [{ n, room, now }] } | null, starts: [{ id, name, room }] }:
+//     the followed quest's GO steps (n counts from 1, now = the step you're
+//     on), and the first GO step of each quest you can start now.
 QU.look = {
   quest: function (id) {
     var q = QU.byId(id);
@@ -674,6 +678,21 @@ QU.look = {
     if (!q) return undefined;
     var c = QU.current(q);
     return { id: q.id, name: q.name, step: QU.st(q).step, steps: q.steps.length, kind: c ? c.k : "" };
+  },
+  marks: function () {
+    var out = { follow: null, starts: [] }, f = QU.followed();
+    if (f) {
+      var cur = QU.st(f).step, goes = [];
+      for (var i = 0; i < f.steps.length; i++) if (f.steps[i].k === "go" && f.steps[i].room) goes.push({ n: i + 1, room: String(f.steps[i].room), now: i === cur });
+      out.follow = { id: f.id, name: f.name, goes: goes };
+    }
+    for (var j = 0; j < QU.list.length; j++) {
+      var q = QU.list[j];
+      if (f && q.id === f.id) continue;
+      if (QU.status(q) !== "ready") continue;
+      for (var k = 0; k < q.steps.length; k++) if (q.steps[k].k === "go" && q.steps[k].room) { out.starts.push({ id: q.id, name: q.name, room: String(q.steps[k].room) }); break; }
+    }
+    return out;
   }
 };
 

@@ -179,6 +179,46 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       else if (hI) marks += tri(qx, qy, 3, 0.32, 0.26);
       else if (hO) marks += tri(qx, qy, 2, 0.32, 0.26);
     }
+    // ---- From other packages, through loom (#451): waypoints and quests ----
+    var LL = client.loom.loom, pins = '';
+    var wpAt = {}, qAt = {}, sAt = {};
+    var wps = (LL && LL.answer) ? LL.answer("atlas", "atlas.waypoints") : undefined;
+    if (Array.isArray(wps)) for (var wi = 0; wi < wps.length; wi++) if (wps[wi] && wps[wi].id) wpAt[wps[wi].id] = wps[wi];
+    var qm = (LL && LL.answer) ? LL.answer("atlas", "atlas.quests") : undefined;
+    if (qm && typeof qm == "object") {
+      if (qm.follow && Array.isArray(qm.follow.goes)) for (var qi = 0; qi < qm.follow.goes.length; qi++) {
+        var G = qm.follow.goes[qi];
+        (qAt[G.room] || (qAt[G.room] = [])).push(G);
+      }
+      if (Array.isArray(qm.starts)) for (var sj = 0; sj < qm.starts.length; sj++) (sAt[qm.starts[sj].room] || (sAt[qm.starts[sj].room] = [])).push(qm.starts[sj].name);
+    }
+    for (var pk = 0; pk < list.length; pk++) {
+      var P = list[pk], px = P.x, py = -P.y, w = wpAt[P.id], qs = qAt[P.id], ss = sAt[P.id];
+      if (w) {
+        // ⚑ at the top right corner (Ricardo), name and note on hover.
+        var fx = px + 0.24, fy = py - 0.28;
+        pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc("⚑ " + w.name + (w.note ? " — " + w.note : "") + " (waypoint)") + '</title>' +
+          '<path d="M' + fx.toFixed(2) + ' ' + (fy + 0.2).toFixed(2) + ' V' + (fy - 0.16).toFixed(2) + '" stroke="#000" stroke-width="0.09"/>' +
+          '<path d="M' + fx.toFixed(2) + ' ' + (fy + 0.2).toFixed(2) + ' V' + (fy - 0.16).toFixed(2) + '" stroke="' + TXT + '" stroke-width="0.04"/>' +
+          '<path d="M' + fx.toFixed(2) + ' ' + (fy - 0.16).toFixed(2) + ' l0.2 0.08 l-0.2 0.08 z" fill="' + AMBER + '" stroke="#000" stroke-width="0.03"/></g>';
+      }
+      if (qs && qs.length) {
+        // The followed quest's GO steps, numbered at the top left corner; the
+        // step you're on in amber, the others in blue.
+        var now = qs.filter(function (g) { return g.now; })[0], show = now || qs[0];
+        var nums = qs.map(function (g) { return g.n; }).join(", ");
+        var bx = px - 0.27, by = py - 0.27, r = now ? 0.19 : 0.16;
+        pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc((qm.follow.name || "quest") + ": step " + nums + (now ? " (the step you're on)" : "") + " · GO here") + '</title>' +
+          '<circle cx="' + bx.toFixed(2) + '" cy="' + by.toFixed(2) + '" r="' + r + '" fill="' + (now ? AMBER : "#7fb0e8") + '" stroke="#000" stroke-width="0.04"/>' +
+          '<text x="' + bx.toFixed(2) + '" y="' + (by + 0.005).toFixed(3) + '" font-size="' + (show.n > 9 ? 0.17 : 0.22) + '" font-family="Consolas,monospace" font-weight="bold" fill="#000" text-anchor="middle" dominant-baseline="central">' + show.n + '</text></g>';
+      } else if (ss && ss.length) {
+        // A quest you can start now begins here.
+        var sx = px - 0.27, sy = py - 0.27;
+        pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc("Ready to start here: " + ss.join(", ")) + '</title>' +
+          '<circle cx="' + sx.toFixed(2) + '" cy="' + sy.toFixed(2) + '" r="0.16" fill="#e8c65a" stroke="#000" stroke-width="0.04"/>' +
+          '<text x="' + sx.toFixed(2) + '" y="' + (sy + 0.005).toFixed(3) + '" font-size="0.24" font-family="Georgia,serif" font-weight="bold" fill="#000" text-anchor="middle" dominant-baseline="central">!</text></g>';
+      }
+    }
     var ring = '';
     if (here && here.a === aid) {
       ring = '<g class="loom-atlas-me" transform="translate(' + here.x + ' ' + (-here.y) + ')"' + (here.z !== V.z ? ' opacity="0.35"' : '') + ' pointer-events="none">' +
@@ -191,7 +231,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     html += '<g stroke="' + BG + '" stroke-width="0.04">' + rooms + '</g>';
     // The arrows outlined in black so they read on light rooms too (Ricardo).
     html += '<g fill="' + TXT + '" stroke="#000" stroke-width="0.06" stroke-linejoin="round" paint-order="stroke" pointer-events="none">' + marks + '</g>';
-    html += ring + '</svg>';
+    html += ring + '<g>' + pins + '</g></svg>';   // markers over the ring, so yours stay visible
     if (!list.length) html += '<div style="position:absolute;left:12px;top:12px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + (ids.length ? "Nothing explored on this level yet." : "This area isn't on the community map.") + '</div>';
   }
   html += '</div>';

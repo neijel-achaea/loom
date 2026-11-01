@@ -3,7 +3,7 @@
 *Rooms you save by name, listed by area or by tag in a tab; one click walks you there.*
 
 <!-- loom:version waypoints -->
-*This page describes waypoints 0.2.2.*
+*This page describes waypoints 0.2.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -60,12 +60,13 @@ Click a waypoint to go there; `PATH FIND` walks you, and the game stops it if so
 
 ## Working with other packages
 
-Waypoints reads nothing from other packages. With **room** installed, Loom's integrations join the two. Each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
+Waypoints reads nothing from other packages. With **room** or **atlas** installed, Loom's integrations join them. Each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
 
 | Link | With | What it does |
 | --- | --- | --- |
 | `waypoints-room` | room | A saved room's name as a ⚑ tag on Here's exits line, the note on hover. |
 | `room-waypoints` | room | Here's remembered room pinned at the top of Waypoints, with GO BACK, FORGET or REMEMBER HERE (the same as Here's button). |
+| `waypoints-atlas` | atlas | A saved room shows a small amber ⚑ on the Atlas map, name and note on hover. |
 
 ## Troubleshooting
 

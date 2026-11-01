@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.waypoints) client.loom.waypoints = {};
-client.loom.registry.waypoints = { version: "0.2.2", keyword: "WAYPOINTS", desc: "{{description}}",
+client.loom.registry.waypoints = { version: "0.2.3", keyword: "WAYPOINTS", desc: "{{description}}",
   redraw: function () { run_function("waypoints_render", [], "waypoints"); } };
 var WP = client.loom.waypoints;
 
@@ -142,8 +142,10 @@ WP.fold = function (area) {
 
 // The read-only look other packages see through loom: never its variables.
 //   look.at(id) -> { name, note } when that room is a waypoint, else undefined.
+//   look.all() -> every waypoint as { id, name, note } (for a map, #451).
 WP.look = {
-  at: function (id) { var w = WP.byId(id); return w ? { name: w.name, note: w.note } : undefined; }
+  at: function (id) { var w = WP.byId(id); return w ? { name: w.name, note: w.note } : undefined; },
+  all: function () { return WP.list.map(function (w) { return { id: w.id, name: w.name, note: w.note }; }); }
 };
 
 // The tab's clicks. Its page shares window with the scripts but can't reach

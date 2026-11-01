@@ -898,3 +898,31 @@ L.addLink({
     });
   }
 });
+
+// #451 waypoints -> atlas: saved rooms as a ⚑ on the room in the Atlas map
+// (Ricardo: a flag at the room's corner, name and note on hover). Answers
+// atlas.waypoints -> [{ id, name, note }] (Atlas keeps the area it shows).
+L.addLink({
+  id: "waypoints-atlas", src: "waypoints", dst: "atlas", issue: 451,
+  desc: "Saved waypoints as a flag on their room in the Atlas map",
+  answers: {
+    "atlas.waypoints": function () {
+      var w = client.loom.waypoints;
+      return (w && w.look && w.look.all) ? w.look.all() : undefined;
+    }
+  }
+});
+
+// #451 questbook -> atlas: the followed quest's GO steps numbered on the map
+// (the current one highlighted) and a marker where each quest you can start
+// now begins (Ricardo). Answers atlas.quests -> questbook's look.marks().
+L.addLink({
+  id: "questbook-atlas", src: "questbook", dst: "atlas", issue: 451,
+  desc: "The followed quest's steps and where ready quests start, on the Atlas map",
+  answers: {
+    "atlas.quests": function () {
+      var q = client.loom.questbook;
+      return (q && q.look && q.look.marks) ? q.look.marks() : undefined;
+    }
+  }
+});

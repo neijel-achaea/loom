@@ -235,3 +235,9 @@ try {
   if (quSt.textContent !== quCss) quSt.textContent = quCss;
 } catch (e) {}
 try { set_custom_tab_html("Quests", html); } catch (e) {}
+// Tell loom when where quests lead has changed (a step done, a quest followed
+// or ready again), so a map showing them redraws; not on every draw.
+try {
+  var quMk = JSON.stringify(QU.look.marks());
+  if (quMk !== QU.marksSig) { QU.marksSig = quMk; if (client.loom.notify) client.loom.notify("questbook"); }
+} catch (e) {}

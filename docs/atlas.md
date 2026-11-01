@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.3.1.*
+*This page describes atlas 0.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -72,7 +72,14 @@ Leave the tab open and it follows you. When you want to go somewhere in the area
 
 ## Working with other packages
 
-Atlas reads nothing from other packages yet. Its integrations (waypoints and quest steps on the map, Here's alerts) come in later versions.
+With other Loom packages installed, Loom's integrations put what they know on the map. Each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
+
+| Link | With | What it does |
+| --- | --- | --- |
+| `waypoints-atlas` | waypoints | A saved waypoint shows as a small amber ⚑ at its room's top right corner; its name and note on hover. |
+| `questbook-atlas` | questbook | The quest you're following: each GO step numbered at its room's top left corner, the step you're on in amber, the others in blue. Every quest you can start now: a gold **!** where its first GO step is. Hover for the quest's name. |
+
+Markers show on the area and level drawn, on rooms the map shows (with fog of war, rooms you've explored). Clicking one walks there, as a click on its room.
 
 ## Troubleshooting
 
