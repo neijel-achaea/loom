@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.4.2", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.5.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -53,6 +53,55 @@ if (atT && typeof atT == "object" && !Array.isArray(atT)) for (var atA in atT) {
 AT.hidden = {};
 var atH = AT.readJson("atlas_hidden");
 if (Array.isArray(atH)) for (var atJ = 0; atJ < atH.length; atJ++) if (atNum(atH[atJ]) > 0) AT.hidden[atNum(atH[atJ])] = true;
+// Your own marks on rooms (Ricardo): one icon from the list below per room,
+// with an optional note, in the room's bottom left corner. Saved per
+// character: atlas_marks = { room: [icon, note] }.
+// The icons: key -> [label, parts], drawn in a 16x16 box; a part is
+// [kind, path]: "f" filled black, "s" a black stroke, "w" filled white.
+AT.icons = {
+  fishing: ["fishing spot", [["f", "M1.5 8 Q6.5 2.5 11.5 8 Q6.5 13.5 1.5 8 Z M11 8 L15 4.5 V11.5 Z"], ["w", "M4.2 7.3 a0.9 0.9 0 1 0 0.01 0 Z"]]],
+  shrine: ["shrine", [["f", "M2.5 6 L8 2 L13.5 6 Z M3.5 7h9v1.2h-9z M4.6 9h1.8v4H4.6z M9.6 9h1.8v4H9.6z M2.8 13.6h10.4v1.6H2.8z"]]],
+  sleep: ["a place to sleep", [["f", "M10.5 2 A6.2 6.2 0 1 0 14.2 11.3 A5 5 0 1 1 10.5 2 Z"]]],
+  bank: ["bank", [["f", "M2.5 11.5h11v2.6h-11z M3.5 7.8h9v2.6h-9z M4.8 4.1h6.4v2.6H4.8z"]]],
+  shop: ["shop", [["f", "M3.5 6h9l1.2 8.5H2.3z"], ["s", "M5.8 6 V4.6 a2.2 2.2 0 0 1 4.4 0 V6"]]],
+  craft: ["crafting", [["f", "M2.5 3.5h8.5v3.5H2.5z M5.6 7h2.4v7.5H5.6z M11 4.3h2.5v1.9H11z"]]],
+  harvest: ["harvesting", [["f", "M2.5 13.5 Q2.5 2.5 13.5 2.5 Q13.5 13.5 2.5 13.5 Z"], ["w", "M3.6 13.2 L11.5 5.3 L12.1 5.9 L4.2 13.8 Z"]]],
+  hunt: ["hunting", [["f", "M11.6 1.8 H14.2 V4.4 L6.6 12 L4 9.4 Z"], ["s", "M2.6 9.6 L6.4 13.4 M2.2 13.8 L4.4 11.6"]]],
+  danger: ["danger", [["f", "M8 1.8 L14.8 14 H1.2 Z"], ["w", "M7.2 5.8h1.6v4.6H7.2z M7.2 11.4h1.6v1.6H7.2z"]]],
+  star: ["favourite", [["f", "M8 1.2 L10.1 5.8 L15 6.2 L11.2 9.4 L12.4 14.4 L8 11.7 L3.6 14.4 L4.8 9.4 L1 6.2 L5.9 5.8 Z"]]],
+  secret: ["secret", [["s", "M5 5.2 a2.8 2.8 0 1 0 0.01 0 Z M7.8 8 H14.5 M12.3 8 V10.8 M14.5 8 V10.4"]]]
+};
+// Other words that pick an icon: what a player might type.
+AT.iconAlias = { fish: "fishing", fishing: "fishing", temple: "shrine", altar: "shrine", inn: "sleep", bed: "sleep", rest: "sleep", gold: "bank", money: "bank",
+  store: "shop", buy: "shop", forge: "craft", crafting: "craft", plants: "harvest", herbs: "harvest", gather: "harvest", hunting: "hunt", bash: "hunt",
+  warning: "danger", skull: "danger", fav: "star", favourite: "star", favorite: "star", hidden: "secret", key: "secret" };
+AT.iconOf = function (w) { w = String(w || "").toLowerCase(); return AT.icons[w] ? w : (AT.iconAlias[w] || ""); };
+AT.marks = {};
+var atMk = AT.readJson("atlas_marks");
+if (atMk && typeof atMk == "object" && !Array.isArray(atMk)) for (var atMi in atMk) {
+  if (!atMk.hasOwnProperty(atMi) || !(atNum(atMi) > 0) || !Array.isArray(atMk[atMi]) || !AT.icons[atMk[atMi][0]]) continue;
+  AT.marks[atNum(atMi)] = [atMk[atMi][0], String(atMk[atMi][1] || "").slice(0, 120)];
+}
+AT.saveMarks = function () {
+  var any = false;
+  for (var a in AT.marks) if (AT.marks.hasOwnProperty(a)) { any = true; break; }
+  if (any) set_variable("atlas_marks", JSON.stringify(AT.marks)); else delete_variable("atlas_marks");
+  if (client.loom.notify) client.loom.notify("atlas");
+  run_function("atlas_render", { full: true }, "atlas");
+};
+AT.mark = function (id, icon, note) {
+  AT.marks[id] = [icon, String(note || "").slice(0, 120)];
+  AT.saveMarks();
+  var R = AT.room(id);
+  display_notice("[atlas] " + (R && R.n ? R.n + " " : "") + "(" + id + ") marked " + AT.icons[icon][0] + (note ? ": " + note : "") + ".", "lime");
+};
+AT.unmark = function (id) {
+  var R = AT.room(id), label = (R && R.n ? R.n + " " : "") + "(" + id + ")";
+  if (!AT.marks[id]) { display_notice("[atlas] " + label + " has no mark.", "orange"); return; }
+  delete AT.marks[id];
+  AT.saveMarks();
+  display_notice("[atlas] " + label + ": mark removed.", "lime");
+};
 AT.uncounted = {};
 var atU = AT.readJson("atlas_uncounted");
 if (Array.isArray(atU)) for (var atV = 0; atV < atU.length; atV++) if (atNum(atU[atV]) > 0) AT.uncounted[atNum(atU[atV])] = true;
@@ -685,6 +734,7 @@ AT.wheel = function (ev) {
 AT.look = {
   room: function (id) { var R = AT.room(id); return R ? { id: R.id, area: R.a, areaName: AT.areaName(R.a), x: R.x, y: R.y, z: R.z, name: R.n } : undefined; },
   here: function () { return AT.here ? { id: AT.here.id, area: AT.here.area, name: AT.here.name } : undefined; },
+  mark: function (id) { var m = AT.marks[id]; return m ? { icon: m[0], label: AT.icons[m[0]][0], note: m[1] } : undefined; },
   explored: function (aid) { var n = AT.count(aid); return n < 0 ? undefined : { explored: n, mapped: AT.areaRooms(aid).length }; },
   tags: function (aid) { return (AT.tags[aid] || []).slice(); }
 };

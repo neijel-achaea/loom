@@ -212,6 +212,19 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
           '<path d="M' + (fx - 0.07).toFixed(3) + ' ' + (fy + 0.13).toFixed(3) + ' V' + (fy - 0.13).toFixed(3) + '" stroke="#000" stroke-width="0.05" stroke-linecap="round"/>' +
           '<path d="M' + (fx - 0.06).toFixed(3) + ' ' + (fy - 0.13).toFixed(3) + ' l0.18 0.065 l-0.18 0.065 z" fill="#c0392b" stroke="#000" stroke-width="0.02" stroke-linejoin="round"/></g>';
       }
+      var mk = AT.marks[P.id];
+      if (mk && AT.icons[mk[0]]) {
+        // Your own mark, bottom left corner: the icon in a light circle.
+        var ix = px - 0.27, iy = py + 0.27, ic = AT.icons[mk[0]], gl = '';
+        for (var gi = 0; gi < ic[1].length; gi++) {
+          var part = ic[1][gi];
+          gl += part[0] === "s" ? '<path d="' + part[1] + '" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+            : '<path d="' + part[1] + '" fill="' + (part[0] === "w" ? "#ece4d2" : "#000") + '"/>';
+        }
+        pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc(ic[0] + (mk[1] ? " — " + mk[1] : "") + " (your mark; ATLAS UNMARK " + P.id + " removes it)") + '</title>' +
+          '<circle cx="' + ix.toFixed(2) + '" cy="' + iy.toFixed(2) + '" r="0.2" fill="#ece4d2" stroke="#000" stroke-width="0.045"/>' +
+          '<g transform="translate(' + (ix - 0.136).toFixed(3) + ' ' + (iy - 0.136).toFixed(3) + ') scale(0.017)">' + gl + '</g></g>';
+      }
       if (qs && qs.length) {
         // The followed quest's GO steps, numbered at the top left corner; the
         // step you're on in amber, the others in blue.

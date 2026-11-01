@@ -58,6 +58,26 @@ if (atCmd === "" || atCmd === "status") {
   }
   if (!AT.map) display_notice("[atlas] the community map isn't loaded: ATLAS RELOAD.", "orange");
   else display_notice("[atlas] visited " + atVn + " of " + (atVn + atU) + " areas; explored " + atN.toLocaleString("en-US") + " of their " + atM.toLocaleString("en-US") + " rooms (" + (atM ? Math.floor(atN / atM * 100) : 0) + "%), " + (atAll ? (atN / atAll * 100).toFixed(1) : 0) + "% of the whole map. The Areas tab lists them.", "cyan");
+} else if (atCmd === "mark") {
+  // MARK <icon> [note] for the room you're in; MARK <number> <icon> [note].
+  var atMw = atRest.split(/\s+/), atMid = 0, atMi2 = 0;
+  if (/^\d+$/.test(atMw[0] || "")) { atMid = Number(atMw[0]); atMi2 = 1; }
+  else atMid = AT.here ? AT.here.id : 0;
+  var atIcon = AT.iconOf(atMw[atMi2]);
+  if (!atRest || !atIcon) display_notice("[atlas] ATLAS MARK [room number] <icon> [note]. Icons: " + Object.keys(AT.icons).join(", ") + ".", "orange");
+  else if (!(atMid > 0)) display_notice("[atlas] no room yet: move or LOOK first, or give a room number.", "orange");
+  else if (AT.map && !AT.room(atMid)) display_notice("[atlas] room " + atMid + " isn't on the map.", "orange");
+  else AT.mark(atMid, atIcon, atMw.slice(atMi2 + 1).join(" "));
+} else if (atCmd === "unmark") {
+  var atUid = /^\d+$/.test(atRest) ? Number(atRest) : (atRest ? 0 : (AT.here ? AT.here.id : 0));
+  if (!(atUid > 0)) display_notice("[atlas] ATLAS UNMARK [room number] (no number: the room you're in).", "orange");
+  else AT.unmark(atUid);
+} else if (atCmd === "marks") {
+  display_notice("[atlas] icons: " + Object.keys(AT.icons).map(function (k) { return k + " (" + AT.icons[k][0] + ")"; }).join(", ") + ".", "cyan");
+  var atMl = [];
+  for (var atMr in AT.marks) if (AT.marks.hasOwnProperty(atMr)) { var atRr = AT.room(atMr); atMl.push("  " + AT.marks[atMr][0] + ": " + (atRr && atRr.n ? atRr.n + " " : "") + "(" + atMr + ")" + (atRr ? ", " + AT.title(atRr.a) : "") + (AT.marks[atMr][1] ? " - " + AT.marks[atMr][1] : "")); }
+  if (!atMl.length) display_notice("[atlas] no rooms marked yet: ATLAS MARK <icon> marks the room you're in.", "cyan");
+  else { display_notice("[atlas] your marks:", "cyan"); for (var atMj = 0; atMj < atMl.length; atMj++) display_notice(atMl[atMj], "cyan"); }
 } else if (atCmd === "debug") {
   var atEx = [];
   for (var atA in AT.explored) if (AT.explored.hasOwnProperty(atA)) atEx.push(atA + ":" + Object.keys(AT.explored[atA]).length);

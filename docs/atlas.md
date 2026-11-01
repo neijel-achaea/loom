@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.4.2.*
+*This page describes atlas 0.5.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -16,6 +16,7 @@ Atlas draws the area you're in, one level at a time, in a custom tab named **Atl
 - **How much you've explored.** Line 2 reads *132 of 147 explored*: the game's count of rooms you've explored in this area, against the rooms the crowdmap knows there. The two don't always match the game's own idea of the area exactly (the crowdmap has rooms that don't count for exploration, and the other way round), so read it as close, not exact.
 - **Levels.** In an area with several levels, the arrows by *level* look at the one above or below. Moving brings the view back to you.
 - **Moving the map.** Drag to pan; the mouse wheel or **− +** zoom; **⌖** brings you back to the room you're in.
+- **Your own marks.** Mark a room with an icon from a short list: `ATLAS MARK fishing` marks the room you're in, `ATLAS MARK 14001 bank` any room by number, and anything after the icon is a note (`ATLAS MARK sleep the inn upstairs`). The icon sits in a light circle at the room's bottom left corner, the note on hover; one mark per room, `ATLAS UNMARK [number]` takes it off and `ATLAS MARKS` lists them. Icons: fishing, shrine, sleep, bank, shop, craft, harvest, hunt, danger, star (a favourite) and secret; a few other words work too (inn, forge, herbs, key…). Marks are kept per character.
 - **Walking.** Click a room to walk there with the game's `PATH FIND <number>`. Atlas sends it once and does nothing else.
 
 ### The Areas tab
@@ -47,6 +48,9 @@ Corrections to the map go to the crowdmap project itself (its issues and pull re
 | `ATLAS` | status: the map's version, fog of war, where you are and how much of the area you've explored |
 | `ATLAS FOG [ON\|OFF]` | fog of war: only the rooms you've explored (default ON); OFF shows every room, unexplored ones faint |
 | `ATLAS GO <room number>` | walk there (PATH FIND), as a click on a room in the tab |
+| `ATLAS MARK [room number] <icon> [note]` | your own icon on a room (no number: the room you're in), bottom left corner; note on hover |
+| `ATLAS UNMARK [room number]` | take a room's mark off |
+| `ATLAS MARKS` | the icons (fishing, shrine, sleep, bank, shop, craft, harvest, hunt, danger, star, secret) and your marked rooms |
 | `ATLAS AREAS` | how many areas you've visited and how much of them you've explored (the Areas tab lists them) |
 | `ATLAS TAG <area\|number\|HERE> <tag> [tag…]` | group an area under your own tags in the Areas tab (one word each; e.g. sapience, meropis) |
 | `ATLAS UNTAG <area\|number\|HERE> <tag>\|ALL` | take a tag off an area, or all of them |
