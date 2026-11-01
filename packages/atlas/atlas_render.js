@@ -156,7 +156,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       rooms += '<rect class="loom-atlas-r" x="' + (qx - 0.3) + '" y="' + (qy - 0.3) + '" width="0.6" height="0.6" rx="0.08" fill="' + col(Q.e) + '"' + (faint ? ' opacity="0.35"' : '') +
         ' onclick="window.loomAtlas&&window.loomAtlas.go(' + Q.id + ')"><title>' + esc((Q.n || "?") + " (" + Q.id + ")" + (AT.envs && AT.envs[Q.e] && AT.envs[Q.e].n ? " · " + AT.envs[Q.e].n : "") + (exl.length ? " · exits: " + exl.join(", ") : "") + (faint ? " · not explored" : "") + " · click to walk here") + '</title></rect>';
       // As the stock map: one arrow in the middle of the room (▲ up, ▼ down,
-      // ◀ in, ▶ out); up and down together an hourglass (▼ over ▲, tips
+      // ▶ in, ◀ out, as the stock map (Ricardo)); up and down together an hourglass (▼ over ▲, tips
       // meeting), in and out together the same on its side. With both pairs,
       // up/down keep the middle and in/out sit small at the sides.
       var vU = ins.up, vD = ins.down, hI = ins["in"], hO = ins.out, both = (vU || vD) && (hI || hO);
@@ -173,11 +173,11 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       else if (vU) marks += tri(qx, qy, 0, 0.32, 0.26);
       else if (vD) marks += tri(qx, qy, 1, 0.32, 0.26);
       if (both) {
-        if (hI) marks += tri(qx - 0.21, qy, 2, 0.18, 0.1);
-        if (hO) marks += tri(qx + 0.21, qy, 3, 0.18, 0.1);
+        if (hI) marks += tri(qx + 0.21, qy, 3, 0.18, 0.1);
+        if (hO) marks += tri(qx - 0.21, qy, 2, 0.18, 0.1);
       } else if (hI && hO) marks += tri(qx - 0.075, qy, 3, 0.3, 0.15) + tri(qx + 0.075, qy, 2, 0.3, 0.15);
-      else if (hI) marks += tri(qx, qy, 2, 0.32, 0.26);
-      else if (hO) marks += tri(qx, qy, 3, 0.32, 0.26);
+      else if (hI) marks += tri(qx, qy, 3, 0.32, 0.26);
+      else if (hO) marks += tri(qx, qy, 2, 0.32, 0.26);
     }
     var ring = '';
     if (here && here.a === aid) {
