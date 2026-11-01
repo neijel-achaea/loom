@@ -3,14 +3,14 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.1.1.*
+*This page describes atlas 0.1.2.*
 <!-- /loom:version -->
 
 ## What it is
 
 Atlas draws the area you're in, one level at a time, in a custom tab named **Atlas**, as a replacement for the stock Map tab. The map comes from the **Achaea crowdmap**, the map players keep up to date for Mudlet's IRE mapper ([IRE-Mudlet-Mapping/AchaeaCrowdmap](https://github.com/IRE-Mudlet-Mapping/AchaeaCrowdmap)): over 30,000 rooms in some 500 areas, more complete than the game's own map. Room and area numbers are the game's, so Atlas knows where you are from the game's room information.
 
-- **The area you're in**, on your level. Rooms are squares in their environment's colour (the game's own, as on the stock map; hover a room for its name, number and environment), exits are lines between them. An exit to another area is a short amber dashed line (hover it for the area's name); ▲ and ▼ inside a room mark exits up and down.
+- **The area you're in**, on your level. Rooms are squares in their environment's colour (the game's own, as on the stock map; hover a room for its name, number and environment), exits are lines between them, for the eight compass directions only. An exit into another area ends in an amber arrowhead (hover it for the area's name). Up, down, in and out are arrows inside the room: ▲ up, ▼ down, ◀ in, ▶ out (hover a room for its exits by name).
 - **Where you are.** The room you're in is ringed, and the map follows you as you move. Line 2 gives the room's name and number.
 - **Fog of war.** When you enter an area, the game tells Nexus which of its rooms you've ever explored, and Atlas shows only those, like the stock map. A short dotted line marks an exit to somewhere you haven't been. Turn fog off (**FOG** on the title line, or `ATLAS FOG OFF`) to see every room on the map, the ones you haven't explored faint.
 - **How much you've explored.** Line 2 reads *132 of 147 explored*: the game's count of rooms you've explored in this area, against the rooms the crowdmap knows there. The two don't always match the game's own idea of the area exactly (the crowdmap has rooms that don't count for exploration, and the other way round), so read it as close, not exact.

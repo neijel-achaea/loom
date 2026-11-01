@@ -123,36 +123,49 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     var lines = '', stubs = '', rooms = '', marks = '';
     for (var k = 0; k < list.length; k++) {
       var Q = list[k], qx = Q.x, qy = -Q.y;
+      // Lines only for the eight compass directions: up, down, in and out are
+      // marks inside the room (a line for them read as a compass exit).
+      var ins = { up: 0, down: 0, "in": 0, out: 0 }, exl = [];
       for (var d in Q.ex) {
         if (!Q.ex.hasOwnProperty(d)) continue;
-        var to = Q.ex[d], T = AT.room(to), v = DIR[d];
+        exl.push(d);
+        if (ins.hasOwnProperty(d)) { ins[d] = 1; continue; }
+        var v = DIR[d];
+        if (!v) continue;
+        var to = Q.ex[d], T = AT.room(to);
         if (T && T.a === aid && T.z === V.z && shown[to]) {
-          if (Q.id < to || !(T.ex && Object.keys(T.ex).some(function (kk) { return T.ex[kk] === Q.id; })))
+          if (Q.id < to || !(T.ex && Object.keys(T.ex).some(function (kk) { return DIR[kk] && T.ex[kk] === Q.id; })))
             lines += '<line x1="' + qx + '" y1="' + qy + '" x2="' + T.x + '" y2="' + (-T.y) + '"' + (shown[to] === 2 || shown[Q.id] === 2 ? ' opacity="0.4"' : '') + '/>';
-        } else if (v) {
-          var len = 0.62, other = T && T.a !== aid;
-          var ex2 = qx + v[0] * len, ey2 = qy + v[1] * len;
-          stubs += '<line x1="' + qx + '" y1="' + qy + '" x2="' + ex2.toFixed(2) + '" y2="' + ey2.toFixed(2) + '" stroke="' + (other ? AMBER : DIM) + '" stroke-dasharray="' + (other ? '0.12 0.08' : '0.06 0.08') + '">' +
-            '<title>' + esc(d + (other ? ' to ' + areaTitle(T.a) : (T && T.z !== V.z ? ' (another level)' : ' (somewhere you haven\'t explored)'))) + '</title></line>';
+        } else {
+          var other = T && T.a !== aid;
+          var nv = Math.sqrt(v[0] * v[0] + v[1] * v[1]), ux = v[0] / nv, uy = v[1] / nv;
+          var len = other ? 0.78 : 0.6;
+          var tx = qx + ux * len, ty = qy + uy * len;
+          var tip = '<title>' + esc(d + (other ? ' to ' + areaTitle(T.a) : (T && T.z !== V.z ? ' (another level)' : ' (somewhere you haven\'t explored)'))) + '</title>';
+          if (other) {
+            // Into another area: a line ending in an arrowhead, as on the stock map.
+            var bx = tx - ux * 0.2, by = ty - uy * 0.2;
+            stubs += '<g stroke="' + AMBER + '" fill="' + AMBER + '">' + tip +
+              '<line x1="' + qx + '" y1="' + qy + '" x2="' + bx.toFixed(2) + '" y2="' + by.toFixed(2) + '"/>' +
+              '<path stroke-width="0.02" d="M' + tx.toFixed(2) + ' ' + ty.toFixed(2) + ' L' + (bx - uy * 0.12).toFixed(2) + ' ' + (by + ux * 0.12).toFixed(2) + ' L' + (bx + uy * 0.12).toFixed(2) + ' ' + (by - ux * 0.12).toFixed(2) + ' Z"/></g>';
+          } else {
+            stubs += '<line x1="' + qx + '" y1="' + qy + '" x2="' + tx.toFixed(2) + '" y2="' + ty.toFixed(2) + '" stroke="' + DIM + '" stroke-dasharray="0.06 0.08">' + tip + '</line>';
+          }
         }
       }
       var faint = shown[Q.id] === 2;
       rooms += '<rect class="loom-atlas-r" x="' + (qx - 0.3) + '" y="' + (qy - 0.3) + '" width="0.6" height="0.6" rx="0.08" fill="' + col(Q.e) + '"' + (faint ? ' opacity="0.35"' : '') +
-        ' onclick="window.loomAtlas&&window.loomAtlas.go(' + Q.id + ')"><title>' + esc((Q.n || "?") + " (" + Q.id + ")" + (AT.envs && AT.envs[Q.e] && AT.envs[Q.e].n ? " · " + AT.envs[Q.e].n : "") + (faint ? " · not explored" : "") + " · click to walk here") + '</title></rect>';
-      // Up and down: small marks inside the room.
-      var upx = false, dnx = false;
-      for (var e2 in Q.ex) {
-        if (!Q.ex.hasOwnProperty(e2)) continue;
-        if (e2 === "up") upx = true; else if (e2 === "down") dnx = true;
-        else if (!DIR[e2]) { var T2 = AT.room(Q.ex[e2]); if (T2 && T2.z > V.z) upx = true; else if (T2 && T2.z < V.z) dnx = true; }
-      }
-      if (upx) marks += '<path d="M' + (qx - 0.12) + ' ' + (qy - 0.05) + ' l0.12 -0.16 l0.12 0.16 z"/>';
-      if (dnx) marks += '<path d="M' + (qx - 0.12) + ' ' + (qy + 0.05) + ' l0.12 0.16 l0.12 -0.16 z"/>';
+        ' onclick="window.loomAtlas&&window.loomAtlas.go(' + Q.id + ')"><title>' + esc((Q.n || "?") + " (" + Q.id + ")" + (AT.envs && AT.envs[Q.e] && AT.envs[Q.e].n ? " · " + AT.envs[Q.e].n : "") + (exl.length ? " · exits: " + exl.join(", ") : "") + (faint ? " · not explored" : "") + " · click to walk here") + '</title></rect>';
+      // Up ▲ top, down ▼ bottom, in ◀ left, out ▶ right, inside the room.
+      if (ins.up) marks += '<path d="M' + (qx - 0.11) + ' ' + (qy - 0.08) + ' l0.11 -0.15 l0.11 0.15 z"/>';
+      if (ins.down) marks += '<path d="M' + (qx - 0.11) + ' ' + (qy + 0.08) + ' l0.11 0.15 l0.11 -0.15 z"/>';
+      if (ins["in"]) marks += '<path d="M' + (qx - 0.08) + ' ' + (qy - 0.11) + ' l-0.15 0.11 l0.15 0.11 z"/>';
+      if (ins.out) marks += '<path d="M' + (qx + 0.08) + ' ' + (qy - 0.11) + ' l0.15 0.11 l-0.15 0.11 z"/>';
     }
     var ring = '';
     if (here && here.a === aid) {
       ring = '<g class="loom-atlas-me" transform="translate(' + here.x + ' ' + (-here.y) + ')"' + (here.z !== V.z ? ' opacity="0.35"' : '') + ' pointer-events="none">' +
-        '<circle r="0.48" fill="none" stroke="' + AMBER + '" stroke-width="0.09"/><circle r="0.12" fill="' + HI + '"/></g>';
+        '<circle r="0.48" fill="none" stroke="' + AMBER + '" stroke-width="0.09"/></g>';
     }
     html += '<svg class="loom-atlas-svg" xmlns="http://www.w3.org/2000/svg" viewBox="' + AT.viewBox() + '" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;"' +
       ' onpointerdown="window.loomAtlas&&window.loomAtlas.down(event)" onpointermove="window.loomAtlas&&window.loomAtlas.move(event)" onpointerup="window.loomAtlas&&window.loomAtlas.up(event)" onpointerleave="window.loomAtlas&&window.loomAtlas.up(event)" onwheel="window.loomAtlas&&window.loomAtlas.wheel(event)">';
