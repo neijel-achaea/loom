@@ -1,5 +1,6 @@
 {
  "packages": {
+  "atlas": "0.5.0",
   "basher": "1.0.4",
   "civic": "1.0.0",
   "coffers": "1.1.0",
@@ -15,12 +16,12 @@
   "huntstats": "1.2.0",
   "ledger": "1.0.3",
   "levelgraph": "1.0.2",
-  "loom": "1.0.7",
+  "loom": "1.0.8",
   "magi": "1.0.0",
   "numpad_movement": "1.0.0",
   "partycomms": "1.0.1",
   "patrolling": "1.0.0",
-  "questbook": "0.5.2",
+  "questbook": "0.5.3",
   "remedies": "0.1.2",
   "roleplay": "0.3.30",
   "room": "1.2.0",
@@ -33,6 +34,6 @@
   "talpieces": "1.0.1",
   "vials": "1.0.0",
   "vision": "1.0.0",
-  "waypoints": "0.2.2"
+  "waypoints": "0.2.3"
  }
 }
