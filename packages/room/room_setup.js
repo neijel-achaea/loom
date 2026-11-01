@@ -169,7 +169,9 @@ R.probeOn = get_variable("room_probe") != "off";
 if (!R.loyal) R.loyal = {};
 if (!R.probeQ) R.probeQ = [];
 if (R.probing === undefined) R.probing = null;
-R.probeMs = 2000;
+// 4 s (Ricardo's log, 2026-11-01: an answer came 2.6 s after its probe in a
+// busy moment, after a 2 s timeout, and showed).
+R.probeMs = 4000;
 R.loyalCap = 3000;
 // Loyals remembered (Ricardo, 1.1): a mob keeps its id for as long as it
 // lives, so a loyal found once is known on sight next time, with no probe.
@@ -533,7 +535,7 @@ R.probeLine = function (line) {
     R.probeAtPrompt = true;
     if (p.late) { if (++p.lateText >= 2) { p.how = "moved"; R.probeEnd(false); } }
     else if (p.moved !== undefined) { if (++p.moveText >= 2) { p.how = "moved"; R.probeEnd(false); } }
-    else if (p.lines.length && p.health) { p.how = "prompt line"; R.probeEnd(true); }
+    else if (p.health) { p.how = "prompt line"; R.probeEnd(true); }
     else if (p.lines.length) {
       // A packet without the health line every answer has: someone else's
       // (an attack, a message). Its lines are shown again, and the probe
@@ -554,16 +556,26 @@ R.probeLine = function (line) {
     if (raw.trim().indexOf(p.moved) === 0) { p.late = true; p.latePrompts = -1; p.lateText = 0; return; }
     if (/^You follow /.test(raw)) return;
   }
-  if (R.probeTooSoon(p)) return;
-  gag_current_line();
+  // Too soon to be the answer: shown, but still read (Ricardo's log,
+  // 2026-11-01). Answers came 130-155 ms after their probe, under the 162 ms
+  // the fastest one seen so far allowed; they were shown and never read, the
+  // probe then took the next packet (Social's QW) for its own, hid it, timed
+  // out and showed it again, and the mob went unmarked and was probed again.
+  // Read, a too-soon answer still ends the probe, marks the mob and teaches
+  // the faster round trip.
+  // An answer that started out shown stays shown (not half hidden once its
+  // health line has taught the faster round trip).
+  var soon = p.shown || R.probeTooSoon(p);
+  if (soon && !p.lines.length) p.shown = true;
+  if (!soon) gag_current_line();
   line = raw.trim();
-  if (p.lines.length < 20) p.lines.push(line);
+  if (!soon && p.lines.length < 20) p.lines.push(line);
   if (/ health remaining\.$/.test(line)) {
     p.health = true;
     var rtt = Date.now() - p.at;
     if (rtt > 0 && (!R.rttMin || rtt < R.rttMin)) R.rttMin = rtt;
   }
-  if (/^What do you wish to examine\?$/.test(line)) {
+  if (!soon && /^What do you wish to examine\?$/.test(line)) {
     // That one line is the whole answer: anything hidden before it wasn't.
     if (p.lines.length && p.lines[p.lines.length - 1] === line) p.lines.pop();
     if (p.lines.length) R.probeReplay(p);
