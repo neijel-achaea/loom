@@ -3,7 +3,7 @@
 *Reminders and standing items on the Achaean calendar, with reminders other packages add for you.*
 
 <!-- loom:version ledger -->
-*This page describes ledger 1.0.2.*
+*This page describes ledger 1.0.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -94,7 +94,11 @@ Installed together, other packages add items to your ledger through Loom's integ
 | `talpieces-ledger` | talpieces | One when a colour's set is complete, and one listing spare pieces to trade once you hold 16 or more. |
 | `magi-ledger` | [magi](magi.md) | "Collect N pearls", when a crystal shape falls below 90% of its minimum. |
 | `sigils-ledger` | sigils | "Sigil patrol: N monoliths to renew (M missing), first …", due on the day the first flagged monolith runs out. |
+| `levelgraph-ledger` | [levelgraph](levelgraph.md) | A daily aim, "Reach level 104 at 59%": your last 7 days' daily gain plus 10% (the next level when it's close). Reaching it: a lime notice and the item goes until tomorrow's. |
+| `talpieces-aim-ledger` | [talpieces](talpieces.md) | A daily aim, "Collect 21 talisman pieces": your last 7 days' pace plus 10%. Reached as above. |
 | `self-ledger` | self | "Explore a new area", when your explorer rank drops while you play. Stays until you mark it done. |
+
+The two daily aims come once a day, with the day's first prompt or piece: a reached or dropped aim stays away until the next day, which brings a fresh one.
 
 Each is on as soon as both packages are installed; `LOOM LINKS` lists them, and `LOOM LINK <id> OFF` switches one off and takes its item back.
 

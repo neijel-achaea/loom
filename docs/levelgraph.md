@@ -3,7 +3,7 @@
 *Your progress through the levels as graphs, per minute and per day, with rates and the time to your next level.*
 
 <!-- loom:version levelgraph -->
-*This page describes levelgraph 1.0.1.*
+*This page describes levelgraph 1.0.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -63,7 +63,9 @@ Start a session with `LEVELGRAPH NEW` when you start hunting, and glance at the 
 
 ## Working with other packages
 
-LevelGraph reads nothing from other packages and no other package reads it. For experience per area and per hunt, see [huntstats](huntstats.md).
+LevelGraph reads nothing from other packages. With **ledger** installed, it sets a **daily aim** there (link `levelgraph-ledger`): "Reach level 104 at 59%", your gain a day over the last 7 days plus 10%, counted from the day's first prompt; when the next level is that close, the aim is the level itself ("Reach level 105"). Reaching it gives a lime notice and the item goes until the next day's. `LOOM LINK levelgraph-ledger OFF` stops it.
+
+For experience per area and per hunt, see [huntstats](huntstats.md).
 
 ## Troubleshooting
 

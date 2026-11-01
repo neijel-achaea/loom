@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.talpieces) client.loom.talpieces = {};
-client.loom.registry.talpieces = { version: "1.0.0", keyword: "TALPIECES", desc: "{{description}}",
+client.loom.registry.talpieces = { version: "1.0.1", keyword: "TALPIECES", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("talpieces_render", [], "talpieces"); } };
 var TP = client.loom.talpieces;
@@ -147,5 +147,20 @@ TP.look = {
       out.push({ colour: c, types: ty });
     }
     return out;
+  },
+  // look.total() -> pieces counted toward the goal now, and look.goal() the
+  // goal (#448).
+  total: function () { var x = TP.totals(); return x[0] + x[1]; },
+  goal: function () { return TP.goalTotal; },
+  // look.pace(days) -> pieces a day over the last `days` days (7 if not
+  // given), as the tab's "Pace, last 7 days"; null without two points.
+  pace: function (days) {
+    var hs = TP.hist || [];
+    if (hs.length < 2) return null;
+    var last = hs[hs.length - 1], cut = last[0] - (days || 7) * 86400, ref = hs[0];
+    for (var i = hs.length - 1; i >= 0; i--) { if (hs[i][0] <= cut) { ref = hs[i]; break; } }
+    var span = (last[0] - ref[0]) / 86400;
+    if (span <= 0) return null;
+    return ((last[1] + last[2]) - (ref[1] + ref[2])) / span;
   }
 };
