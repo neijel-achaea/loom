@@ -195,12 +195,14 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     for (var pk = 0; pk < list.length; pk++) {
       var P = list[pk], px = P.x, py = -P.y, w = wpAt[P.id], qs = qAt[P.id], ss = sAt[P.id];
       if (w) {
-        // ⚑ at the top right corner (Ricardo), name and note on hover.
-        var fx = px + 0.24, fy = py - 0.28;
+        // ⚑ in a circle at the top right corner (Ricardo), name and note on
+        // hover: a dark badge ringed in amber, so it never reads as a quest
+        // step (those are filled).
+        var fx = px + 0.27, fy = py - 0.27;
         pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc("⚑ " + w.name + (w.note ? " — " + w.note : "") + " (waypoint)") + '</title>' +
-          '<path d="M' + fx.toFixed(2) + ' ' + (fy + 0.2).toFixed(2) + ' V' + (fy - 0.16).toFixed(2) + '" stroke="#000" stroke-width="0.09"/>' +
-          '<path d="M' + fx.toFixed(2) + ' ' + (fy + 0.2).toFixed(2) + ' V' + (fy - 0.16).toFixed(2) + '" stroke="' + TXT + '" stroke-width="0.04"/>' +
-          '<path d="M' + fx.toFixed(2) + ' ' + (fy - 0.16).toFixed(2) + ' l0.2 0.08 l-0.2 0.08 z" fill="' + AMBER + '" stroke="#000" stroke-width="0.03"/></g>';
+          '<circle cx="' + fx.toFixed(2) + '" cy="' + fy.toFixed(2) + '" r="0.17" fill="' + BG + '" stroke="' + AMBER + '" stroke-width="0.045"/>' +
+          '<path d="M' + (fx - 0.06).toFixed(3) + ' ' + (fy + 0.11).toFixed(3) + ' V' + (fy - 0.11).toFixed(3) + '" stroke="' + TXT + '" stroke-width="0.035" stroke-linecap="round"/>' +
+          '<path d="M' + (fx - 0.06).toFixed(3) + ' ' + (fy - 0.11).toFixed(3) + ' l0.15 0.055 l-0.15 0.055 z" fill="' + AMBER + '"/></g>';
       }
       if (qs && qs.length) {
         // The followed quest's GO steps, numbered at the top left corner; the
