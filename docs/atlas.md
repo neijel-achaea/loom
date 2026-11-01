@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.2.1.*
+*This page describes atlas 0.2.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -25,7 +25,7 @@ A second custom tab, **Areas**, lists every area you've visited with how much of
 - **Totals on top.** *In the areas you've visited*: the rooms you've explored in them, of the rooms the crowdmap has there. *Of the whole map*: the same rooms, of every room on the map.
 - **Your own groups.** Areas carry no continent or region, so you group them yourself with tags: `ATLAS TAG HERE sapience` tags the area you're in, `ATLAS TAG granite hills sapience` one by name (the crowdmap's name or the game's, with or without "the", any case) and `ATLAS TAG 85 sapience` one by number. An area can have several tags and shows under each; the untagged ones come last. Each group heading gives the group's own totals and folds with a click. Tags are kept per character.
 - **Not visited yet.** The game sends an area's explored rooms only when you enter it, so an area you haven't entered since installing Atlas has no figure yet. Those are listed, folded, under *not visited yet*, never as 0%. Walk through an area once and its figure stays, saved for your character.
-- **No exploration record.** Some places aren't counted for exploration by the game (inns and the like): when you walk into one, the game sends no explored rooms with it. Atlas notices, and lists those areas, folded, under *no exploration record*, out of the totals; the Atlas tab says so on line 2, and shows all their rooms. Should the game ever send a list for one, it moves back among the others.
+- **No exploration record.** Some places aren't counted for exploration by the game (inns and the like): when you walk into one, the game sends no explored rooms with it. Atlas notices, and such an area stays in its groups like any other, with a crossed-out map after its name and only its room count: no percentage, and it counts for no total. The Atlas tab says so on line 2, and shows all its rooms. Should the game ever send a list for one, it gets its figures like the rest.
 - **Hidden areas.** Some of the crowdmap's areas aren't places to explore (player houses, manses). `ATLAS HIDE <area>` keeps one out of the list and the totals; it's listed, folded, under *hidden*, and `ATLAS UNHIDE` brings it back.
 - **A click on an area** shows it in the Atlas tab, centred on its main level, without going there; ⌖ or your next step brings the map back to you.
 

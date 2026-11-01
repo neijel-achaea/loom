@@ -33,6 +33,10 @@ function pct(a, b, dec) {
   if (dec && p > 0 && p < 10) return (Math.floor(p * 10) / 10).toFixed(1) + "%";
   return (p > 0 && p < 1 ? "&lt;1" : Math.floor(p)) + "%";
 }
+// No exploration record: a folded map crossed out in red, after the name.
+var NOREC = ' <span title="no exploration record: the game sent no explored rooms when you walked in, so this area counts for no total" style="display:inline-block;vertical-align:-2px;margin-left:3px;">' +
+  '<svg width="14" height="14" viewBox="0 0 16 16"><path d="M1.5 3.2 L5.5 1.8 L10.5 3.6 L14.5 2.2 V12.8 L10.5 14.2 L5.5 12.4 L1.5 13.8 Z" fill="none" stroke="' + MUTED + '" stroke-width="1.1" stroke-linejoin="round"/>' +
+  '<path d="M5.5 1.8 V12.4 M10.5 3.6 V14.2" stroke="' + MUTED + '" stroke-width="0.9"/><path d="M3 3.5 L13 12.5 M13 3.5 L3 12.5" stroke="#d9534f" stroke-width="2" stroke-linecap="round"/></svg></span>';
 function bar(a, b, h) {
   var w = b ? Math.min(100, a / b * 100) : 0;
   return '<div style="height:' + h + 'px;background:' + TRACK + ';margin-top:2px;"><div style="height:100%;width:' + w.toFixed(1) + '%;background:' + (w >= 100 ? AMBER : DEEP) + ';"></div></div>';
@@ -46,7 +50,7 @@ if (!M) {
   html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + (AT.state == "loading" ? "Loading the community map…" : "The community map isn't loaded: ATLAS RELOAD.") + '</div>';
 } else {
   // Every area with rooms, sorted by name; visited, unvisited, hidden.
-  var all = [], vis = [], unv = [], hid = [], unc = [];
+  var all = [], vis = [], unv = [], hid = [];
   for (var a in M.areas) {
     if (!M.areas.hasOwnProperty(a)) continue;
     var aid = Number(a), mapped = AT.areaRooms(aid).length;
@@ -59,7 +63,9 @@ if (!M) {
   for (var i = 0; i < all.length; i++) {
     var E = all[i];
     if (AT.hidden[E.aid]) { hid.push(E); continue; }
-    if (AT.uncounted[E.aid] && E.n < 0) { unc.push(E); continue; }
+    // An area without an exploration record sits in its groups like any
+    // visited one, with no figures, and counts for no total (Ricardo).
+    if (AT.uncounted[E.aid] && E.n < 0) { E.unc = true; vis.push(E); continue; }
     tot.mAll += E.mapped;
     if (E.n >= 0) { vis.push(E); tot.n += Math.min(E.n, E.mapped); tot.m += E.mapped; }
     else unv.push(E);
@@ -88,7 +94,6 @@ if (!M) {
   }
   order.sort(function (x, y) { if (x === "tag:") return 1; if (y === "tag:") return -1; return x < y ? -1 : (x > y ? 1 : 0); });
   if (unv.length) { groups.unvisited = unv; order.push("unvisited"); }
-  if (unc.length) { groups.uncounted = unc; order.push("uncounted"); }
   if (hid.length) { groups.hidden = hid; order.push("hidden"); }
   AT.groupsDrawn = order.slice();
   var hereA = AT.here && AT.here.area;
@@ -96,27 +101,26 @@ if (!M) {
 
   for (var g = 0; g < order.length; g++) {
     var key = order[g], rows = groups[key], folded = AT.isFolded(key);
-    var label = key === "unvisited" ? "not visited yet" : key === "uncounted" ? "no exploration record" : key === "hidden" ? "hidden"
+    var label = key === "unvisited" ? "not visited yet" : key === "hidden" ? "hidden"
       : key === "tag:" ? (anyTag ? "untagged" : "visited") : key.substring(4);
     var gn = 0, gm = 0, hasHere = false;
-    for (var r = 0; r < rows.length; r++) { gm += rows[r].mapped; if (rows[r].n > 0) gn += Math.min(rows[r].n, rows[r].mapped); if (rows[r].aid === hereA) hasHere = true; }
-    var stat = key === "unvisited" || key === "uncounted" || key === "hidden" ? rows.length + (rows.length === 1 ? ' area' : ' areas') + ' &middot; ' + fmt(gm) + ' rooms'
+    for (var r = 0; r < rows.length; r++) { if (!rows[r].unc) gm += rows[r].mapped; if (rows[r].n > 0) gn += Math.min(rows[r].n, rows[r].mapped); if (rows[r].aid === hereA) hasHere = true; }
+    var stat = key === "unvisited" || key === "hidden" ? rows.length + (rows.length === 1 ? ' area' : ' areas') + ' &middot; ' + fmt(gm) + ' rooms'
       : rows.length + (rows.length === 1 ? ' area' : ' areas') + ' &middot; ' + fmt(gn) + ' / ' + fmt(gm) + ' &middot; <span style="color:' + AMBER + ';">' + pct(gn, gm) + '</span>';
-    var gtip = key === "uncounted" ? "areas you walked into whose explored rooms the game didn't send: it keeps no record of exploring them (inns and the like), so they're out of the totals · " : "";
-    html += '<div onclick="window.loomAtlas&&window.loomAtlas.fold(' + g + ')" title="' + gtip + 'click to ' + (folded ? 'open' : 'fold') + '" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:7px;padding:2px 0;border-bottom:1px solid ' + RULE + ';">';
+    html += '<div onclick="window.loomAtlas&&window.loomAtlas.fold(' + g + ')" title="click to ' + (folded ? 'open' : 'fold') + '" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:7px;padding:2px 0;border-bottom:1px solid ' + RULE + ';">';
     html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:1.5px;font-size:13px;color:' + (hasHere ? AMBER : TXT) + ';">' + (folded ? '&#9656; ' : '&#9662; ') + esc(label) + (hasHere ? ' <span style="font-family:' + MONO + ';font-variant:normal;font-size:9px;letter-spacing:0.08em;">&#9673; HERE</span>' : '') + '</span>';
     html += '<span style="flex:none;color:' + MUTED + ';">' + stat + '</span></div>';
     if (folded) continue;
     for (var q = 0; q < rows.length; q++) {
-      var R = rows[q], isHere = R.aid === hereA, seen = R.n >= 0;
+      var R = rows[q], isHere = R.aid === hereA, seen = R.n >= 0 || R.unc;
       var tags = AT.tags[R.aid] || [];
       var tip = AT.title(R.aid) + ' (area ' + R.aid + ')' + (tags.length ? ' · tags: ' + tags.join(', ') : '') + ' · click to show it in Atlas · ATLAS TAG ' + R.aid + ' <tag> to group it';
       html += '<div onclick="window.loomAtlas&&window.loomAtlas.show(' + R.aid + ')" title="' + esc(tip) + '" class="loom-atlas-arow" style="cursor:pointer;padding:3px 4px 2px;' + (isHere ? 'background:rgba(224,180,108,0.08);' : '') + '">';
       html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">';
-      html += '<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SERIF + ';font-size:13px;color:' + (isHere ? AMBER : (seen ? TXT : MUTED)) + ';">' + esc(AT.title(R.aid)) + '</span>';
+      html += '<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SERIF + ';font-size:13px;color:' + (isHere ? AMBER : (seen ? TXT : MUTED)) + ';">' + esc(AT.title(R.aid)) + (R.unc ? NOREC : '') + '</span>';
       html += '<span style="flex:none;white-space:nowrap;color:' + MUTED + ';">' + (isHere ? '<span style="color:' + AMBER + ';letter-spacing:0.08em;">HERE &middot; </span>' : '') +
-        (seen ? fmt(Math.min(R.n, R.mapped)) + ' / ' + fmt(R.mapped) + ' <span style="display:inline-block;min-width:4ch;text-align:right;color:' + (R.n >= R.mapped ? AMBER : TXT) + ';">' + pct(R.n, R.mapped) + '</span>' : fmt(R.mapped) + ' rooms') + '</span></div>';
-      if (seen) html += bar(R.n, R.mapped, 2);
+        (R.unc ? fmt(R.mapped) + ' rooms' : seen ? fmt(Math.min(R.n, R.mapped)) + ' / ' + fmt(R.mapped) + ' <span style="display:inline-block;min-width:4ch;text-align:right;color:' + (R.n >= R.mapped ? AMBER : TXT) + ';">' + pct(R.n, R.mapped) + '</span>' : fmt(R.mapped) + ' rooms') + '</span></div>';
+      if (seen && !R.unc) html += bar(R.n, R.mapped, 2);
       html += '</div>';
     }
   }
