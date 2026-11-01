@@ -132,10 +132,13 @@ function compList() {
   if (!compN.length) return quiet("No companions yet. Hunt with someone following you, or added with HUNTSTATS PARTY ADD, and they appear here once the hunt is filed.");
   var ks = compN.slice().sort(function (a, b) { return comps[b].ms - comps[a].ms; });
   var mx = comps[ks[0]].ms || 1, out = "";
+  // Names in their Social colours (link social-huntstats).
+  var LLc = client.loom.loom;
   for (var ci = 0; ci < ks.length; ci++) {
     var e = comps[ks[ci]];
+    var col = (LLc && LLc.answer) ? LLc.answer("huntstats", "person.colour", ks[ci]) : undefined;
     out += '<div style="border-bottom:1px dotted ' + RULE + ';padding:2px 0 3px;">';
-    out += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';color:' + TXT + ';font-size:11px;">' + esc(ks[ci]) + '</span>';
+    out += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';color:' + (col || TXT) + ';font-size:11px;">' + esc(ks[ci]) + '</span>';
     out += '<span style="color:' + MOSS + ';white-space:nowrap;">' + fmtDur(e.ms) + '</span></div>';
     out += '<div style="background:' + TRACK + ';height:3px;margin:2px 0 1px;"><div style="background:' + DEEP + ';height:3px;width:' + Math.max(2, Math.round(e.ms / mx * 100)) + '%;"></div></div>';
     out += '<div style="color:' + MUTED + ';">' + e.h + ' hunt' + (e.h === 1 ? '' : 's') + (e.l ? ' &middot; last ' + ago(e.l) : '') + (e.a ? ' in <span style="font-family:' + SERIF + ';">' + esc(e.a) + '</span>' : '') + '</div>';

@@ -233,6 +233,16 @@ L.addLink({
   }
 });
 
+// social -> huntstats (#447): companions in the Stats tab in their highlight
+// colours.
+L.addLink({
+  id: "social-huntstats", src: "social", dst: "huntstats", issue: 447,
+  desc: "Companions in the Stats tab in their highlight colours",
+  answers: {
+    "person.colour": function (n) { var s = client.loom.social; return s && s.look ? s.look.colour(n) : undefined; }
+  }
+});
+
 // #196 standings -> social: your standing with each watched person in the
 // Online tab.
 L.addLink({
