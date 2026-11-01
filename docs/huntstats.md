@@ -63,7 +63,7 @@ If the page reloads or you disconnect mid-hunt, Huntstats picks the hunt up agai
 
 `HUNTSTATS AREAS` lists every area you've hunted, by total time: experience, gold and kills an hour, and (with dmgchart) the damage it deals. `HUNTSTATS LOG` shows the last five hunts.
 
-**Companions.** Everyone in a filed hunt's party (following you, followed, or added by hand) is added to your companions: time hunted together, number of hunts, and when and where you last hunted together, kept across sessions (up to 150, the least recent going first). The Stats tab's **COMPANIONS** view lists them, most time together first, with a bar against your most frequent companion; `HUNTSTATS COMPANIONS` prints the top 20. The first time, they're filled in from the hunts still in the log.
+**Companions.** Everyone in a filed hunt's party (following you, followed, or added by hand) is added to your companions: time hunted together, number of hunts, and when and where you last hunted together, kept across sessions (up to 150, the least recent going first). The Stats tab's **COMPANIONS** view shows two boxes, **Last 30 days** and **Lifetime**, each listing companions by time together with the number of hunts; hover a name for when and where you last hunted together. `HUNTSTATS COMPANIONS` prints the top 20. The first time, they're filled in from the hunts still in the log.
 
 ### Where to hunt next
 

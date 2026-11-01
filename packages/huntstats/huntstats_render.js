@@ -121,30 +121,39 @@ var comps = HSv.comps ? HSv.comps() : {};
 var compN = Object.keys(comps);
 function viewSeg(v, lbl) {
   var on = (HSv.view || "hunts") === v;
-  return '<span onclick="window.loomHuntstats &amp;&amp; window.loomHuntstats.view(\'' + v + '\')" title="' + (v === "hunts" ? "the last five hunts" : "everyone you've hunted with") + '" style="cursor:pointer;padding:0 5px;' + (on ? 'background:' + DEEP + ';color:' + TXT + ';' : 'color:' + MUTED + ';') + '">' + lbl + '</span>';
+  return '<span onclick="window.loomHuntstats &amp;&amp; window.loomHuntstats.view(\'' + v + '\')" title="' + (v === "hunts" ? "the last five hunts" : "everyone you've hunted with") + '" style="display:inline-block;cursor:pointer;padding:3px 7px 2px;line-height:1.2;' + (on ? 'background:' + DEEP + ';color:' + TXT + ';' : 'color:' + MUTED + ';') + '">' + lbl + '</span>';
 }
 function viewSection(inner) {
-  var sw = '<span style="border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;font-family:' + SERIF + ';">' + viewSeg("hunts", "RECENT HUNTS") + viewSeg("companions", "COMPANIONS" + (compN.length ? " " + compN.length : "")) + '</span>';
+  var sw = '<span style="display:inline-flex;border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;font-family:' + SERIF + ';">' + viewSeg("hunts", "RECENT HUNTS") + viewSeg("companions", "COMPANIONS") + '</span>';
   return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;"><div style="margin:0 0 4px;">' + sw + '</div>' + inner + '</div>';
 }
-// Companions: most time together first; two lines each, as recent hunts.
+// Companions (Ricardo): two boxes, as This hunt and Lifetime above. The last
+// 30 days and lifetime, most time together first; a name, its time and
+// hunts, the last hunt together in the hover.
 function compList() {
   if (!compN.length) return quiet("No companions yet. Hunt with someone following you, or added with HUNTSTATS PARTY ADD, and they appear here once the hunt is filed.");
-  var ks = compN.slice().sort(function (a, b) { return comps[b].ms - comps[a].ms; });
-  var mx = comps[ks[0]].ms || 1, out = "";
-  // Names in their Social colours (link social-huntstats).
   var LLc = client.loom.loom;
-  for (var ci = 0; ci < ks.length; ci++) {
-    var e = comps[ks[ci]];
-    var col = (LLc && LLc.answer) ? LLc.answer("huntstats", "person.colour", ks[ci]) : undefined;
-    out += '<div style="border-bottom:1px dotted ' + RULE + ';padding:2px 0 3px;">';
-    out += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';color:' + (col || TXT) + ';font-size:11px;">' + esc(ks[ci]) + '</span>';
-    out += '<span style="color:' + MOSS + ';white-space:nowrap;">' + fmtDur(e.ms) + '</span></div>';
-    out += '<div style="background:' + TRACK + ';height:3px;margin:2px 0 1px;"><div style="background:' + DEEP + ';height:3px;width:' + Math.max(2, Math.round(e.ms / mx * 100)) + '%;"></div></div>';
-    out += '<div style="color:' + MUTED + ';">' + e.h + ' hunt' + (e.h === 1 ? '' : 's') + (e.l ? ' &middot; last ' + ago(e.l) : '') + (e.a ? ' in <span style="font-family:' + SERIF + ';">' + esc(e.a) + '</span>' : '') + '</div>';
-    out += '</div>';
+  function nameOf(n, e) {
+    var col = (LLc && LLc.answer) ? LLc.answer("huntstats", "person.colour", n) : undefined;
+    return '<span style="font-family:' + SERIF + ';font-size:11px;color:' + (col || TXT) + ';" title="last hunted together ' + (e.l ? ago(e.l) : '') + (e.a ? ' in ' + esc(e.a) : '') + '">' + esc(n) + '</span>';
   }
-  return out;
+  function side(title, list, col) {
+    var b = caps(title, MOSS);
+    if (!list.length) return box(b + quiet("Nobody."), col);
+    for (var i = 0; i < list.length; i++) {
+      b += '<div style="display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' + nameOf(list[i].n, list[i].e) + '<span style="white-space:nowrap;color:' + MUTED + ';"><span style="color:' + MOSS + ';">' + fmtDur(list[i].ms) + '</span> &middot; ' + list[i].h + '</span></div>';
+    }
+    return box(b, col);
+  }
+  var recent = [], life = [];
+  for (var ci = 0; ci < compN.length; ci++) {
+    var n = compN[ci], e = comps[n];
+    var rc = HSv.compRecent ? HSv.compRecent(e) : { h: 0, ms: 0 };
+    if (rc.h) recent.push({ n: n, e: e, h: rc.h, ms: rc.ms });
+    life.push({ n: n, e: e, h: e.h, ms: e.ms });
+  }
+  recent.sort(byTime); life.sort(byTime);
+  return '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + side("Last 30 days", recent, MOSS) + side("Lifetime", life, DEEP) + '</div>' + '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:3px;">time together &middot; hunts; hover a name for the last hunt together</div>';
 }
 
 if (log.length === 0) {

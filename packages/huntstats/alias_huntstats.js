@@ -124,7 +124,8 @@ if (hsSub === "" || hsSub === "status") {
     hsSay(hsCk.length + " companion" + (hsCk.length === 1 ? "" : "s") + ", most time hunted together first:", "cyan");
     for (var hsCi = 0; hsCi < hsCk.length && hsCi < 20; hsCi++) {
       var hsCe = hsCm[hsCk[hsCi]];
-      hsSay("  " + hsCk[hsCi] + ": " + HS.dur(hsCe.ms) + ", " + hsCe.h + " hunt" + (hsCe.h === 1 ? "" : "s") + (hsCe.a ? ", last in " + hsCe.a : ""), "cyan");
+      var hsCr = HS.compRecent(hsCe);
+      hsSay("  " + hsCk[hsCi] + ": " + HS.dur(hsCe.ms) + ", " + hsCe.h + " hunt" + (hsCe.h === 1 ? "" : "s") + (hsCr.h ? " (last 30 days: " + HS.dur(hsCr.ms) + ", " + hsCr.h + ")" : "") + (hsCe.a ? ", last in " + hsCe.a : ""), "cyan");
     }
     if (hsCk.length > 20) hsSay("  … and " + (hsCk.length - 20) + " more in the Stats tab.", "cyan");
   }

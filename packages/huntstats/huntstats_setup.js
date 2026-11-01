@@ -143,8 +143,17 @@ HS.tankTone = function (dps) {
 // from each filed hunt's party, kept across sessions (the log holds only the
 // last five hunts). Shown in the Stats tab's COMPANIONS view.
 //   huntstats_companions  name -> { h: hunts, ms: time, l: last hunt (at),
-//                         a: its area }; the least recent go beyond HS.compCap
+//                         a: its area, r: the last 30 days' hunts as
+//                         [minute filed, minutes long] }; the least recent go
+//                         beyond HS.compCap
 HS.compCap = 150;
+HS.compDays = 30;
+// A companion's hunts in the last HS.compDays days: { h, ms }.
+HS.compRecent = function (e) {
+  var cut = (Date.now() - HS.compDays * 86400000) / 60000, h = 0, ms = 0, r = (e && e.r) || [];
+  for (var i = 0; i < r.length; i++) { if (r[i][0] >= cut) { h++; ms += r[i][1] * 60000; } }
+  return { h: h, ms: ms };
+};
 HS.comps = function () {
   var c = {};
   try { c = JSON.parse(get_variable("huntstats_companions") || "{}") || {}; } catch (e) { c = {}; }
@@ -159,6 +168,7 @@ HS.compAdd = function (rec) {
     var e = c[n] || { h: 0, ms: 0, l: 0, a: "" };
     e.h += 1; e.ms += rec.ms || 0;
     if ((rec.at || 0) >= e.l) { e.l = rec.at || 0; e.a = rec.area || ""; }
+    HS.compRec(e, rec);
     c[n] = e;
   }
   var ks = Object.keys(c);
@@ -168,6 +178,15 @@ HS.compAdd = function (rec) {
   }
   try { set_variable("huntstats_companions", JSON.stringify(c)); } catch (e) {}
 };
+// One hunt into a companion's last 30 days (older ones pruned).
+HS.compRec = function (e, rec) {
+  var cut = (Date.now() - HS.compDays * 86400000) / 60000, keep = [];
+  var r = Array.isArray(e.r) ? e.r : [];
+  for (var i = 0; i < r.length; i++) { if (Array.isArray(r[i]) && r[i][0] >= cut) keep.push(r[i]); }
+  var at = Math.round((rec.at || Date.now()) / 60000);
+  if (at >= cut) keep.push([at, Math.round((rec.ms || 0) / 60000)]);
+  e.r = keep;
+};
 // The first time, the companions of the hunts still in the log.
 try {
   var hsCo = get_variable("huntstats_companions");
@@ -175,6 +194,22 @@ try {
     set_variable("huntstats_companions", "{}");
     var hsLg = JSON.parse(get_variable("huntstats_log") || "[]") || [];
     if (Array.isArray(hsLg)) { for (var hsLi = hsLg.length - 1; hsLi >= 0; hsLi--) HS.compAdd(hsLg[hsLi]); }
+  } else {
+    // Companions from before the last 30 days were kept (1.2.0 first
+    // version): their recent hunts filled in once from the log.
+    var hsCc = HS.comps(), hsAny = false;
+    for (var hsCn in hsCc) { if (hsCc.hasOwnProperty(hsCn) && hsCc[hsCn].r) { hsAny = true; break; } }
+    if (!hsAny && Object.keys(hsCc).length) {
+      var hsLg2 = JSON.parse(get_variable("huntstats_log") || "[]") || [];
+      for (var hsCn2 in hsCc) { if (hsCc.hasOwnProperty(hsCn2)) hsCc[hsCn2].r = []; }
+      if (Array.isArray(hsLg2)) {
+        for (var hsLj = hsLg2.length - 1; hsLj >= 0; hsLj--) {
+          var hsR = hsLg2[hsLj];
+          for (var hsP = 0; hsR && hsR.players && hsP < hsR.players.length; hsP++) { if (hsCc[hsR.players[hsP]]) HS.compRec(hsCc[hsR.players[hsP]], hsR); }
+        }
+      }
+      set_variable("huntstats_companions", JSON.stringify(hsCc));
+    }
   }
 } catch (e) {}
 // The tab's lower view: "hunts" (recent hunts) or "companions", kept.
