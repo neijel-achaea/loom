@@ -16,7 +16,7 @@ if (!T || T.area === undefined) {
   say(T.area + " - " + HS.dur(ms));
   say("xp:    " + T.xp.toLocaleString() + "  (" + xpHr.toLocaleString() + "/hr)");
   say("gold:  " + T.gold.toLocaleString() + "  (" + goldHr.toLocaleString() + "/hr)");
-  say("kills: " + (T.kills || 0));
+  say("kills: " + (T.kills || 0) + (T.pkills ? "  (party " + T.pkills + ")" : ""));
 
   var toNext = HS.xpToNext();
   if (toNext !== null && xpHr > 0) {
