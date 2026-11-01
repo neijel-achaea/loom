@@ -214,7 +214,7 @@ With every package installed, each link does its part, and switching it off (`LO
 
 - [ ] `social-room`: players in Here in group colours, group on hover. Off: plain names in Here, Comms unaffected.
 - [ ] `social-comms`: talkers, Tells and the conversation header coloured. Off: game colours, Here unaffected.
-- [ ] `social-huntstats`: companions in the Stats tab in group colours. Off: plain names, Here and Comms unaffected.
+- [ ] `social-huntstats`: companions, This hunt's party and Recent hunts' "with …" in group colours. Off: plain names, Here and Comms unaffected.
 - [ ] `standings-online`: band icon column in Online, arrow after a recent nudge, details on hover.
 - [ ] `standings-comms`: standing on hover in Comms only.
 - [ ] `standings-login`: "Ana ☺ has awoken." (a Friend; an Acquaintance shows the handshake emoji)

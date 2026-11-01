@@ -56,7 +56,7 @@ Every link:
 |---|---|---|---|
 | `social-room` | [social](social.md) | [room](room.md) | Players in the Here tab in their highlight colours |
 | `social-comms` | [social](social.md) | [comms](comms.md) | Names in the Comms tab in their highlight colours |
-| `social-huntstats` | [social](social.md) | [huntstats](huntstats.md) | Companions in the Stats tab in their highlight colours |
+| `social-huntstats` | [social](social.md) | [huntstats](huntstats.md) | Hunting companions and parties in the Stats tab in their highlight colours |
 | `standings-online` | [standings](standings.md) | [social](social.md) | Your standing with each person in the Online tab |
 | `standings-comms` | [standings](standings.md) | [comms](comms.md) | Your standing with a talker, on hover in the Comms tab |
 | `standings-login` | [standings](standings.md) | [social](social.md) | Your standing's icon in the 'has awoken' notice |

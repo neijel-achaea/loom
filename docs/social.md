@@ -111,7 +111,7 @@ Social also feeds others:
 | --- | --- | --- |
 | `social-room` | room | Players in Here in their group colour, the group on hover. |
 | `social-comms` | comms | Talkers and the people in Tells in their group colour. |
-| `social-huntstats` | huntstats | Companions in the Stats tab in their group colour. |
+| `social-huntstats` | huntstats | Companions, the hunt's party and recent hunts' "with …" in the Stats tab in their group colour. |
 | `social-basher` | basher | An enemy arriving during a basher run makes the fight in progress the last one. |
 
 ## Troubleshooting

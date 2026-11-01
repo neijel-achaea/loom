@@ -109,8 +109,12 @@ if (live) {
   var cDt = cD ? dmgTxt(cD.dmg, cD.combatMs, cD.maxHit) : null;
   if (cDt) cb += row("taken", cDt);
   var cP = [];
-  for (var cK in (C.players || {})) { if (C.players.hasOwnProperty(cK)) cP.push(cK); }
-  cb += row("party", cP.length ? esc(cP.join(", ")) : "alone");
+  for (var cK in (C.players || {})) {
+    if (!C.players.hasOwnProperty(cK)) continue;
+    var cCol = (client.loom.loom && client.loom.loom.answer) ? client.loom.loom.answer("huntstats", "person.colour", cK) : undefined;
+    cP.push(cCol ? '<span style="color:' + cCol + ';">' + esc(cK) + '</span>' : esc(cK));
+  }
+  cb += row("party", cP.length ? cP.join(", ") : "alone");
   if (dh !== null && C.startDragonPct !== null && C.startDragonPct !== undefined && dh - C.startDragonPct > 0) { cb += row("dragonhood", '+' + (dh - C.startDragonPct).toFixed(3) + '%', DRAGON); }
   html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">' + box(cb, MOSS) + lifeBox() + '</div>';
 }
@@ -190,7 +194,15 @@ if (log.length === 0) {
     rs += '<div style="color:' + MUTED + ';"><span style="color:' + MOSS + ';">' + thou(s.xpHr) + '</span> xp/hr &middot; <span style="color:' + GOLD + ';">' + thou(s.gold) + '</span> gold &middot; ' + s.kills + ' kills';
     if (s.dGain !== null && s.dGain !== undefined && s.dGain !== 0) { rs += ' &middot; <span style="color:' + DRAGON + ';">+' + s.dGain.toFixed(3) + '%</span>'; }
     rs += '</div>';
-    if (s.players && s.players.length) { rs += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">with ' + esc(s.players.join(", ")) + '</div>'; }
+    if (s.players && s.players.length) {
+      // Each name in its Social colour (link social-huntstats).
+      var wn = [];
+      for (var wi = 0; wi < s.players.length; wi++) {
+        var wc = (client.loom.loom && client.loom.loom.answer) ? client.loom.loom.answer("huntstats", "person.colour", s.players[wi]) : undefined;
+        wn.push(wc ? '<span style="color:' + wc + ';">' + esc(s.players[wi]) + '</span>' : esc(s.players[wi]));
+      }
+      rs += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">with ' + wn.join(", ") + '</div>';
+    }
     rs += '</div>';
   }
   if ((HSv.view || "hunts") !== "companions") html += viewSection(rs);
