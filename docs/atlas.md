@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.2.2.*
+*This page describes atlas 0.2.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -12,7 +12,7 @@ Atlas draws the area you're in, one level at a time, in a custom tab named **Atl
 
 - **The area you're in**, on your level. Rooms are squares in their environment's colour (the game's own, as on the stock map; hover a room for its name, number and environment), exits are lines between them, for the eight compass directions only. An exit into another area ends in an amber arrowhead (hover it for the area's name). Up, down, in and out are an arrow in the middle of the room, as on the stock map: ▲ up, ▼ down, ◀ in, ▶ out; up and down together make an hourglass, in and out the same on its side (hover a room for its exits by name).
 - **Where you are.** The room you're in is ringed, and the map follows you as you move. Line 2 gives the room's name and number.
-- **Fog of war.** When you enter an area, the game tells Nexus which of its rooms you've ever explored, and Atlas shows only those, like the stock map. A short dotted line marks an exit to somewhere you haven't been. Turn fog off (**FOG** on the title line, or `ATLAS FOG OFF`) to see every room on the map, the ones you haven't explored faint.
+- **Fog of war.** When you enter an area, the game tells Nexus which of its rooms you've ever explored, and Atlas shows only those, like the stock map. The crowdmap doesn't always cut areas where the game does (a crowdmap area can hold rooms the game files under another area), so Atlas keeps every list the game sends and puts them together: walking from one part into the other changes nothing. A short dotted line marks an exit to somewhere you haven't been. Turn fog off (**FOG** on the title line, or `ATLAS FOG OFF`) to see every room on the map, the ones you haven't explored faint.
 - **How much you've explored.** Line 2 reads *132 of 147 explored*: the game's count of rooms you've explored in this area, against the rooms the crowdmap knows there. The two don't always match the game's own idea of the area exactly (the crowdmap has rooms that don't count for exploration, and the other way round), so read it as close, not exact.
 - **Levels.** In an area with several levels, the arrows by *level* look at the one above or below. Moving brings the view back to you.
 - **Moving the map.** Drag to pan; the mouse wheel or **− +** zoom; **⌖** brings you back to the room you're in.

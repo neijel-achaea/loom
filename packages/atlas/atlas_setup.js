@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.2.2", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.2.3", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -70,7 +70,15 @@ if (AT.map === undefined) AT.map = null;
 if (!AT.state) AT.state = "idle";          // idle | loading | ready | failed
 if (AT.note === undefined) AT.note = "";
 if (AT.here === undefined) AT.here = null;
+// Explored lists as the game sends them, keyed by the GAME's area number
+// (Room.Info's coords). The crowdmap groups rooms into its own areas, which
+// don't always match the game's (Pash Valley (East) holds rooms the game
+// files elsewhere, Ricardo), so lists are merged into AT.exAll (every room
+// explored, from any list) and a crowdmap area is "known" (AT.known) once a
+// list has covered any of its rooms.
 if (!AT.explored || typeof AT.explored != "object") AT.explored = {};
+if (!AT.exAll || typeof AT.exAll != "object") AT.exAll = {};
+if (!AT.known || typeof AT.known != "object") AT.known = {};
 if (!AT.view || typeof AT.view != "object") AT.view = { area: null, z: 0, cx: 0, cy: 0, span: 18 };
 AT.spanMin = 6;
 AT.spanMax = 160;
@@ -192,7 +200,8 @@ AT.useMap = function (m, source) {
   AT.state = "ready";
   AT.note = "";
   if (AT.here) AT.placeView();
-  for (var a in AT.explored) if (AT.explored.hasOwnProperty(a)) AT.recount(atNum(a));
+  AT.rebuildKnown();
+  for (var a in AT.known) if (AT.known.hasOwnProperty(a)) AT.recount(atNum(a));
   if (client.loom.notify) client.loom.notify("atlas");
   run_function("atlas_render", { full: true }, "atlas");
   run_function("atlas_areas_render", [], "atlas");
@@ -285,14 +294,35 @@ AT.seedExplored = function () {
     if (!E || typeof E != "object") return;
     for (var a in E) {
       if (!E.hasOwnProperty(a) || !E[a] || typeof E[a] != "object" || !(atNum(a) > 0)) continue;
-      var s = AT.explored[atNum(a)] || (AT.explored[atNum(a)] = {});
-      for (var r in E[a]) if (E[a].hasOwnProperty(r) && atNum(r) > 0) s[atNum(r)] = true;
+      var ids = [];
+      for (var r in E[a]) if (E[a].hasOwnProperty(r) && atNum(r) > 0) ids.push(atNum(r));
+      AT.addList(atNum(a), ids);
     }
   } catch (e) {}
 };
-AT.exploredCount = function (aid) {
-  var s = AT.explored[aid];
-  return s ? Object.keys(s).length : -1;
+// One game area's explored list: kept, merged, and the crowdmap areas it
+// covers become known (a list arriving for one marked "no exploration
+// record" takes the mark off).
+AT.addList = function (gaid, ids) {
+  var s = AT.explored[gaid] || (AT.explored[gaid] = {});
+  for (var i = 0; i < ids.length; i++) { s[ids[i]] = true; AT.exAll[ids[i]] = true; }
+  AT.markKnown(ids);
+};
+AT.markKnown = function (ids) {
+  if (!AT.map) return;
+  var gone = false;
+  for (var i = 0; i < ids.length; i++) {
+    var R = AT.map.rooms[ids[i]];
+    if (!R || AT.known[R[0]]) continue;
+    AT.known[R[0]] = true;
+    if (AT.uncounted[R[0]]) { delete AT.uncounted[R[0]]; gone = true; }
+  }
+  if (gone) AT.saveUncounted();
+};
+// After the map loads: what the lists cover.
+AT.rebuildKnown = function () {
+  AT.known = {};
+  AT.markKnown(Object.keys(AT.exAll).map(atNum));
 };
 // Room.Info: where you are; an area's explored list when it comes with it.
 AT.roomInfo = function (g) {
@@ -301,25 +331,26 @@ AT.roomInfo = function (g) {
   var co = String(g.coords || "").split(",");
   var aid = atNum(co[0]);
   var R = AT.room(id);
-  if (R) aid = R.a;
-  var was = AT.here ? AT.here.area : null;
+  var gaid = aid > 0 ? aid : (R ? R.a : 0);      // the game's area: whose list this is
+  if (R) aid = R.a;                             // the crowdmap's area: what's drawn
+  var wasG = AT.hereGame || null;
+  AT.hereGame = gaid || null;
   AT.here = { id: id, area: aid > 0 ? aid : null, name: String(g.name || "").replace(/\s*\((?:indoors|outdoors|road)\)\s*$/i, "").slice(0, 120),
     areaName: String(g.area || "").slice(0, 80), onMap: !!R };
-  if (Array.isArray(g.explored) && AT.here.area) {
-    var s = {};
-    for (var i = 0; i < g.explored.length; i++) { var x = atNum(g.explored[i]); if (x > 0) s[x] = true; }
-    AT.explored[AT.here.area] = s;
-    if (AT.uncounted[AT.here.area]) { delete AT.uncounted[AT.here.area]; AT.saveUncounted(); }
-  } else if (AT.here.area && was && was !== AT.here.area && !AT.explored[AT.here.area] && !AT.counts.hasOwnProperty(AT.here.area) && !AT.uncounted[AT.here.area]) {
-    // Walked into an area, and no explored list came with it, nor ever has:
-    // the game keeps no record of exploring it.
+  if (Array.isArray(g.explored) && gaid) {
+    var ids = [];
+    for (var i = 0; i < g.explored.length; i++) { var x = atNum(g.explored[i]); if (x > 0) ids.push(x); }
+    AT.addList(gaid, ids);
+  } else if (gaid && wasG && wasG !== gaid && !AT.explored[gaid] && AT.here.area && !AT.known[AT.here.area] && !AT.counts.hasOwnProperty(AT.here.area) && !AT.uncounted[AT.here.area]) {
+    // Walked into a game area, and no explored list came with it, nor ever
+    // has: the game keeps no record of exploring it.
     AT.uncounted[AT.here.area] = true;
     AT.saveUncounted();
     AT.areasHere = null;
   }
-  // As Nexus does: the room you're in is explored (once the area's list is known).
-  if (AT.here.area && AT.explored[AT.here.area]) AT.explored[AT.here.area][id] = true;
-  if (AT.here.area) AT.envFetch(AT.here.area);
+  // As Nexus does: the room you're in is explored (once its area's list is known).
+  if (gaid && AT.explored[gaid]) AT.addList(gaid, [id]);
+  if (gaid) AT.envFetch(gaid);          // the official file is per game area
   AT.placeView();
   run_function("atlas_render", {}, "atlas");
   // The Areas tab: when a count changed, or you crossed into another area.
@@ -331,10 +362,9 @@ AT.roomInfo = function (g) {
 // The rooms you've explored in an area that are on the community map (so a
 // percentage never passes 100%), from the game's list. Saved when it changes.
 AT.countLive = function (aid) {
-  var s = AT.explored[aid];
-  if (!s || !AT.map) return -1;
-  var n = 0;
-  for (var id in s) if (s.hasOwnProperty(id)) { var R = AT.map.rooms[id]; if (R && R[0] === aid) n++; }
+  if (!AT.map || !AT.known[aid]) return -1;
+  var ids = AT.areaRooms(aid), n = 0;
+  for (var i = 0; i < ids.length; i++) if (AT.exAll[ids[i]]) n++;
   return n;
 };
 AT.recount = function (aid) {
@@ -578,6 +608,6 @@ try {
 } catch (e) {}
 
 AT.seedExplored();
-if (AT.map) for (var atS in AT.explored) if (AT.explored.hasOwnProperty(atS)) AT.recount(atNum(atS));
+if (AT.map) { AT.rebuildKnown(); for (var atS in AT.known) if (AT.known.hasOwnProperty(atS)) AT.recount(atNum(atS)); }
 if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); }
 if (client.loom.notify) client.loom.notify("atlas");

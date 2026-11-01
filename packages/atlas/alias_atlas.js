@@ -61,6 +61,7 @@ if (atCmd === "" || atCmd === "status") {
 } else if (atCmd === "debug") {
   var atEx = [];
   for (var atA in AT.explored) if (AT.explored.hasOwnProperty(atA)) atEx.push(atA + ":" + Object.keys(AT.explored[atA]).length);
+  atEx.push("game area here " + AT.hereGame + ", known crowdmap areas " + Object.keys(AT.known).join("/"));
   display_notice("[atlas] state=" + AT.state + " source=" + (AT.source || "-") + " note=" + (AT.note || "-") + " here=" + JSON.stringify(AT.here) + " view=" + JSON.stringify(AT.view) + " explored={" + atEx.join(", ") + "} tabs=" + AT.svgs().length, "cyan");
 } else {
   display_notice("[atlas] unknown command '" + atCmd + "'. ATLAS HELP for commands.", "orange");

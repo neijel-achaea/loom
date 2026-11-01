@@ -57,7 +57,7 @@ function areaTitle(aid) { return AT.title(aid); }
 var H = AT.here, V = AT.view, M = AT.map;
 var aid = V.area;
 var here = H ? AT.room(H.id) : null;
-var expl = aid ? AT.explored[aid] : null;
+var expl = aid && AT.known[aid] ? AT.exAll : null;   // every explored room, once a list covers this area
 var fogOn = AT.fog && !!expl;
 var nExpl = aid ? AT.count(aid) : -1;
 var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
