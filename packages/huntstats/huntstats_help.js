@@ -8,6 +8,7 @@ var hlRows = [
   ["HUNTSTATS AREAS", "every area hunted, by total time, with its rates and the damage it deals"],
   ["HUNTSTATS TANK [percent]", "how much of your max health a second you can heal back (default 3); colours the damage areas deal"],
   ["HUNTSTATS LOG", "the last five hunts"],
+  ["HUNTSTATS COMPANIONS", "everyone you've hunted with: time together, hunts, where last (also in the Stats tab)"],
   ["HUNTSTATS SUGGEST", "the ten best areas to hunt next, by xp/hr, gold/hr and how long since you went"],
   ["HUNTSTATS SUGGEST WEIGHTS <x> <g> <v>", "how much xp, gold and variety count (default 70 25 5)"],
   ["HUNTSTATS FLUSH", "file the hunt under way now"],
@@ -18,7 +19,7 @@ var hlRows = [
   ["HUNTSTATS SPLIT", "the party's gold so far and the transfers that even it out"],
   ["HUNTSTATS SPLIT REPORT", "send the split to party tell now, one line per person"],
   ["HUNTSTATS SPLIT TELL ON|OFF", "also send it to party tell when a party hunt ends (default OFF)"],
-  ["HUNTSTATS WIPE CONFIRM", "clear all area records and the log"],
+  ["HUNTSTATS WIPE CONFIRM", "clear all area records, the log and companions"],
   ["HUNTSTATS DEBUG", "internal state"],
   ["A hunt is filed when you leave its area, and needs a minute or more of experience. A party hunt's gold split is shown then."]
 ];

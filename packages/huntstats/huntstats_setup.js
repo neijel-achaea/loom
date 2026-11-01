@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "1.1.0", keyword: "HUNTSTATS", desc: "{{description}}",
+client.loom.registry.huntstats = { version: "1.2.0", keyword: "HUNTSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("huntstats_render", [], "huntstats"); } };
 var HS = client.loom.huntstats;
@@ -139,6 +139,56 @@ HS.tankTone = function (dps) {
   if (dps <= cap) return { colour: "#e8c65a", word: "up to what you heal", cap: cap };
   return { colour: "#ff6a5e", word: "more than you heal", cap: cap };
 };
+// Companions (Ricardo, 2026-11-01): everyone you've hunted with, totalled
+// from each filed hunt's party, kept across sessions (the log holds only the
+// last five hunts). Shown in the Stats tab's COMPANIONS view.
+//   huntstats_companions  name -> { h: hunts, ms: time, l: last hunt (at),
+//                         a: its area }; the least recent go beyond HS.compCap
+HS.compCap = 150;
+HS.comps = function () {
+  var c = {};
+  try { c = JSON.parse(get_variable("huntstats_companions") || "{}") || {}; } catch (e) { c = {}; }
+  return (c && typeof c == "object" && !Array.isArray(c)) ? c : {};
+};
+HS.compAdd = function (rec) {
+  if (!rec || !rec.players || !rec.players.length) return;
+  var c = HS.comps();
+  for (var i = 0; i < rec.players.length; i++) {
+    var n = String(rec.players[i]);
+    if (!/^[A-Z][a-z]+$/.test(n)) continue;
+    var e = c[n] || { h: 0, ms: 0, l: 0, a: "" };
+    e.h += 1; e.ms += rec.ms || 0;
+    if ((rec.at || 0) >= e.l) { e.l = rec.at || 0; e.a = rec.area || ""; }
+    c[n] = e;
+  }
+  var ks = Object.keys(c);
+  if (ks.length > HS.compCap) {
+    ks.sort(function (a, b) { return c[a].l - c[b].l; });
+    for (var j = 0; j < ks.length - HS.compCap; j++) delete c[ks[j]];
+  }
+  try { set_variable("huntstats_companions", JSON.stringify(c)); } catch (e) {}
+};
+// The first time, the companions of the hunts still in the log.
+try {
+  var hsCo = get_variable("huntstats_companions");
+  if (hsCo === undefined || hsCo === null || hsCo === "") {
+    set_variable("huntstats_companions", "{}");
+    var hsLg = JSON.parse(get_variable("huntstats_log") || "[]") || [];
+    if (Array.isArray(hsLg)) { for (var hsLi = hsLg.length - 1; hsLi >= 0; hsLi--) HS.compAdd(hsLg[hsLi]); }
+  }
+} catch (e) {}
+// The tab's lower view: "hunts" (recent hunts) or "companions", kept.
+HS.view = String(get_variable("huntstats_view") || "") === "companions" ? "companions" : "hunts";
+try {
+  window.loomHuntstats = {
+    view: function (v) {
+      var H = client.loom.huntstats;
+      H.view = v === "companions" ? "companions" : "hunts";
+      try { set_variable("huntstats_view", H.view); } catch (e) {}
+      run_function("huntstats_render", [], "huntstats");
+    }
+  };
+} catch (e) {}
 HS.saveParty = function () { try { set_variable("huntstats_party", JSON.stringify(HS.party)); } catch (e) {} };
 // Following (#188, Ricardo): following someone, or being followed, is enough
 // to put them in the hunt of the area you're in. Kept in memory only:

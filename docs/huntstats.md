@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 1.1.0.*
+*This page describes huntstats 1.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -20,7 +20,7 @@ From those records it tells you which areas pay best, how close you are to the n
 
 What you get:
 
-- **The Stats tab**: the hunt under way (or the last one), your next level and Dragonhood, and every area with its rates.
+- **The Stats tab**: the hunt under way (or the last one), your next level and Dragonhood, **RECENT HUNTS · COMPANIONS** (click to switch: the last five hunts, or everyone you've hunted with), and every area with its rates.
 - **A notice for each filed hunt**, and the party's split when there was a party.
 - **The `HUNTSTATS` command** for the hunt under way, the area table, the log and suggestions.
 
@@ -35,6 +35,7 @@ Your area and level come from the game (GMCP); experience, gold and kills from t
 | `HUNTSTATS AREAS` | every area hunted, by total time, with its rates and the damage it deals |
 | `HUNTSTATS TANK [percent]` | how much of your max health a second you can heal back (default 3); colours the damage areas deal |
 | `HUNTSTATS LOG` | the last five hunts |
+| `HUNTSTATS COMPANIONS` | everyone you've hunted with: time together, hunts, where last (also in the Stats tab) |
 | `HUNTSTATS SUGGEST` | the ten best areas to hunt next, by xp/hr, gold/hr and how long since you went |
 | `HUNTSTATS SUGGEST WEIGHTS <x> <g> <v>` | how much xp, gold and variety count (default 70 25 5) |
 | `HUNTSTATS FLUSH` | file the hunt under way now |
@@ -45,7 +46,7 @@ Your area and level come from the game (GMCP); experience, gold and kills from t
 | `HUNTSTATS SPLIT` | the party's gold so far and the transfers that even it out |
 | `HUNTSTATS SPLIT REPORT` | send the split to party tell now, one line per person |
 | `HUNTSTATS SPLIT TELL ON\|OFF` | also send it to party tell when a party hunt ends (default OFF) |
-| `HUNTSTATS WIPE CONFIRM` | clear all area records and the log |
+| `HUNTSTATS WIPE CONFIRM` | clear all area records, the log and companions |
 | `HUNTSTATS DEBUG` | internal state |
 | **A hunt is filed when you leave its area, and needs a minute or more of experience. A party hunt's gold split is shown then.** | |
 <!-- /loom:commands -->
@@ -61,6 +62,8 @@ If the page reloads or you disconnect mid-hunt, Huntstats picks the hunt up agai
 ### Areas and the log
 
 `HUNTSTATS AREAS` lists every area you've hunted, by total time: experience, gold and kills an hour, and (with dmgchart) the damage it deals. `HUNTSTATS LOG` shows the last five hunts.
+
+**Companions.** Everyone in a filed hunt's party (following you, followed, or added by hand) is added to your companions: time hunted together, number of hunts, and when and where you last hunted together, kept across sessions (up to 150, the least recent going first). The Stats tab's **COMPANIONS** view lists them, most time together first, with a bar against your most frequent companion; `HUNTSTATS COMPANIONS` prints the top 20. The first time, they're filled in from the hunts still in the log.
 
 ### Where to hunt next
 
@@ -126,4 +129,4 @@ Huntstats works on its own. **hunting**'s F9 key shows the hunt under way when H
 - **The rates look too high for a short hunt.** Rates per hour from a few minutes' hunting are scaled to an hour; they settle as an area's record grows.
 - **No damage figures.** dmgchart must be installed and the `dmgchart-huntstats` link on. A hunt that the page reloaded in the middle of has no damage figures.
 - **The damage colour is missing.** It needs your max health, which arrives with your vitals; it shows after the next prompt.
-- **`HUNTSTATS WIPE CONFIRM`** clears every area record and the log. There's no undo.
+- **`HUNTSTATS WIPE CONFIRM`** clears every area record, the log and your companions. There's no undo.

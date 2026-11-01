@@ -33,6 +33,7 @@ if (T && T.firstXpAt && T.xp > 0 && (T.lastXpAt - T.firstXpAt) >= 60000) {
   log.unshift(rec);
   if (log.length > 5) log = log.slice(0, 5);
   set_variable("huntstats_log", JSON.stringify(log));
+  HS.compAdd(rec);
 
   var areas = {};
   try { areas = JSON.parse(get_variable("huntstats_areas")) || {}; } catch (e) { areas = {}; } if (!areas || typeof areas != "object" || Array.isArray(areas)) areas = {};

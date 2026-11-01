@@ -233,6 +233,8 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `huntstats_log` | data | 0.2 | filed hunts | `hs_log` |
 | `huntstats_areas` | data | 0.2 | totals per area | `hs_areas` |
 | `huntstats_open` | data | 0.2 | the hunt under way | `hs_open` |
+| `huntstats_companions` | data | 1.1 | everyone you've hunted with: hunts, time, last hunt and area (150 at most) |  |
+| `huntstats_view` | setting | 1.1 | the Stats tab's lower view: recent hunts or companions |  |
 | `huntstats_name` | state | 0.4 | your name, from GMCP |  |
 | `huntstats_button` | legacy | 0.2 | an old button setting, deleted |  |
 | `hs_log` | legacy | 0.1 | old name of huntstats_log |  |

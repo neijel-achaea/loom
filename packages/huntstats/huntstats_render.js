@@ -115,6 +115,35 @@ if (live) {
   html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">' + box(cb, MOSS) + lifeBox() + '</div>';
 }
 
+// The lower view's switch: RECENT HUNTS · COMPANIONS (Ricardo, 2026-11-01).
+var HSv = client.loom.huntstats;
+var comps = HSv.comps ? HSv.comps() : {};
+var compN = Object.keys(comps);
+function viewSeg(v, lbl) {
+  var on = (HSv.view || "hunts") === v;
+  return '<span onclick="window.loomHuntstats &amp;&amp; window.loomHuntstats.view(\'' + v + '\')" title="' + (v === "hunts" ? "the last five hunts" : "everyone you've hunted with") + '" style="cursor:pointer;padding:0 5px;' + (on ? 'background:' + DEEP + ';color:' + TXT + ';' : 'color:' + MUTED + ';') + '">' + lbl + '</span>';
+}
+function viewSection(inner) {
+  var sw = '<span style="border:1px solid ' + DEEP + ';letter-spacing:0.08em;white-space:nowrap;font-size:9px;font-family:' + SERIF + ';">' + viewSeg("hunts", "RECENT HUNTS") + viewSeg("companions", "COMPANIONS" + (compN.length ? " " + compN.length : "")) + '</span>';
+  return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;"><div style="margin:0 0 4px;">' + sw + '</div>' + inner + '</div>';
+}
+// Companions: most time together first; two lines each, as recent hunts.
+function compList() {
+  if (!compN.length) return quiet("No companions yet. Hunt with someone following you, or added with HUNTSTATS PARTY ADD, and they appear here once the hunt is filed.");
+  var ks = compN.slice().sort(function (a, b) { return comps[b].ms - comps[a].ms; });
+  var mx = comps[ks[0]].ms || 1, out = "";
+  for (var ci = 0; ci < ks.length; ci++) {
+    var e = comps[ks[ci]];
+    out += '<div style="border-bottom:1px dotted ' + RULE + ';padding:2px 0 3px;">';
+    out += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;"><span style="font-family:' + SERIF + ';color:' + TXT + ';font-size:11px;">' + esc(ks[ci]) + '</span>';
+    out += '<span style="color:' + MOSS + ';white-space:nowrap;">' + fmtDur(e.ms) + '</span></div>';
+    out += '<div style="background:' + TRACK + ';height:3px;margin:2px 0 1px;"><div style="background:' + DEEP + ';height:3px;width:' + Math.max(2, Math.round(e.ms / mx * 100)) + '%;"></div></div>';
+    out += '<div style="color:' + MUTED + ';">' + e.h + ' hunt' + (e.h === 1 ? '' : 's') + (e.l ? ' &middot; last ' + ago(e.l) : '') + (e.a ? ' in <span style="font-family:' + SERIF + ';">' + esc(e.a) + '</span>' : '') + '</div>';
+    out += '</div>';
+  }
+  return out;
+}
+
 if (log.length === 0) {
   if (!live) html += '<div style="margin-top:8px;">' + quiet("No hunts logged yet. A hunt is filed when you leave the area, or with HUNTSTATS FLUSH; it needs a minute or more of experience to count.") + '</div>';
 } else {
@@ -152,8 +181,10 @@ if (log.length === 0) {
     if (s.players && s.players.length) { rs += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">with ' + esc(s.players.join(", ")) + '</div>'; }
     rs += '</div>';
   }
-  html += section("Recent hunts", rs);
+  if ((HSv.view || "hunts") !== "companions") html += viewSection(rs);
 }
+if ((HSv.view || "hunts") === "companions") html += viewSection(compList());
+else if (log.length === 0 && compN.length) html += viewSection(quiet("No hunts in the log."));
 
 // Areas, by total time; each bar is its xp/hr against the best area.
 var ar = "";
