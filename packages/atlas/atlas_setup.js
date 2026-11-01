@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.1.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.1.1", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -33,7 +33,6 @@ if (!AT.explored || typeof AT.explored != "object") AT.explored = {};
 if (!AT.view || typeof AT.view != "object") AT.view = { area: null, z: 0, cx: 0, cy: 0, span: 18 };
 AT.spanMin = 6;
 AT.spanMax = 160;
-AT.syncMs = 1500;
 
 function atNum(v) { var n = parseInt(v, 10); return isFinite(n) ? n : 0; }
 function atFloat(v) { var n = Number(v); return isFinite(n) ? n : 0; }
@@ -117,7 +116,7 @@ AT.fetchJson = function (url) {
 // The cache: one IndexedDB database of this page's (play.achaea.com's),
 // shared by every character on this browser (the map is the same for all).
 // Any failure reads as "no cache": the map is then downloaded.
-AT.idb = function (mode, value) {
+AT.idb = function (mode, key, value) {
   return new Promise(function (resolve) {
     var done = false;
     function end(v) { if (!done) { done = true; resolve(v); } }
@@ -131,12 +130,12 @@ AT.idb = function (mode, value) {
         try {
           var db = req.result, tx = db.transaction("kv", mode), st = tx.objectStore("kv");
           if (mode == "readonly") {
-            var g = st.get("crowdmap");
-            g.onsuccess = function () { var v = g.result; end(v && typeof v == "object" && v.rooms && v.areas ? v : null); };
+            var g = st.get(key);
+            g.onsuccess = function () { var v = g.result; end(v && typeof v == "object" ? v : null); };
             g.onerror = function () { end(null); };
             tx.oncomplete = function () { try { db.close(); } catch (e) {} };
           } else {
-            st.put(value, "crowdmap");
+            st.put(value, key);
             tx.oncomplete = function () { try { db.close(); } catch (e) {} end(true); };
             tx.onerror = function () { end(false); };
           }
@@ -164,7 +163,8 @@ AT.load = function (force) {
   AT.note = force ? "downloading the community map…" : "loading the community map…";
   var gen = AT.gen = (AT.gen || 0) + 1;
   run_function("atlas_render", { full: true }, "atlas");
-  AT.idb("readonly").then(function (cached) {
+  AT.idb("readonly", "crowdmap").then(function (cached) {
+    if (cached && !(cached.rooms && cached.areas && typeof cached.rooms == "object")) cached = null;
     return AT.fetchText(AT.base + "version.txt").then(function (t) { return String(t).trim().slice(0, 20); }, function () { return null; }).then(function (v) {
       if (gen !== AT.gen) return;
       if (cached && !force && (v === null || v === cached.v)) {
@@ -176,7 +176,7 @@ AT.load = function (force) {
         if (gen !== AT.gen) return;
         var m = AT.compact(r[0], r[1], v);
         if (!m) throw new Error("the community map came in a shape Atlas doesn't know");
-        AT.idb("readwrite", m);
+        AT.idb("readwrite", "crowdmap", m);
         var was = cached ? cached.v : "";
         AT.useMap(m, "download");
         display_notice("[atlas] community map " + (was && was !== m.v ? "updated to version " + m.v + " (was " + was + ")" : "version " + m.v + " loaded") + ": " + m.n.toLocaleString("en-US") + " rooms in " + Object.keys(m.areas).length + " areas.", "lime");
@@ -188,6 +188,48 @@ AT.load = function (force) {
     AT.note = String((e && e.message) || e);
     display_notice("[atlas] couldn't load the community map: " + AT.note + ". ATLAS RELOAD to try again.", "orange");
     run_function("atlas_render", { full: true }, "atlas");
+  });
+};
+
+// ---- Environments: the game's names and colours ------------------------------
+// Each area's official map file (the one the stock map fetches when you
+// enter an area, the same for everyone) ends with the environments used in
+// it: <environment id="9" name="Hills" ... htmlcolor="#2d7720" />. Atlas
+// reads it once per area per session and keeps what it learns in the
+// browser (key "envs"): { id: { n: name, c: "#rrggbb" } }.
+AT.envUrl = "https://www.achaea.com/maps/v2/";
+if (!AT.envs || typeof AT.envs != "object") AT.envs = {};
+if (!AT.envAsked) AT.envAsked = {};
+AT.envRead = function (xml) {
+  var re = /<environment\b([^>]*)>/gi, m, got = 0;
+  while ((m = re.exec(String(xml))) !== null) {
+    var at = m[1], id = /\bid="(\d+)"/.exec(at), n = /\bname="([^"]{1,60})"/.exec(at), c = /\bhtmlcolor="(#[0-9a-fA-F]{6})"/.exec(at);
+    if (!id) continue;
+    var e = { n: n ? n[1].replace(/&amp;/g, "&").replace(/&[a-z#0-9]+;/gi, "") : "", c: c ? c[1].toLowerCase() : "" };
+    var was = AT.envs[id[1]];
+    if (!was || was.n !== e.n || was.c !== e.c) { AT.envs[id[1]] = e; got++; }
+  }
+  return got;
+};
+AT.envFetch = function (aid) {
+  if (!(aid > 0) || AT.envAsked[aid] || typeof fetch != "function") return;
+  AT.envAsked[aid] = true;
+  fetch(AT.envUrl + aid + ".xml").then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); }).then(function (t) {
+    if (AT.envRead(t)) {
+      AT.idb("readwrite", "envs", AT.envs);
+      run_function("atlas_render", { full: true }, "atlas");
+    }
+  }).catch(function () {});
+};
+AT.envLoad = function () {
+  AT.idb("readonly", "envs").then(function (v) {
+    if (!v) return;
+    var n = 0;
+    for (var id in v) if (v.hasOwnProperty(id) && /^\d+$/.test(id) && v[id] && typeof v[id] == "object" && !AT.envs[id]) {
+      AT.envs[id] = { n: String(v[id].n || "").slice(0, 60), c: /^#[0-9a-f]{6}$/.test(v[id].c) ? v[id].c : "" };
+      n++;
+    }
+    if (n) run_function("atlas_render", { full: true }, "atlas");
   });
 };
 
@@ -226,6 +268,7 @@ AT.roomInfo = function (g) {
   }
   // As Nexus does: the room you're in is explored (once the area's list is known).
   if (AT.here.area && AT.explored[AT.here.area]) AT.explored[AT.here.area][id] = true;
+  if (AT.here.area) AT.envFetch(AT.here.area);
   AT.placeView();
   run_function("atlas_render", {}, "atlas");
 };
@@ -266,21 +309,16 @@ AT.viewBox = function () {
 AT.svgs = function () {
   try { return Array.prototype.slice.call(document.querySelectorAll("svg.loom-atlas-svg")); } catch (e) { return []; }
 };
-AT.applyView = function () {
-  var vb = AT.viewBox(), s = AT.svgs();
-  for (var i = 0; i < s.length; i++) s[i].setAttribute("viewBox", vb);
-  AT.syncSoon();
-};
-// Nexus keeps the last HTML given to a tab and may redraw from it, so a
-// view changed in place is given to it in full once things are quiet.
-AT.syncSoon = function () {
-  if (AT.syncT) clearTimeout(AT.syncT);
-  AT.syncT = setTimeout(function () { AT.syncT = null; run_function("atlas_render", { full: true }, "atlas"); }, AT.syncMs);
+// Zoom and the end of a drag draw the tab again: Nexus shows a tab's HTML
+// as given, and changes made in place may not show until the next draw.
+AT.drawSoon = function () {
+  if (AT.drawT) return;
+  AT.drawT = setTimeout(function () { AT.drawT = null; run_function("atlas_render", { full: true }, "atlas"); }, 30);
 };
 AT.zoom = function (f) {
   var s = AT.view.span * f;
   AT.view.span = s < AT.spanMin ? AT.spanMin : (s > AT.spanMax ? AT.spanMax : s);
-  AT.applyView();
+  AT.drawSoon();
 };
 AT.centre = function () {
   AT.placeView();
@@ -326,7 +364,7 @@ AT.up = function () {
   if (D && D.moved) {
     AT.dragged = true;
     setTimeout(function () { AT.dragged = false; }, 0);
-    AT.syncSoon();
+    run_function("atlas_render", { full: true }, "atlas");
   }
 };
 AT.wheel = function (ev) {
@@ -361,4 +399,5 @@ try {
 } catch (e) {}
 
 AT.seedExplored();
+if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); }
 if (client.loom.notify) client.loom.notify("atlas");

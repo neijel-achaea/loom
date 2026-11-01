@@ -9,8 +9,8 @@
 //     without it, unexplored rooms faint; exits to other areas dashed; ▲▼
 //     in a room for up/down; the room you're in ringed
 //   - drag to pan, wheel or − + to zoom, click a room to walk there
-// args.full: draw the whole tab. Otherwise a move inside the same area and
-// level only moves the ring and the view (Atlas follows every step).
+// Every draw is whole (0.1.1): Nexus shows a tab's HTML as given, and a ring
+// moved in place showed only at the next draw.
 if (!client.loom || !client.loom.atlas || !client.loom.atlas.look) run_function("atlas_setup", [], "atlas");
 var AT = client.loom.atlas;
 var TH = (client.loom && client.loom.theme) || {};
@@ -24,7 +24,6 @@ var BG = TH.bg || "#13110e";
 var HI = TH.hi || "#f0cc8c";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
-var full = !!(args && args.full);
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function chip(label, fn, tip, on) {
   return '<span onclick="window.loomAtlas&&window.loomAtlas.' + fn + '" title="' + esc(tip) + '" style="flex:none;cursor:pointer;padding:0 5px;border:1px solid ' + (on ? AMBER : DEEP) + ';color:' + (on ? AMBER : MUTED) + ';letter-spacing:0.08em;white-space:nowrap;user-select:none;">' + label + '</span>';
@@ -40,6 +39,8 @@ function arrow(sym, d, on, tip) {
 var envCol = {};
 function col(e) {
   if (envCol[e]) return envCol[e];
+  var o = AT.envs && AT.envs[e];
+  if (o && o.c) return (envCol[e] = o.c);
   var c = AT.map && AT.map.env[e];
   if (!c) return (envCol[e] = "rgb(96,90,80)");
   var r = c[0] / 255, g = c[1] / 255, b = c[2] / 255;
@@ -66,30 +67,9 @@ var expl = aid ? AT.explored[aid] : null;
 var fogOn = AT.fog && !!expl;
 var nExpl = expl ? Object.keys(expl).length : -1;
 var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
-var sig = [M ? M.v : "", AT.state, aid, V.z, AT.fog, nExpl, (TH.acc || "") + (TH.bg || ""), here ? "on" : "off"].join("|");
 
-// ---- In place: same area, level and explored rooms -----------------------
-if (!full && AT.drawnSig === sig) {
-  var svs = AT.svgs();
-  if (svs.length) {
-    var vb = AT.viewBox();
-    for (var si = 0; si < svs.length; si++) {
-      svs[si].setAttribute("viewBox", vb);
-      var me = svs[si].querySelector(".loom-atlas-me");
-      if (me && here) me.setAttribute("transform", "translate(" + here.x + " " + (-here.y) + ")");
-    }
-    try {
-      var rl = document.querySelectorAll("#loom-atlas .loom-atlas-room");
-      for (var ri = 0; ri < rl.length; ri++) rl[ri].innerHTML = roomLine;
-    } catch (e) {}
-    AT.syncSoon();
-    full = null;
-  }
-}
-
-if (full !== null) {
-  if (AT.syncT) { clearTimeout(AT.syncT); AT.syncT = null; }
-  AT.drawnSig = sig;
+{
+  if (AT.drawT) { clearTimeout(AT.drawT); AT.drawT = null; }
   var html = '<div id="loom-atlas" style="font-family:' + MONO + ';font-size:10px;color:' + TXT + ';background:' + BG + ';border:1px solid ' + RULE + ';padding:7px 8px 8px;height:100%;min-height:300px;box-sizing:border-box;display:flex;flex-direction:column;">';
 
   // Title: Atlas, the area, the controls.
@@ -158,7 +138,7 @@ if (full !== null) {
       }
       var faint = shown[Q.id] === 2;
       rooms += '<rect class="loom-atlas-r" x="' + (qx - 0.3) + '" y="' + (qy - 0.3) + '" width="0.6" height="0.6" rx="0.08" fill="' + col(Q.e) + '"' + (faint ? ' opacity="0.35"' : '') +
-        ' onclick="window.loomAtlas&&window.loomAtlas.go(' + Q.id + ')"><title>' + esc((Q.n || "?") + " (" + Q.id + ")" + (faint ? " · not explored" : "") + " · click to walk here") + '</title></rect>';
+        ' onclick="window.loomAtlas&&window.loomAtlas.go(' + Q.id + ')"><title>' + esc((Q.n || "?") + " (" + Q.id + ")" + (AT.envs && AT.envs[Q.e] && AT.envs[Q.e].n ? " · " + AT.envs[Q.e].n : "") + (faint ? " · not explored" : "") + " · click to walk here") + '</title></rect>';
       // Up and down: small marks inside the room.
       var upx = false, dnx = false;
       for (var e2 in Q.ex) {
