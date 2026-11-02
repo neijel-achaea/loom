@@ -44,7 +44,7 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 
 | Variable | Kind | Since | Holds | Was |
 |---|---|---|---|---|
-| `basher_priorities` | setting | 0.6 | kill order per area: which mobs are active, in order |  |
+| `basher_priorities` | setting | 0.6 | kill order per area: which mobs are active, in order; places with no area (the Mnemosyne) under `(no area)` (1.1) |  |
 | `basher_rage` | setting | 0.6 | battlerage use (BASHER RAGE) |  |
 | `basher_raze` | setting | 0.6 | raze shielded targets (BASHER RAZE) |  |
 | `basher_interrupt` | setting | 1.0 | finish the fight and stop when someone shows up (BASHER INTERRUPT) |  |
