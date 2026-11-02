@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.7.1", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.8.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -478,12 +478,20 @@ AT.roomInfo = function (g) {
   var co = String(g.coords || "").split(",");
   var aid = atNum(co[0]);
   var R = AT.room(id);
+  if (R && R.a === AT.SKETCH) R = null;
   var gaid = aid > 0 ? aid : (R ? R.a : 0);      // the game's area: whose list this is
   if (R) aid = R.a;                             // the crowdmap's area: what's drawn
+  // A room on no map, outside any mapped area (the Mnemosyne's ripples, an
+  // instance; a brand-new place): sketched as you walk (#451, Ricardo).
+  if (!R && AT.map && !(aid > 0 && AT.map.areas[aid] && AT.areaRooms(aid).length)) {
+    AT.sketchStep(id, g);
+    R = AT.room(id);
+    aid = AT.SKETCH;
+  } else if (AT.sketch) AT.sketchClear();
   var wasG = AT.hereGame || null;
   AT.hereGame = gaid || null;
   AT.here = { id: id, area: aid > 0 ? aid : null, name: String(g.name || "").replace(/\s*\((?:indoors|outdoors|road)\)\s*$/i, "").slice(0, 120),
-    areaName: String(g.area || "").slice(0, 80), onMap: !!R, exits: {} };
+    areaName: String(g.area || "").slice(0, 80), onMap: !!R && R.a !== AT.SKETCH, exits: {} };
   // The exits the game shows for this room: { destination: true }.
   if (g.exits && typeof g.exits == "object") for (var ex in g.exits) if (g.exits.hasOwnProperty(ex) && atNum(g.exits[ex]) > 0) AT.here.exits[atNum(g.exits[ex])] = true;
   if (Array.isArray(g.explored) && gaid) {
@@ -505,6 +513,69 @@ AT.roomInfo = function (g) {
   // The Areas tab: when a count changed, or you crossed into another area.
   var counted = AT.here.area ? AT.recount(AT.here.area) : false;
   if (counted || AT.areasHere !== AT.here.area) { AT.areasHere = AT.here.area; run_function("atlas_areas_render", [], "atlas"); }
+};
+
+// ---- Places on no map: a sketch as you walk ------------------------------
+// The Mnemosyne is an instance: each wade is your own, each ripple a fresh
+// layout, and the game sends its rooms with no area, so no map has them. Its
+// room information still gives the number, name and exits, so Atlas lays
+// the rooms out as you walk: the first at 0,0, each next one a step from the
+// last in the direction you took (found from either room's exits). Arriving
+// in a room that no exit led to (the next ripple, a portal) starts afresh.
+// The sketch lives in the map as area AT.SKETCH (-1), never saved, and goes
+// when you step back onto the map. (The approach follows LEVI-Achaea's
+// Dementia Mapper for Mudlet; no code taken.)
+AT.SKETCH = -1;
+if (AT.sketch === undefined) AT.sketch = null;
+AT.LONG = { n: "north", s: "south", e: "east", w: "west", ne: "northeast", nw: "northwest", se: "southeast", sw: "southwest", u: "up", d: "down", "in": "in", out: "out" };
+AT.OFF = { north: [0, 1, 0], south: [0, -1, 0], east: [1, 0, 0], west: [-1, 0, 0], northeast: [1, 1, 0], northwest: [-1, 1, 0], southeast: [1, -1, 0], southwest: [-1, -1, 0], up: [0, 0, 1], down: [0, 0, -1] };
+AT.BACK = { north: "south", south: "north", east: "west", west: "east", northeast: "southwest", southwest: "northeast", northwest: "southeast", southeast: "northwest", up: "down", down: "up", "in": "out", out: "in" };
+AT.sketchClear = function () {
+  if (!AT.sketch || !AT.map) { AT.sketch = null; return; }
+  for (var id in AT.sketch.rooms) if (AT.sketch.rooms.hasOwnProperty(id) && AT.map.rooms[id] && AT.map.rooms[id][0] === AT.SKETCH) delete AT.map.rooms[id];
+  AT.map.byArea = null;
+  AT.sketch = null;
+};
+AT.sketchStep = function (id, g) {
+  var ex = {};
+  if (g.exits && typeof g.exits == "object") for (var k in g.exits) {
+    if (!g.exits.hasOwnProperty(k)) continue;
+    var d = AT.LONG[String(k).toLowerCase()] || (AT.BACK[String(k).toLowerCase()] ? String(k).toLowerCase() : "");
+    var t = atNum(g.exits[k]);
+    if (d && t > 0) ex[d] = t;
+  }
+  var name = String(g.name || "").replace(/\s*\((?:indoors|outdoors|road)\)\s*$/i, "").slice(0, 120);
+  var S = AT.sketch, M = AT.map, R = M.rooms[id];
+  if (S && R && R[0] === AT.SKETCH) {           // a room sketched already
+    R[4] = name || R[4]; R[6] = ex; S.cur = id; return;
+  }
+  var from = S && S.cur ? M.rooms[S.cur] : null, dir = "";
+  if (from) {
+    for (var a in from[6]) if (from[6].hasOwnProperty(a) && from[6][a] === id) { dir = a; break; }
+    if (!dir) for (var b in ex) if (ex.hasOwnProperty(b) && ex[b] === S.cur && AT.BACK[b]) { dir = AT.BACK[b]; break; }
+  }
+  if (!from || !dir) {                          // nothing led here: a new sketch
+    AT.sketchClear();
+    S = AT.sketch = { rooms: {}, cur: 0, title: String(g.area || "").slice(0, 80), at: Date.now() };
+    from = null;
+  }
+  var x = 0, y = 0, z = 0;
+  if (from) {
+    var o = AT.OFF[dir];
+    if (o) { x = from[1] + o[0]; y = from[2] + o[1]; z = from[3] + o[2]; }
+    else {
+      // in/out: the nearest free spot beside the room it came from.
+      var taken = {};
+      for (var q in S.rooms) if (S.rooms.hasOwnProperty(q)) { var Q = M.rooms[q]; taken[Q[1] + "," + Q[2] + "," + Q[3]] = 1; }
+      var tries = [[1, 0], [0, -1], [-1, 0], [0, 1], [1, -1], [-1, -1], [-1, 1], [1, 1]];
+      x = from[1] + 1; y = from[2]; z = from[3];
+      for (var t2 = 0; t2 < tries.length; t2++) if (!taken[(from[1] + tries[t2][0]) + "," + (from[2] + tries[t2][1]) + "," + from[3]]) { x = from[1] + tries[t2][0]; y = from[2] + tries[t2][1]; break; }
+    }
+  }
+  M.rooms[id] = [AT.SKETCH, x, y, z, name, 0, ex, 0, 2];
+  M.byArea = null;
+  S.rooms[id] = true;
+  S.cur = id;
 };
 
 // ---- Exploration per area (the Areas tab) -------------------------------
@@ -531,6 +602,7 @@ AT.count = function (aid) {
 };
 // The game's word order: the crowdmap's "Delos, the Isle of" reads "the Isle of Delos".
 AT.title = function (aid) {
+  if (aid === AT.SKETCH) return (AT.sketch && AT.sketch.title) || "off the map";
   // One name per area, always the community map's (the game's name for the
   // area you're in made the same area read two ways, Ricardo).
   // "Delos, the Isle of (Scarlattan Theatre)" -> "the Isle of Delos (Scarlattan
@@ -668,6 +740,7 @@ AT.go = function (id) {
   if (get_variable("pauseTriggers") == "on") { display_notice("[atlas] Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
   var R = AT.room(id), label = (R && R.n ? R.n + " " : "") + "(" + id + ")";
   if (AT.here && AT.here.id === id) { display_notice("[atlas] you're in " + label + " already.", "cyan"); return; }
+  if (R && R.a === AT.SKETCH) { display_notice("[atlas] " + label + " is on no map: PATH FIND can't walk there. Use its exits.", "orange"); return; }
   send_command("path find " + id, 1);
   display_notice("[atlas] walking to " + label + ".", "cyan");
 };

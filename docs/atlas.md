@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.7.1.*
+*This page describes atlas 0.8.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -17,6 +17,7 @@ Atlas draws the area you're in, one level at a time, in a custom tab named **Atl
 - **Levels.** In an area with several levels, the arrows by *level* look at the one above or below. Moving brings the view back to you.
 - **Moving the map.** Drag to pan; the mouse wheel or **− +** zoom; **⌖** brings you back to the room you're in.
 - **Your own marks.** Mark a room with an icon from a short list: `ATLAS MARK fishing` marks the room you're in, `ATLAS MARK 14001 bank` any room by number, and anything after the icon is a note (`ATLAS MARK sleep the inn upstairs`). The icon sits in a light circle at the room's bottom left corner, the note on hover; one mark per room, `ATLAS UNMARK [number]` takes it off and `ATLAS MARKS` lists them. Icons: fishing, shrine, sleep, bank, shop, craft, harvest, hunt, danger, star (a favourite) and secret; a few other words work too (inn, forge, herbs, key…). Marks are kept per character.
+- **Places on no map.** Some places are on no map at all: the Mnemosyne, where every wade is your own instance and every ripple a fresh layout, or a brand-new spot the game has just added. There the game still tells which room you're in and its exits, so Atlas sketches the place as you walk: the title reads *off the map*, each room you enter is placed a step from the last in the direction you took, walked exits are lines and the others dotted. Arriving somewhere no exit led to (the next ripple, a portal) starts a fresh sketch, and stepping back onto the map forgets it. Clicks don't walk there: `PATH FIND` can't route through places the game keeps off its map. (The idea follows the Dementia Mapper in LEVI-Achaea, a Mudlet system.)
 - **Walking.** Click a room to walk there with the game's `PATH FIND <number>`. Atlas sends it once and does nothing else.
 
 ### The Areas tab
