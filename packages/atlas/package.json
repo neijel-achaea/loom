@@ -67,6 +67,22 @@
       "whole_words": false,
       "case_sensitive": false,
       "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Atlas ripple end",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_ripple_end.js"
+        }
+      ],
+      "text": "flickers of power that may aide you",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": false
     }
   ],
   "description": "A map tab from the community crowdmap, with the rooms you've explored as fog"

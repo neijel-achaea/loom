@@ -96,7 +96,8 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     html += '<span style="flex:none;white-space:nowrap;">';
     if (zs.length > 1) html += arrow('&#9660;', -1, dn, 'the level below') + '<span title="the level shown' + (hereLvl !== null && hereLvl !== V.z ? ' (you\'re on ' + lvl(hereLvl) + ')' : '') + '" style="color:' + (hereLvl !== null && hereLvl !== V.z ? AMBER : MUTED) + ';">level ' + lvl(V.z) + '</span>' + arrow('&#9650;', 1, up, 'the level above') + ' &middot; ';
     var mapped = AT.areaRooms(aid).length;
-    html += nExpl >= 0 ? '<span title="rooms on the community map you\'ve explored here (from the game\'s record), of all the rooms it has in this area">' + nExpl + ' of ' + mapped + ' explored</span>'
+    if (aid === AT.SKETCH) html += '<span title="this place is on no map (an instance like the Mnemosyne): Atlas sketches the rooms as you walk, and forgets them when you leave">sketched as you walk &middot; ' + mapped + (mapped === 1 ? ' room' : ' rooms') + '</span>';
+    else html += nExpl >= 0 ? '<span title="rooms on the community map you\'ve explored here (from the game\'s record), of all the rooms it has in this area">' + nExpl + ' of ' + mapped + ' explored</span>'
       : (AT.uncounted[aid] ? '<span title="the game sent no explored rooms when you walked in: it keeps no record of exploring this area">' + mapped + ' rooms &middot; no exploration record</span>'
       : '<span title="the game tells which rooms you\'ve explored when you enter an area">' + mapped + ' rooms on the map</span>');
     html += '</span></div>';
@@ -302,10 +303,11 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
 
   // Footer: what's missing, where the map comes from.
   var foot = [];
-  if (H && !here) foot.push("This room (" + H.id + ") isn't on the community map" + (aid ? "; showing its area." : "."));
-  if (M && aid && !expl && !AT.uncounted[aid]) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");
+  if (aid === AT.SKETCH) foot.push("Off the map: rooms appear as you walk, dotted exits lead where you haven't been; a new ripple or a portal starts a fresh sketch.");
+  else if (H && !here) foot.push("This room (" + H.id + ") isn't on the community map" + (aid ? "; showing its area." : "."));
+  if (M && aid && aid !== AT.SKETCH && !expl && !AT.uncounted[aid]) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");
   if (AT.state == "loading" && M) foot.push(AT.note);
-  if (M) foot.push("Community map version " + M.v + ". Drag to pan, click a room to walk there.");
+  if (M) foot.push("Community map version " + M.v + "." + (aid === AT.SKETCH ? " Drag to pan." : " Drag to pan, click a room to walk there."));
   html += '<div style="margin-top:5px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">' + foot.map(esc).join(" ") + '</div>';
   html += '</div>';
 
