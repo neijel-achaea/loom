@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.8.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.8.1", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -530,6 +530,9 @@ if (AT.sketch === undefined) AT.sketch = null;
 AT.LONG = { n: "north", s: "south", e: "east", w: "west", ne: "northeast", nw: "northwest", se: "southeast", sw: "southwest", u: "up", d: "down", "in": "in", out: "out" };
 AT.OFF = { north: [0, 1, 0], south: [0, -1, 0], east: [1, 0, 0], west: [-1, 0, 0], northeast: [1, 1, 0], northwest: [-1, 1, 0], southeast: [1, -1, 0], southwest: [-1, -1, 0], up: [0, 0, 1], down: [0, 0, -1] };
 AT.BACK = { north: "south", south: "north", east: "west", west: "east", northeast: "southwest", southwest: "northeast", northwest: "southeast", southeast: "northwest", up: "down", down: "up", "in": "out", out: "in" };
+// The boon screen ends a ripple (the trigger "Atlas ripple end"): the next
+// room starts a fresh sketch.
+if (AT.rippleEnd === undefined) AT.rippleEnd = false;
 AT.sketchClear = function () {
   if (!AT.sketch || !AT.map) { AT.sketch = null; return; }
   for (var id in AT.sketch.rooms) if (AT.sketch.rooms.hasOwnProperty(id) && AT.map.rooms[id] && AT.map.rooms[id][0] === AT.SKETCH) delete AT.map.rooms[id];
@@ -546,15 +549,21 @@ AT.sketchStep = function (id, g) {
   }
   var name = String(g.name || "").replace(/\s*\((?:indoors|outdoors|road)\)\s*$/i, "").slice(0, 120);
   var S = AT.sketch, M = AT.map, R = M.rooms[id];
-  if (S && R && R[0] === AT.SKETCH) {           // a room sketched already
-    R[4] = name || R[4]; R[6] = ex; S.cur = id; return;
-  }
   var from = S && S.cur ? M.rooms[S.cur] : null, dir = "";
   if (from) {
     for (var a in from[6]) if (from[6].hasOwnProperty(a) && from[6][a] === id) { dir = a; break; }
     if (!dir) for (var b in ex) if (ex.hasOwnProperty(b) && ex[b] === S.cur && AT.BACK[b]) { dir = AT.BACK[b]; break; }
   }
-  if (!from || !dir) {                          // nothing led here: a new sketch
+  // A room sketched already: just here again (the same room, or a step from
+  // the last). A new ripple can reuse room numbers in a new layout (Ricardo:
+  // back in the first room, the next ripple drew over the last), so it starts
+  // afresh when the ripple ended (the boon screen), when no exit led here,
+  // or when the room has another name now.
+  if (S && R && R[0] === AT.SKETCH && !AT.rippleEnd && (S.cur === id || dir) && !(name && R[4] && name !== R[4])) {
+    R[4] = name || R[4]; R[6] = ex; S.cur = id; return;
+  }
+  if (AT.rippleEnd) { AT.rippleEnd = false; from = null; }
+  if (!from || !dir || R) {                     // nothing led here, or a new ripple: a new sketch
     AT.sketchClear();
     S = AT.sketch = { rooms: {}, cur: 0, title: String(g.area || "").slice(0, 80), at: Date.now() };
     from = null;
