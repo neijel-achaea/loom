@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.5.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.7.1", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -596,6 +596,22 @@ AT.setHidden = function (aid, on) {
   if (out.length) set_variable("atlas_hidden", JSON.stringify(out)); else delete_variable("atlas_hidden");
   run_function("atlas_areas_render", [], "atlas");
 };
+// How the Areas tab orders areas within each group (Ricardo): "name",
+// "pct" (least explored first), "pct-desc" (most first) or "left" (most
+// rooms left to explore first). Saved as atlas_sort (absent: name).
+AT.sorts = ["name", "pct", "pct-desc", "left"];
+AT.sort = AT.sorts.indexOf(get_variable("atlas_sort")) > 0 ? get_variable("atlas_sort") : "name";
+// The tab's % flips the direction when it's on already; useSort sets one as given.
+AT.setSort = function (k) {
+  if (k === "pct" && (AT.sort === "pct" || AT.sort === "pct-desc")) k = AT.sort === "pct" ? "pct-desc" : "pct";
+  AT.useSort(k);
+};
+AT.useSort = function (k) {
+  if (AT.sorts.indexOf(k) < 0) return;
+  AT.sort = k;
+  if (k === "name") delete_variable("atlas_sort"); else set_variable("atlas_sort", k);
+  run_function("atlas_areas_render", [], "atlas");
+};
 AT.isFolded = function (key) {
   if (AT.folded.hasOwnProperty(key)) return AT.folded[key];
   return key === "unvisited" || key === "uncounted" || key === "hidden";
@@ -604,6 +620,14 @@ AT.fold = function (key) {
   AT.folded[key] = !AT.isFolded(key);
   set_variable("atlas_folded", JSON.stringify(AT.folded));
   run_function("atlas_areas_render", [], "atlas");
+};
+// Show a room in the Atlas tab (a party member's, #451): its area and level,
+// centred on it. The next move brings the view back to you.
+AT.showRoom = function (id) {
+  var R = AT.room(id);
+  if (!R) return;
+  AT.view.area = R.a; AT.view.z = R.z; AT.view.cx = R.x; AT.view.cy = -R.y;
+  run_function("atlas_render", { full: true }, "atlas");
 };
 // Show an area in the Atlas tab without going there: its level with most
 // rooms, centred on them. The next move brings the view back to you.
@@ -750,6 +774,8 @@ try {
     reload: function () { client.loom.atlas.load(true); },
     fold: function (i) { var g = client.loom.atlas.groupsDrawn || []; if (g[i] !== undefined) client.loom.atlas.fold(g[i]); },
     show: function (aid) { client.loom.atlas.showArea(aid); },
+    sort: function (k) { client.loom.atlas.setSort(k); },
+    showRoom: function (id) { client.loom.atlas.showRoom(id); },
     down: function (ev) { client.loom.atlas.down(ev); },
     move: function (ev) { client.loom.atlas.move(ev); },
     up: function (ev) { client.loom.atlas.up(ev); },

@@ -55,6 +55,14 @@ function col(e) {
 function areaTitle(aid) { return AT.title(aid); }
 
 var H = AT.here, V = AT.view, M = AT.map;
+// Party members' rooms, through loom (partycomms-atlas, #451): those in your
+// room are left out (Ricardo); partyOn[room] = members drawn on the map, the
+// rest listed under it.
+var LP = client.loom.loom;
+var party = (LP && LP.answer) ? LP.answer("atlas", "atlas.party") : undefined;
+if (!Array.isArray(party)) party = [];
+party = party.filter(function (p) { return p && p.name && p.room > 0 && !(H && Number(p.room) === H.id); });
+var partyOn = {}, partyDrawn = {};
 var aid = V.area;
 var here = H ? AT.room(H.id) : null;
 var expl = aid && AT.known[aid] ? AT.exAll : null;   // every explored room, once a list covers this area
@@ -189,7 +197,8 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       }
     }
     // ---- From other packages, through loom (#451): waypoints and quests ----
-    var LL = client.loom.loom, pins = '';
+    var LL = client.loom.loom, pins = '', partyRings = '';
+    for (var pi = 0; pi < party.length; pi++) if (shown[party[pi].room] === 1) (partyOn[party[pi].room] || (partyOn[party[pi].room] = [])).push(party[pi]);
     var wpAt = {}, qAt = {}, sAt = {};
     var wps = (LL && LL.answer) ? LL.answer("atlas", "atlas.waypoints") : undefined;
     if (Array.isArray(wps)) for (var wi = 0; wi < wps.length; wi++) if (wps[wi] && wps[wi].id) wpAt[wps[wi].id] = wps[wi];
@@ -211,6 +220,20 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
           '<circle cx="' + fx.toFixed(2) + '" cy="' + fy.toFixed(2) + '" r="0.2" fill="#ece4d2" stroke="#000" stroke-width="0.045"/>' +
           '<path d="M' + (fx - 0.07).toFixed(3) + ' ' + (fy + 0.13).toFixed(3) + ' V' + (fy - 0.13).toFixed(3) + '" stroke="#000" stroke-width="0.05" stroke-linecap="round"/>' +
           '<path d="M' + (fx - 0.06).toFixed(3) + ' ' + (fy - 0.13).toFixed(3) + ' l0.18 0.065 l-0.18 0.065 z" fill="#c0392b" stroke="#000" stroke-width="0.02" stroke-linejoin="round"/></g>';
+      }
+      var pm = partyOn[P.id];
+      if (pm && pm.length) {
+        // Party members here: a ring like yours, the same size, in their
+        // colour (Ricardo); several in one room share it, one arc each.
+        var rr = 0.48, nm = pm.map(function (m) { return m.name; }).join(", ");
+        var ringG = '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc(nm + " (party)") + '</title>';
+        if (pm.length === 1) ringG += '<circle cx="' + px + '" cy="' + py + '" r="' + rr + '" fill="none" stroke="' + esc(pm[0].colour || AMBER) + '" stroke-width="0.09" pointer-events="stroke"/>';
+        else for (var pa = 0; pa < pm.length; pa++) {
+          var gap = 0.18, a0 = -Math.PI / 2 + pa * 2 * Math.PI / pm.length + gap / 2, a1 = -Math.PI / 2 + (pa + 1) * 2 * Math.PI / pm.length - gap / 2;
+          ringG += '<path d="M' + (px + rr * Math.cos(a0)).toFixed(3) + ' ' + (py + rr * Math.sin(a0)).toFixed(3) + ' A' + rr + ' ' + rr + ' 0 ' + (a1 - a0 > Math.PI ? 1 : 0) + ' 1 ' + (px + rr * Math.cos(a1)).toFixed(3) + ' ' + (py + rr * Math.sin(a1)).toFixed(3) + '" fill="none" stroke="' + esc(pm[pa].colour || AMBER) + '" stroke-width="0.09" stroke-linecap="round" pointer-events="stroke"/>';
+        }
+        partyRings += ringG + '</g>';
+        for (var pd = 0; pd < pm.length; pd++) partyDrawn[pm[pd].name] = true;
       }
       var mk = AT.marks[P.id];
       if (mk && AT.icons[mk[0]]) {
@@ -254,10 +277,28 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     html += '<g stroke="' + BG + '" stroke-width="0.04">' + rooms + '</g>';
     // The arrows outlined in black so they read on light rooms too (Ricardo).
     html += '<g fill="' + TXT + '" stroke="#000" stroke-width="0.06" stroke-linejoin="round" paint-order="stroke" pointer-events="none">' + marks + '</g>';
-    html += ring + '<g>' + pins + '</g></svg>';   // markers over the ring, so yours stay visible
+    html += partyRings + ring + '<g>' + pins + '</g></svg>';   // party rings under yours, markers on top   // markers over the ring, so yours stay visible
     if (!list.length) html += '<div style="position:absolute;left:12px;top:12px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + (ids.length ? "Nothing explored on this level yet." : "This area isn't on the community map.") + '</div>';
   }
   html += '</div>';
+
+  // Party members not drawn on the map: where they are, a click shows it.
+  var away = party.filter(function (p) { return !partyDrawn[p.name]; });
+  if (M && away.length) {
+    html += '<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;">';
+    html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:1px;font-size:12px;color:' + MUTED + ';">Party elsewhere</span>';
+    for (var aw = 0; aw < away.length; aw++) {
+      var Pm = away[aw], Rr = AT.room(Pm.room);
+      var where = !Rr ? "room " + Pm.room + ", not on the map"
+        : Rr.a !== aid ? areaTitle(Rr.a)
+        : Rr.z !== V.z ? "level " + lvl(Rr.z)
+        : "somewhere you haven't explored";
+      html += '<span' + (Rr ? ' onclick="window.loomAtlas&&window.loomAtlas.showRoom(' + Pm.room + ')" title="show where ' + esc(Pm.name) + ' is"' : '') + ' style="' + (Rr ? 'cursor:pointer;' : '') + 'white-space:nowrap;">' +
+        '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + esc(Pm.colour || AMBER) + ';border:1px solid #000;margin-right:4px;"></span>' +
+        '<span style="font-family:' + SERIF + ';font-size:12px;color:' + TXT + ';">' + esc(Pm.name) + '</span> <span style="color:' + MUTED + ';">&middot; ' + esc(where) + '</span></span>';
+    }
+    html += '</div>';
+  }
 
   // Footer: what's missing, where the map comes from.
   var foot = [];

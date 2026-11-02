@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.5.0.*
+*This page describes atlas 0.7.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -21,11 +21,13 @@ Atlas draws the area you're in, one level at a time, in a custom tab named **Atl
 
 ### The Areas tab
 
-A second custom tab, **Areas**, lists every area you've visited with how much of it you've explored: *132 / 147 · 89%*, with a thin bar under each.
+A second custom tab, **Areas**, shows every area you've visited as a chip, as many to a row as the tab's width allows (two in a narrow tab): the area's name (two lines at most, the full name on hover), how much of it you've explored as a percentage, its area number (*#14*) and *132 / 147*, with a thin bar along the bottom (amber when complete). The area you're in is outlined and marked HERE.
+
+- **Order.** **NAME · % · LEFT** on the title line orders the chips within each group: by name; by the percentage explored, least first (click **%** again for most first); or by rooms left to explore, most first, the quickest way to see where your explorer ranking has the most to gain. `ATLAS SORT NAME|LEAST|MOST|LEFT` does the same; the choice is kept.
 
 - **Totals on top.** *In the areas you've visited*: the rooms you've explored in them, of the rooms the crowdmap has there. *Of the whole map*: the same rooms, of every room on the map.
 - **Your own groups.** Areas carry no continent or region, so you group them yourself with tags: `ATLAS TAG HERE sapience` tags the area you're in, `ATLAS TAG granite hills sapience` one by name (the crowdmap's name or the game's, with or without "the", any case) and `ATLAS TAG 85 sapience` one by number. An area can have several tags and shows under each; the untagged ones come last. Each group heading gives the group's own totals and folds with a click. Tags are kept per character.
-- **Not visited yet.** The game sends an area's explored rooms only when you enter it, so an area you haven't entered since installing Atlas has no figure yet. Those are listed, folded, under *not visited yet*, never as 0%. Walk through an area once and its figure stays, saved for your character.
+- **Not visited yet.** The game sends an area's explored rooms only when you enter it, so an area you haven't entered since installing Atlas has no figure yet. Those are listed, folded, under *not visited yet* (a plain list, with each area's number and rooms), never as 0%. Walk through an area once and its figure stays, saved for your character.
 - **No exploration record.** Some places aren't counted for exploration by the game (inns and the like): when you walk into one, the game sends no explored rooms with it. Atlas notices, and such an area stays in its groups like any other, with a crossed-out map after its name and only its room count: no percentage, and it counts for no total. The Atlas tab says so on line 2, and shows all its rooms. Should the game ever send a list for one, it gets its figures like the rest.
 - **Hidden areas.** Some of the crowdmap's areas aren't places to explore (player houses, manses). `ATLAS HIDE <area>` keeps one out of the list and the totals; it's listed, folded, under *hidden*, and `ATLAS UNHIDE` brings it back.
 - **A click on an area** shows it in the Atlas tab, centred on its main level, without going there; ⌖ or your next step brings the map back to you.
@@ -48,6 +50,7 @@ Corrections to the map go to the crowdmap project itself (its issues and pull re
 | `ATLAS` | status: the map's version, fog of war, where you are and how much of the area you've explored |
 | `ATLAS FOG [ON\|OFF]` | fog of war: only the rooms you've explored (default ON); OFF shows every room, unexplored ones faint |
 | `ATLAS GO <room number>` | walk there (PATH FIND), as a click on a room in the tab |
+| `ATLAS SORT [NAME\|LEAST\|MOST\|LEFT]` | order the Areas tab's chips: by name, least or most explored first, or most rooms left first (also NAME · % · LEFT in the tab; kept) |
 | `ATLAS MARK [room number] <icon> [note]` | your own icon on a room (no number: the room you're in), bottom left corner; note on hover |
 | `ATLAS UNMARK [room number]` | take a room's mark off |
 | `ATLAS MARKS` | the icons (fishing, shrine, sleep, bank, shop, craft, harvest, hunt, danger, star, secret) and your marked rooms |
@@ -81,6 +84,7 @@ With other Loom packages installed, Loom's integrations put what they know on th
 | Link | With | What it does |
 | --- | --- | --- |
 | `waypoints-atlas` | waypoints | A saved waypoint shows as a ⚑ (a red pennant on a light circle) at its room's top right corner; its name and note on hover. |
+| `partycomms-atlas` | partycomms | Party members not in your room: a ring around their room like yours, the same size, in their own colour (several in one room share the ring, an arc each; names on hover). Members in another area, on another level or in a room you haven't explored are listed under the map, **Party elsewhere**, each with a dot in their colour and where they are; a click shows that room. Their colour is also on their Party chip. Needs partycomms 1.1.0 on their side, which sends the room. |
 | `questbook-atlas` | questbook | The quest you're following: each GO step numbered at its room's top left corner, the step you're on in amber, the others in blue. Every quest you can start now: a gold **!** where its first GO step is. Hover for the quest's name. |
 
 Markers show on the area and level drawn, on rooms the map shows (with fog of war, rooms you've explored). Clicking one walks there, as a click on its room.

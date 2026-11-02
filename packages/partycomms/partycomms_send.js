@@ -7,7 +7,9 @@
 // from the target ("|" would split the command in Nexus, "@" can expand as
 // a variable). A class with spaces is sent with underscores.
 // The class carries the level after a colon when known ("Druid:91", #288),
-// so copies of partycomms that predate it still match the line.
+// and your room after a second one ("Druid:91:12345", #451; the level left
+// empty when unknown, "Druid::12345"), so copies of partycomms that predate
+// them still match the line and read the class and level as before.
 //   [PARTY] Name Class[:level] hp/maxhp mp/maxmp ep/maxep wp/maxwp rage nl ~ tid thp target name
 // tid is 0 and thp and the name are "-" when unknown.
 var PC = client.loom.partycomms;
@@ -55,18 +57,18 @@ if (!PC.why) {
   var S0 = PC.sent;
   var pcThpN = parseInt(pcThp, 10);
   var pcMoved = Math.abs(pcHpp - S0.hp) >= 5 || Math.abs(pcMpp - S0.mp) >= 5 ||
-    pcTid !== S0.tid || pcTname !== S0.tname ||
+    pcTid !== S0.tid || pcTname !== S0.tname || (ME.room || 0) !== (S0.room || 0) ||
     (!isNaN(pcThpN) && (S0.thp === "" || Math.abs(pcThpN - parseInt(S0.thp, 10)) >= 10)) ||
     pcNow - S0.at >= 10;
   if (pcMoved && pcNow - S0.at >= 1) {
-    var pcCls = (ME.cls || "-").replace(/\s+/g, "_") + (ME.lvl > 0 ? ":" + ME.lvl : "");
+    var pcCls = (ME.cls || "-").replace(/\s+/g, "_") + (ME.lvl > 0 ? ":" + ME.lvl : (ME.room > 0 ? ":" : "")) + (ME.room > 0 ? ":" + ME.room : "");
     var pcMsg = "pt [PARTY] " + ME.name + " " + pcCls +
       " " + ME.hp + "/" + ME.maxhp + " " + ME.mp + "/" + ME.maxmp +
       " " + ME.ep + "/" + ME.maxep + " " + ME.wp + "/" + ME.maxwp +
       " " + (ME.rage || 0) + " " + (ME.nl || 0) +
       " ~ " + (pcTid || "0") + " " + (pcThp !== "" ? pcThp : "-") + " " + (pcTname || "-");
     send_command(pcMsg, 1);
-    PC.sent = { at: pcNow, hp: pcHpp, mp: pcMpp, tid: pcTid, tname: pcTname, thp: pcThp };
+    PC.sent = { at: pcNow, hp: pcHpp, mp: pcMpp, tid: pcTid, tname: pcTname, thp: pcThp, room: ME.room || 0 };
   }
 }
 run_function("partycomms_render", [], "partycomms");

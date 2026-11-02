@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.0.8.*
+*This page describes loom 1.0.9.*
 <!-- /loom:version -->
 
 ## What it is
@@ -91,6 +91,7 @@ Every link:
 | `talpieces-aim-ledger` | [talpieces](talpieces.md) | [ledger](ledger.md) | A daily talisman pieces aim in the ledger, sized to your last 7 days |
 | `waypoints-atlas` | [waypoints](waypoints.md) | [atlas](atlas.md) | Saved waypoints as a flag on their room in the Atlas map |
 | `questbook-atlas` | [questbook](questbook.md) | [atlas](atlas.md) | The followed quest's steps and where ready quests start, on the Atlas map |
+| `partycomms-atlas` | [partycomms](partycomms.md) | [atlas](atlas.md) | Party members as coloured circles on their rooms in the Atlas map |
 <!-- /loom:links -->
 
 Each package's page explains its links in more detail.

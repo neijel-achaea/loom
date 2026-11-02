@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.partycomms) client.loom.partycomms = {};
-client.loom.registry.partycomms = { version: "1.0.1", keyword: "PARTYCOMMS", desc: "{{description}}",
+client.loom.registry.partycomms = { version: "1.1.0", keyword: "PARTYCOMMS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { if (client.loom.partycomms) client.loom.partycomms.lastRender = 0; run_function("partycomms_render", [], "partycomms"); } };
 var PC = client.loom.partycomms;
@@ -74,8 +74,29 @@ if (PC.lastRender === undefined) PC.lastRender = 0;
 // The read-only look other packages see through loom (#256).
 //   look.targeting(id) -> names of the party members (you left out) whose
 //     latest report, under PC.lookMs old, has the mob numbered id as target.
+//   look.colour(name) -> the member's own colour, the same every time (#451).
+//   look.where() -> [{ name, room, colour }] for the members (you left out)
+//     whose latest report, under PC.lookMs old, says which room they're in.
 PC.lookMs = 30000;
+// Each member's colour (Ricardo, #451): one of eight, picked by their name,
+// so the same person has the same colour on every map and every chip.
+PC.palette = ["#e8775a", "#5fb8e8", "#9ad06a", "#d88ad8", "#e8c65a", "#5ad0c0", "#b29af0", "#f0a0b8"];
+PC.colourOf = function (name) {
+  var h = 0, s = String(name || "").toLowerCase();
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973;
+  return PC.palette[h % PC.palette.length];
+};
 PC.look = {
+  colour: function (name) { return PC.colourOf(name); },
+  where: function () {
+    var out = [], now = Date.now() / 1000;
+    for (var n in PC.members) {
+      if (!PC.members.hasOwnProperty(n) || n === PC.me.name) continue;
+      var m = PC.members[n];
+      if (m && m.room > 0 && now - m.t <= PC.lookMs / 1000) out.push({ name: n, room: m.room, colour: PC.colourOf(n) });
+    }
+    return out.sort(function (a, b) { return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0); });
+  },
   targeting: function (id) {
     var out = [], want = String(id || ""), now = Date.now() / 1000;
     if (!want) return out;

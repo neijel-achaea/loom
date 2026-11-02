@@ -6,6 +6,7 @@ var pcCl = String(args[2]).split(":");
 var pcE = {
   cls: pcCl[0].replace(/_/g, " "),
   lvl: pcCl.length > 1 ? parseInt(pcCl[1], 10) || 0 : 0,
+  room: pcCl.length > 2 ? parseInt(pcCl[2], 10) || 0 : 0,
   hp: parseInt(args[3], 10), maxhp: parseInt(args[4], 10),
   mp: parseInt(args[5], 10), maxmp: parseInt(args[6], 10),
   ep: parseInt(args[7], 10), maxep: parseInt(args[8], 10),
@@ -22,7 +23,8 @@ var pcWas = PC.members[args[1]];
 PC.members[args[1]] = pcE;
 // A new member or a changed target: tell loom, so Here shows who targets what
 // (#256). Health-only updates don't redraw anything.
-if ((!pcWas || pcWas.tid !== pcE.tid) && client.loom.notify) client.loom.notify("partycomms");
+// A new room too: maps show where members are (#451).
+if ((!pcWas || pcWas.tid !== pcE.tid || pcWas.room !== pcE.room) && client.loom.notify) client.loom.notify("partycomms");
 gag_current_line();
 PC.lastRender = 0;
 run_function("partycomms_render", [], "partycomms");
