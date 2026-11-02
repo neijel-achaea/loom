@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.6.0.*
+*This page describes atlas 0.7.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -84,6 +84,7 @@ With other Loom packages installed, Loom's integrations put what they know on th
 | Link | With | What it does |
 | --- | --- | --- |
 | `waypoints-atlas` | waypoints | A saved waypoint shows as a ⚑ (a red pennant on a light circle) at its room's top right corner; its name and note on hover. |
+| `partycomms-atlas` | partycomms | Party members not in your room: a circle in their own colour with their initial at their room's bottom right corner (several in one room share it, with how many; names on hover). Members in another area, on another level or in a room you haven't explored are listed under the map, **Party elsewhere**, each with a dot in their colour and where they are; a click shows that room. Their colour is also on their Party chip. Needs partycomms 1.1.0 on their side, which sends the room. |
 | `questbook-atlas` | questbook | The quest you're following: each GO step numbered at its room's top left corner, the step you're on in amber, the others in blue. Every quest you can start now: a gold **!** where its first GO step is. Hover for the quest's name. |
 
 Markers show on the area and level drawn, on rooms the map shows (with fog of war, rooms you've explored). Clicking one walks there, as a click on its room.

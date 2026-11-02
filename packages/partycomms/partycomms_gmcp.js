@@ -15,11 +15,15 @@ client.loom.hooks.partycomms.gmcp = function (args) {
   var pcA = null;
   try { pcM = args.gmcp_method; pcA = args.gmcp_args; } catch (e) { pcM = ""; }
   if (typeof pcA === "string") { try { pcA = JSON.parse(pcA); } catch (e) { pcA = null; } }
-  if (pcA && (pcM === "Char.Vitals" || pcM === "Char.Status" || pcM === "Char.Name" || pcM === "IRE.Target.Info")) {
+  if (pcA && (pcM === "Char.Vitals" || pcM === "Char.Status" || pcM === "Char.Name" || pcM === "IRE.Target.Info" || pcM === "Room.Info")) {
     if (!client.loom || !client.loom.partycomms || !client.loom.partycomms.members) run_function("partycomms_setup", [], "partycomms");
     var PC = client.loom.partycomms;
     var ME = PC.me;
-    if (pcM === "Char.Status" || pcM === "Char.Name") {
+    if (pcM === "Room.Info") {
+      // Your room, shared with the party for maps (#451); the next vitals send it.
+      var pcRm = parseInt(pcA.num, 10);
+      if (pcRm > 0) ME.room = pcRm;
+    } else if (pcM === "Char.Status" || pcM === "Char.Name") {
       if (pcA.name && String(pcA.name) !== ME.name) { ME.name = String(pcA.name); set_variable("partycomms_name", ME.name); }
       if (pcA["class"] && String(pcA["class"]) !== ME.cls) { ME.cls = String(pcA["class"]); set_variable("partycomms_class", ME.cls); }
       // level: "91 (52.41%)" or "91" (#288)

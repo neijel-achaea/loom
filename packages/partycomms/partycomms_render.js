@@ -75,7 +75,9 @@ if (now - PC.lastRender >= 1) {
       var top = (hpP < 30) ? LOW : (names[i] === me ? SEA : DEEP);
       var c = '<div style="flex:1 1 150px;min-width:150px;max-width:280px;background:' + CHIP + ';border:1px solid ' + RULE + ';border-top:2px solid ' + top + ';padding:3px 5px 4px;' + (lost ? 'opacity:0.45;' : '') + '">';
       c += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:2px;">';
-      c += '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (names[i] === me ? SEA : TXT) + ';white-space:nowrap;">' + esc(names[i]) + '</span>';
+      // Their colour (the same as on the Atlas map, #451); not yours.
+      var dot = names[i] === me ? '' : '<span title="their colour on the Atlas map" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + PC.colourOf(names[i]) + ';border:1px solid #000;margin-right:4px;vertical-align:0;"></span>';
+      c += '<span style="font-family:' + SERIF + ';font-size:12px;color:' + (names[i] === me ? SEA : TXT) + ';white-space:nowrap;">' + dot + esc(names[i]) + '</span>';
       c += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.08em;color:' + MUTED + ';font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (lost ? '<span style="color:' + LOW + ';">link lost ' + Math.round(age) + 's</span>' : esc((p.cls || "") + (p.lvl > 0 ? " " + p.lvl : ""))) + '</span></div>';
       for (var v = 0; v < VITALS.length; v++) {
         var k = VITALS[v][0];

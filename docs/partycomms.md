@@ -1,9 +1,9 @@
 # PartyComms
 
-*Shares your vitals, rage and target with your party, and shows everyone's in the Party tab.*
+*Shares your vitals, rage, target and room with your party, and shows everyone's in the Party tab.*
 
 <!-- loom:version partycomms -->
-*This page describes partycomms 1.0.1.*
+*This page describes partycomms 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -15,11 +15,14 @@ When everyone in a party runs PartyComms, each of you can see how the others are
 - name, class and level,
 - four slim bars: health, mana, endurance and willpower,
 - rage,
-- their target, in green when it's the same as yours.
+- their target, in green when it's the same as yours,
+- a small dot in their own colour (each member's is fixed by their name), the colour they have on the Atlas map.
 
 A member who hasn't reported for 12 seconds fades (a lost connection, or they left); after two minutes they're dropped. After a page reload or a reimport the tab starts empty, and members come back as their next reports arrive.
 
-Your vitals, rage, class and target come from the game (GMCP). When the game doesn't say what your target is, PartyComms looks it up quietly with `IH` and hides the reply.
+**Your room is shared too** (since 1.1.0): the report carries the number of the room you're in, so a party member with **atlas** sees where you are on their map. Anyone in your party can see that, as they would by asking. Reports from copies older than 1.1.0 still show in the tab, just without a room; theirs read yours the same way.
+
+Your vitals, rage, class, target and room come from the game (GMCP). When the game doesn't say what your target is, PartyComms looks it up quietly with `IH` and hides the reply.
 
 ## Commands
 
@@ -42,7 +45,7 @@ If you imported PartyComms mid-session and the game hasn't sent your name since,
 
 ## Setting it up
 
-1. **Import `partycomms.nxs`** (see [Getting started](getting-started.md)). **Everyone in the party needs the same version**: reports in an older format are ignored.
+1. **Import `partycomms.nxs`** (see [Getting started](getting-started.md)). Everyone in the party needs partycomms 1.0 or later; 1.1.0 adds the room, which older copies simply ignore.
 2. **Create the tab.** Add a custom tab named exactly **`Party`**. If it doesn't appear, reset the UI layout. Its icon shows right away.
 3. **Join a party** and `PARTYCOMMS ON`.
 
@@ -56,7 +59,9 @@ Nothing is sent while triggers are paused (`LOOM PAUSE ON`).
 
 ## Working with other packages
 
-PartyComms reads nothing from other packages. With **room** installed, the Here tab shows each party member's target: link `partycomms-room` puts their names (◂ Filune · Ojec) after the mob they're targeting, from reports under 30 seconds old; you're left out (your own target glows). `LOOM LINK partycomms-room OFF` stops it. For the party's gold split, see [huntstats](huntstats.md#hunting-with-a-party).
+PartyComms reads nothing from other packages. With **room** installed, the Here tab shows each party member's target: link `partycomms-room` puts their names (◂ Filune · Ojec) after the mob they're targeting, from reports under 30 seconds old; you're left out (your own target glows). `LOOM LINK partycomms-room OFF` stops it.
+
+With **atlas** installed, link `partycomms-atlas` shows party members on the Atlas map: a circle in their colour with their initial at their room's bottom right corner (two or more in one room share it, with how many), from reports under 30 seconds old; members in your own room are left out, and those elsewhere are listed under the map. `LOOM LINK partycomms-atlas OFF` stops it; it doesn't stop your room being sent. For the party's gold split, see [huntstats](huntstats.md#hunting-with-a-party).
 
 ## Troubleshooting
 

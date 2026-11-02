@@ -926,3 +926,17 @@ L.addLink({
     }
   }
 });
+
+// #451 partycomms -> atlas: party members' rooms on the Atlas map, each in
+// their own colour with their initial (Ricardo), from the room partycomms
+// reports now carry. Answers atlas.party -> [{ name, room, colour }].
+L.addLink({
+  id: "partycomms-atlas", src: "partycomms", dst: "atlas", issue: 451,
+  desc: "Party members as coloured circles on their rooms in the Atlas map",
+  answers: {
+    "atlas.party": function () {
+      var p = client.loom.partycomms;
+      return (p && p.look && p.look.where) ? p.look.where() : undefined;
+    }
+  }
+});

@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.6.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.7.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -621,6 +621,14 @@ AT.fold = function (key) {
   set_variable("atlas_folded", JSON.stringify(AT.folded));
   run_function("atlas_areas_render", [], "atlas");
 };
+// Show a room in the Atlas tab (a party member's, #451): its area and level,
+// centred on it. The next move brings the view back to you.
+AT.showRoom = function (id) {
+  var R = AT.room(id);
+  if (!R) return;
+  AT.view.area = R.a; AT.view.z = R.z; AT.view.cx = R.x; AT.view.cy = -R.y;
+  run_function("atlas_render", { full: true }, "atlas");
+};
 // Show an area in the Atlas tab without going there: its level with most
 // rooms, centred on them. The next move brings the view back to you.
 AT.showArea = function (aid) {
@@ -767,6 +775,7 @@ try {
     fold: function (i) { var g = client.loom.atlas.groupsDrawn || []; if (g[i] !== undefined) client.loom.atlas.fold(g[i]); },
     show: function (aid) { client.loom.atlas.showArea(aid); },
     sort: function (k) { client.loom.atlas.setSort(k); },
+    showRoom: function (id) { client.loom.atlas.showRoom(id); },
     down: function (ev) { client.loom.atlas.down(ev); },
     move: function (ev) { client.loom.atlas.move(ev); },
     up: function (ev) { client.loom.atlas.up(ev); },
