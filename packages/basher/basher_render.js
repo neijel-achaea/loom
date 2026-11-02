@@ -37,14 +37,14 @@ var html = '<div id="loom-basher" style="font-family:' + MONO + ';font-size:10px
 html += '<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
 html += '<div style="font-family:' + SERIF + ';color:' + AMBER + ';font-size:15px;letter-spacing:0.06em;">Basher</div>';
 html += '<span style="font-size:10px;letter-spacing:.08em;padding:0 5px;border:1px solid ' + (state === "OFF" ? RULE : DEEP) + ';color:' + sc + ';">' + state + (m && state !== "OFF" ? ' &middot; ' + esc(m.name.toUpperCase()) : '') + '</span></div>';
-html += '<div style="font-family:' + SERIF + ';color:' + MUTED + ';font-size:11px;margin:4px 0 0;"><i>' + esc(B.area || "no area yet") + '</i> &nbsp;&middot;&nbsp; ' + flee + (hu ? ' &nbsp;&middot;&nbsp; rage ' + (to_number(hu.rage) || 0) : '') + (B.lastFight ? ' &nbsp;&middot;&nbsp; <span style="color:#ff9a4c;">last fight</span>' : '') + '</div>';
+html += '<div style="font-family:' + SERIF + ';color:' + MUTED + ';font-size:11px;margin:4px 0 0;"><i>' + esc(B.area === B.NOAREA ? "no area (an instance)" : (B.area || "no area yet")) + '</i> &nbsp;&middot;&nbsp; ' + flee + (hu ? ' &nbsp;&middot;&nbsp; rage ' + (to_number(hu.rage) || 0) : '') + (B.lastFight ? ' &nbsp;&middot;&nbsp; <span style="color:#ff9a4c;">last fight</span>' : '') + '</div>';
 
 var l = B.list();
 if (!B.area) {
   html += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:8px;">Waiting for the room… (move, or LOOK)</div>';
 } else {
   var act = [], ign = [];
-  for (var i = 0; i < l.length; i++) (l[i].on ? act : ign).push(i);
+  for (var i = 0; i < l.length; i++) if (B.shown(l[i])) (l[i].on ? act : ign).push(i);
   html += caps("kill order", act.length);
   if (!act.length) html += '<div style="color:' + DIM + ';font-family:' + SERIF + ';font-style:italic;font-size:11px;padding:2px 0;">None yet: the basher follows your own target here. Make a mob ACTIVE below.</div>';
   for (var a = 0; a < act.length; a++) {
@@ -61,6 +61,11 @@ if (!B.area) {
       '<span style="flex:0 0 1.8em;text-align:right;font-size:12px;color:' + DIM + ';">&ndash;</span>' +
       '<span style="flex:1 1 auto;font-size:13px;color:' + DIM + ';">' + esc(f.name) + (f.isNew ? '<span style="font-size:9px;color:#e6c25a;border:1px solid #7a6a33;padding:0 3px;margin-left:5px;">NEW</span>' : '') + hereTag(f.name) + '</span>' +
       tog(ign[g], false) + '</div>';
+  }
+  if (B.area === B.NOAREA) {
+    var bsHid = 0;
+    for (var hi = 0; hi < l.length; hi++) if (!B.shown(l[hi])) bsHid++;
+    html += '<div style="color:' + DIM + ';font-size:10px;margin-top:6px;line-height:1.4;">No area here (an instance such as the Mnemosyne): one kill order for all such places, showing only the types met since you came in' + (bsHid ? ' (' + bsHid + ' more kept from earlier visits, in their places)' : '') + '.</div>';
   }
   html += '<div style="color:' + DIM + ';font-size:10px;margin-top:6px;line-height:1.4;">New mob types join the ignored list as you meet them. Turn one ACTIVE to add it to the bottom of the kill order, then move it with &#9650;&#9660;.</div>';
 }

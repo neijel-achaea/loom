@@ -33,7 +33,15 @@ client.loom.hooks.basher.gmcp = function (args) {
     // Rooms, for wimpy's way back: the room before this one, and this room's
     // exits ({ n: 1234, ... }). The item list is left alone (see below).
     var bsNum = String(bsA.num);
-    if (bsA.area !== undefined && String(bsA.area) !== B.area) { B.area = String(bsA.area); B.autoTop = ""; B.draw(); }
+    // A room with no area (the Mnemosyne, an instance: Ricardo) files its
+    // kill order under B.NOAREA, showing only the types met since you came in.
+    if (bsA.area !== undefined) {
+      var bsAr = String(bsA.area) || B.NOAREA;
+      if (bsAr !== B.area) {
+        if (bsAr === B.NOAREA) B.seen = {};
+        B.area = bsAr; B.autoTop = ""; B.draw();
+      }
+    }
     if (bsNum !== B.roomNum) { B.prevNum = B.roomNum; B.roomNum = bsNum; }
     B.exits = bsA.exits || {};
   } else if (/^Char\.Items\.(List|Add|Remove|Update)$/.test(bsM) && bsA && bsA.location === "room") {
