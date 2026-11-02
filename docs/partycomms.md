@@ -61,7 +61,7 @@ Nothing is sent while triggers are paused (`LOOM PAUSE ON`).
 
 PartyComms reads nothing from other packages. With **room** installed, the Here tab shows each party member's target: link `partycomms-room` puts their names (◂ Filune · Ojec) after the mob they're targeting, from reports under 30 seconds old; you're left out (your own target glows). `LOOM LINK partycomms-room OFF` stops it.
 
-With **atlas** installed, link `partycomms-atlas` shows party members on the Atlas map: a circle in their colour with their initial at their room's bottom right corner (two or more in one room share it, with how many), from reports under 30 seconds old; members in your own room are left out, and those elsewhere are listed under the map. `LOOM LINK partycomms-atlas OFF` stops it; it doesn't stop your room being sent. For the party's gold split, see [huntstats](huntstats.md#hunting-with-a-party).
+With **atlas** installed, link `partycomms-atlas` shows party members on the Atlas map: a ring around their room like your own, in their colour (two or more in one room share the ring, an arc each), from reports under 30 seconds old; members in your own room are left out, and those elsewhere are listed under the map. `LOOM LINK partycomms-atlas OFF` stops it; it doesn't stop your room being sent. For the party's gold split, see [huntstats](huntstats.md#hunting-with-a-party).
 
 ## Troubleshooting
 

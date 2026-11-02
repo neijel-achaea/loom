@@ -197,7 +197,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       }
     }
     // ---- From other packages, through loom (#451): waypoints and quests ----
-    var LL = client.loom.loom, pins = '';
+    var LL = client.loom.loom, pins = '', partyRings = '';
     for (var pi = 0; pi < party.length; pi++) if (shown[party[pi].room] === 1) (partyOn[party[pi].room] || (partyOn[party[pi].room] = [])).push(party[pi]);
     var wpAt = {}, qAt = {}, sAt = {};
     var wps = (LL && LL.answer) ? LL.answer("atlas", "atlas.waypoints") : undefined;
@@ -223,13 +223,16 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       }
       var pm = partyOn[P.id];
       if (pm && pm.length) {
-        // Party members here, bottom right corner: their colour and initial;
-        // several share the circle, with how many.
-        var cx2 = px + 0.27, cy2 = py + 0.27, first = pm[0];
-        pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc(pm.map(function (m) { return m.name; }).join(", ") + " (party)") + '</title>' +
-          '<circle cx="' + cx2.toFixed(2) + '" cy="' + cy2.toFixed(2) + '" r="0.2" fill="' + esc(first.colour || AMBER) + '" stroke="#000" stroke-width="0.05"/>' +
-          (pm.length > 1 ? '<circle cx="' + (cx2 + 0.06).toFixed(2) + '" cy="' + (cy2 + 0.06).toFixed(2) + '" r="0.2" fill="none" stroke="' + esc(pm[1].colour || AMBER) + '" stroke-width="0.05"/>' : '') +
-          '<text x="' + cx2.toFixed(2) + '" y="' + (cy2 + 0.005).toFixed(3) + '" font-size="0.24" font-family="Georgia,serif" font-weight="bold" fill="#000" text-anchor="middle" dominant-baseline="central">' + (pm.length > 1 ? pm.length : esc(first.name.charAt(0).toUpperCase())) + '</text></g>';
+        // Party members here: a ring like yours, the same size, in their
+        // colour (Ricardo); several in one room share it, one arc each.
+        var rr = 0.48, nm = pm.map(function (m) { return m.name; }).join(", ");
+        var ringG = '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc(nm + " (party)") + '</title>';
+        if (pm.length === 1) ringG += '<circle cx="' + px + '" cy="' + py + '" r="' + rr + '" fill="none" stroke="' + esc(pm[0].colour || AMBER) + '" stroke-width="0.09" pointer-events="stroke"/>';
+        else for (var pa = 0; pa < pm.length; pa++) {
+          var gap = 0.18, a0 = -Math.PI / 2 + pa * 2 * Math.PI / pm.length + gap / 2, a1 = -Math.PI / 2 + (pa + 1) * 2 * Math.PI / pm.length - gap / 2;
+          ringG += '<path d="M' + (px + rr * Math.cos(a0)).toFixed(3) + ' ' + (py + rr * Math.sin(a0)).toFixed(3) + ' A' + rr + ' ' + rr + ' 0 ' + (a1 - a0 > Math.PI ? 1 : 0) + ' 1 ' + (px + rr * Math.cos(a1)).toFixed(3) + ' ' + (py + rr * Math.sin(a1)).toFixed(3) + '" fill="none" stroke="' + esc(pm[pa].colour || AMBER) + '" stroke-width="0.09" stroke-linecap="round" pointer-events="stroke"/>';
+        }
+        partyRings += ringG + '</g>';
         for (var pd = 0; pd < pm.length; pd++) partyDrawn[pm[pd].name] = true;
       }
       var mk = AT.marks[P.id];
@@ -274,7 +277,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     html += '<g stroke="' + BG + '" stroke-width="0.04">' + rooms + '</g>';
     // The arrows outlined in black so they read on light rooms too (Ricardo).
     html += '<g fill="' + TXT + '" stroke="#000" stroke-width="0.06" stroke-linejoin="round" paint-order="stroke" pointer-events="none">' + marks + '</g>';
-    html += ring + '<g>' + pins + '</g></svg>';   // markers over the ring, so yours stay visible
+    html += partyRings + ring + '<g>' + pins + '</g></svg>';   // party rings under yours, markers on top   // markers over the ring, so yours stay visible
     if (!list.length) html += '<div style="position:absolute;left:12px;top:12px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + (ids.length ? "Nothing explored on this level yet." : "This area isn't on the community map.") + '</div>';
   }
   html += '</div>';
