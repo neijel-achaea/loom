@@ -153,6 +153,22 @@
       "whole_words": false,
       "case_sensitive": false,
       "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "basher ripple end",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_ripple_end.js"
+        }
+      ],
+      "text": "flickers of power that may aide you",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": false
     }
   ],
   "description": "Attended autobasher: attacks your target with hunting's main attack"

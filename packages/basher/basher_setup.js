@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "1.0.4", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "1.1.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -59,6 +59,12 @@ if (!B.prios) {
   for (var bsPa in B.prios) { if (B.prios.hasOwnProperty(bsPa) && !Array.isArray(B.prios[bsPa])) delete B.prios[bsPa]; }
 }
 if (B.area === undefined) B.area = "";
+// Rooms with no area (the Mnemosyne's ripples, an instance): one kill order,
+// kept across visits, under this name; the tab shows only the types met since
+// you came in (B.seen), so it never shows every enemy ever met there.
+B.NOAREA = "(no area)";
+if (!B.seen) B.seen = {};
+B.shown = function (e) { return B.area !== B.NOAREA || !!B.seen[e.name]; };
 // Your name (GMCP Char.Name / Char.Status), so your own arrival and channel
 // lines are told apart; kept across loads, as GMCP sends it only at login.
 if (!B.me) B.me = String(get_variable("basher_name") || "");
@@ -368,7 +374,9 @@ B.learn = function () {
   for (var i = 0; i < l.length; i++) known[l[i].name] = true;
   for (var j = 0; j < B.order.length; j++) {
     var it = B.room[B.order[j]];
-    if (B.living(it) && !known[it.name]) { l.push({ name: it.name, on: false, isNew: true }); known[it.name] = true; added = true; }
+    if (!B.living(it)) continue;
+    if (B.area === B.NOAREA && !B.seen[it.name]) { B.seen[it.name] = true; added = true; }
+    if (!known[it.name]) { l.push({ name: it.name, on: false, isNew: true }); known[it.name] = true; added = true; }
   }
   if (added) B.savePrios();
   return added;
@@ -411,8 +419,9 @@ B.prio = function (act, i) {
     } else l.push(e);
   } else if (act === "up" || act === "down") {
     if (!e.on) return;
+    // Among the active ones shown (with no area, those met since you came in).
     var step = act === "up" ? -1 : 1, j = i + step;
-    while (j >= 0 && j < l.length && !l[j].on) j += step;
+    while (j >= 0 && j < l.length && !(l[j].on && B.shown(l[j]))) j += step;
     if (j < 0 || j >= l.length) return;
     l[i] = l[j]; l[j] = e;
   }

@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.0.4.*
+*This page describes basher 1.1.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -107,6 +107,8 @@ The **Basher** tab lists the mob types of the area you're in, in kill order.
 - In a run, after each kill it takes the next one: active types by the list's order, then the room's order. When none are left, the run ends.
 
 An area with no active types works without the list: the basher follows your own target, finishes that fight, and ends the run (still primed); attack again for the next one, even another mob of the same name.
+
+**Places with no area.** Some places come with no area name: the Mnemosyne, where each wade is your own instance and each ripple brings its own enemies. They share one kill order, kept across visits under *no area (an instance)*. So it never turns into a wall of every enemy you've ever met there, the tab shows only the types you've met since you came in, or since the last ripple ended (the boon screen); the others keep their place in the order, out of sight, until they turn up again. New types join ignored, as anywhere else, so rank a type once (a healer first, say) and it stays ranked in every later wade where it appears.
 
 Named NPCs are best left ignored.
 
