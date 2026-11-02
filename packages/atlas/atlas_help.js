@@ -7,6 +7,7 @@ var hlRows = [
   ["ATLAS", "status: the map's version, fog of war, where you are and how much of the area you've explored"],
   ["ATLAS FOG [ON|OFF]", "fog of war: only the rooms you've explored (default ON); OFF shows every room, unexplored ones faint"],
   ["ATLAS GO <room number>", "walk there (PATH FIND), as a click on a room in the tab"],
+  ["ATLAS SORT [NAME|LEAST|MOST|LEFT]", "order the Areas tab's chips: by name, least or most explored first, or most rooms left first (also NAME · % · LEFT in the tab; kept)"],
   ["ATLAS MARK [room number] <icon> [note]", "your own icon on a room (no number: the room you're in), bottom left corner; note on hover"],
   ["ATLAS UNMARK [room number]", "take a room's mark off"],
   ["ATLAS MARKS", "the icons (fishing, shrine, sleep, bank, shop, craft, harvest, hunt, danger, star, secret) and your marked rooms"],

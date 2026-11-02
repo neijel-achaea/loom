@@ -58,6 +58,12 @@ if (atCmd === "" || atCmd === "status") {
   }
   if (!AT.map) display_notice("[atlas] the community map isn't loaded: ATLAS RELOAD.", "orange");
   else display_notice("[atlas] visited " + atVn + " of " + (atVn + atU) + " areas; explored " + atN.toLocaleString("en-US") + " of their " + atM.toLocaleString("en-US") + " rooms (" + (atM ? Math.floor(atN / atM * 100) : 0) + "%), " + (atAll ? (atN / atAll * 100).toFixed(1) : 0) + "% of the whole map. The Areas tab lists them.", "cyan");
+} else if (atCmd === "sort") {
+  var atSo = { name: "name", progress: "pct", pct: "pct", "%": "pct", least: "pct", most: "pct-desc", left: "left", rooms: "left" }[atRest.toLowerCase()];
+  var atSoN = { name: "by name", pct: "least explored first", "pct-desc": "most explored first", left: "most rooms left first" };
+  if (!atRest) display_notice("[atlas] the Areas tab is sorted " + atSoN[AT.sort] + ". ATLAS SORT NAME|LEAST|MOST|LEFT.", "cyan");
+  else if (!atSo) display_notice("[atlas] ATLAS SORT NAME|LEAST|MOST|LEFT.", "orange");
+  else { AT.useSort(atSo); display_notice("[atlas] areas sorted " + atSoN[AT.sort] + ".", "lime"); }
 } else if (atCmd === "mark") {
   // MARK <icon> [note] for the room you're in; MARK <number> <icon> [note].
   var atMw = atRest.split(/\s+/), atMid = 0, atMi2 = 0;
