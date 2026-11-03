@@ -55,6 +55,7 @@ function col(e) {
 function areaTitle(aid) { return AT.title(aid); }
 
 var H = AT.here, V = AT.view, M = AT.map;
+var WILD = !!(H && H.wild);       // in the wilderness: the game's own map
 // Party members' rooms, through loom (partycomms-atlas, #451): those in your
 // room are left out (Ricardo); partyOn[room] = members drawn on the map, the
 // rest listed under it.
@@ -77,17 +78,22 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
   // Title: Atlas, the area, the controls.
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
   html += '<span style="display:flex;align-items:baseline;gap:8px;min-width:0;"><span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + AMBER + ';flex:none;">Atlas</span>';
-  if (aid) html += '<span style="font-family:' + SERIF + ';font-size:13px;color:' + TXT + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(areaTitle(aid)) + '</span>';
+  if (WILD || aid) html += '<span style="font-family:' + SERIF + ';font-size:13px;color:' + TXT + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(WILD ? "the wilderness" : areaTitle(aid)) + '</span>';
   html += '</span><span style="display:flex;align-items:baseline;gap:4px;flex:none;">';
-  if (M) {
+  if (M && !WILD) {
     html += chip('&minus;', 'zoom(1.25)', 'zoom out (or the mouse wheel)') + chip('+', 'zoom(0.8)', 'zoom in (or the mouse wheel)');
     html += chip('&#8982;', 'centre()', 'back to the room you\'re in');
     html += chip('FOG', 'fog()', AT.fog ? 'fog of war on: only the rooms you\'ve explored (click to show every room)' : 'fog of war off: every room on the map, unexplored ones faint (click to hide them)', AT.fog);
   }
   html += '</span></div>';
 
-  // Line 2: the room, its level, explored.
-  if (M && aid) {
+  // Line 2: the room, its level, explored (in the wilderness: the room and
+  // its environment).
+  if (WILD) {
+    html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0 2px;color:' + MUTED + ';">';
+    html += '<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:' + SERIF + ';font-size:12px;color:' + TXT + ';">' + esc(H.name || "?") + '</span>';
+    html += '<span style="flex:none;white-space:nowrap;">' + esc([H.env].concat(H.details || []).filter(function (x) { return x; }).join(" · ")) + '</span></div>';
+  } else if (M && aid) {
     var zs = AT.levels(aid), zi = zs.indexOf(V.z);
     var up = zi >= 0 && zi < zs.length - 1, dn = zi > 0;
     var hereLvl = here && here.a === aid ? here.z : null;
@@ -105,7 +111,19 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
 
   // The map.
   html += '<div style="flex:1 1 auto;position:relative;min-height:240px;margin-top:4px;border:1px solid ' + RULE + ';overflow:hidden;">';
-  if (!M) {
+  if (WILD) {
+    // The game's map, as it sent it: fitted to the frame (container units),
+    // one character cell per room, you the @.
+    var WM = AT.wildMap;
+    if (WM && WM.rows.length && AT.wildOn) {
+      var wc = Math.max(WM.cols, 1), wr = WM.rows.length;
+      html += '<div style="position:absolute;inset:0;container-type:size;display:flex;align-items:center;justify-content:center;background:#000;">';
+      html += '<pre style="margin:0;font-family:' + MONO + ';line-height:1;letter-spacing:0;color:#aaaaaa;font-size:14px;font-size:min(' + (100 / wc / 0.6).toFixed(2) + 'cqw,' + (100 / wr).toFixed(2) + 'cqh);">' + WM.rows.join("\n") + '</pre></div>';
+    } else {
+      html += '<div style="padding:12px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' +
+        (AT.wildOn ? "The wilderness map shows with your next step." : "The wilderness map stays in the main window (ATLAS WILDERNESS ON shows it here).") + '</div>';
+    }
+  } else if (!M) {
     var msg = AT.state == "loading" ? AT.note || "loading the community map…"
       : (AT.state == "failed" ? "Couldn't load the community map: " + AT.note + "." : "The community map isn't loaded yet.");
     html += '<div style="padding:12px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + esc(msg);
@@ -287,7 +305,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
 
   // Party members not drawn on the map: where they are, a click shows it.
   var away = party.filter(function (p) { return !partyDrawn[p.name]; });
-  if (M && away.length) {
+  if (M && away.length && !WILD) {
     html += '<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;">';
     html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:1px;font-size:12px;color:' + MUTED + ';">Party elsewhere</span>';
     for (var aw = 0; aw < away.length; aw++) {
@@ -305,11 +323,12 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
 
   // Footer: what's missing, where the map comes from.
   var foot = [];
-  if (aid === AT.SKETCH) foot.push("Off the map: rooms appear as you walk, dotted exits lead where you haven't been; a new ripple or a portal starts a fresh sketch.");
+  if (WILD) foot.push("The game's own map of the wilderness: you're the @.");
+  else if (aid === AT.SKETCH) foot.push("Off the map: rooms appear as you walk, dotted exits lead where you haven't been; a new ripple or a portal starts a fresh sketch.");
   else if (H && !here) foot.push("This room (" + H.id + ") isn't on the community map" + (aid ? "; showing its area." : "."));
-  if (M && aid && aid !== AT.SKETCH && !expl && !AT.uncounted[aid]) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");
+  if (M && !WILD && aid && aid !== AT.SKETCH && !expl && !AT.uncounted[aid]) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");
   if (AT.state == "loading" && M) foot.push(AT.note);
-  if (M) foot.push("Community map version " + M.v + "." + (aid === AT.SKETCH ? " Drag to pan." : " Drag to pan, click a room to walk there."));
+  if (M && !WILD) foot.push("Community map version " + M.v + "." + (aid === AT.SKETCH ? " Drag to pan." : " Drag to pan, click a room to walk there."));
   html += '<div style="margin-top:5px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">' + foot.map(esc).join(" ") + '</div>';
   html += '</div>';
 

@@ -25,6 +25,11 @@ if (atCmd === "" || atCmd === "status") {
   if (atF === "on" || atF === "off") { AT.setFog(atF === "on"); display_notice("[atlas] fog of war " + atF + (atF === "on" ? ": only the rooms you've explored." : ": every room on the map, unexplored ones faint."), "lime"); }
   else if (!atF) display_notice("[atlas] fog of war is " + (AT.fog ? "on" : "off") + ". ATLAS FOG ON|OFF.", "cyan");
   else display_notice("[atlas] ATLAS FOG ON|OFF.", "orange");
+} else if (atCmd === "wilderness" || atCmd === "wild") {
+  var atW = atRest.toLowerCase();
+  if (atW === "on" || atW === "off") { AT.setWild(atW === "on"); display_notice("[atlas] wilderness map " + (atW === "on" ? "in the Atlas tab (out of the main window)." : "back in the main window."), "lime"); }
+  else if (!atW) display_notice("[atlas] the wilderness map shows " + (AT.wildOn ? "in the Atlas tab" : "in the main window") + ". ATLAS WILDERNESS ON|OFF.", "cyan");
+  else display_notice("[atlas] ATLAS WILDERNESS ON|OFF.", "orange");
 } else if (atCmd === "go") {
   if (/^\d+$/.test(atRest)) AT.go(atRest);
   else display_notice("[atlas] ATLAS GO <room number>.", "orange");
