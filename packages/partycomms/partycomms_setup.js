@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.partycomms) client.loom.partycomms = {};
-client.loom.registry.partycomms = { version: "1.1.0", keyword: "PARTYCOMMS", desc: "{{description}}",
+client.loom.registry.partycomms = { version: "1.1.1", keyword: "PARTYCOMMS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { if (client.loom.partycomms) client.loom.partycomms.lastRender = 0; run_function("partycomms_render", [], "partycomms"); } };
 var PC = client.loom.partycomms;
@@ -78,6 +78,11 @@ if (PC.lastRender === undefined) PC.lastRender = 0;
 //   look.where() -> [{ name, room, colour }] for the members (you left out)
 //     whose latest report, under PC.lookMs old, says which room they're in.
 PC.lookMs = 30000;
+// Seconds between broadcasts: PC.gap for vitals and targets, PC.roomGap when
+// your room changed (Ricardo: a second made followers lag on Atlas).
+PC.gap = 1;
+PC.roomGap = 0.5;
+if (PC.trailT) { clearTimeout(PC.trailT); PC.trailT = null; }
 // Each member's colour (Ricardo, #451): one of eight, picked by their name,
 // so the same person has the same colour on every map and every chip.
 PC.palette = ["#e8775a", "#5fb8e8", "#9ad06a", "#d88ad8", "#e8c65a", "#5ad0c0", "#b29af0", "#f0a0b8"];

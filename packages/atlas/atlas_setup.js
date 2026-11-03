@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.8.1", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.8.2", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -346,6 +346,10 @@ AT.envFetch = function (aid) {
 // Kept in the browser (key "official": { game area: { at, rooms } }) and laid
 // over the map again at each load.
 if (!AT.official || typeof AT.official != "object") AT.official = {};
+// The game's exits per room (from the official files read so far): no hidden
+// exits in them, so under fog they're safe to show (Ricardo: an explored
+// room should show its exits even when they lead somewhere unexplored).
+AT.offEx = {};
 // rooms: { id: [x, y, z, name, env, exits] } from the file, checked as read.
 AT.officialRead = function (gaid, xml) {
   var out = {}, n = 0, re = /<room\b([^>]*)>([\s\S]*?)<\/room>/gi, m;
@@ -384,6 +388,7 @@ AT.officialApply = function (gaid) {
   for (id in rooms) {
     if (!rooms.hasOwnProperty(id)) continue;
     var G2 = rooms[id], C2 = M.rooms[id];
+    AT.offEx[id] = G2[5];
     if (C2) {
       // Exits: the game's win in their direction.
       var ex = C2[6] || (C2[6] = {});
