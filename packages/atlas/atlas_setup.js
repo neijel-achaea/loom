@@ -488,7 +488,7 @@ AT.roomInfo = function (g) {
   // The wilderness (a Room.Info with `ohmap`, as nexMap tells it): millions
   // of rooms on no map; the game draws its own, which Atlas shows.
   if (g.ohmap !== undefined && g.ohmap !== null && String(g.ohmap) !== "") { AT.wildRoom(id, g); return; }
-  if (AT.here && AT.here.wild) AT.wildMap = null;     // left the wilderness
+  if (AT.here && AT.here.wild) { AT.wildMap = null; AT.wildPrev = null; AT.wildUnder = null; }     // left the wilderness
   var co = String(g.coords || "").split(",");
   var aid = atNum(co[0]);
   var R = AT.room(id);
@@ -630,6 +630,7 @@ AT.wildLines = function (lines) {
   // for the tiles.
   AT.wildPrev = AT.wildMap;         // the map before this step: what's under you now
   AT.wildMap = { rows: rows, grid: grid, cols: cols, at: Date.now() };
+  AT.wildStep();
   var wMe = AT.wildMe(grid);       // your mark isn't terrain
   for (var gy = 0; gy < grid.length; gy++) for (var gx = 0; gx < grid[gy].length; gx++) if (!(wMe && wMe.x === gx && wMe.y === gy)) AT.wildNote(grid[gy][gx]);
   run_function("atlas_render", { full: true }, "atlas");
@@ -700,31 +701,47 @@ AT.wildShift = function (A, a, B, b) {
   }
   return best && bestR >= 0.7 ? best : null;
 };
+// A new map came: how you moved since the last one, and the ground under
+// your mark (the last map showed it). Done here, tied to the map, because
+// the map comes after the room's own information for the same step (it was
+// read one step late before, Ricardo's dump).
+AT.wildStep = function () {
+  var WM = AT.wildMap, PV = AT.wildPrev, dbg;
+  var me = AT.wildMe(WM.grid), pm = PV && PV.grid && Date.now() - PV.at < 60000 ? AT.wildMe(PV.grid) : null;
+  var st = me && pm ? AT.wildShift(PV.grid, pm, WM.grid, me) : null;
+  if (st) {
+    var ox = me.x + st.sx, oy = me.y + st.sy;              // where you are now, on the last map
+    if (ox === pm.x && oy === pm.y) {                      // didn't move (LOOK): same ground
+      if (AT.wildUnder && AT.wildUnder.map === PV) AT.wildUnder = { map: WM, cell: AT.wildUnder.cell };
+    } else {
+      var under = PV.grid[oy] ? PV.grid[oy][ox] : null;
+      AT.wildUnder = under ? { map: WM, cell: under } : null;   // a way out (?) too: it stays marked under you
+    }
+  } else AT.wildUnder = null;                              // a jump, or the first map: the ground beside you
+  AT.wildDebug = { me: me, pm: pm, st: st, under: AT.wildUnder ? AT.wildUnder.cell : null, why: !pm ? "no map before" : (!st ? "maps don't line up" : "") };
+  AT.wildPair();
+  // The last few steps, for ATLAS WILDERNESS DUMP (bug reports).
+  if (!AT.wildLog) AT.wildLog = [];
+  var H = AT.here || {};
+  AT.wildLog.push({ id: H.id || 0, name: H.name || "", env: H.env || "", room_at: H.at || 0, at: WM.at, map: WM.grid, debug: AT.wildDebug });
+  if (AT.wildLog.length > 8) AT.wildLog.shift();
+};
+// The legend: the ground under you, named by the room's environment, once
+// the map and the room information of the same step have both come (within
+// a moment of each other, either order).
+AT.wildPair = function () {
+  var H = AT.here, WM = AT.wildMap, U = AT.wildUnder;
+  if (!H || !H.wild || !H.env || !WM || WM.paired || !U || U.map !== WM || Math.abs((H.at || 0) - WM.at) > 800) return;
+  WM.paired = true;
+  AT.wildNote(U.cell, H.env);
+};
 AT.wildRoom = function (id, g) {
   if (AT.sketch) AT.sketchClear();
   AT.wildHook();
-  var P = AT.here, WM = AT.wildMap, PV = AT.wildPrev;
-  if (P && P.wild && WM && WM.grid && PV && PV.grid && Date.now() - WM.at < 3000) {
-    var me = AT.wildMe(WM.grid), pm = AT.wildMe(PV.grid), st = me && pm ? AT.wildShift(PV.grid, pm, WM.grid, me) : null;
-    var ox = st ? me.x + st.sx : 0, oy = st ? me.y + st.sy : 0;     // where you are now, on the old map
-    if (st && !(ox === pm.x && oy === pm.y)) {
-      // Your mark hides the ground you stand on: the old map showed it.
-      var under = PV.grid[oy] ? PV.grid[oy][ox] : null;
-      if (under) AT.wildUnder = { id: id, cell: under };      // a way out (?) too: it stays marked under you
-      // The room you left, on the new map, for the legend.
-      var lr = WM.grid[pm.y - st.sy];
-      if (P.env && lr && lr[pm.x - st.sx]) AT.wildNote(lr[pm.x - st.sx], P.env);
-    } else if (P.id !== id) AT.wildUnder = null;     // moved, but can't tell how far: the ground beside you
-    AT.wildDebug = { me: me, pm: pm, st: st, under: AT.wildUnder ? AT.wildUnder.cell : null };
-  } else AT.wildDebug = { skipped: !P ? "no room before" : !P.wild ? "came from the normal map" : !WM ? "no map yet" : !PV ? "no map before" : "map older than 3 s" };
-  // The last few steps, for ATLAS WILDERNESS DUMP (bug reports).
-  if (!AT.wildLog) AT.wildLog = [];
-  AT.wildLog.push({ id: id, name: String(g.name || "").slice(0, 60), env: String(g.environment || "").slice(0, 40), at: Date.now(),
-    map: WM && WM.grid ? WM.grid : null, debug: AT.wildDebug });
-  if (AT.wildLog.length > 8) AT.wildLog.shift();
   var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
   AT.here = { id: id, area: null, wild: true, name: String(g.name || "").slice(0, 120), env: String(g.environment || "").slice(0, 40),
-    details: det, areaName: "", onMap: false, exits: {} };
+    details: det, areaName: "", onMap: false, exits: {}, at: Date.now() };
+  AT.wildPair();
   run_function("atlas_render", { full: true }, "atlas");
 };
 

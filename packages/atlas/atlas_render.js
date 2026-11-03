@@ -77,7 +77,7 @@ function lit(hex) {
 }
 // Pictures for the wilderness map's characters, in a 1×1 cell: [kind, path],
 // "s" stroked, "f" filled. No legend is published; read from Ricardo's
-// screenshots (2026-11-03). wicon() picks one by character and colours;
+// screenshots and dump (2026-11-03): # on green is fields ("Among the fields"). wicon() picks one by character and colours;
 // anything else keeps the faint letter.
 var WP = {
   waves: ["s", "M0.14 0.42q0.09 -0.12 0.18 0t0.18 0t0.18 0t0.18 0M0.14 0.66q0.09 -0.12 0.18 0t0.18 0t0.18 0t0.18 0"],
@@ -85,6 +85,7 @@ var WP = {
   grass: ["s", "M0.32 0.72l-0.05 -0.2M0.5 0.72v-0.28M0.68 0.72l0.05 -0.2"],
   sand: ["f", "M0.26 0.36a0.06 0.06 0 1 0 0.001 0M0.62 0.3a0.06 0.06 0 1 0 0.001 0M0.44 0.6a0.06 0.06 0 1 0 0.001 0M0.76 0.66a0.06 0.06 0 1 0 0.001 0"],
   dunes: ["s", "M0.12 0.48q0.19 -0.16 0.38 0M0.5 0.72q0.19 -0.16 0.38 0"],
+  fields: ["s", "M0.22 0.28v0.46M0.41 0.28v0.46M0.6 0.28v0.46M0.79 0.28v0.46"],
   conifer: ["f", "M0.5 0.14L0.78 0.62H0.56V0.82H0.44V0.62H0.22Z"],
   tree: ["f", "M0.5 0.16a0.24 0.24 0 1 0 0.001 0ZM0.45 0.58h0.1v0.26h-0.1Z"],
   hill: ["s", "M0.14 0.72Q0.5 0.18 0.86 0.72"],
@@ -113,7 +114,7 @@ function wicon(c, fg, bg) {
   if (c === "." || c === ",") return bg ? (b === "olive" || b === "yellow" ? WP.sand : null) : (f === "green" ? WP.grass : (f === "olive" || f === "yellow" ? WP.dunes : null));
   if (c === ":") return WP.sand;
   if (c === ";") return WP.sand;
-  if (c === "#") return b === "grey" ? WP.city : (b === "blue" ? WP.rocks : (b === "green" || f === "green" ? WP.conifer : null));
+  if (c === "#") return b === "grey" ? WP.city : (b === "blue" ? WP.rocks : (b === "green" ? WP.fields : (f === "green" ? WP.conifer : null)));
   if (c === "*") return WP.tree;
   if (c === "n") return WP.hill;
   if (c === "M" || c === "m") return WP.mountain;
@@ -200,7 +201,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
             var mine = gx === meX && gy === meY;
             // Your cell: the ground under your mark, from the map before you
             // stepped onto it (else the ground beside you).
-            if (mine && AT.wildUnder && H && AT.wildUnder.id === H.id) { var un = AT.wildUnder.cell; chr = un[0]; fgc = un[1]; bgc = un[2]; mine = false; }
+            if (mine && AT.wildUnder && AT.wildUnder.map === WM) { var un = AT.wildUnder.cell; chr = un[0]; fgc = un[1]; bgc = un[2]; mine = false; }
             if (chr === "?") outs += '<g><title>a way out of the wilderness</title><circle cx="' + (gx + 0.5) + '" cy="' + (gy + 0.5) + '" r="0.32" fill="' + AMBER + '" stroke="#000" stroke-width="0.08"/></g>';
             // A road or a way out with no background of its own stands on the
             // ground beside it.
