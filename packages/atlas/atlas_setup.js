@@ -636,16 +636,24 @@ AT.wildLines = function (lines) {
 };
 // Room.Info in the wilderness: no sketch, no counts; the tab shows the
 // game's map (it comes just before this Room.Info).
-// Where you are on the map: the @, else the white cell nearest the middle
-// (flying shows another mark).
+// Where you are on the map: the @; else (flying shows another mark) a white
+// character that appears only once on the map (roads are white too, but
+// many), nearest the middle. The map isn't always centred on you.
 AT.wildMe = function (grid) {
-  var h = grid.length, w = 0, best = 1e9, me = null;
-  for (var y = 0; y < h; y++) if (grid[y].length > w) w = grid[y].length;
-  for (var y2 = 0; y2 < h; y2++) for (var x = 0; x < grid[y2].length; x++) {
-    var c = grid[y2][x], ch = c[0];
-    if (!(ch === "@" || (ch !== " " && /^#f{3}(?:f{3})?$/i.test(c[1] || "")))) continue;
-    var d = Math.abs(x - w / 2) + Math.abs(y2 - h / 2) - (ch === "@" ? 1e6 : 0);
-    if (d < best) { best = d; me = { x: x, y: y2 }; }
+  var h = grid.length, w = 0, cnt = {}, cand = [];
+  for (var y = 0; y < h; y++) {
+    if (grid[y].length > w) w = grid[y].length;
+    for (var x = 0; x < grid[y].length; x++) {
+      var c = grid[y][x];
+      if (c[0] === "@") return { x: x, y: y };
+      if (c[0] !== " " && c[0] !== "?" && /^#f{3}(?:f{3})?$/i.test(c[1] || "")) { var k = c[0] + "|" + (c[2] || ""); cnt[k] = (cnt[k] || 0) + 1; cand.push([x, y, k]); }
+    }
+  }
+  var best = 1e9, me = null;
+  for (var i = 0; i < cand.length; i++) {
+    if (cnt[cand[i][2]] !== 1) continue;
+    var d = Math.abs(cand[i][0] - w / 2) + Math.abs(cand[i][1] - h / 2);
+    if (d < best) { best = d; me = { x: cand[i][0], y: cand[i][1] }; }
   }
   return me;
 };
@@ -662,27 +670,33 @@ AT.wildNote = function (c, env) {
   if (!e) { if (Object.keys(AT.wildSeen).length >= 200) return; e = AT.wildSeen[k] = { c: c[0], fg: c[1] || "", bg: c[2] || "", n: 0, envs: {} }; }
   if (env) e.envs[env] = (e.envs[env] || 0) + 1; else e.n++;
 };
-// The step between two maps, each centred on you (A at a, B at b): the
-// (dx, dy) of up to 3 cells where B's cells match A's shifted by it best.
-// null when too little lines up to tell (a jump, a different view).
+// How the map moved between two views (A with your mark at a, B with it at
+// b): the shift (sx, sy) where B's cells match A's best, B[y][x] = A[y+sy][x+sx],
+// both marks left out. The game's map sometimes follows you and sometimes
+// stays put while your mark moves across it, jumping when you near its edge
+// (Ricardo's screenshots), so any shift up to most of the view is tried.
+// null when too little lines up to tell.
 AT.wildShift = function (A, a, B, b) {
-  var best = null, bestR = 0;
-  for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) {
+  var best = null, bestR = 0, H = B.length, W = 0;
+  for (var k = 0; k < H; k++) if (B[k].length > W) W = B[k].length;
+  var mx = Math.min(16, Math.floor(W * 0.7)), my = Math.min(12, Math.floor(H * 0.7));
+  for (var sy = -my; sy <= my; sy++) for (var sx = -mx; sx <= mx; sx++) {
     var same = 0, n = 0;
-    for (var y = 0; y < B.length; y++) {
-      var ry = y - b.y, ar = A[a.y + ry + dy];
+    for (var y = 0; y < H; y++) {
+      var ar = A[y + sy];
       if (!ar) continue;
       for (var x = 0; x < B[y].length; x++) {
         if (x === b.x && y === b.y) continue;
-        var rx = x - b.x, ac = ar[a.x + rx + dx];
-        if (!ac || (a.x + rx + dx === a.x && a.y + ry + dy === a.y)) continue;
+        if (x + sx === a.x && y + sy === a.y) continue;
+        var ac = ar[x + sx];
+        if (!ac) continue;
         var bc = B[y][x];
         n++;
         if (ac[0] === bc[0] && ac[1] === bc[1] && ac[2] === bc[2]) same++;
       }
     }
-    var r = n >= 12 ? same / n : 0;
-    if (r > bestR) { bestR = r; best = { dx: dx, dy: dy, r: r }; }
+    var r = n >= 40 ? same / n - (Math.abs(sx) + Math.abs(sy)) * 0.0005 : 0;   // a hair towards the smaller shift on ties
+    if (r > bestR) { bestR = r; best = { sx: sx, sy: sy, r: r }; }
   }
   return best && bestR >= 0.7 ? best : null;
 };
@@ -691,17 +705,15 @@ AT.wildRoom = function (id, g) {
   AT.wildHook();
   var P = AT.here, WM = AT.wildMap, PV = AT.wildPrev;
   if (P && P.wild && WM && WM.grid && PV && PV.grid && Date.now() - WM.at < 3000) {
-    // How far you moved: the shift that lines the new map up with the one
-    // before it (the map follows you, so the land slides the other way). No
-    // reading of room numbers needed (that guess put your ground one cell off).
     var me = AT.wildMe(WM.grid), pm = AT.wildMe(PV.grid), st = me && pm ? AT.wildShift(PV.grid, pm, WM.grid, me) : null;
-    if (st && (st.dx || st.dy)) {
-      // The room you left, on the new map: one step back from you.
-      if (P.env && WM.grid[me.y - st.dy]) AT.wildNote(WM.grid[me.y - st.dy][me.x - st.dx], P.env);
-      // Your mark hides the ground you stand on: it was drawn on the map
-      // before this step, one step ahead of where you were.
-      var under = PV.grid[pm.y + st.dy] ? PV.grid[pm.y + st.dy][pm.x + st.dx] : null;
+    var ox = st ? me.x + st.sx : 0, oy = st ? me.y + st.sy : 0;     // where you are now, on the old map
+    if (st && !(ox === pm.x && oy === pm.y)) {
+      // Your mark hides the ground you stand on: the old map showed it.
+      var under = PV.grid[oy] ? PV.grid[oy][ox] : null;
       if (under) AT.wildUnder = { id: id, cell: under };      // a way out (?) too: it stays marked under you
+      // The room you left, on the new map, for the legend.
+      var lr = WM.grid[pm.y - st.sy];
+      if (P.env && lr && lr[pm.x - st.sx]) AT.wildNote(lr[pm.x - st.sx], P.env);
     } else if (P.id !== id) AT.wildUnder = null;     // moved, but can't tell how far: the ground beside you
   }
   var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
