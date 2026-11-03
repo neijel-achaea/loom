@@ -52,6 +52,22 @@ function col(e) {
   }
   return (envCol[e] = "hsl(" + Math.round(h) + "," + Math.round(sa * 38) + "%," + Math.round(30 + l * 18) + "%)");
 }
+// A game colour (#hex) muted the same way, for the wilderness tiles.
+var hueCol = {};
+function hue(hex) {
+  if (hueCol[hex]) return hueCol[hex];
+  var h6 = hex.length === 4 ? hex.replace(/^#(.)(.)(.)$/, "#$1$1$2$2$3$3") : hex.slice(0, 7);
+  var n = parseInt(h6.slice(1), 16);
+  if (isNaN(n)) return (hueCol[hex] = "rgb(96,90,80)");
+  var r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+  var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, h = 0, sa = 0, d = mx - mn;
+  if (d) {
+    sa = d / (1 - Math.abs(2 * l - 1));
+    h = mx === r ? ((g - b) / d) % 6 : (mx === g ? (b - r) / d + 2 : (r - g) / d + 4);
+    h *= 60; if (h < 0) h += 360;
+  }
+  return (hueCol[hex] = "hsl(" + Math.round(h) + "," + Math.round(sa * 38) + "%," + Math.round(24 + l * 30) + "%)");
+}
 function areaTitle(aid) { return AT.title(aid); }
 
 var H = AT.here, V = AT.view, M = AT.map;
@@ -115,7 +131,39 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     // The game's map, as it sent it: fitted to the frame (container units),
     // one character cell per room, you the @.
     var WM = AT.wildMap;
-    if (WM && WM.rows.length && AT.wildOn) {
+    if (WM && WM.grid && WM.grid.length && AT.wildOn && AT.wildStyle !== "text") {
+      // Tiles: each cell a square in its colour (the background when it has
+      // one, else the character's), muted as Atlas's own rooms; you an amber
+      // ring (your cell is the @, or the white one: flying shows another
+      // mark); ? cells (ways out of the wilderness) a small marker.
+      var gw = Math.max(WM.cols, 1), gh = WM.grid.length, tiles = '', glyphs = '', outs = '', meX = -1, meY = -1, best = 1e9;
+      for (var gy = 0; gy < gh; gy++) {
+        var rowc = WM.grid[gy], runC = null, runX = 0;
+        for (var gx = 0; gx <= rowc.length; gx++) {
+          var cell = rowc[gx], cc = null;
+          if (cell) {
+            var chr = cell[0], fgc = cell[1], bgc = cell[2];
+            var mine = chr === "@" || (chr !== " " && /^#f{3}(?:f{3})?$/i.test(fgc || ""));
+            if (mine) { var dd = Math.abs(gx - gw / 2) + Math.abs(gy - gh / 2) - (chr === "@" ? 1e6 : 0); if (dd < best) { best = dd; meX = gx; meY = gy; } }
+            if (chr === "?") outs += '<g><title>a way out of the wilderness</title><circle cx="' + (gx + 0.5) + '" cy="' + (gy + 0.5) + '" r="0.32" fill="' + AMBER + '" stroke="#000" stroke-width="0.08"/></g>';
+            cc = bgc || (chr !== " " && !mine ? fgc : null) || (mine ? (bgc || null) : null);
+            if (cc) cc = hue(cc);
+            // The letter, faint, where a background carries the colour: it tells
+            // apart terrains drawn in the same colours (waves on water, trees).
+            if (bgc && fgc && chr !== " " && chr !== "?" && !mine)
+              glyphs += '<text x="' + (gx + 0.5) + '" y="' + (gy + 0.55) + '" fill="' + hue(fgc) + '">' + (chr === "<" ? "&lt;" : chr === "&" ? "&amp;" : chr === ">" ? "&gt;" : chr) + '</text>';
+          }
+          if (cc !== runC) {
+            if (runC) tiles += '<rect x="' + runX + '" y="' + gy + '" width="' + (gx - runX) + '" height="1" fill="' + runC + '"/>';
+            runC = cc; runX = gx;
+          }
+        }
+      }
+      var me = meX >= 0 ? '<circle cx="' + (meX + 0.5) + '" cy="' + (meY + 0.5) + '" r="0.9" fill="none" stroke="' + AMBER + '" stroke-width="0.28"/>' : '';
+      html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 ' + (gw + 1) + ' ' + (gh + 1) + '" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:' + BG + ';" shape-rendering="crispEdges">' +
+        tiles + '<g shape-rendering="auto" font-family="' + MONO + '" font-size="0.9" text-anchor="middle" dominant-baseline="central" opacity="0.55" pointer-events="none">' + glyphs + '</g>' +
+        '<g shape-rendering="auto">' + outs + me + '</g></svg>';
+    } else if (WM && WM.rows.length && AT.wildOn) {
       var wc = Math.max(WM.cols, 1), wr = WM.rows.length;
       html += '<div style="position:absolute;inset:0;container-type:size;display:flex;align-items:center;justify-content:center;background:#000;">';
       html += '<pre style="margin:0;font-family:' + MONO + ';line-height:1;letter-spacing:0;color:#aaaaaa;font-size:14px;font-size:min(' + (100 / wc / 0.6).toFixed(2) + 'cqw,' + (100 / wr).toFixed(2) + 'cqh);">' + WM.rows.join("\n") + '</pre></div>';
@@ -323,7 +371,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
 
   // Footer: what's missing, where the map comes from.
   var foot = [];
-  if (WILD) foot.push("The game's own map of the wilderness: you're the @.");
+  if (WILD) foot.push("The game's own map of the wilderness" + (AT.wildStyle === "text" ? "." : ", drawn as tiles: you're ringed, ways out marked."));
   else if (aid === AT.SKETCH) foot.push("Off the map: rooms appear as you walk, dotted exits lead where you haven't been; a new ripple or a portal starts a fresh sketch.");
   else if (H && !here) foot.push("This room (" + H.id + ") isn't on the community map" + (aid ? "; showing its area." : "."));
   if (M && !WILD && aid && aid !== AT.SKETCH && !expl && !AT.uncounted[aid]) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");

@@ -7,6 +7,7 @@ var hlRows = [
   ["ATLAS", "status: the map's version, fog of war, where you are and how much of the area you've explored"],
   ["ATLAS FOG [ON|OFF]", "fog of war: only the rooms you've explored (default ON); OFF shows every room, unexplored ones faint"],
   ["ATLAS WILDERNESS [ON|OFF]", "in the wilderness, the game's own map in the Atlas tab instead of the main window (default ON)"],
+  ["ATLAS WILDERNESS TILES|TEXT", "the wilderness map as tiles in Atlas's colours (default) or as the game's letters"],
   ["ATLAS GO <room number>", "walk there (PATH FIND), as a click on a room in the tab"],
   ["ATLAS SORT [NAME|LEAST|MOST|LEFT]", "order the Areas tab's chips: by name, least or most explored first, or most rooms left first (also NAME · % · LEFT in the tab; kept)"],
   ["ATLAS MARK [room number] <icon> [note]", "your own icon on a room (no number: the room you're in), bottom left corner; note on hover"],
