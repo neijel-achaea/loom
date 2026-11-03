@@ -27,10 +27,21 @@ if (atCmd === "" || atCmd === "status") {
   else display_notice("[atlas] ATLAS FOG ON|OFF.", "orange");
 } else if (atCmd === "wilderness" || atCmd === "wild") {
   var atW = atRest.toLowerCase();
-  if (atW === "tiles" || atW === "text") { AT.setWildStyle(atW); display_notice("[atlas] wilderness map drawn as " + (atW === "tiles" ? "tiles." : "the game's letters."), "lime"); }
+  if (atW === "legend") {
+    var atLk = Object.keys(AT.wildSeen || {}).map(function (k) { return AT.wildSeen[k]; });
+    atLk.sort(function (a, b) { return Object.keys(b.envs).length - Object.keys(a.envs).length || b.n - a.n; });
+    if (!atLk.length) display_notice("[atlas] no wilderness seen yet this session: walk there with Atlas showing the map.", "cyan");
+    else {
+      display_notice("[atlas] wilderness characters seen this session (character, colour on background: where you stood on it):", "cyan");
+      for (var atLi = 0; atLi < atLk.length; atLi++) {
+        var atLe = atLk[atLi], atEn = Object.keys(atLe.envs).map(function (e) { return e + " ×" + atLe.envs[e]; });
+        display_notice("  '" + atLe.c + "' " + (atLe.fg || "-") + " on " + (atLe.bg || "-") + ": " + (atEn.length ? atEn.join(", ") : "not stood on yet") + " (seen " + atLe.n + ")", "cyan");
+      }
+    }
+  } else if (atW === "tiles" || atW === "text") { AT.setWildStyle(atW); display_notice("[atlas] wilderness map drawn as " + (atW === "tiles" ? "tiles." : "the game's letters."), "lime"); }
   else if (atW === "on" || atW === "off") { AT.setWild(atW === "on"); display_notice("[atlas] wilderness map " + (atW === "on" ? "in the Atlas tab (out of the main window)." : "back in the main window."), "lime"); }
-  else if (!atW) display_notice("[atlas] the wilderness map shows " + (AT.wildOn ? "in the Atlas tab, as " + (AT.wildStyle === "text" ? "the game's letters" : "tiles") : "in the main window") + ". ATLAS WILDERNESS ON|OFF|TILES|TEXT.", "cyan");
-  else display_notice("[atlas] ATLAS WILDERNESS ON|OFF|TILES|TEXT.", "orange");
+  else if (!atW) display_notice("[atlas] the wilderness map shows " + (AT.wildOn ? "in the Atlas tab, as " + (AT.wildStyle === "text" ? "the game's letters" : "tiles") : "in the main window") + ". ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND.", "cyan");
+  else display_notice("[atlas] ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND.", "orange");
 } else if (atCmd === "go") {
   if (/^\d+$/.test(atRest)) AT.go(atRest);
   else display_notice("[atlas] ATLAS GO <room number>.", "orange");

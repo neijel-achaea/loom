@@ -68,6 +68,25 @@ function hue(hex) {
   }
   return (hueCol[hex] = "hsl(" + Math.round(h) + "," + Math.round(sa * 38) + "%," + Math.round(24 + l * 30) + "%)");
 }
+// The same colour lighter: pictures drawn on a tile of their own colour.
+var litCol = {};
+function lit(hex) {
+  if (litCol[hex]) return litCol[hex];
+  var m = /^hsl\((\d+),(\d+)%,(\d+)%\)$/.exec(hue(hex));
+  return (litCol[hex] = m ? "hsl(" + m[1] + "," + m[2] + "%," + Math.min(85, Number(m[3]) + 16) + "%)" : hue(hex));
+}
+// Pictures for the wilderness map's characters, in a 1×1 cell: [kind, path],
+// "s" stroked, "f" filled. Others keep the faint letter.
+var WICON = {
+  "w": ["s", "M0.14 0.42q0.09 -0.12 0.18 0t0.18 0t0.18 0t0.18 0M0.14 0.66q0.09 -0.12 0.18 0t0.18 0t0.18 0t0.18 0"],
+  "~": ["s", "M0.14 0.54q0.09 -0.14 0.18 0t0.18 0t0.18 0t0.18 0"],
+  ".": ["s", "M0.32 0.72l-0.05 -0.2M0.5 0.72v-0.28M0.68 0.72l0.05 -0.2"],
+  "\"": ["s", "M0.32 0.72l-0.05 -0.2M0.5 0.72v-0.28M0.68 0.72l0.05 -0.2"],
+  "#": ["f", "M0.5 0.14L0.78 0.62H0.56V0.82H0.44V0.62H0.22Z"],
+  ";": ["f", "M0.26 0.36a0.06 0.06 0 1 0 0.001 0M0.62 0.3a0.06 0.06 0 1 0 0.001 0M0.44 0.6a0.06 0.06 0 1 0 0.001 0M0.76 0.66a0.06 0.06 0 1 0 0.001 0"],
+  "^": ["s", "M0.12 0.76L0.4 0.3L0.56 0.54L0.66 0.4L0.88 0.76"],
+  "n": ["s", "M0.14 0.72Q0.5 0.18 0.86 0.72"]
+};
 function areaTitle(aid) { return AT.title(aid); }
 
 var H = AT.here, V = AT.view, M = AT.map;
@@ -136,22 +155,27 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       // one, else the character's), muted as Atlas's own rooms; you an amber
       // ring (your cell is the @, or the white one: flying shows another
       // mark); ? cells (ways out of the wilderness) a small marker.
-      var gw = Math.max(WM.cols, 1), gh = WM.grid.length, tiles = '', glyphs = '', outs = '', meX = -1, meY = -1, best = 1e9;
+      var gw = Math.max(WM.cols, 1), gh = WM.grid.length, tiles = '', glyphs = '', icons = '', outs = '', meAt = AT.wildMe(WM.grid), meX = meAt ? meAt.x : -1, meY = meAt ? meAt.y : -1;
       for (var gy = 0; gy < gh; gy++) {
         var rowc = WM.grid[gy], runC = null, runX = 0;
         for (var gx = 0; gx <= rowc.length; gx++) {
           var cell = rowc[gx], cc = null;
           if (cell) {
             var chr = cell[0], fgc = cell[1], bgc = cell[2];
-            var mine = chr === "@" || (chr !== " " && /^#f{3}(?:f{3})?$/i.test(fgc || ""));
-            if (mine) { var dd = Math.abs(gx - gw / 2) + Math.abs(gy - gh / 2) - (chr === "@" ? 1e6 : 0); if (dd < best) { best = dd; meX = gx; meY = gy; } }
+            var mine = gx === meX && gy === meY;
             if (chr === "?") outs += '<g><title>a way out of the wilderness</title><circle cx="' + (gx + 0.5) + '" cy="' + (gy + 0.5) + '" r="0.32" fill="' + AMBER + '" stroke="#000" stroke-width="0.08"/></g>';
             cc = bgc || (chr !== " " && !mine ? fgc : null) || (mine ? (bgc || null) : null);
             if (cc) cc = hue(cc);
-            // The letter, faint, where a background carries the colour: it tells
-            // apart terrains drawn in the same colours (waves on water, trees).
-            if (bgc && fgc && chr !== " " && chr !== "?" && !mine)
-              glyphs += '<text x="' + (gx + 0.5) + '" y="' + (gy + 0.55) + '" fill="' + hue(fgc) + '">' + (chr === "<" ? "&lt;" : chr === "&" ? "&amp;" : chr === ">" ? "&gt;" : chr) + '</text>';
+            // A small picture for the characters Atlas knows (waves, grass,
+            // trees…), in the character's colour, or a lighter shade of the
+            // tile when the character is the tile's colour; any other character
+            // faint where a background carries the colour (it tells terrains
+            // drawn in the same colours apart).
+            if (fgc && chr !== " " && chr !== "?" && !mine) {
+              var ic = WICON[chr];
+              if (ic) icons += '<path transform="translate(' + gx + ' ' + gy + ')" d="' + ic[1] + '"' + (ic[0] === "f" ? ' fill="' + (bgc ? hue(fgc) : lit(fgc)) + '" stroke="none"' : ' stroke="' + (bgc ? hue(fgc) : lit(fgc)) + '"') + '/>';
+              else if (bgc) glyphs += '<text x="' + (gx + 0.5) + '" y="' + (gy + 0.55) + '" fill="' + hue(fgc) + '">' + (chr === "<" ? "&lt;" : chr === "&" ? "&amp;" : chr === ">" ? "&gt;" : chr) + '</text>';
+            }
           }
           if (cc !== runC) {
             if (runC) tiles += '<rect x="' + runX + '" y="' + gy + '" width="' + (gx - runX) + '" height="1" fill="' + runC + '"/>';
@@ -161,7 +185,8 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       }
       var me = meX >= 0 ? '<circle cx="' + (meX + 0.5) + '" cy="' + (meY + 0.5) + '" r="0.9" fill="none" stroke="' + AMBER + '" stroke-width="0.28"/>' : '';
       html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 ' + (gw + 1) + ' ' + (gh + 1) + '" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:' + BG + ';" shape-rendering="crispEdges">' +
-        tiles + '<g shape-rendering="auto" font-family="' + MONO + '" font-size="0.9" text-anchor="middle" dominant-baseline="central" opacity="0.55" pointer-events="none">' + glyphs + '</g>' +
+        tiles + '<g shape-rendering="auto" fill="none" stroke-width="0.09" stroke-linecap="round" stroke-linejoin="round" pointer-events="none">' + icons + '</g>' +
+        '<g shape-rendering="auto" font-family="' + MONO + '" font-size="0.9" text-anchor="middle" dominant-baseline="central" opacity="0.55" pointer-events="none">' + glyphs + '</g>' +
         '<g shape-rendering="auto">' + outs + me + '</g></svg>';
     } else if (WM && WM.rows.length && AT.wildOn) {
       var wc = Math.max(WM.cols, 1), wr = WM.rows.length;
