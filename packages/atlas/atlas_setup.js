@@ -674,7 +674,7 @@ AT.wildRoom = function (id, g) {
     // before this step, one step ahead of where you were.
     var PV = AT.wildPrev, pm = (me && PV && PV.grid) ? AT.wildMe(PV.grid) : null;
     var under = pm && PV.grid[pm.y + dy] ? PV.grid[pm.y + dy][pm.x + dx] : null;
-    if (under && under[0] !== "?") AT.wildUnder = { id: id, cell: under };
+    if (under) AT.wildUnder = { id: id, cell: under };      // a way out (?) too: it stays marked under you
   }
   var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
   AT.here = { id: id, area: null, wild: true, name: String(g.name || "").slice(0, 120), env: String(g.environment || "").slice(0, 40),
