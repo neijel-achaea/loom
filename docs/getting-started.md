@@ -6,6 +6,8 @@ You pick the packages you want. Nothing needs all of them.
 
 Some packages act for you once you've started them (the basher, fishing, harvesting), and stop when that one thing is done: Loom is reflexes, not a bot. Before using them, read **[Safety and fair play](safety.md)**: the game has firm rules on automation, and the page explains where Loom stops and why.
 
+New to Loom? Don't import everything at once: **[Where to start](#where-to-start)** below suggests an order, a few packages at a time.
+
 ## 1. Download
 
 Get the packages from the [releases page](https://github.com/neijel-achaea/loom/releases). The latest release has a zip, `loom-X.Y.Z.zip`, with one `.nxs` file per package. Unzip it anywhere.
@@ -16,7 +18,7 @@ A single package can also be downloaded on its own from the [`dist/`](https://gi
 
 In Nexus, open **Settings → Reflexes**, choose **Import**, and pick a `.nxs` file. Repeat for each package you want.
 
-Start with **`loom.nxs`**. It isn't required, but it gives you the `LOOM` command, update checks, and every integration between packages. Without it, each package still works alone.
+Start with **`loom.nxs`**. It isn't required, but it gives you the `LOOM` command, update checks, and every integration between packages. Without it, each package still works alone. For which to add next, see [Where to start](#where-to-start).
 
 Check each package's page before importing it: a few need another package (the basher needs **hunting**, for your class's attacks).
 
@@ -28,6 +30,7 @@ Some packages draw their own tab. Nexus needs the tab to exist first: add a **cu
 
 | Package | Tab name |
 | --- | --- |
+| atlas | `Atlas` and `Areas` |
 | basher | `Basher` |
 | coffers | `Coffers` |
 | comms | `Comms` |
@@ -37,11 +40,14 @@ Some packages draw their own tab. Nexus needs the tab to exist first: add a **cu
 | ledger | `Ledger` |
 | levelgraph | `Level` |
 | partycomms | `Party` |
+| questbook | `Quests` |
 | room | `Here` |
 | self | `Self` |
+| shopping | `Shopping` |
 | social | `Online` |
 | standings | `Standings` |
 | talpieces | `Talismans` |
+| waypoints | `Waypoints` |
 
 If a tab doesn't appear, reset the UI layout. Tab icons show after a page reload.
 
@@ -98,6 +104,58 @@ Each package's page has a "Working with other packages" section listing its link
 ## 7. Stopping everything
 
 `LOOM PAUSE ON` stops the packages from sending commands to the game; `LOOM PAUSE OFF` lets them carry on. The basher has its own kill switch, `BASHER STOP`. Stop them whenever you step away from the keyboard.
+
+## Where to start
+
+Loom has over thirty packages, and importing them all on your first day means thirty sets of commands to learn at once. A few at a time works better: a small core first, then packages as you take up what they're for. Each one you add switches on its links to the ones you already have, so the suite grows more connected as you go.
+
+These stages are a suggestion, not a rule. Skip any package you don't need.
+
+### Day one: see the game
+
+- **[loom](loom.md)**: the `LOOM` command, update checks and the integrations.
+- **[security](security.md)**: antitheft and `GG`/`PG`. New players are the ones who get robbed.
+- **[self](self.md)**, **[room](room.md)** and **[comms](comms.md)**: replace the stock character panel, Room tab and communication window, and need almost no setting up.
+- **[atlas](atlas.md)**: a map that follows you and fills in as you explore. Getting lost is the first problem in a new game.
+
+### Finding your way
+
+- **[waypoints](waypoints.md)**: once you have places to come back to (your guild, a shop, a hunting spot). Saved rooms show on the Atlas map.
+- **[questbook](questbook.md)**: once you have quests you repeat. A GO step can name a waypoint, and Atlas numbers the steps on the map.
+
+### First hunts
+
+- **[hunting](hunting.md)** and **[defcon](defcon.md)** together: your class's F-keys, and your defences kept up one tier at a time.
+- **[huntstats](huntstats.md)**, after a few hunts, so it has something to compare.
+
+### People
+
+- **[social](social.md)**: highlights, the Online tab and login notices.
+- **[standings](standings.md)**, later, once you have dealings worth keeping a record of.
+
+### Planning
+
+- **[ledger](ledger.md)**, then **[coffers](coffers.md)** and **[levelgraph](levelgraph.md)**. Added after the packages above, the ledger switches on its links to them: a harvest run, a sigil patrol, an explorer rank to win back. Coffers proposes gold goals from your hunts.
+- **[shopping](shopping.md)**: whenever you first need to buy something; with coffers, the list's total can become a gold goal.
+
+### Hunting, further
+
+- **[dmgchart](dmgchart.md)**: how hard an area hits you, fed into huntstats.
+- **[vials](vials.md)**: refilling vials from the rift.
+- **[partycomms](partycomms.md)**: once you hunt in a party.
+- **[basher](basher.md)**: last in this stage, on purpose. Hunt by hand with your F-keys for a while first, so you know what the basher does for you and why it stops, and read [Safety and fair play](safety.md) before you turn it on. It needs **hunting**.
+
+### When you take it up
+
+Add these when you start the activity or join the city role they're for:
+
+- Fishing: **[fishing](fishing.md)** and **[fishingstats](fishingstats.md)**.
+- Trade skills: **[harvesting](harvesting.md)**, **[gathering](gathering.md)**, **[remedies](remedies.md)**, **[conjuration](conjuration.md)**; **[patrolling](patrolling.md)** for checking plants and shrines.
+- Your city: **[sigils](sigils.md)**, **[civic](civic.md)**, and **[vision](vision.md)** (which uses social's lists).
+- Your class: **[magi](magi.md)** for Magi.
+- Dragons: **[talpieces](talpieces.md)** for the talisman pieces.
+- Flavour: **[roleplay](roleplay.md)**, at any time; it works alone.
+- Movement on the number pad: **[numpad_movement](numpad_movement.md)**, whenever you like.
 
 ## Something wrong?
 
