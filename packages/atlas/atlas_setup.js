@@ -715,7 +715,13 @@ AT.wildRoom = function (id, g) {
       var lr = WM.grid[pm.y - st.sy];
       if (P.env && lr && lr[pm.x - st.sx]) AT.wildNote(lr[pm.x - st.sx], P.env);
     } else if (P.id !== id) AT.wildUnder = null;     // moved, but can't tell how far: the ground beside you
-  }
+    AT.wildDebug = { me: me, pm: pm, st: st, under: AT.wildUnder ? AT.wildUnder.cell : null };
+  } else AT.wildDebug = { skipped: !P ? "no room before" : !P.wild ? "came from the normal map" : !WM ? "no map yet" : !PV ? "no map before" : "map older than 3 s" };
+  // The last few steps, for ATLAS WILDERNESS DUMP (bug reports).
+  if (!AT.wildLog) AT.wildLog = [];
+  AT.wildLog.push({ id: id, name: String(g.name || "").slice(0, 60), env: String(g.environment || "").slice(0, 40), at: Date.now(),
+    map: WM && WM.grid ? WM.grid : null, debug: AT.wildDebug });
+  if (AT.wildLog.length > 8) AT.wildLog.shift();
   var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
   AT.here = { id: id, area: null, wild: true, name: String(g.name || "").slice(0, 120), env: String(g.environment || "").slice(0, 40),
     details: det, areaName: "", onMap: false, exits: {} };

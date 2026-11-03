@@ -27,7 +27,18 @@ if (atCmd === "" || atCmd === "status") {
   else display_notice("[atlas] ATLAS FOG ON|OFF.", "orange");
 } else if (atCmd === "wilderness" || atCmd === "wild") {
   var atW = atRest.toLowerCase();
-  if (atW === "legend") {
+  if (atW === "dump") {
+    // The last steps' maps exactly as the game sent them, for a bug report.
+    var atDl = AT.wildLog || [];
+    if (!atDl.length) display_notice("[atlas] nothing recorded yet: take a few steps in the wilderness first.", "cyan");
+    else {
+      var atDs = JSON.stringify({ v: (client.loom.registry.atlas || {}).version || "", steps: atDl });
+      var atDok = false;
+      try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(atDs); atDok = true; } } catch (e) {}
+      display_notice("[atlas] " + atDl.length + " wilderness steps (" + Math.round(atDs.length / 1024) + " KB)" + (atDok ? " copied to the clipboard: paste them into a file and send it." : ": copy them from the box."), "lime");
+      if (!atDok) { try { window.prompt("Atlas: the last wilderness steps", atDs); } catch (e) {} }
+    }
+  } else if (atW === "legend") {
     var atLk = Object.keys(AT.wildSeen || {}).map(function (k) { return AT.wildSeen[k]; });
     atLk.sort(function (a, b) { return Object.keys(b.envs).length - Object.keys(a.envs).length || b.n - a.n; });
     if (!atLk.length) display_notice("[atlas] no wilderness seen yet this session: walk there with Atlas showing the map.", "cyan");
@@ -40,8 +51,8 @@ if (atCmd === "" || atCmd === "status") {
     }
   } else if (atW === "tiles" || atW === "text") { AT.setWildStyle(atW); display_notice("[atlas] wilderness map drawn as " + (atW === "tiles" ? "tiles." : "the game's letters."), "lime"); }
   else if (atW === "on" || atW === "off") { AT.setWild(atW === "on"); display_notice("[atlas] wilderness map " + (atW === "on" ? "in the Atlas tab (out of the main window)." : "back in the main window."), "lime"); }
-  else if (!atW) display_notice("[atlas] the wilderness map shows " + (AT.wildOn ? "in the Atlas tab, as " + (AT.wildStyle === "text" ? "the game's letters" : "tiles") : "in the main window") + ". ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND.", "cyan");
-  else display_notice("[atlas] ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND.", "orange");
+  else if (!atW) display_notice("[atlas] the wilderness map shows " + (AT.wildOn ? "in the Atlas tab, as " + (AT.wildStyle === "text" ? "the game's letters" : "tiles") : "in the main window") + ". ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND|DUMP.", "cyan");
+  else display_notice("[atlas] ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND|DUMP.", "orange");
 } else if (atCmd === "go") {
   if (/^\d+$/.test(atRest)) AT.go(atRest);
   else display_notice("[atlas] ATLAS GO <room number>.", "orange");

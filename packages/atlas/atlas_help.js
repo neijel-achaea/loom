@@ -9,6 +9,7 @@ var hlRows = [
   ["ATLAS WILDERNESS [ON|OFF]", "in the wilderness, the game's own map in the Atlas tab instead of the main window (default ON)"],
   ["ATLAS WILDERNESS TILES|TEXT", "the wilderness map as tiles in Atlas's colours (default) or as the game's letters"],
   ["ATLAS WILDERNESS LEGEND", "the wilderness map's characters seen this session, with the environment of the rooms you stood on"],
+  ["ATLAS WILDERNESS DUMP", "copy the last 8 wilderness maps as the game sent them, for a bug report"],
   ["ATLAS GO <room number>", "walk there (PATH FIND), as a click on a room in the tab"],
   ["ATLAS SORT [NAME|LEAST|MOST|LEFT]", "order the Areas tab's chips: by name, least or most explored first, or most rooms left first (also NAME · % · LEFT in the tab; kept)"],
   ["ATLAS MARK [room number] <icon> [note]", "your own icon on a room (no number: the room you're in), bottom left corner; note on hover"],
