@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.9.0.*
+*This page describes atlas 0.10.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -18,7 +18,7 @@ Atlas draws the area you're in, one level at a time, in a custom tab named **Atl
 - **Moving the map.** Drag to pan; the mouse wheel or **− +** zoom; **⌖** brings you back to the room you're in.
 - **Your own marks.** Mark a room with an icon from a short list: `ATLAS MARK fishing` marks the room you're in, `ATLAS MARK 14001 bank` any room by number, and anything after the icon is a note (`ATLAS MARK sleep the inn upstairs`). The icon sits in a light circle at the room's bottom left corner, the note on hover; one mark per room, `ATLAS UNMARK [number]` takes it off and `ATLAS MARKS` lists them. Icons: fishing, shrine, sleep, bank, shop, craft, harvest, hunt, danger, star (a favourite) and secret; a few other words work too (inn, forge, herbs, key…). Marks are kept per character.
 - **Places on no map.** Some places are on no map at all: the Mnemosyne, where every wade is your own instance and every ripple a fresh layout, or a brand-new spot the game has just added. There the game still tells which room you're in and its exits, so Atlas sketches the place as you walk: the title reads *off the map*, each room you enter is placed a step from the last in the direction you took, walked exits are lines and the others dotted. A fresh sketch starts when a ripple ends (at the boon screen), when you arrive somewhere no exit led to (back at a ripple's first room, a portal), or when a room comes back under another name (a new ripple reusing the same room numbers); stepping back onto the map forgets it. Clicks don't walk there: `PATH FIND` can't route through places the game keeps off its map. (The idea follows the Dementia Mapper in LEVI-Achaea, a Mudlet system.)
-- **The wilderness.** The wilderness (ENTER WILDERNESS at its entry points) is millions of rooms on no map; the game draws its own map of it as you walk. In the wilderness Atlas shows that map, in the game's colours with you as the @, in place of its own, and takes it out of the main window; the line under the title gives the room and its environment. Atlas asks Nexus for the same treatment its stock Map tab gets, so this works whichever tab is showing. `ATLAS WILDERNESS OFF` leaves the map in the main window.
+- **The wilderness.** The wilderness (ENTER WILDERNESS at its entry points) is millions of rooms on no map; the game draws its own map of it as you walk. In the wilderness Atlas shows that map in place of its own and takes it out of the main window. It's drawn as tiles: each spot a square in its colour (muted like Atlas's rooms), small pictures for the terrains Atlas knows (sea and rivers, plains, desert, hills, mountains, fields, woods, beaches, reefs, cities, bridges, ships; roads drawn as lines) and the game's other letters faint on top where they tell terrains apart, you ringed in amber and the ways out of the wilderness (the game's `?`) marked; `ATLAS WILDERNESS TEXT` shows the game's letters as sent instead (`TILES` to go back); the line under the title gives the room and its environment. Atlas asks Nexus for the same treatment its stock Map tab gets, so this works whichever tab is showing. The game publishes no legend for this map, so Atlas learns one as you walk: `ATLAS WILDERNESS LEGEND` lists every character seen this session with its colours and the environment of the rooms you stood on (send it in a bug report to get a picture for a terrain that has none). `ATLAS WILDERNESS OFF` leaves the map in the main window.
 - **Walking.** Click a room to walk there with the game's `PATH FIND <number>`. Atlas sends it once and does nothing else.
 
 ### The Areas tab
@@ -52,6 +52,9 @@ Corrections to the map go to the crowdmap project itself (its issues and pull re
 | `ATLAS` | status: the map's version, fog of war, where you are and how much of the area you've explored |
 | `ATLAS FOG [ON\|OFF]` | fog of war: only the rooms you've explored (default ON); OFF shows every room, unexplored ones faint |
 | `ATLAS WILDERNESS [ON\|OFF]` | in the wilderness, the game's own map in the Atlas tab instead of the main window (default ON) |
+| `ATLAS WILDERNESS TILES\|TEXT` | the wilderness map as tiles in Atlas's colours (default) or as the game's letters |
+| `ATLAS WILDERNESS LEGEND` | the wilderness map's characters seen this session, with the environment of the rooms you stood on |
+| `ATLAS WILDERNESS DUMP` | copy the last 8 wilderness maps as the game sent them, for a bug report |
 | `ATLAS GO <room number>` | walk there (PATH FIND), as a click on a room in the tab |
 | `ATLAS SORT [NAME\|LEAST\|MOST\|LEFT]` | order the Areas tab's chips: by name, least or most explored first, or most rooms left first (also NAME · % · LEFT in the tab; kept) |
 | `ATLAS MARK [room number] <icon> [note]` | your own icon on a room (no number: the room you're in), bottom left corner; note on hover |

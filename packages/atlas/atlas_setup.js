@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.9.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.10.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -25,6 +25,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_fog = "off" while fog of war is off (absent: on);
 //   atlas_wild = "off" while the wilderness map stays in the main window
 //     (absent: Atlas shows it);
+//   atlas_wild_style = "text" for the game's letters as sent (absent: tiles);
 //   atlas_counts = { area: rooms explored there that are on the map },
 //     updated whenever the game sends an area's list or you explore a room;
 //   atlas_tags = { area: [tag, …] }, your own groups for the Areas tab;
@@ -37,6 +38,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 // A variable that isn't readable starts afresh (#135).
 AT.fog = get_variable("atlas_fog") !== "off";
 AT.wildOn = get_variable("atlas_wild") !== "off";
+AT.wildStyle = get_variable("atlas_wild_style") === "text" ? "text" : "tiles";
 AT.readJson = function (name) {
   var v = get_variable(name);
   if (typeof v == "string") { try { v = JSON.parse(v); } catch (e) { v = null; } }
@@ -486,7 +488,7 @@ AT.roomInfo = function (g) {
   // The wilderness (a Room.Info with `ohmap`, as nexMap tells it): millions
   // of rooms on no map; the game draws its own, which Atlas shows.
   if (g.ohmap !== undefined && g.ohmap !== null && String(g.ohmap) !== "") { AT.wildRoom(id, g); return; }
-  if (AT.here && AT.here.wild) AT.wildMap = null;     // left the wilderness
+  if (AT.here && AT.here.wild) { AT.wildMap = null; AT.wildPrev = null; AT.wildUnder = null; }     // left the wilderness
   var co = String(g.coords || "").split(",");
   var aid = atNum(co[0]);
   var R = AT.room(id);
@@ -580,6 +582,11 @@ AT.wildUnhook = function () {
   if (D.handle_GMCP && D.handle_GMCP.__loomAtlas) D.handle_GMCP = D.handle_GMCP.__loomAtlas;
   if (D.on_special_display && D.on_special_display.__loomAtlas) D.on_special_display = D.on_special_display.__loomAtlas;
 };
+AT.setWildStyle = function (st) {
+  AT.wildStyle = st === "text" ? "text" : "tiles";
+  if (AT.wildStyle === "text") set_variable("atlas_wild_style", "text"); else delete_variable("atlas_wild_style");
+  run_function("atlas_render", { full: true }, "atlas");
+};
 AT.setWild = function (on) {
   AT.wildOn = !!on;
   if (AT.wildOn) delete_variable("atlas_wild"); else set_variable("atlas_wild", "off");
@@ -590,10 +597,10 @@ AT.wildColour = function (c) { return typeof c == "string" && /^#[0-9a-fA-F]{3,8
 AT.wildLines = function (lines) {
   if (!Array.isArray(lines)) return;
   var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
-  var rows = [], cols = 0;
+  var rows = [], grid = [], cols = 0;
   for (var i = 0; i < lines.length && i < 80; i++) {
     var L = lines[i] || {}, ch = L.parsed_line && Array.isArray(L.parsed_line.chunks) ? L.parsed_line.chunks : null;
-    var fg = null, bg = null, out = "", n = 0;
+    var fg = null, bg = null, out = "", n = 0, cells = [];
     if (ch) {
       for (var k = 0; k < ch.length; k++) {
         var C = ch[k] || {};
@@ -601,6 +608,7 @@ AT.wildLines = function (lines) {
           var t = String(C._txt).slice(0, 300);
           if (!t) continue;
           n += t.length;
+          for (var q = 0; q < t.length; q++) cells.push([t.charAt(q), fg, bg]);
           out += (fg || bg) ? '<span style="' + (fg ? 'color:' + fg + ';' : '') + (bg ? 'background:' + bg + ';' : '') + '">' + esc(t) + '</span>' : esc(t);
           continue;
         }
@@ -612,21 +620,128 @@ AT.wildLines = function (lines) {
     } else {
       var plain = String(L.line || "").replace(/\u001b\[[0-9;]*m/g, "").slice(0, 300);
       n = plain.length; out = esc(plain);
+      for (var q2 = 0; q2 < plain.length; q2++) cells.push([plain.charAt(q2), null, null]);
     }
     if (n > cols) cols = n;
     rows.push(out);
+    grid.push(cells);
   }
-  AT.wildMap = { rows: rows, cols: cols, at: Date.now() };
+  // rows: the lines as coloured text; grid: [row][col] = [char, fg, bg]
+  // for the tiles.
+  AT.wildPrev = AT.wildMap;         // the map before this step: what's under you now
+  AT.wildMap = { rows: rows, grid: grid, cols: cols, at: Date.now() };
+  AT.wildStep();
+  var wMe = AT.wildMe(grid);       // your mark isn't terrain
+  for (var gy = 0; gy < grid.length; gy++) for (var gx = 0; gx < grid[gy].length; gx++) if (!(wMe && wMe.x === gx && wMe.y === gy)) AT.wildNote(grid[gy][gx]);
   run_function("atlas_render", { full: true }, "atlas");
 };
 // Room.Info in the wilderness: no sketch, no counts; the tab shows the
 // game's map (it comes just before this Room.Info).
+// Where you are on the map: the @; else (flying shows another mark) a white
+// character that appears only once on the map (roads are white too, but
+// many), nearest the middle. The map isn't always centred on you.
+AT.wildMe = function (grid) {
+  var h = grid.length, w = 0, cnt = {}, cand = [];
+  for (var y = 0; y < h; y++) {
+    if (grid[y].length > w) w = grid[y].length;
+    for (var x = 0; x < grid[y].length; x++) {
+      var c = grid[y][x];
+      if (c[0] === "@") return { x: x, y: y };
+      if (c[0] !== " " && c[0] !== "?" && /^#f{3}(?:f{3})?$/i.test(c[1] || "")) { var k = c[0] + "|" + (c[2] || ""); cnt[k] = (cnt[k] || 0) + 1; cand.push([x, y, k]); }
+    }
+  }
+  var best = 1e9, me = null;
+  for (var i = 0; i < cand.length; i++) {
+    if (cnt[cand[i][2]] !== 1) continue;
+    var d = Math.abs(cand[i][0] - w / 2) + Math.abs(cand[i][1] - h / 2);
+    if (d < best) { best = d; me = { x: cand[i][0], y: cand[i][1] }; }
+  }
+  return me;
+};
+// The legend, learnt as you walk (the game publishes none): every character
+// seen, with its colours; and, for the room you just left, the environment
+// the game named for it: the room you left is drawn one step back from you
+// on the new map (the step found by AT.wildShift). Kept for the session;
+// ATLAS WILDERNESS LEGEND.
+if (!AT.wildSeen) AT.wildSeen = {};
+AT.wildKey = function (c) { return c[0] + "|" + (c[1] || "") + "|" + (c[2] || ""); };
+AT.wildNote = function (c, env) {
+  if (!c || c[0] === " " && !c[2]) return;
+  var k = AT.wildKey(c), e = AT.wildSeen[k];
+  if (!e) { if (Object.keys(AT.wildSeen).length >= 200) return; e = AT.wildSeen[k] = { c: c[0], fg: c[1] || "", bg: c[2] || "", n: 0, envs: {} }; }
+  if (env) e.envs[env] = (e.envs[env] || 0) + 1; else e.n++;
+};
+// How the map moved between two views (A with your mark at a, B with it at
+// b): the shift (sx, sy) where B's cells match A's best, B[y][x] = A[y+sy][x+sx],
+// both marks left out. The game's map sometimes follows you and sometimes
+// stays put while your mark moves across it, jumping when you near its edge
+// (Ricardo's screenshots), so any shift up to most of the view is tried.
+// null when too little lines up to tell.
+AT.wildShift = function (A, a, B, b) {
+  var best = null, bestR = 0, H = B.length, W = 0;
+  for (var k = 0; k < H; k++) if (B[k].length > W) W = B[k].length;
+  var mx = Math.min(16, Math.floor(W * 0.7)), my = Math.min(12, Math.floor(H * 0.7));
+  for (var sy = -my; sy <= my; sy++) for (var sx = -mx; sx <= mx; sx++) {
+    var same = 0, n = 0;
+    for (var y = 0; y < H; y++) {
+      var ar = A[y + sy];
+      if (!ar) continue;
+      for (var x = 0; x < B[y].length; x++) {
+        if (x === b.x && y === b.y) continue;
+        if (x + sx === a.x && y + sy === a.y) continue;
+        var ac = ar[x + sx];
+        if (!ac) continue;
+        var bc = B[y][x];
+        n++;
+        if (ac[0] === bc[0] && ac[1] === bc[1] && ac[2] === bc[2]) same++;
+      }
+    }
+    var r = n >= 40 ? same / n - (Math.abs(sx) + Math.abs(sy)) * 0.0005 : 0;   // a hair towards the smaller shift on ties
+    if (r > bestR) { bestR = r; best = { sx: sx, sy: sy, r: r }; }
+  }
+  return best && bestR >= 0.7 ? best : null;
+};
+// A new map came: how you moved since the last one, and the ground under
+// your mark (the last map showed it). Done here, tied to the map, because
+// the map comes after the room's own information for the same step (it was
+// read one step late before, Ricardo's dump).
+AT.wildStep = function () {
+  var WM = AT.wildMap, PV = AT.wildPrev, dbg;
+  var me = AT.wildMe(WM.grid), pm = PV && PV.grid && Date.now() - PV.at < 60000 ? AT.wildMe(PV.grid) : null;
+  var st = me && pm ? AT.wildShift(PV.grid, pm, WM.grid, me) : null;
+  if (st) {
+    var ox = me.x + st.sx, oy = me.y + st.sy;              // where you are now, on the last map
+    if (ox === pm.x && oy === pm.y) {                      // didn't move (LOOK): same ground
+      if (AT.wildUnder && AT.wildUnder.map === PV) AT.wildUnder = { map: WM, cell: AT.wildUnder.cell };
+    } else {
+      var under = PV.grid[oy] ? PV.grid[oy][ox] : null;
+      AT.wildUnder = under ? { map: WM, cell: under } : null;   // a way out (?) too: it stays marked under you
+    }
+  } else AT.wildUnder = null;                              // a jump, or the first map: the ground beside you
+  AT.wildDebug = { me: me, pm: pm, st: st, under: AT.wildUnder ? AT.wildUnder.cell : null, why: !pm ? "no map before" : (!st ? "maps don't line up" : "") };
+  AT.wildPair();
+  // The last few steps, for ATLAS WILDERNESS DUMP (bug reports).
+  if (!AT.wildLog) AT.wildLog = [];
+  var H = AT.here || {};
+  AT.wildLog.push({ id: H.id || 0, name: H.name || "", env: H.env || "", room_at: H.at || 0, at: WM.at, map: WM.grid, debug: AT.wildDebug });
+  if (AT.wildLog.length > 8) AT.wildLog.shift();
+};
+// The legend: the ground under you, named by the room's environment, once
+// the map and the room information of the same step have both come (within
+// a moment of each other, either order).
+AT.wildPair = function () {
+  var H = AT.here, WM = AT.wildMap, U = AT.wildUnder;
+  if (!H || !H.wild || !H.env || !WM || WM.paired || !U || U.map !== WM || Math.abs((H.at || 0) - WM.at) > 800) return;
+  WM.paired = true;
+  AT.wildNote(U.cell, H.env);
+};
 AT.wildRoom = function (id, g) {
   if (AT.sketch) AT.sketchClear();
   AT.wildHook();
   var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
   AT.here = { id: id, area: null, wild: true, name: String(g.name || "").slice(0, 120), env: String(g.environment || "").slice(0, 40),
-    details: det, areaName: "", onMap: false, exits: {} };
+    details: det, areaName: "", onMap: false, exits: {}, at: Date.now() };
+  AT.wildPair();
   run_function("atlas_render", { full: true }, "atlas");
 };
 

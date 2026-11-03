@@ -52,6 +52,77 @@ function col(e) {
   }
   return (envCol[e] = "hsl(" + Math.round(h) + "," + Math.round(sa * 38) + "%," + Math.round(30 + l * 18) + "%)");
 }
+// A game colour (#hex) muted the same way, for the wilderness tiles.
+var hueCol = {};
+function hue(hex) {
+  if (hueCol[hex]) return hueCol[hex];
+  var h6 = hex.length === 4 ? hex.replace(/^#(.)(.)(.)$/, "#$1$1$2$2$3$3") : hex.slice(0, 7);
+  var n = parseInt(h6.slice(1), 16);
+  if (isNaN(n)) return (hueCol[hex] = "rgb(96,90,80)");
+  var r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+  var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, h = 0, sa = 0, d = mx - mn;
+  if (d) {
+    sa = d / (1 - Math.abs(2 * l - 1));
+    h = mx === r ? ((g - b) / d) % 6 : (mx === g ? (b - r) / d + 2 : (r - g) / d + 4);
+    h *= 60; if (h < 0) h += 360;
+  }
+  return (hueCol[hex] = "hsl(" + Math.round(h) + "," + Math.round(sa * 38) + "%," + Math.round(24 + l * 30) + "%)");
+}
+// The same colour lighter: pictures drawn on a tile of their own colour.
+var litCol = {};
+function lit(hex) {
+  if (litCol[hex]) return litCol[hex];
+  var m = /^hsl\((\d+),(\d+)%,(\d+)%\)$/.exec(hue(hex));
+  return (litCol[hex] = m ? "hsl(" + m[1] + "," + m[2] + "%," + Math.min(85, Number(m[3]) + 16) + "%)" : hue(hex));
+}
+// Pictures for the wilderness map's characters, in a 1×1 cell: [kind, path],
+// "s" stroked, "f" filled. No legend is published; read from Ricardo's
+// screenshots and dump (2026-11-03): # on green is fields ("Among the fields"). wicon() picks one by character and colours;
+// anything else keeps the faint letter.
+var WP = {
+  waves: ["s", "M0.14 0.42q0.09 -0.12 0.18 0t0.18 0t0.18 0t0.18 0M0.14 0.66q0.09 -0.12 0.18 0t0.18 0t0.18 0t0.18 0"],
+  wave: ["s", "M0.14 0.54q0.09 -0.14 0.18 0t0.18 0t0.18 0t0.18 0"],
+  grass: ["s", "M0.32 0.72l-0.05 -0.2M0.5 0.72v-0.28M0.68 0.72l0.05 -0.2"],
+  sand: ["f", "M0.26 0.36a0.06 0.06 0 1 0 0.001 0M0.62 0.3a0.06 0.06 0 1 0 0.001 0M0.44 0.6a0.06 0.06 0 1 0 0.001 0M0.76 0.66a0.06 0.06 0 1 0 0.001 0"],
+  dunes: ["s", "M0.12 0.48q0.19 -0.16 0.38 0M0.5 0.72q0.19 -0.16 0.38 0"],
+  fields: ["s", "M0.22 0.28v0.46M0.41 0.28v0.46M0.6 0.28v0.46M0.79 0.28v0.46"],
+  conifer: ["f", "M0.5 0.14L0.78 0.62H0.56V0.82H0.44V0.62H0.22Z"],
+  tree: ["f", "M0.5 0.16a0.24 0.24 0 1 0 0.001 0ZM0.45 0.58h0.1v0.26h-0.1Z"],
+  hill: ["s", "M0.14 0.72Q0.5 0.18 0.86 0.72"],
+  mountain: ["f", "M0.08 0.82L0.38 0.24L0.52 0.5L0.64 0.34L0.92 0.82Z"],
+  ridge: ["s", "M0.12 0.76L0.4 0.3L0.56 0.54L0.66 0.4L0.88 0.76"],
+  city: ["f", "M0.16 0.84V0.44H0.36V0.84ZM0.42 0.84V0.22H0.6V0.84ZM0.66 0.84V0.52H0.84V0.84Z"],
+  rocks: ["f", "M0.2 0.7a0.12 0.1 0 1 0 0.001 0ZM0.56 0.5a0.14 0.11 0 1 0 0.001 0ZM0.66 0.78a0.09 0.07 0 1 0 0.001 0Z"],
+  bridge: ["s", "M0 0.36H1M0 0.64H1M0.25 0.36V0.64M0.5 0.36V0.64M0.75 0.36V0.64"],
+  ship: ["f", "M0.12 0.58H0.88L0.74 0.8H0.26ZM0.48 0.12V0.56H0.52V0.12ZM0.52 0.16L0.78 0.5H0.52Z"]
+};
+function lum(h) { var m = /,(\d+)%\)$/.exec(h); return m ? Number(m[1]) : 50; }
+// A colour's family: grey, blue, cyan, green, olive, yellow, red, other.
+var famCol = {};
+function fam(hex) {
+  if (!hex) return "";
+  if (famCol[hex]) return famCol[hex];
+  var h6 = hex.length === 4 ? hex.replace(/^#(.)(.)(.)$/, "#$1$1$2$2$3$3") : hex.slice(0, 7), n = parseInt(h6.slice(1), 16);
+  var r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  var f = mx - mn < 40 ? "grey" : (b === mx && r < 80 && g < 80 ? "blue" : (g > 100 && b > 100 && r < 80 ? "cyan" : (r > 150 && g < 90 ? "red" : (g === mx && r < 100 ? "green" : (r > 100 && g > 100 && b < 90 ? (r > 200 ? "yellow" : "olive") : "other")))));
+  return (famCol[hex] = f);
+}
+function wicon(c, fg, bg) {
+  var b = fam(bg), f = fam(fg);
+  if (c === "w" || c === "W") return b === "red" ? null : WP.waves;
+  if (c === "~") return WP.wave;
+  if (c === "." || c === ",") return bg ? (b === "olive" || b === "yellow" ? WP.sand : null) : (f === "green" ? WP.grass : (f === "olive" || f === "yellow" ? WP.dunes : null));
+  if (c === ":") return WP.sand;
+  if (c === ";") return WP.sand;
+  if (c === "#") return b === "grey" ? WP.city : (b === "blue" ? WP.rocks : (b === "green" ? WP.fields : (f === "green" ? WP.conifer : null)));
+  if (c === "*") return WP.tree;
+  if (c === "n") return WP.hill;
+  if (c === "M" || c === "m") return WP.mountain;
+  if (c === "^") return WP.ridge;
+  if (c === "=") return WP.bridge;
+  if (c === "S") return WP.ship;
+  return null;
+}
 function areaTitle(aid) { return AT.title(aid); }
 
 var H = AT.here, V = AT.view, M = AT.map;
@@ -115,7 +186,63 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     // The game's map, as it sent it: fitted to the frame (container units),
     // one character cell per room, you the @.
     var WM = AT.wildMap;
-    if (WM && WM.rows.length && AT.wildOn) {
+    if (WM && WM.grid && WM.grid.length && AT.wildOn && AT.wildStyle !== "text") {
+      // Tiles: each cell a square in its colour (the background when it has
+      // one, else the character's), muted as Atlas's own rooms; you an amber
+      // ring (your cell is the @, or the white one: flying shows another
+      // mark); ? cells (ways out of the wilderness) a small marker.
+      var gw = Math.max(WM.cols, 1), gh = WM.grid.length, tiles = '', glyphs = '', icons = '', roads = '', roadC = '', outs = '', meAt = AT.wildMe(WM.grid), meX = meAt ? meAt.x : -1, meY = meAt ? meAt.y : -1;
+      for (var gy = 0; gy < gh; gy++) {
+        var rowc = WM.grid[gy], runC = null, runX = 0;
+        for (var gx = 0; gx <= rowc.length; gx++) {
+          var cell = rowc[gx], cc = null;
+          if (cell) {
+            var chr = cell[0], fgc = cell[1], bgc = cell[2];
+            var mine = gx === meX && gy === meY;
+            // Your cell: the ground under your mark, from the map before you
+            // stepped onto it (else the ground beside you).
+            if (mine && AT.wildUnder && AT.wildUnder.map === WM) { var un = AT.wildUnder.cell; chr = un[0]; fgc = un[1]; bgc = un[2]; mine = false; }
+            if (chr === "?") outs += '<g><title>a way out of the wilderness</title><circle cx="' + (gx + 0.5) + '" cy="' + (gy + 0.5) + '" r="0.32" fill="' + AMBER + '" stroke="#000" stroke-width="0.08"/></g>';
+            // A road or a way out with no background of its own stands on the
+            // ground beside it.
+            if (!bgc && (chr === "+" || chr === "?" || mine)) cc = runC || null;
+            else { cc = bgc || (chr !== " " && !mine ? fgc : null) || (mine ? (bgc || null) : null); if (cc) cc = hue(cc); }
+            if (chr === "+") {
+              // Roads: a line to each neighbouring road (or way out).
+              var rl = "", nb = [[1, 0], [0, 1], [1, 1], [-1, 1]], lone = true;
+              for (var ni = 0; ni < nb.length; ni++) { var nr = WM.grid[gy + nb[ni][1]], nc = nr && nr[gx + nb[ni][0]]; if (nc && (nc[0] === "+" || nc[0] === "?")) { rl += "M" + (gx + 0.5) + " " + (gy + 0.5) + "l" + nb[ni][0] + " " + nb[ni][1]; lone = false; } }
+              var up = [[0, -1], [-1, 0], [-1, -1], [1, -1]];
+              for (var ui = 0; ui < up.length && lone; ui++) { var ur = WM.grid[gy + up[ui][1]], uc = ur && ur[gx + up[ui][0]]; if (uc && (uc[0] === "+" || uc[0] === "?")) lone = false; }
+              roads += rl + (lone ? "M" + (gx + 0.35) + " " + (gy + 0.5) + "h0.3" : "");
+              roadC = roadC || lit(fgc || "#aaaaaa");
+            }
+            // A small picture for the characters Atlas knows (waves, grass,
+            // trees…), in the character's colour, or a lighter shade of the
+            // tile when the character is the tile's colour; any other character
+            // faint where a background carries the colour (it tells terrains
+            // drawn in the same colours apart).
+            if (fgc && chr !== " " && chr !== "?" && chr !== "+" && !mine) {
+              var ic = wicon(chr, fgc, bgc);
+              // In the character's colour, lighter when that's the tile's own
+              // family (it would vanish otherwise).
+              var icc = bgc && Math.abs(lum(hue(fgc)) - lum(hue(bgc))) >= 10 ? hue(fgc) : (bgc ? lit(bgc) : lit(fgc));
+              if (ic) icons += '<path transform="translate(' + gx + ' ' + gy + ')" d="' + ic[1] + '"' + (ic[0] === "f" ? ' fill="' + icc + '" stroke="none"' : ' stroke="' + icc + '"') + '/>';
+              else if (bgc) glyphs += '<text x="' + (gx + 0.5) + '" y="' + (gy + 0.55) + '" fill="' + hue(fgc) + '">' + (chr === "<" ? "&lt;" : chr === "&" ? "&amp;" : chr === ">" ? "&gt;" : chr) + '</text>';
+            }
+          }
+          if (cc !== runC) {
+            if (runC) tiles += '<rect x="' + runX + '" y="' + gy + '" width="' + (gx - runX) + '" height="1" fill="' + runC + '"/>';
+            runC = cc; runX = gx;
+          }
+        }
+      }
+      var me = meX >= 0 ? '<circle cx="' + (meX + 0.5) + '" cy="' + (meY + 0.5) + '" r="0.9" fill="none" stroke="' + AMBER + '" stroke-width="0.28"/>' : '';
+      html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 ' + (gw + 1) + ' ' + (gh + 1) + '" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:' + BG + ';" shape-rendering="crispEdges">' +
+        tiles + (roads ? '<path shape-rendering="auto" d="' + roads + '" fill="none" stroke="' + roadC + '" stroke-width="0.16" stroke-linecap="round" pointer-events="none"/>' : '') +
+        '<g shape-rendering="auto" fill="none" stroke-width="0.09" stroke-linecap="round" stroke-linejoin="round" pointer-events="none">' + icons + '</g>' +
+        '<g shape-rendering="auto" font-family="' + MONO + '" font-size="0.9" text-anchor="middle" dominant-baseline="central" opacity="0.55" pointer-events="none">' + glyphs + '</g>' +
+        '<g shape-rendering="auto">' + outs + me + '</g></svg>';
+    } else if (WM && WM.rows.length && AT.wildOn) {
       var wc = Math.max(WM.cols, 1), wr = WM.rows.length;
       html += '<div style="position:absolute;inset:0;container-type:size;display:flex;align-items:center;justify-content:center;background:#000;">';
       html += '<pre style="margin:0;font-family:' + MONO + ';line-height:1;letter-spacing:0;color:#aaaaaa;font-size:14px;font-size:min(' + (100 / wc / 0.6).toFixed(2) + 'cqw,' + (100 / wr).toFixed(2) + 'cqh);">' + WM.rows.join("\n") + '</pre></div>';
@@ -323,7 +450,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
 
   // Footer: what's missing, where the map comes from.
   var foot = [];
-  if (WILD) foot.push("The game's own map of the wilderness: you're the @.");
+  if (WILD) foot.push("The game's own map of the wilderness" + (AT.wildStyle === "text" ? "." : ", drawn as tiles: you're ringed, ways out marked."));
   else if (aid === AT.SKETCH) foot.push("Off the map: rooms appear as you walk, dotted exits lead where you haven't been; a new ripple or a portal starts a fresh sketch.");
   else if (H && !here) foot.push("This room (" + H.id + ") isn't on the community map" + (aid ? "; showing its area." : "."));
   if (M && !WILD && aid && aid !== AT.SKETCH && !expl && !AT.uncounted[aid]) foot.push("Fog of war starts once you enter an area: the game sends its explored rooms then.");
