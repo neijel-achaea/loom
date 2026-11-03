@@ -3,12 +3,12 @@
 *Shares your vitals, rage, target and room with your party, and shows everyone's in the Party tab.*
 
 <!-- loom:version partycomms -->
-*This page describes partycomms 1.1.0.*
+*This page describes partycomms 1.1.1.*
 <!-- /loom:version -->
 
 ## What it is
 
-When everyone in a party runs PartyComms, each of you can see how the others are doing. Your package sends a short report over party tell whenever something changes (at most once a second, and at least every ten), and hides everyone's reports from the main window. The **Party** tab turns them into one **chip** per member:
+When everyone in a party runs PartyComms, each of you can see how the others are doing. Your package sends a short report over party tell whenever something changes (at most once a second, twice when your room changed so followers keep up on Atlas, and at least every ten), and hides everyone's reports from the main window. The **Party** tab turns them into one **chip** per member:
 
 <img src="img/party.png" width="380" alt="The Party tab with the two sample members from PARTYCOMMS TEST.">
 

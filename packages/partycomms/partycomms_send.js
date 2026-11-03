@@ -1,6 +1,8 @@
 // partycomms_send -- run on each Char.Vitals: works out your target, then
 // broadcasts over party tell when something moved, at most once a second
-// and at least every ten. Nothing goes to the game while triggers are paused
+// (twice a second when your room changed, so a follower's ring on Atlas keeps
+// up, #451) and at least every ten. A change held back by the gap goes out
+// when the gap ends, even if no prompt comes then. Nothing goes to the game while triggers are paused
 // (an unset pauseTriggers counts as off) or with broadcasting off.
 //
 // The message, one line, fields separated by spaces; "~" splits the vitals
@@ -60,7 +62,16 @@ if (!PC.why) {
     pcTid !== S0.tid || pcTname !== S0.tname || (ME.room || 0) !== (S0.room || 0) ||
     (!isNaN(pcThpN) && (S0.thp === "" || Math.abs(pcThpN - parseInt(S0.thp, 10)) >= 10)) ||
     pcNow - S0.at >= 10;
-  if (pcMoved && pcNow - S0.at >= 1) {
+  var pcRoomMoved = (ME.room || 0) !== (S0.room || 0);
+  var pcGap = pcRoomMoved ? PC.roomGap : PC.gap;
+  if (pcMoved && pcNow - S0.at < pcGap && !PC.trailT) {
+    // Held back: try again when the gap ends (the last step of a walk would
+    // otherwise wait for the next prompt).
+    PC.trailT = setTimeout(function () { PC.trailT = null; run_function("partycomms_send", [], "partycomms"); },
+      Math.max(20, Math.ceil((S0.at + pcGap - pcNow) * 1000)));
+  }
+  if (pcMoved && pcNow - S0.at >= pcGap) {
+    if (PC.trailT) { clearTimeout(PC.trailT); PC.trailT = null; }
     var pcCls = (ME.cls || "-").replace(/\s+/g, "_") + (ME.lvl > 0 ? ":" + ME.lvl : (ME.room > 0 ? ":" : "")) + (ME.room > 0 ? ":" + ME.room : "");
     var pcMsg = "pt [PARTY] " + ME.name + " " + pcCls +
       " " + ME.hp + "/" + ME.maxhp + " " + ME.mp + "/" + ME.maxmp +
