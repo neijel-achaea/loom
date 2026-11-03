@@ -198,6 +198,9 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
           if (cell) {
             var chr = cell[0], fgc = cell[1], bgc = cell[2];
             var mine = gx === meX && gy === meY;
+            // Your cell: the ground under your mark, from the map before you
+            // stepped onto it (else the ground beside you).
+            if (mine && AT.wildUnder && H && AT.wildUnder.id === H.id) { var un = AT.wildUnder.cell; chr = un[0]; fgc = un[1]; bgc = un[2]; mine = false; }
             if (chr === "?") outs += '<g><title>a way out of the wilderness</title><circle cx="' + (gx + 0.5) + '" cy="' + (gy + 0.5) + '" r="0.32" fill="' + AMBER + '" stroke="#000" stroke-width="0.08"/></g>';
             // A road or a way out with no background of its own stands on the
             // ground beside it.

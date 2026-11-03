@@ -628,6 +628,7 @@ AT.wildLines = function (lines) {
   }
   // rows: the lines as coloured text; grid: [row][col] = [char, fg, bg]
   // for the tiles.
+  AT.wildPrev = AT.wildMap;         // the map before this step: what's under you now
   AT.wildMap = { rows: rows, grid: grid, cols: cols, at: Date.now() };
   var wMe = AT.wildMe(grid);       // your mark isn't terrain
   for (var gy = 0; gy < grid.length; gy++) for (var gx = 0; gx < grid[gy].length; gx++) if (!(wMe && wMe.x === gx && wMe.y === gy)) AT.wildNote(grid[gy][gx]);
@@ -669,6 +670,11 @@ AT.wildRoom = function (id, g) {
     var dx = Math.floor(id / 1000) - Math.floor(P.id / 1000), dy = (id % 1000) - (P.id % 1000);
     var me = (Math.abs(dx) <= 3 && Math.abs(dy) <= 3 && (dx || dy)) ? AT.wildMe(WM.grid) : null;
     if (me && WM.grid[me.y - dy]) AT.wildNote(WM.grid[me.y - dy][me.x - dx], P.env);
+    // Your mark hides the ground you stand on: it was drawn on the map
+    // before this step, one step ahead of where you were.
+    var PV = AT.wildPrev, pm = (me && PV && PV.grid) ? AT.wildMe(PV.grid) : null;
+    var under = pm && PV.grid[pm.y + dy] ? PV.grid[pm.y + dy][pm.x + dx] : null;
+    if (under && under[0] !== "?") AT.wildUnder = { id: id, cell: under };
   }
   var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
   AT.here = { id: id, area: null, wild: true, name: String(g.name || "").slice(0, 120), env: String(g.environment || "").slice(0, 40),
