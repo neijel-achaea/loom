@@ -651,9 +651,9 @@ AT.wildMe = function (grid) {
 };
 // The legend, learnt as you walk (the game publishes none): every character
 // seen, with its colours; and, for the room you just left, the environment
-// the game named for it. Room numbers out there read as x * 1000 + y (east
-// +1000, south +1: Ricardo's log), so the room you left is drawn one step
-// back from you on the new map. Kept for the session; ATLAS WILDERNESS LEGEND.
+// the game named for it: the room you left is drawn one step back from you
+// on the new map (the step found by AT.wildShift). Kept for the session;
+// ATLAS WILDERNESS LEGEND.
 if (!AT.wildSeen) AT.wildSeen = {};
 AT.wildKey = function (c) { return c[0] + "|" + (c[1] || "") + "|" + (c[2] || ""); };
 AT.wildNote = function (c, env) {
@@ -662,19 +662,47 @@ AT.wildNote = function (c, env) {
   if (!e) { if (Object.keys(AT.wildSeen).length >= 200) return; e = AT.wildSeen[k] = { c: c[0], fg: c[1] || "", bg: c[2] || "", n: 0, envs: {} }; }
   if (env) e.envs[env] = (e.envs[env] || 0) + 1; else e.n++;
 };
+// The step between two maps, each centred on you (A at a, B at b): the
+// (dx, dy) of up to 3 cells where B's cells match A's shifted by it best.
+// null when too little lines up to tell (a jump, a different view).
+AT.wildShift = function (A, a, B, b) {
+  var best = null, bestR = 0;
+  for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) {
+    var same = 0, n = 0;
+    for (var y = 0; y < B.length; y++) {
+      var ry = y - b.y, ar = A[a.y + ry + dy];
+      if (!ar) continue;
+      for (var x = 0; x < B[y].length; x++) {
+        if (x === b.x && y === b.y) continue;
+        var rx = x - b.x, ac = ar[a.x + rx + dx];
+        if (!ac || (a.x + rx + dx === a.x && a.y + ry + dy === a.y)) continue;
+        var bc = B[y][x];
+        n++;
+        if (ac[0] === bc[0] && ac[1] === bc[1] && ac[2] === bc[2]) same++;
+      }
+    }
+    var r = n >= 12 ? same / n : 0;
+    if (r > bestR) { bestR = r; best = { dx: dx, dy: dy, r: r }; }
+  }
+  return best && bestR >= 0.7 ? best : null;
+};
 AT.wildRoom = function (id, g) {
   if (AT.sketch) AT.sketchClear();
   AT.wildHook();
-  var P = AT.here, WM = AT.wildMap;
-  if (P && P.wild && P.env && WM && WM.grid && Date.now() - WM.at < 3000) {
-    var dx = Math.floor(id / 1000) - Math.floor(P.id / 1000), dy = (id % 1000) - (P.id % 1000);
-    var me = (Math.abs(dx) <= 3 && Math.abs(dy) <= 3 && (dx || dy)) ? AT.wildMe(WM.grid) : null;
-    if (me && WM.grid[me.y - dy]) AT.wildNote(WM.grid[me.y - dy][me.x - dx], P.env);
-    // Your mark hides the ground you stand on: it was drawn on the map
-    // before this step, one step ahead of where you were.
-    var PV = AT.wildPrev, pm = (me && PV && PV.grid) ? AT.wildMe(PV.grid) : null;
-    var under = pm && PV.grid[pm.y + dy] ? PV.grid[pm.y + dy][pm.x + dx] : null;
-    if (under) AT.wildUnder = { id: id, cell: under };      // a way out (?) too: it stays marked under you
+  var P = AT.here, WM = AT.wildMap, PV = AT.wildPrev;
+  if (P && P.wild && WM && WM.grid && PV && PV.grid && Date.now() - WM.at < 3000) {
+    // How far you moved: the shift that lines the new map up with the one
+    // before it (the map follows you, so the land slides the other way). No
+    // reading of room numbers needed (that guess put your ground one cell off).
+    var me = AT.wildMe(WM.grid), pm = AT.wildMe(PV.grid), st = me && pm ? AT.wildShift(PV.grid, pm, WM.grid, me) : null;
+    if (st && (st.dx || st.dy)) {
+      // The room you left, on the new map: one step back from you.
+      if (P.env && WM.grid[me.y - st.dy]) AT.wildNote(WM.grid[me.y - st.dy][me.x - st.dx], P.env);
+      // Your mark hides the ground you stand on: it was drawn on the map
+      // before this step, one step ahead of where you were.
+      var under = PV.grid[pm.y + st.dy] ? PV.grid[pm.y + st.dy][pm.x + st.dx] : null;
+      if (under) AT.wildUnder = { id: id, cell: under };      // a way out (?) too: it stays marked under you
+    } else if (P.id !== id) AT.wildUnder = null;     // moved, but can't tell how far: the ground beside you
   }
   var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
   AT.here = { id: id, area: null, wild: true, name: String(g.name || "").slice(0, 120), env: String(g.environment || "").slice(0, 40),
