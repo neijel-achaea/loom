@@ -16,13 +16,15 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.8.2", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.9.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
 AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 // Saved (per character, as every Nexus variable):
 //   atlas_fog = "off" while fog of war is off (absent: on);
+//   atlas_wild = "off" while the wilderness map stays in the main window
+//     (absent: Atlas shows it);
 //   atlas_counts = { area: rooms explored there that are on the map },
 //     updated whenever the game sends an area's list or you explore a room;
 //   atlas_tags = { area: [tag, …] }, your own groups for the Areas tab;
@@ -34,6 +36,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //     exploring them (inns and the like), so they stay out of the totals.
 // A variable that isn't readable starts afresh (#135).
 AT.fog = get_variable("atlas_fog") !== "off";
+AT.wildOn = get_variable("atlas_wild") !== "off";
 AT.readJson = function (name) {
   var v = get_variable(name);
   if (typeof v == "string") { try { v = JSON.parse(v); } catch (e) { v = null; } }
@@ -480,6 +483,10 @@ AT.rebuildKnown = function () {
 AT.roomInfo = function (g) {
   var id = atNum(g.num);
   if (!(id > 0)) return;
+  // The wilderness (a Room.Info with `ohmap`, as nexMap tells it): millions
+  // of rooms on no map; the game draws its own, which Atlas shows.
+  if (g.ohmap !== undefined && g.ohmap !== null && String(g.ohmap) !== "") { AT.wildRoom(id, g); return; }
+  if (AT.here && AT.here.wild) AT.wildMap = null;     // left the wilderness
   var co = String(g.coords || "").split(",");
   var aid = atNum(co[0]);
   var R = AT.room(id);
@@ -518,6 +525,109 @@ AT.roomInfo = function (g) {
   // The Areas tab: when a count changed, or you crossed into another area.
   var counted = AT.here.area ? AT.recount(AT.here.area) : false;
   if (counted || AT.areasHere !== AT.here.area) { AT.areasHere = AT.here.area; run_function("atlas_areas_render", [], "atlas"); }
+};
+
+// ---- The wilderness: the game's own map ------------------------------
+// Each step there, the game sends IRE.Display.Ohmap "start", the map as
+// coloured text lines, then "stop". Nexus itself diverts those lines out of
+// the main window only while its stock Map tab is the active one: its GMCP
+// handler then returns {display: "ohmap", start}, and at the end calls
+// datahandler.on_special_display("ohmap", lines), lines being
+// [{line, parsed_line: {chunks: [{_fg, _bg} | {_txt}]}}] (Ricardo's probes,
+// 2026-11-03). Atlas asks for the same diversion whether or not the Map tab
+// is showing, and keeps the lines. ATLAS WILDERNESS OFF leaves Nexus alone
+// (the map goes to the main window again, unless the Map tab is active).
+// Both are wrappers on the datahandler, marked __loomAtlas, put back on
+// uninstall and checked again at every Room.Info (LOOM PERF's sample
+// restores handle_GMCP as it found it).
+AT.dh = function () {
+  try { var NC = (typeof nexusclient != "undefined" && nexusclient) ? nexusclient : client; return (NC && NC._datahandler) || null; } catch (e) { return null; }
+};
+AT.wildHook = function () {
+  var D = AT.dh();
+  if (!D || typeof D.handle_GMCP != "function" || typeof D.on_special_display != "function") return false;
+  if (!D.handle_GMCP.__loomAtlas) {
+    var hg = D.handle_GMCP;
+    var w = function (method, a) {
+      var r = hg.apply(this, arguments);
+      if (method === "IRE.Display.Ohmap" && r === undefined) {
+        var A = client.loom && client.loom.atlas;
+        if (A && A.wildOn) {
+          var v = a;
+          if (typeof v == "string") { try { v = JSON.parse(v); } catch (e) { v = v.replace(/"/g, "").trim(); } }
+          return { display: "ohmap", start: v === "start" };
+        }
+      }
+      return r;
+    };
+    w.__loomAtlas = hg;
+    D.handle_GMCP = w;
+  }
+  if (!D.on_special_display.__loomAtlas) {
+    var sd = D.on_special_display;
+    var w2 = function (kind, lines) {
+      if (kind === "ohmap") { try { var A = client.loom && client.loom.atlas; if (A && A.wildLines) A.wildLines(lines); } catch (e) {} }
+      return sd.apply(this, arguments);
+    };
+    w2.__loomAtlas = sd;
+    D.on_special_display = w2;
+  }
+  return true;
+};
+AT.wildUnhook = function () {
+  var D = AT.dh();
+  if (!D) return;
+  if (D.handle_GMCP && D.handle_GMCP.__loomAtlas) D.handle_GMCP = D.handle_GMCP.__loomAtlas;
+  if (D.on_special_display && D.on_special_display.__loomAtlas) D.on_special_display = D.on_special_display.__loomAtlas;
+};
+AT.setWild = function (on) {
+  AT.wildOn = !!on;
+  if (AT.wildOn) delete_variable("atlas_wild"); else set_variable("atlas_wild", "off");
+  run_function("atlas_render", { full: true }, "atlas");
+};
+// The map's lines as HTML: one row each, the game's colours kept.
+AT.wildColour = function (c) { return typeof c == "string" && /^#[0-9a-fA-F]{3,8}$/.test(c) ? c : null; };
+AT.wildLines = function (lines) {
+  if (!Array.isArray(lines)) return;
+  var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+  var rows = [], cols = 0;
+  for (var i = 0; i < lines.length && i < 80; i++) {
+    var L = lines[i] || {}, ch = L.parsed_line && Array.isArray(L.parsed_line.chunks) ? L.parsed_line.chunks : null;
+    var fg = null, bg = null, out = "", n = 0;
+    if (ch) {
+      for (var k = 0; k < ch.length; k++) {
+        var C = ch[k] || {};
+        if (C._txt !== undefined) {
+          var t = String(C._txt).slice(0, 300);
+          if (!t) continue;
+          n += t.length;
+          out += (fg || bg) ? '<span style="' + (fg ? 'color:' + fg + ';' : '') + (bg ? 'background:' + bg + ';' : '') + '">' + esc(t) + '</span>' : esc(t);
+          continue;
+        }
+        if (C._fg === "reset") { fg = null; bg = null; }
+        else if (C._fg !== null && C._fg !== undefined) fg = AT.wildColour(C._fg);
+        if (C._bg === "") bg = null;
+        else if (C._bg !== null && C._bg !== undefined) bg = AT.wildColour(C._bg);
+      }
+    } else {
+      var plain = String(L.line || "").replace(/\u001b\[[0-9;]*m/g, "").slice(0, 300);
+      n = plain.length; out = esc(plain);
+    }
+    if (n > cols) cols = n;
+    rows.push(out);
+  }
+  AT.wildMap = { rows: rows, cols: cols, at: Date.now() };
+  run_function("atlas_render", { full: true }, "atlas");
+};
+// Room.Info in the wilderness: no sketch, no counts; the tab shows the
+// game's map (it comes just before this Room.Info).
+AT.wildRoom = function (id, g) {
+  if (AT.sketch) AT.sketchClear();
+  AT.wildHook();
+  var det = Array.isArray(g.details) ? g.details.map(function (d) { return String(d).slice(0, 30); }).slice(0, 6) : [];
+  AT.here = { id: id, area: null, wild: true, name: String(g.name || "").slice(0, 120), env: String(g.environment || "").slice(0, 40),
+    details: det, areaName: "", onMap: false, exits: {} };
+  run_function("atlas_render", { full: true }, "atlas");
 };
 
 // ---- Places on no map: a sketch as you walk ------------------------------
@@ -870,6 +980,7 @@ try {
   };
 } catch (e) {}
 
+AT.wildHook();
 AT.seedExplored();
 if (AT.map) { AT.rebuildKnown(); for (var atS in AT.known) if (AT.known.hasOwnProperty(atS)) AT.recount(atNum(atS)); }
 if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); AT.officialLoad(); }
