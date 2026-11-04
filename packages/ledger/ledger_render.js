@@ -43,16 +43,18 @@ function section(title, inner, col) { return '<div style="border-top:1px solid '
 function quiet(t) { return '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">' + t + '</div>'; }
 // Items another package added (#34) carry their source, muted.
 function srcMark(it) { return (it.source && it.source !== "manual") ? ' <span style="color:' + MUTED + ';" title="added by ' + esc(it.source) + '">&middot; ' + esc(it.source) + '</span>' : ''; }
-// How far along an item a package keeps is (#460): its count and a small
-// bar, set just before the item's age so the line stays easy to read.
+// How far along an item a package keeps is (#460): a small bar just before
+// the item's age, its count ("8/21", "55%") on hover only (Ricardo: text
+// beside it crowds the line on narrow tabs). The hover area is taller than
+// the bar, so it's easy to point at.
 var LIME = "#9cc96b";
 function progMark(it) {
   var p = client.loom.ledger.progOf ? client.loom.ledger.progOf(it.prog) : null;
   if (!p) return "";
   var w = Math.round(p[0] / p[1] * 100);
-  return '<span style="color:' + (w >= 100 ? LIME : PARCH) + ';">' + esc(p[2]) + '</span>&nbsp;' +
-    '<span title="' + esc(p[2]) + '" style="display:inline-block;width:38px;height:5px;background:' + AHEAD + ';border:1px solid ' + RULE + ';vertical-align:1px;margin-right:6px;">' +
-    '<span style="display:block;height:5px;width:' + w + '%;background:' + (w >= 100 ? LIME : PARCH) + ';"></span></span>';
+  return '<span title="' + esc(p[2]) + '" style="display:inline-block;padding:4px 0;margin:-4px 6px -4px 0;vertical-align:1px;cursor:default;">' +
+    '<span style="display:block;width:38px;height:5px;background:' + AHEAD + ';border:1px solid ' + RULE + ';">' +
+    '<span style="display:block;height:5px;width:' + w + '%;background:' + (w >= 100 ? LIME : PARCH) + ';"></span></span></span>';
 }
 // One ledger line: entry number in the margin, the text, and the reckoning on the right.
 function entry(id, text, right, rightCol, textCol) {
