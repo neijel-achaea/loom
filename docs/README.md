@@ -45,7 +45,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | Package | Tab | What it does |
 | --- | --- | --- |
 | [coffers](coffers.md) | Coffers | Gold tracker: fortune, income and spending by session and day, goals |
-| [talpieces](talpieces.md) | Talismans | Dragon talisman piece tracker with history and a projected finish |
+| [talpieces](talpieces.md) | Talismans | Dragon talisman piece tracker with history and pace |
 | [vials](vials.md) | — | Refill your vials from the rift by elixir |
 | [magi](magi.md) | — | Magi helpers: even crystal refining, pearls, portals, staff attack, treaties |
 | [harvesting](harvesting.md) | — | Harvests the plants your rift is short of as you walk the rooms |

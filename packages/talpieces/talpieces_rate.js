@@ -37,16 +37,9 @@ if (hs.length === 0) {
   if (all) {
     display_notice("[talpieces] all time: " + (all.gain >= 0 ? "+" : "") + all.gain + " pieces over " + (Math.round(all.days * 10) / 10) + "d = " + (Math.round(all.per * 10) / 10) + "/day", "cyan");
   }
-  var seven = rateOver(7);
+  // No projected finish: pieces drop at random, so near the end most finds
+  // are ones you no longer need and a straight-line date misleads (Ricardo).
   if (tot >= goal) {
     display_notice("[talpieces] the set is complete.", "lime");
-  } else if (seven && seven.per > 0) {
-    var dl = (goal - tot) / seven.per;
-    display_notice("[talpieces] at the " + (seven.whole ? "all-time" : "7-day") + " rate: about " + Math.ceil(dl) + " days left, finishing near " + fl(last2[0] + Math.round(dl * 86400)), "cyan");
-  } else if (all && all.per > 0) {
-    var dl2 = (goal - tot) / all.per;
-    display_notice("[talpieces] no gain in the last 7 days. At the all-time rate: about " + Math.ceil(dl2) + " days left.", "orange");
-  } else {
-    display_notice("[talpieces] not enough movement yet to project a finish.", "cyan");
   }
 }

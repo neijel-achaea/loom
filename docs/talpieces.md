@@ -1,6 +1,6 @@
 # TalPieces
 
-*Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and when you'll finish at your pace.*
+*Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and how fast they're coming in.*
 
 <!-- loom:version talpieces -->
 *This page describes talpieces 1.2.0.*
@@ -14,7 +14,7 @@ TalPieces keeps count of your dragon talisman pieces as you find them, trade the
 
 - **The headline**: how much of the set you hold, common and rare.
 - **A goal bar**, when you set a goal of your own or have today's aim from the ledger.
-- **A graph** of your progress over the last 30 days (or any span you pick), and your pace over the last seven days with a projected finish date.
+- **A graph** of your progress over the last 30 days (or any span you pick), and your pace over the last seven days.
 - **A grid of what's still needed**, by colour (black, blue, gold, green, red, silver) and piece type, coloured from green (nearly there) to red (far off).
 
 The set needs, per colour, 64 of each of the seven common pieces and 4 of the rare one. Higher-level pieces count for more: a level-n piece is worth 2^(n-1) level-1 pieces, so a level-3 claw counts as 4. Extra pieces beyond what a type needs don't count toward the goal (100 black claws still count as 64).
@@ -32,7 +32,7 @@ It counts from the game's lines:
 |---|---|
 | `TALPIECES` | progress, history and settings |
 | `TALPIECES NEED` | pieces still needed, per colour and type |
-| `TALPIECES RATE` | pieces per day and a projected finish |
+| `TALPIECES RATE` | pieces per day: last 7 and 30 days, and all time |
 | `TALPIECES GOAL <n\|OFF>` | a goal of your own: collect n pieces from now, shown in place of the daily aim |
 | `TALPIECES MARK` | store a history point now |
 | `TALPIECES GRAPH [ON\|OFF]` | show or hide the graph in the Talismans tab |
@@ -46,7 +46,7 @@ It counts from the game's lines:
 | **Pieces are counted as you find, trade and list them; list yours in game to rebuild the count.** | |
 <!-- /loom:commands -->
 
-`TALPIECES NEED` prints the needed grid in the main window; `TALPIECES RATE` your pace and projected finish. `TALPIECES MARK` stores a history point now.
+`TALPIECES NEED` prints the needed grid in the main window; `TALPIECES RATE` your pace over the last 7 and 30 days and all time. There's no projected finish date: pieces drop at random, so near the end most of what you find is pieces you no longer need, and a straight-line date would mislead. `TALPIECES MARK` stores a history point now.
 
 ### Starting from where you are
 
@@ -92,5 +92,4 @@ A second link, `talpieces-aim-ledger`, sets a **daily aim**: "Collect 21 talisma
 ## Troubleshooting
 
 - **The count is wrong.** List your pieces in game: the listing replaces the count with what the game shows.
-- **"not enough movement yet to project a finish".** It needs progress in the history: the last 7 days, or all of it when the history is shorter. `TALPIECES SEED` gives it a past.
 - **`TALPIECES WIPE PIECES`** clears the count; **`WIPE HISTORY`** clears the graph. There's no undo for either.

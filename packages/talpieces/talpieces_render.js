@@ -27,7 +27,6 @@ var MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function n1(v) { return Math.round(v * 10) / 10; }
 function fmtShort(sec) { var d = new Date(sec * 1000); return d.getDate() + " " + MN[d.getMonth()]; }
-function fmtLong(sec) { var d = new Date(sec * 1000); return d.getDate() + " " + MN[d.getMonth()] + " " + d.getFullYear(); }
 function thou(n) { var s = String(Math.round(n)); var o = ""; while (s.length > 3) { o = "," + s.slice(-3) + o; s = s.slice(0, -3); } return s + o; }
 // Heat for "still needed": green when nearly there, warming to red when far.
 function col(need, max) {
@@ -86,7 +85,7 @@ var perColourGoal = t.reqCommon * t.commonTypes.length + t.reqRare;
 
 // Pace from the history, over the trailing seven days.
 var hs = TP.hist || [];
-var rate = 0, etaT = 0;
+var rate = 0;
 if (hs.length >= 2) {
   var last = hs[hs.length - 1];
   var lastTot = last[1] + last[2];
@@ -95,10 +94,6 @@ if (hs.length >= 2) {
   for (var hi = hs.length - 1; hi >= 0; hi--) { if (hs[hi][0] <= cutoff) { ref = hs[hi]; break; } }
   var spanD = (last[0] - ref[0]) / 86400;
   rate = spanD > 0 ? ((lastTot - (ref[1] + ref[2])) / spanD) : 0;
-  if (rate > 0 && lastTot < goal) {
-    var daysLeft = (goal - lastTot) / rate;
-    if (daysLeft < 3650) { etaT = last[0] + Math.round(daysLeft * 86400); }
-  }
 }
 function rateTxt(r) { return r < 1 ? String(Math.round(r * 100) / 100) : String(Math.round(r * 10) / 10); }
 
@@ -244,7 +239,6 @@ if (owned >= goal) {
   pb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + DONE + ';">complete</div>';
 } else if (rate > 0) {
   pb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + TXT + ';">' + rateTxt(rate) + ' / day</div>';
-  pb += row("finish", etaT > 0 ? '~' + fmtLong(etaT) : 'beyond ten years', etaT > 0 ? AME : MUTED);
 } else {
   pb += quiet(hs.length < 2 ? "Not enough history yet." : "No gain in the last 7 days.");
 }
