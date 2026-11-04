@@ -6,11 +6,12 @@ var hlTitle = "[talpieces] dragon talisman pieces toward the Elder Dragon set. C
 var hlRows = [
   ["TALPIECES", "progress, history and settings"],
   ["TALPIECES NEED", "pieces still needed, per colour and type"],
-  ["TALPIECES RATE", "pieces per day and a projected finish"],
+  ["TALPIECES RATE", "pieces per day: last 7 and 30 days, and all time"],
   ["TALPIECES GOAL <n|OFF>", "a goal of your own: collect n pieces from now, shown in place of the daily aim"],
   ["TALPIECES MARK", "store a history point now"],
   ["TALPIECES GRAPH [ON|OFF]", "show or hide the graph in the Talismans tab"],
   ["TALPIECES GRAPH <40-400>", "graph height (default 110, lower is flatter)"],
+  ["TALPIECES SPAN <7-365|ALL>", "days the graph shows (default 30); ALL is the whole history against the full set"],
   ["TALPIECES SEED <YYYY-MM-DD> [c] [r]", "backdate a starting point: common and rare held then"],
   ["TALPIECES CSV", "history as CSV lines (most recent 300)"],
   ["TALPIECES COMBINE ON|OFF", "queue TALISMAN COMBINE for each row when you list"],

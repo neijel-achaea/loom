@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.talpieces) client.loom.talpieces = {};
-client.loom.registry.talpieces = { version: "1.1.0", keyword: "TALPIECES", desc: "{{description}}",
+client.loom.registry.talpieces = { version: "1.2.0", keyword: "TALPIECES", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("talpieces_render", [], "talpieces"); } };
 var TP = client.loom.talpieces;
@@ -122,6 +122,14 @@ var tpCh = parseInt(get_variable("talpieces_graph_h"), 10);
 if (!tpCh || isNaN(tpCh) || tpCh < 40) { tpCh = 110; }
 if (tpCh > 400) { tpCh = 400; }
 TP.chartH = tpCh;
+// The days the graph shows (TALPIECES SPAN): a view only, the history itself is kept
+// whole for RATE, SEED and compaction. 0 means all of it.
+var tpSp = String(get_variable("talpieces_span_days") || "");
+if (tpSp === "all") { TP.span = 0; }
+else {
+  tpSp = parseInt(tpSp, 10);
+  TP.span = (!tpSp || isNaN(tpSp)) ? 30 : (tpSp < 7 ? 7 : (tpSp > 365 ? 365 : tpSp));
+}
 // Goal: 6 colours x 7 common types x 64, plus 6 x 4 rare.
 TP.goalCommon = 2688;
 TP.goalRare = 24;
