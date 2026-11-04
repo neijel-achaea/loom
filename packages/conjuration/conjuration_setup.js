@@ -44,7 +44,7 @@ CJ.sigils = {
 // coin: the action needs a gold sovereign on hand (FLIPCOIN).
 CJ.acts = {
   1: { cmd: "ring bell", expect: "as you ring a small silver bell" },
-  2: { cmd: "chant", expect: "^You chant, \"" },
+  2: { cmd: "chant", expect: "^You chant\\b[^\"]*\"" },
   3: { cmd: "bang drum", expect: "^You strike a drum with a firm hand" },
   4: { cmd: "spin around thrice", expect: "^You quickly spin around counter-clockwise, three times" },
   5: { cmd: "light candle", expect: "^You light a candle from one of the braziers" },
