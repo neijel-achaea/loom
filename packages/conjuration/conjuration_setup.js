@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.conjuration) client.loom.conjuration = {};
-client.loom.registry.conjuration = { version: "1.1.0", keyword: "CONJURATION", desc: "{{description}}" };
+client.loom.registry.conjuration = { version: "1.2.0", keyword: "CONJURATION", desc: "{{description}}" };
 var CJ = client.loom.conjuration;
 
 // Every sigil and conjured item, by the word typed. Those with a recipe can
@@ -15,23 +15,23 @@ var CJ = client.loom.conjuration;
 // is taken from the ouroboros at the end (default "sigil"). chant: the phrase
 // for a bare action 2. Add a recipe as you learn one.
 CJ.sigils = {
-  bauble: { name: "a scented bauble" },
+  bauble: { name: "a scented bauble", begin: "bauble", take: "bauble", reagents: [[1, "dust"]], actions: '15, 7, 6, 17, chant "disei stalla rapwah cosoth tu"' },
   brooch: { name: "a brooch of Thoth", begin: "brooch of thoth", take: "brooch", reagents: [[1, "ice"], [2, "dust"], [1, "horn"], [2, "silver"]], actions: 'chant "mortis troy tenkla", chant "mortis troy tenklu", chant "mortis troy tenkli", 3x6' },
   comprehension: { name: "a necklace of comprehension", begin: "necklace of comprehension", take: "necklace", reagents: [[2, "ice"], [3, "gold"], [4, "silver"], [3, "horn"]], actions: "3x10, 9, 16, 1, 2x13, 4, 9, 15" },
   concealment: { name: "an orb of concealment", begin: "orb of concealment", take: "orb", reagents: [[5, "silver"], [1, "gold"]], actions: '16, 14, 12, 10, 8, 6, 4, chant "aisyalam" , 4, 6, 8, 10, 12, 14, 16' },
-  cube: { name: "a vibration-dampening cube" },
-  dreamcatcher: { name: "a dreamcatcher" },
+  cube: { name: "a cube sigil", reagents: [[2, "silver"]], actions: '3xchant "dara acti me prishna eni not", 1' },
+  dreamcatcher: { name: "a dreamcatcher", begin: "dreamcatcher", take: "dreamcatcher", reagents: [[2, "gold"], [2, "silver"], [1, "horn"]], actions: "14, 9, 17, 5, 3x11, 3x1, 2x8, 3x11" },
   eye: { name: "an eye sigil", reagents: [[1, "obsidian"]], actions: "17, 1" },
   fist: { name: "a fist sigil", reagents: [[1, "silver"], [2, "horn"]], chant: "fartak ishla spooz tran", actions: "3x2,1" },
   flame: { name: "a flame sigil", reagents: [[1, "silver"]], chant: "flet lhar abe minlo eec", actions: "3x2,1" },
   key: { name: "a key sigil", reagents: [[1, "gold"]], actions: '3xchant "krolop escit yall", 1' },
-  monolith: { name: "a monolith sigil" },
+  monolith: { name: "a monolith sigil", reagents: [[1, "gold"], [1, "silver"]], actions: '3xchant "me ol nok oloth lilo ib te het", 1' },
   mushroom: { name: "a mushroom sigil", reagents: [[1, "ice"]], actions: '3xchant "mil usra shal hract reed oom oon mez", 1' },
-  negation: { name: "a gem of negation" },
-  orb: { name: "a chaos-destroying orb" },
-  pestilence: { name: "a ring of pestilence" },
-  star: { name: "a star sigil" },
-  stasis: { name: "a bag of stasis" },
+  negation: { name: "a gem of negation", begin: "gem of negation", take: "gem", reagents: [[1, "gold"]], actions: '3x1, 5, 15, 7, 8, chant "zool ekilthia requi oben"' },
+  orb: { name: "an orb sigil", begin: "orb sigil", reagents: [[1, "dust"]], actions: '3xchant "solip preena het epi re enla", 1' },
+  pestilence: { name: "a ring of pestilence", begin: "ring of pestilence", take: "ring", reagents: [[2, "silver"], [1, "horn"], [1, "gold"]], actions: "11, 12, 3, 14, 17, 16, 9, 8, 3x7, 3x10, 3x1, 3, 17, 11" },
+  star: { name: "a star sigil", reagents: [[1, "dust"], [1, "silver"]], actions: "11, 1" },
+  stasis: { name: "a bag of stasis", begin: "bag of stasis", take: "bag", reagents: [[4, "gold"], [3, "ice"], [3, "horn"], [2, "dust"], [1, "silver"]], actions: '2x16, 3, 4, 5, 1, chant "stasis statorium", 4, 2x6, 3x17, 16, 6x13, 2x15' },
   whirlwind: { name: "a whirlwind of Vastar", begin: "whirlwind of vastar", take: "whirlwind", reagents: [[1, "silver"], [1, "dust"], [1, "horn"]], actions: "4x4, 16, 9, 4x4" }
 };
 
@@ -44,7 +44,7 @@ CJ.sigils = {
 // coin: the action needs a gold sovereign on hand (FLIPCOIN).
 CJ.acts = {
   1: { cmd: "ring bell", expect: "as you ring a small silver bell" },
-  2: { cmd: "chant", expect: "^You chant, \"" },
+  2: { cmd: "chant", expect: "^You chant\\b[^\"]*\"" },
   3: { cmd: "bang drum", expect: "^You strike a drum with a firm hand" },
   4: { cmd: "spin around thrice", expect: "^You quickly spin around counter-clockwise, three times" },
   5: { cmd: "light candle", expect: "^You light a candle from one of the braziers" },
