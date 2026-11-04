@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "1.1.0", keyword: "LEDGER", desc: "{{description}}",
+client.loom.registry.ledger = { version: "1.1.1", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;
@@ -71,7 +71,8 @@ if (LG.debug) display_notice("[ledger] set up (day " + LG.day + ")", "cyan");
 //     number, or 0 when not added. due is an Achaean day number (as LG.day),
 //     dueIn days from today; neither = a standing item. progress, optional
 //     (#460): { have, of, label }, how far along the item is, drawn as a
-//     small bar beside its age (label, e.g. "55%", else "have/of"); leaving
+//     small bar beside its age, the label on hover (e.g. "55%", else
+//     "have/of"); leaving
 //     it out clears it. An existing item for that source and key is updated
 //     quietly (its due notice re-armed if the date moved); a new one is
 //     announced. Progress moving alone isn't an edit: the item isn't touched.
