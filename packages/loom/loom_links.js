@@ -821,8 +821,12 @@ L.addLink({
 // huntstats' hunt goal, #39). Set at the first update of the local calendar
 // day, standing (no due date). Reaching it: a lime notice, and the item goes
 // until tomorrow's aim; one a day at most. A DROP'd aim comes back the next
-// day. State per source in loom_aims: {day, base, to, text, done}, so a
+// day. State per source in loom_aims: {day, base, to, text, said, done}, so a
 // reload doesn't bring back an aim already reached today.
+// #460: the item carries its progress (a small bar and "8/21" or "55%" in the
+// ledger), kept current as the figure moves, and the aim is also shown in the
+// source package's own tab (Level, Talismans) through its entry.aim, unless
+// it was dropped from the ledger. A goal the player set there wins.
 L.aimMore = 1.1;
 L.aims = {};
 try { L.aims = JSON.parse(get_variable("loom_aims") || "{}") || {}; } catch (e) { L.aims = {}; }
@@ -833,38 +837,69 @@ L.aimSave = function () {
   try { if (any) set_variable("loom_aims", JSON.stringify(L.aims)); else delete_variable("loom_aims"); } catch (e) {}
 };
 L.aimDay = function () { var d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
+// The ledger progress of aim S at figure cur: a count ("8/21") or a share ("55%").
+L.aimProg = function (S, cur, count) {
+  var of = S.to - S.base, have = Math.max(0, Math.min(of, cur - S.base));
+  if (!(of > 0)) return null;
+  if (count) return { have: Math.round(have), of: Math.round(of) };
+  return { have: have, of: of, label: Math.floor(have / of * 100 + 1e-9) + "%" };
+};
 // cur: the source's figure now (null: unknown, nothing happens). make(cur)
-// -> {to, text, said} for today's aim (said: the reached notice), or null when there's no pace to size
-// one from.
-L.aimRun = function (src, cur, make) {
+// -> {to, text, said} for today's aim (said: the reached notice), or null
+// when there's no pace to size one from. opts: { count: progress as a count,
+// home: the source package (its entry shows the aim in its tab) }.
+L.aimRun = function (src, cur, make, opts) {
   var lg = client.loom.ledger;
   if (!lg || !lg.entry || typeof cur !== "number" || isNaN(cur)) return;
-  var S = L.aims[src], today = L.aimDay();
+  opts = opts || {};
+  var H = opts.home && opts.home.entry && typeof opts.home.entry.aim === "function" ? opts.home : null;
+  var S = L.aims[src], today = L.aimDay(), shown = true;
   if (!S || typeof S !== "object" || S.day !== today) {
     var a = make(cur);
     if (!a) {
       if (S) { lg.entry.withdraw(src, "aim", true); delete L.aims[src]; L.aimSave(); }
+      if (H) H.entry.withdraw(src);
       return;
     }
     // No item standing: withdrawing ends a DROP of yesterday's, so today's
     // can be added. An unreached one standing is rewritten in place.
     if (!lg.entry.get(src, "aim")) lg.entry.withdraw(src, "aim", true);
-    L.aims[src] = { day: today, base: cur, to: a.to, text: a.text, said: a.said, done: false };
+    S = L.aims[src] = { day: today, base: cur, to: a.to, text: a.text, said: a.said, done: false };
     L.aimSave();
-    lg.entry.upsert({ source: src, key: "aim", text: a.text });
-    return;
+    shown = !!lg.entry.upsert({ source: src, key: "aim", text: a.text, progress: L.aimProg(S, cur, opts.count) });
+  } else if (S.done) {
+    // Reached earlier today: the tab shows it reached, unless it had been
+    // dropped from the ledger by then.
+    shown = !S.hid;
+  } else if (cur >= S.to) {
+    var standing = !!lg.entry.get(src, "aim");
+    S.done = true;
+    if (!standing) S.hid = true;
+    L.aimSave();
+    lg.entry.withdraw(src, "aim", true);
+    if (standing) display_notice("[ledger] \u2713 Aim reached: " + S.said, "lime");
+    shown = standing;
+  } else {
+    // The figure moved: the item's progress follows (the ledger skips it when
+    // nothing changed). 0 back: the player dropped it, so the tab hides it too.
+    shown = !!lg.entry.upsert({ source: src, key: "aim", text: S.text, progress: L.aimProg(S, cur, opts.count) });
   }
-  if (S.done || !(cur >= S.to)) return;
-  S.done = true;
-  L.aimSave();
-  var standing = !!lg.entry.get(src, "aim");
-  lg.entry.withdraw(src, "aim", true);
-  if (standing) display_notice("[ledger] ✓ Aim reached: " + S.said, "lime");
+  if (H) {
+    if (shown) H.entry.aim({ source: src, base: S.base, to: S.to, done: S.done });
+    else H.entry.withdraw(src);
+  }
+};
+// A daily-aim link switched off: the aim leaves the source's tab (setLink
+// withdraws the ledger item). Its state is kept, so switching it on again the
+// same day brings back the same aim (one a day), with its progress.
+L.aimOff = function (src, home) {
+  if (home && home.entry && typeof home.entry.withdraw === "function") home.entry.withdraw(src);
 };
 
 L.addLink({
   id: "levelgraph-ledger", src: "levelgraph", dst: "ledger", issue: 448,
-  desc: "A daily levelling aim in the ledger, sized to your last 7 days",
+  desc: "A daily levelling aim in the ledger, sized to your last 7 days, also shown in the Level tab",
+  change: function (on) { if (!on) L.aimOff("levelgraph", client.loom.levelgraph); },
   update: function () {
     var g = client.loom.levelgraph;
     if (!g || !g.look || !g.look.progress) return;
@@ -878,14 +913,15 @@ L.addLink({
       var lvl = Math.floor(to + 1e-6), pct = Math.round((to - lvl) * 100);
       var what = "level " + lvl + (pct ? " at " + pct + "%" : "");
       return { to: to - 1e-6, text: "Reach " + what, said: what };
-    });
+    }, { home: g });
   }
 });
 
 L.addLink({
   id: "talpieces-aim-ledger", src: "talpieces", dst: "ledger", issue: 448,
   source: "talpieces-aim",
-  desc: "A daily talisman pieces aim in the ledger, sized to your last 7 days",
+  desc: "A daily talisman pieces aim in the ledger, sized to your last 7 days, also shown in the Talismans tab",
+  change: function (on) { if (!on) L.aimOff("talpieces-aim", client.loom.talpieces); },
   update: function () {
     var t = client.loom.talpieces;
     if (!t || !t.look || !t.look.total) return;
@@ -895,7 +931,7 @@ L.addLink({
       var n = Math.min(left, Math.ceil(pace * L.aimMore - 1e-6));
       var what = n + " talisman piece" + (n === 1 ? "" : "s");
       return { to: cur + n, text: "Collect " + what, said: "collected " + what };
-    });
+    }, { count: true, home: t });
   }
 });
 

@@ -7,6 +7,7 @@ var hlRows = [
   ["LEVELGRAPH", "level, session and long-term rates, time to the next level"],
   ["LEVELGRAPH MARK", "record a sample now"],
   ["LEVELGRAPH NEW", "close this session and start a new one now"],
+  ["LEVELGRAPH GOAL <level[.pct]|+n|OFF>", "a goal of your own (105, 104.75, +0.5), shown in place of the daily aim"],
   ["LEVELGRAPH GAP <5-240>", "minutes without a prompt that close a session (default 30)"],
   ["LEVELGRAPH GRAPH [SESSION|LONG] [ON|OFF]", "show or hide the graphs in the Level tab"],
   ["LEVELGRAPH SIZE <40-400>", "graph height (default 105)"],

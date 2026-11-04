@@ -18,6 +18,8 @@ var TRACK = TH.track || "#1a252c";
 var BG = TH.bg || "#0f1418";
 var UP = "#8fe0c8";
 var DEATH = "#d9534f";
+// The goal or today's aim (#460): amber, apart from the curves' blues.
+var AIM = "#e0b45a";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
 
@@ -42,7 +44,11 @@ function fmtT(sec, span, dayScale) {
   return d.getHours() + ":" + pad2(d.getMinutes());
 }
 
-function lvlChart(hs, W, H, accent, dayScale, deaths) {
+// tgt, optional (#460): { v, label } a target progress drawn as a dashed
+// line. The scale takes it in only while that keeps the curve readable:
+// when the target is within 3x the range the curve spans; otherwise a small
+// "aim \u2191 104.59" mark on the edge it lies beyond.
+function lvlChart(hs, W, H, accent, dayScale, deaths, tgt) {
   var fs = Math.max(7, Math.min(10, Math.round(H * 0.085)));
   var y0 = Math.round(fs * 0.9);
   var y1 = H - Math.round(fs * 1.9);
@@ -56,6 +62,12 @@ function lvlChart(hs, W, H, accent, dayScale, deaths) {
   var vmin = 1e9, vmax = -1e9, i, v;
   for (i = 0; i < hs.length; i++) { v = prog(hs[i]); if (v < vmin) { vmin = v; } if (v > vmax) { vmax = v; } }
   if ((vmax - vmin) < 0.0005) { vmin -= 0.01; vmax += 0.01; }
+  var tLine = false, tEdge = 0;
+  if (tgt && typeof tgt.v === "number" && isFinite(tgt.v)) {
+    var tLo = Math.min(vmin, tgt.v), tHi = Math.max(vmax, tgt.v);
+    if (tHi - tLo <= 3 * Math.max(vmax - vmin, 0.02)) { vmin = tLo; vmax = tHi; tLine = true; }
+    else { tEdge = tgt.v > vmax ? 1 : -1; }
+  }
   var padV = (vmax - vmin) * 0.12;
   vmin = Math.max(0, vmin - padV);
   vmax += padV;
@@ -95,6 +107,16 @@ function lvlChart(hs, W, H, accent, dayScale, deaths) {
   svg += '<path d="' + area + '" fill="' + accent + '" fill-opacity="0.13" stroke="none"/>';
   svg += '<path d="' + line + '" fill="none" stroke="' + accent + '" stroke-width="1.5" stroke-linejoin="round"/>';
   svg += '<circle cx="' + lx + '" cy="' + ly + '" r="2.4" fill="' + BRIGHT + '"/>';
+  // The target (#460): a dashed amber line with its name at the right end,
+  // or a mark on the edge it lies beyond.
+  if (tLine) {
+    var ty = n1(y1 - ((tgt.v - vmin) / (vmax - vmin)) * (y1 - y0));
+    svg += '<line x1="' + x0 + '" y1="' + ty + '" x2="' + x1 + '" y2="' + ty + '" stroke="' + AIM + '" stroke-width="1" stroke-dasharray="4,3"/>';
+    svg += '<text x="' + (x1 - 2) + '" y="' + n1(ty - 3) + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fs + '" fill="' + AIM + '">' + tgt.label + ' ' + tgt.v.toFixed(2) + '</text>';
+  } else if (tEdge) {
+    var ey = tEdge > 0 ? n1(y0 + fs * 0.4) : n1(y1 - 3);
+    svg += '<text x="' + (x1 - 2) + '" y="' + ey + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fs + '" fill="' + AIM + '">' + tgt.label + ' ' + (tEdge > 0 ? '\u2191' : '\u2193') + ' ' + tgt.v.toFixed(2) + '</text>';
+  }
   // Deaths (#336): a thin red rule and a skull at the top, the killer on hover.
   for (var di = 0; deaths && di < deaths.length; di++) {
     var dt = deaths[di][0];
@@ -171,8 +193,33 @@ if (!cur) {
     else { atLvl = nDays > 0 ? (nDays + "+ days at this level") : "at this level since tracking began"; }
   }
   html += ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">' + atLvl + '</span></div>';
-  html += '<div style="background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;"><div style="background:' + ACC + ';height:6px;width:' + n1(cur[2]) + '%;"></div></div>';
+  // The goal or today's aim (#460) on the bar: a faint band from where it
+  // started to the target, and a tick at the target. Positions are within
+  // this level; a target in a later level puts the tick at the bar's end.
+  var tg = LG.target ? LG.target() : null;
+  var nowP = prog(cur);
+  var inLvl = function (v) { return v <= cur[1] ? 0 : (v >= cur[1] + 1 ? 100 : (v - cur[1]) * 100); };
+  var bar = '<div style="background:' + TRACK + ';height:6px;width:100%;margin:2px 0 1px;position:relative;">';
+  if (tg && !tg.done) {
+    var bA = inLvl(tg.base), bB = inLvl(tg.to);
+    if (bB > bA) bar += '<div style="position:absolute;left:' + n1(bA) + '%;width:' + n1(bB - bA) + '%;top:0;height:6px;background:' + AIM + ';opacity:0.22;"></div>';
+  }
+  bar += '<div style="position:absolute;left:0;top:0;background:' + ACC + ';height:6px;width:' + n1(cur[2]) + '%;"></div>';
+  if (tg && !tg.done) {
+    var tk = inLvl(tg.to);
+    bar += '<div title="' + (tg.kind === "goal" ? "goal" : "today\u2019s aim") + ': ' + LG.lvlName(tg.to) + '" style="position:absolute;left:calc(' + n1(tk) + '% - 1px);top:-2px;width:2px;height:10px;background:' + AIM + ';"></div>';
+  }
+  bar += '</div>';
+  html += bar;
   html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>' + cur[2].toFixed(2) + '% done</span><span>' + (100 - cur[2]).toFixed(2) + '% to go</span></div>';
+  if (tg) {
+    var tReached = tg.done || nowP >= tg.to - 1e-6;
+    var tOf = tg.to > tg.base ? Math.max(0, Math.min(100, Math.floor((nowP - tg.base) / (tg.to - tg.base) * 100))) : 100;
+    var tLater = !tReached && tg.to >= cur[1] + 1 + 0.005;
+    html += '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:1px;">' +
+      '<span><span style="color:' + AIM + ';">' + (tg.kind === "goal" ? "goal" : "today\u2019s aim") + '</span> <span style="color:' + TXT + ';">' + (tLater ? "\u2192 " : "") + LG.lvlName(tg.to) + '</span></span>' +
+      '<span style="color:' + (tReached ? UP : MUTED) + ';white-space:nowrap;">' + (tReached ? "reached \u2713" : (tg.to - nowP).toFixed(2) + " lv to go &middot; " + tOf + "%") + '</span></div>';
+  }
 
   var cols = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';
   var sb = caps("This session", ACC);
@@ -198,11 +245,12 @@ if (!cur) {
   cols += box(lb, ACC2);
   html += cols + '</div>';
 
+  var tgLine = tg ? { v: tg.to, label: tg.kind === "goal" ? "goal" : "aim" } : null;
   if (LG.graphSess) {
-    html += section("Last " + LG.mins + " minutes", mins.length < 2 ? quiet("Collecting. A point lands every minute that your experience moves.") : lvlChart(mins, 640, LG.chartH, ACC, false, LG.deaths), ACC);
+    html += section("Last " + LG.mins + " minutes", mins.length < 2 ? quiet("Collecting. A point lands every minute that your experience moves.") : lvlChart(mins, 640, LG.chartH, ACC, false, LG.deaths, tgLine), ACC);
   }
   if (LG.graphLong) {
-    html += section("Last " + LG.days + " days", days.length < 2 ? quiet("Collecting. One point is kept per day.") : lvlChart(days, 640, LG.chartH, ACC2, true), ACC2);
+    html += section("Last " + LG.days + " days", days.length < 2 ? quiet("Collecting. One point is kept per day.") : lvlChart(days, 640, LG.chartH, ACC2, true, null, tgLine), ACC2);
   }
   html += '</div>';
 }

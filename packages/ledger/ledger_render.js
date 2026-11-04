@@ -43,6 +43,17 @@ function section(title, inner, col) { return '<div style="border-top:1px solid '
 function quiet(t) { return '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">' + t + '</div>'; }
 // Items another package added (#34) carry their source, muted.
 function srcMark(it) { return (it.source && it.source !== "manual") ? ' <span style="color:' + MUTED + ';" title="added by ' + esc(it.source) + '">&middot; ' + esc(it.source) + '</span>' : ''; }
+// How far along an item a package keeps is (#460): its count and a small
+// bar, set just before the item's age so the line stays easy to read.
+var LIME = "#9cc96b";
+function progMark(it) {
+  var p = client.loom.ledger.progOf ? client.loom.ledger.progOf(it.prog) : null;
+  if (!p) return "";
+  var w = Math.round(p[0] / p[1] * 100);
+  return '<span style="color:' + (w >= 100 ? LIME : PARCH) + ';">' + esc(p[2]) + '</span>&nbsp;' +
+    '<span title="' + esc(p[2]) + '" style="display:inline-block;width:38px;height:5px;background:' + AHEAD + ';border:1px solid ' + RULE + ';vertical-align:1px;margin-right:6px;">' +
+    '<span style="display:block;height:5px;width:' + w + '%;background:' + (w >= 100 ? LIME : PARCH) + ';"></span></span>';
+}
 // One ledger line: entry number in the margin, the text, and the reckoning on the right.
 function entry(id, text, right, rightCol, textCol) {
   return '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;">' +
@@ -135,7 +146,7 @@ if (dated.length === 0) {
     else { when = "in " + r; col = TXT; }
     var txt = esc(dated[i].text) + srcMark(dated[i]);
     if (dated[i].repeat) { txt += ' <span style="color:' + SEPIA + ';" title="repeats">&#8635;</span>'; }
-    var right = '<span style="color:' + MUTED + ';">' + dayName(dated[i].due) + '</span>&nbsp; ' + when;
+    var right = progMark(dated[i]) + '<span style="color:' + MUTED + ';">' + dayName(dated[i].due) + '</span>&nbsp; ' + when;
     ap += entry(dated[i].id, txt, right, col, diff < 0 ? WAX : TXT);
   }
 }
@@ -151,7 +162,7 @@ if (standing.length === 0) {
     var arel = rel(age);
     if (!arel.length) { arel = "fresh"; }
     else { arel = "untouched " + arel; }
-    st += entry(standing[i].id, esc(standing[i].text) + srcMark(standing[i]), arel, age >= 50 ? AMBER : MUTED);
+    st += entry(standing[i].id, esc(standing[i].text) + srcMark(standing[i]), progMark(standing[i]) + arel, age >= 50 ? AMBER : MUTED);
   }
 }
 html += section("Standing", st, PARCH);

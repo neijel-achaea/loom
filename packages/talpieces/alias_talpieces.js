@@ -19,6 +19,31 @@ if (tpSub === "" || tpSub === "status") {
   TP.forceMark = true;
   run_function("talpieces_sync", [], "talpieces");
   display_notice("[talpieces] history point recorded (" + (TP.nowC + TP.nowR) + " pieces).", "lime");
+} else if (tpSub === "goal") {
+  // TALPIECES GOAL <n|OFF> (#460): collect n pieces from now, shown as a bar
+  // in the Talismans tab in place of the daily aim.
+  var tpHave = TP.look.total();
+  if (tpArg === "") {
+    if (TP.pgoal) {
+      var tpGot = Math.max(0, tpHave - TP.pgoal.base);
+      display_notice("[talpieces] goal: collect " + TP.pgoal.n + " pieces; " + Math.min(tpGot, TP.pgoal.n) + " so far" + (TP.pgoal.done ? ", reached." : ", " + Math.max(0, TP.pgoal.n - tpGot) + " to go.") + " TALPIECES GOAL OFF clears it.", C);
+    } else {
+      display_notice("[talpieces] no goal set" + (TP.aim ? "; the tab shows today's aim, " + (TP.aim.to - TP.aim.base) + " pieces" : "") + ". TALPIECES GOAL <n>: collect n pieces from now.", C);
+    }
+  } else if (tpArg === "off" || tpArg === "0") {
+    TP.pgoal = null;
+    TP.saveGoal();
+    run_function("talpieces_render", [], "talpieces");
+    display_notice("[talpieces] goal cleared." + (TP.aim ? " The tab shows today's aim again." : ""), "lime");
+  } else if (!/^\d+$/.test(tpArg) || parseInt(tpArg, 10) < 1 || parseInt(tpArg, 10) > 100000) {
+    display_notice("[talpieces] TALPIECES GOAL <1-100000> (pieces to collect from now) or OFF.", "orange");
+  } else {
+    var tpN = parseInt(tpArg, 10);
+    TP.pgoal = { n: tpN, base: tpHave, t: Math.floor(Date.now() / 1000), done: false };
+    TP.saveGoal();
+    run_function("talpieces_render", [], "talpieces");
+    display_notice("[talpieces] goal set: collect " + tpN + " piece" + (tpN === 1 ? "" : "s") + " from now (you have " + tpHave + "). It replaces today's aim in the Talismans tab while set.", "lime");
+  }
 } else if (tpSub === "graph") {
   if (tpArg === "on" || tpArg === "off") {
     TP.graphOn = (tpArg === "on");
@@ -91,7 +116,7 @@ if (tpSub === "" || tpSub === "status") {
   display_notice("[talpieces] reloaded from saved variables.", "lime");
 } else if (tpSub === "debug") {
   display_notice("[talpieces] building=" + TP.building + " graphOn=" + TP.graphOn + " chartH=" + TP.chartH + " hist=" + (TP.hist ? TP.hist.length : 0)
-    + " combine=" + get_variable("talpieces_combine") + " pieces=" + JSON.stringify(TP.pieces), C);
+    + " combine=" + get_variable("talpieces_combine") + " goal=" + JSON.stringify(TP.pgoal) + " aim=" + JSON.stringify(TP.aim) + " pieces=" + JSON.stringify(TP.pieces), C);
 } else {
   display_notice("[talpieces] unknown command '" + tpSub + "'. TALPIECES HELP for commands.", "orange");
 }

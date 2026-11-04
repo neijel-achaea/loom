@@ -197,9 +197,31 @@ function headline() {
   return out + '</div>';
 }
 
+// ----------------------------------------------------------- goal bar ---
+// The goal or today's aim (#460): a bar of its own, since a day's pieces
+// don't show against the Elder Dragon.
+var AIM = "#e0b45a";
+function goalBar() {
+  var g = TP.target ? TP.target() : null;
+  if (!g) return "";
+  var of = g.to - g.base;
+  if (!(of > 0)) return "";
+  var got = Math.max(0, Math.min(of, TP.look.total() - g.base));
+  var done = g.done || got >= of;
+  var w = Math.round(got / of * 1000) / 10;
+  var lbl = g.kind === "goal" ? "goal" : "today&rsquo;s aim";
+  var out = '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:7px;">' +
+    '<span><span style="color:' + AIM + ';">' + lbl + '</span> <span style="color:' + TXT + ';">collect ' + thou(of) + ' piece' + (of === 1 ? '' : 's') + '</span>' +
+    (g.kind === "goal" && g.t > 0 ? ' <span style="color:' + MUTED + ';">since ' + fmtShort(g.t) + '</span>' : '') + '</span>' +
+    '<span style="color:' + (done ? DONE : TXT) + ';white-space:nowrap;">' + (done ? 'reached &#10003;' : thou(got) + ' / ' + thou(of) + ' &middot; ' + Math.floor(w) + '%') + '</span></div>';
+  out += '<div style="background:' + TRACK + ';height:5px;width:100%;margin:2px 0 1px;"><div style="height:5px;width:' + n1(w) + '%;background:' + (done ? DONE : AIM) + ';"></div></div>';
+  return out;
+}
+
 // -------------------------------------------------------------- the tab ---
 var html = PANEL + header("TALISMANS", coloursDone + ' of ' + t.colors.length + ' colours done');
 html += headline();
+html += goalBar();
 
 var cols = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';
 var nb = caps("Still needed", AME);

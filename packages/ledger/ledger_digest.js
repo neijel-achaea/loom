@@ -11,6 +11,8 @@ var mi = Math.floor(rem / 25);
 var dd = (rem % 25) + 1;
 var stamp = today > 0 ? (client.loom.ledger.ord(dd) + " " + client.loom.ledger.months[mi] + " " + yy) : "date unknown";
 display_notice("[ledger] " + stamp, "cyan");
+// An item's progress (#460), as " (8/21)", or "".
+function prog(it) { var p = client.loom.ledger.progOf ? client.loom.ledger.progOf(it.prog) : null; return p ? " (" + p[2] + ")" : ""; }
 
 var dated = [];
 var standing = [];
@@ -42,16 +44,16 @@ for (i = 0; i < dated.length; i++) {
   if (ddiff > 0) { rel = rel + (rel.length ? ", " : "") + ddiff + (ddiff == 1 ? " day" : " days"); }
   if (!rel.length) { rel = "today"; }
   if (diff < 0) {
-    display_notice("[ledger] #" + dated[i].id + " OVERDUE by " + rel + " - " + dated[i].text + (dated[i].source && dated[i].source !== "manual" ? " (" + dated[i].source + ")" : ""), "orange");
+    display_notice("[ledger] #" + dated[i].id + " OVERDUE by " + rel + " - " + dated[i].text + prog(dated[i]) + (dated[i].source && dated[i].source !== "manual" ? " (" + dated[i].source + ")" : ""), "orange");
     shown++;
   } else if (shown < 5) {
     var lead = (diff === 0) ? "today" : ("in " + rel);
-    display_notice("[ledger] #" + dated[i].id + " " + lead + " - " + dated[i].text + (dated[i].source && dated[i].source !== "manual" ? " (" + dated[i].source + ")" : ""), "cyan");
+    display_notice("[ledger] #" + dated[i].id + " " + lead + " - " + dated[i].text + prog(dated[i]) + (dated[i].source && dated[i].source !== "manual" ? " (" + dated[i].source + ")" : ""), "cyan");
     shown++;
   }
 }
 if (dated.length === 0) { display_notice("[ledger] nothing on the calendar", "cyan"); }
 
 if (standing.length > 0) {
-  display_notice("[ledger] " + standing.length + " standing - oldest: #" + standing[0].id + " " + standing[0].text, "cyan");
+  display_notice("[ledger] " + standing.length + " standing - oldest: #" + standing[0].id + " " + standing[0].text + prog(standing[0]), "cyan");
 }

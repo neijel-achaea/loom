@@ -65,8 +65,10 @@ Use some hysteresis where a value hovers around a line (harvesting adds its remi
 
 | Destination | Entry | What happens |
 | --- | --- | --- |
-| ledger | `entry.upsert({ source, key, text, due \| dueIn })` → item number; `entry.withdraw(source[, key[, quiet]])` (quiet: no "took back" notice); `entry.get(source, key)` | The item appears at once, marked with its source; an existing one for the same source and key is updated quietly. If the player `DONE`s or `DROP`s it, it stays away until the source withdraws it. |
+| ledger | `entry.upsert({ source, key, text, due \| dueIn, progress })` → item number (`progress`: `{ have, of, label }`, a small bar and count beside the item's age; progress alone moving doesn't touch the item); `entry.withdraw(source[, key[, quiet]])` (quiet: no "took back" notice); `entry.get(source, key)` | The item appears at once, marked with its source; an existing one for the same source and key is updated quietly. If the player `DONE`s or `DROP`s it, it stays away until the source withdraws it. |
 | coffers | `entry.propose({ source, key, amount, why })`; `entry.withdraw(source[, key])` | A proposed goal, waiting for `COFFERS ACCEPT` or `DISMISS`. One per source and key; an accepted goal belongs to the player. |
+| levelgraph | `entry.aim({ source, base, to, done })`; `entry.withdraw(source)` | One aim shown on the Level tab (bar and graphs); a goal the player set (`LEVELGRAPH GOAL`) wins over it. In memory only: the link puts it back on load. The daily-aim link withdraws it in its `change` when switched off. |
+| talpieces | `entry.aim({ source, base, to, done })`; `entry.withdraw(source)` | The same, as the goal bar in the Talismans tab (`TALPIECES GOAL` wins). |
 | standings | `entry.suggest({ who, step, why, source })`; `entry.withdraw(source[, who])` | A dealing waiting for `STANDINGS OK` or `SKIP`. One per source and person. |
 
 Every entry follows principle 5 ([Conventions](conventions.md)): tagged with its source, withdrawable by it, never applied without the player seeing it.

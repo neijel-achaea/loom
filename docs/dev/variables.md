@@ -284,6 +284,7 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `levelgraph_gap` | setting | 1.0 | minutes without a prompt that close a session |  |
 | `levelgraph_sess` | data | 1.0 | the open session |  |
 | `levelgraph_deaths` | data | 1.1 | deaths within the minute graph's span: [[unix seconds, killer], …] |  |
+| `levelgraph_goal` | setting | 1.1 | a goal of your own: target, start, when set, reached |  |
 | `levelgraph_min` | data | 0.2 | level readings, per minute | `lvl_min` |
 | `levelgraph_day` | data | 0.2 | level per day | `lvl_day`, `lvl_hist` |
 | `lvl_min` | legacy | 0.1 | old name of levelgraph_min |  |
@@ -485,6 +486,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `talpieces_graph` | setting | 0.2 | graph shown | `tal_graph_on` |
 | `talpieces_graph_h` | setting | 0.2 | graph height | `tal_graph_h` |
 | `talpieces_combine` | setting | 0.2 | queue TALISMAN COMBINE when you list |  |
+| `talpieces_goal` | setting | 1.1 | a goal of your own: pieces to collect, start, when set, reached |  |
 | `talpieces_pieces` | data | 0.2 | pieces owned | `tal_pieces` |
 | `talpieces_hist` | data | 0.2 | history | `tal_hist` |
 | `tal_graph_on` | legacy | 0.1 | old graph switch (1/0) |  |

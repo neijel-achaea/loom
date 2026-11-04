@@ -235,6 +235,7 @@ With every package installed, each link does its part, and switching it off (`LO
 - [ ] `harvesting-ledger`: "Harvest run" when a plant is under 90% of its minimum; gone when all are back. `DROP` keeps it away until then.
 - [ ] `talpieces-ledger`: a complete colour, and spares at 16+; no flicker during a listing.
 - [ ] `levelgraph-ledger`: "Reach level N at P%" at the day's first prompt; reaching it: lime "✓ Aim reached", item gone; a reload the same day doesn't bring it back; `DROP` it: back the next day.
+- [ ] Aims' progress (#460): both aim items show `x/N` or `P%` and a small bar before "fresh", moving as you play; the Level tab shows the aim (tick, band, line); the Talismans tab its goal bar. `DROP` an aim: it leaves the tab too. `LEVELGRAPH GOAL` / `TALPIECES GOAL` replace the aim in their tab; `OFF` brings it back.
 - [ ] `talpieces-aim-ledger`: "Collect N talisman pieces" (the tab's 7-day pace +10%); the Nth piece found: lime notice, item gone. Off: the set and spares reminders stay.
 - [ ] `magi-ledger`: "Collect N pearls" below 90%; `LEDGER DISMISSED` / `RESTORE magi`.
 - [ ] `sigils-ledger`: one "Sigil patrol" item with a due date; a monolith closer to expiry moves the date; `SIGILS CLEAR CONFIRM` takes it back.
