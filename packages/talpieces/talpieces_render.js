@@ -132,31 +132,19 @@ function talChart(W, H) {
   var first = vis[0];
   var x0 = Math.round(fs * 3.4), x1 = W - 6, y0 = Math.round(fs * 0.9), y1 = H - Math.round(fs * 1.9);
 
-  // Give the projection at most 60% of the width (a third with a span, so it
-  // doesn't stretch the zoomed scale), so a distant finish does not squash
-  // the real data into the corner. Past that it leaves the frame and the
-  // right-hand label carries the date instead.
+  // The graph ends at the latest point: no projection line. Pieces drop at
+  // random, so near the end most of them are ones you no longer need and a
+  // straight-line finish would mislead (Ricardo).
   var tmin = first[0];
-  var dataSpan = lastP[0] - tmin;
-  if (dataSpan <= 0) { dataSpan = 3600; }
   var tmax = lastP[0];
-  var clipped = false;
-  if (etaT > lastP[0]) {
-    var maxProj = dataSpan * (zoom ? 0.5 : 1.5);
-    if ((etaT - lastP[0]) > maxProj) { tmax = lastP[0] + maxProj; clipped = true; }
-    else { tmax = etaT; }
-  }
   if (tmax <= tmin) { tmax = tmin + 3600; }
-  var pEndT = clipped ? tmax : etaT;
-  var pEndV = clipped ? (lastT + rate * ((tmax - lastP[0]) / 86400)) : goal;
 
-  // The scale: the whole set for ALL; with a span, the window's own range
-  // (and the projection's end), so a month's pieces aren't a flat line.
+  // The scale: the whole set for ALL; with a span, the window's own range,
+  // so a month's pieces aren't a flat line.
   var lo = 0, hi = goal;
   if (zoom) {
     lo = first[1]; hi = first[1];
     for (j = 1; j < vis.length; j++) { if (vis[j][1] < lo) lo = vis[j][1]; if (vis[j][1] > hi) hi = vis[j][1]; }
-    if (etaT > 0 && pEndV > hi) hi = pEndV;
     var pad = Math.max(2, (hi - lo) * 0.1);
     lo = Math.max(0, Math.floor(lo - pad));
     hi = Math.min(goal, Math.ceil(hi + pad));
@@ -188,25 +176,12 @@ function talChart(W, H) {
     }
   }
   svg += '<path d="' + area + '" fill="' + AME + '" fill-opacity="0.13" stroke="none"/>';
-  if (etaT > 0) {
-    svg += '<path d="M' + n1(sx(lastP[0])) + ',' + n1(sy(lastT)) + 'L' + n1(sx(pEndT)) + ',' + n1(sy(pEndV)) + '" fill="none" stroke="' + DEEP + '" stroke-width="1.1" stroke-dasharray="3,3"/>';
-  }
   svg += '<path d="' + line + '" fill="none" stroke="' + AME + '" stroke-width="1.5" stroke-linejoin="round"/>';
   svg += '<circle cx="' + n1(sx(lastP[0])) + '" cy="' + n1(sy(lastT)) + '" r="' + 2.4 + '" fill="' + HI + '"/>';
-  // X labels: start on the left, projected finish on the right, latest in the
-  // middle only when there is room for it without collisions.
-  var lblGap = fs * 5;
+  // X labels: the window's start and the latest point.
   var ly = H - 3;
   svg += '<text x="' + x0 + '" y="' + ly + '" font-family="' + MONO + '" font-size="' + fs + '" fill="' + MUTED + '">' + fmtShort(first[0]) + '</text>';
-  if (etaT > 0) {
-    svg += '<text x="' + x1 + '" y="' + ly + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fs + '" fill="' + AME + '">' + (clipped ? "&#8594; " : "") + fmtShort(etaT) + '</text>';
-    var mx = sx(lastP[0]);
-    if ((mx - x0) > lblGap && (x1 - mx) > lblGap) {
-      svg += '<text x="' + n1(mx) + '" y="' + ly + '" text-anchor="middle" font-family="' + MONO + '" font-size="' + fs + '" fill="' + MUTED + '">' + fmtShort(lastP[0]) + '</text>';
-    }
-  } else {
-    svg += '<text x="' + x1 + '" y="' + ly + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fs + '" fill="' + MUTED + '">' + fmtShort(lastP[0]) + '</text>';
-  }
+  svg += '<text x="' + x1 + '" y="' + ly + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fs + '" fill="' + MUTED + '">' + fmtShort(lastP[0]) + '</text>';
   return svg + '</svg>';
 }
 
@@ -302,7 +277,7 @@ html += section("Pieces still needed", grid);
 
 if (TP.graphOn) {
   html += section(TP.span > 0 ? "Progress, last " + TP.span + " days" : "Progress over time", talChart(640, TP.chartH));
-  html += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal' + (TP.span > 0 ? ', scaled to the window' : '') + '. Dashed: projection at the last seven days&rsquo; rate. TALPIECES SPAN for the window, TALPIECES RATE for figures.</div>';
+  html += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal' + (TP.span > 0 ? ', scaled to the window' : '') + '. TALPIECES SPAN for the window, TALPIECES RATE for figures.</div>';
 }
 html += '</div>';
 
