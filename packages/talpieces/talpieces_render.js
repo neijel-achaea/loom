@@ -110,50 +110,85 @@ function talChart(W, H) {
   if (hs.length < 2) {
     return quiet("Two or more data points are needed. One point is stored per hour in which your totals change; TALPIECES SEED backdates a starting point.");
   }
-  var first = hs[0];
   var lastP = hs[hs.length - 1];
   var lastT = lastP[1] + lastP[2];
+  // The window (TALPIECES SPAN): the last span days before now. Only the view;
+  // the history stays whole. The line enters at the value interpolated at the
+  // window's edge, so it doesn't start from nothing. vis holds [t, total].
+  var vis = [], j;
+  var zoom = TP.span > 0;
+  var cut = zoom ? Math.floor(Date.now() / 1000) - TP.span * 86400 : 0;
+  var from = 0;
+  if (zoom && cut > hs[0][0]) {
+    while (from < hs.length && hs[from][0] < cut) { from++; }
+    if (from >= hs.length) {
+      return quiet("No change in the last " + TP.span + " days: still " + thou(lastT) + " pieces. TALPIECES SPAN ALL shows the whole history.");
+    }
+    var pA = hs[from - 1], pB = hs[from];
+    var vA = pA[1] + pA[2], vB = pB[1] + pB[2];
+    vis.push([cut, vA + (vB - vA) * ((cut - pA[0]) / Math.max(1, pB[0] - pA[0]))]);
+  }
+  for (j = from; j < hs.length; j++) { vis.push([hs[j][0], hs[j][1] + hs[j][2]]); }
+  var first = vis[0];
   var x0 = Math.round(fs * 3.4), x1 = W - 6, y0 = Math.round(fs * 0.9), y1 = H - Math.round(fs * 1.9);
 
-  // Give the projection at most 60% of the width, so a distant finish does
-  // not squash the real data into the corner. Past that it leaves the frame
-  // and the right-hand label carries the date instead.
+  // Give the projection at most 60% of the width (a third with a span, so it
+  // doesn't stretch the zoomed scale), so a distant finish does not squash
+  // the real data into the corner. Past that it leaves the frame and the
+  // right-hand label carries the date instead.
   var tmin = first[0];
   var dataSpan = lastP[0] - tmin;
   if (dataSpan <= 0) { dataSpan = 3600; }
   var tmax = lastP[0];
   var clipped = false;
   if (etaT > lastP[0]) {
-    var maxProj = dataSpan * 1.5;
+    var maxProj = dataSpan * (zoom ? 0.5 : 1.5);
     if ((etaT - lastP[0]) > maxProj) { tmax = lastP[0] + maxProj; clipped = true; }
     else { tmax = etaT; }
   }
   if (tmax <= tmin) { tmax = tmin + 3600; }
+  var pEndT = clipped ? tmax : etaT;
+  var pEndV = clipped ? (lastT + rate * ((tmax - lastP[0]) / 86400)) : goal;
+
+  // The scale: the whole set for ALL; with a span, the window's own range
+  // (and the projection's end), so a month's pieces aren't a flat line.
+  var lo = 0, hi = goal;
+  if (zoom) {
+    lo = first[1]; hi = first[1];
+    for (j = 1; j < vis.length; j++) { if (vis[j][1] < lo) lo = vis[j][1]; if (vis[j][1] > hi) hi = vis[j][1]; }
+    if (etaT > 0 && pEndV > hi) hi = pEndV;
+    var pad = Math.max(2, (hi - lo) * 0.1);
+    lo = Math.max(0, Math.floor(lo - pad));
+    hi = Math.min(goal, Math.ceil(hi + pad));
+    if (hi <= lo) { hi = lo + 1; }
+  }
   function sx(v) { return x0 + ((v - tmin) / (tmax - tmin)) * (x1 - x0); }
-  function sy(v) { return y1 - (v / goal) * (y1 - y0); }
+  function sy(v) { return y1 - ((v - lo) / (hi - lo)) * (y1 - y0); }
 
   // Thin the series so a long history stays cheap to draw.
-  var step = Math.ceil(hs.length / 300);
+  var step = Math.ceil(vis.length / 300);
   var line = "";
-  var k = 0, j;
-  for (j = 0; j < hs.length; j += step) { line += (k === 0 ? "M" : "L") + n1(sx(hs[j][0])) + "," + n1(sy(hs[j][1] + hs[j][2])); k++; }
+  var k = 0;
+  for (j = 0; j < vis.length; j += step) { line += (k === 0 ? "M" : "L") + n1(sx(vis[j][0])) + "," + n1(sy(vis[j][1])); k++; }
   line += "L" + n1(sx(lastP[0])) + "," + n1(sy(lastT));
   var area = line + "L" + n1(sx(lastP[0])) + "," + y1 + "L" + n1(sx(first[0])) + "," + y1 + "Z";
 
   var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="display:block;height:auto;overflow:visible;" xmlns="http://www.w3.org/2000/svg">';
-  // Gridlines at each quarter of the goal; the goal itself is dashed.
-  for (var q = 0; q <= 4; q++) {
-    var gv = goal * q / 4;
+  // Gridlines: each quarter of the goal for the whole set, else the window's
+  // low, middle and high. The goal itself, when in view, is dashed.
+  var grid = [];
+  if (!zoom) { for (var q = 0; q <= 4; q++) grid.push([goal * q / 4, q !== 1 && q !== 3]); }
+  else { grid = [[lo, true], [Math.round((lo + hi) / 2), true], [hi, true]]; }
+  for (var g = 0; g < grid.length; g++) {
+    var gv = grid[g][0], isGoal = (gv === goal);
     var gy = n1(sy(gv));
-    svg += '<line x1="' + x0 + '" y1="' + gy + '" x2="' + x1 + '" y2="' + gy + '" stroke="' + (q === 4 ? DEEP : RULE) + '" stroke-width="' + (q === 4 ? 0.9 : 0.6) + '"' + (q === 4 ? ' stroke-dasharray="3,2"' : "") + '/>';
-    if (q === 0 || q === 2 || q === 4) {
+    svg += '<line x1="' + x0 + '" y1="' + gy + '" x2="' + x1 + '" y2="' + gy + '" stroke="' + (isGoal ? DEEP : RULE) + '" stroke-width="' + (isGoal ? 0.9 : 0.6) + '"' + (isGoal ? ' stroke-dasharray="3,2"' : "") + '/>';
+    if (grid[g][1]) {
       svg += '<text x="' + (x0 - 3) + '" y="' + n1(gy + fs * 0.35) + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fs + '" fill="' + MUTED + '">' + thou(gv) + '</text>';
     }
   }
   svg += '<path d="' + area + '" fill="' + AME + '" fill-opacity="0.13" stroke="none"/>';
   if (etaT > 0) {
-    var pEndT = clipped ? tmax : etaT;
-    var pEndV = clipped ? (lastT + rate * ((tmax - lastP[0]) / 86400)) : goal;
     svg += '<path d="M' + n1(sx(lastP[0])) + ',' + n1(sy(lastT)) + 'L' + n1(sx(pEndT)) + ',' + n1(sy(pEndV)) + '" fill="none" stroke="' + DEEP + '" stroke-width="1.1" stroke-dasharray="3,3"/>';
   }
   svg += '<path d="' + line + '" fill="none" stroke="' + AME + '" stroke-width="1.5" stroke-linejoin="round"/>';
@@ -266,8 +301,8 @@ grid += '<div style="color:' + MUTED + ';margin-top:3px;font-family:' + SERIF + 
 html += section("Pieces still needed", grid);
 
 if (TP.graphOn) {
-  html += section("Progress over time", talChart(640, TP.chartH));
-  html += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal. Dashed: projection at the last seven days&rsquo; rate. TALPIECES RATE for figures, TALPIECES MARK to force a data point.</div>';
+  html += section(TP.span > 0 ? "Progress, last " + TP.span + " days" : "Progress over time", talChart(640, TP.chartH));
+  html += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal' + (TP.span > 0 ? ', scaled to the window' : '') + '. Dashed: projection at the last seven days&rsquo; rate. TALPIECES SPAN for the window, TALPIECES RATE for figures.</div>';
 }
 html += '</div>';
 

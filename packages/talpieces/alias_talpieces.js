@@ -62,6 +62,24 @@ if (tpSub === "" || tpSub === "status") {
   set_variable("talpieces_graph", TP.graphOn ? "on" : "off");
   run_function("talpieces_render", [], "talpieces");
   display_notice("[talpieces] panel graph " + (TP.graphOn ? "shown" : "hidden") + ", " + TP.chartH + "px high.", "lime");
+} else if (tpSub === "span") {
+  // TALPIECES SPAN <7-365|ALL>: how many days the graph shows. Only the view;
+  // the history is kept whole.
+  if (tpArg === "") {
+    display_notice("[talpieces] the graph shows " + (TP.span > 0 ? "the last " + TP.span + " days" : "the whole history") + ". TALPIECES SPAN <7-365> or ALL.", C);
+  } else if (tpArg === "all") {
+    TP.span = 0;
+    set_variable("talpieces_span_days", "all");
+    run_function("talpieces_render", [], "talpieces");
+    display_notice("[talpieces] the graph shows the whole history, against the full set.", "lime");
+  } else if (!/^\d+$/.test(tpArg) || parseInt(tpArg, 10) < 7 || parseInt(tpArg, 10) > 365) {
+    display_notice("[talpieces] TALPIECES SPAN <7-365> (days the graph shows) or ALL.", "orange");
+  } else {
+    TP.span = parseInt(tpArg, 10);
+    set_variable("talpieces_span_days", String(TP.span));
+    run_function("talpieces_render", [], "talpieces");
+    display_notice("[talpieces] the graph shows the last " + TP.span + " days, scaled to them. The history is kept whole.", "lime");
+  }
 } else if (tpSub === "seed") {
   var tpM = tpRaw.match(/^\S+\s+(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(\d+))?(?:\s+(\d+))?\s*$/);
   if (!tpM) {
@@ -115,7 +133,7 @@ if (tpSub === "" || tpSub === "status") {
   run_function("talpieces_render", [], "talpieces");
   display_notice("[talpieces] reloaded from saved variables.", "lime");
 } else if (tpSub === "debug") {
-  display_notice("[talpieces] building=" + TP.building + " graphOn=" + TP.graphOn + " chartH=" + TP.chartH + " hist=" + (TP.hist ? TP.hist.length : 0)
+  display_notice("[talpieces] building=" + TP.building + " graphOn=" + TP.graphOn + " chartH=" + TP.chartH + " span=" + TP.span + " hist=" + (TP.hist ? TP.hist.length : 0)
     + " combine=" + get_variable("talpieces_combine") + " goal=" + JSON.stringify(TP.pgoal) + " aim=" + JSON.stringify(TP.aim) + " pieces=" + JSON.stringify(TP.pieces), C);
 } else {
   display_notice("[talpieces] unknown command '" + tpSub + "'. TALPIECES HELP for commands.", "orange");

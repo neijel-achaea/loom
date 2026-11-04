@@ -3,7 +3,7 @@
 *Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and when you'll finish at your pace.*
 
 <!-- loom:version talpieces -->
-*This page describes talpieces 1.1.0.*
+*This page describes talpieces 1.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,7 +14,7 @@ TalPieces keeps count of your dragon talisman pieces as you find them, trade the
 
 - **The headline**: how much of the set you hold, common and rare.
 - **A goal bar**, when you set a goal of your own or have today's aim from the ledger.
-- **A graph** of your progress over time, and your pace over the last seven days with a projected finish date.
+- **A graph** of your progress over the last 30 days (or any span you pick), and your pace over the last seven days with a projected finish date.
 - **A grid of what's still needed**, by colour (black, blue, gold, green, red, silver) and piece type, coloured from green (nearly there) to red (far off).
 
 The set needs, per colour, 64 of each of the seven common pieces and 4 of the rare one. Higher-level pieces count for more: a level-n piece is worth 2^(n-1) level-1 pieces, so a level-3 claw counts as 4. Extra pieces beyond what a type needs don't count toward the goal (100 black claws still count as 64).
@@ -37,6 +37,7 @@ It counts from the game's lines:
 | `TALPIECES MARK` | store a history point now |
 | `TALPIECES GRAPH [ON\|OFF]` | show or hide the graph in the Talismans tab |
 | `TALPIECES GRAPH <40-400>` | graph height (default 110, lower is flatter) |
+| `TALPIECES SPAN <7-365\|ALL>` | days the graph shows (default 30); ALL is the whole history against the full set |
 | `TALPIECES SEED <YYYY-MM-DD> [c] [r]` | backdate a starting point: common and rare held then |
 | `TALPIECES CSV` | history as CSV lines (most recent 300) |
 | `TALPIECES COMBINE ON\|OFF` | queue TALISMAN COMBINE for each row when you list |
@@ -59,11 +60,11 @@ With `TALPIECES COMBINE ON`, each piece row of your listing queues `TALISMAN COM
 
 ### A goal of your own
 
-Against the whole set, a day's pieces barely move the graph. `TALPIECES GOAL 50` sets a smaller goal: collect 50 pieces from now, counted as the set counts them (spares beyond what a type needs don't count). The tab shows it as a bar of its own under the headline, with the count so far, and `TALPIECES` and `TALPIECES GOAL` tell you where you stand. Reaching it gives a lime notice; it stays shown as reached until you set the next one or clear it with `TALPIECES GOAL OFF`. While set, it takes the place of the daily aim on that bar (the aim still stands in the ledger).
+Against the whole set, a day's pieces barely show. `TALPIECES GOAL 50` sets a smaller goal: collect 50 pieces from now, counted as the set counts them (spares beyond what a type needs don't count). The tab shows it as a bar of its own under the headline, with the count so far, and `TALPIECES` and `TALPIECES GOAL` tell you where you stand. Reaching it gives a lime notice; it stays shown as reached until you set the next one or clear it with `TALPIECES GOAL OFF`. While set, it takes the place of the daily aim on that bar (the aim still stands in the ledger).
 
 ### Housekeeping
 
-`TALPIECES GRAPH OFF` hides the graph, `TALPIECES GRAPH 80` makes it flatter. `TALPIECES CSV` prints the history (most recent 300 points) as CSV lines. History keeps full detail for 30 days, then one point per day.
+`TALPIECES GRAPH OFF` hides the graph, `TALPIECES GRAPH 80` makes it flatter. The graph shows the last 30 days, scaled to what moved in them; `TALPIECES SPAN 90` widens the window, and `TALPIECES SPAN ALL` shows the whole history against the full set. The span only changes the view: the history behind it, and `TALPIECES RATE`, are untouched. `TALPIECES CSV` prints the history (most recent 300 points) as CSV lines. History keeps full detail for 30 days, then one point per day.
 
 ## Setting it up
 
