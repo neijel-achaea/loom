@@ -3,7 +3,7 @@
 *Reminders and standing items on the Achaean calendar, with reminders other packages add for you.*
 
 <!-- loom:version ledger -->
-*This page describes ledger 1.0.3.*
+*This page describes ledger 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -97,6 +97,8 @@ Installed together, other packages add items to your ledger through Loom's integ
 | `levelgraph-ledger` | [levelgraph](levelgraph.md) | A daily aim, "Reach level 104 at 59%": your last 7 days' daily gain plus 10% (the next level when it's close). Reaching it: a lime notice and the item goes until tomorrow's. |
 | `talpieces-aim-ledger` | [talpieces](talpieces.md) | A daily aim, "Collect 21 talisman pieces": your last 7 days' pace plus 10%. Reached as above. |
 | `self-ledger` | self | "Explore a new area", when your explorer rank drops while you play. Stays until you mark it done. |
+
+Both aims show how far along you are: the count or the share of the way (`8/21`, `55%`) and a small bar, just before the item's age, kept current as you play. They also show in the Level and Talismans tabs.
 
 The two daily aims come once a day, with the day's first prompt or piece: a reached or dropped aim stays away until the next day, which brings a fresh one.
 

@@ -91,6 +91,7 @@ if (lv > 0) {
   // Progress moved: tell loom, for the daily aim in the ledger (#448).
   if (LG.notedPrg !== prg) {
     LG.notedPrg = prg;
+    if (LG.goalCheck) LG.goalCheck(prg);
     if (client.loom.notify) client.loom.notify("levelgraph");
   }
   if (feedDay()) { wrote = true; }

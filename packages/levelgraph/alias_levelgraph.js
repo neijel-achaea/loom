@@ -31,6 +31,42 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
   LG.saveSess();
   run_function("levelgraph_render", [], "levelgraph");
   lgSay("new session started" + (lgLv > 0 ? " at " + LG.sess.p0.toFixed(2) + "." : "; it opens with the next prompt."), "lime");
+} else if (lgSub === "goal") {
+  // LEVELGRAPH GOAL <level[.pct]|+levels|OFF> (#460, #214): a target of the
+  // player's own, shown on the Level tab in place of the daily aim.
+  var lgNowP = LG.look ? LG.look.progress() : null;
+  if (lgP1 === "") {
+    if (LG.goal) {
+      lgSay("goal: " + LG.lvlName(LG.goal.to) + ", set at " + LG.goal.base.toFixed(2) + (LG.goal.done ? ", reached." : (lgNowP !== null ? ", " + Math.max(0, LG.goal.to - lgNowP).toFixed(2) + " levels to go." : ".")) + " LEVELGRAPH GOAL OFF clears it.");
+    } else {
+      lgSay("no goal set" + (LG.aim ? "; the tab shows today's aim, " + LG.lvlName(LG.aim.to) : "") + ". LEVELGRAPH GOAL 105 (a level), 104.75 (level 104 at 75%) or +0.5 (half a level from now).");
+    }
+  } else if (lgP1 === "off" || lgP1 === "0") {
+    LG.goal = null;
+    LG.saveGoal();
+    run_function("levelgraph_render", [], "levelgraph");
+    lgSay("goal cleared." + (LG.aim ? " The tab shows today's aim again." : ""), "lime");
+  } else {
+    var lgRel = lgP1.charAt(0) === "+";
+    var lgTo = parseFloat(lgRel ? lgP1.substring(1) : lgP1);
+    if (!/^\+?\d+(\.\d{1,2})?$/.test(lgP1) || isNaN(lgTo) || lgTo <= 0) {
+      lgSay("LEVELGRAPH GOAL 105 (a level), 104.75 (level 104 at 75%), +0.5 (half a level from now) or OFF.", "orange");
+    } else if (lgNowP === null) {
+      lgSay("no level reading yet. Wait for a prompt, then set the goal.", "orange");
+    } else {
+      if (lgRel) lgTo = Math.round((lgNowP + lgTo) * 100) / 100;
+      if (lgTo <= lgNowP) {
+        lgSay("you're already past " + LG.lvlName(lgTo) + " (" + lgNowP.toFixed(2) + ").", "orange");
+      } else if (lgTo > 1000) {
+        lgSay("that's beyond any level.", "orange");
+      } else {
+        LG.goal = { to: lgTo, base: lgNowP, t: Math.floor(Date.now() / 1000), done: false };
+        LG.saveGoal();
+        run_function("levelgraph_render", [], "levelgraph");
+        lgSay("goal set: " + LG.lvlName(lgTo) + ", " + (lgTo - lgNowP).toFixed(2) + " levels from now. It replaces today's aim on the Level tab while set.", "lime");
+      }
+    }
+  }
 } else if (lgSub === "gap") {
   var lgG = parseInt(lgP1, 10) || 0;
   if (!lgG) { lgSay("a session closes after " + LG.gap + " minutes without a prompt. LEVELGRAPH GAP 5-240 to change it; LEVELGRAPH NEW starts one now."); }
@@ -99,7 +135,7 @@ if (lgSub === "" || lgSub === "status" || lgSub === "rate") {
     lgSay("this clears BOTH the minute and long-term buffers, the session and the deaths marked. LEVELGRAPH WIPE CONFIRM to proceed.", "orange");
   }
 } else if (lgSub === "debug") {
-  lgSay("level=" + LG.level + " nl=" + LG.nl + " min=" + LG.min.length + " day=" + LG.day.length + " graphs " + LG.graphSess + "/" + LG.graphLong + " height " + LG.chartH + " spans " + LG.mins + "m/" + LG.days + "d gap " + LG.gap + "m session " + JSON.stringify(LG.sess) + " deaths " + JSON.stringify(LG.deaths));
+  lgSay("level=" + LG.level + " nl=" + LG.nl + " min=" + LG.min.length + " day=" + LG.day.length + " graphs " + LG.graphSess + "/" + LG.graphLong + " height " + LG.chartH + " spans " + LG.mins + "m/" + LG.days + "d gap " + LG.gap + "m session " + JSON.stringify(LG.sess) + " deaths " + JSON.stringify(LG.deaths) + " goal " + JSON.stringify(LG.goal) + " aim " + JSON.stringify(LG.aim));
 } else {
   lgSay("unknown command '" + lgSub + "'. LEVELGRAPH HELP for commands.", "orange");
 }

@@ -14,3 +14,9 @@ display_notice("[talpieces] " + tsHave + " / " + TP.goalTotal + " pieces (" + ts
   + tsTot[0] + " common + " + tsTot[1] + " rare; " + tsSince
   + "; graph " + (TP.graphOn ? "on" : "off") + " (" + TP.chartH + "px), combine " + (get_variable("talpieces_combine") === "off" ? "off" : "on")
   + ". TALPIECES HELP for commands.", "cyan");
+// The goal or today's aim (#460), if there's one.
+var tsT = TP.target ? TP.target() : null;
+if (tsT) {
+  var tsOf = tsT.to - tsT.base, tsGot = Math.max(0, Math.min(tsOf, tsHave - tsT.base));
+  display_notice("[talpieces] " + (tsT.kind === "goal" ? "goal" : "today's aim") + ": " + tsGot + " of " + tsOf + " pieces" + (tsT.done || tsGot >= tsOf ? ", reached." : "."), tsT.done ? "lime" : "cyan");
+}

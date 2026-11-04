@@ -45,5 +45,11 @@ if (!cur) {
   } else {
     display_notice("[levelgraph] long-term buffer has " + days.length + " day(s); needs two for a rate.", "orange");
   }
+  // The goal or today's aim (#460), if there's one.
+  var tg = LG.target ? LG.target() : null;
+  if (tg) {
+    var tNow = prog(cur), tPct = tg.to > tg.base ? Math.max(0, Math.min(100, Math.floor((tNow - tg.base) / (tg.to - tg.base) * 100))) : 100;
+    display_notice("[levelgraph] " + (tg.kind === "goal" ? "goal" : "today's aim") + ": " + LG.lvlName(tg.to) + (tg.done || tNow >= tg.to - 1e-6 ? ", reached." : ", " + (tg.to - tNow).toFixed(2) + " levels to go (" + tPct + "% of the way)."), tg.done ? "lime" : "cyan");
+  }
   display_notice("[levelgraph] graphs: last " + LG.mins + " min, last " + LG.days + " days; a session closes after " + LG.gap + " silent minutes. LEVELGRAPH HELP for commands.", "cyan");
 }

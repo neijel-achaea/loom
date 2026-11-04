@@ -3,7 +3,7 @@
 *Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and when you'll finish at your pace.*
 
 <!-- loom:version talpieces -->
-*This page describes talpieces 1.0.1.*
+*This page describes talpieces 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -13,6 +13,7 @@ TalPieces keeps count of your dragon talisman pieces as you find them, trade the
 <img src="img/talismans.png" width="380" alt="The Talismans tab: progress per colour, pieces still needed and the graph over time.">
 
 - **The headline**: how much of the set you hold, common and rare.
+- **A goal bar**, when you set a goal of your own or have today's aim from the ledger.
 - **A graph** of your progress over time, and your pace over the last seven days with a projected finish date.
 - **A grid of what's still needed**, by colour (black, blue, gold, green, red, silver) and piece type, coloured from green (nearly there) to red (far off).
 
@@ -32,6 +33,7 @@ It counts from the game's lines:
 | `TALPIECES` | progress, history and settings |
 | `TALPIECES NEED` | pieces still needed, per colour and type |
 | `TALPIECES RATE` | pieces per day and a projected finish |
+| `TALPIECES GOAL <n\|OFF>` | a goal of your own: collect n pieces from now, shown in place of the daily aim |
 | `TALPIECES MARK` | store a history point now |
 | `TALPIECES GRAPH [ON\|OFF]` | show or hide the graph in the Talismans tab |
 | `TALPIECES GRAPH <40-400>` | graph height (default 110, lower is flatter) |
@@ -54,6 +56,10 @@ To give the graph a past, `TALPIECES SEED 2026-09-01 120 4` backdates a starting
 ### Combining
 
 With `TALPIECES COMBINE ON`, each piece row of your listing queues `TALISMAN COMBINE` for it, so listing also combines what can be combined. It's on by default; `TALPIECES COMBINE OFF` leaves combining to you.
+
+### A goal of your own
+
+Against the whole set, a day's pieces barely move the graph. `TALPIECES GOAL 50` sets a smaller goal: collect 50 pieces from now, counted as the set counts them (spares beyond what a type needs don't count). The tab shows it as a bar of its own under the headline, with the count so far, and `TALPIECES` and `TALPIECES GOAL` tell you where you stand. Reaching it gives a lime notice; it stays shown as reached until you set the next one or clear it with `TALPIECES GOAL OFF`. While set, it takes the place of the daily aim on that bar (the aim still stands in the ledger).
 
 ### Housekeeping
 
@@ -80,7 +86,7 @@ TalPieces reads nothing from other packages. With **ledger** installed, it adds 
 
 Like every ledger reminder from another package, it goes by itself when its condition clears. `LOOM LINK talpieces-ledger OFF` stops them.
 
-A second link, `talpieces-aim-ledger`, sets a **daily aim**: "Collect 21 talisman pieces", your pace over the last 7 days (the tab's *Pace, last 7 days*) plus 10%, counted from the day's first update. Reaching it gives a lime notice and the item goes until the next day's. `LOOM LINK talpieces-aim-ledger OFF` stops it and leaves the set and spares reminders alone.
+A second link, `talpieces-aim-ledger`, sets a **daily aim**: "Collect 21 talisman pieces", your pace over the last 7 days (the tab's *Pace, last 7 days*) plus 10%, counted from the day's first update. Reaching it gives a lime notice and the item goes until the next day's. The goal bar in the Talismans tab shows the same aim and how many you've collected, unless you set a goal of your own or drop the aim from the ledger. `LOOM LINK talpieces-aim-ledger OFF` stops it and leaves the set and spares reminders alone.
 
 ## Troubleshooting
 

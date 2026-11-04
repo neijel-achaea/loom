@@ -4,7 +4,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.levelgraph) client.loom.levelgraph = {};
-client.loom.registry.levelgraph = { version: "1.0.2", keyword: "LEVELGRAPH", desc: "{{description}}",
+client.loom.registry.levelgraph = { version: "1.1.0", keyword: "LEVELGRAPH", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("levelgraph_render", [], "levelgraph"); } };
 var LG = client.loom.levelgraph;
@@ -154,5 +154,69 @@ LG.look = {
     var span = (last[0] - ref[0]) / 86400;
     if (span < 1) return null;
     return ((last[1] + last[2] / 100) - (ref[1] + ref[2] / 100)) / span;
+  }
+};
+
+// Goals (#460, the goal half of #214). Two kinds, one shown at a time:
+//   LG.goal  the player's own (LEVELGRAPH GOAL): { to, base, t, done }, a
+//            target progress (level + percent/100), the progress and unix
+//            time it was set at, and whether it was reached; saved as
+//            levelgraph_goal. Reached, it stays shown until cleared.
+//   LG.aim   one a link keeps here (loom's daily aim, #448), through
+//            LG.entry; { source, base, to, done }, in memory only (the link
+//            puts it back on every load).
+// The player's goal wins while set (Ricardo).
+if (LG.goal === undefined) {
+  var lgGo = null;
+  try { lgGo = JSON.parse(get_variable("levelgraph_goal") || "null"); } catch (e) { lgGo = null; }
+  if (!lgGo || typeof lgGo !== "object" || !(lgGo.to > 0) || typeof lgGo.base !== "number" || isNaN(lgGo.base)) lgGo = null;
+  else lgGo = { to: lgGo.to, base: lgGo.base, t: lgGo.t > 0 ? lgGo.t : 0, done: !!lgGo.done };
+  LG.goal = lgGo;
+}
+LG.saveGoal = function () {
+  try { if (LG.goal) set_variable("levelgraph_goal", JSON.stringify(LG.goal)); else delete_variable("levelgraph_goal"); } catch (e) {}
+};
+if (LG.aim === undefined) LG.aim = null;
+// lvlName(104.59) -> "level 104 at 59%"; lvlName(105) -> "level 105".
+LG.lvlName = function (v) {
+  var l = Math.floor(v + 1e-6), pct = Math.round((v - l) * 100);
+  if (pct >= 100) { l++; pct = 0; }
+  return "level " + l + (pct ? " at " + pct + "%" : "");
+};
+// The target the tab shows, or null: { kind: "goal"|"aim", to, base, done, t, src }.
+LG.target = function () {
+  if (LG.goal) return { kind: "goal", to: LG.goal.to, base: LG.goal.base, done: LG.goal.done, t: LG.goal.t, src: "" };
+  if (LG.aim) return { kind: "aim", to: LG.aim.to, base: LG.aim.base, done: LG.aim.done, t: 0, src: LG.aim.source };
+  return null;
+};
+// Called after each sample with the progress now: a goal of the player's
+// own reached is announced once.
+LG.goalCheck = function (prg) {
+  if (!LG.goal || LG.goal.done || typeof prg !== "number" || !(prg >= LG.goal.to - 1e-6)) return;
+  LG.goal.done = true;
+  LG.saveGoal();
+  display_notice("[levelgraph] \u2713 Goal reached: " + LG.lvlName(LG.goal.to) + ". LEVELGRAPH GOAL sets the next one.", "lime");
+};
+
+// The write-side entry point other packages feed through loom (#460), as
+// ledger's and coffers' entry: a link keeps one aim here, under its source.
+//   entry.aim({ source, base, to, done }) -> true when it is shown; the
+//     tab is redrawn when it changed.
+//   entry.withdraw(source) -> 1 when that source's aim was taken back.
+LG.entry = {
+  aim: function (a) {
+    if (!a || !a.source || typeof a.to !== "number" || isNaN(a.to) || typeof a.base !== "number" || isNaN(a.base)) return false;
+    var nu = { source: String(a.source), base: a.base, to: a.to, done: !!a.done };
+    if (JSON.stringify(nu) !== JSON.stringify(LG.aim)) {
+      LG.aim = nu;
+      run_function("levelgraph_render", [], "levelgraph");
+    }
+    return true;
+  },
+  withdraw: function (source) {
+    if (!LG.aim || (source && LG.aim.source !== String(source))) return 0;
+    LG.aim = null;
+    run_function("levelgraph_render", [], "levelgraph");
+    return 1;
   }
 };

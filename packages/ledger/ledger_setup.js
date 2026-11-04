@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "1.0.3", keyword: "LEDGER", desc: "{{description}}",
+client.loom.registry.ledger = { version: "1.1.0", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;
@@ -67,11 +67,14 @@ if (LG.debug) display_notice("[ledger] set up (day " + LG.day + ")", "cyan");
 // back: each is keyed by source + key, so an integration only ever touches
 // its own items, never the player's. Defined on every run, so a reimport
 // replaces it.
-//   entry.upsert({ source, key, text, due, dueIn }) -> the item's number,
-//     or 0 when not added. due is an Achaean day number (as LG.day), dueIn
-//     days from today; neither = a standing item. An existing item for that
-//     source and key is updated quietly (its due notice re-armed if the date
-//     moved); a new one is announced.
+//   entry.upsert({ source, key, text, due, dueIn, progress }) -> the item's
+//     number, or 0 when not added. due is an Achaean day number (as LG.day),
+//     dueIn days from today; neither = a standing item. progress, optional
+//     (#460): { have, of, label }, how far along the item is, drawn as a
+//     small bar beside its age (label, e.g. "55%", else "have/of"); leaving
+//     it out clears it. An existing item for that source and key is updated
+//     quietly (its due notice re-armed if the date moved); a new one is
+//     announced. Progress moving alone isn't an edit: the item isn't touched.
 //   entry.withdraw(source[, key[, quiet]]) -> how many items were taken
 //     back; for a condition that cleared, or a link switched off. quiet
 //     skips the "took back" notice, for a source that says why itself
@@ -87,6 +90,18 @@ LG.saveDismissed = function () {
   if (any) set_variable("ledger_dismissed", JSON.stringify(LG.dismissed));
   else delete_variable("ledger_dismissed");
 };
+// An item's progress (#460), checked: [have, of, label] with of > 0, or
+// null. Reads both what a source passes ({ have, of, label }) and what is
+// saved on an item ([have, of, label]), so a damaged item draws plainly.
+LG.progOf = function (p) {
+  if (!p || typeof p !== "object") return null;
+  var have = Array.isArray(p) ? p[0] : p.have, of = Array.isArray(p) ? p[1] : p.of, label = Array.isArray(p) ? p[2] : p.label;
+  have = Number(have); of = Number(of);
+  if (!isFinite(have) || !isFinite(of) || of <= 0) return null;
+  have = Math.max(0, Math.min(have, of));
+  label = (typeof label === "string" && label.length && label.length <= 12) ? label : (Math.round(have) + "/" + Math.round(of));
+  return [Math.round(have * 1000) / 1000, Math.round(of * 1000) / 1000, label];
+};
 LG.entry = {
   upsert: function (it) {
     if (!it || !it.source || it.key === undefined || it.key === null || !it.text) return 0;
@@ -95,6 +110,7 @@ LG.entry = {
     var items;
     try { items = JSON.parse(get_variable("ledger_items")) || []; } catch (e) { items = []; }
     var today = LG.day;
+    var prog = LG.progOf(it.progress);
     var due = null;
     if (it.due) due = parseInt(it.due, 10) || null;
     else if (it.dueIn !== undefined && it.dueIn !== null && today > 0) due = today + (parseInt(it.dueIn, 10) || 0);
@@ -105,17 +121,23 @@ LG.entry = {
         // so a standing item a package keeps current doesn't read as
         // neglected (#394). The same text again isn't an edit.
         var edited = moved || items[i].text !== String(it.text);
+        var progMoved = JSON.stringify(items[i].prog || null) !== JSON.stringify(prog);
+        if (!edited && !progMoved) return items[i].id;
         items[i].text = String(it.text);
         items[i].due = due;
+        if (prog) items[i].prog = prog; else delete items[i].prog;
         if (moved) items[i].notified = false;
         if (edited && today > 0) items[i].touched = today;
         set_variable("ledger_items", JSON.stringify(items));
-        run_function("ledger_check", [], "ledger");
+        // Progress alone needs no due check, only a redraw.
+        run_function(edited ? "ledger_check" : "ledger_render", [], "ledger");
         return items[i].id;
       }
     }
     var seq = parseInt(get_variable("ledger_seq") || "0", 10) + 1;
-    items.push({ id: seq, text: String(it.text), source: src, key: key, status: "open", created: today, touched: today, due: due, repeat: null, tag: null, link: null, notified: false });
+    var nu = { id: seq, text: String(it.text), source: src, key: key, status: "open", created: today, touched: today, due: due, repeat: null, tag: null, link: null, notified: false };
+    if (prog) nu.prog = prog;
+    items.push(nu);
     set_variable("ledger_items", JSON.stringify(items));
     set_variable("ledger_seq", "" + seq);
     display_notice("[ledger] #" + seq + " from " + src + ": " + it.text, "cyan");
