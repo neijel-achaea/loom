@@ -90,4 +90,4 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 
 ## Retired
 
-**groves** and **reclamation** are druid-era packages kept in the repository but no longer developed. They have no pages.
+**groves** and **reclamation**, the druid-era packages, were removed in Loom 1.1: they had stopped working (the grove gate no longer opened, enemies were no longer recognised). If you still have them installed, uninstall them in Nexus's package manager.

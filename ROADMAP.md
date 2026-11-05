@@ -243,7 +243,6 @@ Steps, in order: package and core attack loop on balance/equilibrium → shield 
 Packages and features other players ask for, as the players who try Loom tell us what they need. New packages land here; their integrations with the rest of the suite follow the 0.5 conventions (a link in loom, off-switchable).
 
 - **Waypoints** (#369): a tab of saved rooms, one click to walk there; then the **Questing Companion** (#376): your own quests as steps, walked through each time.
-- **druid** (#378): groves and reclamation merged into a Druid class package, as magi did for the Magi.
 - Trade skills: **gathering** (#232), waiting on the game lines for gathering and storing; placeholders for inkmilling, tattoos, riding, transmutation, remedies and toxicology (#370–#375).
 - Smaller requests: `DOR` (#312), deaths marked in LevelGraph's session graph (#336), the newbie leaf configurable (#389).
 
@@ -273,7 +272,7 @@ Class data lives in one package per class (`magi` first), so a character carries
 
 ## Out of scope
 
-- **groves** and **reclamation** stay frozen as retired druid-era packages: kept in the repo, not reworked.
+- **groves** and **reclamation**, the druid-era packages: removed in 1.1 (broken since `client.hl` went in #339). A class package for Druids comes when it's needed (#378).
 - Mudlet ports.
 
 ## Tracking

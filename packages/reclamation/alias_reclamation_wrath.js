@@ -1,1 +1,0 @@
-display_notice("[reclamation] You crazy!?", "orange");

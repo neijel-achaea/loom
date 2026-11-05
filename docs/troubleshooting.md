@@ -34,7 +34,7 @@ The pause is the Nexus variable `pauseTriggers`; your own reflexes can use it to
 
 **Is my package up to date?** `LOOM UPDATES` lists the packages here that are older than the newest build. To update, import the newer `.nxs` over the old one: your data and settings stay.
 
-**A package doesn't show in `LOOM`.** Only packages that register themselves are listed; the retired **groves** and **reclamation** don't. Any other missing package: reimport it.
+**A package doesn't show in `LOOM`.** Reimport it.
 
 **Old command names.** A few commands were renamed and the old names no longer work: `COFFERS`, `STANDINGS`, `LEDGER` and `DMGCHART REBUILD` → `RESET` (removed in Loom 1.1), `DEFCON UP` → `DEFCON INIT`, `DEFCON AUTOUP` → `DEFCON INIT AUTO`, `BASHER HEALTH` → `BASHER WIMPY HEALTH`.
 
