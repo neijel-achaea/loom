@@ -403,6 +403,11 @@ SH.buy = function (it) {
 // Looked for among the items of the shop you're in (any shop when you're
 // in none), the last one you clicked BUY for first: its description, the
 // same without a bulk "a group of N", or the word you added it by.
+// A name without its article and plural endings, for comparing what the game
+// hands over with the list ("9 blue inks" ~ "a blue ink").
+SH.plain = function (s) {
+  return SH.key(s).replace(/^(?:a|an|the|some)\s+/, "").split(" ").map(function (w) { return w.replace(/(?:es|s)$/, ""); }).join(" ");
+};
 SH.received = function (what) {
   var w = String(what || "").trim(), got = 1, m;
   if ((m = /^(?:a|an|one) (?:group|bundle|bunch|pile) of ([\d,]+) (.+)$/i.exec(w))) { got = Number(m[1].replace(/,/g, "")); w = m[2]; }
@@ -411,13 +416,17 @@ SH.received = function (what) {
   if (SH.lastBuy && Date.now() - SH.lastBuy.at < 30000 && pool.indexOf(SH.lastBuy.it) >= 0) { pool.splice(pool.indexOf(SH.lastBuy.it), 1); pool.unshift(SH.lastBuy.it); }
   var k = SH.key(w), kA = SH.key(String(what || "")), hit = null;
   for (var i = 0; i < pool.length && !hit; i++) if (SH.key(pool[i].desc) === k || SH.key(pool[i].desc) === kA) hit = pool[i];
+  // "9 blue inks" for "a blue ink": without articles and plural endings.
+  for (var i2 = 0; i2 < pool.length && !hit; i2++) if (SH.plain(pool[i2].desc) === SH.plain(w)) hit = pool[i2];
   for (var j = 0; j < pool.length && !hit; j++) if (pool[j].word && new RegExp("\\b" + pool[j].word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(w)) hit = pool[j];
+  // Still nothing: what you clicked BUY for a moment ago.
+  if (!hit && SH.lastBuy && Date.now() - SH.lastBuy.at < 30000 && pool.indexOf(SH.lastBuy.it) >= 0) hit = SH.lastBuy.it;
   if (!hit) return;
   SH.lastBuy = null;
   if (got < hit.n) {
     hit.n -= got;
     SH.save();
-    SH.say("bought " + got + " " + hit.desc + "; " + hit.n + " still to buy.", "lime");
+    SH.say("bought " + got + " × " + hit.desc + "; " + hit.n + " still to buy.", "lime");
     return;
   }
   SH.list.splice(SH.list.indexOf(hit), 1);
