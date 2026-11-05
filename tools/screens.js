@@ -55,7 +55,7 @@ function vitals(hp, mp, extra) {
 function prompt(hp, mp) { vitals(hp || 4200, mp || 3600); sim.line("4200h, 3600m, 15000e, 14000w ex-"); sim.flush(); }
 
 function build(P) {
-  const names = Object.keys(P).filter(n => !["groves", "reclamation"].includes(n));
+  const names = Object.keys(P);
   sim.newWorld(names, {
     // Saved state a player would have built up over time.
     social_groups: JSON.stringify({ friends: ["Corwen", "Ilsabet", "Maren"], enemies: ["Vasker", "Orlok"], city: ["Corwen", "Maren", "Ilsabet", "Tobin"], allies: ["Sefa"] }),

@@ -139,7 +139,6 @@ Mostly nothing: Loom works in the background. Use `LOOM PAUSE ON` before anythin
 
 ## Troubleshooting
 
-- **A package is missing from `LOOM`.** It may predate the registry: the retired **groves** and **reclamation** don't register, so `LOOM` and `LOOM UPDATES` don't see them.
 - **`LOOM` says a package is retired.** It has been replaced or removed (crystalism and artificing by **magi**, elementalism with nothing); uninstall it in Nexus's package manager. Its settings have already moved to the package that replaced it.
 - **Nothing is being sent.** Loom may be paused: `LOOM PAUSE OFF`. It pauses itself while you sleep, meditate or call your ship (SHIPRETURN).
 - **An integration does nothing.** `LOOM LINKS` shows whether it's on, off or waiting for a package.
