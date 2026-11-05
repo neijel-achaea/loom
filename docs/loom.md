@@ -111,10 +111,11 @@ Every custom tab can take one city's colours, so the tabs read as one family. By
 | Hashan | steel greys |
 | Mhaldor | oxblood reds |
 | Targossas | golds |
+| Rogue | road-dust taupe, for the cityless |
 
-- `LOOM THEME <city>` uses that city's colours whatever your city is.
+- `LOOM THEME <city>` uses that city's colours whatever your city is. `LOOM THEME ROGUE` works the same way.
 - While hunting's [PK MODE](hunting.md#pk-mode) is on, every tab turns **hot magenta**, whatever the theme (even OFF), so it's plain you're set for PvP; your theme comes back when PK MODE ends. Colours that mean something stay as they are.
-- `LOOM THEME AUTO` goes back to following your city.
+- `LOOM THEME AUTO` goes back to following your city; with no city, that's Rogue.
 - `LOOM THEME OFF` gives each tab its own colours, as before themes existed.
 
 A theme changes each tab's accent, headings, text, rules, bar tracks and background. Colours that mean something never change: good, warning and bad states, standings bands, social group colours, the target glow, gold, damage dealt and taken, dragon colours. The tabs redraw as soon as the theme changes.

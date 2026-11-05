@@ -125,7 +125,7 @@ if (sub === "" || sub === "list" || sub === "status") {
     var city = String(get_variable("loom_city") || "");
     var msg;
     if (ch === "off") msg = "off: each tab keeps its own colours";
-    else if (ch === "auto") msg = "following your city: " + (nm ? TM.themes[nm].label : (city === "none" ? "you have no city, so each tab keeps its own colours" : (city ? tmCap(city) + " has no theme, so each tab keeps its own colours" : "no city seen yet (it comes at login), so each tab keeps its own colours")));
+    else if (ch === "auto") msg = (city === "none" ? "following your city: you have none, so " : "following your city: ") + (nm ? TM.themes[nm].label : (city === "none" ? "each tab keeps its own colours" : (city ? tmCap(city) + " has no theme, so each tab keeps its own colours" : "no city seen yet (it comes at login), so each tab keeps its own colours")));
     else msg = TM.themes[nm].label;
     display_notice("[loom] tab theme " + (changed ? "now " : "") + msg + (pkOn ? "; PK MODE's magenta shows until it's off" : "") + ".", changed ? "lime" : C);
   };
