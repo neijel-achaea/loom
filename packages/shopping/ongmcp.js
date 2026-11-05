@@ -18,6 +18,7 @@ if (args.gmcp_method == "Room.Info") {
 } else if (SH.w && args.gmcp_method == "Char.Vitals") {
   setTimeout(function () { if (SH.w) SH.waresDone(); }, 0);
 }
+if (args.gmcp_method == "Char.Vitals" && args.gmcp_args && args.gmcp_args.eq !== undefined) SH.eq = String(args.gmcp_args.eq) === "1";
 if ((SH.q || SH.r) && args.gmcp_method == "Char.Vitals") {
   // After the packet's own lines, so the table is read first.
   setTimeout(function () { SH.riftPrompt(); SH.prompt(); }, 0);

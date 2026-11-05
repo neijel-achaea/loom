@@ -157,6 +157,54 @@
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Market listing",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_market.js"
+        }
+      ],
+      "text": "^(?:Listing all (?:.+ )?commodities:|Commodity\\s+Price\\s+Quantity Available\\s*|-{20,}|\\[?Type MORE if you wish to continue.*|.+?\\s+[\\d,]+gp\\s+[\\d,]+\\s*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Market agree",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_market_agree.js"
+        }
+      ],
+      "text": "^You are about to purchase ([\\d,]+) (.+) commodities for a total of ([\\d,]+) gold sovereigns\\. Type AGREE if you wish to proceed\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Market price gone",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_market_missed.js"
+        }
+      ],
+      "text": "^No (.+) is being sold in that price range\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": "A shopping list priced from the city's directory, grouped by shop in a tab"

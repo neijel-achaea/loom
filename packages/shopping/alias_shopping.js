@@ -104,6 +104,8 @@ if (shCmd === "" || shCmd === "list") {
     SH.say((shWs.length ? "your words: " + shWs.join(", ") + "." : "no words of your own.") + " Inks are looked up as one word (red ink = redink). SHOPPING WORD <item> = <word> for another.");
   } else if (!shWq) { var shWi = SH.riftItemOf(shRest); SH.say(shWi + " is looked up as " + SH.wordOf(shWi) + ". SHOPPING WORD " + shWi + " = <word> to change it."); }
   else SH.setWord(shWq[1], shWq[2].trim());
+} else if (shCmd === "scan") {
+  if (/^stop$/i.test(shRest)) SH.scanStop(); else SH.scanStart();
 } else if (shCmd === "restock") {
   SH.say("reading your rift…");
   SH.readRift("restock");

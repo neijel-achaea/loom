@@ -9,11 +9,11 @@ if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.2.0", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.3.0", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () {
     var S = client.loom.shopping, q = S.q, r = S.r;
-    return !!(q && q.sent && Date.now() - q.at < S.giveUpMs) || !!(r && r.sent && Date.now() - r.at < S.riftGiveUpMs);
+    return !!(q && q.sent && Date.now() - q.at < S.giveUpMs) || !!(r && r.sent && Date.now() - r.at < S.riftGiveUpMs) || !!(S.m && S.m.hidden);
   } };
 
 // Saved: shopping_list = [{ desc, word, n, shops, shop, price, cur, area, at }]
@@ -382,6 +382,7 @@ SH.place();
 SH.walkCmd = "walkto";
 SH.walk = function (shop) {
   if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
+  if (shop === SH.MKT) { send_command("path find " + SH.mktRoom, 1); SH.say("walking to the commodities market in Delos."); return; }
   // A commodity shop (#473): the game's PATH FIND to the room WARES was read in.
   if (SH.wares[shop]) {
     if (!SH.wares[shop].room) { SH.say("no room known for " + shop + ": walk there and type WARES once.", "orange"); return; }
@@ -424,7 +425,10 @@ SH.setHere = function (shop) {
 // BUY on an item's line: "buy <n> <word you looked it up by>", once per
 // click, shown only in that item's shop. What the game hands over comes
 // off the list (received).
-SH.buyCmd = function (it) { return "buy " + it.n + " " + it.word; };
+SH.buyCmd = function (it) {
+  if (it.shop === SH.MKT) return "cm buy " + it.n + " " + SH.cmWord(it.word) + " for " + SH.mktFill(it.word, it.n).max;
+  return "buy " + it.n + " " + it.word;
+};
 SH.buy = function (it) {
   if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to buy).", "orange"); return; }
   if (!it.word) { SH.say("no word to buy " + it.desc + " by: add it again.", "orange"); return; }
@@ -444,7 +448,7 @@ SH.plain = function (s) {
   return SH.key(s).replace(/^(?:a|an|the|some)\s+/, "").split(" ").map(function (w) { return w.replace(/(?:es|s)$/, ""); }).join(" ");
 };
 SH.received = function (what) {
-  var w = String(what || "").trim(), got = 1, m;
+  var w = String(what || "").trim().replace(/\s+commodities$/i, ""), got = 1, m;
   if ((m = /^(?:a|an|one) (?:group|bundle|bunch|pile) of ([\d,]+) (.+)$/i.exec(w))) { got = Number(m[1].replace(/,/g, "")); w = m[2]; }
   else if ((m = /^([\d,]+) (.+)$/.exec(w))) { got = Number(m[1].replace(/,/g, "")); w = m[2]; }
   var here = SH.shopHere(), pool = SH.list.filter(function (it) { return !here || it.shop === here; });
@@ -460,7 +464,10 @@ SH.received = function (what) {
   SH.lastBuy = null;
   // A rift item goes back into the rift (Ricardo), on balance like harvesting's INR.
   var riftOf = hit.rift || (SH.rift[SH.riftItemOf(hit.word)] ? SH.riftItemOf(hit.word) : "");
-  if (riftOf && hit.word && !SH.paused()) send_command("queue add be inr " + hit.word);
+  if (hit.shop === SH.MKT) {
+    // The market delivers into the rift itself: no INR, the count goes up.
+    if (riftOf && SH.rift[riftOf]) { SH.rift[riftOf][0] += got; SH.saveRift(); }
+  } else if (riftOf && hit.word && !SH.paused()) send_command("queue add be inr " + hit.word);
   if (got < hit.n) {
     hit.n -= got;
     SH.save();
@@ -729,7 +736,8 @@ SH.riftDone = function () {
 // the rift's new total for that item, without reading it again.
 SH.riftTotal = function (name, total) {
   var k = SH.riftItemOf(name), was = SH.rift[k];
-  SH.rift[k] = [Math.max(0, Number(String(total).replace(/,/g, "")) || 0), was ? was[1] : ""];
+  // New to the rift: a known commodity is filed under Commodities (10 leather, Ricardo).
+  SH.rift[k] = [Math.max(0, Number(String(total).replace(/,/g, "")) || 0), was && was[1] ? was[1] : (SH.isCommodity(k) ? "Commodities" : "")];
   SH.saveRift();
   run_function("shopping_render", [], "shopping");
 };
@@ -810,11 +818,11 @@ SH.restock = function () {
   if (!sh.length) { SH.say("nothing is under its minimum: no restocking to do.", "lime"); return; }
   // Commodities come from the commodity shops' WARES, not the directory (#473).
   var dir = [], com = [];
-  for (var i = 0; i < sh.length; i++) (SH.key(SH.catOf(sh[i].item)) === "commodities" ? com : dir).push(sh[i]);
+  for (var i = 0; i < sh.length; i++) (SH.isCommodity(sh[i].item) ? com : dir).push(sh[i]);
   SH.say("restocking " + sh.length + (sh.length === 1 ? " item" : " items") + ": " + sh.map(function (x) { return x.item + " " + SH.n(x.n); }).join(", ") + "." + (dir.length ? " Looking " + (dir.length === 1 ? "it" : "each") + " up in the directory…" : ""));
   var missing = [];
   for (var j = 0; j < com.length; j++) if (!SH.putCommodity(com[j].item, com[j].n)) missing.push(com[j].item);
-  if (missing.length) SH.say("not sold in any commodity shop you've read WARES in: " + missing.join(", ") + " (the commodities market, later).", "orange");
+  if (missing.length) SH.say("not found in any commodity shop you've read WARES in, nor in the market's last listings: " + missing.join(", ") + ". SCAN the market (or CM LIST it) and RESTOCK again.", "orange");
   SH.queue = dir.map(function (x) { return { word: SH.wordOf(x.item), n: x.n, rift: x.item }; });
   SH.next();
 };
@@ -868,6 +876,29 @@ SH.waresDone = function () {
   SH.saveWares();
   SH.say("noted " + w.shop + "'s wares: " + sold + " of " + n + " commodities for sale. RESTOCK lists rift commodities under the cheapest shop that sells them.", "lime");
 };
+// Far dearer than usual (Ricardo: Targossas's 60,000s): at least SH.dearX
+// times the median of the prices it's compared with.
+SH.dearX = 5;
+SH.median = function (a) {
+  var v = a.filter(function (x) { return x > 0; }).sort(function (x, y) { return x - y; });
+  if (!v.length) return 0;
+  var m = Math.floor(v.length / 2);
+  return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+};
+SH.dear = function (price, others) {
+  var o = others.filter(function (x) { return x > 0; });
+  return o.length >= 2 && price >= SH.dearX * SH.median(o);
+};
+// A commodity: in the rift's Commodities, or a name a shop's WARES or the
+// market lists, even with none in the rift yet (steel, rope, iron were sent
+// to DIRECTORY and found armbands and chains, Ricardo). Never the directory.
+SH.isCommodity = function (item) {
+  if (SH.key(SH.catOf(item)) === "commodities") return true;
+  var c = SH.commodityOf(item);
+  if (SH.market[c]) return true;
+  for (var s in SH.wares) if (SH.wares.hasOwnProperty(s) && SH.wares[s].items[c]) return true;
+  return false;
+};
 // The commodity a rift item is: built-in names first, then a WARES name
 // found whole in the rift name, or the rift name inside a WARES name
 // ("silver" in silver bar, "dust" in diamond dust).
@@ -893,8 +924,9 @@ SH.commodityOf = function (item) {
 var shPv = String(get_variable("shopping_prices") || "");
 SH.pricesFolded = /folded/.test(shPv);
 SH.pricesSell = /sell/.test(shPv);
+SH.marketFolded = /mfold/.test(shPv);
 SH.savePrices = function () {
-  var v = [SH.pricesFolded ? "folded" : "", SH.pricesSell ? "sell" : ""].filter(function (x) { return x; }).join(",");
+  var v = [SH.pricesFolded ? "folded" : "", SH.pricesSell ? "sell" : "", SH.marketFolded ? "mfold" : ""].filter(function (x) { return x; }).join(",");
   if (v) set_variable("shopping_prices", v); else delete_variable("shopping_prices");
   run_function("shopping_render", [], "shopping");
 };
@@ -927,8 +959,11 @@ SH.putCommodity = function (item, n) {
   for (var s in SH.wares) {
     if (!SH.wares.hasOwnProperty(s)) continue;
     var e = SH.wares[s].items[c];
-    if (e && e[0] > 0) shops.push({ s: s, p: e[0], c: "gp", k: e[1], name: e[2], area: SH.wares[s].area });
+    if (e && e[0] > 0 && e[1] !== 0) shops.push({ s: s, p: e[0], c: "gp", k: e[1], name: e[2], area: SH.wares[s].area });   // none in stock: not there
   }
+  // The market: priced for the whole amount from the depth read (#473).
+  var mk = SH.market[c];
+  if (mk && mk.asks && mk.asks.length) { var f = SH.mktFill(c, n); shops.push({ s: SH.MKT, p: f.avg, c: "gp", k: f.have, name: mk.name, area: "Delos" }); }
   if (!shops.length) return false;
   shops.sort(function (a, b) { return (a.p - b.p) || ((a.k >= n ? 0 : 1) - (b.k >= n ? 0 : 1)); });
   var desc = shops[0].name || c, it = null;
@@ -949,6 +984,161 @@ SH.next = function () {
   run_function("shopping_render", [], "shopping");
 };
 
+// ---- The commodities market in Delos (#473) ----------------------------
+// CM LIST <comm> lists the offers to sell, cheapest first, with the amount at
+// each price; it works anywhere. Shopping reads one you type (shown), and
+// SCAN runs it for every commodity it knows, hidden, one at a time, reading
+// only the first page (the cheapest offers). CM BUY works only in the market
+// (room 44519): "You are about to purchase N X commodities for a total of G
+// gold sovereigns. Type AGREE …", answered with AGREE right after our own
+// BUY when the total is within its ceiling; "You pay G gold sovereigns and
+// receive N X commodities." The market puts them in the rift itself.
+// Saved: shopping_market { comm: { at, name, asks: [[price, qty], …] } } (cheapest first, up to 12)
+SH.MKT = "Delos commodities market";
+SH.mktRoom = "44519";
+SH.rooms[SH.MKT] = SH.mktRoom;
+SH.market = {};
+var shMk = SH.readTable("shopping_market");
+for (var shMc in shMk) {
+  if (!shMk.hasOwnProperty(shMc) || !shMk[shMc] || !Array.isArray(shMk[shMc].asks)) continue;
+  var shMa = shMk[shMc].asks.filter(function (a) { return Array.isArray(a) && Number(a[0]) > 0 && Number(a[1]) > 0; }).map(function (a) { return [Number(a[0]), Number(a[1])]; }).slice(0, 12);
+  SH.market[SH.key(shMc)] = { at: Number(shMk[shMc].at) || 0, name: String(shMk[shMc].name || shMc).slice(0, 40), asks: shMa };
+}
+SH.saveMarket = function () { SH.saveTable("shopping_market", SH.market); };
+// The word CM LIST and CM BUY take, where the commodity's name won't do
+// ("CM LIST stag's horn" lists everything; HORN works, Ricardo).
+SH.cmWords = { "stag's horn": "horn" };
+SH.cmWord = function (comm) { var k = SH.key(comm); return SH.cmWords[k] || k; };
+// The commodity a name in the market's lines means: its own, or by its CM word.
+SH.cmComm = function (name) {
+  var k = SH.key(name);
+  for (var c in SH.cmWords) if (SH.cmWords.hasOwnProperty(c) && SH.cmWords[c] === k) return c;
+  return k;
+};
+// Buying n from the asks read: the ceiling to give CM BUY (the dearest ask
+// needed), the average price, and how much the read offers held in all.
+SH.mktFill = function (comm, n) {
+  var mk = SH.market[SH.key(comm)], need = n, cost = 0, max = 0, have = 0;
+  if (!mk || !mk.asks.length) return { max: 0, avg: 0, have: 0 };
+  for (var i = 0; i < mk.asks.length; i++) {
+    have += mk.asks[i][1];
+    if (need > 0) { var t = Math.min(need, mk.asks[i][1]); cost += t * mk.asks[i][0]; need -= t; max = mk.asks[i][0]; }
+  }
+  if (need > 0) { cost += need * max; }
+  return { max: max, avg: Math.round(cost / n), have: have };
+};
+// Reading a listing: { comm (expected, "" for all), hidden, at, head, rules, rows: { comm: [[p, q]] }, names }
+SH.m = null;
+SH.mktStart = function (comm) {
+  var exp = SH.m && SH.m.expect;
+  var hidden = !!(exp && (comm === "" ? false : SH.cmComm(comm) === exp));
+  // SCAN asked for one and the game listed everything (CM LIST stag's horn,
+  // Ricardo): hidden, nothing kept, the commodity named at the end.
+  var junk = !!(exp && comm === "");
+  if (junk) { hidden = true; if (SH.scan) SH.scan.failed.push(exp); }
+  SH.m = { comm: SH.cmComm(comm), hidden: hidden, junk: junk, at: Date.now(), head: false, rules: 0, rows: {}, names: {} };
+  SH.mktTimer(4000);
+  return hidden;
+};
+SH.mktTimer = function (ms) {
+  clearTimeout(SH.mT);
+  SH.mT = setTimeout(function () { if (SH.m) SH.mktDone(); }, ms);
+};
+// One line; true when it should be hidden (a SCAN's).
+SH.mktLine = function (line) {
+  var mm = /^Listing all (?:(.+) )?commodities:$/.exec(line);
+  if (mm) return SH.mktStart(mm[1] || "");
+  var M = SH.m;
+  if (!M || M.expect) return false;
+  if (/^Commodity\s+Price\s+Quantity Available\s*$/.test(line)) { M.head = true; return M.hidden; }
+  if (!M.head) return false;
+  if (/^-{20,}$/.test(line)) { M.rules++; if (M.rules >= 2) setTimeout(SH.mktDone, 0); return M.hidden; }
+  if (/^\[?Type MORE if you wish to continue/.test(line)) { setTimeout(SH.mktDone, 0); return M.hidden; }
+  var r = /^(.+?)\s+([\d,]+)gp\s+([\d,]+)\s*$/.exec(line);
+  if (!r) return false;
+  var k = SH.cmComm(r[1]);
+  (M.rows[k] || (M.rows[k] = [])).push([Number(r[2].replace(/,/g, "")), Number(r[3].replace(/,/g, ""))]);
+  M.names[k] = r[1].trim();
+  SH.mktTimer(1500);
+  return M.hidden;
+};
+SH.mktDone = function () {
+  var M = SH.m;
+  if (!M || M.expect) return;
+  SH.m = null;
+  clearTimeout(SH.mT);
+  var got = 0;
+  if (M.junk) M.rows = {};
+  for (var k in M.rows) {
+    if (!M.rows.hasOwnProperty(k)) continue;
+    var a = M.rows[k].sort(function (x, y) { return x[0] - y[0]; }).slice(0, 12);
+    SH.market[k] = { at: Date.now(), name: M.names[k] || k, asks: a };
+    got++;
+  }
+  // A scanned commodity nobody sells now: its old offers go.
+  if (M.comm && !M.rows[M.comm] && M.hidden && SH.market[M.comm]) delete SH.market[M.comm];
+  if (got || M.hidden) SH.saveMarket();
+  if (!M.hidden && got) SH.say("noted the market's offers for " + got + (got === 1 ? " commodity" : " commodities") + ".", "lime");
+  run_function("shopping_render", [], "shopping");
+  if (SH.scan) setTimeout(SH.scanNext, 300);
+};
+// SCAN: every commodity known (shops' wares, the market, your rift's
+// Commodities), one CM LIST at a time, hidden.
+SH.scan = null;
+SH.scanNames = function () {
+  var n = {};
+  for (var s in SH.wares) if (SH.wares.hasOwnProperty(s)) for (var c in SH.wares[s].items) if (SH.wares[s].items.hasOwnProperty(c)) n[c] = 1;
+  for (var m in SH.market) if (SH.market.hasOwnProperty(m)) n[m] = 1;
+  for (var r in SH.rift) if (SH.rift.hasOwnProperty(r) && SH.key(SH.rift[r][1]) === "commodities") n[SH.commodityOf(r)] = 1;
+  return Object.keys(n).sort();
+};
+SH.scanStart = function () {
+  if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to scan).", "orange"); return; }
+  if (SH.scan) { SH.say("already scanning (" + SH.scan.i + " of " + SH.scan.names.length + ").", "orange"); return; }
+  var names = SH.scanNames();
+  if (!names.length) { SH.say("no commodities known yet: read WARES in a commodity shop, or CM LIST one.", "orange"); return; }
+  SH.scan = { names: names, i: 0, at: Date.now(), failed: [] };
+  SH.say("scanning the market for " + names.length + " commodities (CM LIST each, hidden)…");
+  SH.scanNext();
+};
+SH.scanNext = function () {
+  var S = SH.scan;
+  if (!S) return;
+  if (S.i >= S.names.length) {
+    SH.scan = null;
+    SH.say("market scan done: " + S.names.length + " commodities in " + Math.round((Date.now() - S.at) / 1000) + "s." + (S.failed.length ? " Couldn't list: " + S.failed.join(", ") + " (the market listed everything for that word)." : ""), S.failed.length ? "orange" : "lime");
+    run_function("shopping_render", [], "shopping");
+    return;
+  }
+  // CM LIST takes equilibrium (Ricardo): the next one waits for it (GMCP
+  // Char.Vitals eq), and for any other reading to end.
+  var waitEq = SH.eq === false && Date.now() - (S.sentAt || 0) < 10000;    // never stuck on it
+  if (SH.m || SH.q || SH.r || SH.othersBusy() || waitEq) { setTimeout(SH.scanNext, 300); return; }
+  var c = S.names[S.i++];
+  SH.say("[" + S.i + "/" + S.names.length + "] checking " + c + "…");
+  SH.eq = false; S.sentAt = Date.now();          // until the game says it's back
+  SH.m = { expect: SH.key(c), at: Date.now() };     // its listing is ours to hide
+  send_command("cm list " + SH.cmWord(c), 1);
+  clearTimeout(SH.mT);
+  SH.mT = setTimeout(function () { if (SH.m && SH.m.expect) { SH.m = null; SH.scanNext(); } }, 5000);
+  run_function("shopping_render", [], "shopping");
+};
+// Equilibrium from GMCP (onGMCP's Char.Vitals): true, false, or null when
+// not known yet.
+if (SH.eq === undefined) SH.eq = null;
+SH.scanStop = function () { if (SH.scan) { SH.scan = null; SH.say("market scan stopped.", "orange"); run_function("shopping_render", [], "shopping"); } };
+// AGREE: only for our own CM BUY a moment ago, and within its ceiling.
+SH.mktAgree = function (n, comm, total) {
+  var b = SH.lastBuy, it = b && b.it;
+  if (!it || it.shop !== SH.MKT || Date.now() - b.at > 15000) return;
+  var lim = SH.mktFill(it.word, it.n).max * n;
+  if (SH.cmComm(comm) !== SH.key(it.word) || n > it.n || total > lim) { SH.say("not agreeing: " + n + " " + comm + " for " + SH.money(total) + " isn't what was asked (" + it.n + " at most " + SH.money(SH.mktFill(it.word, it.n).max) + " each). Type AGREE yourself if it's right.", "orange"); return; }
+  send_command("agree", 1);
+};
+SH.mktMissed = function (comm) {
+  SH.say("the market has no " + comm + " at that price any more: SCAN (or CM LIST " + comm + ") and BUY again.", "orange");
+};
+
 // The tab's clicks. Its page shares window with the scripts but can't reach
 // client.loom in every Nexus, so these closures carry them.
 try {
@@ -964,7 +1154,10 @@ try {
     restock: function () { client.loom.shopping.readRift("restock"); },
     pricesFold: function () { var S = client.loom.shopping; S.pricesFolded = !S.pricesFolded; S.savePrices(); },
     pricesMode: function () { var S = client.loom.shopping; S.pricesSell = !S.pricesSell; S.savePrices(); },
-    refresh: function (i) { var S = client.loom.shopping, l = S.waresShops(); if (l[i] !== undefined) S.refresh(l[i]); }
+    refresh: function (i) { var S = client.loom.shopping, l = S.waresShops(); if (l[i] !== undefined) S.refresh(l[i]); },
+    scan: function () { var S = client.loom.shopping; if (S.scan) S.scanStop(); else S.scanStart(); },
+    market: function () { client.loom.shopping.walk(client.loom.shopping.MKT); },
+    marketFold: function () { var S = client.loom.shopping; S.marketFolded = !S.marketFolded; S.savePrices(); }
   };
 } catch (e) {}
 if (client.loom.notify) client.loom.notify("shopping");

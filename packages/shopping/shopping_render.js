@@ -90,7 +90,11 @@ for (var g = 0; g < groups.length; g++) {
     var short = it.stock >= 0 && it.stock < it.n;
     var also = (short ? 'only ' + SH.n(it.stock) + ' in stock here\n' : '') + others.join('\n');
     html += '<div class="loom-sh-row" title="' + esc(also) + '" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 4px 2px 17px;border-bottom:1px dotted ' + RULE + ';">';
-    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) + (short ? ' <span style="font-family:' + SYM + ';color:#ff9a4c;" title="only ' + SH.n(it.stock) + ' in stock">&#9888;</span>' : '') + '</span>';
+    // ⚠ when its shop asks far more than the others do (Ricardo); low stock as a note.
+    var dearIt = it.price > 0 && SH.dear(it.price, it.shops.filter(function (o) { return o.s !== it.shop && o.c === it.cur; }).map(function (o) { return o.p; }));
+    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) +
+      (dearIt ? ' <span style="font-family:' + SYM + ';color:#ff9a4c;" title="far dearer here than elsewhere (hover the line for every shop)">&#9888;</span>' : '') +
+      (short ? ' <span style="font-family:' + MONO + ';font-size:10px;color:#ff9a4c;" title="only ' + SH.n(it.stock) + ' in stock here">only ' + SH.n(it.stock) + '</span>' : '') + '</span>';
     html += '<span style="flex:none;white-space:nowrap;color:' + MUTED + ';">' + (it.n > 1 ? esc(SH.money(it.price, it.cur)) + ' ea &middot; ' : '') + '<span style="color:' + TXT + ';">' + esc(SH.money(it.n * it.price, it.cur)) + '</span>';
     if (G.shop === inShop) html += '<span onclick="window.loomShopping&&window.loomShopping.buy(' + num + ')" title="' + esc(SH.buyCmd(it)) + '" style="cursor:pointer;margin-left:8px;padding:0 4px;border:1px solid ' + DEEP + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">BUY</span>';
     html += '<span class="loom-sh-x" onclick="window.loomShopping&&window.loomShopping.remove(' + num + ')" title="remove ' + esc(it.desc) + ' from the list" style="cursor:pointer;margin-left:6px;color:#ff9a4c;">&times;</span></span></div>';
@@ -145,12 +149,59 @@ if (wShops.length) {
         var x = vals[c2], out = !SH.pricesSell && x.v > 0 && x.k === 0;
         var col = !x.v || out ? DIM : (live.length > 1 && x.v === best ? GREEN : (x.v === worst ? ORANGE : TXT));
         var tip = x.v ? (SH.pricesSell ? 'pays ' : 'sells at ') + SH.money(x.v) + (x.k >= 0 ? ' · stock ' + SH.n(x.k) : '') : (SH.pricesSell ? 'doesn\'t buy it' : 'doesn\'t sell it');
-        html += '<td title="' + esc(tip) + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + col + ';white-space:nowrap;' + (out ? 'text-decoration:line-through;' : '') + '">' + (x.v ? SH.n(x.v) : '&mdash;') + '</td>';
+        // ⚠ on a price far above the row's others (BUY only).
+        var dearC = !SH.pricesSell && x.v > 0 && SH.dear(x.v, vals.filter(function (y, yi) { return yi !== c2; }).map(function (y) { return y.v; }));
+        if (dearC) tip += ' · far dearer than elsewhere';
+        html += '<td title="' + esc(tip) + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + col + ';white-space:nowrap;' + (out ? 'text-decoration:line-through;' : '') + '">' + (dearC ? '<span style="font-family:' + SYM + ';text-decoration:none;display:inline-block;margin-right:3px;color:' + ORANGE + ';">&#9888;</span>' : '') + (x.v ? SH.n(x.v) : '&mdash;') + '</td>';
       }
       html += '</tr>';
     }
     html += '</table></div>';
-    html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices in gold, from each shop\'s last WARES. ' + (SH.pricesSell ? 'Green: pays the most; orange: the least.' : 'Green: cheapest; orange: dearest; struck out: none in stock.') + ' Commodities no shop ' + (SH.pricesSell ? 'buys' : 'sells') + ' aren\'t listed.' + ' &bull; a commodity you keep a minimum of. Click a city to walk to its shop and read WARES again (hover it for the reading\'s age).</div>';
+    html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices in gold, from each shop\'s last WARES. ' + (SH.pricesSell ? 'Green: pays the most; orange: the least.' : 'Green: cheapest; orange: dearest; &#9888; far dearer than elsewhere; struck out: none in stock.') + ' Commodities no shop ' + (SH.pricesSell ? 'buys' : 'sells') + ' aren\'t listed.' + ' &bull; a commodity you keep a minimum of. Click a city to walk to its shop and read WARES again (hover it for the reading\'s age).</div>';
+  }
+}
+
+// The commodities market in Delos (#473): its own section, since another
+// column won't fit. Per commodity: the cheapest offer, how much sits at it,
+// and the cheapest city shop to compare (the market's price green when it's
+// cheaper, orange when a shop is). SCAN reads every commodity with CM LIST.
+var mNames = Object.keys(SH.market).filter(function (k) { return SH.market[k].asks.length; }).sort();
+if (mNames.length || wShops.length || SH.scan) {
+  var GRN = "#8fd18f", ORG = "#ff9a4c";
+  var agoM = function (t) { var m = Math.round((Date.now() - t) / 60000); return m < 60 ? m + "m" : (m < 2880 ? Math.round(m / 60) + "h" : Math.round(m / 1440) + "d"); };
+  var newest = 0, oldest = 0;
+  for (var mn = 0; mn < mNames.length; mn++) { var tt = SH.market[mNames[mn]].at; if (tt > newest) newest = tt; if (!oldest || tt < oldest) oldest = tt; }
+  var atMkt = SH.here && SH.here.id === SH.mktRoom;
+  html += '<div style="margin-top:10px;border-top:1px solid ' + DEEP + ';padding-top:5px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;">';
+  html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;font-size:13px;color:' + AMBER + ';"><span onclick="window.loomShopping&&window.loomShopping.marketFold()" title="' + (SH.marketFolded ? 'show' : 'fold') + ' the market" style="cursor:pointer;">' + (SH.marketFolded ? '&#9656;' : '&#9662;') + ' </span>' +
+    '<span class="loom-sh-city" onclick="window.loomShopping&&window.loomShopping.market()" title="' + (atMkt ? 'you\'re in the market: BUY works here' : 'walk to the commodities market in Delos (room ' + SH.mktRoom + ')') + (newest ? '. Offers read ' + agoM(newest) + (oldest !== newest ? '–' + agoM(oldest) : '') + ' ago.' : '') + '" style="cursor:pointer;border-bottom:1px dotted ' + DEEP + ';color:' + AMBER + ';">Delos market</span>' +
+    ' <span style="font-family:' + MONO + ';font-size:10px;color:' + MUTED + ';font-variant:normal;letter-spacing:0;">' + (SH.scan ? 'scanning ' + SH.scan.i + ' of ' + SH.scan.names.length + '…' : mNames.length + (mNames.length === 1 ? ' commodity' : ' commodities')) + '</span></span>';
+  html += '<span onclick="window.loomShopping&&window.loomShopping.scan()" title="' + (SH.scan ? 'stop the scan' : 'CM LIST every commodity known, hidden, one at a time (works anywhere)') + '" style="cursor:pointer;padding:0 5px;border:1px solid ' + AMBER + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;">' + (SH.scan ? 'STOP' : 'SCAN') + '</span></div>';
+  if (!SH.marketFolded) {
+    if (!mNames.length) html += '<div style="margin-top:4px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">No offers read yet: SCAN, or CM LIST a commodity.</div>';
+    else {
+      var wl = {}, inRift = {};
+      for (var mi2 in SH.mins) if (SH.mins.hasOwnProperty(mi2)) wl[SH.commodityOf(mi2)] = mi2;
+      // Your own stock: the rift's Commodities, by the commodity each one is.
+      for (var ri in SH.rift) if (SH.rift.hasOwnProperty(ri) && SH.isCommodity(ri)) inRift[SH.commodityOf(ri)] = ri;
+      html += '<table style="border-collapse:collapse;width:100%;margin-top:4px;font-family:' + MONO + ';font-size:10px;">';
+      html += '<tr>' + ['commodity', 'best offer', 'stock', 'rift', 'cheapest shop'].map(function (h, i) { return '<th style="text-align:' + (i ? 'right' : 'left') + ';font-weight:normal;color:' + MUTED + ';padding:2px 4px;border-bottom:1px solid ' + RULE + ';">' + h + '</th>'; }).join('') + '</tr>';
+      for (var mr = 0; mr < mNames.length; mr++) {
+        var key = mNames[mr], MK = SH.market[key], best = MK.asks[0], shopBest = null;
+        for (var ws2 in SH.wares) if (SH.wares.hasOwnProperty(ws2)) { var e2 = SH.wares[ws2].items[key]; if (e2 && e2[0] > 0 && e2[1] !== 0 && (!shopBest || e2[0] < shopBest.p)) shopBest = { p: e2[0], c: SH.wares[ws2].area || ws2 }; }
+        var mcol = !shopBest ? TXT : (best[0] < shopBest.p ? GRN : (best[0] > shopBest.p ? ORG : TXT));
+        var depth = MK.asks.slice(0, 6).map(function (a) { return SH.n(a[1]) + ' at ' + SH.money(a[0]); }).join('\n');
+        var mine2 = wl[key];
+        html += '<tr class="loom-sh-row"><td style="padding:2px 4px;border-bottom:1px dotted ' + RULE + ';font-family:' + SERIF + ';font-size:12px;color:' + (mine2 ? TXT : MUTED) + ';"' + (mine2 ? ' title="you keep a minimum of ' + esc(mine2) + '"' : '') + '>' + esc(MK.name) + (mine2 ? ' <span style="color:' + AMBER + ';">&bull;</span>' : '') + '</td>' +
+          '<td title="' + esc('cheapest offers (read ' + agoM(MK.at) + ' ago):\n' + depth) + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + mcol + ';">' + SH.n(best[0]) + '</td>' +
+          '<td style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + MUTED + ';">' + SH.n(best[1]) + '</td>' ;
+        var rk = inRift[key], rn = rk ? SH.rift[rk][0] : null, rmin = rk && SH.mins[rk] !== undefined ? SH.mins[rk] : null, rlow = rmin !== null && rn < rmin;
+        html += '<td title="' + esc(rk ? rk + ' in your rift' + (rmin !== null ? ', minimum ' + SH.n(rmin) : '') : 'none in your rift (when it was last read)') + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + (rn === null ? DIM : (rlow ? ORG : TXT)) + ';">' + (rn === null ? '&mdash;' : SH.n(rn)) + '</td>';
+        html += '<td style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + (shopBest ? TXT : DIM) + ';white-space:nowrap;">' + (shopBest ? SH.n(shopBest.p) + ' <span style="font-family:' + SERIF + ';color:' + MUTED + ';">' + esc(shopBest.c) + '</span>' : '&mdash;') + '</td></tr>';
+      }
+      html += '</table>';
+      html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">The cheapest offer per commodity, green when it beats every shop, orange when a shop is cheaper; hover it for the next offers. <i>Rift</i>: yours, orange under your minimum. Click <i>Delos market</i> to walk there: CM BUY works only in the market.</div>';
+    }
   }
 }
 
