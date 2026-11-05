@@ -14,7 +14,10 @@ if (args.gmcp_method == "Room.Info") {
     SH.started = true;
     for (var shMi in SH.mins) if (SH.mins.hasOwnProperty(shMi)) { if (!SH.paused()) SH.readRift(""); break; }
   }
-} else if ((SH.q || SH.r) && args.gmcp_method == "Char.Vitals") {
+} else if (SH.w && args.gmcp_method == "Char.Vitals") {
+  setTimeout(function () { if (SH.w) SH.waresDone(); }, 0);
+}
+if ((SH.q || SH.r) && args.gmcp_method == "Char.Vitals") {
   // After the packet's own lines, so the table is read first.
   setTimeout(function () { SH.riftPrompt(); SH.prompt(); }, 0);
 }

@@ -382,6 +382,13 @@ SH.place();
 SH.walkCmd = "walkto";
 SH.walk = function (shop) {
   if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
+  // A commodity shop (#473): the game's PATH FIND to the room WARES was read in.
+  if (SH.wares[shop]) {
+    if (!SH.wares[shop].room) { SH.say("no room known for " + shop + ": walk there and type WARES once.", "orange"); return; }
+    send_command("path find " + SH.wares[shop].room, 1);
+    SH.say("walking to " + shop + " (room " + SH.wares[shop].room + ").");
+    return;
+  }
   send_command(SH.walkCmd + " " + shop, 1);
   SH.say("walking to " + shop + ".");
 };
@@ -801,9 +808,103 @@ SH.queue = [];
 SH.restock = function () {
   var sh = SH.shortList();
   if (!sh.length) { SH.say("nothing is under its minimum: no restocking to do.", "lime"); return; }
-  SH.queue = sh.map(function (x) { return { word: SH.wordOf(x.item), n: x.n, rift: x.item }; });
-  SH.say("restocking " + sh.length + (sh.length === 1 ? " item" : " items") + ": " + sh.map(function (x) { return x.item + " " + SH.n(x.n); }).join(", ") + ". Looking each up in the directory…");
+  // Commodities come from the commodity shops' WARES, not the directory (#473).
+  var dir = [], com = [];
+  for (var i = 0; i < sh.length; i++) (SH.key(SH.catOf(sh[i].item)) === "commodities" ? com : dir).push(sh[i]);
+  SH.say("restocking " + sh.length + (sh.length === 1 ? " item" : " items") + ": " + sh.map(function (x) { return x.item + " " + SH.n(x.n); }).join(", ") + "." + (dir.length ? " Looking " + (dir.length === 1 ? "it" : "each") + " up in the directory…" : ""));
+  var missing = [];
+  for (var j = 0; j < com.length; j++) if (!SH.putCommodity(com[j].item, com[j].n)) missing.push(com[j].item);
+  if (missing.length) SH.say("not sold in any commodity shop you've read WARES in: " + missing.join(", ") + " (the commodities market, later).", "orange");
+  SH.queue = dir.map(function (x) { return { word: SH.wordOf(x.item), n: x.n, rift: x.item }; });
   SH.next();
+};
+
+// ---- Commodity shops (#473) ------------------------------------------
+// WARES in a city's commodity shop lists each commodity with what the shop
+// pays (We Buy At), its stock, and its price to you (We Sell At, fixed by
+// the city). Shopping reads the table whenever you type WARES there, and
+// keeps it per shop (the room you were in), so RESTOCK can list rift
+// commodities under the cheapest shop that sells them. Buying there is
+// "BUY 10 CLOTH" → "You purchase 10 cloth for 450 gold."
+// Saved: shopping_wares { shop: { area, room, at, items: { commodity: [price, stock] } } }
+//   (price 0: the shop doesn't sell it)
+SH.wares = {};
+var shWr = SH.readTable("shopping_wares");
+for (var shWsk in shWr) {
+  if (!shWr.hasOwnProperty(shWsk) || !shWr[shWsk] || typeof shWr[shWsk] != "object") continue;
+  var shWo = shWr[shWsk], shWit = {};
+  if (shWo.items && typeof shWo.items == "object") for (var shWc in shWo.items) if (shWo.items.hasOwnProperty(shWc) && Array.isArray(shWo.items[shWc])) shWit[SH.key(shWc)] = [Math.max(0, Number(shWo.items[shWc][0]) || 0), Math.max(0, Number(shWo.items[shWc][1]) || 0), String(shWo.items[shWc][2] || shWc).slice(0, 40)];
+  SH.wares[String(shWsk).slice(0, 80)] = { area: String(shWo.area || "").slice(0, 80), room: String(shWo.room || ""), at: Number(shWo.at) || 0, items: shWit };
+}
+SH.saveWares = function () { SH.saveTable("shopping_wares", SH.wares); };
+SH.w = null;            // the WARES table being read: { shop, at, head }
+// "Proprietor: The Verdant Wilds of Eleusis." starts a table.
+SH.waresStart = function (who) {
+  var H = SH.here || {}, area = H.area || String(who || "").replace(/^.* of /, "");
+  var shop = (area || "a") + " commodity shop";
+  SH.w = { shop: shop, at: Date.now(), head: false };
+  SH.wares[shop] = { area: area, room: H.id || "", at: Date.now(), items: {} };
+  if (H.id) { SH.rooms[shop] = H.id; SH.saveRooms(); }
+};
+SH.waresLine = function (line) {
+  var w = SH.w;
+  if (!w || Date.now() - w.at > 5000) { SH.w = null; return; }
+  if (/^Commodity\s+We Buy At\s+Stock\s+We Sell At\s*$/.test(line)) { w.head = true; return; }
+  if (!w.head) return;
+  var m = /^(.+?)\s+(-|[\d,]+\s*gp)\s+([\d,]+)\s+(-|[\d,]+\s*gp)\s*$/.exec(line);
+  if (!m) { SH.waresDone(); return; }
+  var sell = m[4] === "-" ? 0 : Number(m[4].replace(/[^\d]/g, ""));
+  SH.wares[w.shop].items[SH.key(m[1])] = [sell, Number(m[3].replace(/,/g, "")), m[1].trim()];
+  w.at = Date.now();
+};
+SH.waresDone = function () {
+  var w = SH.w;
+  if (!w) return;
+  SH.w = null;
+  var it = SH.wares[w.shop] ? SH.wares[w.shop].items : {}, n = 0, sold = 0;
+  for (var k in it) if (it.hasOwnProperty(k)) { n++; if (it[k][0] > 0) sold++; }
+  if (!n) { delete SH.wares[w.shop]; return; }
+  SH.saveWares();
+  SH.say("noted " + w.shop + "'s wares: " + sold + " of " + n + " commodities for sale. RESTOCK lists rift commodities under the cheapest shop that sells them.", "lime");
+};
+// The commodity a rift item is: built-in names first, then a WARES name
+// found whole in the rift name, or the rift name inside a WARES name
+// ("silver" in silver bar, "dust" in diamond dust).
+SH.comNames = { "silver bar": "silver", "piece of stag's horn": "stag's horn", "dust": "diamond dust" };
+SH.commodityOf = function (item) {
+  var k = SH.key(item);
+  if (SH.comNames[k]) return SH.comNames[k];
+  if (SH.words[k]) return SH.words[k];
+  var names = {};
+  for (var s in SH.wares) if (SH.wares.hasOwnProperty(s)) for (var c in SH.wares[s].items) if (SH.wares[s].items.hasOwnProperty(c)) names[c] = 1;
+  if (names[k]) return k;
+  var pk = SH.plain(k), best = "";
+  for (var n in names) {
+    if (!names.hasOwnProperty(n)) continue;
+    var pn = SH.plain(n);
+    if ((" " + pk + " ").indexOf(" " + pn + " ") >= 0 || (" " + pn + " ").indexOf(" " + pk + " ") >= 0) { if (!best || n.length > best.length) best = n; }
+  }
+  return best || k;
+};
+// Onto the list from the shops' WARES: the cheapest that sells it (one with
+// enough stock first). False when no shop read sells it.
+SH.putCommodity = function (item, n) {
+  var c = SH.commodityOf(item), shops = [];
+  for (var s in SH.wares) {
+    if (!SH.wares.hasOwnProperty(s)) continue;
+    var e = SH.wares[s].items[c];
+    if (e && e[0] > 0) shops.push({ s: s, p: e[0], c: "gp", k: e[1], name: e[2], area: SH.wares[s].area });
+  }
+  if (!shops.length) return false;
+  shops.sort(function (a, b) { return (a.p - b.p) || ((a.k >= n ? 0 : 1) - (b.k >= n ? 0 : 1)); });
+  var desc = shops[0].name || c, it = null;
+  for (var i = 0; i < SH.list.length; i++) if (SH.list[i].rift === SH.key(item) || SH.key(SH.list[i].desc) === SH.key(desc)) it = SH.list[i];
+  if (!it) { it = { desc: desc, word: c, n: 0, shops: [], shop: shops[0].s, price: 0, cur: "gp", area: shops[0].area, at: 0, rift: SH.key(item) }; SH.list.push(it); }
+  it.n = Math.min(9999, Math.max(it.n, n)); it.word = c; it.rift = SH.key(item); it.at = Date.now();
+  it.shops = shops.map(function (o) { return { s: o.s, p: o.p, c: "gp", k: o.k }; });
+  SH.save();
+  SH.say(it.n + " × " + desc + " at " + SH.money(it.price, it.cur) + " (" + SH.money(it.n * it.price, it.cur) + "), from " + it.shop + (it.stock >= 0 && it.stock < it.n ? "; it has only " + it.stock + " in stock" : "") + ".", it.stock >= 0 && it.stock < it.n ? "orange" : "lime");
+  return true;
 };
 // The next queued lookup, once nothing is being read or picked.
 SH.next = function () {

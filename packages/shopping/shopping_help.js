@@ -18,6 +18,7 @@ var hlRows = [
   ["SHOPPING WATCH [<category> ON|OFF]", "a rift category (Herbs, Ingredients…) also takes harvesting's or gathering's minimums for items you set none for; all off by default; bare: the categories"],
   ["SHOPPING RESTOCK", "read your rift and put everything under its minimum on the list (minimum less stock), each looked up in turn; a word you PICKed for before is picked again (also RESTOCK in the tab)"],
   ["SHOPPING WORD [<item> = <word>]", "the game's word for a rift item when it differs (inks: red ink = redink, built in); <item> = alone clears yours; bare: your words"],
+  ["WARES (the game's)", "in a city's commodity shop: Shopping notes what it sells and at what price; RESTOCK then lists rift commodities under the cheapest shop that sells them, WALK goes there (PATH FIND), BUY buys"],
   ["SHOPPING GOAL", "with coffers: the list's gold as a coffers goal (GOAL by the total; only what isn't a goal yet)"],
   ["SHOPPING CLEAR CONFIRM", "wipe the whole list"],
   ["SHOPPING RESET", "reload the saved list, redraw the tab"],

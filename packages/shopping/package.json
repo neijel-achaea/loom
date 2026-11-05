@@ -125,6 +125,38 @@
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Commodity wares",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_wares.js"
+        }
+      ],
+      "text": "^(?:Proprietor: .+\\.|Commodity\\s+We Buy At\\s+Stock\\s+We Sell At\\s*|.+?\\s+(?:-|[\\d,]+\\s*gp)\\s+[\\d,]+\\s+(?:-|[\\d,]+\\s*gp)\\s*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Bought commodity",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_purchase.js"
+        }
+      ],
+      "text": "^You purchase ([\\d,]+) (.+) for [\\d,]+ gold\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": "A shopping list priced from the city's directory, grouped by shop in a tab"
