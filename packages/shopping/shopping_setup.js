@@ -1066,14 +1066,22 @@ SH.scanNext = function () {
   var S = SH.scan;
   if (!S) return;
   if (S.i >= S.names.length) { SH.scan = null; SH.say("market scan done: " + S.names.length + " commodities in " + Math.round((Date.now() - S.at) / 1000) + "s.", "lime"); run_function("shopping_render", [], "shopping"); return; }
-  if (SH.m || SH.q || SH.r || SH.othersBusy()) { setTimeout(SH.scanNext, 500); return; }
+  // CM LIST takes equilibrium (Ricardo): the next one waits for it (GMCP
+  // Char.Vitals eq), and for any other reading to end.
+  var waitEq = SH.eq === false && Date.now() - (S.sentAt || 0) < 10000;    // never stuck on it
+  if (SH.m || SH.q || SH.r || SH.othersBusy() || waitEq) { setTimeout(SH.scanNext, 300); return; }
   var c = S.names[S.i++];
+  SH.say("[" + S.i + "/" + S.names.length + "] checking " + c + "…");
+  SH.eq = false; S.sentAt = Date.now();          // until the game says it's back
   SH.m = { expect: SH.key(c), at: Date.now() };     // its listing is ours to hide
   send_command("cm list " + c, 1);
   clearTimeout(SH.mT);
   SH.mT = setTimeout(function () { if (SH.m && SH.m.expect) { SH.m = null; SH.scanNext(); } }, 5000);
   run_function("shopping_render", [], "shopping");
 };
+// Equilibrium from GMCP (onGMCP's Char.Vitals): true, false, or null when
+// not known yet.
+if (SH.eq === undefined) SH.eq = null;
 SH.scanStop = function () { if (SH.scan) { SH.scan = null; SH.say("market scan stopped.", "orange"); run_function("shopping_render", [], "shopping"); } };
 // AGREE: only for our own CM BUY a moment ago, and within its ceiling.
 SH.mktAgree = function (n, comm, total) {
