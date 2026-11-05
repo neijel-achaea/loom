@@ -90,7 +90,11 @@ for (var g = 0; g < groups.length; g++) {
     var short = it.stock >= 0 && it.stock < it.n;
     var also = (short ? 'only ' + SH.n(it.stock) + ' in stock here\n' : '') + others.join('\n');
     html += '<div class="loom-sh-row" title="' + esc(also) + '" style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 4px 2px 17px;border-bottom:1px dotted ' + RULE + ';">';
-    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) + (short ? ' <span style="font-family:' + SYM + ';color:#ff9a4c;" title="only ' + SH.n(it.stock) + ' in stock">&#9888;</span>' : '') + '</span>';
+    // ⚠ when its shop asks far more than the others do (Ricardo); low stock as a note.
+    var dearIt = it.price > 0 && SH.dear(it.price, it.shops.filter(function (o) { return o.s !== it.shop && o.c === it.cur; }).map(function (o) { return o.p; }));
+    html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:13px;"><span style="font-family:' + MONO + ';font-size:11px;color:' + TXT + ';margin-right:5px;">' + it.n + ' &times;</span>' + esc(it.desc) +
+      (dearIt ? ' <span style="font-family:' + SYM + ';color:#ff9a4c;" title="far dearer here than elsewhere (hover the line for every shop)">&#9888;</span>' : '') +
+      (short ? ' <span style="font-family:' + MONO + ';font-size:10px;color:#ff9a4c;" title="only ' + SH.n(it.stock) + ' in stock here">only ' + SH.n(it.stock) + '</span>' : '') + '</span>';
     html += '<span style="flex:none;white-space:nowrap;color:' + MUTED + ';">' + (it.n > 1 ? esc(SH.money(it.price, it.cur)) + ' ea &middot; ' : '') + '<span style="color:' + TXT + ';">' + esc(SH.money(it.n * it.price, it.cur)) + '</span>';
     if (G.shop === inShop) html += '<span onclick="window.loomShopping&&window.loomShopping.buy(' + num + ')" title="' + esc(SH.buyCmd(it)) + '" style="cursor:pointer;margin-left:8px;padding:0 4px;border:1px solid ' + DEEP + ';color:' + AMBER + ';letter-spacing:0.08em;font-size:9px;vertical-align:1px;">BUY</span>';
     html += '<span class="loom-sh-x" onclick="window.loomShopping&&window.loomShopping.remove(' + num + ')" title="remove ' + esc(it.desc) + ' from the list" style="cursor:pointer;margin-left:6px;color:#ff9a4c;">&times;</span></span></div>';
@@ -145,12 +149,15 @@ if (wShops.length) {
         var x = vals[c2], out = !SH.pricesSell && x.v > 0 && x.k === 0;
         var col = !x.v || out ? DIM : (live.length > 1 && x.v === best ? GREEN : (x.v === worst ? ORANGE : TXT));
         var tip = x.v ? (SH.pricesSell ? 'pays ' : 'sells at ') + SH.money(x.v) + (x.k >= 0 ? ' · stock ' + SH.n(x.k) : '') : (SH.pricesSell ? 'doesn\'t buy it' : 'doesn\'t sell it');
-        html += '<td title="' + esc(tip) + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + col + ';white-space:nowrap;' + (out ? 'text-decoration:line-through;' : '') + '">' + (x.v ? SH.n(x.v) : '&mdash;') + '</td>';
+        // ⚠ on a price far above the row's others (BUY only).
+        var dearC = !SH.pricesSell && x.v > 0 && SH.dear(x.v, vals.filter(function (y, yi) { return yi !== c2; }).map(function (y) { return y.v; }));
+        if (dearC) tip += ' · far dearer than elsewhere';
+        html += '<td title="' + esc(tip) + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + col + ';white-space:nowrap;' + (out ? 'text-decoration:line-through;' : '') + '">' + (dearC ? '<span style="font-family:' + SYM + ';text-decoration:none;display:inline-block;margin-right:3px;color:' + ORANGE + ';">&#9888;</span>' : '') + (x.v ? SH.n(x.v) : '&mdash;') + '</td>';
       }
       html += '</tr>';
     }
     html += '</table></div>';
-    html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices in gold, from each shop\'s last WARES. ' + (SH.pricesSell ? 'Green: pays the most; orange: the least.' : 'Green: cheapest; orange: dearest; struck out: none in stock.') + ' Commodities no shop ' + (SH.pricesSell ? 'buys' : 'sells') + ' aren\'t listed.' + ' &bull; a commodity you keep a minimum of. Click a city to walk to its shop and read WARES again (hover it for the reading\'s age).</div>';
+    html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices in gold, from each shop\'s last WARES. ' + (SH.pricesSell ? 'Green: pays the most; orange: the least.' : 'Green: cheapest; orange: dearest; &#9888; far dearer than elsewhere; struck out: none in stock.') + ' Commodities no shop ' + (SH.pricesSell ? 'buys' : 'sells') + ' aren\'t listed.' + ' &bull; a commodity you keep a minimum of. Click a city to walk to its shop and read WARES again (hover it for the reading\'s age).</div>';
   }
 }
 

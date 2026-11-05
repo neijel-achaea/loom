@@ -875,6 +875,19 @@ SH.waresDone = function () {
   SH.saveWares();
   SH.say("noted " + w.shop + "'s wares: " + sold + " of " + n + " commodities for sale. RESTOCK lists rift commodities under the cheapest shop that sells them.", "lime");
 };
+// Far dearer than usual (Ricardo: Targossas's 60,000s): at least SH.dearX
+// times the median of the prices it's compared with.
+SH.dearX = 5;
+SH.median = function (a) {
+  var v = a.filter(function (x) { return x > 0; }).sort(function (x, y) { return x - y; });
+  if (!v.length) return 0;
+  var m = Math.floor(v.length / 2);
+  return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2;
+};
+SH.dear = function (price, others) {
+  var o = others.filter(function (x) { return x > 0; });
+  return o.length >= 2 && price >= SH.dearX * SH.median(o);
+};
 // A commodity: in the rift's Commodities, or a name a shop's WARES or the
 // market lists, even with none in the rift yet (steel, rope, iron were sent
 // to DIRECTORY and found armbands and chains, Ricardo). Never the directory.
@@ -945,7 +958,7 @@ SH.putCommodity = function (item, n) {
   for (var s in SH.wares) {
     if (!SH.wares.hasOwnProperty(s)) continue;
     var e = SH.wares[s].items[c];
-    if (e && e[0] > 0) shops.push({ s: s, p: e[0], c: "gp", k: e[1], name: e[2], area: SH.wares[s].area });
+    if (e && e[0] > 0 && e[1] !== 0) shops.push({ s: s, p: e[0], c: "gp", k: e[1], name: e[2], area: SH.wares[s].area });   // none in stock: not there
   }
   // The market: priced for the whole amount from the depth read (#473).
   var mk = SH.market[c];
