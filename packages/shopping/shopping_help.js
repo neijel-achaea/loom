@@ -19,6 +19,8 @@ var hlRows = [
   ["SHOPPING RESTOCK", "read your rift and put everything under its minimum on the list (minimum less stock), each looked up in turn; a word you PICKed for before is picked again (also RESTOCK in the tab)"],
   ["SHOPPING WORD [<item> = <word>]", "the game's word for a rift item when it differs (inks: red ink = redink, built in); <item> = alone clears yours; bare: your words"],
   ["WARES (the game's)", "in a city's commodity shop: Shopping notes what it sells and at what price; RESTOCK then lists rift commodities under the cheapest shop that sells them, WALK goes there (PATH FIND), BUY buys"],
+  ["SHOPPING SCAN [STOP]", "read the commodities market's cheapest offers for every commodity known (CM LIST each, hidden, one at a time; works anywhere); also SCAN in the tab"],
+  ["CM LIST <comm> (the game's)", "typed anywhere: Shopping notes the market's offers for it; RESTOCK then compares the market with the shops, BUY in the market sends CM BUY <n> <comm> FOR <ceiling> and agrees to its own purchase"],
   ["SHOPPING GOAL", "with coffers: the list's gold as a coffers goal (GOAL by the total; only what isn't a goal yet)"],
   ["SHOPPING CLEAR CONFIRM", "wipe the whole list"],
   ["SHOPPING RESET", "reload the saved list, redraw the tab"],
