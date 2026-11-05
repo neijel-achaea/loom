@@ -105,7 +105,7 @@
           "script": "@file:trigger_rift.js"
         }
       ],
-      "text": "^(?:Glancing into your rift, you see:|\\[?Type MORE if you wish to continue.*|-{20,}|\\s*\\[\\s*[\\d,]+\\]\\s.*|[A-Z][a-z]{2,20})$",
+      "text": "^(?:Glancing into your rift, you see:|\\[?Type MORE if you wish to continue.*|\\[File continued via MORE\\]|-{20,}|\\s*\\[\\s*[\\d,]+\\]\\s.*|[A-Z][a-z]{2,20})$",
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true

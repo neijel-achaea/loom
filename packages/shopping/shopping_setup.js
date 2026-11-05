@@ -537,6 +537,15 @@ SH.riftItemOf = function (word) {
   for (var m in SH.mins) if (SH.mins.hasOwnProperty(m) && SH.wordOf(m) === k) return m;
   return k;
 };
+// Rift items whose name holds this word whole: "horn" is in "piece of
+// stag's horn", "silver" in "silver bar" (Ricardo, 2026-11-05).
+SH.riftHolding = function (word) {
+  var k = SH.key(word), out = [];
+  if (!k) return out;
+  var re = new RegExp("(?:^|[\\s'])" + k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?:$|[\\s'])");
+  for (var r in SH.rift) if (SH.rift.hasOwnProperty(r) && r !== k && re.test(r)) out.push(r);
+  return out.sort();
+};
 SH.setWord = function (name, word) {
   var k = SH.riftItemOf(name);
   if (!word) { delete SH.words[k]; SH.say(k + " is looked up as " + SH.wordOf(k) + " again.", "lime"); }
@@ -629,6 +638,7 @@ SH.riftLine = function (line) {
   r.prompts = 0;
   // Nexus shows the pager as "[Type MORE if you wish to continue reading. (67% shown)]".
   if (/^\[?Type MORE if you wish to continue/.test(line)) { r.more = true; r.pages++; send_command("more", 1); SH.riftTimer(8000); return true; }
+  if (/^\[File continued via MORE\]$/.test(line)) { SH.riftTimer(2500); return true; }
   r.more = false;
   SH.riftTimer(2500);
   if (/^-{20,}$/.test(line)) { r.rules++; if (r.rules >= 2) setTimeout(SH.riftDone, 0); return true; }
@@ -680,6 +690,18 @@ SH.riftTotal = function (name, total) {
 // SHOPPING MIN <item> <n|OFF>.
 SH.setMin = function (name, n) {
   var k = SH.riftItemOf(name);                  // "blueink" is the rift's "blue ink"
+  // Not a rift name: a word in exactly one item's name is that item, and the
+  // game's word for it from now on ("horn" → piece of stag's horn).
+  if (!SH.rift[k] && SH.mins[k] === undefined && SH.riftAt) {
+    var hold = SH.riftHolding(k);
+    if (hold.length > 1) { SH.say("'" + k + "' is in several rift items: " + hold.join(", ") + ". Use the full name.", "orange"); return; }
+    if (hold.length === 1 && n !== null) {
+      // Only for an item with no word yet (red ink keeps redink).
+      if (SH.wordOf(hold[0]) === hold[0]) { SH.words[hold[0]] = k; SH.saveTable("shopping_words", SH.words); }
+      SH.say(k + " is your rift's " + hold[0] + " (looked up and bought as " + SH.wordOf(hold[0]) + "; SHOPPING WORD " + hold[0] + " = <word> to change).", "cyan");
+      k = hold[0];
+    }
+  }
   if (!k) return;
   var ow = SH.owner(k);
   if (n === null) {
