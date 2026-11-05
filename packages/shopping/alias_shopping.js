@@ -83,13 +83,17 @@ if (shCmd === "" || shCmd === "list") {
     if (shMv !== null && (shMv < 1 || shMv > 999999)) SH.say("a minimum is 1 to 999,999 (or OFF).", "orange");
     else SH.setMin(shMm[1], shMv);
   } else {
-    var shMk = SH.key(shRest), shMo = SH.owner(shMk), shMh = SH.have(shMk), shMb = SH.madeBy(shMk);
+    var shMk = SH.key(shRest), shMo = SH.owner(shMk), shMh = SH.have(shMk);
     var shMt = shMh === null ? "" : " (" + SH.n(shMh) + " in your rift)";
-    if (shMb) SH.say(shMk + " is something you make: its level is set with " + shMb + "." + shMt);
-    else if (shMo && shMo.by) SH.say(shMk + ": minimum " + (shMo.min != null ? SH.n(shMo.min) : "?") + ", kept by " + shMo.by + shMt + ".");
-    else if (SH.mins[shMk] !== undefined) SH.say(shMk + ": minimum " + SH.n(SH.mins[shMk]) + shMt + ". SHOPPING MIN " + shMk + " OFF to clear it.");
-    else SH.say("no minimum for " + shMk + shMt + ". SHOPPING MIN " + shMk + " <n> sets one.");
+    var shMw = shMo && shMo.by ? " " + shMo.by + " keeps " + (shMo.min != null ? SH.n(shMo.min) : "?") + " for itself" + (SH.watch[SH.key(SH.catOf(shMk))] ? ", used here while you set none (" + SH.catOf(shMk) + " watched)." : "; WATCH " + (SH.catOf(shMk) || "its category") + " ON to use it here.") : "";
+    if (SH.mins[shMk] !== undefined) SH.say(shMk + ": minimum " + SH.n(SH.mins[shMk]) + shMt + ". SHOPPING MIN " + shMk + " OFF to clear it." + shMw);
+    else SH.say("no minimum for " + shMk + shMt + ". SHOPPING MIN " + shMk + " <n> sets one." + shMw);
   }
+} else if (shCmd === "watch") {
+  var shWm = /^(.+?)\s+(on|off)$/i.exec(shRest);
+  if (!shRest) SH.showWatch();
+  else if (!shWm) SH.say("SHOPPING WATCH <category> ON|OFF, e.g. SHOPPING WATCH herbs ON.", "orange");
+  else SH.setWatch(shWm[1], shWm[2].toLowerCase() === "on");
 } else if (shCmd === "restock") {
   SH.say("reading your rift…");
   SH.readRift("restock");
@@ -108,7 +112,7 @@ if (shCmd === "" || shCmd === "list") {
     " choices=" + (SH.choices ? SH.choices.opts.length : 0) + " waitingOn=" + (SH.othersBusy() || "none") +
     " rift=" + Object.keys(SH.rift).length + " items read " + (SH.riftAt ? Math.round((Date.now() - SH.riftAt) / 60000) + "m ago" : "never") +
     " reading=" + (SH.r ? JSON.stringify({ then: SH.r.then, sent: SH.r.sent, head: SH.r.head, rules: SH.r.rules, pages: SH.r.pages, more: SH.r.more, cat: SH.r.cat, rows: Object.keys(SH.r.rows).length }) : "none") +
-    " mins=" + Object.keys(SH.mins).length + " queue=" + SH.queue.length + " picks=" + Object.keys(SH.picks).length);
+    " mins=" + Object.keys(SH.mins).length + " watch=" + Object.keys(SH.watch).join("/") + " queue=" + SH.queue.length + " picks=" + Object.keys(SH.picks).length);
 } else {
   SH.say("unknown command '" + shCmd + "'. SHOPPING HELP for commands.", "orange");
 }

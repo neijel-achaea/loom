@@ -204,6 +204,7 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `shopping_rift` | data | 1.1 | the last rift reading: each item's count and category, kept current by store/remove lines |  |
 | `shopping_rift_at` | data | 1.1 | when the rift was last read |  |
 | `shopping_picks` | data | 1.1 | the directory item picked for each rift name during RESTOCK |  |
+| `shopping_watch` | setting | 1.1 | rift categories where harvesting's and gathering's minimums count (`SHOPPING WATCH`) |  |
 
 ## harvesting
 

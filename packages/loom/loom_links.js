@@ -348,9 +348,9 @@ L.addLink({
   }
 });
 
-// #440 harvesting and gathering -> shopping: their minimums are the ones
-// shopping uses for the plants and materials they keep (SHOPPING MIN points
-// to theirs), and RESTOCK can put what's short of them on the list.
+// #440 harvesting and gathering -> shopping: in the categories you WATCH in
+// shopping (none by default), their minimums count for the plants and
+// materials you set no shopping minimum for, so RESTOCK can buy what's short.
 // Answers rift.owner(rift name) -> { by, min, stock, cmd } and rift.short ->
 // [{ item, stock, min, by }] with item the name in the rift.
 L.riftOwner = function (by, look, name, cmd) {
@@ -367,7 +367,7 @@ L.riftShort = function (by, look) {
 };
 L.addLink({
   id: "harvesting-shopping", src: "harvesting", dst: "shopping", issue: 440,
-  desc: "Shopping uses harvesting's plant minimums, and RESTOCK lists the plants short of them",
+  desc: "In watched Shopping categories, harvesting's plant minimums count for buying",
   answers: {
     "rift.owner": function (name) { var h = client.loom.harvesting; return h ? L.riftOwner("harvesting", h.look, name, "HARVESTING MIN") : undefined; },
     "rift.short": function () { var h = client.loom.harvesting; return h ? L.riftShort("harvesting", h.look) : undefined; }
@@ -375,7 +375,7 @@ L.addLink({
 });
 L.addLink({
   id: "gathering-shopping", src: "gathering", dst: "shopping", issue: 440,
-  desc: "Shopping uses gathering's material minimums, and RESTOCK lists the materials short of them",
+  desc: "In watched Shopping categories, gathering's material minimums count for buying",
   answers: {
     "rift.owner": function (name) { var g = client.loom.gathering; return g ? L.riftOwner("gathering", g.look, name, "GATHERING MIN") : undefined; },
     "rift.short": function () { var g = client.loom.gathering; return g ? L.riftShort("gathering", g.look) : undefined; }

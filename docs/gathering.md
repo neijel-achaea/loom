@@ -64,7 +64,7 @@ Turn it on when you go out to gather, walk through the right environments, and t
 
 | Link | With | What it does |
 | --- | --- | --- |
-| `gathering-shopping` | shopping | Shopping uses gathering's minimums for the materials it gathers (`SHOPPING MIN` points here), and `SHOPPING RESTOCK` puts those short of them on the shopping list. |
+| `gathering-shopping` | shopping | In the categories you `SHOPPING WATCH`, gathering's minimums count in shopping for the materials you set no shopping minimum for, so `SHOPPING RESTOCK` can buy what's short. |
 
 Gathering reads nothing from other packages. It waits its turn while any other package has a command out, which keeps it and **harvesting** apart: both see the same "You reach out and carefully harvest …" line, and each answers only what it sent itself.
 

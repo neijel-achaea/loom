@@ -470,17 +470,19 @@ SH.goal = function () {
 
 // ---- Minimum stocks (#440) -------------------------------------------
 // A minimum for anything in your rift, read with a hidden IR (the whole rift,
-// every category, paged with MORE). Items another package already keeps a
-// minimum for (herbs: harvesting; gathered materials: gathering) use theirs,
-// answered through loom (links harvesting-shopping, gathering-shopping);
-// what you make yourself (elixirs, salves, crystals) is left to remedies and
-// magi. RESTOCK puts everything under its minimum on the list, minimum less
-// stock, looking each up with DIRECTORY by its rift name; a word the
-// directory knows several items for waits for PICK, and the pick is kept for
-// next time. The ledger gets one Restock reminder for shopping's own
+// every category, paged with MORE). None by default (Ricardo): only the
+// minimums you set count. A category you WATCH also takes another package's
+// minimums for its items you haven't set yourself (herbs: harvesting;
+// gathered materials: gathering, through links harvesting-shopping and
+// gathering-shopping); yours always win, since what you buy needn't be what
+// you harvest. RESTOCK puts everything under its minimum on the list,
+// minimum less stock, looking each up with DIRECTORY by its rift name; a
+// word the directory knows several items for waits for PICK, and the pick is
+// kept for next time. The ledger gets one Restock reminder for your own
 // minimums (link shopping-ledger).
 // Saved:
 //   shopping_min   { rift name: n }      your minimums
+//   shopping_watch [category, …]         categories taking packages' minimums
 //   shopping_rift  { rift name: [n, category] }, the last reading, kept
 //                  current by the game's store/remove lines
 //   shopping_picks { rift name: directory description } (PICK remembered)
@@ -503,12 +505,19 @@ for (var shRk2 in shRf) if (shRf.hasOwnProperty(shRk2) && Array.isArray(shRf[shR
 SH.picks = {};
 var shPk = SH.readTable("shopping_picks");
 for (var shPkk in shPk) if (shPk.hasOwnProperty(shPkk) && typeof shPk[shPkk] == "string" && shPk[shPkk].trim()) SH.picks[SH.key(shPkk)] = shPk[shPkk].trim().slice(0, 120);
+SH.watch = {};
+var shWl = SH.readList("shopping_watch");
+for (var shWi = 0; shWi < shWl.length; shWi++) if (typeof shWl[shWi] == "string" && shWl[shWi].trim()) SH.watch[SH.key(shWl[shWi])] = true;
+SH.saveWatch = function () {
+  var l = [];
+  for (var k in SH.watch) if (SH.watch.hasOwnProperty(k) && SH.watch[k]) l.push(k);
+  if (l.length) set_variable("shopping_watch", JSON.stringify(l.sort())); else delete_variable("shopping_watch");
+  if (client.loom.notify) client.loom.notify("shopping");
+};
+SH.catOf = function (name) { var r = SH.rift[SH.key(name)]; return r ? r[1] : ""; };
 SH.saveMins = function () { SH.saveTable("shopping_min", SH.mins); if (client.loom.notify) client.loom.notify("shopping"); };
 SH.saveRift = function () { SH.saveTable("shopping_rift", SH.rift); if (client.loom.notify) client.loom.notify("shopping"); };
 SH.savePicks = function () { SH.saveTable("shopping_picks", SH.picks); };
-// Made, not bought: those categories' minimums are their own packages'.
-SH.made = { elixirs: "REMEDIES TARGET", salves: "REMEDIES TARGET", crystals: "MAGI MIN" };
-SH.madeBy = function (name) { var r = SH.rift[SH.key(name)]; return r ? (SH.made[SH.key(r[1])] || "") : ""; };
 SH.have = function (name) { var r = SH.rift[SH.key(name)]; return r ? r[0] : null; };
 // Another package's minimum for this item, through loom: { by, min, stock, cmd } or undefined.
 SH.owner = function (name) {
@@ -523,7 +532,8 @@ SH.ownLevels = function () {
   out.sort(function (a, b) { return a.item < b.item ? -1 : (a.item > b.item ? 1 : 0); });
   return out;
 };
-// Everything under its minimum, own and the other packages': [{ item, n, by }].
+// Everything under its minimum: yours, and in watched categories the other
+// packages' for items without one of yours: [{ item, n, by }].
 SH.shortList = function () {
   var out = [], seen = {};
   var own = SH.ownLevels();
@@ -537,7 +547,7 @@ SH.shortList = function () {
     if (!Array.isArray(l)) continue;
     for (var k = 0; k < l.length; k++) {
       var e = l[k], key = e && SH.key(e.item);
-      if (!key || seen[key] || !(e.min > e.stock)) continue;
+      if (!key || seen[key] || !(e.min > e.stock) || !SH.watch[SH.key(SH.catOf(key))]) continue;
       seen[key] = 1;
       out.push({ item: key, n: e.min - e.stock, by: e.by || "" });
     }
@@ -628,10 +638,7 @@ SH.riftTotal = function (name, total) {
 SH.setMin = function (name, n) {
   var k = SH.key(name);
   if (!k) return;
-  var mb = SH.madeBy(k);
-  if (mb) { SH.say(k + " is something you make: its level is set with " + mb + ".", "orange"); return; }
   var ow = SH.owner(k);
-  if (ow && ow.by) { SH.say(k + "'s minimum is kept by " + ow.by + " (" + (ow.min != null ? SH.n(ow.min) : "?") + "): " + (ow.cmd || ow.by.toUpperCase() + " MIN") + " to change it.", "orange"); return; }
   if (n === null) {
     if (SH.mins[k] === undefined) { SH.say("no minimum set for " + k + ".", "orange"); return; }
     delete SH.mins[k];
@@ -641,7 +648,8 @@ SH.setMin = function (name, n) {
     SH.mins[k] = n;
     SH.saveMins();
     var h = SH.have(k);
-    SH.say("minimum for " + k + ": " + SH.n(n) + (h === null ? (SH.riftAt ? " (none in your rift)" : " (rift not read yet: SHOPPING MIN reads it)") : " (" + SH.n(h) + " in your rift" + (h < n ? ", " + SH.n(n - h) + " short" : "") + ")") + ".", "lime");
+    SH.say("minimum for " + k + ": " + SH.n(n) + (h === null ? (SH.riftAt ? " (none in your rift)" : " (rift not read yet: SHOPPING MIN reads it)") : " (" + SH.n(h) + " in your rift" + (h < n ? ", " + SH.n(n - h) + " short" : "") + ")") + "." +
+      (ow && ow.by ? " " + ow.by + " keeps its own (" + (ow.min != null ? SH.n(ow.min) : "?") + ") for itself; this one is for buying." : ""), "lime");
     if (h === null && SH.riftAt) SH.say("'" + k + "' isn't in your rift now: check it's the name IR shows.", "orange");
   }
   run_function("shopping_render", [], "shopping");
@@ -658,8 +666,29 @@ SH.showMins = function () {
     }
   }
   var others = sh.filter(function (x) { return x.by; });
-  if (others.length) SH.say("short by other packages' minimums: " + others.map(function (x) { return x.item + " " + SH.n(x.n) + " (" + x.by + ")"; }).join(", ") + ".", "orange");
+  if (others.length) SH.say("short in watched categories, by other packages' minimums: " + others.map(function (x) { return x.item + " " + SH.n(x.n) + " (" + x.by + ")"; }).join(", ") + ".", "orange");
   SH.say(sh.length ? "SHOPPING RESTOCK puts the " + sh.length + " short " + (sh.length === 1 ? "item" : "items") + " on the list." : "nothing is under its minimum.", sh.length ? "cyan" : "lime");
+};
+
+// WATCH: the rift's categories and which take packages' minimums.
+SH.cats = function () {
+  var c = {};
+  for (var k in SH.rift) if (SH.rift.hasOwnProperty(k) && SH.rift[k][1]) c[SH.rift[k][1]] = 1;
+  for (var w in SH.watch) if (SH.watch.hasOwnProperty(w) && SH.watch[w]) { var have = false; for (var x in c) if (SH.key(x) === w) have = true; if (!have) c[w.charAt(0).toUpperCase() + w.slice(1)] = 1; }
+  return Object.keys(c).sort();
+};
+SH.setWatch = function (cat, on) {
+  var k = SH.key(cat), known = SH.cats().some(function (c) { return SH.key(c) === k; });
+  if (on && !known && SH.riftAt) SH.say("'" + cat + "' isn't one of your rift's categories (" + SH.cats().join(", ") + "); watching it anyway.", "orange");
+  if (on) SH.watch[k] = true; else delete SH.watch[k];
+  SH.saveWatch();
+  SH.say(on ? "watching " + k + ": its items without a minimum of yours take their package's (harvesting for herbs, gathering for what it gathers)." : k + " no longer watched: only your own minimums count there.", "lime");
+  run_function("shopping_render", [], "shopping");
+};
+SH.showWatch = function () {
+  var c = SH.cats();
+  if (!c.length) { SH.say("your rift hasn't been read yet: SHOPPING MIN reads it. SHOPPING WATCH <category> ON|OFF."); return; }
+  SH.say("categories (watched ones also take harvesting's and gathering's minimums): " + c.map(function (x) { return x + (SH.watch[SH.key(x)] ? " ON" : " off"); }).join(", ") + ". SHOPPING WATCH <category> ON|OFF.");
 };
 
 // RESTOCK: every short item onto the list, one DIRECTORY at a time.
