@@ -73,19 +73,42 @@ if (shCmd === "" || shCmd === "list") {
   if (!shRest) { var shIn = SH.shopHere(); SH.say(shIn ? "you're in " + shIn + "." : "this room isn't a shop on the list. SHOPPING HERE <shop|number> if it is."); }
   else if (!shHt) SH.say("no shop '" + shRest + "' on the list.", "orange");
   else SH.setHere(shHt);
+} else if (shCmd === "min") {
+  // Bare: read the rift, then every minimum and what's short. With an item:
+  // its minimum; with a number or OFF, set or clear it (#440).
+  var shMm = /^(.+?)\s+(\d[\d,]*|off)$/i.exec(shRest);
+  if (!shRest) { SH.say("reading your rift…"); SH.readRift("min"); }
+  else if (shMm) {
+    var shMv = shMm[2].toLowerCase() === "off" ? null : Number(shMm[2].replace(/,/g, ""));
+    if (shMv !== null && (shMv < 1 || shMv > 999999)) SH.say("a minimum is 1 to 999,999 (or OFF).", "orange");
+    else SH.setMin(shMm[1], shMv);
+  } else {
+    var shMk = SH.key(shRest), shMo = SH.owner(shMk), shMh = SH.have(shMk), shMb = SH.madeBy(shMk);
+    var shMt = shMh === null ? "" : " (" + SH.n(shMh) + " in your rift)";
+    if (shMb) SH.say(shMk + " is something you make: its level is set with " + shMb + "." + shMt);
+    else if (shMo && shMo.by) SH.say(shMk + ": minimum " + (shMo.min != null ? SH.n(shMo.min) : "?") + ", kept by " + shMo.by + shMt + ".");
+    else if (SH.mins[shMk] !== undefined) SH.say(shMk + ": minimum " + SH.n(SH.mins[shMk]) + shMt + ". SHOPPING MIN " + shMk + " OFF to clear it.");
+    else SH.say("no minimum for " + shMk + shMt + ". SHOPPING MIN " + shMk + " <n> sets one.");
+  }
+} else if (shCmd === "restock") {
+  SH.say("reading your rift…");
+  SH.readRift("restock");
 } else if (shCmd === "goal") {
   SH.goal();
 } else if (shCmd === "clear") {
   if (shRest.toLowerCase() === "confirm") SH.clear();
   else SH.say("SHOPPING CLEAR CONFIRM wipes the whole list (" + SH.list.length + (SH.list.length === 1 ? " item" : " items") + ").", "orange");
 } else if (shCmd === "reset") {
-  SH.q = null;
+  SH.q = null; SH.r = null; SH.queue = [];
   run_function("shopping_setup", [], "shopping");
   run_function("shopping_render", [], "shopping");
   SH.say("reset: the list reloaded, the tab redrawn.", "lime");
 } else if (shCmd === "debug") {
   SH.say("here=" + JSON.stringify(SH.here) + " items=" + SH.list.length + " lookup=" + (SH.q ? JSON.stringify({ word: SH.q.word, sent: SH.q.sent, prompts: SH.q.prompts, head: SH.q.head, rules: SH.q.rules, rows: SH.q.rows.length, descAt: SH.q.descAt, shopAt: SH.q.shopAt }) : "none") +
-    " choices=" + (SH.choices ? SH.choices.opts.length : 0) + " waitingOn=" + (SH.othersBusy() || "none"));
+    " choices=" + (SH.choices ? SH.choices.opts.length : 0) + " waitingOn=" + (SH.othersBusy() || "none") +
+    " rift=" + Object.keys(SH.rift).length + " items read " + (SH.riftAt ? Math.round((Date.now() - SH.riftAt) / 60000) + "m ago" : "never") +
+    " reading=" + (SH.r ? JSON.stringify({ then: SH.r.then, sent: SH.r.sent, head: SH.r.head, rules: SH.r.rules, pages: SH.r.pages, more: SH.r.more, cat: SH.r.cat, rows: Object.keys(SH.r.rows).length }) : "none") +
+    " mins=" + Object.keys(SH.mins).length + " queue=" + SH.queue.length + " picks=" + Object.keys(SH.picks).length);
 } else {
   SH.say("unknown command '" + shCmd + "'. SHOPPING HELP for commands.", "orange");
 }

@@ -3,7 +3,7 @@
 *A shopping list priced from the city's directory, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 0.1.7.*
+*This page describes shopping 0.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -21,7 +21,16 @@ Shopping keeps a list of what you mean to buy, and where. `SHOPPING ADD 5 tinder
 
 Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) can change them, so the totals are an estimate. Each shop's line has a **WALK** button that sends the game's `WALKTO <shop>` once (or `SHOPPING WALK <shop|number>`); the game stops the walk at a closed door or anything else in the way. Inside a shop on the list, its heading reads ◉ HERE and each of its items gets a **BUY** button that sends `BUY <how many> <the word you added it by>` once (or `SHOPPING BUY <number|item>`, refused elsewhere); when the game says you paid and received it (`You pay 80 sovereigns and receive a group of 10 cohosh roots.`), the item comes off the list, or only what you got of it when that's fewer. A shop is recognised by its room's name; when a shop's room has another name, stand in it and type `SHOPPING HERE <shop>` once. Otherwise Shopping sends only `DIRECTORY` when you add something.
 
-## Commands
+## Minimum stocks
+
+Shopping can keep a minimum for anything in your rift, and turn what's short into a list.
+
+- **Setting one.** `SHOPPING MIN <item> <n>` with the item's name as `IR` shows it (`SHOPPING MIN red ink 100`, `SHOPPING MIN eagle's feather 50`); `OFF` clears it, `SHOPPING MIN <item>` shows it.
+- **Reading the rift.** Bare `SHOPPING MIN` reads your whole rift with `IR` (hidden, every page: Shopping sends `MORE` itself) and lists your minimums, what each has, and everything that's short. The rift is also read once when you log in (only if you have minimums of your own), and the game's "You store … bringing the total in the rift to …" and "You remove …" lines keep it current between readings.
+- **Kept by other packages.** Herbs harvesting knows and materials gathering knows already have a minimum there (`HARVESTING MIN`, `GATHERING MIN`): Shopping uses theirs and says so if you try to set one. Elixirs, salves and crystals are yours to make, so their levels stay with `REMEDIES TARGET` and `MAGI MIN`.
+- **RESTOCK.** `SHOPPING RESTOCK` (or **RESTOCK** in the tab) reads the rift, then puts everything under its minimum on the list, the minimum less what you have, looking each up with `DIRECTORY` by its rift name, one after another. Herbs and gathered materials short of their own packages' minimums are included. A word the directory knows several items for waits for `PICK` (or `CANCEL` to skip it) before the next lookup; your pick is remembered, so the next RESTOCK takes the same item without asking. An item already on the list is raised to what's short, never doubled.
+- **The tab** shows how many items are under their minimum, with the **RESTOCK** button, once you have minimums.
+
 
 <!-- loom:commands shopping -->
 | Command | What it does |
@@ -35,11 +44,15 @@ Prices are the directory's: a shopkeeper's own policy (discounts, surcharges) ca
 | `SHOPPING HERE [shop\|number]` | which shop you're in; with a shop: this room is it (when its room name differs) |
 | `SHOPPING SKIP [shop\|number]` | leave a shop out: its items move to their next cheapest shops (× on its line); bare: the skipped ones |
 | `SHOPPING UNSKIP <shop>\|ALL` | use a skipped shop again (or click it under the list) |
+| `SHOPPING MIN` | read your rift (IR, hidden): every minimum, and what's under its minimum |
+| `SHOPPING MIN <item> [n\|OFF]` | an item's minimum in the rift (its name as IR shows it); with n set it, OFF clear it. Herbs and gathered materials use HARVESTING/GATHERING MIN; elixirs, salves and crystals are yours to make |
+| `SHOPPING RESTOCK` | read your rift and put everything under its minimum on the list (minimum less stock), each looked up in turn; a word you PICKed for before is picked again (also RESTOCK in the tab) |
 | `SHOPPING GOAL` | with coffers: the list's gold as a coffers goal (GOAL by the total; only what isn't a goal yet) |
 | `SHOPPING CLEAR CONFIRM` | wipe the whole list |
 | `SHOPPING RESET` | reload the saved list, redraw the tab |
 | `SHOPPING DEBUG` | internal state |
 | **Prices are the directory's: a shopkeeper's policy can change them. WALK and BUY send one command per click; nothing runs on its own.** | |
+| **With ledger installed, a Restock reminder appears when an item of yours falls under 90% of its minimum, and goes once all are back at it (link shopping-ledger).** | |
 | **The tab is a custom tab named Shopping.** | |
 <!-- /loom:commands -->
 
@@ -62,11 +75,16 @@ With **coffers** installed, a **GOAL** button sits next to the total: it makes t
 | Link | With | What it does |
 | --- | --- | --- |
 | `coffers-shopping` | coffers | GOAL next to the total makes the gold the list still needs a coffers goal. |
+| `shopping-ledger` | ledger | A "Restock" reminder when any of your own minimums falls below 90%; gone once all are back at their minimum. |
+| `harvesting-shopping` | harvesting | Herbs use harvesting's minimums; RESTOCK lists the ones short of them. |
+| `gathering-shopping` | gathering | Gathered materials use gathering's minimums; RESTOCK lists the ones short of them. |
 
-Like every package that sends a command and reads its answer, it waits while another package is waiting on an answer of its own, and others wait for its `DIRECTORY`.
+Like every package that sends a command and reads its answer, it waits while another package is waiting on an answer of its own, and others wait for its `DIRECTORY` and its `IR`. Its `IR` also refreshes what **harvesting** and **gathering** know of your stock, as any `IR` does.
 
 ## Troubleshooting
 
 - **The tab stays empty.** Check the custom tab is named exactly `Shopping`, then `SHOPPING RESET`.
 - **"The directory lists nothing".** `DIRECTORY` only covers the city or area you're in; try `DIRECTORY <word>` yourself to see the game's answer.
+- **"isn't in your rift now".** The minimum is kept anyway; check the name is the one `IR` shows (`myrrh gum`, `red ink`).
+- **RESTOCK picks the wrong item for a word.** `SHOPPING REMOVE` it, then RESTOCK again and PICK the right one: the new pick is remembered.
 - **An item is under the wrong shop or price.** Add it again to refresh its price and shops, or remove it and add it anew. `SHOPPING DEBUG` shows the lookup in progress.

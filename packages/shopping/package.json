@@ -93,6 +93,38 @@
       "matching": "regexp",
       "whole_words": false,
       "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift listing",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift.js"
+        }
+      ],
+      "text": "^(?:Glancing into your rift, you see:|Type MORE if you wish to continue.*|-{20,}|\\s*\\[\\s*[\\d,]+\\]\\s.*|[A-Z][a-z]{2,20})$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift totals",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_total.js"
+        }
+      ],
+      "text": "^You (store|remove) ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": "A shopping list priced from the city's directory, grouped by shop in a tab"

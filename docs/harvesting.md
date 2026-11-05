@@ -3,7 +3,7 @@
 *Harvests the plants your rift is short of as you walk, and stores them, one after another.*
 
 <!-- loom:version harvesting -->
-*This page describes harvesting 1.0.1.*
+*This page describes harvesting 1.0.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -54,6 +54,7 @@ Harvesting reads nothing from other packages. With others installed, Loom's inte
 | --- | --- | --- |
 | `harvesting-ledger` | ledger | A "Harvest run" reminder in the ledger when any plant falls below 90% of its minimum. It goes once every plant is back at its minimum, so it doesn't flicker around the line. |
 | `harvesting-room` | room and patrolling | The environment's plants on a small line in the Here tab: green here and stocked, yellow here but below your minimum, red missing. Needs patrolling's plant check (`PATROLLING ON`) to know what's in the room. |
+| `harvesting-shopping` | shopping | Shopping uses harvesting's minimums for herbs (`SHOPPING MIN` points here), and `SHOPPING RESTOCK` puts the herbs short of them on the shopping list. |
 
 ## Troubleshooting
 

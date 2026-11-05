@@ -200,6 +200,10 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `shopping_skip` | setting | 1.1 | shops left out with `SHOPPING SKIP` |  |
 | `shopping_goal` | data | 1.1 | the list's gold already made a coffers goal with GOAL (deleted when the list empties) |  |
 | `shopping_rooms` | data | 1.1 | the room number of each shop, learnt from its room's name or set with `SHOPPING HERE` |  |
+| `shopping_min` | setting | 1.1 | your minimum per rift item (`SHOPPING MIN`) |  |
+| `shopping_rift` | data | 1.1 | the last rift reading: each item's count and category, kept current by store/remove lines |  |
+| `shopping_rift_at` | data | 1.1 | when the rift was last read |  |
+| `shopping_picks` | data | 1.1 | the directory item picked for each rift name during RESTOCK |  |
 
 ## harvesting
 

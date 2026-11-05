@@ -3,7 +3,7 @@
 *Gathers the materials your rift is short of as you walk, and stores them, one after another.*
 
 <!-- loom:version gathering -->
-*This page describes gathering 0.1.2.*
+*This page describes gathering 0.1.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -61,6 +61,10 @@ It sends nothing while Loom is paused (`LOOM PAUSE ON`), and it loads off: every
 Turn it on when you go out to gather, walk through the right environments, and turn it off when you're done. Each material is tried once per visit to a room; walk out and back in to try again.
 
 ## Working with other packages
+
+| Link | With | What it does |
+| --- | --- | --- |
+| `gathering-shopping` | shopping | Shopping uses gathering's minimums for the materials it gathers (`SHOPPING MIN` points here), and `SHOPPING RESTOCK` puts those short of them on the shopping list. |
 
 Gathering reads nothing from other packages. It waits its turn while any other package has a command out, which keeps it and **harvesting** apart: both see the same "You reach out and carefully harvest …" line, and each answers only what it sent itself.
 

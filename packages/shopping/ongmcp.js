@@ -1,6 +1,5 @@
 // Shopping notes the room you're in (its area is kept with each item; its
-// shop shows BUY) and steps a
-// lookup at each prompt.
+// shop shows BUY) and steps a lookup or a rift reading at each prompt.
 if (!client.loom || !client.loom.shopping || !client.loom.shopping.list) run_function("shopping_setup", [], "shopping");
 var SH = client.loom.shopping;
 if (args.gmcp_method == "Room.Info") {
@@ -9,7 +8,13 @@ if (args.gmcp_method == "Room.Info") {
   SH.here = { area: String(shG.area || ""), id: shG.num ? String(shG.num) : "", name: String(shG.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, "") };
   // BUY shows only in the shop you're in: redraw when that changes.
   if (SH.shopHere() !== shWas) run_function("shopping_render", [], "shopping");
-} else if (SH.q && args.gmcp_method == "Char.Vitals") {
+  // First room of the session: with minimums of your own, read the rift
+  // once (hidden), so the Restock reminder starts from today's stock (#440).
+  if (!SH.started) {
+    SH.started = true;
+    for (var shMi in SH.mins) if (SH.mins.hasOwnProperty(shMi)) { if (!SH.paused()) SH.readRift(""); break; }
+  }
+} else if ((SH.q || SH.r) && args.gmcp_method == "Char.Vitals") {
   // After the packet's own lines, so the table is read first.
-  setTimeout(SH.prompt, 0);
+  setTimeout(function () { SH.riftPrompt(); SH.prompt(); }, 0);
 }

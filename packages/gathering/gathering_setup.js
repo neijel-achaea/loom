@@ -10,7 +10,7 @@ var GA = client.loom.gathering;
 // busy (#318): true while a GATHER or the rift reading is out, or while the
 // room's queue is still being worked through, so Here's probe and other
 // packages wait their turn. 10 s without a send no longer counts.
-client.loom.registry.gathering = { version: "0.1.2", keyword: "GATHERING", desc: "{{description}}", busy: function () {
+client.loom.registry.gathering = { version: "0.1.3", keyword: "GATHERING", desc: "{{description}}", busy: function () {
   var g = client.loom.gathering;
   return !!(g && g.on && (g.current || g.reading || (g.queue && g.queue.length)) && Date.now() - (g.sentAt || 0) < 10000);
 } };
@@ -196,7 +196,8 @@ GA.isRiftName = function (name) {
 };
 
 // The read-only look other packages see through loom (#159), same shape as
-// harvesting's: look.plant(name) -> { stock, min, tracked }, look.levels().
+// harvesting's: look.plant(name) -> { stock, min, tracked }, look.levels()
+// (each with rift, its name in the rift, #440).
 GA.look = {
   plant: function (name) {
     var m = GA.name(name);
@@ -211,7 +212,7 @@ GA.look = {
         if (seen[m]) continue;
         seen[m] = true;
         var h = GA.have(m);
-        if (h !== null) out.push({ plant: m, stock: h, min: GA.minOf(m) });
+        if (h !== null) out.push({ plant: m, rift: GA.rift(m), stock: h, min: GA.minOf(m) });
       }
     }
     return out;

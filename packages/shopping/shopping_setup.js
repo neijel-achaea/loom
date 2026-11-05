@@ -9,9 +9,12 @@ if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.1.7", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "0.2.0", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
-  busy: function () { var q = client.loom.shopping.q; return !!(q && q.sent && Date.now() - q.at < client.loom.shopping.giveUpMs); } };
+  busy: function () {
+    var S = client.loom.shopping, q = S.q, r = S.r;
+    return !!(q && q.sent && Date.now() - q.at < S.giveUpMs) || !!(r && r.sent && Date.now() - r.at < S.riftGiveUpMs);
+  } };
 
 // Saved: shopping_list = [{ desc, word, n, shops, shop, price, cur, area, at }]
 //   desc   the item as DIRECTORY describes it ("a soot-blackened tinderbox");
@@ -196,6 +199,7 @@ SH.othersBusy = function () {
 SH.send = function () {
   var q = SH.q;
   if (!q || q.sent) return;
+  if (SH.r && SH.r.sent) return;                // our own rift reading first
   if (SH.othersBusy() && Date.now() - q.at < SH.giveUpMs) return;
   q.sent = true; q.at = Date.now(); q.prompts = 0;
   send_command("directory " + q.word, 1);
@@ -208,12 +212,16 @@ SH.prompt = function () {
   var q = SH.q;
   if (!q) return;
   if (!q.sent) { SH.send(); return; }
+  // A prompt within a moment of sending is the packet the lookup went out
+  // in (a RESTOCK sends right as the rift reading ends), not the answer's.
+  if (!q.head && Date.now() - q.at < 100) return;
   q.prompts++;
   if (q.head && q.prompts >= 1) SH.done();
   else if (!q.head && (q.prompts >= 2 || Date.now() - q.at > SH.giveUpMs)) {
     SH.q = null;
     SH.say("the directory lists nothing for " + q.word + " here (DIRECTORY only covers the city or area you're in).", "orange");
     run_function("shopping_render", [], "shopping");
+    SH.next();
   }
 };
 
@@ -253,7 +261,7 @@ SH.done = function () {
   var q = SH.q;
   if (!q) return;
   SH.q = null;
-  if (!q.rows.length) { SH.say("the directory lists nothing for " + q.word + " here.", "orange"); run_function("shopping_render", [], "shopping"); return; }
+  if (!q.rows.length) { SH.say("the directory lists nothing for " + q.word + " here.", "orange"); run_function("shopping_render", [], "shopping"); SH.next(); return; }
   var opts = [], idx = {};
   for (var i = 0; i < q.rows.length; i++) {
     var k = SH.key(q.rows[i].desc);
@@ -261,10 +269,14 @@ SH.done = function () {
     opts[idx[k]].rows.push(q.rows[i]);
   }
   var area = SH.here ? SH.here.area : "";
-  if (opts.length === 1) { SH.choices = null; SH.put(q.word, q.n, opts[0], area); return; }
+  // A restocked item you picked before (#440): the same one again.
+  if (q.rift && opts.length > 1 && SH.picks[q.rift]) {
+    for (var pi = 0; pi < opts.length; pi++) if (SH.key(opts[pi].desc) === SH.key(SH.picks[q.rift])) { opts = [opts[pi]]; break; }
+  }
+  if (opts.length === 1) { SH.choices = null; SH.put(q.word, q.n, opts[0], area, q.rift); SH.next(); return; }
   // Cheapest first; at one price, those sold at a shop already on the list.
   opts.sort(function (a, b) { return (SH.cheapest(a).price - SH.cheapest(b).price) || ((SH.optOnList(a) ? 0 : 1) - (SH.optOnList(b) ? 0 : 1)); });
-  SH.choices = { word: q.word, n: q.n, area: area, opts: opts };
+  SH.choices = { word: q.word, n: q.n, area: area, opts: opts, rift: q.rift || "" };
   SH.say("the directory has " + opts.length + " different items for " + q.word + ": SHOPPING PICK <number> (or click one in the tab).");
   for (var j = 0; j < opts.length; j++) {
     var c = SH.cheapest(opts[j]), on = SH.optOnList(opts[j]);
@@ -289,12 +301,22 @@ SH.pick = function (i) {
   var o = C.opts[i - 1];
   if (!o) { SH.say("pick 1 to " + C.opts.length + ".", "orange"); return; }
   SH.choices = null;
-  SH.put(C.word, C.n, o, C.area);
+  if (C.rift) { SH.picks[C.rift] = o.desc; SH.savePicks(); }
+  SH.put(C.word, C.n, o, C.area, C.rift);
+  SH.next();
 };
-SH.cancelPick = function () { SH.choices = null; run_function("shopping_render", [], "shopping"); };
+SH.cancelPick = function () {
+  var C = SH.choices;
+  SH.choices = null;
+  if (C && C.rift) SH.say("skipped " + C.rift + ".", "cyan");
+  run_function("shopping_render", [], "shopping");
+  SH.next();
+};
 // Onto the list with every shop the directory named (place picks one). On
 // the list already: the quantity adds up, the shops are the fresh ones.
-SH.put = function (word, n, opt, area) {
+// A restock (rift set) asks for what's short, so an item already on the list
+// is raised to it, not added to (a second RESTOCK doesn't double it).
+SH.put = function (word, n, opt, area, rift) {
   var shops = [], seen = {};
   for (var i = 0; i < opt.rows.length; i++) {
     var r = opt.rows[i];
@@ -304,7 +326,7 @@ SH.put = function (word, n, opt, area) {
   }
   var it = SH.byDesc(opt.desc), was = it ? it.n : 0;
   if (!it) { it = { desc: opt.desc, word: word, n: 0, shops: [], shop: shops[0].s, price: 0, cur: "gp", area: "", at: 0 }; SH.list.push(it); }
-  it.n = Math.min(9999, it.n + n); it.shops = shops; it.word = word; it.area = area || it.area; it.at = Date.now();
+  it.n = Math.min(9999, rift ? Math.max(it.n, n) : it.n + n); it.shops = shops; it.word = word; it.area = area || it.area; it.at = Date.now();
   SH.save();
   var ties = SH.cands(it).length - 1;
   SH.say((was ? "now " + it.n + " × " : it.n + " × ") + it.desc + " at " + SH.money(it.price, it.cur) + (it.n > 1 ? " (" + SH.money(it.n * it.price, it.cur) + ")" : "") +
@@ -446,6 +468,218 @@ SH.goal = function () {
   run_function("shopping_render", [], "shopping");
 };
 
+// ---- Minimum stocks (#440) -------------------------------------------
+// A minimum for anything in your rift, read with a hidden IR (the whole rift,
+// every category, paged with MORE). Items another package already keeps a
+// minimum for (herbs: harvesting; gathered materials: gathering) use theirs,
+// answered through loom (links harvesting-shopping, gathering-shopping);
+// what you make yourself (elixirs, salves, crystals) is left to remedies and
+// magi. RESTOCK puts everything under its minimum on the list, minimum less
+// stock, looking each up with DIRECTORY by its rift name; a word the
+// directory knows several items for waits for PICK, and the pick is kept for
+// next time. The ledger gets one Restock reminder for shopping's own
+// minimums (link shopping-ledger).
+// Saved:
+//   shopping_min   { rift name: n }      your minimums
+//   shopping_rift  { rift name: [n, category] }, the last reading, kept
+//                  current by the game's store/remove lines
+//   shopping_picks { rift name: directory description } (PICK remembered)
+SH.readTable = function (name) {
+  var v = get_variable(name);
+  if (typeof v == "string") { try { v = JSON.parse(v); } catch (e) { v = null; } }
+  return (v && typeof v == "object" && !Array.isArray(v)) ? v : {};
+};
+SH.saveTable = function (name, t) {
+  var any = false;
+  for (var k in t) if (t.hasOwnProperty(k)) { any = true; break; }
+  if (any) set_variable(name, JSON.stringify(t)); else delete_variable(name);
+};
+SH.mins = {};
+var shMn = SH.readTable("shopping_min");
+for (var shMk in shMn) if (shMn.hasOwnProperty(shMk) && Number(shMn[shMk]) > 0) SH.mins[SH.key(shMk)] = Math.min(999999, Math.floor(Number(shMn[shMk])));
+SH.rift = {};
+var shRf = SH.readTable("shopping_rift");
+for (var shRk2 in shRf) if (shRf.hasOwnProperty(shRk2) && Array.isArray(shRf[shRk2]) && Number(shRf[shRk2][0]) >= 0) SH.rift[SH.key(shRk2)] = [Math.floor(Number(shRf[shRk2][0])), String(shRf[shRk2][1] || "").slice(0, 30)];
+SH.picks = {};
+var shPk = SH.readTable("shopping_picks");
+for (var shPkk in shPk) if (shPk.hasOwnProperty(shPkk) && typeof shPk[shPkk] == "string" && shPk[shPkk].trim()) SH.picks[SH.key(shPkk)] = shPk[shPkk].trim().slice(0, 120);
+SH.saveMins = function () { SH.saveTable("shopping_min", SH.mins); if (client.loom.notify) client.loom.notify("shopping"); };
+SH.saveRift = function () { SH.saveTable("shopping_rift", SH.rift); if (client.loom.notify) client.loom.notify("shopping"); };
+SH.savePicks = function () { SH.saveTable("shopping_picks", SH.picks); };
+// Made, not bought: those categories' minimums are their own packages'.
+SH.made = { elixirs: "REMEDIES TARGET", salves: "REMEDIES TARGET", crystals: "MAGI MIN" };
+SH.madeBy = function (name) { var r = SH.rift[SH.key(name)]; return r ? (SH.made[SH.key(r[1])] || "") : ""; };
+SH.have = function (name) { var r = SH.rift[SH.key(name)]; return r ? r[0] : null; };
+// Another package's minimum for this item, through loom: { by, min, stock, cmd } or undefined.
+SH.owner = function (name) {
+  var L = client.loom.loom;
+  return (L && L.answer) ? L.answer("shopping", "rift.owner", SH.key(name)) : undefined;
+};
+// Shopping's own minimums with what the rift holds: [{ item, stock, min }]
+// (stock 0 for an item the last reading didn't show: none left).
+SH.ownLevels = function () {
+  var out = [];
+  for (var k in SH.mins) if (SH.mins.hasOwnProperty(k)) out.push({ item: k, stock: SH.riftAt ? (SH.have(k) || 0) : SH.have(k), min: SH.mins[k] });
+  out.sort(function (a, b) { return a.item < b.item ? -1 : (a.item > b.item ? 1 : 0); });
+  return out;
+};
+// Everything under its minimum, own and the other packages': [{ item, n, by }].
+SH.shortList = function () {
+  var out = [], seen = {};
+  var own = SH.ownLevels();
+  for (var i = 0; i < own.length; i++) {
+    seen[own[i].item] = 1;
+    if (own[i].stock !== null && own[i].stock < own[i].min) out.push({ item: own[i].item, n: own[i].min - own[i].stock, by: "" });
+  }
+  var L = client.loom.loom, lists = (L && L.answers) ? L.answers("shopping", "rift.short") : [];
+  for (var j = 0; j < lists.length; j++) {
+    var l = lists[j].value;
+    if (!Array.isArray(l)) continue;
+    for (var k = 0; k < l.length; k++) {
+      var e = l[k], key = e && SH.key(e.item);
+      if (!key || seen[key] || !(e.min > e.stock)) continue;
+      seen[key] = 1;
+      out.push({ item: key, n: e.min - e.stock, by: e.by || "" });
+    }
+  }
+  return out;
+};
+// The read-only look loom reads (link shopping-ledger): shopping's own
+// minimums and their stock, only items the rift has been read for.
+SH.look = {
+  levels: function () { return SH.ownLevels().filter(function (x) { return x.stock !== null; }); }
+};
+
+// The rift reading: a hidden IR, sent when no other package waits on an
+// answer of its own, at most every few seconds. MORE is sent for each page.
+// The reading ends at its closing rule, or two prompts after its last line
+// (a MORE on its way keeps it open).
+SH.r = null;
+SH.riftAt = Number(get_variable("shopping_rift_at")) || 0;
+SH.riftGiveUpMs = 15000;
+SH.readRift = function (then) {
+  if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to read the rift).", "orange"); return; }
+  if (SH.r) { if (then) SH.r.then = then; return; }
+  SH.r = { then: then || "", sent: false, at: Date.now(), head: false, rules: 0, cat: "", rows: {}, prompts: 0, more: false, pages: 1 };
+  SH.riftSend();
+};
+SH.riftSend = function () {
+  var r = SH.r;
+  if (!r || r.sent) return;
+  if (SH.q || (SH.othersBusy() && Date.now() - r.at < SH.riftGiveUpMs)) return;
+  r.sent = true; r.at = Date.now(); r.prompts = 0;
+  send_command("ir", 1);
+};
+// One line while our reading is out; true when it's ours (to hide).
+SH.riftLine = function (line) {
+  var r = SH.r;
+  if (!r || !r.sent) return false;
+  if (/^Glancing into your rift, you see:$/.test(line)) { r.head = true; r.prompts = 0; return true; }
+  if (!r.head) return false;
+  r.prompts = 0;
+  if (/^Type MORE if you wish to continue/.test(line)) { r.more = true; r.pages++; send_command("more", 1); return true; }
+  r.more = false;
+  if (/^-{20,}$/.test(line)) { r.rules++; if (r.rules >= 2) setTimeout(SH.riftDone, 0); return true; }
+  var re = /\[\s*([\d,]+)\]\s+(.+?)(?=\s+\[|\s*$)/g, m, any = false;
+  while ((m = re.exec(line)) !== null) { r.rows[SH.key(m[2])] = [Number(m[1].replace(/,/g, "")), r.cat]; any = true; }
+  if (any) return true;
+  // A category: one capitalised word (Herbs, Minerals, Commodities, Misc).
+  if (/^[A-Z][a-z]{2,20}$/.test(line)) { r.cat = line; return true; }
+  return false;
+};
+// At each prompt while the reading is out (from onGMCP).
+SH.riftPrompt = function () {
+  var r = SH.r;
+  if (!r) return;
+  if (!r.sent) { SH.riftSend(); return; }
+  r.prompts++;
+  if (r.more) { if (Date.now() - r.at > SH.riftGiveUpMs) SH.riftDone(); return; }
+  if (r.head && r.prompts >= 2) SH.riftDone();
+  else if (!r.head && (r.prompts >= 3 || Date.now() - r.at > SH.riftGiveUpMs)) {
+    SH.r = null;
+    SH.say("the rift didn't answer (IR): try again in a moment.", "orange");
+  }
+};
+SH.riftDone = function () {
+  var r = SH.r;
+  if (!r) return;
+  SH.r = null;
+  var n = 0;
+  for (var k in r.rows) if (r.rows.hasOwnProperty(k)) n++;
+  if (!n) { SH.say("read your rift but found nothing in it.", "orange"); return; }
+  SH.rift = r.rows;
+  SH.riftAt = Date.now();
+  set_variable("shopping_rift_at", String(SH.riftAt));
+  SH.saveRift();
+  if (r.then === "min") SH.showMins();
+  else if (r.then === "restock") SH.restock();
+  run_function("shopping_render", [], "shopping");
+};
+// "You store 10 kola, bringing the total in the rift to 2,408." and remove:
+// the rift's new total for that item, without reading it again.
+SH.riftTotal = function (name, total) {
+  var k = SH.key(name), was = SH.rift[k];
+  SH.rift[k] = [Math.max(0, Number(String(total).replace(/,/g, "")) || 0), was ? was[1] : ""];
+  SH.saveRift();
+  run_function("shopping_render", [], "shopping");
+};
+
+// SHOPPING MIN <item> <n|OFF>.
+SH.setMin = function (name, n) {
+  var k = SH.key(name);
+  if (!k) return;
+  var mb = SH.madeBy(k);
+  if (mb) { SH.say(k + " is something you make: its level is set with " + mb + ".", "orange"); return; }
+  var ow = SH.owner(k);
+  if (ow && ow.by) { SH.say(k + "'s minimum is kept by " + ow.by + " (" + (ow.min != null ? SH.n(ow.min) : "?") + "): " + (ow.cmd || ow.by.toUpperCase() + " MIN") + " to change it.", "orange"); return; }
+  if (n === null) {
+    if (SH.mins[k] === undefined) { SH.say("no minimum set for " + k + ".", "orange"); return; }
+    delete SH.mins[k];
+    SH.saveMins();
+    SH.say("no minimum for " + k + " any more.", "lime");
+  } else {
+    SH.mins[k] = n;
+    SH.saveMins();
+    var h = SH.have(k);
+    SH.say("minimum for " + k + ": " + SH.n(n) + (h === null ? (SH.riftAt ? " (none in your rift)" : " (rift not read yet: SHOPPING MIN reads it)") : " (" + SH.n(h) + " in your rift" + (h < n ? ", " + SH.n(n - h) + " short" : "") + ")") + ".", "lime");
+    if (h === null && SH.riftAt) SH.say("'" + k + "' isn't in your rift now: check it's the name IR shows.", "orange");
+  }
+  run_function("shopping_render", [], "shopping");
+};
+// Bare SHOPPING MIN, after a fresh reading: every minimum and the short ones.
+SH.showMins = function () {
+  var own = SH.ownLevels(), sh = SH.shortList();
+  if (!own.length) SH.say("no minimums of your own yet: SHOPPING MIN <item> <n> for anything in your rift.");
+  else {
+    SH.say("your minimums (" + own.length + "):");
+    for (var i = 0; i < own.length; i++) {
+      var o = own[i], low = o.stock !== null && o.stock < o.min;
+      SH.say("  " + o.item + ": " + SH.n(o.stock || 0) + " / " + SH.n(o.min) + (low ? "  (" + SH.n(o.min - o.stock) + " short)" : ""), low ? "orange" : "cyan");
+    }
+  }
+  var others = sh.filter(function (x) { return x.by; });
+  if (others.length) SH.say("short by other packages' minimums: " + others.map(function (x) { return x.item + " " + SH.n(x.n) + " (" + x.by + ")"; }).join(", ") + ".", "orange");
+  SH.say(sh.length ? "SHOPPING RESTOCK puts the " + sh.length + " short " + (sh.length === 1 ? "item" : "items") + " on the list." : "nothing is under its minimum.", sh.length ? "cyan" : "lime");
+};
+
+// RESTOCK: every short item onto the list, one DIRECTORY at a time.
+SH.queue = [];
+SH.restock = function () {
+  var sh = SH.shortList();
+  if (!sh.length) { SH.say("nothing is under its minimum: no restocking to do.", "lime"); return; }
+  SH.queue = sh.map(function (x) { return { word: x.item, n: x.n, rift: x.item }; });
+  SH.say("restocking " + sh.length + (sh.length === 1 ? " item" : " items") + ": " + sh.map(function (x) { return x.item + " " + SH.n(x.n); }).join(", ") + ". Looking each up in the directory…");
+  SH.next();
+};
+// The next queued lookup, once nothing is being read or picked.
+SH.next = function () {
+  if (SH.q || SH.choices || !SH.queue.length) return;
+  var w = SH.queue.shift();
+  SH.q = { word: w.word, n: w.n, rift: w.rift, sent: false, at: Date.now(), prompts: 0, head: false, rules: 0, rows: [], descAt: -1, shopAt: -1 };
+  SH.send();
+  run_function("shopping_render", [], "shopping");
+};
+
 // The tab's clicks. Its page shares window with the scripts but can't reach
 // client.loom in every Nexus, so these closures carry them.
 try {
@@ -457,7 +691,8 @@ try {
     unskip: function (i) { var S = client.loom.shopping, l = S.skipList(); if (l[i] !== undefined) S.unskip(l[i]); },
     goal: function () { client.loom.shopping.goal(); },
     walk: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.walk(g[i]); },
-    cancel: function () { client.loom.shopping.cancelPick(); }
+    cancel: function () { client.loom.shopping.cancelPick(); },
+    restock: function () { client.loom.shopping.readRift("restock"); }
   };
 } catch (e) {}
 if (client.loom.notify) client.loom.notify("shopping");

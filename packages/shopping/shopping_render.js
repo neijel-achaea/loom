@@ -42,6 +42,15 @@ html += '<span style="font-family:' + SERIF + ';font-variant:small-caps;letter-s
 html += '<span style="color:' + MUTED + ';">' + (nItems ? nItems + (nItems === 1 ? ' item' : ' items') + ' &middot; ' + groups.length + (groups.length === 1 ? ' shop' : ' shops') + ' &middot; ' : '') +
   '<span style="color:' + (nItems ? GOLD : MUTED) + ';font-size:12px;" title="at the prices the directory listed; a shopkeeper\'s own policy can change them">~' + esc(SH.sumText(total)) + '</span>' + goalChip + '</span></div>';
 
+// Under its minimum (#440): a RESTOCK chip, from the last rift reading.
+var shortN = SH.riftAt ? SH.shortList().length : 0, hasMins = false;
+for (var mk in SH.mins) if (SH.mins.hasOwnProperty(mk)) { hasMins = true; break; }
+if (shortN || hasMins || SH.queue.length) {
+  html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:5px;font-family:' + SERIF + ';font-size:12px;color:' + MUTED + ';">';
+  html += '<span>' + (SH.r ? '<i>Reading your rift…</i>' : SH.queue.length ? '<i>Restocking: ' + SH.queue.length + ' more to look up…</i>' : shortN ? '<span style="color:#ff9a4c;">' + shortN + (shortN === 1 ? ' item' : ' items') + ' under minimum</span>' : 'Everything at its minimum') + '</span>';
+  html += '<span onclick="window.loomShopping&&window.loomShopping.restock()" title="read your rift and put everything under its minimum on the list (SHOPPING RESTOCK)" style="cursor:pointer;padding:0 5px;border:1px solid ' + AMBER + ';color:' + AMBER + ';letter-spacing:0.08em;font-family:' + MONO + ';font-size:9px;">RESTOCK</span></div>';
+}
+
 // Looking something up.
 if (SH.q) {
   html += '<div style="margin-top:6px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">Reading the directory for ' + esc(SH.q.word) + '…</div>';
