@@ -817,7 +817,7 @@ SH.restock = function () {
   if (!sh.length) { SH.say("nothing is under its minimum: no restocking to do.", "lime"); return; }
   // Commodities come from the commodity shops' WARES, not the directory (#473).
   var dir = [], com = [];
-  for (var i = 0; i < sh.length; i++) (SH.key(SH.catOf(sh[i].item)) === "commodities" ? com : dir).push(sh[i]);
+  for (var i = 0; i < sh.length; i++) (SH.isCommodity(sh[i].item) ? com : dir).push(sh[i]);
   SH.say("restocking " + sh.length + (sh.length === 1 ? " item" : " items") + ": " + sh.map(function (x) { return x.item + " " + SH.n(x.n); }).join(", ") + "." + (dir.length ? " Looking " + (dir.length === 1 ? "it" : "each") + " up in the directory…" : ""));
   var missing = [];
   for (var j = 0; j < com.length; j++) if (!SH.putCommodity(com[j].item, com[j].n)) missing.push(com[j].item);
@@ -874,6 +874,16 @@ SH.waresDone = function () {
   if (!n) { delete SH.wares[w.shop]; return; }
   SH.saveWares();
   SH.say("noted " + w.shop + "'s wares: " + sold + " of " + n + " commodities for sale. RESTOCK lists rift commodities under the cheapest shop that sells them.", "lime");
+};
+// A commodity: in the rift's Commodities, or a name a shop's WARES or the
+// market lists, even with none in the rift yet (steel, rope, iron were sent
+// to DIRECTORY and found armbands and chains, Ricardo). Never the directory.
+SH.isCommodity = function (item) {
+  if (SH.key(SH.catOf(item)) === "commodities") return true;
+  var c = SH.commodityOf(item);
+  if (SH.market[c]) return true;
+  for (var s in SH.wares) if (SH.wares.hasOwnProperty(s) && SH.wares[s].items[c]) return true;
+  return false;
 };
 // The commodity a rift item is: built-in names first, then a WARES name
 // found whole in the rift name, or the rift name inside a WARES name
