@@ -125,9 +125,9 @@ if (wShops.length) {
     html += '<tr><th style="text-align:left;font-weight:normal;color:' + MUTED + ';padding:2px 4px;border-bottom:1px solid ' + RULE + ';">' + (SH.pricesSell ? 'they pay' : 'they sell') + '</th>';
     for (var hs = 0; hs < wShops.length; hs++) {
       var WS = SH.wares[wShops[hs]], here = SH.here && WS.room && SH.here.id === WS.room;
-      html += '<th style="text-align:right;font-weight:normal;padding:2px 4px;border-bottom:1px solid ' + RULE + ';white-space:nowrap;"><span style="font-family:' + SERIF + ';font-size:12px;color:' + TXT + ';">' + esc(WS.area || wShops[hs]) + '</span>' +
-        ' <span title="read ' + esc(ago(WS.at)) + ' ago" style="color:' + DIM + ';">' + esc(ago(WS.at)) + '</span>' +
-        ' <span onclick="window.loomShopping&&window.loomShopping.refresh(' + hs + ')" title="' + (here ? 'read its WARES again' : 'walk to ' + esc(wShops[hs]) + ' and read its WARES on arrival') + '" style="cursor:pointer;color:' + AMBER + ';font-family:' + SYM + ';">&#8635;</span></th>';
+      // The city is the button (Ricardo: the table gets tight): click to walk
+      // there and read WARES; how old the reading is, on hover.
+      html += '<th style="text-align:right;font-weight:normal;padding:2px 4px;border-bottom:1px solid ' + RULE + ';white-space:nowrap;"><span class="loom-sh-city" onclick="window.loomShopping&&window.loomShopping.refresh(' + hs + ')" title="' + esc(wShops[hs]) + ': read ' + esc(ago(WS.at)) + ' ago. Click to ' + (here ? 'read its WARES again' : 'walk there and read its WARES on arrival') + '." style="cursor:pointer;font-family:' + SERIF + ';font-size:12px;color:' + (here ? AMBER : TXT) + ';border-bottom:1px dotted ' + DEEP + ';">' + esc(WS.area || wShops[hs]) + '</span></th>';
     }
     html += '</tr>';
     for (var oi = 0; oi < order.length; oi++) {
@@ -150,7 +150,7 @@ if (wShops.length) {
       html += '</tr>';
     }
     html += '</table></div>';
-    html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices in gold, from each shop\'s last WARES. ' + (SH.pricesSell ? 'Green: pays the most; orange: the least.' : 'Green: cheapest; orange: dearest; struck out: none in stock.') + ' Commodities no shop ' + (SH.pricesSell ? 'buys' : 'sells') + ' aren\'t listed.' + ' &bull; a commodity you keep a minimum of. ↻ walks there and reads WARES again.</div>';
+    html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices in gold, from each shop\'s last WARES. ' + (SH.pricesSell ? 'Green: pays the most; orange: the least.' : 'Green: cheapest; orange: dearest; struck out: none in stock.') + ' Commodities no shop ' + (SH.pricesSell ? 'buys' : 'sells') + ' aren\'t listed.' + ' &bull; a commodity you keep a minimum of. Click a city to walk to its shop and read WARES again (hover it for the reading\'s age).</div>';
   }
 }
 
@@ -168,7 +168,7 @@ try {
   var shSt = document.getElementById("loom-shopping-style");
   if (!shSt) { shSt = document.createElement("style"); shSt.id = "loom-shopping-style"; document.head.appendChild(shSt); }
   var shCss = '.flexlayout__tab:has(#loom-shopping) { background: ' + BG + ' !important; } .flexlayout__tab:has(#loom-shopping) > * { min-height: 100%; } ' +
-    '#loom-shopping .loom-sh-x { visibility: hidden; } #loom-shopping .loom-sh-row:hover .loom-sh-x { visibility: visible; } #loom-shopping .loom-sh-row:hover, #loom-shopping .loom-sh-pick:hover { background: rgba(224,180,108,0.06); }';
+    '#loom-shopping .loom-sh-x { visibility: hidden; } #loom-shopping .loom-sh-row:hover .loom-sh-x { visibility: visible; } #loom-shopping .loom-sh-row:hover, #loom-shopping .loom-sh-pick:hover { background: rgba(224,180,108,0.06); } #loom-shopping .loom-sh-city:hover { color: #e0b46c !important; }';
   if (shSt.textContent !== shCss) shSt.textContent = shCss;
 } catch (e) {}
 try { set_custom_tab_html("Shopping", html); } catch (e) {}
