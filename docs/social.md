@@ -88,7 +88,7 @@ If you used the older highlight and watchlist reflexes (`hl*` and `wl*` variable
 ## Daily use
 
 - **Reading the game.** Names you know stand out in every line: says, emotes, who's in the room, channel talk.
-- **Who's on.** The Online tab lists the watched people who are online, alphabetically, in their group's colour (hover a name for its group), with how long they've been on. Someone who just arrived glows for a few seconds; someone who just left stays greyed for as long. At the bottom, how many people `QW` showed, how many are hidden and the total.
+- **Who's on.** The Online tab lists the watched people who are online, alphabetically, in their group's colour (hover a name for its group), with how long they've been on. Someone who just arrived glows for a few seconds; someone who just left stays greyed for as long. At the bottom, how many people `QW` showed, how many more it can't fully sense (hidden), and how many are online in all.
 - **Who isn't.** The **offline** section below lists the other watched people, most recently seen first, with when you last saw them. Click its heading to fold it (or `SOCIAL OFFLINE OFF` to keep it folded).
 - **Notices.** "Ana has awoken." when a watched person logs in, "Ana has drifted into slumber." when they leave.
 
