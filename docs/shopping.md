@@ -29,6 +29,7 @@ Shopping can keep a minimum for anything in your rift, and turn what's short int
 - **Reading the rift.** Bare `SHOPPING MIN` reads your whole rift with `IR` (hidden, every page: Shopping sends `MORE` itself) and lists your minimums, what each has, and what's short. The rift is also read once when you log in (only if you have minimums), and the game's "You store … bringing the total in the rift to …" and "You remove …" lines keep it current between readings.
 - **Watching a category.** `SHOPPING WATCH herbs ON` makes harvesting's minimums count in Shopping for the herbs you set none for (gathering's likewise for what it gathers, in the categories you watch). Every category starts off; bare `SHOPPING WATCH` lists your rift's categories and which are on.
 - **RESTOCK.** `SHOPPING RESTOCK` (or **RESTOCK** in the tab) reads the rift, then puts everything under its minimum on the list, the minimum less what you have, looking each up with `DIRECTORY` by its rift name, one after another. A word the directory knows several items for waits for `PICK` (or `CANCEL` to skip it) before the next lookup; your pick is remembered, so the next RESTOCK takes the same item without asking. An item already on the list is raised to what's short, never doubled.
+- **Rift names and the game's words.** RESTOCK looks an item up by its rift name, except where the game knows it by another word: inks are built in (the rift's `red ink` is `redink`), and `SHOPPING WORD <item> = <word>` sets any other you find (`SHOPPING WORD <item> =` clears it, bare `SHOPPING WORD` lists yours).
 - **The tab** shows how many items are under their minimum, with the **RESTOCK** button, once you have minimums.
 
 ## Commands
@@ -49,6 +50,7 @@ Shopping can keep a minimum for anything in your rift, and turn what's short int
 | `SHOPPING MIN <item> [n\|OFF]` | an item's minimum in the rift (its name as IR shows it), for buying; with n set it, OFF clear it. None by default |
 | `SHOPPING WATCH [<category> ON\|OFF]` | a rift category (Herbs, Ingredients…) also takes harvesting's or gathering's minimums for items you set none for; all off by default; bare: the categories |
 | `SHOPPING RESTOCK` | read your rift and put everything under its minimum on the list (minimum less stock), each looked up in turn; a word you PICKed for before is picked again (also RESTOCK in the tab) |
+| `SHOPPING WORD [<item> = <word>]` | the game's word for a rift item when it differs (inks: red ink = redink, built in); <item> = alone clears yours; bare: your words |
 | `SHOPPING GOAL` | with coffers: the list's gold as a coffers goal (GOAL by the total; only what isn't a goal yet) |
 | `SHOPPING CLEAR CONFIRM` | wipe the whole list |
 | `SHOPPING RESET` | reload the saved list, redraw the tab |
@@ -88,6 +90,7 @@ Like every package that sends a command and reads its answer, it waits while ano
 - **The tab stays empty.** Check the custom tab is named exactly `Shopping`, then `SHOPPING RESET`.
 - **"The directory lists nothing".** `DIRECTORY` only covers the city or area you're in; try `DIRECTORY <word>` yourself to see the game's answer.
 - **"isn't in your rift now".** The minimum is kept anyway; check the name is the one `IR` shows (`myrrh gum`, `red ink`).
+- **"The directory lists nothing" for a rift item.** The game may know it by another word than the rift shows: try `DIRECTORY <word>` yourself, then `SHOPPING WORD <item> = <word>`.
 - **RESTOCK wants hundreds of herbs.** A watched category takes harvesting's minimum (2,000 by default) for every herb you set none for: `SHOPPING WATCH herbs OFF`, or set your own.
 - **RESTOCK picks the wrong item for a word.** `SHOPPING REMOVE` it, then RESTOCK again and PICK the right one: the new pick is remembered.
 - **An item is under the wrong shop or price.** Add it again to refresh its price and shops, or remove it and add it anew. `SHOPPING DEBUG` shows the lookup in progress.

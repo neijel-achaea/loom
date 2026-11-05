@@ -94,6 +94,14 @@ if (shCmd === "" || shCmd === "list") {
   if (!shRest) SH.showWatch();
   else if (!shWm) SH.say("SHOPPING WATCH <category> ON|OFF, e.g. SHOPPING WATCH herbs ON.", "orange");
   else SH.setWatch(shWm[1], shWm[2].toLowerCase() === "on");
+} else if (shCmd === "word") {
+  // WORD <item> = <word>: the game's word for a rift item; WORD <item> = clears it.
+  var shWq = /^(.+?)\s*=\s*(.*)$/.exec(shRest), shWs = [];
+  if (!shRest) {
+    for (var shWn in SH.words) if (SH.words.hasOwnProperty(shWn)) shWs.push(shWn + " = " + SH.words[shWn]);
+    SH.say((shWs.length ? "your words: " + shWs.join(", ") + "." : "no words of your own.") + " Inks are looked up as one word (red ink = redink). SHOPPING WORD <item> = <word> for another.");
+  } else if (!shWq) SH.say(SH.key(shRest) + " is looked up as " + SH.wordOf(shRest) + ". SHOPPING WORD " + SH.key(shRest) + " = <word> to change it.");
+  else SH.setWord(shWq[1], shWq[2].trim());
 } else if (shCmd === "restock") {
   SH.say("reading your rift…");
   SH.readRift("restock");

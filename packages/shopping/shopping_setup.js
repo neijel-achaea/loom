@@ -486,6 +486,7 @@ SH.goal = function () {
 //   shopping_rift  { rift name: [n, category] }, the last reading, kept
 //                  current by the game's store/remove lines
 //   shopping_picks { rift name: directory description } (PICK remembered)
+//   shopping_words { rift name: the game's word } where they differ (WORD)
 SH.readTable = function (name) {
   var v = get_variable(name);
   if (typeof v == "string") { try { v = JSON.parse(v); } catch (e) { v = null; } }
@@ -515,6 +516,33 @@ SH.saveWatch = function () {
   if (client.loom.notify) client.loom.notify("shopping");
 };
 SH.catOf = function (name) { var r = SH.rift[SH.key(name)]; return r ? r[1] : ""; };
+// The game's word for a rift item, for DIRECTORY and BUY: yours (SHOPPING
+// WORD), else the built-in exceptions, else the rift's own name. Inks: the
+// rift says "red ink", the game knows "redink" (Ricardo, 2026-11-05).
+SH.words = {};
+var shWd = SH.readTable("shopping_words");
+for (var shWk in shWd) if (shWd.hasOwnProperty(shWk) && typeof shWd[shWk] == "string" && shWd[shWk].trim()) SH.words[SH.key(shWk)] = shWd[shWk].trim().toLowerCase().slice(0, 60);
+SH.wordRules = [[/^(\w+) ink$/, "$1ink"]];
+SH.wordOf = function (name) {
+  var k = SH.key(name);
+  if (SH.words[k]) return SH.words[k];
+  for (var i = 0; i < SH.wordRules.length; i++) if (SH.wordRules[i][0].test(k)) return k.replace(SH.wordRules[i][0], SH.wordRules[i][1]);
+  return k;
+};
+// The rift item a game word names (store/remove lines may use either).
+SH.riftItemOf = function (word) {
+  var k = SH.key(word);
+  if (SH.rift[k] || SH.mins[k] !== undefined) return k;
+  for (var r in SH.rift) if (SH.rift.hasOwnProperty(r) && SH.wordOf(r) === k) return r;
+  for (var m in SH.mins) if (SH.mins.hasOwnProperty(m) && SH.wordOf(m) === k) return m;
+  return k;
+};
+SH.setWord = function (name, word) {
+  var k = SH.key(name);
+  if (!word) { delete SH.words[k]; SH.say(k + " is looked up as " + SH.wordOf(k) + " again.", "lime"); }
+  else { SH.words[k] = SH.key(word); SH.say(k + " is looked up and bought as " + SH.words[k] + ".", "lime"); }
+  SH.saveTable("shopping_words", SH.words);
+};
 SH.saveMins = function () { SH.saveTable("shopping_min", SH.mins); if (client.loom.notify) client.loom.notify("shopping"); };
 SH.saveRift = function () { SH.saveTable("shopping_rift", SH.rift); if (client.loom.notify) client.loom.notify("shopping"); };
 SH.savePicks = function () { SH.saveTable("shopping_picks", SH.picks); };
@@ -628,7 +656,7 @@ SH.riftDone = function () {
 // "You store 10 kola, bringing the total in the rift to 2,408." and remove:
 // the rift's new total for that item, without reading it again.
 SH.riftTotal = function (name, total) {
-  var k = SH.key(name), was = SH.rift[k];
+  var k = SH.riftItemOf(name), was = SH.rift[k];
   SH.rift[k] = [Math.max(0, Number(String(total).replace(/,/g, "")) || 0), was ? was[1] : ""];
   SH.saveRift();
   run_function("shopping_render", [], "shopping");
@@ -696,7 +724,7 @@ SH.queue = [];
 SH.restock = function () {
   var sh = SH.shortList();
   if (!sh.length) { SH.say("nothing is under its minimum: no restocking to do.", "lime"); return; }
-  SH.queue = sh.map(function (x) { return { word: x.item, n: x.n, rift: x.item }; });
+  SH.queue = sh.map(function (x) { return { word: SH.wordOf(x.item), n: x.n, rift: x.item }; });
   SH.say("restocking " + sh.length + (sh.length === 1 ? " item" : " items") + ": " + sh.map(function (x) { return x.item + " " + SH.n(x.n); }).join(", ") + ". Looking each up in the directory…");
   SH.next();
 };
