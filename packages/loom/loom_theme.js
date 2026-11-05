@@ -17,8 +17,9 @@
 // chip fill), edge (button border), sel (selected or highlighted row).
 //
 // The choice: loom_theme = auto (default: follow the city, from Char.Status),
-// off (each tab's own colours) or a city name. loom_city keeps the last city
+// off (each tab's own colours) or a theme name. loom_city keeps the last city
 // seen ("none" when cityless), since Char.Status carries it only at login.
+// AUTO gives the cityless the rogue theme, which is no city's.
 if (!client.loom) client.loom = {};
 if (!client.loom.loom) client.loom.loom = {};
 var L = client.loom.loom;
@@ -29,7 +30,18 @@ L.themes = {
   eleusis:   { label: "Eleusis, forest greens", acc: "#5fb59a", deep: "#2e6152", hi: "#e6f2ec", txt: "#dce7e0", muted: "#82918a", dim: "#5d6b64", rule: "#1f2e28", track: "#15211c", bg: "#0c1310", panel: "#15201b", edge: "#2b3d35", sel: "#17302a" },
   hashan:    { label: "Hashan, steel greys",   acc: "#aebccb", deep: "#59636f", hi: "#f0f3f6", txt: "#e0e4e8", muted: "#868c94", dim: "#62686f", rule: "#262a30", track: "#1b1e22", bg: "#0f1113", panel: "#181b1f", edge: "#343a42", sel: "#22272e" },
   mhaldor:   { label: "Mhaldor, oxblood reds", acc: "#cf6f86", deep: "#6e2a3a", hi: "#f8ecef", txt: "#ece0e3", muted: "#93838a", dim: "#6e5f65", rule: "#33202a", track: "#24171d", bg: "#140c0f", panel: "#1e1317", edge: "#422a33", sel: "#2e1820" },
-  targossas: { label: "Targossas, golds",      acc: "#ecd27e", deep: "#7c6830", hi: "#fbf4dc", txt: "#ebe5d2", muted: "#918a74", dim: "#6b6553", rule: "#2e2919", track: "#221e12", bg: "#13110a", panel: "#1d1a10", edge: "#3b3420", sel: "#2b2612" }
+  targossas: { label: "Targossas, golds",      acc: "#ecd27e", deep: "#7c6830", hi: "#fbf4dc", txt: "#ebe5d2", muted: "#918a74", dim: "#6b6553", rule: "#2e2919", track: "#221e12", bg: "#13110a", panel: "#1d1a10", edge: "#3b3420", sel: "#2b2612" },
+  // Rogue (Ricardo, 2026-11-05): for the cityless, so belongs to no city.
+  // Low chroma and warm (road dust, weathered leather): every saturated hue
+  // is a city's or means something, and warm keeps it apart from Hashan's
+  // cool steel. Kept dull so it's never taken for the Here amber or orange.
+  rogue:     { label: "Rogue, road-dust taupe", acc: "#c2ad93", deep: "#6b5d4b", hi: "#f6f2ec", txt: "#e6e1d9", muted: "#8f8980", dim: "#69645c", rule: "#2b2722", track: "#1f1c18", bg: "#11100e", panel: "#1b1916", edge: "#3a352e", sel: "#28241e" }
+};
+
+// The theme AUTO picks for a city ("none" when cityless).
+L.themeForCity = function (city) {
+  city = String(city || "").toLowerCase();
+  return city === "none" ? "rogue" : city;
 };
 
 // PK MODE's theme (Ricardo, 2026-10-28): while hunting's PK MODE is on,
@@ -57,7 +69,7 @@ L.themeName = function () {
   if (L.themePk) return "pk";
   var c = L.themeChoice();
   if (c === "off") return "";
-  if (c === "auto") c = String(get_variable("loom_city") || "").toLowerCase();
+  if (c === "auto") c = L.themeForCity(get_variable("loom_city"));
   return L.themes[c] ? c : "";
 };
 
