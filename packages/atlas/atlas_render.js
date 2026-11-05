@@ -345,7 +345,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
       }
     }
     // ---- From other packages, through loom (#451): waypoints and quests ----
-    var LL = client.loom.loom, pins = '', partyRings = '';
+    var LL = client.loom.loom, pins = '', partyRings = '', FTO = Object.keys(AT.features || {});
     for (var pi = 0; pi < party.length; pi++) if (shown[party[pi].room] === 1) (partyOn[party[pi].room] || (partyOn[party[pi].room] = [])).push(party[pi]);
     var wpAt = {}, qAt = {}, sAt = {};
     var wps = (LL && LL.answer) ? LL.answer("atlas", "atlas.waypoints") : undefined;
@@ -395,6 +395,22 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
         pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc(ic[0] + (mk[1] ? " — " + mk[1] : "") + " (your mark; ATLAS UNMARK " + P.id + " removes it)") + '</title>' +
           '<circle cx="' + ix.toFixed(2) + '" cy="' + iy.toFixed(2) + '" r="0.2" fill="#ece4d2" stroke="#000" stroke-width="0.045"/>' +
           '<g transform="translate(' + (ix - 0.136).toFixed(3) + ' ' + (iy - 0.136).toFixed(3) + ') scale(0.017)">' + gl + '</g></g>';
+      }
+      var ftl = P.ft ? P.ft.filter(function (k) { return AT.features[k]; }) : [];
+      if (ftl.length) {
+        // The crowdmap's features (#468), bottom right corner: the first in
+        // AT.features' order drawn, all of them on hover; a blue-grey circle,
+        // apart from your own marks.
+        ftl.sort(function (a, b) { return FTO.indexOf(a) - FTO.indexOf(b); });
+        var fcx = px + 0.27, fcy = py + 0.27, fic = AT.features[ftl[0]], fgl = '';
+        for (var fgi = 0; fgi < fic[1].length; fgi++) {
+          var fpart = fic[1][fgi];
+          fgl += fpart[0] === "s" ? '<path d="' + fpart[1] + '" fill="none" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+            : '<path d="' + fpart[1] + '" fill="' + (fpart[0] === "w" ? "#c9d6e4" : "#000") + '"/>';
+        }
+        pins += '<g style="cursor:pointer;" onclick="window.loomAtlas&&window.loomAtlas.go(' + P.id + ')"><title>' + esc(ftl.map(function (k) { return AT.features[k][0]; }).join(", ") + " (community map)") + '</title>' +
+          '<circle cx="' + fcx.toFixed(2) + '" cy="' + fcy.toFixed(2) + '" r="0.2" fill="#c9d6e4" stroke="#000" stroke-width="0.045"/>' +
+          '<g transform="translate(' + (fcx - 0.136).toFixed(3) + ' ' + (fcy - 0.136).toFixed(3) + ') scale(0.017)">' + fgl + '</g></g>';
       }
       if (qs && qs.length) {
         // The followed quest's GO steps, numbered at the top left corner; the
