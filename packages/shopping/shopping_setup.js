@@ -26,6 +26,7 @@ client.loom.registry.shopping = { version: "0.2.0", keyword: "SHOPPING", desc: "
 //   shop   the one it's listed under, price and cur its price there
 //          (cheapest, then fewest stops: see place)
 //   area   the area you were in when it was looked up; at: when
+//   rift   the rift item it restocks (#440), "" otherwise: INR'd once bought
 // A variable that isn't readable starts afresh (#135).
 SH.readList = function (name) {
   var v = get_variable(name);
@@ -49,7 +50,8 @@ for (var shI = 0; shI < shRaw.length; shI++) {
   if (!shOs.length && Array.isArray(shE.cheap)) for (var shL = 0; shL < shE.cheap.length; shL++) { var shS = String(shE.cheap[shL] || "").trim(); if (shS && !shSeen[shS]) { shSeen[shS] = 1; shOs.push({ s: shS, p: shPrice, c: shCur, k: -1 }); } }
   if (!shSeen[String(shE.shop).trim()]) shOs.unshift({ s: String(shE.shop).trim(), p: shPrice, c: shCur, k: -1 });
   SH.list.push({ desc: String(shE.desc).trim(), word: String(shE.word || "").trim(), n: Math.max(1, Math.min(9999, Math.floor(Number(shE.n)) || 1)),
-    shops: shOs, shop: String(shE.shop).trim(), price: shPrice, cur: shCur, area: String(shE.area || ""), at: Number(shE.at) || 0 });
+    shops: shOs, shop: String(shE.shop).trim(), price: shPrice, cur: shCur, area: String(shE.area || ""), at: Number(shE.at) || 0,
+    rift: String(shE.rift || "").trim().slice(0, 80) });
 }
 // shopping_skip = [shop, …]: shops you'd rather not visit (SHOPPING SKIP).
 SH.skip = {};
@@ -203,6 +205,8 @@ SH.send = function () {
   if (SH.othersBusy() && Date.now() - q.at < SH.giveUpMs) return;
   q.sent = true; q.at = Date.now(); q.prompts = 0;
   send_command("directory " + q.word, 1);
+  clearTimeout(SH.qT);
+  SH.qT = setTimeout(SH.prompt, SH.giveUpMs + 100);   // gives up even with no prompt coming
 };
 // From onGMCP at each prompt (after its packet's lines). A lookup not sent
 // yet goes now; one with no table after two prompts found nothing (the
@@ -217,7 +221,10 @@ SH.prompt = function () {
   if (!q.head && Date.now() - q.at < 100) return;
   q.prompts++;
   if (q.head && q.prompts >= 1) SH.done();
-  else if (!q.head && (q.prompts >= 2 || Date.now() - q.at > SH.giveUpMs)) {
+  // No table yet: given up on time only (#440). Counting prompts gave up
+  // while the table was still coming in a busy game, and the late table was
+  // then read as the next lookup's.
+  else if (!q.head && Date.now() - q.at > SH.giveUpMs) {
     SH.q = null;
     SH.say("the directory lists nothing for " + q.word + " here (DIRECTORY only covers the city or area you're in).", "orange");
     run_function("shopping_render", [], "shopping");
@@ -256,11 +263,31 @@ SH.line = function (line) {
   return true;
 };
 
+// Whether a directory row is for this lookup: its description holds the
+// word or the rift name (articles and plurals aside, or the word with its
+// spaces taken out: "purpleink" in "a purple ink").
+SH.related = function (desc, q) {
+  var d = " " + SH.plain(desc) + " ", ds = d.replace(/\s+/g, "");
+  var ws = [SH.plain(q.word)];
+  if (q.rift) ws.push(SH.plain(q.rift));
+  for (var i = 0; i < ws.length; i++) {
+    if (!ws[i]) continue;
+    if (d.indexOf(" " + ws[i] + " ") >= 0 || ds.indexOf(ws[i].replace(/\s+/g, "")) >= 0) return true;
+  }
+  return false;
+};
 // The table is read: one item → onto the list; several → ask which.
 SH.done = function () {
   var q = SH.q;
   if (!q) return;
+  // A RESTOCK lookup takes only a table for its own word: one for an earlier
+  // word arriving late is left alone, and this lookup keeps waiting.
+  if (q.rift && q.rows.length && !q.rows.some(function (r) { return SH.related(r.desc, q); })) {
+    q.head = false; q.rules = 0; q.rows = []; q.prompts = 0; q.descAt = -1; q.shopAt = -1;
+    return;
+  }
   SH.q = null;
+  clearTimeout(SH.qT);
   if (!q.rows.length) { SH.say("the directory lists nothing for " + q.word + " here.", "orange"); run_function("shopping_render", [], "shopping"); SH.next(); return; }
   var opts = [], idx = {};
   for (var i = 0; i < q.rows.length; i++) {
@@ -326,6 +353,7 @@ SH.put = function (word, n, opt, area, rift) {
   }
   var it = SH.byDesc(opt.desc), was = it ? it.n : 0;
   if (!it) { it = { desc: opt.desc, word: word, n: 0, shops: [], shop: shops[0].s, price: 0, cur: "gp", area: "", at: 0 }; SH.list.push(it); }
+  if (rift) it.rift = rift;
   it.n = Math.min(9999, rift ? Math.max(it.n, n) : it.n + n); it.shops = shops; it.word = word; it.area = area || it.area; it.at = Date.now();
   SH.save();
   var ties = SH.cands(it).length - 1;
@@ -423,6 +451,9 @@ SH.received = function (what) {
   if (!hit && SH.lastBuy && Date.now() - SH.lastBuy.at < 30000 && pool.indexOf(SH.lastBuy.it) >= 0) hit = SH.lastBuy.it;
   if (!hit) return;
   SH.lastBuy = null;
+  // A rift item goes back into the rift (Ricardo), on balance like harvesting's INR.
+  var riftOf = hit.rift || (SH.rift[SH.riftItemOf(hit.word)] ? SH.riftItemOf(hit.word) : "");
+  if (riftOf && hit.word && !SH.paused()) send_command("queue add be inr " + hit.word);
   if (got < hit.n) {
     hit.n -= got;
     SH.save();
