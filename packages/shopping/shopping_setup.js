@@ -538,7 +538,7 @@ SH.riftItemOf = function (word) {
   return k;
 };
 SH.setWord = function (name, word) {
-  var k = SH.key(name);
+  var k = SH.riftItemOf(name);
   if (!word) { delete SH.words[k]; SH.say(k + " is looked up as " + SH.wordOf(k) + " again.", "lime"); }
   else { SH.words[k] = SH.key(word); SH.say(k + " is looked up and bought as " + SH.words[k] + ".", "lime"); }
   SH.saveTable("shopping_words", SH.words);
@@ -664,7 +664,7 @@ SH.riftTotal = function (name, total) {
 
 // SHOPPING MIN <item> <n|OFF>.
 SH.setMin = function (name, n) {
-  var k = SH.key(name);
+  var k = SH.riftItemOf(name);                  // "blueink" is the rift's "blue ink"
   if (!k) return;
   var ow = SH.owner(k);
   if (n === null) {

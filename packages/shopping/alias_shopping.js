@@ -83,7 +83,7 @@ if (shCmd === "" || shCmd === "list") {
     if (shMv !== null && (shMv < 1 || shMv > 999999)) SH.say("a minimum is 1 to 999,999 (or OFF).", "orange");
     else SH.setMin(shMm[1], shMv);
   } else {
-    var shMk = SH.key(shRest), shMo = SH.owner(shMk), shMh = SH.have(shMk);
+    var shMk = SH.riftItemOf(shRest), shMo = SH.owner(shMk), shMh = SH.have(shMk);
     var shMt = shMh === null ? "" : " (" + SH.n(shMh) + " in your rift)";
     var shMw = shMo && shMo.by ? " " + shMo.by + " keeps " + (shMo.min != null ? SH.n(shMo.min) : "?") + " for itself" + (SH.watch[SH.key(SH.catOf(shMk))] ? ", used here while you set none (" + SH.catOf(shMk) + " watched)." : "; WATCH " + (SH.catOf(shMk) || "its category") + " ON to use it here.") : "";
     if (SH.mins[shMk] !== undefined) SH.say(shMk + ": minimum " + SH.n(SH.mins[shMk]) + shMt + ". SHOPPING MIN " + shMk + " OFF to clear it." + shMw);
@@ -100,7 +100,7 @@ if (shCmd === "" || shCmd === "list") {
   if (!shRest) {
     for (var shWn in SH.words) if (SH.words.hasOwnProperty(shWn)) shWs.push(shWn + " = " + SH.words[shWn]);
     SH.say((shWs.length ? "your words: " + shWs.join(", ") + "." : "no words of your own.") + " Inks are looked up as one word (red ink = redink). SHOPPING WORD <item> = <word> for another.");
-  } else if (!shWq) SH.say(SH.key(shRest) + " is looked up as " + SH.wordOf(shRest) + ". SHOPPING WORD " + SH.key(shRest) + " = <word> to change it.");
+  } else if (!shWq) { var shWi = SH.riftItemOf(shRest); SH.say(shWi + " is looked up as " + SH.wordOf(shWi) + ". SHOPPING WORD " + shWi + " = <word> to change it."); }
   else SH.setWord(shWq[1], shWq[2].trim());
 } else if (shCmd === "restock") {
   SH.say("reading your rift…");
