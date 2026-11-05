@@ -826,14 +826,14 @@ SH.restock = function () {
 // keeps it per shop (the room you were in), so RESTOCK can list rift
 // commodities under the cheapest shop that sells them. Buying there is
 // "BUY 10 CLOTH" → "You purchase 10 cloth for 450 gold."
-// Saved: shopping_wares { shop: { area, room, at, items: { commodity: [price, stock] } } }
-//   (price 0: the shop doesn't sell it)
+// Saved: shopping_wares { shop: { area, room, at, items: { commodity: [price, stock, name, pays] } } }
+//   (price 0: the shop doesn't sell it; pays: its We Buy At, 0 when it buys none)
 SH.wares = {};
 var shWr = SH.readTable("shopping_wares");
 for (var shWsk in shWr) {
   if (!shWr.hasOwnProperty(shWsk) || !shWr[shWsk] || typeof shWr[shWsk] != "object") continue;
   var shWo = shWr[shWsk], shWit = {};
-  if (shWo.items && typeof shWo.items == "object") for (var shWc in shWo.items) if (shWo.items.hasOwnProperty(shWc) && Array.isArray(shWo.items[shWc])) shWit[SH.key(shWc)] = [Math.max(0, Number(shWo.items[shWc][0]) || 0), Math.max(0, Number(shWo.items[shWc][1]) || 0), String(shWo.items[shWc][2] || shWc).slice(0, 40)];
+  if (shWo.items && typeof shWo.items == "object") for (var shWc in shWo.items) if (shWo.items.hasOwnProperty(shWc) && Array.isArray(shWo.items[shWc])) shWit[SH.key(shWc)] = [Math.max(0, Number(shWo.items[shWc][0]) || 0), Math.max(0, Number(shWo.items[shWc][1]) || 0), String(shWo.items[shWc][2] || shWc).slice(0, 40), Math.max(0, Number(shWo.items[shWc][3]) || 0)];
   SH.wares[String(shWsk).slice(0, 80)] = { area: String(shWo.area || "").slice(0, 80), room: String(shWo.room || ""), at: Number(shWo.at) || 0, items: shWit };
 }
 SH.saveWares = function () { SH.saveTable("shopping_wares", SH.wares); };
@@ -853,14 +853,15 @@ SH.waresLine = function (line) {
   if (!w.head) return;
   var m = /^(.+?)\s+(-|[\d,]+\s*gp)\s+([\d,]+)\s+(-|[\d,]+\s*gp)\s*$/.exec(line);
   if (!m) { SH.waresDone(); return; }
-  var sell = m[4] === "-" ? 0 : Number(m[4].replace(/[^\d]/g, ""));
-  SH.wares[w.shop].items[SH.key(m[1])] = [sell, Number(m[3].replace(/,/g, "")), m[1].trim()];
+  var sell = m[4] === "-" ? 0 : Number(m[4].replace(/[^\d]/g, "")), pays = m[2] === "-" ? 0 : Number(m[2].replace(/[^\d]/g, ""));
+  SH.wares[w.shop].items[SH.key(m[1])] = [sell, Number(m[3].replace(/,/g, "")), m[1].trim(), pays];
   w.at = Date.now();
 };
 SH.waresDone = function () {
   var w = SH.w;
   if (!w) return;
   SH.w = null;
+  run_function("shopping_render", [], "shopping");
   var it = SH.wares[w.shop] ? SH.wares[w.shop].items : {}, n = 0, sold = 0;
   for (var k in it) if (it.hasOwnProperty(k)) { n++; if (it[k][0] > 0) sold++; }
   if (!n) { delete SH.wares[w.shop]; return; }
@@ -885,6 +886,39 @@ SH.commodityOf = function (item) {
     if ((" " + pk + " ").indexOf(" " + pn + " ") >= 0 || (" " + pn + " ").indexOf(" " + pk + " ") >= 0) { if (!best || n.length > best.length) best = n; }
   }
   return best || k;
+};
+// The tab's price table: open or folded, and BUY (their prices to you) or
+// SELL (what they pay you). Saved: shopping_prices = "folded" | "sell" |
+// "folded,sell" (absent: open, BUY).
+var shPv = String(get_variable("shopping_prices") || "");
+SH.pricesFolded = /folded/.test(shPv);
+SH.pricesSell = /sell/.test(shPv);
+SH.savePrices = function () {
+  var v = [SH.pricesFolded ? "folded" : "", SH.pricesSell ? "sell" : ""].filter(function (x) { return x; }).join(",");
+  if (v) set_variable("shopping_prices", v); else delete_variable("shopping_prices");
+  run_function("shopping_render", [], "shopping");
+};
+// The shops in the table's order (by area), and every commodity read.
+SH.waresShops = function () {
+  return Object.keys(SH.wares).sort(function (a, b) { var x = SH.wares[a].area || a, y = SH.wares[b].area || b; return x < y ? -1 : (x > y ? 1 : 0); });
+};
+// ↻ on a shop: walk there and read WARES on arrival (one walk, one WARES,
+// both from your click); in the shop already, WARES at once.
+SH.refresh = function (shop) {
+  var W = SH.wares[shop];
+  if (!W) return;
+  if (SH.paused()) { SH.say("Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
+  if (SH.here && W.room && SH.here.id === W.room) { send_command("wares", 1); return; }
+  if (!W.room) { SH.say("no room known for " + shop + ": walk there and type WARES.", "orange"); return; }
+  SH.waresOnArrival = { room: W.room, at: Date.now() };
+  send_command("path find " + W.room, 1);
+  SH.say("walking to " + shop + " to read its wares (WARES on arrival).");
+};
+SH.arrived = function () {
+  var A = SH.waresOnArrival;
+  if (!A || !SH.here) return;
+  if (Date.now() - A.at > 10 * 60000) { SH.waresOnArrival = null; return; }
+  if (SH.here.id === A.room) { SH.waresOnArrival = null; if (!SH.paused()) send_command("wares", 1); }
 };
 // Onto the list from the shops' WARES: the cheapest that sells it (one with
 // enough stock first). False when no shop read sells it.
@@ -927,7 +961,10 @@ try {
     goal: function () { client.loom.shopping.goal(); },
     walk: function (i) { var S = client.loom.shopping, g = S.shopsDrawn || []; if (g[i] !== undefined) S.walk(g[i]); },
     cancel: function () { client.loom.shopping.cancelPick(); },
-    restock: function () { client.loom.shopping.readRift("restock"); }
+    restock: function () { client.loom.shopping.readRift("restock"); },
+    pricesFold: function () { var S = client.loom.shopping; S.pricesFolded = !S.pricesFolded; S.savePrices(); },
+    pricesMode: function () { var S = client.loom.shopping; S.pricesSell = !S.pricesSell; S.savePrices(); },
+    refresh: function (i) { var S = client.loom.shopping, l = S.waresShops(); if (l[i] !== undefined) S.refresh(l[i]); }
   };
 } catch (e) {}
 if (client.loom.notify) client.loom.notify("shopping");

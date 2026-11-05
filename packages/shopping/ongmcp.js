@@ -8,6 +8,7 @@ if (args.gmcp_method == "Room.Info") {
   SH.here = { area: String(shG.area || ""), id: shG.num ? String(shG.num) : "", name: String(shG.name || "").replace(/\s*\((?:indoors|outdoors)\)\s*$/i, "") };
   // BUY shows only in the shop you're in: redraw when that changes.
   if (SH.shopHere() !== shWas) run_function("shopping_render", [], "shopping");
+  if (SH.waresOnArrival) SH.arrived();
   // First room of the session: with minimums of your own, read the rift
   // once (hidden), so the Restock reminder starts from today's stock (#440).
   if (!SH.started) {

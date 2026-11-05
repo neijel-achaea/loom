@@ -100,6 +100,60 @@ for (var g = 0; g < groups.length; g++) {
 if (!nItems && !C && !SH.q) {
   html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">Nothing on the list. In a city, SHOPPING ADD [n] &lt;item&gt; looks it up in the directory and puts it under its cheapest shop.</div>';
 }
+// Commodity prices (#473): every commodity shop read with WARES, side by
+// side. BUY: their prices to you, cheapest green, dearest orange; SELL: what
+// they pay you, highest green. Hover a cell for stock and when it was read;
+// ↻ walks to a shop and reads its WARES again.
+var wShops = SH.waresShops();
+if (wShops.length) {
+  var GREEN = "#8fd18f", ORANGE = "#ff9a4c";
+  var ago = function (t) { var m = Math.round((Date.now() - t) / 60000); return m < 60 ? m + "m" : (m < 2880 ? Math.round(m / 60) + "h" : Math.round(m / 1440) + "d"); };
+  html += '<div style="margin-top:10px;border-top:1px solid ' + DEEP + ';padding-top:5px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;">';
+  html += '<span onclick="window.loomShopping&&window.loomShopping.pricesFold()" title="' + (SH.pricesFolded ? 'show' : 'fold') + ' the commodity prices" style="cursor:pointer;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;font-size:13px;color:' + AMBER + ';">' + (SH.pricesFolded ? '&#9656;' : '&#9662;') + ' Commodity prices <span style="font-family:' + MONO + ';font-size:10px;color:' + MUTED + ';font-variant:normal;letter-spacing:0;">' + wShops.length + (wShops.length === 1 ? ' shop' : ' shops') + '</span></span>';
+  if (!SH.pricesFolded) {
+    var modeChip = function (on, label, tip) { return '<span onclick="' + (on ? '' : 'window.loomShopping&&window.loomShopping.pricesMode()') + '" title="' + tip + '" style="cursor:' + (on ? 'default' : 'pointer') + ';padding:0 5px;border:1px solid ' + (on ? AMBER : DEEP) + ';color:' + (on ? AMBER : DIM) + ';letter-spacing:0.08em;font-size:9px;">' + label + '</span>'; };
+    html += '<span style="white-space:nowrap;">' + modeChip(!SH.pricesSell, 'BUY', 'their prices to you (We Sell At)') + ' ' + modeChip(SH.pricesSell, 'SELL', 'what they pay you (We Buy At)') + '</span>';
+  }
+  html += '</div>';
+  if (!SH.pricesFolded) {
+    var comm = {}, order = [];
+    for (var ws = 0; ws < wShops.length; ws++) { var Wi = SH.wares[wShops[ws]].items; for (var ck in Wi) if (Wi.hasOwnProperty(ck) && !comm[ck]) { comm[ck] = Wi[ck][2] || ck; order.push(ck); } }
+    order.sort();
+    var watched = {};
+    for (var mi in SH.mins) if (SH.mins.hasOwnProperty(mi)) watched[SH.commodityOf(mi)] = mi;
+    html += '<div style="overflow-x:auto;margin-top:4px;"><table style="border-collapse:collapse;width:100%;font-family:' + MONO + ';font-size:10px;">';
+    html += '<tr><th style="text-align:left;font-weight:normal;color:' + MUTED + ';padding:2px 4px;border-bottom:1px solid ' + RULE + ';">' + (SH.pricesSell ? 'they pay' : 'they sell') + '</th>';
+    for (var hs = 0; hs < wShops.length; hs++) {
+      var WS = SH.wares[wShops[hs]], here = SH.here && WS.room && SH.here.id === WS.room;
+      html += '<th style="text-align:right;font-weight:normal;padding:2px 4px;border-bottom:1px solid ' + RULE + ';white-space:nowrap;"><span style="font-family:' + SERIF + ';font-size:12px;color:' + TXT + ';">' + esc(WS.area || wShops[hs]) + '</span>' +
+        ' <span title="read ' + esc(ago(WS.at)) + ' ago" style="color:' + DIM + ';">' + esc(ago(WS.at)) + '</span>' +
+        ' <span onclick="window.loomShopping&&window.loomShopping.refresh(' + hs + ')" title="' + (here ? 'read its WARES again' : 'walk to ' + esc(wShops[hs]) + ' and read its WARES on arrival') + '" style="cursor:pointer;color:' + AMBER + ';font-family:' + SYM + ';">&#8635;</span></th>';
+    }
+    html += '</tr>';
+    for (var oi = 0; oi < order.length; oi++) {
+      var k = order[oi], vals = [];
+      for (var vs = 0; vs < wShops.length; vs++) { var e = SH.wares[wShops[vs]].items[k]; var v = e ? (SH.pricesSell ? e[3] : e[0]) : 0; vals.push({ v: v, k: e ? e[1] : -1 }); }
+      var live = vals.filter(function (x) { return x.v > 0 && (SH.pricesSell || x.k !== 0); }).map(function (x) { return x.v; });
+      var best = live.length ? (SH.pricesSell ? Math.max.apply(null, live) : Math.min.apply(null, live)) : 0;
+      var worst = live.length > 1 ? (SH.pricesSell ? Math.min.apply(null, live) : Math.max.apply(null, live)) : -1;
+      // A row nobody sells (BUY) or buys (SELL) is left out; equal prices everywhere aren't coloured.
+      if (!vals.some(function (x) { return x.v > 0; })) continue;
+      if (best === worst) { best = -1; worst = -1; }
+      var mine = watched[k];
+      html += '<tr class="loom-sh-row"><td style="padding:2px 4px;border-bottom:1px dotted ' + RULE + ';font-family:' + SERIF + ';font-size:12px;color:' + (mine ? TXT : MUTED) + ';"' + (mine ? ' title="you keep a minimum of ' + esc(mine) + '"' : '') + '>' + esc(comm[k]) + (mine ? ' <span style="color:' + AMBER + ';">&bull;</span>' : '') + '</td>';
+      for (var c2 = 0; c2 < vals.length; c2++) {
+        var x = vals[c2], out = !SH.pricesSell && x.v > 0 && x.k === 0;
+        var col = !x.v || out ? DIM : (live.length > 1 && x.v === best ? GREEN : (x.v === worst ? ORANGE : TXT));
+        var tip = x.v ? (SH.pricesSell ? 'pays ' : 'sells at ') + SH.money(x.v) + (x.k >= 0 ? ' · stock ' + SH.n(x.k) : '') : (SH.pricesSell ? 'doesn\'t buy it' : 'doesn\'t sell it');
+        html += '<td title="' + esc(tip) + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + col + ';white-space:nowrap;' + (out ? 'text-decoration:line-through;' : '') + '">' + (x.v ? SH.n(x.v) : '&mdash;') + '</td>';
+      }
+      html += '</tr>';
+    }
+    html += '</table></div>';
+    html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Prices in gold, from each shop\'s last WARES. ' + (SH.pricesSell ? 'Green: pays the most; orange: the least.' : 'Green: cheapest; orange: dearest; struck out: none in stock.') + ' Commodities no shop ' + (SH.pricesSell ? 'buys' : 'sells') + ' aren\'t listed.' + ' &bull; a commodity you keep a minimum of. ↻ walks there and reads WARES again.</div>';
+  }
+}
+
 var skipped = SH.skipList();
 if (skipped.length) {
   html += '<div style="margin-top:8px;font-family:' + SERIF + ';font-size:11px;color:' + MUTED + ';">Skipped: ';
