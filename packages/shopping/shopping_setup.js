@@ -736,7 +736,8 @@ SH.riftDone = function () {
 // the rift's new total for that item, without reading it again.
 SH.riftTotal = function (name, total) {
   var k = SH.riftItemOf(name), was = SH.rift[k];
-  SH.rift[k] = [Math.max(0, Number(String(total).replace(/,/g, "")) || 0), was ? was[1] : ""];
+  // New to the rift: a known commodity is filed under Commodities (10 leather, Ricardo).
+  SH.rift[k] = [Math.max(0, Number(String(total).replace(/,/g, "")) || 0), was && was[1] ? was[1] : (SH.isCommodity(k) ? "Commodities" : "")];
   SH.saveRift();
   run_function("shopping_render", [], "shopping");
 };

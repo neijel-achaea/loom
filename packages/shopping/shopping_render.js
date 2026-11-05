@@ -183,7 +183,7 @@ if (mNames.length || wShops.length || SH.scan) {
       var wl = {}, inRift = {};
       for (var mi2 in SH.mins) if (SH.mins.hasOwnProperty(mi2)) wl[SH.commodityOf(mi2)] = mi2;
       // Your own stock: the rift's Commodities, by the commodity each one is.
-      for (var ri in SH.rift) if (SH.rift.hasOwnProperty(ri) && SH.key(SH.rift[ri][1]) === "commodities") inRift[SH.commodityOf(ri)] = ri;
+      for (var ri in SH.rift) if (SH.rift.hasOwnProperty(ri) && SH.isCommodity(ri)) inRift[SH.commodityOf(ri)] = ri;
       html += '<table style="border-collapse:collapse;width:100%;margin-top:4px;font-family:' + MONO + ';font-size:10px;">';
       html += '<tr>' + ['commodity', 'best offer', 'stock', 'rift', 'cheapest shop'].map(function (h, i) { return '<th style="text-align:' + (i ? 'right' : 'left') + ';font-weight:normal;color:' + MUTED + ';padding:2px 4px;border-bottom:1px solid ' + RULE + ';">' + h + '</th>'; }).join('') + '</tr>';
       for (var mr = 0; mr < mNames.length; mr++) {
