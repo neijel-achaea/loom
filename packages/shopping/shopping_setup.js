@@ -607,6 +607,18 @@ SH.riftSend = function () {
   if (SH.q || (SH.othersBusy() && Date.now() - r.at < SH.riftGiveUpMs)) return;
   r.sent = true; r.at = Date.now(); r.prompts = 0;
   send_command("ir", 1);
+  SH.riftTimer(SH.riftGiveUpMs);
+};
+// A reading also ends on its own a moment after its last line (longer while
+// a MORE is on its way), so one left open can't take in a later IR you type.
+SH.riftTimer = function (ms) {
+  clearTimeout(SH.riftT);
+  SH.riftT = setTimeout(function () {
+    var r = SH.r;
+    if (!r || !r.sent) return;
+    if (r.head) SH.riftDone();
+    else { SH.r = null; SH.say("the rift didn't answer (IR): try again in a moment.", "orange"); }
+  }, ms);
 };
 // One line while our reading is out; true when it's ours (to hide).
 SH.riftLine = function (line) {
@@ -615,8 +627,10 @@ SH.riftLine = function (line) {
   if (/^Glancing into your rift, you see:$/.test(line)) { r.head = true; r.prompts = 0; return true; }
   if (!r.head) return false;
   r.prompts = 0;
-  if (/^Type MORE if you wish to continue/.test(line)) { r.more = true; r.pages++; send_command("more", 1); return true; }
+  // Nexus shows the pager as "[Type MORE if you wish to continue reading. (67% shown)]".
+  if (/^\[?Type MORE if you wish to continue/.test(line)) { r.more = true; r.pages++; send_command("more", 1); SH.riftTimer(8000); return true; }
   r.more = false;
+  SH.riftTimer(2500);
   if (/^-{20,}$/.test(line)) { r.rules++; if (r.rules >= 2) setTimeout(SH.riftDone, 0); return true; }
   var re = /\[\s*([\d,]+)\]\s+(.+?)(?=\s+\[|\s*$)/g, m, any = false;
   while ((m = re.exec(line)) !== null) { r.rows[SH.key(m[2])] = [Number(m[1].replace(/,/g, "")), r.cat]; any = true; }
@@ -642,6 +656,7 @@ SH.riftDone = function () {
   var r = SH.r;
   if (!r) return;
   SH.r = null;
+  clearTimeout(SH.riftT);
   var n = 0;
   for (var k in r.rows) if (r.rows.hasOwnProperty(k)) n++;
   if (!n) { SH.say("read your rift but found nothing in it.", "orange"); return; }
