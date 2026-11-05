@@ -426,7 +426,7 @@ SH.setHere = function (shop) {
 // click, shown only in that item's shop. What the game hands over comes
 // off the list (received).
 SH.buyCmd = function (it) {
-  if (it.shop === SH.MKT) return "cm buy " + it.n + " " + it.word + " for " + SH.mktFill(it.word, it.n).max;
+  if (it.shop === SH.MKT) return "cm buy " + it.n + " " + SH.cmWord(it.word) + " for " + SH.mktFill(it.word, it.n).max;
   return "buy " + it.n + " " + it.word;
 };
 SH.buy = function (it) {
@@ -981,6 +981,16 @@ for (var shMc in shMk) {
   SH.market[SH.key(shMc)] = { at: Number(shMk[shMc].at) || 0, name: String(shMk[shMc].name || shMc).slice(0, 40), asks: shMa };
 }
 SH.saveMarket = function () { SH.saveTable("shopping_market", SH.market); };
+// The word CM LIST and CM BUY take, where the commodity's name won't do
+// ("CM LIST stag's horn" lists everything; HORN works, Ricardo).
+SH.cmWords = { "stag's horn": "horn" };
+SH.cmWord = function (comm) { var k = SH.key(comm); return SH.cmWords[k] || k; };
+// The commodity a name in the market's lines means: its own, or by its CM word.
+SH.cmComm = function (name) {
+  var k = SH.key(name);
+  for (var c in SH.cmWords) if (SH.cmWords.hasOwnProperty(c) && SH.cmWords[c] === k) return c;
+  return k;
+};
 // Buying n from the asks read: the ceiling to give CM BUY (the dearest ask
 // needed), the average price, and how much the read offers held in all.
 SH.mktFill = function (comm, n) {
@@ -997,12 +1007,12 @@ SH.mktFill = function (comm, n) {
 SH.m = null;
 SH.mktStart = function (comm) {
   var exp = SH.m && SH.m.expect;
-  var hidden = !!(exp && (comm === "" ? false : SH.key(comm) === exp));
+  var hidden = !!(exp && (comm === "" ? false : SH.cmComm(comm) === exp));
   // SCAN asked for one and the game listed everything (CM LIST stag's horn,
   // Ricardo): hidden, nothing kept, the commodity named at the end.
   var junk = !!(exp && comm === "");
   if (junk) { hidden = true; if (SH.scan) SH.scan.failed.push(exp); }
-  SH.m = { comm: SH.key(comm), hidden: hidden, junk: junk, at: Date.now(), head: false, rules: 0, rows: {}, names: {} };
+  SH.m = { comm: SH.cmComm(comm), hidden: hidden, junk: junk, at: Date.now(), head: false, rules: 0, rows: {}, names: {} };
   SH.mktTimer(4000);
   return hidden;
 };
@@ -1022,7 +1032,7 @@ SH.mktLine = function (line) {
   if (/^\[?Type MORE if you wish to continue/.test(line)) { setTimeout(SH.mktDone, 0); return M.hidden; }
   var r = /^(.+?)\s+([\d,]+)gp\s+([\d,]+)\s*$/.exec(line);
   if (!r) return false;
-  var k = SH.key(r[1]);
+  var k = SH.cmComm(r[1]);
   (M.rows[k] || (M.rows[k] = [])).push([Number(r[2].replace(/,/g, "")), Number(r[3].replace(/,/g, ""))]);
   M.names[k] = r[1].trim();
   SH.mktTimer(1500);
@@ -1084,7 +1094,7 @@ SH.scanNext = function () {
   SH.say("[" + S.i + "/" + S.names.length + "] checking " + c + "…");
   SH.eq = false; S.sentAt = Date.now();          // until the game says it's back
   SH.m = { expect: SH.key(c), at: Date.now() };     // its listing is ours to hide
-  send_command("cm list " + c, 1);
+  send_command("cm list " + SH.cmWord(c), 1);
   clearTimeout(SH.mT);
   SH.mT = setTimeout(function () { if (SH.m && SH.m.expect) { SH.m = null; SH.scanNext(); } }, 5000);
   run_function("shopping_render", [], "shopping");
@@ -1098,7 +1108,7 @@ SH.mktAgree = function (n, comm, total) {
   var b = SH.lastBuy, it = b && b.it;
   if (!it || it.shop !== SH.MKT || Date.now() - b.at > 15000) return;
   var lim = SH.mktFill(it.word, it.n).max * n;
-  if (SH.key(comm) !== SH.key(it.word) || n > it.n || total > lim) { SH.say("not agreeing: " + n + " " + comm + " for " + SH.money(total) + " isn't what was asked (" + it.n + " at most " + SH.money(SH.mktFill(it.word, it.n).max) + " each). Type AGREE yourself if it's right.", "orange"); return; }
+  if (SH.cmComm(comm) !== SH.key(it.word) || n > it.n || total > lim) { SH.say("not agreeing: " + n + " " + comm + " for " + SH.money(total) + " isn't what was asked (" + it.n + " at most " + SH.money(SH.mktFill(it.word, it.n).max) + " each). Type AGREE yourself if it's right.", "orange"); return; }
   send_command("agree", 1);
 };
 SH.mktMissed = function (comm) {
