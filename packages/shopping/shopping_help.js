@@ -13,11 +13,18 @@ var hlRows = [
   ["SHOPPING HERE [shop|number]", "which shop you're in; with a shop: this room is it (when its room name differs)"],
   ["SHOPPING SKIP [shop|number]", "leave a shop out: its items move to their next cheapest shops (× on its line); bare: the skipped ones"],
   ["SHOPPING UNSKIP <shop>|ALL", "use a skipped shop again (or click it under the list)"],
+  ["SHOPPING MIN", "read your rift (IR, hidden): every minimum, and what's under its minimum"],
+  ["SHOPPING MIN <item> [n|OFF]", "an item's minimum in the rift (its name as IR shows it), for buying; with n set it, OFF clear it. None by default"],
+  ["SHOPPING WATCH [<category> ON|OFF]", "a rift category (Herbs, Ingredients…) also takes harvesting's or gathering's minimums for items you set none for; all off by default; bare: the categories"],
+  ["SHOPPING RESTOCK", "read your rift and put everything under its minimum on the list (minimum less stock), each looked up in turn; a word you PICKed for before is picked again (also RESTOCK in the tab)"],
+  ["SHOPPING WORD [<item> = <word>]", "the game's word for a rift item when it differs (inks: red ink = redink, built in); <item> = alone clears yours; bare: your words"],
+  ["WARES (the game's)", "in a city's commodity shop: Shopping notes what it sells and at what price; RESTOCK then lists rift commodities under the cheapest shop that sells them, WALK goes there (PATH FIND), BUY buys"],
   ["SHOPPING GOAL", "with coffers: the list's gold as a coffers goal (GOAL by the total; only what isn't a goal yet)"],
   ["SHOPPING CLEAR CONFIRM", "wipe the whole list"],
   ["SHOPPING RESET", "reload the saved list, redraw the tab"],
   ["SHOPPING DEBUG", "internal state"],
   ["Prices are the directory's: a shopkeeper's policy can change them. WALK and BUY send one command per click; nothing runs on its own."],
+  ["With ledger installed, a Restock reminder appears when an item of yours falls under 90% of its minimum, and goes once all are back at it (link shopping-ledger)."],
   ["The tab is a custom tab named Shopping."]
 ];
 var hlW = 0;

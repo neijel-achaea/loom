@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.0.10.*
+*This page describes loom 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -62,6 +62,9 @@ Every link:
 | `standings-login` | [standings](standings.md) | [social](social.md) | Your standing's icon in the 'has awoken' notice |
 | `patrolling-room` | [patrolling](patrolling.md) | [room](room.md) | Shrines and totems in Here coloured by their god's stance |
 | `harvesting-ledger` | [harvesting](harvesting.md) | [ledger](ledger.md) | A harvest run reminder in the ledger when plant stock runs low |
+| `shopping-ledger` | [shopping](shopping.md) | [ledger](ledger.md) | A Restock reminder in the ledger when your own minimums run low |
+| `harvesting-shopping` | [harvesting](harvesting.md) | [shopping](shopping.md) | In watched Shopping categories, harvesting's plant minimums count for buying |
+| `gathering-shopping` | [gathering](gathering.md) | [shopping](shopping.md) | In watched Shopping categories, gathering's material minimums count for buying |
 | `talpieces-ledger` | [talpieces](talpieces.md) | [ledger](ledger.md) | Ledger reminders for complete talisman sets and spare pieces |
 | `magi-ledger` | [magi](magi.md) | [ledger](ledger.md) | A collect pearls reminder in the ledger when crystals run low |
 | `sigils-room` | [sigils](sigils.md) | [room](room.md) | Monoliths in Here; warns of a city room without one, or one outside the city |

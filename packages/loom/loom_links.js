@@ -324,6 +324,64 @@ L.addLink({
   }
 });
 
+// #440 shopping -> ledger: one Restock reminder for shopping's own minimums
+// (items no other package keeps), as harvesting's: it appears when any falls
+// under 90% of its minimum and goes once all are back at it.
+L.addLink({
+  id: "shopping-ledger", src: "shopping", dst: "ledger", issue: 440,
+  desc: "A Restock reminder in the ledger when your own minimums run low",
+  update: function () {
+    var sh = client.loom.shopping, lg = client.loom.ledger;
+    if (!sh || !sh.look || !lg || !lg.entry) return;
+    var lv = sh.look.levels(), under = [], urgent = false;
+    for (var i = 0; i < lv.length; i++) {
+      if (lv[i].stock < lv[i].min) under.push(lv[i]);
+      if (lv[i].stock < lv[i].min * L.harvestTrigger) urgent = true;
+    }
+    if (!under.length) { lg.entry.withdraw("shopping", "restock"); return; }
+    if (!urgent && !lg.entry.get("shopping", "restock")) return;
+    under.sort(function (a, b) { return a.stock / a.min - b.stock / b.min; });
+    var fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); };
+    var bits = [];
+    for (var j = 0; j < under.length; j++) bits.push(under[j].item + " " + fmt(under[j].stock) + "/" + fmt(under[j].min));
+    lg.entry.upsert({ source: "shopping", key: "restock", text: "Restock: " + bits.join(", ") });
+  }
+});
+
+// #440 harvesting and gathering -> shopping: in the categories you WATCH in
+// shopping (none by default), their minimums count for the plants and
+// materials you set no shopping minimum for, so RESTOCK can buy what's short.
+// Answers rift.owner(rift name) -> { by, min, stock, cmd } and rift.short ->
+// [{ item, stock, min, by }] with item the name in the rift.
+L.riftOwner = function (by, look, name, cmd) {
+  if (!look || !look.levels) return undefined;
+  var lv = look.levels();
+  for (var i = 0; i < lv.length; i++) if ((lv[i].rift || lv[i].plant) === name) return { by: by, min: lv[i].min, stock: lv[i].stock, cmd: cmd + " " + lv[i].plant + " <n>" };
+  return undefined;
+};
+L.riftShort = function (by, look) {
+  if (!look || !look.levels) return undefined;
+  var lv = look.levels(), out = [];
+  for (var i = 0; i < lv.length; i++) if (lv[i].stock < lv[i].min) out.push({ item: lv[i].rift || lv[i].plant, stock: lv[i].stock, min: lv[i].min, by: by });
+  return out;
+};
+L.addLink({
+  id: "harvesting-shopping", src: "harvesting", dst: "shopping", issue: 440,
+  desc: "In watched Shopping categories, harvesting's plant minimums count for buying",
+  answers: {
+    "rift.owner": function (name) { var h = client.loom.harvesting; return h ? L.riftOwner("harvesting", h.look, name, "HARVESTING MIN") : undefined; },
+    "rift.short": function () { var h = client.loom.harvesting; return h ? L.riftShort("harvesting", h.look) : undefined; }
+  }
+});
+L.addLink({
+  id: "gathering-shopping", src: "gathering", dst: "shopping", issue: 440,
+  desc: "In watched Shopping categories, gathering's material minimums count for buying",
+  answers: {
+    "rift.owner": function (name) { var g = client.loom.gathering; return g ? L.riftOwner("gathering", g.look, name, "GATHERING MIN") : undefined; },
+    "rift.short": function () { var g = client.loom.gathering; return g ? L.riftShort("gathering", g.look) : undefined; }
+  }
+});
+
 // #54 talpieces -> ledger: a reminder per colour whose set is complete (all
 // seven commons and its rare), and one standing reminder of spare pieces to
 // trade away (Ricardo), with a buffer so a single extra piece doesn't make
