@@ -998,7 +998,11 @@ SH.m = null;
 SH.mktStart = function (comm) {
   var exp = SH.m && SH.m.expect;
   var hidden = !!(exp && (comm === "" ? false : SH.key(comm) === exp));
-  SH.m = { comm: SH.key(comm), hidden: hidden, at: Date.now(), head: false, rules: 0, rows: {}, names: {} };
+  // SCAN asked for one and the game listed everything (CM LIST stag's horn,
+  // Ricardo): hidden, nothing kept, the commodity named at the end.
+  var junk = !!(exp && comm === "");
+  if (junk) { hidden = true; if (SH.scan) SH.scan.failed.push(exp); }
+  SH.m = { comm: SH.key(comm), hidden: hidden, junk: junk, at: Date.now(), head: false, rules: 0, rows: {}, names: {} };
   SH.mktTimer(4000);
   return hidden;
 };
@@ -1030,6 +1034,7 @@ SH.mktDone = function () {
   SH.m = null;
   clearTimeout(SH.mT);
   var got = 0;
+  if (M.junk) M.rows = {};
   for (var k in M.rows) {
     if (!M.rows.hasOwnProperty(k)) continue;
     var a = M.rows[k].sort(function (x, y) { return x[0] - y[0]; }).slice(0, 12);
@@ -1058,14 +1063,19 @@ SH.scanStart = function () {
   if (SH.scan) { SH.say("already scanning (" + SH.scan.i + " of " + SH.scan.names.length + ").", "orange"); return; }
   var names = SH.scanNames();
   if (!names.length) { SH.say("no commodities known yet: read WARES in a commodity shop, or CM LIST one.", "orange"); return; }
-  SH.scan = { names: names, i: 0, at: Date.now() };
+  SH.scan = { names: names, i: 0, at: Date.now(), failed: [] };
   SH.say("scanning the market for " + names.length + " commodities (CM LIST each, hidden)…");
   SH.scanNext();
 };
 SH.scanNext = function () {
   var S = SH.scan;
   if (!S) return;
-  if (S.i >= S.names.length) { SH.scan = null; SH.say("market scan done: " + S.names.length + " commodities in " + Math.round((Date.now() - S.at) / 1000) + "s.", "lime"); run_function("shopping_render", [], "shopping"); return; }
+  if (S.i >= S.names.length) {
+    SH.scan = null;
+    SH.say("market scan done: " + S.names.length + " commodities in " + Math.round((Date.now() - S.at) / 1000) + "s." + (S.failed.length ? " Couldn't list: " + S.failed.join(", ") + " (the market listed everything for that word)." : ""), S.failed.length ? "orange" : "lime");
+    run_function("shopping_render", [], "shopping");
+    return;
+  }
   // CM LIST takes equilibrium (Ricardo): the next one waits for it (GMCP
   // Char.Vitals eq), and for any other reading to end.
   var waitEq = SH.eq === false && Date.now() - (S.sentAt || 0) < 10000;    // never stuck on it

@@ -178,7 +178,7 @@ if (mNames.length || wShops.length || SH.scan) {
       // Your own stock: the rift's Commodities, by the commodity each one is.
       for (var ri in SH.rift) if (SH.rift.hasOwnProperty(ri) && SH.key(SH.rift[ri][1]) === "commodities") inRift[SH.commodityOf(ri)] = ri;
       html += '<table style="border-collapse:collapse;width:100%;margin-top:4px;font-family:' + MONO + ';font-size:10px;">';
-      html += '<tr>' + ['commodity', 'best offer', 'stock', 'cheapest shop', 'rift'].map(function (h, i) { return '<th style="text-align:' + (i ? 'right' : 'left') + ';font-weight:normal;color:' + MUTED + ';padding:2px 4px;border-bottom:1px solid ' + RULE + ';">' + h + '</th>'; }).join('') + '</tr>';
+      html += '<tr>' + ['commodity', 'best offer', 'stock', 'rift', 'cheapest shop'].map(function (h, i) { return '<th style="text-align:' + (i ? 'right' : 'left') + ';font-weight:normal;color:' + MUTED + ';padding:2px 4px;border-bottom:1px solid ' + RULE + ';">' + h + '</th>'; }).join('') + '</tr>';
       for (var mr = 0; mr < mNames.length; mr++) {
         var key = mNames[mr], MK = SH.market[key], best = MK.asks[0], shopBest = null;
         for (var ws2 in SH.wares) if (SH.wares.hasOwnProperty(ws2)) { var e2 = SH.wares[ws2].items[key]; if (e2 && e2[0] > 0 && e2[1] !== 0 && (!shopBest || e2[0] < shopBest.p)) shopBest = { p: e2[0], c: SH.wares[ws2].area || ws2 }; }
@@ -187,10 +187,10 @@ if (mNames.length || wShops.length || SH.scan) {
         var mine2 = wl[key];
         html += '<tr class="loom-sh-row"><td style="padding:2px 4px;border-bottom:1px dotted ' + RULE + ';font-family:' + SERIF + ';font-size:12px;color:' + (mine2 ? TXT : MUTED) + ';"' + (mine2 ? ' title="you keep a minimum of ' + esc(mine2) + '"' : '') + '>' + esc(MK.name) + (mine2 ? ' <span style="color:' + AMBER + ';">&bull;</span>' : '') + '</td>' +
           '<td title="' + esc('cheapest offers (read ' + agoM(MK.at) + ' ago):\n' + depth) + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + mcol + ';">' + SH.n(best[0]) + '</td>' +
-          '<td style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + MUTED + ';">' + SH.n(best[1]) + '</td>' +
-          '<td style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + (shopBest ? TXT : DIM) + ';white-space:nowrap;">' + (shopBest ? SH.n(shopBest.p) + ' <span style="font-family:' + SERIF + ';color:' + MUTED + ';">' + esc(shopBest.c) + '</span>' : '&mdash;') + '</td>';
+          '<td style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + MUTED + ';">' + SH.n(best[1]) + '</td>' ;
         var rk = inRift[key], rn = rk ? SH.rift[rk][0] : null, rmin = rk && SH.mins[rk] !== undefined ? SH.mins[rk] : null, rlow = rmin !== null && rn < rmin;
-        html += '<td title="' + esc(rk ? rk + ' in your rift' + (rmin !== null ? ', minimum ' + SH.n(rmin) : '') : 'none in your rift (when it was last read)') + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + (rn === null ? DIM : (rlow ? ORG : TXT)) + ';">' + (rn === null ? '&mdash;' : SH.n(rn)) + '</td></tr>';
+        html += '<td title="' + esc(rk ? rk + ' in your rift' + (rmin !== null ? ', minimum ' + SH.n(rmin) : '') : 'none in your rift (when it was last read)') + '" style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + (rn === null ? DIM : (rlow ? ORG : TXT)) + ';">' + (rn === null ? '&mdash;' : SH.n(rn)) + '</td>';
+        html += '<td style="text-align:right;padding:2px 4px;border-bottom:1px dotted ' + RULE + ';color:' + (shopBest ? TXT : DIM) + ';white-space:nowrap;">' + (shopBest ? SH.n(shopBest.p) + ' <span style="font-family:' + SERIF + ';color:' + MUTED + ';">' + esc(shopBest.c) + '</span>' : '&mdash;') + '</td></tr>';
       }
       html += '</table>';
       html += '<div style="margin-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">The cheapest offer per commodity, green when it beats every shop, orange when a shop is cheaper; hover it for the next offers. <i>Rift</i>: yours, orange under your minimum. Click <i>Delos market</i> to walk there: CM BUY works only in the market.</div>';
