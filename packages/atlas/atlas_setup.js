@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.10.1", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.11.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -68,7 +68,7 @@ AT.icons = {
   shrine: ["shrine", [["f", "M2.5 6 L8 2 L13.5 6 Z M3.5 7h9v1.2h-9z M4.6 9h1.8v4H4.6z M9.6 9h1.8v4H9.6z M2.8 13.6h10.4v1.6H2.8z"]]],
   sleep: ["a place to sleep", [["f", "M10.5 2 A6.2 6.2 0 1 0 14.2 11.3 A5 5 0 1 1 10.5 2 Z"]]],
   bank: ["bank", [["f", "M2.5 11.5h11v2.6h-11z M3.5 7.8h9v2.6h-9z M4.8 4.1h6.4v2.6H4.8z"]]],
-  shop: ["shop", [["f", "M3.5 6h9l1.2 8.5H2.3z"], ["s", "M5.8 6 V4.6 a2.2 2.2 0 0 1 4.4 0 V6"]]],
+  shop: ["shop", [["f", "M2.5 7.6h11V14h-11z M2 5h12v2.2H2z"], ["w", "M7.3 5h1.4v9H7.3z"], ["s", "M8 4.8 C6.2 1.2 3.4 2.8 5.6 4.8 M8 4.8 C9.8 1.2 12.6 2.8 10.4 4.8"]]],
   craft: ["crafting", [["f", "M2.5 3.5h8.5v3.5H2.5z M5.6 7h2.4v7.5H5.6z M11 4.3h2.5v1.9H11z"]]],
   harvest: ["harvesting", [["f", "M2.5 13.5 Q2.5 2.5 13.5 2.5 Q13.5 13.5 2.5 13.5 Z"], ["w", "M3.6 13.2 L11.5 5.3 L12.1 5.9 L4.2 13.8 Z"]]],
   hunt: ["hunting", [["f", "M11.6 1.8 H14.2 V4.4 L6.6 12 L4 9.4 Z"], ["s", "M2.6 9.6 L6.4 13.4 M2.2 13.8 L4.4 11.6"]]],
@@ -80,6 +80,25 @@ AT.icons = {
 AT.iconAlias = { fish: "fishing", fishing: "fishing", temple: "shrine", altar: "shrine", inn: "sleep", bed: "sleep", rest: "sleep", gold: "bank", money: "bank",
   store: "shop", buy: "shop", forge: "craft", crafting: "craft", plants: "harvest", herbs: "harvest", gather: "harvest", hunting: "hunt", bash: "hunt",
   warning: "danger", skull: "danger", fav: "star", favourite: "star", favorite: "star", hidden: "secret", key: "secret" };
+// The crowdmap's room features (#468), shown in the bottom right corner of
+// their room, in the order of this list when a room has several (all of
+// them on hover). Same 16x16 drawing as the icons above.
+AT.CACHE_F = 2;
+AT.features = {
+  bank: ["bank", AT.icons.bank[1]],
+  postoffice: ["post office", [["f", "M1.8 4h12.4v8.5H1.8z"], ["w", "M2.6 4.8 L8 9 L13.4 4.8 V5.9 L8 10.1 L2.6 5.9 Z"]]],
+  news: ["news room", [["f", "M2.5 3h9.5v10.5H2.5z M12 6h1.8v6.3a0.9 0.9 0 0 1 -1.8 0z"], ["w", "M4 5h6.5v2H4z M4 8.5h6.5v1H4z M4 10.7h6.5v1H4z"]]],
+  commodityshop: ["commodities market", [["f", "M2.2 4.5h11.6v9.5H2.2z"], ["w", "M3.3 5.6h9.4v1.1H3.3z M3.3 11.8h9.4v1.1H3.3z M7.4 6.7h1.2v5.1H7.4z"]]],
+  locksmith: ["locksmith", AT.icons.secret[1]],
+  shop: ["shop", AT.icons.shop[1]],
+  harbour: ["harbour", [["f", "M6.5 3 a1.5 1.5 0 1 0 3 0 a1.5 1.5 0 1 0 -3 0 Z"], ["s", "M8 4.5 V13.6 M5 7 H11 M2.8 9.6 Q3.4 13.6 8 13.6 Q12.6 13.6 13.2 9.6"]]],
+  ferry: ["ferry", [["f", "M1.5 9.5h13l-2.2 3.8H3.7Z M7.4 2.5h1.2v6.5H7.4Z M8.6 3 L12.5 8.4 H8.6Z"]]],
+  wilderness: ["way into the wilderness", [["f", "M8 1.5 L12.5 7.5 H10 L13.5 12 H9 V14.5 H7 V12 H2.5 L6 7.5 H3.5 Z"]]],
+  subdivision: ["way into a subdivision", [["f", "M8 1.5 L9.6 6.4 L14.5 8 L9.6 9.6 L8 14.5 L6.4 9.6 L1.5 8 L6.4 6.4 Z"]]],
+  arena: ["arena", [["s", "M3 3 L13 13 M13 3 L3 13 M2.2 10.6 L5.4 13.8 M10.6 13.8 L13.8 10.6"]]],
+  stronghold: ["stronghold", [["f", "M3.5 2h2v1.8H7V2h2v1.8h1.5V2h2v4.5L11 8v6H5V8L3.5 6.5Z"], ["w", "M7 10.5h2V14H7z"]]],
+  grate: ["grate", [["f", "M2 2h12v12H2z"], ["w", "M4 3.5h1.4v9H4z M7.3 3.5h1.4v9H7.3z M10.6 3.5h1.4v9h-1.4z"]]]
+};
 AT.iconOf = function (w) { w = String(w || "").toLowerCase(); return AT.icons[w] ? w : (AT.iconAlias[w] || ""); };
 AT.marks = {};
 var atMk = AT.readJson("atlas_marks");
@@ -143,15 +162,17 @@ function atFloat(v) { var n = Number(v); return isFinite(n) ? n : 0; }
 // ---- The map ---------------------------------------------------------
 // In memory and in the cache, the crowdmap is kept compact:
 //   { v: version, at: ms, areas: { id: name },
-//     rooms: { id: [area, x, y, z, name, env, exits, specials, fromGame] },
-//     (fromGame 1: a room the game's own map added, see "The game's own map")
+//     rooms: { id: [area, x, y, z, name, env, exits, specials, fromGame, features] },
+//     (fromGame 1: a room the game's own map added, see "The game's own map";
+//     features: the crowdmap's feature tags, e.g. ["bank"], or 0)
+//     f: AT.CACHE_F, the shape of this cache (an older shape is downloaded again)
 //     env: { envId: [r, g, b] } }
 // exits = { direction: room id }; specials = { command: room id } or 0.
 // Everything from the download is treated as data and checked as it's
 // copied: ids are positive whole numbers, names are strings, capped.
 AT.compact = function (src, colors, v) {
   if (!Array.isArray(src)) return null;
-  var out = { v: String(v || ""), at: Date.now(), areas: {}, rooms: {}, env: {}, n: 0 };
+  var out = { v: String(v || ""), f: AT.CACHE_F, at: Date.now(), areas: {}, rooms: {}, env: {}, n: 0 };
   for (var i = 0; i < src.length; i++) {
     var A = src[i];
     if (!A || typeof A != "object") continue;
@@ -175,7 +196,15 @@ AT.compact = function (src, colors, v) {
         t = atNum(r.specialExits[d]);
         if (t > 0) { if (!sp) sp = {}; sp[String(d).slice(0, 60)] = t; }
       }
-      out.rooms[id] = [aid, atFloat(r.x), atFloat(r.y), atFloat(r.z), String(r.name || "").slice(0, 120), atNum(r.env), ex, sp];
+      // Features the mappers tagged (userData "feature-bank": "true"), only
+      // the kinds Atlas has a picture for (#468).
+      var ft = 0;
+      if (r.userData && typeof r.userData == "object") for (d in r.userData) {
+        if (!r.userData.hasOwnProperty(d) || String(r.userData[d]) !== "true" || d.indexOf("feature-") !== 0) continue;
+        var fk = d.slice(8);
+        if (AT.features[fk]) { if (!ft) ft = []; ft.push(fk); }
+      }
+      out.rooms[id] = [aid, atFloat(r.x), atFloat(r.y), atFloat(r.z), String(r.name || "").slice(0, 120), atNum(r.env), ex, sp, 0, ft];
       out.n++;
     }
   }
@@ -192,7 +221,7 @@ AT.compact = function (src, colors, v) {
 AT.room = function (id) {
   var R = AT.map && AT.map.rooms[id];
   if (!R) return null;
-  return { id: atNum(id), a: R[0], x: R[1], y: R[2], z: R[3], n: R[4], e: R[5], ex: R[6] || {}, sp: R[7] || {} };
+  return { id: atNum(id), a: R[0], x: R[1], y: R[2], z: R[3], n: R[4], e: R[5], ex: R[6] || {}, sp: R[7] || {}, ft: R[9] || null };
 };
 // The room numbers of an area, built once per map.
 AT.areaRooms = function (aid) {
@@ -275,7 +304,9 @@ AT.load = function (force) {
     if (cached && !(cached.rooms && cached.areas && typeof cached.rooms == "object")) cached = null;
     return AT.fetchText(AT.base + "version.txt").then(function (t) { return String(t).trim().slice(0, 20); }, function () { return null; }).then(function (v) {
       if (gen !== AT.gen) return;
-      if (cached && !force && (v === null || v === cached.v)) {
+      // A cache from before features (#468) is downloaded again once, unless
+      // the community map can't be reached.
+      if (cached && !force && (v === null || (v === cached.v && cached.f === AT.CACHE_F))) {
         AT.useMap(cached, v === null ? "cache (the community map couldn't be checked for updates)" : "cache");
         return;
       }
