@@ -174,7 +174,10 @@ if (watchedN && S.prev !== null) {
   }
 }
 html += '<div style="display:flex;justify-content:space-between;margin-top:6px;color:' + MUTED + ';">';
-html += '<span>' + (S.qwTotal ? S.lastCount + ' visible &middot; ' + S.qwHidden + ' hidden &middot; ' + S.qwTotal + ' total' : '') + '</span>';
+// QW's "(N total)" counts only the people it lists; the hidden come on top
+// (Ricardo's QW, 2026-11-05: 32 names, "Plus another 6 ... (32 total)"). So
+// the game's total is the visible count, and online is visible + hidden (#470).
+html += '<span>' + (S.qwTotal ? S.qwTotal + ' visible &middot; ' + (S.qwHidden || 0) + ' hidden &middot; ' + (S.qwTotal + (S.qwHidden || 0)) + ' online' : '') + '</span>';
 html += '<span>' + (polling ? (dt ? 'last poll ' + p2(dt.getHours()) + ':' + p2(dt.getMinutes()) + ':' + p2(dt.getSeconds()) : '') : '<span style="color:#e0a05a;">polling off</span>') + '</span></div>';
 html += '</div>';
 // The page style: the fold, and the panel filling the tab however few rows it
