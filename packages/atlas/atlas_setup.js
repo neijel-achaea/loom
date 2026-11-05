@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.10.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.10.1", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -484,10 +484,13 @@ AT.rebuildKnown = function () {
 // Room.Info: where you are; an area's explored list when it comes with it.
 AT.roomInfo = function (g) {
   var id = atNum(g.num);
-  if (!(id > 0)) return;
   // The wilderness (a Room.Info with `ohmap`, as nexMap tells it): millions
-  // of rooms on no map; the game draws its own, which Atlas shows.
+  // of rooms on no map; the game draws its own, which Atlas shows. Checked
+  // before the room number: aboard a vessel the game sends num -2 (the ship
+  // moves, so its rooms have no fixed place) with the ohmap of the water it
+  // floats on, and the stock Map tab shows the wilderness there too (#466).
   if (g.ohmap !== undefined && g.ohmap !== null && String(g.ohmap) !== "") { AT.wildRoom(id, g); return; }
+  if (!(id > 0)) return;
   if (AT.here && AT.here.wild) { AT.wildMap = null; AT.wildPrev = null; AT.wildUnder = null; }     // left the wilderness
   var co = String(g.coords || "").split(",");
   var aid = atNum(co[0]);

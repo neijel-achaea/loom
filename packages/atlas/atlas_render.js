@@ -149,7 +149,7 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
   // Title: Atlas, the area, the controls.
   html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;border-bottom:1px solid ' + DEEP + ';padding-bottom:3px;">';
   html += '<span style="display:flex;align-items:baseline;gap:8px;min-width:0;"><span style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:2px;font-size:15px;color:' + AMBER + ';flex:none;">Atlas</span>';
-  if (WILD || aid) html += '<span style="font-family:' + SERIF + ';font-size:13px;color:' + TXT + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(WILD ? "the wilderness" : areaTitle(aid)) + '</span>';
+  if (WILD || aid) html += '<span style="font-family:' + SERIF + ';font-size:13px;color:' + TXT + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(WILD ? (/^vessel$/i.test(H.env || "") ? "aboard a vessel" : "the wilderness") : areaTitle(aid)) + '</span>';
   html += '</span><span style="display:flex;align-items:baseline;gap:4px;flex:none;">';
   if (M && !WILD) {
     html += chip('&minus;', 'zoom(1.25)', 'zoom out (or the mouse wheel)') + chip('+', 'zoom(0.8)', 'zoom in (or the mouse wheel)');
