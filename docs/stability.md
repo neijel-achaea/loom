@@ -21,7 +21,7 @@ These can change in any release, so don't build on them:
 - **Wording**: the text of notices, HELP descriptions, status lines and DEBUG output. The colour of a notice keeps its meaning (cyan information, lime done, orange wrong, red alarm), not its words.
 - **Internal state**: anything under `client.loom.<package>` that isn't listed under [For scripts](#for-scripts), helper functions, function names inside a package, the order things happen in.
 - **Old spellings**: commands renamed before 1.0 (`COFFERS`, `STANDINGS`, `LEDGER` and `DMGCHART REBUILD`, now `RESET`) answered with a notice until 1.0; they were removed in Loom 1.1.
-- **Packages still at 0.x**: a package added during 1.x starts at 0.1.0 and is outside the promise until it reaches 1.0.0 in a Loom release (`LOOM` shows each package's version). None is at 0.x in Loom 1.1: the six added since 1.0 (atlas, waypoints, questbook, shopping, gathering, remedies) and roleplay, rewritten since, became 1.0.0 with it.
+- **Packages still at 0.x**: a package added during 1.x starts at 0.1.0 and is outside the promise until it reaches 1.0.0 in a Loom release (`LOOM` shows each package's version). In Loom 1.1, waypoints, questbook, gathering and remedies (added since 1.0) and roleplay (rewritten since) became 1.0.0; **atlas** and **shopping** are still at 0.x.
 - **The game itself**: when Achaea rewords a line or changes an ability, Loom follows the game, even if a key or a notice changes with it.
 - **Debug and development commands**: `DEBUG`, `LOOM PERF` output, `FISHINGSTATS DEMO`, `PARTYCOMMS TEST` and the tools in `tools/`.
 

@@ -3,8 +3,10 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 1.0.0.*
+*This page describes atlas 0.11.0.*
 <!-- /loom:version -->
+
+*Atlas is still at 0.x: its commands and saved settings may still change in a 1.x release ([what 1.0 keeps stable](stability.md)).*
 
 ## What it is
 

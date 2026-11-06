@@ -3,8 +3,10 @@
 *A shopping list priced from the city's directory, the commodity shops and the Delos market, grouped by shop in a tab.*
 
 <!-- loom:version shopping -->
-*This page describes shopping 1.0.0.*
+*This page describes shopping 0.3.0.*
 <!-- /loom:version -->
+
+*Shopping is still at 0.x: its commands and saved settings may still change in a 1.x release ([what 1.0 keeps stable](stability.md)).*
 
 ## What it is
 
