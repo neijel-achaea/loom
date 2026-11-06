@@ -61,11 +61,11 @@ Each package keeps its own [semantic version](https://semver.org), in the regist
 - a change that breaks existing use (a removed or renamed command, a changed variable, an entry point that changed shape) waits for Loom 2.0, which bumps the first number. [What 1.0 keeps stable](../stability.md) says what counts;
 - a new package starts at 0.1.0, outside that promise, and becomes 1.0.0 in the Loom release that makes it stable.
 
-Every package became 1.0.0 in Loom 1.0. Every pull request that changes a package bumps its version once. Packages move independently of each other and of Loom's releases.
+Every package became 1.0.0 in Loom 1.0; waypoints, questbook, gathering, remedies and roleplay became 1.0.0 in Loom 1.1, while atlas and shopping stayed at 0.x. Every pull request that changes a package bumps its version once. Packages move independently of each other and of Loom's releases.
 
 **Before you merge**, check the change against [What 1.0 keeps stable](../stability.md): a new command or option is fine; renaming one, or a saved variable, is fine only with the old name still working (and, for a variable, migrated once, listed in [Saved variables](variables.md)).
 
-**The loom package is the exception:** it carries the suite's version. Between releases it takes patch bumps; when Loom X.Y is released it becomes X.Y.0 (Loom 1.0: 1.0.0).
+**The loom package is the exception:** it carries the suite's version. Between releases it takes patch bumps; when Loom X.Y is released it becomes X.Y.0 (Loom 1.0: 1.0.0). Loom 1.1 is released with loom 1.1.1: loom went to 1.1.0 early (#472, the shopping links), and a version can't go back. From here, loom stays 1.1.x until Loom 1.2 makes it 1.2.0.
 
 ## Definition of done
 

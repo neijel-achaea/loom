@@ -6,6 +6,8 @@
 *This page describes atlas 0.11.0.*
 <!-- /loom:version -->
 
+*Atlas is still at 0.x: its commands and saved settings may still change in a 1.x release ([what 1.0 keeps stable](stability.md)).*
+
 ## What it is
 
 Atlas draws the area you're in, one level at a time, in a custom tab named **Atlas**, as a replacement for the stock Map tab. The map comes from the **Achaea crowdmap**, the map players keep up to date for Mudlet's IRE mapper ([IRE-Mudlet-Mapping/AchaeaCrowdmap](https://github.com/IRE-Mudlet-Mapping/AchaeaCrowdmap)): over 30,000 rooms in some 500 areas, more complete than the game's own map. Room and area numbers are the game's, so Atlas knows where you are from the game's room information.

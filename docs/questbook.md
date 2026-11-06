@@ -3,7 +3,7 @@
 *Your own repeatable quests, written down as steps in a tab, ticked as you play.*
 
 <!-- loom:version questbook -->
-*This page describes questbook 0.5.3.*
+*This page describes questbook 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

@@ -21,7 +21,7 @@ These can change in any release, so don't build on them:
 - **Wording**: the text of notices, HELP descriptions, status lines and DEBUG output. The colour of a notice keeps its meaning (cyan information, lime done, orange wrong, red alarm), not its words.
 - **Internal state**: anything under `client.loom.<package>` that isn't listed under [For scripts](#for-scripts), helper functions, function names inside a package, the order things happen in.
 - **Old spellings**: commands renamed before 1.0 (`COFFERS`, `STANDINGS`, `LEDGER` and `DMGCHART REBUILD`, now `RESET`) answered with a notice until 1.0; they were removed in Loom 1.1.
-- **Packages still at 0.x**: a package added during 1.x starts at 0.1.0 and is outside the promise until it reaches 1.0.0 in a Loom release; its page says so.
+- **Packages still at 0.x**: a package added during 1.x starts at 0.1.0 and is outside the promise until it reaches 1.0.0 in a Loom release (`LOOM` shows each package's version). In Loom 1.1, waypoints, questbook, gathering and remedies (added since 1.0) and roleplay (rewritten since) became 1.0.0; **atlas** and **shopping** are still at 0.x.
 - **The game itself**: when Achaea rewords a line or changes an ability, Loom follows the game, even if a key or a notice changes with it.
 - **Debug and development commands**: `DEBUG`, `LOOM PERF` output, `FISHINGSTATS DEMO`, `PARTYCOMMS TEST` and the tools in `tools/`.
 
@@ -44,13 +44,13 @@ What your own aliases, triggers and packages can use:
 
 ## Versions
 
-Each package carries its own [semantic version](https://semver.org), shown by `LOOM`. Every package is 1.0.0 in Loom 1.0. From there:
+Each package carries its own [semantic version](https://semver.org), shown by `LOOM`. Every package was 1.0.0 in Loom 1.0, and a package added later becomes 1.0.0 in the Loom release that makes it stable. From there:
 
 - a fix bumps the last number (1.0.0 → 1.0.1);
 - something new (a command, an option, a tab section) bumps the middle one (1.0.1 → 1.1.0);
 - the first number only moves with Loom 2.0.
 
-The **loom** package carries the suite's version: 1.1.0 is Loom 1.1.
+The **loom** package carries the suite's version in its first two numbers: loom 1.1.x is Loom 1.1.
 
 ## If something breaks
 
