@@ -3,7 +3,7 @@
 *Rooms you save by name, listed by area or by tag in a tab; one click walks you there.*
 
 <!-- loom:version waypoints -->
-*This page describes waypoints 0.2.3.*
+*This page describes waypoints 1.0.0.*
 <!-- /loom:version -->
 
 ## What it is

@@ -57,6 +57,8 @@ The packages below send commands without you typing each one. Check them against
 | [civic](civic.md) | **Accepts lesson requests** from others (not enemies) | `LOOM PAUSE ON` |
 | [conjuration](conjuration.md) | A ritual's steps, one after another | the ritual ends, `CONJURATION STOP` |
 | [remedies](remedies.md) | After `REMEDIES BREW`: brews and pours each remedy up to its target, one after another | everything topped up, a problem it can't solve, `REMEDIES STOP` |
+| [shopping](shopping.md) | Reads your rift with `IR` (hidden, `MORE` for each page; once at login if you keep minimums); after `RESTOCK`, a `DIRECTORY` lookup per item; after `SCAN`, a `CM LIST` per commodity, one at a time; `INR` for what you bought for a minimum; **answers the market's AGREE**, only right after its own `CM BUY` and within the price it showed you | the reading or list is done; `SHOPPING SCAN STOP` |
+| [roleplay](roleplay.md) | An ambient emote every few minutes while `ROLEPLAY AEM` is on (see above) | `ROLEPLAY AEM OFF` |
 | [talpieces](talpieces.md) | Queues `TALISMAN COMBINE` for each row of your listing (on by default) | `TALPIECES COMBINE OFF` |
 | [defcon](defcon.md) | Sets curing priorities; raises insomnia when it clears; a pear when you choke underwater; setup commands at login | `DEFCON INIT AUTO OFF` for the login part |
 | [security](security.md) | Puts back watched items and backpack gold that are taken | `SECURITY ANTITHEFT OFF` |
@@ -65,7 +67,7 @@ The packages below send commands without you typing each one. Check them against
 | [vision](vision.md), [partycomms](partycomms.md) | Tell your party about enemies nearby; share your vitals | `VISION ALERT OFF`, `PARTYCOMMS OFF` |
 | [loom](loom.md) | Agrees to convert up to 100 bound credits into lessons when you ask the game to | — |
 
-The two marked in bold answer **other people's requests** (a portal for someone who asks, a lesson someone requests), much like the "tap me" requests city channels already share. They do one thing per request and nothing more.
+Shopping's bold item agrees only to a purchase you just clicked, never to anything else the game asks. The two other bold items answer **other people's requests** (a portal for someone who asks, a lesson someone requests), much like the "tap me" requests city channels already share. They do one thing per request and nothing more.
 
 ## Good habits
 

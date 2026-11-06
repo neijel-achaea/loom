@@ -9,7 +9,7 @@ if (!client.loom.shopping) client.loom.shopping = {};
 var SH = client.loom.shopping;
 // busy (#318): true while our DIRECTORY's answer is still coming, so other
 // packages' probes don't take its lines (or we theirs).
-client.loom.registry.shopping = { version: "0.3.0", keyword: "SHOPPING", desc: "{{description}}",
+client.loom.registry.shopping = { version: "1.0.0", keyword: "SHOPPING", desc: "{{description}}",
   redraw: function () { run_function("shopping_render", [], "shopping"); },
   busy: function () {
     var S = client.loom.shopping, q = S.q, r = S.r;

@@ -10,7 +10,7 @@ if (!client.loom.remedies) client.loom.remedies = {};
 var RM = client.loom.remedies;
 // busy (#318): true while a run has a command out, so Here's probe and
 // other packages wait their turn (and a run waits for theirs).
-client.loom.registry.remedies = { version: "0.1.2", keyword: "REMEDIES", desc: "{{description}}", busy: function () {
+client.loom.registry.remedies = { version: "1.0.0", keyword: "REMEDIES", desc: "{{description}}", busy: function () {
   var r = client.loom.remedies;
   return !!(r && r.run && r.run.out && Date.now() - (r.run.sentAt || 0) < r.timeoutMs);
 } };

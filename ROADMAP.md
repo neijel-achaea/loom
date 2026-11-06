@@ -1,8 +1,8 @@
 # Loom — Roadmap
 
 **Status:** agreed · 2026-10-08 · extended to 1.0 on 2026-10-09
-**Current release:** Loom 1.0 (Stable) · next: Loom 1.1 (Community Requests)
-**Released:** 0.1 (2026-10-07) · 0.2 Standalone (10-09) · 0.3 Multiclass (10-15) · 0.4 Enhancements (10-15) · 0.5 Integrations (10-16) · 0.6 Autobasher (10-16) · 0.7 Documentation (10-17) · 0.8 Hardening, released as 1.0 (10-24)
+**Current release:** Loom 1.1 (Community Requests) · next: Loom 1.2 (Advanced Autobasher)
+**Released:** 0.1 (2026-10-07) · 0.2 Standalone (10-09) · 0.3 Multiclass (10-15) · 0.4 Enhancements (10-15) · 0.5 Integrations (10-16) · 0.6 Autobasher (10-16) · 0.7 Documentation (10-17) · 0.8 Hardening, released as 1.0 (10-24) · 1.1 Community Requests (11-06)
 
 See the README for what each package does today.
 
@@ -246,6 +246,8 @@ Packages and features other players ask for, as the players who try Loom tell us
 - Trade skills: **gathering** (#232), waiting on the game lines for gathering and storing; placeholders for inkmilling, tattoos, riding, transmutation, remedies and toxicology (#370–#375).
 - Smaller requests: `DOR` (#312), deaths marked in LevelGraph's session graph (#336), the newbie leaf configurable (#389).
 
+**As shipped (2026-11-06):** six new packages and a rewrite, all made 1.0.0 with the release, so the stability promise covers them too: **atlas** (#451), a map of our own from the community crowdmap with fog of war from the game's explored lists, an Areas tab of exploration by area, your own marks, the crowdmap's places (banks, shops, harbours…, #468), the wilderness drawn as tiles, ships (#466) and the Mnemosyne sketched as you walk; **waypoints** (#369); **questbook**, the Questing Companion (#376); **shopping**, a list priced from the city's directory, then minimum stocks for anything in the rift with RESTOCK (#440), the commodity shops compared in a price table and the commodities market in Delos (#473); **gathering** (#232); **remedies** (#374, #436), brewing and pouring what the rift is short of; and **roleplay** rewritten as ambient emotes in your own voice, per race and class (#262, #423). Also: daily aims at your own pace in the ledger, Level and Talismans (#214, #448, #460); deaths in LevelGraph's session graph (#336); coffers proposing to earn back a big spend (#234); editing a ledger item touches it (#394); the newbie leaf configurable (#389); huntstats filling the party from follow lines (#188); hunting's F-key highlights switchable (#409); any command separator (#410); the Rogue tab theme for the cityless; the Online footer's counts made clear (#470); and basher, room and partycomms fixes from play (#399, #401, #421, #422, #428, #433). Changes from the plan: `DOR` wasn't built (#312); the trade-skill placeholders moved to **1.4 · Tradeskills** (#370, #371, #373, #375) and **1.5 · Riding** (#372); **groves** and **reclamation** were removed (below).
+
 ### Loom 1.2 — Advanced Autobasher
 
 Party bashing and the advanced techniques left out of 0.6, built only once the 0.6 basher has been tested thoroughly, so a party problem is clearly either the basher's or an integration's.
@@ -254,6 +256,18 @@ Party bashing and the advanced techniques left out of 0.6, built only once the 0
 - Swap targets mid-fight (a better target arriving, a shield with no rage to raze it).
 - Here shows shielded mobs and which party members target each mob.
 - Empowered (++) battlerage for every class, from affliction lines collected on alts.
+
+### Loom 1.3 — Seafaring
+
+Seafaring and seamonstering. No issues yet.
+
+### Loom 1.4 — Tradeskills
+
+Packages for the trade skills still without one: inkmilling (#370), tattoos (#371), transmutation (#373) and toxicology (#375).
+
+### Loom 1.5 — Riding
+
+A package for Riding (#372).
 
 ## Loom 2.x — PvP
 
@@ -277,4 +291,4 @@ Class data lives in one package per class (`magi` first), so a character carries
 
 ## Tracking
 
-GitHub issues grouped into milestones, one per release: Loom 0.2 to 0.8, then Loom 1.1, 1.2 … and Loom 2.0 to 2.5 (PvP). One issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Closed milestones: 0.2 to 0.7. 1.0 has no milestone of its own: it's cut when 0.8 closes (#140). Player reports carry the `from-users` label; PvP work the `pvp` label.
+GitHub issues grouped into milestones, one per release: Loom 0.2 to 0.8, then Loom 1.1 to 1.5 and Loom 2.0 to 2.5 (PvP). One issue per package in v0.2, one per integration in v0.5, one per step in v0.6. Closed milestones: 0.2 to 0.8 and 1.1. 1.0 has no milestone of its own: it's cut when 0.8 closes (#140). Player reports carry the `from-users` label; PvP work the `pvp` label.
