@@ -34,6 +34,8 @@ HU.classes["Jester"] = {
   // it's captured.
   lines: [
     [/^You reach out and bop (.*) on the nose with your blackjack\.$/, "BOP"],
+    // The same attack, its other line (the game picks one at random).
+    [/^You give (.*) a sound thumping with your blackjack\.$/, "BOP"],
     [/^You wrap (.*) in a tight headlock and repeatedly rub your knuckles painfully across (\w+) scalp\.$/, "NOOGIE", "Noogie"],
     [/^You discreetly secret a lit firecracker to (.*?)\./, "ENSCONCE", "Ensconce"],
     [/^You throw a handful of small metallic jacks at (.*), the sharpened points shredding (\w+) translucent shield\.$/, "JACKS", "Jacks"],
