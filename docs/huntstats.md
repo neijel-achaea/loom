@@ -24,7 +24,7 @@ What you get:
 - **A notice for each filed hunt**, and the party's split when there was a party.
 - **The `HUNTSTATS` command** for the hunt under way, the area table, the log and suggestions.
 
-Your area and level come from the game (GMCP; boarding a ship counts as leaving for an area of its own, "aboard a vessel", whatever port or sea it's in); experience, gold and kills from the game's lines ("You have gained…", "You pick up… gold sovereigns", "You have slain…").
+Your area and level come from the game (GMCP; boarding a ship or stepping into the wilderness counts as leaving for an area of its own, "aboard a vessel" or "the wilderness", whatever area the game names alongside); experience, gold and kills from the game's lines ("You have gained…", "You pick up… gold sovereigns", "You have slain…").
 
 ## Commands
 

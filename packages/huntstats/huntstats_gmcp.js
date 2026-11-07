@@ -81,9 +81,15 @@ client.loom.hooks.huntstats.gmcp = function (args) {
   }
 
   // Aboard a vessel the game sends num -2 (the ship moves, its rooms have no
-  // fixed place) and the area of wherever it is docked or sailing, so boarding
-  // would keep counting the area you came from. A vessel is its own area here.
-  if (hsM === "Room.Info" && hsA && String(hsA.num) === "-2") hsA = { num: hsA.num, area: "aboard a vessel" };
+  // fixed place) and the area of wherever it is docked or sailing; in the
+  // wilderness a Room.Info carries `ohmap` and the area you walked out of. So
+  // stepping into either would keep counting the area you came from. Each is
+  // an area of its own here (the vessel checked first: a ship at sea has an
+  // ohmap too).
+  if (hsM === "Room.Info" && hsA) {
+    if (String(hsA.num) === "-2") hsA = { num: hsA.num, area: "aboard a vessel" };
+    else if (hsA.ohmap !== undefined && hsA.ohmap !== null && String(hsA.ohmap) !== "") hsA = { num: hsA.num, area: "the wilderness" };
+  }
   if (hsM === "Room.Info" && hsA && hsA.area) {
     // A new room (not the same one sent again): following ends if you walked
     // off on your own (#188).
