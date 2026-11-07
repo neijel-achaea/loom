@@ -211,7 +211,7 @@ if (!cur) {
   }
   bar += '</div>';
   html += bar;
-  html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>' + cur[2].toFixed(2) + '% done</span><span>' + (100 - cur[2]).toFixed(2) + '% to go</span></div>';
+  html += '<div style="color:' + MUTED + ';">' + cur[2].toFixed(2) + '% done</div>';
   if (tg) {
     var tReached = tg.done || nowP >= tg.to - 1e-6;
     var tOf = tg.to > tg.base ? Math.max(0, Math.min(100, Math.floor((nowP - tg.base) / (tg.to - tg.base) * 100))) : 100;
