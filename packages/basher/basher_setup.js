@@ -913,11 +913,14 @@ B.begin = function () {
 
 // Your attack lines are hunting's (the class's "lines" and the shared ones),
 // read only. True when the line is one of them.
+// Tagged lines that aren't attacks on a mob: your own heal and flex start
+// no run (a primed basher's DRAGONFLEX would otherwise start the fight).
+B.notAttacks = { DRAGONHEAL: true, DRAGONFLEX: true };
 B.isAttack = function (line) {
   var hu = B.hunting();
   var e = hu && hu.classes[hu.cls];
   var rows = ((e && e.lines) || []).concat(hu ? (hu.sharedLines || []) : []);
-  for (var i = 0; i < rows.length; i++) if (rows[i][0].test(line)) return true;
+  for (var i = 0; i < rows.length; i++) if (rows[i][0].test(line)) return !B.notAttacks[rows[i][1]];
   return false;
 };
 

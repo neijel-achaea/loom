@@ -41,6 +41,8 @@ HU.classes["Black Dragon"] = {
     [/^Opening your maw, you force out a tremendous stream of acid, blasting the flesh from the very bones of (.*)\.$/, "BLAST"],
     [/^You barrel into (.*) and knock (\w+) to the ground before stomping over (\w+) prone form\.$/, "OVERRIDE", "Override"],
     [/^You open your enormous maw and let loose a mighty roar at (.*), causing (\w+) to quail in fear\.$/, "DRAGONFEAR", "Dragonfear"],
-    [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"]
+    [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"],
+    // Dragonflex (Ricardo): out of a binding at once, every dragon colour.
+    [/^Gritting your glistening teeth in a rictus grin, you emit a low rumble as you flex your rippling muscles, a sign of your unfathomable power\.$/, "DRAGONFLEX"]
   ]
 };
