@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "1.2.2", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "1.3.0", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -46,6 +46,18 @@ HU.pkSave = function () {
   var any = false;
   for (var c in HU.pkKeys) { if (HU.pkKeys.hasOwnProperty(c)) { var n = 0; for (var k in HU.pkKeys[c]) if (HU.pkKeys[c].hasOwnProperty(k)) n++; if (n) any = true; else delete HU.pkKeys[c]; } }
   try { if (any) set_variable("hunting_pk", JSON.stringify(HU.pkKeys)); else delete_variable("hunting_pk"); } catch (e) {}
+};
+// PK MODE's numpad (Ricardo, 2026-11-08): Ctrl+numpad <n> (the package's
+// keybinds) sends the class's pkPad command for n, only in PK MODE; @tar is
+// your target. Classes with no pkPad (lesserform too) do nothing.
+HU.pkPad = function (n) {
+  var e = HU.classes[HU.cls] || {};
+  var c = e.pkPad && e.pkPad[String(n)];
+  if (!c) return;
+  if (!HU.pk) { display_notice("[hunting] Ctrl+numpad " + n + " is a PK key: PK MODE is off (Ctrl+F12 or HUNTING PK).", "orange"); return; }
+  var tar = String(get_variable("tar") || "").trim();
+  if (!tar) { display_notice("[hunting] no target for Ctrl+numpad " + n + " (ST <name>).", "orange"); return; }
+  send_command(String(c).replace(/@tar\b/gi, tar));
 };
 HU.pkFor = function (cls) { var t = HU.pkKeys[cls || HU.cls]; return (t && typeof t == "object") ? t : {}; };
 if (!HU.toggles) {

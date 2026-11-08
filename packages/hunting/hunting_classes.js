@@ -6,6 +6,17 @@ var HU = client.loom.hunting;
 // Prefix for battlerage keys: queued, so they fire as soon as you can act.
 var huQ = "queue add !wu!t!p ";
 HU.classes = {};
+// PK MODE's numpad for every dragon colour (Ricardo, 2026-11-08): Ctrl+numpad
+// rends a limb, laid out like a body (head on 8, arms on 4 and 6, torso on
+// 5, legs on 1 and 3). Each dragon file points its pkPad here.
+HU.dragonPkPad = {
+  "8": "queue add eb!wu!t!p rend @tar head",
+  "4": "queue add eb!wu!t!p rend @tar leftarm",
+  "6": "queue add eb!wu!t!p rend @tar rightarm",
+  "5": "queue add eb!wu!t!p rend @tar torso",
+  "1": "queue add eb!wu!t!p rend @tar leftleg",
+  "3": "queue add eb!wu!t!p rend @tar rightleg"
+};
 // Lines every class shares (Provoke, level 100, is the same for all), checked
 // after the current class's own lines.
 HU.sharedLines = [

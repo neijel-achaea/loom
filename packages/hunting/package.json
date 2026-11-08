@@ -107,6 +107,102 @@
           "key_alt": false,
           "key_ctrl": true,
           "key_shift": false
+        },
+        {
+          "type": "keybind",
+          "name": "Ctrl+Numpad8 PK head",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "// PK MODE's numpad: the class's pkPad key 8 (hunting_setup, HU.pkPad).\nif (client.loom && client.loom.hunting && client.loom.hunting.pkPad) client.loom.hunting.pkPad(\"8\");"
+            }
+          ],
+          "key": "104",
+          "key_alt": false,
+          "key_ctrl": true,
+          "key_shift": false
+        },
+        {
+          "type": "keybind",
+          "name": "Ctrl+Numpad4 PK left arm",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "// PK MODE's numpad: the class's pkPad key 4 (hunting_setup, HU.pkPad).\nif (client.loom && client.loom.hunting && client.loom.hunting.pkPad) client.loom.hunting.pkPad(\"4\");"
+            }
+          ],
+          "key": "100",
+          "key_alt": false,
+          "key_ctrl": true,
+          "key_shift": false
+        },
+        {
+          "type": "keybind",
+          "name": "Ctrl+Numpad6 PK right arm",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "// PK MODE's numpad: the class's pkPad key 6 (hunting_setup, HU.pkPad).\nif (client.loom && client.loom.hunting && client.loom.hunting.pkPad) client.loom.hunting.pkPad(\"6\");"
+            }
+          ],
+          "key": "102",
+          "key_alt": false,
+          "key_ctrl": true,
+          "key_shift": false
+        },
+        {
+          "type": "keybind",
+          "name": "Ctrl+Numpad5 PK torso",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "// PK MODE's numpad: the class's pkPad key 5 (hunting_setup, HU.pkPad).\nif (client.loom && client.loom.hunting && client.loom.hunting.pkPad) client.loom.hunting.pkPad(\"5\");"
+            }
+          ],
+          "key": "101",
+          "key_alt": false,
+          "key_ctrl": true,
+          "key_shift": false
+        },
+        {
+          "type": "keybind",
+          "name": "Ctrl+Numpad1 PK left leg",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "// PK MODE's numpad: the class's pkPad key 1 (hunting_setup, HU.pkPad).\nif (client.loom && client.loom.hunting && client.loom.hunting.pkPad) client.loom.hunting.pkPad(\"1\");"
+            }
+          ],
+          "key": "97",
+          "key_alt": false,
+          "key_ctrl": true,
+          "key_shift": false
+        },
+        {
+          "type": "keybind",
+          "name": "Ctrl+Numpad3 PK right leg",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "// PK MODE's numpad: the class's pkPad key 3 (hunting_setup, HU.pkPad).\nif (client.loom && client.loom.hunting && client.loom.hunting.pkPad) client.loom.hunting.pkPad(\"3\");"
+            }
+          ],
+          "key": "99",
+          "key_alt": false,
+          "key_ctrl": true,
+          "key_shift": false
         }
       ]
     },

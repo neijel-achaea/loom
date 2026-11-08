@@ -160,6 +160,19 @@ the ability's own key, so an ability needs a key to be fired. Affliction
 names are the basher's (it knows `clumsiness` so far, from the target's
 lines; others are added as their lines are captured).
 
+## pkPad (optional)
+
+PK MODE's numpad: Ctrl+numpad keys and the command each sends, with `@tar`
+for your target. They only work in PK MODE; outside it a key says PK MODE
+is off. The package has keybinds for Ctrl+Numpad 1, 3, 4, 5, 6 and 8.
+
+```js
+pkPad: { "8": "queue add eb!wu!t!p rend @tar head", "5": "queue add eb!wu!t!p rend @tar torso" }
+```
+
+Every dragon colour shares `HU.dragonPkPad` (hunting_classes.js): REND at
+a limb, laid out like a body.
+
 ## lines
 
 One row per message you see when you hit with an attack:

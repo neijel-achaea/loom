@@ -16,6 +16,8 @@ HU.classes["Black Dragon"] = {
     ["Dragonheal", "queue add eq!wu!t!p dragonheal", "main"],
     ["Shield", "touch shield"]
   ],
+  // PK MODE: Ctrl+numpad rends a limb (hunting_classes, HU.dragonPkPad).
+  pkPad: HU.dragonPkPad,
   rage: { Dragonspit: 14, Dragonsting: 25, Dissolve: 17, Override: 36, Corrode: 25, Dragonfear: 29, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Dissolve"],

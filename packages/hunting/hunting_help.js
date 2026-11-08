@@ -21,6 +21,7 @@ var hlRows = [
   ["HUNTING PK [ON|OFF]", "PK MODE: your PK keys replace those F-keys, unlit (Ctrl+F12 switches too; OFF at every load; switching ON stops the basher)"],
   ["HUNTING PK LIST", "your PK keys for this class"],
   ["HUNTING PK SET F<n> <label> <command>", "put a PK key on F1-F12 for this class (label one word; @tar for your target)"],
+  ["Ctrl+numpad (PK MODE)", "dragons: REND a limb at your target: 8 head, 4 left arm, 6 right arm, 5 torso, 1 left leg, 3 right leg"],
   ["HUNTING PK CLEAR F<n> | ALL [CONFIRM]", "take a PK key off (the hunting key comes back), or all of this class's"],
   ["HUNTING HIGHLIGHT [ON|OFF]", "light keys when ready (default ON); OFF: no key lights, the basher's STOP included"],
   ["HUNTING BUTTONS", "lay out the F-keys again"],

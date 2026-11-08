@@ -16,6 +16,8 @@ HU.classes["Blue Dragon"] = {
     ["Dragonheal", "queue add eq!wu!t!p dragonheal", "main"],
     ["Shield", "touch shield"]
   ],
+  // PK MODE: Ctrl+numpad rends a limb (hunting_classes, HU.dragonPkPad).
+  pkPad: HU.dragonPkPad,
   rage: { Dragonchill: 14, Glaciate: 26, Frostrive: 17, Frostwave: 25, Ague: 14, Override: 36 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Frostrive"],
