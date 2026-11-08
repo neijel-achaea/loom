@@ -56,7 +56,9 @@ else if (huSub === "pk") {
   } else if (huPv === "list") {
     var huL = [];
     for (var huLi = 1; huLi <= 12; huLi++) { var huLr = huPkT[String(huLi)]; if (huLr) huL.push("F" + huLi + " " + huLr[0] + " = " + huLr[1]); }
-    display_notice("[hunting] PK MODE " + (HU.pk ? "ON" : "OFF") + "; PK keys for " + (huCls || "this class") + ": " + (huL.length ? huL.join(" · ") : "none") + ". HUNTING PK SET F<n> <label> <command>.", C);
+    var huPad = (HU.classes[huCls] || {}).pkPad, huPd = [];
+    if (huPad) for (var huPn = 1; huPn <= 9; huPn++) if (huPad[String(huPn)]) huPd.push("Ctrl+" + huPn + " = " + huPad[String(huPn)].replace(/^queue add \S+ /, ""));
+    display_notice("[hunting] PK MODE " + (HU.pk ? "ON" : "OFF") + "; PK keys for " + (huCls || "this class") + ": " + (huL.length ? huL.join(" · ") : "none") + ". HUNTING PK SET F<n> <label> <command>." + (huPd.length ? " Numpad: " + huPd.join(" · ") + "." : ""), C);
   } else if (huPv === "set") {
     var huSk = huFk(huPw[1]), huSl = huPw[2] || "", huSc = huPw.slice(3).join(" ");
     if (!huCls) display_notice("[hunting] your class isn't known yet (it comes from GMCP at login, or SCORE).", "orange");
