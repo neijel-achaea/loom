@@ -45,6 +45,8 @@ HU.classes["Black Dragon"] = {
     [/^You open your enormous maw and let loose a mighty roar at (.*), causing (\w+) to quail in fear\.$/, "DRAGONFEAR", "Dragonfear"],
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"],
     // Dragonflex (Ricardo): out of a binding at once, every dragon colour.
-    [/^Gritting your glistening teeth in a rictus grin, you emit a low rumble as you flex your rippling muscles, a sign of your unfathomable power\.$/, "DRAGONFLEX"]
+    // Two endings: "bursting the bindings that hold you." when bound, "a sign
+    // of your unfathomable power." when not; the opening tags both.
+    [/^Gritting your glistening teeth in a rictus grin, you emit a low rumble as you flex your rippling muscles, /, "DRAGONFLEX"]
   ]
 };
