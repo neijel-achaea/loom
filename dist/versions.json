@@ -1,7 +1,7 @@
 {
  "packages": {
   "atlas": "0.11.0",
-  "basher": "1.1.1",
+  "basher": "1.2.0",
   "civic": "1.0.0",
   "coffers": "1.2.0",
   "comms": "1.0.0",

@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.1.1.*
+*This page describes basher 1.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -20,7 +20,7 @@ It is **attended by design**:
 - It stands down when someone turns up: another player arriving, a tell to you, or your city channel naming you makes the fight in progress the last one. `BASHER INTERRUPT OFF` turns that off (remembered across loads); enemies still count while the `social-basher` link is on.
 - It always loads switched off, and `BASHER STOP` stops it at once.
 
-Along the way it fires battlerage on its own clock, razes a shielded target, asks for a `DIAGNOSE` when a venom confuses you, and keeps a kill order for each area in the **Basher** tab.
+Along the way it fires battlerage on its own clock, razes a shielded target, asks for a `DIAGNOSE` when a venom confuses you, snaps a dragon free of bindings with `DRAGONFLEX`, and keeps a kill order for each area in the **Basher** tab.
 
 **Basher needs the [hunting](hunting.md) package**: it uses hunting's class data for your main attack, battlerage and shieldbreak, and sends nothing without it.
 
@@ -44,6 +44,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 | `BASHER DEBUG` | internal state: the run, its target and why, the room |
 | **The Basher tab (create a custom tab named Basher) keeps a kill order per area: new mob types join ignored; ACTIVE ones are targeted by priority, then room order. While primed the basher sets your target to the top one whenever that changes; in a run it takes the next after each kill and ends when none are left. With no active types in an area it follows your own target as before.** | |
 | **Another player arriving during a run, a tell to you, or a line on your city channel that names you makes the fight in progress the last: it finishes, nothing new starts, the basher waits primed. BASHER INTERRUPT OFF turns all three off. With social, enemies are named as such and still count with interruptions off (loom link social-basher).** | |
+| **In dragonform, while on, being entangled, webbed or bound sends DRAGONFLEX on the next recovery (instant, where WRITHE takes a while); two that don't free you leave it to your curing.** | |
 | **Loom has no client-side curing: the basher relies on the game's server-side curing (CURING ON) or your own curing system.** | |
 | **A shielded target is razed with your class's shieldbreak when you have the rage (BASHER RAZE); dragons Blast it on recovery while their dragonbreath is up; otherwise attacks wait for the shield to fade.** | |
 | **While on, "You are confused as to the effects of the venom." sends DIAGNOSE on the next recovery, once per confusion.** | |
@@ -96,6 +97,8 @@ Some classes have no shieldbreak key yet: Alchemist (Caustic), Runewarden (Fragm
 ### Venom confusion
 
 While the basher is on, "You are confused as to the effects of the venom." sends `DIAGNOSE` on the next recovery, once per confusion, so your curing can see what to cure.
+
+In dragonform, being entangled, webbed or bound sends `DRAGONFLEX` on the next recovery, before anything else (fleeing included): it frees you at once, where the curing's `WRITHE` takes a while. If two don't free you, the basher says so and leaves the binding to your curing.
 
 ## The Basher tab: kill order per area
 

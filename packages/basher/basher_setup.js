@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "1.1.1", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "1.2.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -130,6 +130,26 @@ B.affLine = function (line) {
   return false;
 };
 B.why = B.why || "";               // why it isn't attacking right now (status)
+
+// Your own bindings, from Char.Afflictions (basher_gmcp): { entangled: true }.
+// A dragon snaps them with DRAGONFLEX on the next recovery (Ricardo: at once,
+// where the curing's WRITHE takes a while). GMCP's names; transfixation and
+// impaled aren't bindings, so they're left to the curing.
+B.flexAffs = ["webbed", "entangled", "bound"];
+if (!B.bindings) B.bindings = {};
+B.flexAt = B.flexAt || 0;          // the last DRAGONFLEX went out
+B.flexTries = B.flexTries || 0;    // DRAGONFLEXes sent since you were last free
+B.flexMax = 2;                     // that many leave the binding to the curing
+// The first binding you're in, or "".
+B.boundBy = function () {
+  for (var k in B.bindings) { if (B.bindings.hasOwnProperty(k)) return k; }
+  return "";
+};
+// In dragonform: hunting's class is a dragon colour ("Black Dragon"...).
+B.dragon = function () {
+  var hu = B.hunting();
+  return !!hu && / Dragon$/.test(String(hu.cls || ""));
+};
 
 B.tickMs = 250;    // how often the loop looks
 B.retryMs = 2500;  // an attack that took no balance by then is counted as a miss
@@ -674,7 +694,27 @@ B.held = function () {
 B.tick = function () {
   B.syncKeys();
   if (!B.on) return;
-  // A DIAGNOSE owed for venom confusion goes first, on the first recovery,
+  // Bound as a dragon: DRAGONFLEX first, primed, running or fleeing, and
+  // nothing else this recovery (it takes the balance). Until its balance is
+  // seen gone nothing else goes out; battlerage carries on once it is. One
+  // that didn't free you is tried again, up to flexMax, then the curing's
+  // WRITHE is left to it.
+  var bnd = B.dragon() ? B.boundBy() : "";
+  if (bnd && B.flexTries <= B.flexMax) {
+    if (B.bal && B.eq && Date.now() - B.flexAt < B.retryMs) return;
+    if (B.flexTries == B.flexMax) {
+      if (Date.now() - B.flexAt < B.retryMs) return;
+      B.flexTries++;
+      display_notice("[basher] DRAGONFLEX hasn't freed you from " + bnd + ": leaving it to your curing.", "orange");
+    } else if (B.bal && B.eq && get_variable("pauseTriggers") != "on") {
+      send_command("dragonflex", 1);
+      B.flexAt = Date.now();
+      B.flexTries++;
+      if (get_variable("debug") == "on") display_notice("[debug][basher] dragonflex (" + bnd + ")", "cyan");
+      return;
+    }
+  }
+  // A DIAGNOSE owed for venom confusion goes next, on the first recovery,
   // primed or running (it helps the curing).
   // In a run the attack follows in the same breath: if DIAGNOSE took the
   // balance the attack just fails, and the loss clears sentAt either way.
