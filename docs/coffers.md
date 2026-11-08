@@ -79,7 +79,7 @@ A session opens on the first prompt after you log in, or after a long silence. I
 
 ### Goal
 
-A goal is an amount to **earn from now on**, counted from your fortune at the moment you set it. Coffers announces once when you reach it, and the tab shows a progress bar.
+A goal is an amount to **earn from now on**, counted from your fortune at the moment you set it. Coffers announces once when you reach it, and the tab shows a progress bar. The graphs draw it as a dashed amber line at the fortune you're aiming for ("goal 162,000"), as they do today's aim when no goal is set. A graph only makes room for the line while it lies within three times the range the graph already shows, so a far goal never flattens the curve: it's then a small "goal ↑ 162,000" on the graph's top edge, and the line comes into view as you close in.
 
 | Command | What it does |
 | --- | --- |
