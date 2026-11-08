@@ -97,11 +97,12 @@ Installed together, other packages add items to your ledger through Loom's integ
 | `sigils-ledger` | sigils | "Sigil patrol: N monoliths to renew (M missing), first …", due on the day the first flagged monolith runs out. |
 | `levelgraph-ledger` | [levelgraph](levelgraph.md) | A daily aim, "Reach level 104 at 59%": your last 7 days' daily gain plus 10% (the next level when it's close). Reaching it: a lime notice and the item goes until tomorrow's. |
 | `talpieces-aim-ledger` | [talpieces](talpieces.md) | A daily aim, "Collect 21 talisman pieces": your last 7 days' pace plus 10%. Reached as above. |
+| `coffers-aim-ledger` | [coffers](coffers.md) | A daily aim, "Earn 14,000 gold": your last 7 days' net gold a day plus 10%, rounded up to two figures. Spending sets it back, as it does a coffers goal. Reached as above. |
 | `self-ledger` | self | "Explore a new area", when your explorer rank drops while you play. Stays until you mark it done. |
 
-Both aims show how far along you are as a small bar just before the item's age, kept current as you play; hover over it for the count or the share of the way (`8/21`, `55%`). The `LEDGER` digest prints it after the item's text. They also show in the Level and Talismans tabs.
+The aims show how far along you are as a small bar just before the item's age, kept current as you play; hover over it for the count or the share of the way (`8/21`, `55%`). The `LEDGER` digest prints it after the item's text. They also show in the Level, Talismans and Coffers tabs.
 
-The two daily aims come once a day, with the day's first prompt or piece: a reached or dropped aim stays away until the next day, which brings a fresh one.
+The daily aims come once a day, with the day's first prompt or piece: a reached or dropped aim stays away until the next day, which brings a fresh one.
 
 Each is on as soon as both packages are installed; `LOOM LINKS` lists them, and `LOOM LINK <id> OFF` switches one off and takes its item back.
 

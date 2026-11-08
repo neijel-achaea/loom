@@ -14,6 +14,7 @@ var RULE = TH.rule || "#3a3122";
 var TRACK = TH.track || "#2a2318";
 var BG = TH.bg || "#16120b";
 var UP = "#93cf8a";
+var AIM = "#e0b45a"; // the daily aim, as in the Level and Talismans tabs
 var DOWN = "#de8a72";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
@@ -151,6 +152,14 @@ if (g === undefined) {
     var gp = gEarn / CO.goal * 100;
     html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(CO.goal) + ' since ' + F.date(CO.goalT) + (CO.goalSrc ? ' &middot; ' + esc(CO.goalSrc) : '') + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
     html += bar(gp, gp >= 100 ? UP : GOLD, 3);
+  } else if (CO.aim && CO.aim.to > CO.aim.base) {
+    // Loom's daily gold aim (#448), kept here by its link; your own goal,
+    // when set, takes its place (as in the Level and Talismans tabs).
+    var aA = CO.aim, aOf = aA.to - aA.base, aGot = W - aA.base;
+    var aDone = aA.done || aGot >= aOf;
+    var aPct = aDone ? 100 : Math.max(0, Math.min(100, Math.floor(aGot / aOf * 100)));
+    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;gap:8px;"><span><span style="color:' + AIM + ';">today&rsquo;s aim</span> <span style="color:' + TXT + ';">earn ' + F.n(Math.round(aOf)) + '</span></span><span style="color:' + (aDone ? UP : color(aGot)) + ';white-space:nowrap;">' + (aDone ? "reached &#10003;" : F.s(aGot) + " &middot; " + aPct + "%") + '</span></div>';
+    html += bar(aPct, aDone ? UP : AIM, 3);
   }
   // Goals other packages proposed (#35), waiting for ACCEPT or DISMISS.
   var PR = CO.proposals || [];

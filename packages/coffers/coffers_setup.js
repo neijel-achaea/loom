@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "1.1.0", keyword: "COFFERS", desc: "{{description}}",
+client.loom.registry.coffers = { version: "1.2.0", keyword: "COFFERS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("coffers_render", [], "coffers"); } };
 var CO = client.loom.coffers;
@@ -161,6 +161,11 @@ if (CO.goalSrc === undefined) { var gsRaw = gcRaw("coffers_goal_src"); CO.goalSr
 //     older quietly. A dismissed one stays away until its source withdraws
 //     it (its condition cleared); then it can come back.
 //   entry.withdraw(source[, key]) -> how many proposals were taken back.
+//     With no key it also takes back that source's aim (counted as one).
+//   entry.aim({ source, base, to, done }) -> true when it is shown: a daily
+//     aim a link keeps here (loom's, #448), as levelgraph and talpieces take
+//     theirs; base and to are fortunes (gold + bank). In memory only (CO.aim).
+//     The player's goal wins in the tab while set.
 if (!CO.proposals) { CO.proposals = gcArr("coffers_proposals"); }
 if (!CO.dismissed) { var cdRaw = gcJSON("coffers_dismissed", {}); CO.dismissed = (cdRaw && typeof cdRaw === "object") ? cdRaw : {}; }
 CO.saveProposals = function () {
@@ -206,10 +211,21 @@ CO.entry = {
       if (CO.dismissed.hasOwnProperty(dk) && (k === null ? dk.indexOf(src + "|") === 0 : dk === src + "|" + k)) { delete CO.dismissed[dk]; dropped = true; }
     }
     if (n || dropped) CO.saveProposals();
-    if (n) run_function("coffers_render", [], "coffers");
+    if (k === null && CO.aim && CO.aim.source === src) { CO.aim = null; n++; run_function("coffers_render", [], "coffers"); }
+    else if (n) run_function("coffers_render", [], "coffers");
     return n;
+  },
+  aim: function (a) {
+    if (!a || !a.source || typeof a.to !== "number" || isNaN(a.to) || typeof a.base !== "number" || isNaN(a.base)) return false;
+    var nu = { source: String(a.source), base: a.base, to: a.to, done: !!a.done };
+    if (JSON.stringify(nu) !== JSON.stringify(CO.aim)) {
+      CO.aim = nu;
+      run_function("coffers_render", [], "coffers");
+    }
+    return true;
   }
 };
+if (CO.aim === undefined) CO.aim = null;
 
 // Recoup (#234, Ricardo): one loss of at least the threshold proposes a goal
 // to earn it back, through coffers' own proposals. The threshold (Ricardo):
@@ -273,7 +289,25 @@ if (!CO.gifts) CO.gifts = [];
 // The read-only look other packages see through loom: never its variables.
 //   look.gifts(since) -> copies of the gifts received after time `since`
 //     (all of this page load's with no argument), oldest first.
+//   look.wealth() -> the fortune now (gold + bank), or null before GMCP.
+//   look.pace(days) -> net gold a day (earned less spent) over the last
+//     `days` days of the day buffer (7 if not given), or null with less than
+//     a day of history (#448's daily aim, as levelgraph's and talpieces').
 CO.look = {
+  wealth: function () {
+    var L = CO.live || {};
+    if (typeof L.gold !== "number" || typeof L.bank !== "number") return null;
+    return L.gold + L.bank;
+  },
+  pace: function (days) {
+    var hs = CO.days || [];
+    if (hs.length < 2) return null;
+    var last = hs[hs.length - 1], cut = last[0] - (days || 7) * 86400, ref = hs[0];
+    for (var i = hs.length - 1; i >= 0; i--) { if (hs[i][0] <= cut) { ref = hs[i]; break; } }
+    var span = (last[0] - ref[0]) / 86400;
+    if (span < 1) return null;
+    return ((last[1] + last[2]) - (ref[1] + ref[2])) / span;
+  },
   gifts: function (since) {
     var out = [];
     for (var i = 0; i < CO.gifts.length; i++) { if (!since || CO.gifts[i].t > since) out.push({ who: CO.gifts[i].who, amount: CO.gifts[i].amount, t: CO.gifts[i].t }); }

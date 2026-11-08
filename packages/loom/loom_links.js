@@ -874,8 +874,9 @@ L.addLink({
   }
 });
 
-// #448 daily aims in the ledger (Ricardo): one small aim a day for levelling
-// and one for talisman pieces, sized to your own last 7 days (+10%, as
+// #448 daily aims in the ledger (Ricardo): one small aim a day for levelling,
+// one for talisman pieces and one for gold (coffers' fortune, so net of
+// spending, as its own goal; added 2026-11-08), each sized to your own last 7 days (+10%, as
 // huntstats' hunt goal, #39). Set at the first update of the local calendar
 // day, standing (no due date). Reaching it: a lime notice, and the item goes
 // until tomorrow's aim; one a day at most. A DROP'd aim comes back the next
@@ -883,7 +884,7 @@ L.addLink({
 // reload doesn't bring back an aim already reached today.
 // #460: the item carries its progress (a small bar and "8/21" or "55%" in the
 // ledger), kept current as the figure moves, and the aim is also shown in the
-// source package's own tab (Level, Talismans) through its entry.aim, unless
+// source package's own tab (Level, Talismans, Coffers) through its entry.aim, unless
 // it was dropped from the ledger. A goal the player set there wins.
 L.aimMore = 1.1;
 L.aims = {};
@@ -990,6 +991,29 @@ L.addLink({
       var what = n + " talisman piece" + (n === 1 ? "" : "s");
       return { to: cur + n, text: "Collect " + what, said: "collected " + what };
     }, { count: true, home: t });
+  }
+});
+
+L.addLink({
+  id: "coffers-aim-ledger", src: "coffers", dst: "ledger", issue: 448,
+  source: "coffers-aim",
+  desc: "A daily gold aim in the ledger, sized to your last 7 days, also shown in the Coffers tab",
+  change: function (on) { if (!on) L.aimOff("coffers-aim", client.loom.coffers); },
+  update: function () {
+    var c = client.loom.coffers;
+    if (!c || !c.look || !c.look.wealth || !c.look.pace) return;
+    var w = c.look.wealth();
+    if (w === null) return;
+    // Net gold (earned less spent), as coffers' own goal counts it.
+    L.aimRun("coffers-aim", w, function (cur) {
+      var pace = c.look.pace(7);
+      if (!(pace > 0)) return null;
+      // Rounded up to two significant figures: "Earn 14,000 gold", not 13,581.
+      var n = Math.ceil(pace * L.aimMore - 1e-6), mag = Math.pow(10, Math.max(0, String(n).length - 2));
+      n = Math.ceil(n / mag) * mag;
+      var what = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " gold";
+      return { to: cur + n, text: "Earn " + what, said: "earned " + what };
+    }, { home: c });
   }
 });
 
