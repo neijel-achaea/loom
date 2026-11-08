@@ -203,7 +203,6 @@ How proposals behave:
 - **Accepting** adds it to your goal, or makes it your goal when there's none under way. The tab shows where it came from ("· huntstats", or "· huntstats + coffers" when several added to it). From then on it's yours: the hunt ending or the link going off doesn't remove it.
 - **Dismissing** keeps it away until its reason clears.
 - **Switching a link off** takes back that package's pending proposals.
-- **While today's aim stands** (the `coffers-aim-ledger` link, above), new proposals wait quietly instead of showing: the tab notes "1 goal proposal waiting for today's aim" and `COFFERS PROPOSED` says from whom. They appear, notice and all, the moment the aim is reached, dropped from the ledger or switched off; one whose reason clears meanwhile (the hunt ended) just goes. Shopping's `GOAL` is your own click, so it never waits. A proposal already showing stays.
 
 ## Troubleshooting
 

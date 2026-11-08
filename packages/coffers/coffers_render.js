@@ -179,8 +179,6 @@ if (g === undefined) {
     html += '<div style="margin-top:3px;display:flex;justify-content:space-between;gap:8px;"><span><span style="color:' + AIM + ';">today&rsquo;s aim</span> <span style="color:' + TXT + ';">earn ' + F.n(Math.round(aOf)) + '</span></span><span style="color:' + (aDone ? UP : color(aGot)) + ';white-space:nowrap;">' + (aDone ? "reached &#10003;" : F.s(aGot) + " &middot; " + aPct + "%") + '</span></div>';
     html += bar(aPct, aDone ? UP : AIM, 3);
   }
-  var HN = (CO.held || []).length;
-  if (HN) html += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">' + HN + ' goal proposal' + (HN === 1 ? '' : 's') + ' waiting for today&rsquo;s aim.</div>';
   // Goals other packages proposed (#35), waiting for ACCEPT or DISMISS.
   var PR = CO.proposals || [];
   if (PR.length) {
