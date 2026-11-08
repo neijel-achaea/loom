@@ -166,6 +166,11 @@ if (CO.goalSrc === undefined) { var gsRaw = gcRaw("coffers_goal_src"); CO.goalSr
 //     aim a link keeps here (loom's, #448), as levelgraph and talpieces take
 //     theirs; base and to are fortunes (gold + bank). In memory only (CO.aim).
 //     The player's goal wins in the tab while set.
+// While today's aim stands unreached, propose turns proposals away (Ricardo,
+// 2026-11-08): the aim already counts every way of making gold, spending
+// against it, so a hunt goal or a recoup on top would only push harder.
+// Once it's reached (or dropped, or its link is off) they come as before.
+// Shopping's is exempt: it is the player's own GOAL click.
 if (!CO.proposals) { CO.proposals = gcArr("coffers_proposals"); }
 if (!CO.dismissed) { var cdRaw = gcJSON("coffers_dismissed", {}); CO.dismissed = (cdRaw && typeof cdRaw === "object") ? cdRaw : {}; }
 CO.saveProposals = function () {
@@ -181,6 +186,7 @@ CO.entry = {
     if (!(amount > 0)) return false;
     var src = String(pr.source), key = String(pr.key);
     if (CO.dismissed[src + "|" + key]) return false;
+    if (src !== "shopping" && CO.aimGates()) return false;
     var why = String(pr.why || "");
     var t = Math.floor(new Date().getTime() / 1000);
     var P = CO.proposals;
@@ -226,6 +232,14 @@ CO.entry = {
   }
 };
 if (CO.aim === undefined) CO.aim = null;
+// True while today's aim stands and isn't reached (the fortune counted live,
+// so the gate opens the moment the aim is met, not when the link catches up).
+CO.aimGates = function () {
+  var A = CO.aim;
+  if (!A || A.done || !(A.to > A.base)) return false;
+  var w = CO.look && CO.look.wealth ? CO.look.wealth() : null;
+  return !(w !== null && w >= A.to);
+};
 
 // Recoup (#234, Ricardo): one loss of at least the threshold proposes a goal
 // to earn it back, through coffers' own proposals. The threshold (Ricardo):

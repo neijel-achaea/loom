@@ -203,6 +203,7 @@ How proposals behave:
 - **Accepting** adds it to your goal, or makes it your goal when there's none under way. The tab shows where it came from ("· huntstats", or "· huntstats + coffers" when several added to it). From then on it's yours: the hunt ending or the link going off doesn't remove it.
 - **Dismissing** keeps it away until its reason clears.
 - **Switching a link off** takes back that package's pending proposals.
+- **While today's aim is unreached** (the `coffers-aim-ledger` link, above), no new proposals come: the aim already counts every way of making gold, with spending set against it, so a hunt goal or an earn-it-back on top would only push harder. Once it's reached (or dropped from the ledger, or its link is off), they come as before; huntstats' at its next update, so possibly mid-hunt. One already showing stays. Shopping's `GOAL` is your own click, so it always goes through.
 
 ## Troubleshooting
 
