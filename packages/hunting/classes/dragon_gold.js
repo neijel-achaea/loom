@@ -32,7 +32,9 @@ HU.classes["Gold Dragon"] = {
     [/^Drawing from the well of your puissance, you invoke a dramatic chant in the dragon tongue. Your voice resonates with each word, culminating in a wave of magical energy that you bend to your will and thrust towards (.*), bombarding (\w+) with the ancient power\.$/, "INCANTATION"],
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"],
     // Dragonflex (Ricardo): out of a binding at once, every dragon colour.
-    [/^Gritting your glistening teeth in a rictus grin, you emit a low rumble as you flex your rippling muscles, a sign of your unfathomable power\.$/, "DRAGONFLEX"]
+    // Two endings: "bursting the bindings that hold you." when bound, "a sign
+    // of your unfathomable power." when not; the opening tags both.
+    [/^Gritting your glistening teeth in a rictus grin, you emit a low rumble as you flex your rippling muscles, /, "DRAGONFLEX"]
   ]
 };
 HU.classes["Golden Dragon"] = HU.classes["Gold Dragon"];
