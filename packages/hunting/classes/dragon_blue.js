@@ -41,6 +41,8 @@ HU.classes["Blue Dragon"] = {
     [/^You let loose a steady stream of cold air around (.*), who begins to shiver uncontrollably\.$/, "AGUE", "Ague"],
     [/^You breathe a column of icy air at (.*)'s head, stunning (\w+)\.$/, "GLACIATE", "Glaciate"],
     [/^You let out a great keening, and cast the impurities from your form\.$/, "DRAGONHEAL"],
+    // Dragonflex (Ricardo): out of a binding at once, every dragon colour.
+    [/^Gritting your glistening teeth in a rictus grin, you emit a low rumble as you flex your rippling muscles, a sign of your unfathomable power\.$/, "DRAGONFLEX"],
     [/^Opening your massive maw, you throw your head forward and blast wave after wave of deadly, all-consuming cold at (.*)\.$/, "BLAST"]
   ]
 };

@@ -10,7 +10,8 @@ client.loom.hooks.basher.gmcp = function (args) {
   // The basher's own view of the room and of you, from GMCP (it reads nothing
   // of room's): balance, equilibrium, health and mana from Char.Vitals; the
   // room and its exits from Room.Info; mobs and items here from Char.Items;
-  // players here from Room.Players; a dragon's breath from Char.Defences.
+  // players here from Room.Players; a dragon's breath from Char.Defences;
+  // your own bindings from Char.Afflictions.
   if (!client.loom || !client.loom.basher) run_function("basher_setup", [], "basher");
   var B = client.loom.basher;
   var bsM = args.gmcp_method;
@@ -118,6 +119,21 @@ client.loom.hooks.basher.gmcp = function (args) {
       var bsR = [].concat(bsA);
       for (var bsE = 0; bsE < bsR.length; bsE++) if (bsBr(typeof bsR[bsE] === "object" ? bsR[bsE].name : bsR[bsE])) { B.breath = false; B.blasted(); }
     }
+  } else if (/^Char\.Afflictions\.(List|Add|Remove)$/.test(bsM) && bsA) {
+    // Your own bindings, for a dragon's DRAGONFLEX (B.flexAffs). Remove
+    // sends names.
+    var bsFx = function (n) { return B.flexAffs.indexOf(String(n || "").toLowerCase()) >= 0; };
+    if (bsM === "Char.Afflictions.List") {
+      B.bindings = {};
+      for (var bsF = 0; bsF < bsA.length; bsF++) if (bsFx(bsA[bsF].name)) B.bindings[String(bsA[bsF].name).toLowerCase()] = true;
+    } else if (bsM === "Char.Afflictions.Add") {
+      if (bsFx(bsA.name)) B.bindings[String(bsA.name).toLowerCase()] = true;
+    } else {
+      var bsX = [].concat(bsA);
+      for (var bsG = 0; bsG < bsX.length; bsG++) delete B.bindings[String(typeof bsX[bsG] === "object" ? bsX[bsG].name : bsX[bsG]).toLowerCase()];
+    }
+    // Free again: the next binding gets its own tries.
+    if (!B.boundBy()) { B.flexTries = 0; B.flexAt = 0; }
   } else if (bsM === "Room.RemovePlayer" && bsA !== undefined && bsA !== null) {
     delete B.players[String(typeof bsA === "object" ? bsA.name : bsA).toLowerCase()];
   }
