@@ -14,6 +14,7 @@ var RULE = TH.rule || "#3a3122";
 var TRACK = TH.track || "#2a2318";
 var BG = TH.bg || "#16120b";
 var UP = "#93cf8a";
+var AIM = "#e0b45a"; // the daily aim, as in the Level and Talismans tabs
 var DOWN = "#de8a72";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
@@ -66,13 +67,23 @@ function xLabels(fr, a, b) {
 function svgOpen(W, H) { return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="display:block;height:auto;overflow:visible;" xmlns="http://www.w3.org/2000/svg">'; }
 
 // Wealth line (gold + bank) with a soft gold fill; optional dashed marker,
-// used to show where the current session began.
-function wealthChart(hs, W, H, dayScale, markT) {
+// used to show where the current session began. tgt { v, label }: the goal
+// or today's aim as a fortune, drawn as levelgraph draws its target (#460):
+// a dashed amber line while it lies within three times the range the graph
+// already shows (at least 1,000 gold), else a mark on the edge it lies beyond,
+// so a far target never flattens the curve.
+function wealthChart(hs, W, H, dayScale, markT, tgt) {
   var first = hs[0];
   var last = hs[hs.length - 1];
   var vmin = 1e15, vmax = -1e15, i, v;
   for (i = 0; i < hs.length; i++) { v = wealth(hs[i]); if (v < vmin) { vmin = v; } if (v > vmax) { vmax = v; } }
   if (vmax - vmin < 20) { vmin -= 10; vmax += 10; }
+  var tLine = false, tEdge = 0;
+  if (tgt && typeof tgt.v === "number" && isFinite(tgt.v)) {
+    var tLo = Math.min(vmin, tgt.v), tHi = Math.max(vmax, tgt.v);
+    if (tHi - tLo <= 3 * Math.max(vmax - vmin, 1000)) { vmin = tLo; vmax = tHi; tLine = true; }
+    else { tEdge = tgt.v > vmax ? 1 : -1; }
+  }
   var pad = (vmax - vmin) * 0.12;
   vmin = Math.max(0, vmin - pad);
   vmax += pad;
@@ -91,6 +102,14 @@ function wealthChart(hs, W, H, dayScale, markT) {
   }
   out += '<path d="' + line + '" fill="none" stroke="' + GOLD + '" stroke-width="1.5" stroke-linejoin="round"/>';
   out += '<circle cx="' + n1(sx(fr, last[0])) + '" cy="' + n1(sy(fr, wealth(last))) + '" r="2.4" fill="#fff1b8"/>';
+  if (tLine) {
+    var ty = n1(sy(fr, tgt.v));
+    out += '<line x1="' + fr.x0 + '" y1="' + ty + '" x2="' + fr.x1 + '" y2="' + ty + '" stroke="' + AIM + '" stroke-width="1" stroke-dasharray="4,3"/>';
+    out += '<text x="' + (fr.x1 - 2) + '" y="' + n1(ty - 3) + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fr.fs + '" fill="' + AIM + '">' + tgt.label + ' ' + F.n(Math.round(tgt.v)) + '</text>';
+  } else if (tEdge) {
+    var ey = tEdge > 0 ? n1(fr.y0 + fr.fs * 0.4) : n1(fr.y1 - 3);
+    out += '<text x="' + (fr.x1 - 2) + '" y="' + ey + '" text-anchor="end" font-family="' + MONO + '" font-size="' + fr.fs + '" fill="' + AIM + '">' + tgt.label + ' ' + (tEdge > 0 ? '\u2191' : '\u2193') + ' ' + F.n(Math.round(tgt.v)) + '</text>';
+  }
   out += xLabels(fr, dayScale ? F.date(first[0]) : F.hm(first[0]), dayScale ? F.date(last[0]) : F.hm(last[0]));
   return out + '</svg>';
 }
@@ -151,6 +170,14 @@ if (g === undefined) {
     var gp = gEarn / CO.goal * 100;
     html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(CO.goal) + ' since ' + F.date(CO.goalT) + (CO.goalSrc ? ' &middot; ' + esc(CO.goalSrc) : '') + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
     html += bar(gp, gp >= 100 ? UP : GOLD, 3);
+  } else if (CO.aim && CO.aim.to > CO.aim.base) {
+    // Loom's daily gold aim (#448), kept here by its link; your own goal,
+    // when set, takes its place (as in the Level and Talismans tabs).
+    var aA = CO.aim, aOf = aA.to - aA.base, aGot = W - aA.base;
+    var aDone = aA.done || aGot >= aOf;
+    var aPct = aDone ? 100 : Math.max(0, Math.min(100, Math.floor(aGot / aOf * 100)));
+    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;gap:8px;"><span><span style="color:' + AIM + ';">today&rsquo;s aim</span> <span style="color:' + TXT + ';">earn ' + F.n(Math.round(aOf)) + '</span></span><span style="color:' + (aDone ? UP : color(aGot)) + ';white-space:nowrap;">' + (aDone ? "reached &#10003;" : F.s(aGot) + " &middot; " + aPct + "%") + '</span></div>';
+    html += bar(aPct, aDone ? UP : AIM, 3);
   }
   // Goals other packages proposed (#35), waiting for ACCEPT or DISMISS.
   var PR = CO.proposals || [];
@@ -206,11 +233,17 @@ if (g === undefined) {
   cols += box(rb);
   html += cols + '</div>';
 
+  // The goal, or else today's aim, as a fortune for the graphs (as the bar
+  // above shows them: the goal wins while set).
+  var tgLine = null;
+  if (CO.goal > 0 && CO.goalBase >= 0) tgLine = { v: CO.goalBase + CO.goal, label: "goal" };
+  else if (CO.aim && CO.aim.to > CO.aim.base) tgLine = { v: CO.aim.to, label: "aim" };
+
   if (CO.graphSess) {
     if (mins.length < 2) {
       html += section("Last " + CO.mins + " minutes", '<div style="color:' + MUTED + ';">Collecting; a point lands every minute.</div>');
     } else {
-      html += section("Last " + CO.mins + " minutes", wealthChart(mins, 640, CO.chartH, false, S ? S.s : 0));
+      html += section("Last " + CO.mins + " minutes", wealthChart(mins, 640, CO.chartH, false, S ? S.s : 0, tgLine));
     }
   }
   if (CO.graphLong) {
@@ -220,7 +253,7 @@ if (g === undefined) {
       var lSpan = (days[days.length - 1][0] - days[0][0]) / 86400;
       var lGain = wealth(days[days.length - 1]) - wealth(days[0]);
       var note = '<div style="color:' + MUTED + ';margin:2px 0 4px;">fortune over ' + Math.max(1, Math.round(lSpan)) + 'd: <span style="color:' + color(lGain) + ';">' + F.s(lGain) + '</span>' + (lSpan >= 1 ? ' &middot; ' + F.s(Math.round(lGain / lSpan)) + '/day' : '') + '</div>';
-      html += section("Day by day", note + wealthChart(days, 640, CO.chartH, true, 0));
+      html += section("Day by day", note + wealthChart(days, 640, CO.chartH, true, 0, tgLine));
     }
   }
   html += '</div>';

@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.1.1.*
+*This page describes loom 1.1.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -92,6 +92,7 @@ Every link:
 | `coffers-shopping` | [coffers](coffers.md) | [shopping](shopping.md) | GOAL next to Shopping's total makes the gold the list needs a coffers goal |
 | `levelgraph-ledger` | [levelgraph](levelgraph.md) | [ledger](ledger.md) | A daily levelling aim in the ledger, sized to your last 7 days, also shown in the Level tab |
 | `talpieces-aim-ledger` | [talpieces](talpieces.md) | [ledger](ledger.md) | A daily talisman pieces aim in the ledger, sized to your last 7 days, also shown in the Talismans tab |
+| `coffers-aim-ledger` | [coffers](coffers.md) | [ledger](ledger.md) | A daily gold aim in the ledger, sized to your last 7 days, also shown in the Coffers tab |
 | `waypoints-atlas` | [waypoints](waypoints.md) | [atlas](atlas.md) | Saved waypoints as a flag on their room in the Atlas map |
 | `questbook-atlas` | [questbook](questbook.md) | [atlas](atlas.md) | The followed quest's steps and where ready quests start, on the Atlas map |
 | `partycomms-atlas` | [partycomms](partycomms.md) | [atlas](atlas.md) | Party members as coloured circles on their rooms in the Atlas map |

@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 1.1.0.*
+*This page describes coffers 1.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -79,7 +79,7 @@ A session opens on the first prompt after you log in, or after a long silence. I
 
 ### Goal
 
-A goal is an amount to **earn from now on**, counted from your fortune at the moment you set it. Coffers announces once when you reach it, and the tab shows a progress bar.
+A goal is an amount to **earn from now on**, counted from your fortune at the moment you set it. Coffers announces once when you reach it, and the tab shows a progress bar. The graphs draw it as a dashed amber line at the fortune you're aiming for ("goal 162,000"), as they do today's aim when no goal is set. A graph only makes room for the line while it lies within three times the range the graph already shows, so a far goal never flattens the curve: it's then a small "goal ↑ 162,000" on the graph's top edge, and the line comes into view as you close in.
 
 | Command | What it does |
 | --- | --- |
@@ -146,7 +146,7 @@ If you used the older gold tracker (`gc_*` variables), Coffers moves its data ov
 You don't need to do anything for Coffers to work: log in and play. A typical day looks like this:
 
 - **When you log in**, Coffers opens a session and prints your starting fortune: "the books are open: 1,240,500 gold".
-- **While you play**, glance at the tab. The big number is your fortune. Below it, a bar shows how it splits between purse (gold) and bank (bronze), how far you are from the next rank, and how far from your goal. The **Session** and **Today** boxes show net, in and out, and the session's gold per hour. **Records** shows your peak fortune, best day and best session. A star appears under Today when you're on track for a record day.
+- **While you play**, glance at the tab. The big number is your fortune. Below it, a bar shows how it splits between purse (gold) and bank (bronze), how far you are from the next rank, and how far from your goal (or, with no goal and ledger installed, today's aim). The **Session** and **Today** boxes show net, in and out, and the session's gold per hour. **Records** shows your peak fortune, best day and best session. A star appears under Today when you're on track for a record day.
 - **Notices** tell you when something worth knowing happens: a large single gain or loss (`BIGCOIN`), a new rank ("*** MILESTONE *** … Welcome to the Vault"), a goal reached.
 - **When you stop**, the session closes after 30 quiet minutes and prints its summary, with a note if it was your most profitable session yet. Use `COFFERS NEW` to close it right away.
 - **The next day**, the first prompt closes yesterday's books. If it was your best day so far, Coffers says so.
@@ -193,6 +193,7 @@ Coffers works on its own and reads nothing from other packages. Installed alongs
 | --- | --- | --- |
 | `huntstats-coffers` | huntstats | When you start hunting in an area with hunts on record, proposes a goal 10% over your average hunt there (total gold there ÷ hunts, rounded up to 100): "10% over your average hunt in Annwyn (24,300 gold over 6 hunts)". It's taken back when the hunt ends, filed or left. |
 | `coffers-shopping` | shopping | GOAL next to Shopping's total makes the gold the list still needs a goal here at once: added to a goal under way, or a new goal. |
+| `coffers-aim-ledger` | [ledger](ledger.md) | A **daily aim**, "Earn 14,000 gold": your net gold a day over the last 7 days (what came in less what went out, as your goal counts it) plus 10%, rounded up to two figures, counted from the day's first prompt. Reaching it gives a lime notice and the item goes until the next day's. The tab shows the same aim under the rank bar, with how much you've made and the share of the way, unless you set a goal of your own or drop the aim from the ledger. No aim while your last 7 days were a loss. |
 | `coffers-standings` | standings | When someone gives you 5,000 gold or more at once, standings gets a small friendly dealing with them (+) to review. Gold from someone in your huntstats party is the split being settled, so it's skipped. Each gift is looked at once. |
 
 How proposals behave:
@@ -202,6 +203,7 @@ How proposals behave:
 - **Accepting** adds it to your goal, or makes it your goal when there's none under way. The tab shows where it came from ("· huntstats", or "· huntstats + coffers" when several added to it). From then on it's yours: the hunt ending or the link going off doesn't remove it.
 - **Dismissing** keeps it away until its reason clears.
 - **Switching a link off** takes back that package's pending proposals.
+- **While today's aim is unreached** (the `coffers-aim-ledger` link, above), no new proposals come: the aim already counts every way of making gold, with spending set against it, so a hunt goal or an earn-it-back on top would only push harder. Once it's reached (or dropped from the ledger, or its link is off), they come as before; huntstats' at its next update, so possibly mid-hunt. One already showing stays. Shopping's `GOAL` is your own click, so it always goes through.
 
 ## Troubleshooting
 

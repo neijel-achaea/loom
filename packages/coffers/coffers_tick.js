@@ -146,4 +146,11 @@ if (g !== undefined && b !== undefined) {
     try { set_variable("coffers_rec", JSON.stringify(CO.rec)); } catch (e) {}
   }
   if (changed) { run_function("coffers_render", [], "coffers"); }
+  // The fortune moved, or a new day began: tell loom, for the daily gold aim
+  // in the ledger (#448). Once per change, not every prompt.
+  var noted = W + "|" + F.dayKey(now);
+  if (CO.noted !== noted) {
+    CO.noted = noted;
+    if (client.loom.notify) client.loom.notify("coffers");
+  }
 }
