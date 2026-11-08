@@ -40,6 +40,12 @@ client.loom.hooks.self.gmcp = function (args) {
       S.seenDefs = true;
       sfDirty = true;
     } else if (sfM === "Char.Defences.Add") {
+      // Parrying one body part ends the last (Ricardo): the game adds
+      // "parrying (head)" without removing "parrying (torso)", so a new parry
+      // drops the others here (not counted as lost). DEF would fix it too.
+      if (/^parrying\b/i.test(String(sfA.name || ""))) {
+        for (var sfP in S.defs) { if (S.defs.hasOwnProperty(sfP) && sfP !== sfA.name && /^parrying\b/i.test(sfP)) delete S.defs[sfP]; }
+      }
       S.defs[sfA.name] = { desc: sfA.desc || "", t: sfNow };
       delete S.lost[sfA.name];
       S.seenDefs = true;
