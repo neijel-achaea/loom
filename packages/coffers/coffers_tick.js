@@ -153,4 +153,10 @@ if (g !== undefined && b !== undefined) {
     CO.noted = noted;
     if (client.loom.notify) client.loom.notify("coffers");
   }
+  // Held proposals come out once the aim is reached (cheap when none are
+  // held). After a reload the aim isn't back yet (the link sets it a moment
+  // after the first reading), so with none known the tick waits a few
+  // seconds before letting them out.
+  if (!CO.firstSeen) CO.firstSeen = now;
+  if (CO.release && CO.held && CO.held.length && (CO.aim || now - CO.firstSeen >= 5)) CO.release();
 }

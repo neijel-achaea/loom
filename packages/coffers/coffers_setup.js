@@ -166,10 +166,16 @@ if (CO.goalSrc === undefined) { var gsRaw = gcRaw("coffers_goal_src"); CO.goalSr
 //     aim a link keeps here (loom's, #448), as levelgraph and talpieces take
 //     theirs; base and to are fortunes (gold + bank). In memory only (CO.aim).
 //     The player's goal wins in the tab while set.
+// Held proposals (Ricardo, 2026-11-08): while today's aim stands unreached,
+// a proposal waits quietly in CO.held (saved as coffers_held) instead of
+// showing, and appears, notice and all, once the aim is reached, dropped or
+// switched off. Shopping's is exempt: it is the player's own GOAL click.
 if (!CO.proposals) { CO.proposals = gcArr("coffers_proposals"); }
 if (!CO.dismissed) { var cdRaw = gcJSON("coffers_dismissed", {}); CO.dismissed = (cdRaw && typeof cdRaw === "object") ? cdRaw : {}; }
+if (!CO.held) { CO.held = gcArr("coffers_held"); }
 CO.saveProposals = function () {
   try { set_variable("coffers_proposals", JSON.stringify(CO.proposals)); } catch (e) {}
+  try { if (CO.held.length) set_variable("coffers_held", JSON.stringify(CO.held)); else delete_variable("coffers_held"); } catch (e) {}
   var any = false;
   for (var k in CO.dismissed) { if (CO.dismissed.hasOwnProperty(k)) { any = true; break; } }
   try { if (any) set_variable("coffers_dismissed", JSON.stringify(CO.dismissed)); else delete_variable("coffers_dismissed"); } catch (e) {}
@@ -184,6 +190,19 @@ CO.entry = {
     var why = String(pr.why || "");
     var t = Math.floor(new Date().getTime() / 1000);
     var P = CO.proposals;
+    if (src !== "shopping" && CO.aimGates()) {
+      var isOut = false;
+      for (var j = 0; j < P.length; j++) if (P[j].src === src && P[j].key === key) isOut = true;
+      if (!isOut) {
+        var Hd = CO.held, hi = -1;
+        for (var h = 0; h < Hd.length; h++) if (Hd[h].src === src && Hd[h].key === key) hi = h;
+        if (hi >= 0) { Hd[hi].amount = amount; Hd[hi].why = why; Hd[hi].t = t; }
+        else { Hd.push({ src: src, key: key, amount: amount, why: why, t: t }); while (Hd.length > 10) { Hd.shift(); } }
+        CO.saveProposals();
+        run_function("coffers_render", [], "coffers");
+        return true;
+      }
+    }
     for (var i = 0; i < P.length; i++) {
       if (P[i].src === src && P[i].key === key) {
         P[i].amount = amount; P[i].why = why; P[i].t = t;
@@ -206,12 +225,16 @@ CO.entry = {
     for (var i = P.length - 1; i >= 0; i--) {
       if (P[i].src === src && (k === null || P[i].key === k)) { P.splice(i, 1); n++; }
     }
+    var Hd = CO.held;
+    for (var hj = Hd.length - 1; hj >= 0; hj--) {
+      if (Hd[hj].src === src && (k === null || Hd[hj].key === k)) { Hd.splice(hj, 1); n++; }
+    }
     var dropped = false;
     for (var dk in CO.dismissed) {
       if (CO.dismissed.hasOwnProperty(dk) && (k === null ? dk.indexOf(src + "|") === 0 : dk === src + "|" + k)) { delete CO.dismissed[dk]; dropped = true; }
     }
     if (n || dropped) CO.saveProposals();
-    if (k === null && CO.aim && CO.aim.source === src) { CO.aim = null; n++; run_function("coffers_render", [], "coffers"); }
+    if (k === null && CO.aim && CO.aim.source === src) { CO.aim = null; n++; CO.release(); run_function("coffers_render", [], "coffers"); }
     else if (n) run_function("coffers_render", [], "coffers");
     return n;
   },
@@ -220,12 +243,30 @@ CO.entry = {
     var nu = { source: String(a.source), base: a.base, to: a.to, done: !!a.done };
     if (JSON.stringify(nu) !== JSON.stringify(CO.aim)) {
       CO.aim = nu;
+      CO.release();
       run_function("coffers_render", [], "coffers");
     }
     return true;
   }
 };
 if (CO.aim === undefined) CO.aim = null;
+// True while today's aim stands and isn't reached (the fortune counted live,
+// so a proposal never waits on the link catching up).
+CO.aimGates = function () {
+  var A = CO.aim;
+  if (!A || A.done || !(A.to > A.base)) return false;
+  var w = CO.look && CO.look.wealth ? CO.look.wealth() : null;
+  return !(w !== null && w >= A.to);
+};
+// Held proposals come out, through propose as any other, once nothing gates
+// them. Called when the aim changes or goes, and from the tick.
+CO.release = function () {
+  if (!CO.held.length || CO.aimGates()) return;
+  var Hd = CO.held;
+  CO.held = [];
+  CO.saveProposals();
+  for (var i = 0; i < Hd.length; i++) CO.entry.propose({ source: Hd[i].src, key: Hd[i].key, amount: Hd[i].amount, why: Hd[i].why });
+};
 
 // Recoup (#234, Ricardo): one loss of at least the threshold proposes a goal
 // to earn it back, through coffers' own proposals. The threshold (Ricardo):

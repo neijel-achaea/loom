@@ -125,6 +125,8 @@ else if (c === "proposed" || c === "proposals") {
   // ACCEPT and DISMISS act on unless a number is given.
   var PL = CO.proposals || [];
   if (PL.length === 0) { say("no proposed goals."); }
+  var HL = CO.held || [];
+  if (HL.length) { say(HL.length + " more waiting for today's aim (from " + HL.map(function (x) { return x.src; }).join(", ") + "): they show once it's reached."); }
   for (var pi = 0; pi < PL.length; pi++) { say((pi + 1) + ". earn " + F.n(PL[pi].amount) + " gold" + (PL[pi].why ? " \u2014 " + PL[pi].why : "") + " (from " + PL[pi].src + ")"); }
   if (PL.length) { say("COFFERS ACCEPT [n] adds one to your goal (or starts one), COFFERS DISMISS [n] drops it."); }
 }
@@ -244,7 +246,7 @@ else if (c === "wipe") {
     // whose reason still holds may propose again later.
     CO.goal = 0; CO.goalBase = -1; CO.goalT = 0; CO.goalDone = false; CO.goalSrc = "";
     save("coffers_goal", "0"); save("coffers_goal_base", "-1"); save("coffers_goal_t", "0"); save("coffers_goal_done", "0"); save("coffers_goal_src", "");
-    CO.proposals = []; CO.dismissed = {}; CO.saveProposals();
+    CO.proposals = []; CO.held = []; CO.dismissed = {}; CO.saveProposals();
     CO.recoupBase = 0; CO.recoupSave();
     CO.force = true;
     say("ledger burned. Fresh books open at the next prompt.", "orange");
