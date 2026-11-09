@@ -3,20 +3,20 @@
 *Extracts the minerals your rift is short of as you walk the mountains, and stores them.*
 
 <!-- loom:version transmutation -->
-*This page describes transmutation 0.1.0.*
+*This page describes transmutation 0.1.1.*
 <!-- /loom:version -->
 
 ## What it is
 
 Transmutation is Loom's package for the Transmutation trade skill. For now it does one thing: extraction, the way [harvesting](harvesting.md) does herbs and [gathering](gathering.md) does materials. With it on, every **mountain** or **natural underground** room you enter is checked: if the area's mineral is **below its minimum** in your rift, it is extracted (`EXTRACT CALAMINE`) and put straight into the rift (`INR`).
 
-Every area gives one mineral, and it never changes. Transmutation keeps a map of them: in an area it doesn't know yet, it sends `MINERALS` once in the room you're in, and remembers what it says (a `MINERALS` you type counts too). An area is taken to have no minerals only after three of its rooms showed none, since a single empty room may just be worked out. `TRANSMUTATION AREAS` lists what it knows; `TRANSMUTATION AREAS calamine` tells you where to go for one.
+Every area gives one mineral, and it never changes. Transmutation keeps a map of them: in an area it doesn't know yet, it sends `MINERALS` once in the room you're in, and remembers what it says (a `MINERALS` you type counts too). Rooms don't get worked out, so a `MINERALS` that lists nothing means the whole area has none, and it isn't asked again there. `TRANSMUTATION AREAS` lists what it knows; `TRANSMUTATION AREAS calamine` tells you where to go for one.
 
 It knows your stock from your rift: `TRANSMUTATION ON` (or `TRANSMUTATION STOCK`) reads it with `IR MINERALS`, and every "You store N …" and "You remove N …" line keeps it up to date.
 
 Every mineral has a minimum: 500 by default, or one you set for it.
 
-A room can't be extracted from again for a while, so a room extracted this session isn't tried again for an hour. An extraction that brings nothing still gets its `INR` (it waits in the game's queue for the balance `EXTRACT` takes), which then has nothing to store: one stray line, no harm. Transmutation waits for balance and equilibrium, and while another package has a command out, so in an underground room gathering's lumic and dust come first.
+A room can't be extracted from again for a while, so a room extracted this session isn't tried again for an hour. The `INR` follows only an extraction that worked (it waits in the game's queue for the balance `EXTRACT` takes); one that brings nothing moves on at the next prompts. Transmutation waits for balance and equilibrium, and while another package has a command out, so in an underground room gathering's lumic and dust come first.
 
 It sends nothing while Loom is paused (`LOOM PAUSE ON`), and it loads off: every session starts with `TRANSMUTATION ON`.
 
@@ -39,7 +39,7 @@ It sends nothing while Loom is paused (`LOOM PAUSE ON`), and it loads off: every
 
 `TRANSMUTATION` shows the area you're in, its mineral, and what's below its minimum among the minerals of the areas you know. `TRANSMUTATION MIN 800` sets the default minimum; `TRANSMUTATION MIN calamine 1000` sets one mineral's; `TRANSMUTATION MIN calamine DEFAULT` puts it back on the default.
 
-`TRANSMUTATION FORGET HERE CONFIRM` (or `FORGET <area> CONFIRM`) drops what it knows of an area, so the next room there is looked up again: for an area given up as empty too soon.
+`TRANSMUTATION FORGET HERE CONFIRM` (or `FORGET <area> CONFIRM`) drops what it knows of an area, so the next room there is looked up again: for an area marked empty by mistake.
 
 `TRANSMUTATION RESET` clears what's out, forgets the rooms extracted this session, and reloads the saved state.
 
