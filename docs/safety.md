@@ -33,14 +33,14 @@ On top of that:
 
 - The basher finishes the fight in progress and starts no new one when another player arrives, tells you something, or names you on your city channel: someone may want your attention. You can turn this off with `BASHER INTERRUPT OFF`; the basher still needs you there, since every run starts with your own attack and ends when the room is empty. `BASHER` says when interruptions are off.
 - Everything that sends commands stops at once with `LOOM PAUSE ON`; the basher has its own kill switch, `BASHER STOP`.
-- The basher, harvesting and gathering always load **off**, so a reload never leaves them running.
+- The basher, harvesting, gathering and transmutation always load **off**, so a reload never leaves them running.
 - One package repeats on a timer: **roleplay**'s ambient emotes, an emote every few minutes while you've switched them on. It sends only emotes, earns nothing and moves you nowhere: flavour, not automation of anything you gain from. It holds back while you're hidden, asleep or fighting. Unlike the others it stays as you left it across sessions, and says so when it loads.
 
 ### Don't take it further
 
-**Please don't extend Loom past these limits**: no recasting loop for fishing, no walking route for the basher, harvesting or gathering, no restart that keeps a run going on its own, no trigger that turns a single action into an endless one. Each of those turns a reflex into a bot, which is exactly what the game forbids and what Loom is built not to be. A modified package that does any of this is no longer Loom, and the risk to your character is yours alone.
+**Please don't extend Loom past these limits**: no recasting loop for fishing, no walking route for the basher, harvesting, gathering or transmutation, no restart that keeps a run going on its own, no trigger that turns a single action into an endless one. Each of those turns a reflex into a bot, which is exactly what the game forbids and what Loom is built not to be. A modified package that does any of this is no longer Loom, and the risk to your character is yours alone.
 
-The same goes for using the packages as they are: stay at the keyboard while the basher, fishing, harvesting or gathering is on, and switch them off when you step away.
+The same goes for using the packages as they are: stay at the keyboard while the basher, fishing, harvesting, gathering or transmutation is on, and switch them off when you step away.
 
 ## What acts on its own
 
@@ -52,6 +52,7 @@ The packages below send commands without you typing each one. Check them against
 | [fishing](fishing.md) | After your cast: teases, jerks and reels on the game's cues | the fish is landed or lost |
 | [harvesting](harvesting.md) | While on: harvests and stores what's short in each room you enter | `HARVESTING OFF` |
 | [gathering](gathering.md) | While on: gathers and stores what's short in each room you enter | `GATHERING OFF` |
+| [transmutation](transmutation.md) | While on: extracts and stores the area's mineral when short, in each mountain or underground room you enter; sends `MINERALS` once in an area it doesn't know | `TRANSMUTATION OFF` |
 | [hunting](hunting.md) | Autogold picks up gold from your kills (if set) | `HUNTING AUTOGOLD OFF` |
 | [magi](magi.md) | Picks up pearls; a refine run sends `REFINE` until done; **opens a sonic portal when a city member tells you "Gate."** (off by default) | `MAGI PEARLS OFF`, `REFINE STOP`, `PORTAL OFF` |
 | [civic](civic.md) | **Accepts lesson requests** from others (not enemies) | `LOOM PAUSE ON` |
@@ -71,7 +72,7 @@ Shopping's bold item agrees only to a purchase you just clicked, never to anythi
 
 ## Good habits
 
-- **Stay at the keyboard** whenever the basher, fishing, harvesting or gathering is on.
-- **Switch them off** before you step away: `BASHER STOP`, `HARVESTING OFF`, `GATHERING OFF`, or simply `LOOM PAUSE ON`.
+- **Stay at the keyboard** whenever the basher, fishing, harvesting, gathering or transmutation is on.
+- **Switch them off** before you step away: `BASHER STOP`, `HARVESTING OFF`, `GATHERING OFF`, `TRANSMUTATION OFF`, or simply `LOOM PAUSE ON`.
 - **When unsure, ask** the game's administration rather than assuming.
 - Curing is not part of Loom: use the game's own server-side curing (`CURING ON`).

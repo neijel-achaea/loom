@@ -50,6 +50,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [magi](magi.md) | — | Magi helpers: even crystal refining, pearls, portals, staff attack, treaties |
 | [harvesting](harvesting.md) | — | Harvests the plants your rift is short of as you walk the rooms |
 | [gathering](gathering.md) | — | Gathers the materials your rift is short of as you walk the rooms |
+| [transmutation](transmutation.md) | — | Extracts the minerals your rift is short of as you walk the mountains |
 | [remedies](remedies.md) | — | Tops up the elixirs and salves in your rift: brews in your pot and pours |
 | [shopping](shopping.md) | Shopping | A shopping list priced from the city's directory, the commodity shops and the Delos market, grouped by shop; minimum stocks and RESTOCK |
 

@@ -183,6 +183,16 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `gathering_map` | data | 1.1 | material name to rift name |  |
 | `gathering_stock` | data | 1.1 | rift stock last read |  |
 
+## transmutation
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `transmutation_default_min` | setting | 1.2 | default minimum per mineral (500) |  |
+| `transmutation_min` | setting | 1.2 | minimum per mineral |  |
+| `transmutation_areas` | data | 1.2 | area to its mineral ("" for none) |  |
+| `transmutation_stock` | data | 1.2 | rift stock of minerals last seen |  |
+| `transmutation_arg` | state | 1.2 | argument of AREAS, deleted at once |  |
+
 ## remedies
 
 | Variable | Kind | Since | Holds | Was |

@@ -150,7 +150,7 @@ These stages are a suggestion, not a rule. Skip any package you don't need.
 Add these when you start the activity or join the city role they're for:
 
 - Fishing: **[fishing](fishing.md)** and **[fishingstats](fishingstats.md)**.
-- Trade skills: **[harvesting](harvesting.md)**, **[gathering](gathering.md)**, **[remedies](remedies.md)**, **[conjuration](conjuration.md)**; **[patrolling](patrolling.md)** for checking plants and shrines.
+- Trade skills: **[harvesting](harvesting.md)**, **[gathering](gathering.md)**, **[transmutation](transmutation.md)**, **[remedies](remedies.md)**, **[conjuration](conjuration.md)**; **[patrolling](patrolling.md)** for checking plants and shrines.
 - Your city: **[sigils](sigils.md)**, **[civic](civic.md)**, and **[vision](vision.md)** (which uses social's lists).
 - Your class: **[magi](magi.md)** for Magi.
 - Dragons: **[talpieces](talpieces.md)** for the talisman pieces.

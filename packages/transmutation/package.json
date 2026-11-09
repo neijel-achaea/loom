@@ -1,0 +1,201 @@
+{
+  "type": "group",
+  "name": "transmutation",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "transmutation_setup",
+      "enabled": true,
+      "code": "@file:transmutation_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "transmutation_status",
+      "enabled": true,
+      "code": "@file:transmutation_status.js"
+    },
+    {
+      "type": "function",
+      "name": "transmutation_areas",
+      "enabled": true,
+      "code": "@file:transmutation_areas.js"
+    },
+    {
+      "type": "function",
+      "name": "transmutation_help",
+      "enabled": true,
+      "code": "@file:transmutation_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Transmutation control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_transmutation.js"
+        }
+      ],
+      "text": "^transmutation(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Minerals spotted",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_spot.js"
+        }
+      ],
+      "text": "^You spot the following minerals here:$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Minerals row",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_spot_row.js"
+        }
+      ],
+      "text": "^([A-Z][a-z]+)\\s+([A-Z][a-z]+(?: [a-z]+)*)\\s*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift store",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_store.js"
+        }
+      ],
+      "text": "^You store ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift remove",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_remove.js"
+        }
+      ],
+      "text": "^You remove ([\\d,]+) (.+), bringing the total in the rift to ([\\d,]+)\\.$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift header",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_header.js"
+        }
+      ],
+      "text": "^Glancing into your rift, you see:$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift title",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_title.js"
+        }
+      ],
+      "text": "^Minerals$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift rule",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_rule.js"
+        }
+      ],
+      "text": "^-{20,}$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Rift rows",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_rift_rows.js"
+        }
+      ],
+      "text": "^\\s*\\[\\s*[\\d,]+\\]\\s.*$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "Extracts the minerals your rift is short of as you walk the mountains"
+}
