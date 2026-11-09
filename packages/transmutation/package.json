@@ -102,6 +102,30 @@
     },
     {
       "type": "trigger",
+      "name": "Extracted",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "highlight",
+          "enabled": true,
+          "highlight_fg": "#00ffb3",
+          "highlight_bg": "#000000",
+          "highlight": "line",
+          "highlight_backref": ""
+        },
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_extracted.js"
+        }
+      ],
+      "text": "^You kneel and collect chunks of earth, using a strong-smelling solvent to pull .+ from the dirt and rock\\.",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "Rift store",
       "enabled": true,
       "actions": [

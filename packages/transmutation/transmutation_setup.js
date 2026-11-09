@@ -13,7 +13,7 @@ var TR = client.loom.transmutation;
 // busy (#318): true only while something it sent is out (an EXTRACT with
 // its INR, a MINERALS, the rift reading), so Here's probe, harvesting and
 // gathering wait for it, and it for them, without both waiting on each other.
-client.loom.registry.transmutation = { version: "0.1.0", keyword: "TRANSMUTATION", desc: "{{description}}", busy: function () {
+client.loom.registry.transmutation = { version: "0.1.1", keyword: "TRANSMUTATION", desc: "{{description}}", busy: function () {
   var t = client.loom.transmutation;
   return !!(t && t.on && (t.current || t.probing || t.reading) && Date.now() - (t.sentAt || 0) < 15000);
 } };
@@ -28,9 +28,10 @@ TR.known = function (m) { return TR.minerals.indexOf(String(m || "").toLowerCase
 // A room can't be extracted from again for a while (the game says "that
 // day"): rooms extracted this session are skipped for an hour.
 TR.againMs = 3600000;
-// An area is only taken to have no minerals after this many of its rooms
-// (mountain or underground) showed none.
-TR.noneAfter = 3;
+// An area is taken to have no minerals after this many of its rooms showed
+// none. Rooms don't get worked out (Ricardo), so one empty MINERALS answers
+// for the whole area.
+TR.noneAfter = 1;
 
 // Saved state. A variable that isn't a readable table starts afresh (#135).
 TR.readTable = function (name, dflt) {
@@ -132,8 +133,8 @@ TR.prompt = function () {
     if (!TR.bal || !TR.eq) c.lost = true;
     else if (c.lost) c.back++;
     // Stored: the "You store" line cleared it. Otherwise: balance came back
-    // and the queued INR had two prompts to answer; or it never went (an
-    // extract that failed without balance, INR answered at once); or too long.
+    // and the queued INR had two prompts to answer; or the extract failed
+    // without taking balance; or too long.
     if (c.back >= 2 || (!c.lost && c.prompts >= 3) || now - c.at > TR.timeoutMs) TR.current = null;
     else return;
   }
@@ -159,12 +160,19 @@ TR.pump = function () {
     send_command("minerals");
     return;
   }
-  // The INR waits in the game's queue for the balance EXTRACT takes. No
-  // success line is needed: what's stored shows in "You store …".
   TR.current = { m: w.m, at: TR.sentAt, prompts: 0, lost: false, back: 0 };
   if (TR.room) TR.done[TR.room] = TR.sentAt;
   send_command("extract " + w.m);
-  send_command("queue add be inr " + w.m);
+};
+// "You kneel and collect chunks of earth, … pull a group of 5 calamine
+// crystals from the dirt and rock. …": ours worked, so store it once
+// balance is back. Any other answer is settled at the prompt (TR.prompt).
+TR.extracted = function () {
+  var c = TR.current;
+  if (!c || c.inr) return false;
+  c.inr = true;
+  send_command("queue add be inr " + c.m);
+  return true;
 };
 
 // MINERALS output: "You spot the following minerals here:", then one row per
@@ -195,7 +203,7 @@ TR.probed = function () {
     if (TR.noneSeen[p.area] >= TR.noneAfter) {
       TR.areas[p.area] = "";
       TR.save();
-      TR.say(p.area + ": no minerals in " + TR.noneAfter + " rooms, so none to extract there (TRANSMUTATION FORGET HERE to look again).");
+      TR.say(p.area + ": no minerals, so none to extract there (TRANSMUTATION FORGET HERE to look again).");
     }
   }
   TR.spot = null;
