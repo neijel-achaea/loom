@@ -1,7 +1,7 @@
 // transmutation_setup -- run from onLoad and onInstall, and by any reflex that
 // finds the namespace missing. Namespace, registry, saved state, helpers.
 // Transmutation is the Transmutation trade skill's package (#373). For now it
-// does extraction only: on entering a mountain or natural underground room it
+// does extraction only: on entering a mountain or underground room it
 // extracts the area's mineral when your rift is short of it, and stores it.
 // Every area gives one mineral and it never changes (Ricardo), so the package
 // keeps a map of area -> mineral, learnt from MINERALS: it sends MINERALS
@@ -13,14 +13,14 @@ var TR = client.loom.transmutation;
 // busy (#318): true only while something it sent is out (an EXTRACT with
 // its INR, a MINERALS, the rift reading), so Here's probe, harvesting and
 // gathering wait for it, and it for them, without both waiting on each other.
-client.loom.registry.transmutation = { version: "0.1.1", keyword: "TRANSMUTATION", desc: "{{description}}", busy: function () {
+client.loom.registry.transmutation = { version: "0.1.2", keyword: "TRANSMUTATION", desc: "{{description}}", busy: function () {
   var t = client.loom.transmutation;
   return !!(t && t.on && (t.current || t.probing || t.reading) && Date.now() - (t.sentAt || 0) < 15000);
 } };
 
 // Environments (GMCP Room.Info environment, lower case) minerals can be
 // extracted in.
-TR.envs = { mountain: true, mountains: true, "natural underground": true };
+TR.envs = { mountain: true, mountains: true, "natural underground": true, "constructed underground": true };
 // Every mineral (HELP MINERALS): what MIN accepts.
 TR.minerals = ["antimony", "argentum", "arsenic", "aurum", "azurite", "bisemutum", "calamine", "calcite", "cinnabar", "cuprum",
   "dolomite", "ferrum", "gypsum", "magnesium", "malachite", "plumbum", "potash", "quartz", "quicksilver", "realgar", "stannum"];

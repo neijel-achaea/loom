@@ -3,12 +3,12 @@
 *Extracts the minerals your rift is short of as you walk the mountains, and stores them.*
 
 <!-- loom:version transmutation -->
-*This page describes transmutation 0.1.1.*
+*This page describes transmutation 0.1.2.*
 <!-- /loom:version -->
 
 ## What it is
 
-Transmutation is Loom's package for the Transmutation trade skill. For now it does one thing: extraction, the way [harvesting](harvesting.md) does herbs and [gathering](gathering.md) does materials. With it on, every **mountain** or **natural underground** room you enter is checked: if the area's mineral is **below its minimum** in your rift, it is extracted (`EXTRACT CALAMINE`) and put straight into the rift (`INR`).
+Transmutation is Loom's package for the Transmutation trade skill. For now it does one thing: extraction, the way [harvesting](harvesting.md) does herbs and [gathering](gathering.md) does materials. With it on, every **mountain** or **underground** room (natural or constructed) you enter is checked: if the area's mineral is **below its minimum** in your rift, it is extracted (`EXTRACT CALAMINE`) and put straight into the rift (`INR`).
 
 Every area gives one mineral, and it never changes. Transmutation keeps a map of them: in an area it doesn't know yet, it sends `MINERALS` once in the room you're in, and remembers what it says (a `MINERALS` you type counts too). Rooms don't get worked out, so a `MINERALS` that lists nothing means the whole area has none, and it isn't asked again there. `TRANSMUTATION AREAS` lists what it knows; `TRANSMUTATION AREAS calamine` tells you where to go for one.
 
@@ -34,7 +34,7 @@ It sends nothing while Loom is paused (`LOOM PAUSE ON`), and it loads off: every
 | `TRANSMUTATION STOCK` | re-read your rift now |
 | `TRANSMUTATION RESET` | clear what's out and the rooms extracted this session, reload saved state |
 | `TRANSMUTATION DEBUG` | internal state |
-| **Extracts in mountain and natural underground rooms. Each area gives one mineral: it sends MINERALS once in an area it doesn't know (yours count too) and remembers it.** | |
+| **Extracts in mountain and underground (natural or constructed) rooms. Each area gives one mineral: it sends MINERALS once in an area it doesn't know (yours count too) and remembers it.** | |
 <!-- /loom:commands -->
 
 `TRANSMUTATION` shows the area you're in, its mineral, and what's below its minimum among the minerals of the areas you know. `TRANSMUTATION MIN 800` sets the default minimum; `TRANSMUTATION MIN calamine 1000` sets one mineral's; `TRANSMUTATION MIN calamine DEFAULT` puts it back on the default.
