@@ -13,7 +13,7 @@ var hlRows = [
   ["TRANSMUTATION STOCK", "re-read your rift now"],
   ["TRANSMUTATION RESET", "clear what's out and the rooms extracted this session, reload saved state"],
   ["TRANSMUTATION DEBUG", "internal state"],
-  ["Extracts in mountain and natural underground rooms. Each area gives one mineral: it sends MINERALS once in an area it doesn't know (yours count too) and remembers it."]
+  ["Extracts in mountain and underground (natural or constructed) rooms. Each area gives one mineral: it sends MINERALS once in an area it doesn't know (yours count too) and remembers it."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {
