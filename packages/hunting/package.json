@@ -971,6 +971,38 @@
             {
               "type": "script",
               "enabled": true,
+              "script": "@file:autogold__trigger_a_huge_pile_of_sovereigns_spills_from.js"
+            }
+          ],
+          "text": "A huge pile of sovereigns spills from the corpse.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:autogold__trigger_a_mountainous_pile_of_sovereigns_spills_from.js"
+            }
+          ],
+          "text": "A mountainous pile of sovereigns spills from the corpse.",
+          "matching": "substring",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
+              "type": "script",
+              "enabled": true,
               "script": "@file:autogold__trigger_numerous_golden_sovereigns_spill_from.js"
             }
           ],
