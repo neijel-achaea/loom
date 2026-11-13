@@ -212,6 +212,17 @@ CR.pump = function () {
   CR.write(CR.queue.shift(), false);
 };
 CR.label = function (it) { return typeof it == "number" ? CR.dayName(it) : it.charAt(0) === "m" ? CR.monthName(+it.slice(1)) : CR.yearName(+it.slice(1)); };
+// The request. Recent models think before answering, and thinking counts
+// against max_tokens: a busy day's thinking used up 900 and left no text
+// (Ricardo, 2026-11-13). So: room for both, and low effort (a summary
+// doesn't need deep thought). A model that refuses those settings (400) is
+// asked again without them, and they stay off for the session.
+CR.lean = CR.lean !== false;
+CR.request = function (sys, user) {
+  var r = { model: CR.model, max_tokens: 4000, system: sys, messages: [{ role: "user", content: user }] };
+  if (CR.lean) { r.thinking = { type: "adaptive" }; r.output_config = { effort: "low" }; }
+  return r;
+};
 // One call. manual: CHRONICLE WRITE, which reports back and ignores past
 // failures. Something still going (today, this month) gets a draft, replaced
 // when it ends.
@@ -242,7 +253,7 @@ CR.write = function (it, manual) {
   fetch(CR.api, {
     method: "POST",
     headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true", "content-type": "application/json" },
-    body: JSON.stringify({ model: CR.model, max_tokens: 900, system: sys, messages: [{ role: "user", content: user }] })
+    body: JSON.stringify(CR.request(sys, user))
   }).then(function (r) {
     return r.json().then(function (j) { return { status: r.status, j: j }; }, function () { return { status: r.status, j: null }; });
   }).then(function (res) {
@@ -289,6 +300,11 @@ CR.written = function (it, res, manual, started) {
   var why = res.err ? "no answer (" + res.err + ")" : (j.error && j.error.message) ? res.status + ": " + j.error.message :
     res.status === 200 ? "an answer with no text (stop: " + (j.stop_reason || "?") + ", blocks: " + (kinds.join(", ") || "none") + "; CHRONICLE DEBUG shows it)" : "answer " + res.status;
   CR.lastErr = why;
+  if (res.status === 400 && CR.lean && /thinking|effort|output_config/i.test(String(j.error && j.error.message || ""))) {
+    CR.lean = false;
+    CR.write(it, manual);
+    return;
+  }
   // A bad key or a bad model won't get better by waiting: stop and say so.
   if (res.status === 401 || res.status === 403 || res.status === 404 || res.status === 400) {
     CR.queue = [];
