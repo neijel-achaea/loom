@@ -24,7 +24,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.chronicle) client.loom.chronicle = {};
-client.loom.registry.chronicle = { version: "0.2.0", keyword: "CHRONICLE", desc: "{{description}}",
+client.loom.registry.chronicle = { version: "0.2.1", keyword: "CHRONICLE", desc: "{{description}}",
   redraw: function () { run_function("chronicle_render", [], "chronicle"); } };
 var CR = client.loom.chronicle;
 

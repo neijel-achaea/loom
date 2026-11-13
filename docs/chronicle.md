@@ -3,7 +3,7 @@
 *A record of each Achaean day: where you went, what was said, what you read, and what you did.*
 
 <!-- loom:version chronicle -->
-*This page describes chronicle 0.2.0.*
+*This page describes chronicle 0.2.1.*
 <!-- /loom:version -->
 
 > **Before you turn on summaries: cost and privacy.** The record itself stays with your character and costs nothing. Summaries are optional, and turning them on (`CHRONICLE KEY`) means:
