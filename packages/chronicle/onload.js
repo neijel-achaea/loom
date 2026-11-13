@@ -14,3 +14,5 @@ for (var tiI = 0; tiI < tiTabs.length; tiI++) {
 run_function("chronicle_setup", [], "chronicle");
 run_function("chronicle_gmcp", [], "chronicle");
 run_function("chronicle_render", [], "chronicle");
+// Days that ended while you were away get their summaries, once things settle.
+setTimeout(function () { var c = client.loom && client.loom.chronicle; if (c && c.due) { c.seenDay = c.today(); c.due(); } }, 15000);

@@ -31,6 +31,7 @@ client.loom.hooks.chronicle.gmcp = function (args) {
   } else if (m === "Comm.Channel.List") {
     if (Array.isArray(raw)) { for (var j = 0; j < raw.length; j++) { if (raw[j] && raw[j].name && raw[j].caption) CR.captions[String(raw[j].name)] = String(raw[j].caption); } }
   } else if (g.name) {
+    if (CR.status) CR.status(g);
     var n = String(g.name).split(/\s+/)[0];
     if (n && n !== CR.me) { CR.me = n; set_variable("chronicle_name", n); }
   }

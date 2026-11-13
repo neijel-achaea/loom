@@ -63,6 +63,15 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `chronicle_anchor` | state | 1.2 | the last date read, and when (every other day is worked out from it) |  |
 | `chronicle_channels` | setting | 1.2 | channels kept or left out by hand |  |
 | `chronicle_name` | state | 1.2 | your name, from GMCP |  |
+| `chronicle_char` | state | 1.2 | race, class, age, city, house, order from Char.Status (race kept from out of dragonform) |  |
+| `chronicle_voice` | setting | 1.2 | your notes on the character, for summaries |  |
+| `chronicle_person` | setting | 1.2 | "third" (default) or "first" |  |
+| `chronicle_model` | setting | 1.2 | the model, "" for the default |  |
+| `chronicle_auto` | setting | 1.2 | "off" stops the automatic summaries |  |
+| `chronicle_usage` | data | 1.2 | summaries written and tokens used |  |
+
+The API key is in the browser's localStorage (`loom_chronicle_key`), never in a variable.
+
 
 ## civic
 

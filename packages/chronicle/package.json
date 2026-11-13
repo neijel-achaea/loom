@@ -52,6 +52,12 @@
       "code": "@file:chronicle_help.js"
     },
     {
+      "type": "function",
+      "name": "chronicle_summary",
+      "enabled": true,
+      "code": "@file:chronicle_summary.js"
+    },
+    {
       "type": "alias",
       "name": "Chronicle control",
       "enabled": true,

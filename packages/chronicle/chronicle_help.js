@@ -9,6 +9,12 @@ var hlRows = [
   ["CHRONICLE CHANNELS", "the channels heard this session, and which are kept"],
   ["CHRONICLE CHANNEL <name> ON|OFF", "keep or leave out a channel (TELLS for all tells)"],
   ["CHRONICLE CHANNEL <name> DEFAULT", "back to the default for that channel"],
+  ["CHRONICLE KEY <key>|CLEAR", "your Anthropic API key, kept in this browser only (summaries need it)"],
+  ["CHRONICLE VOICE [text|CLEAR]", "your notes on the character, for the summaries"],
+  ["CHRONICLE PERSON FIRST|THIRD", "a chronicler's record (third, default) or the character's journal"],
+  ["CHRONICLE SUMMARIES ON|OFF", "a summary at the end of each Achaean day (on)"],
+  ["CHRONICLE WRITE [day]", "write a day's summary now: today, yesterday, or e.g. 8 Scarlatan"],
+  ["CHRONICLE MODEL [id|DEFAULT]", "the model that writes them"],
   ["CHRONICLE EXPORT", "download the whole record as a Markdown file"],
   ["CHRONICLE EXPORT SHOW", "print the last export here, if no download started"],
   ["CHRONICLE DEBUG", "internal state"],
@@ -17,8 +23,9 @@ var hlRows = [
   ["Kept by itself: areas you spend a minute in, rooms you stay five minutes in (and who was"],
   ["there), IC channels (say, tells, yell, city, house, order, clans, the gods' emotes), emotes"],
   ["in your room, and letters, messages and news you read. Anything after // is taken as OOC."],
-  ["The record keeps the last 30 Achaean days you played in (one Achaean day is one real hour),"],
-  ["saved with your character's settings, so it follows you to any device."]
+  ["The record keeps the lines of the last 30 Achaean days you played in (one Achaean day is one"],
+  ["real hour), and summaries for longer, saved with your character's settings. Summaries need"],
+  ["your own Anthropic API key (CHRONICLE KEY): each day's record is sent to write them, at a cost."]
 ];
 var hlW = 0;
 for (var hlI = 0; hlI < hlRows.length; hlI++) {

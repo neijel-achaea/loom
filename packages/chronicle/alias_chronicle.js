@@ -12,7 +12,8 @@ if (crCmd === "" || crCmd === "STATUS") {
   var crKept = 0;
   for (var crI = 0; crI < CR.days.length; crI++) crKept += CR.days[crI].ev.length;
   display_notice("[chronicle] " + (crToday ? "Today is the " + CR.dayName(crToday) + "." : "The date isn't known yet: it comes with the next hour's date line, or DATE.") +
-    " Today: " + (crB ? crB.ev.length : 0) + " entr" + (crB && crB.ev.length === 1 ? "y" : "ies") + ". Kept: " + CR.days.length + " day" + (CR.days.length === 1 ? "" : "s") + ", " + crKept + " entries.", "cyan");
+    " Today: " + (crB ? crB.ev.length : 0) + " entr" + (crB && crB.ev.length === 1 ? "y" : "ies") + ". Kept: " + CR.days.length + " day" + (CR.days.length === 1 ? "" : "s") + ", " + crKept + " entries." +
+    " Summaries: " + (!CR.getKey() ? "no key (CHRONICLE KEY)" : CR.auto ? "on, " + CR.model : "off") + (CR.usage.calls ? "; " + CR.usage.calls + " written, " + CR.usage.inTok + " tokens in, " + CR.usage.outTok + " out" : "") + (CR.lastErr ? "; last error: " + CR.lastErr : "") + ".", "cyan");
 } else if (crCmd === "HELP") {
   run_function("chronicle_help", [], "chronicle");
 } else if (crCmd === "NOTE") {
@@ -59,6 +60,35 @@ if (crCmd === "" || crCmd === "STATUS") {
   } else {
     display_notice("[chronicle] the browser refused the download: CHRONICLE EXPORT SHOW prints the record here to copy.", "orange");
   }
+} else if (crCmd === "KEY") {
+  var crKey = crW[1] || "";
+  if (!crKey) display_notice("[chronicle] " + (CR.getKey() ? "an API key is set in this browser." : "no API key in this browser.") + " CHRONICLE KEY <key> sets it, CHRONICLE KEY CLEAR removes it.", "cyan");
+  else if (crKey.toUpperCase() === "CLEAR") { CR.setKey(""); display_notice("[chronicle] key removed from this browser.", "lime"); }
+  else if (!CR.setKey(crKey)) display_notice("[chronicle] this browser wouldn't store the key.", "orange");
+  else {
+    display_notice("[chronicle] key stored in this browser only (not in your Nexus settings: set it again on another computer). Each day's record, including what others said around you, is sent to Anthropic to write its summary; it costs a little per day on your key.", "lime");
+    CR.due();
+  }
+} else if (crCmd === "VOICE") {
+  if (!crRest) display_notice("[chronicle] " + (CR.voice ? "your notes on the character: " + CR.voice : "no notes on the character yet: CHRONICLE VOICE <text> (who they are, what they're after, how they speak).") + " The game adds: " + (CR.facts() || "nothing yet (log in again)") + " Written in the " + CR.person + " person.", "cyan");
+  else if (crRest.toUpperCase() === "CLEAR") { CR.voice = ""; set_variable("chronicle_voice", ""); display_notice("[chronicle] notes cleared.", "lime"); }
+  else { CR.voice = CR.clip(crRest, 2000); set_variable("chronicle_voice", CR.voice); display_notice("[chronicle] notes kept; the next summary uses them.", "lime"); }
+} else if (crCmd === "PERSON") {
+  var crP = String(crW[1] || "").toUpperCase();
+  if (crP !== "FIRST" && crP !== "THIRD") display_notice("[chronicle] usage: CHRONICLE PERSON FIRST|THIRD (now " + CR.person + ").", "orange");
+  else { CR.person = crP.toLowerCase(); set_variable("chronicle_person", CR.person); display_notice("[chronicle] summaries in the " + CR.person + " person" + (CR.person === "first" ? ", as the character's journal." : ", as a chronicler's record."), "lime"); }
+} else if (crCmd === "MODEL") {
+  if (!crW[1]) display_notice("[chronicle] model: " + CR.model + ". CHRONICLE MODEL <id> to change it, DEFAULT for " + CR.defaultModel + ".", "cyan");
+  else { CR.model = crW[1].toUpperCase() === "DEFAULT" ? CR.defaultModel : crW[1]; set_variable("chronicle_model", CR.model === CR.defaultModel ? "" : CR.model); display_notice("[chronicle] model: " + CR.model + ".", "lime"); }
+} else if (crCmd === "SUMMARIES") {
+  var crS = String(crW[1] || "").toUpperCase();
+  if (crS !== "ON" && crS !== "OFF") display_notice("[chronicle] usage: CHRONICLE SUMMARIES ON|OFF (now " + (CR.auto ? "on" : "off") + ").", "orange");
+  else { CR.auto = crS === "ON"; set_variable("chronicle_auto", CR.auto ? "on" : "off"); display_notice("[chronicle] summaries at the end of each day " + (CR.auto ? "on." : "off: CHRONICLE WRITE still writes one by hand."), "lime"); if (CR.auto) CR.due(); }
+} else if (crCmd === "WRITE") {
+  var crWd = CR.findDay(crRest);
+  if (!crWd) display_notice("[chronicle] no such day in the record" + (crRest ? " ('" + crRest + "')" : "") + ". CHRONICLE WRITE [today|yesterday|<day> <month>].", "orange");
+  else if (CR.busy) display_notice("[chronicle] a summary is being written; try again in a moment.", "orange");
+  else { display_notice("[chronicle] writing " + CR.dayName(crWd) + "...", "cyan"); CR.write(crWd, true); }
 } else if (crCmd === "DEBUG") {
   var crN = 0;
   for (var crD = 0; crD < CR.days.length; crD++) crN += CR.days[crD].ev.length;
@@ -67,7 +97,7 @@ if (crCmd === "" || crCmd === "STATUS") {
     " room=" + (CR.room ? CR.room.name + " (" + Math.round((Date.now() - CR.room.at) / 1000) + "s)" : "none") +
     " area=" + (CR.area ? CR.area.name : "none") + " players=" + Object.keys(CR.players).join(",") +
     " capture=" + (CR.capt ? CR.capt.ev.k + "/" + CR.capt.lines.length : "none") + " more=" + (CR.cont ? "waiting" : "no") +
-    " overrides=" + JSON.stringify(CR.over), "cyan");
+    " overrides=" + JSON.stringify(CR.over) + " queue=" + JSON.stringify(CR.queue) + " busy=" + CR.busy + " key=" + (CR.getKey() ? "set" : "none") + " char=" + JSON.stringify(CR.char), "cyan");
 } else if (crCmd === "RESET") {
   if (CR.saveT) { clearTimeout(CR.saveT); CR.saveT = null; CR.save(); }
   client.loom.chronicle = {};

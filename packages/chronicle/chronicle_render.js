@@ -58,8 +58,14 @@ if (today) {
   html += '<div style="color:' + MUTED + ';">It comes with the next hour\'s date line, or type DATE.</div>';
 }
 
+// A summary, in the chronicle's hand.
+function prose(sum) {
+  return '<div style="font-family:' + SERIF + ';font-size:12px;line-height:1.45;color:' + TXT + ';margin:3px 0 4px;">' + esc(sum.text) +
+    (sum.draft ? ' <span style="color:' + MUTED + ';font-style:italic;font-size:10px;">(so far)</span>' : '') + '</div>';
+}
 // Today, newest first.
 var td = "";
+if (cur && cur.sum) td += prose(cur.sum);
 if (!cur || !cur.ev.length) td = quiet("Nothing recorded yet this day.");
 else {
   var shown = 0;
@@ -68,7 +74,8 @@ else {
 }
 html += section(today ? "This day" : "Before the date was known", td, PARCH);
 
-// Earlier days, newest first, with what they hold.
+// Earlier days, newest first: the summary when there is one, and what the
+// record holds. Summaries being written, or failed, say so.
 var ea = "";
 for (var j = CR.days.length - 1; j >= 0; j--) {
   var b = CR.days[j];
@@ -82,11 +89,21 @@ for (var j = CR.days.length - 1; j >= 0; j--) {
   if (n.letter || n.msg || n.news) bits.push(((n.letter || 0) + (n.msg || 0) + (n.news || 0)) + " read");
   if (n.note) bits.push(n.note + " notes");
   if (n.link) bits.push(n.link + " deeds");
-  ea += '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;">' +
-    '<span style="flex:1 1 auto;color:' + TXT + ';">' + esc(CR.dayName(b.d)) + '</span>' +
-    '<span style="color:' + MUTED + ';white-space:nowrap;">' + esc(bits.join(" · ") || "empty") + '</span></div>';
+  var state = "";
+  if (!b.sum && b.d > 0 && b.ev.length) {
+    if (CR.busy && CR.writing === b.d) state = "being written\u2026";
+    else if (b.fails >= CR.retryMs.length) state = "summary failed";
+    else if (!CR.getKey()) state = "";
+    else if (CR.auto) state = "summary to come";
+  }
+  ea += '<div style="border-bottom:1px dotted ' + RULE + ';padding:3px 0;">' +
+    '<div style="display:flex;gap:6px;align-items:baseline;">' +
+    '<span style="flex:1 1 auto;color:' + PARCH + ';font-family:' + SERIF + ';">' + esc(CR.dayName(b.d)) + '</span>' +
+    '<span style="color:' + MUTED + ';white-space:nowrap;">' + esc(state || bits.join(" \u00b7 ") || (b.sum ? "" : "empty")) + '</span></div>' +
+    (b.sum ? prose(b.sum) : '') + '</div>';
 }
 if (ea) html += section("Earlier days", ea, PARCH);
+if (!CR.getKey()) html += '<div style="margin-top:8px;color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">No summaries without an API key: CHRONICLE HELP.</div>';
 
 html += '</div>';
 // The whole tab in the panel's colour (#355), as Ledger does.

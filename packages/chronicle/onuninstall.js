@@ -3,6 +3,8 @@ if (client.loom && client.loom.chronicle) {
   var crU = client.loom.chronicle;
   if (crU.saveT) { clearTimeout(crU.saveT); crU.saveT = null; if (crU.save) crU.save(); }
   if (crU.drawT) { clearTimeout(crU.drawT); crU.drawT = null; }
+  if (crU.retryT) { clearTimeout(crU.retryT); crU.retryT = null; }
+  crU.queue = [];
   crU.capt = null;
 }
 // Leave LOOM and the integrations at once, not at the next load (#137).

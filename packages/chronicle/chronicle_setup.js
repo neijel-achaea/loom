@@ -54,7 +54,12 @@ if (!Array.isArray(CR.days)) {
   if (Array.isArray(crD)) {
     for (var crI = 0; crI < crD.length; crI++) {
       var crB = crD[crI];
-      if (crB && typeof crB == "object" && typeof crB.d == "number" && Array.isArray(crB.ev)) CR.days.push({ d: crB.d, ev: crB.ev.filter(function (e) { return e && typeof e == "object" && e.k; }) });
+      if (crB && typeof crB == "object" && typeof crB.d == "number" && Array.isArray(crB.ev)) {
+        var crNb = { d: crB.d, ev: crB.ev.filter(function (e) { return e && typeof e == "object" && e.k; }) };
+        if (crB.sum && typeof crB.sum == "object" && typeof crB.sum.text == "string") crNb.sum = crB.sum;
+        if (typeof crB.fails == "number") crNb.fails = crB.fails;
+        CR.days.push(crNb);
+      }
     }
   }
 }
@@ -174,10 +179,27 @@ CR.dirty = function () {
   if (!CR.saveT) CR.saveT = setTimeout(function () { client.loom.chronicle.saveT = null; client.loom.chronicle.save(); }, 10000);
   if (!CR.drawT) CR.drawT = setTimeout(function () { client.loom.chronicle.drawT = null; run_function("chronicle_render", [], "chronicle"); }, 300);
 };
+// What gives way when the record is too big: first the raw lines of the
+// oldest days that have their summary (the summary stays), then the oldest
+// days whole. Only maxDays days keep their raw lines.
 CR.save = function () {
-  while (CR.days.length > CR.maxDays) CR.days.shift();
+  var today = CR.today(), i, raw = 0;
+  for (i = CR.days.length - 1; i >= 0; i--) {
+    var b = CR.days[i];
+    if (!b.ev.length) continue;
+    raw++;
+    if (raw > CR.maxDays && (b.sum || b.d !== today)) b.ev = [];
+  }
+  CR.days = CR.days.filter(function (b) { return b.ev.length || b.sum; });
   var s = JSON.stringify(CR.days);
-  while (s.length > CR.maxBytes && CR.days.length > 1) { CR.days.shift(); s = JSON.stringify(CR.days); }
+  while (s.length > CR.maxBytes) {
+    var cut = -1;
+    for (i = 0; i < CR.days.length - 1 && cut < 0; i++) { if (CR.days[i].sum && CR.days[i].ev.length) cut = i; }
+    if (cut >= 0) CR.days[cut].ev = [];
+    else if (CR.days.length > 1) CR.days.shift();
+    else break;
+    s = JSON.stringify(CR.days);
+  }
   set_variable("chronicle_days", s);
 };
 
@@ -276,6 +298,9 @@ CR.meet = function (name) {
 // never saw its prompt ends.
 CR.tick = function () {
   var now = Date.now();
+  // A new day: the ones before it get their summaries.
+  var td = CR.today();
+  if (td && td !== CR.seenDay) { var first = !CR.seenDay; CR.seenDay = td; if (!first && CR.due) CR.due(); }
   if (CR.area && !CR.area.ev && CR.area.name && now - CR.area.at >= CR.areaMs) {
     CR.area.ev = CR.add({ t: CR.area.at, k: "place", area: CR.area.name, room: CR.room ? CR.room.name : "" });
   }
@@ -436,8 +461,10 @@ CR.markdown = function (days) {
   var out = ["# Chronicle" + (CR.me ? " of " + CR.me : ""), ""];
   for (var i = 0; i < days.length; i++) {
     var b = days[i];
-    if (!b.ev.length) continue;
+    if (!b.ev.length && !b.sum) continue;
     out.push("## " + CR.dayName(b.d), "");
+    if (b.sum) out.push(b.sum.text, "");
+    if (b.sum && b.ev.length) out.push("### The record", "");
     for (var j = 0; j < b.ev.length; j++) {
       var e = b.ev[j], txt = CR.show(e).split("\n");
       out.push("- " + CR.hhmm(e.t) + " **" + e.k + "** " + txt[0]);
@@ -464,6 +491,8 @@ CR.download = function () {
     return true;
   } catch (e) { return false; }
 };
+
+run_function("chronicle_summary", [], "chronicle");
 
 // --- what other packages offer, through loom -------------------------------------
 // entry.record({ source, key, text, at }): one line in the record, tagged with

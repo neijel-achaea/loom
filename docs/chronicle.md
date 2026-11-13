@@ -24,7 +24,18 @@ The date comes from the game's own date lines (each new day's, or `DATE`), or fr
 
 The record keeps the last 30 days you played in, and is saved with your character's settings, so it follows you from one computer to another. `CHRONICLE EXPORT` downloads all of it as a Markdown file; if the browser doesn't start a download, `CHRONICLE EXPORT SHOW` prints it in the main window to copy.
 
-This is version 0.1: the record. Later versions are planned to write a summary of each day from it, and roll those up into months and years.
+## Summaries
+
+With your own API key, Chronicle writes a short summary of each Achaean day when it ends (about a hundred words), shown in the tab above that day and in the export. It uses Anthropic's API: **it costs money on your key** (a little per day played), and **each day's record is sent to Anthropic**, including what others said around you. Without a key, Chronicle is just the record.
+
+- `CHRONICLE KEY <key>` stores your key **in this browser only**, never in your Nexus settings (they're kept by IRE and travel in .nxs files). On another computer, set it again. `CHRONICLE KEY CLEAR` removes it.
+- The voice has three layers: a chronicler's voice that fits Achaea (built in); what the game says of your character (race, class, age, city, house, order, from GMCP; in dragonform your race is remembered from before); and your own notes, `CHRONICLE VOICE <text>`: who they are, what they're after, the people around them, how they speak. The notes shape what the summaries notice; they aren't repeated.
+- `CHRONICLE PERSON THIRD` (default) writes a chronicler's record; `PERSON FIRST` writes it as your character's own journal.
+- Each summary sees the one before, for continuity. Game mechanics, numbers and out-of-character talk are left out, and nothing is invented.
+- A day that ends while you're away is written at your next login. A summary that fails is tried again after 30 seconds, 2 minutes and 10 minutes, then left: `CHRONICLE WRITE <day>` tries again by hand. A rejected key or model stops and tells you.
+- `CHRONICLE WRITE TODAY` writes the day so far (marked "so far"; rewritten when the day ends). `CHRONICLE SUMMARIES OFF` stops the automatic ones; `CHRONICLE MODEL <id>` changes the model (default `claude-haiku-5-5`). `CHRONICLE` shows how many have been written and the tokens used.
+
+The lines of a day are kept while it's among the last 30 played (or until the record is too big); its summary is kept longer. Rolling summaries up into months and years is planned.
 
 ## Commands
 
@@ -36,6 +47,12 @@ This is version 0.1: the record. Later versions are planned to write a summary o
 | `CHRONICLE CHANNELS` | the channels heard this session, and which are kept |
 | `CHRONICLE CHANNEL <name> ON\|OFF` | keep or leave out a channel (TELLS for all tells) |
 | `CHRONICLE CHANNEL <name> DEFAULT` | back to the default for that channel |
+| `CHRONICLE KEY <key>\|CLEAR` | your Anthropic API key, kept in this browser only (summaries need it) |
+| `CHRONICLE VOICE [text\|CLEAR]` | your notes on the character, for the summaries |
+| `CHRONICLE PERSON FIRST\|THIRD` | a chronicler's record (third, default) or the character's journal |
+| `CHRONICLE SUMMARIES ON\|OFF` | a summary at the end of each Achaean day (on) |
+| `CHRONICLE WRITE [day]` | write a day's summary now: today, yesterday, or e.g. 8 Scarlatan |
+| `CHRONICLE MODEL [id\|DEFAULT]` | the model that writes them |
 | `CHRONICLE EXPORT` | download the whole record as a Markdown file |
 | `CHRONICLE EXPORT SHOW` | print the last export here, if no download started |
 | `CHRONICLE DEBUG` | internal state |
@@ -44,8 +61,9 @@ This is version 0.1: the record. Later versions are planned to write a summary o
 | **Kept by itself: areas you spend a minute in, rooms you stay five minutes in (and who was** | |
 | **there), IC channels (say, tells, yell, city, house, order, clans, the gods' emotes), emotes** | |
 | **in your room, and letters, messages and news you read. Anything after // is taken as OOC.** | |
-| **The record keeps the last 30 Achaean days you played in (one Achaean day is one real hour),** | |
-| **saved with your character's settings, so it follows you to any device.** | |
+| **The record keeps the lines of the last 30 Achaean days you played in (one Achaean day is one** | |
+| **real hour), and summaries for longer, saved with your character's settings. Summaries need** | |
+| **your own Anthropic API key (CHRONICLE KEY): each day's record is sent to write them, at a cost.** | |
 <!-- /loom:commands -->
 
 ## Setting it up
