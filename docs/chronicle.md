@@ -14,7 +14,8 @@ It keeps by itself:
 
 - **Places**: each area you spend a minute or more in, and each room you stay in for five minutes or more, with who was there.
 - **IC channels**: say, tells, yell, your city, house and order, house newbie, group, clans, and the gods' emotes. Other channels (party, newbie, market…) are left out; `CHRONICLE CHANNELS` lists what you've heard this session and `CHRONICLE CHANNEL <name> ON|OFF` changes it. Anything after `//` in a line is taken as OOC and left out.
-- **Emotes** by players in your room (you too): lines that start with their name, except their talk (which comes with the channels) and their comings and goings. Someone with more than six such lines in a minute is fighting, not emoting: their lines are left out for two minutes. Housekeeping (curing, putting gold away, wielding, following) is left out too.
+- **Your custom emotes** (`EMOTE`, and roleplay's ambient ones), from the game's "You have emoted: …". Socials ("You skip about merrily.") aren't kept.
+- **Emotes** by other players in your room: lines that start with their name, except their talk (which comes with the channels) and their comings and goings. Someone with more than six such lines in a minute is fighting, not emoting: their lines are left out for two minutes. Housekeeping (curing, putting gold away, wielding, following) is left out too.
 - **Repeats** of the same line within two minutes count up the first one (×10) rather than filling the record.
 - **What you read**: letters, messages and news posts, up to the prompt. A news post read over several MOREs is kept as one entry; a message or post read again isn't kept twice.
 - **Notes** of your own: `CHRONICLE NOTE <text>`, for whatever the record can't see.

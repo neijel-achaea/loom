@@ -306,6 +306,11 @@ CR.re = {
   msg: /^Message #(\d+)\s+Sent by (\S+)\s*$/,
   more: /^\[Type MORE if you wish to continue reading\./,
   moreCmd: /^\s*more\s*$/i,
+  // Your own custom emotes (EMOTE, and roleplay's ambient ones) come back as
+  // "You have emoted: Neijel draws his lips back..." (Ricardo). Socials
+  // ("You skip about merrily.") aren't kept: they look like every other
+  // "You ..." line.
+  mine: /^You have emoted: (.+)$/,
   // Lines starting with a name that aren't emotes: talk (it comes by GMCP)
   // and comings and goings.
   talk: /^\w+ (?:says|asks|exclaims|whispers|yells|shouts|tells|answers|replies|mutters|sings|quietly says)\b/,
@@ -325,6 +330,7 @@ CR.line = function (raw) {
     if (CR.cont && Date.now() - CR.cont.at < 600000) { CR.capt = { ev: CR.cont.ev, lines: [], at: Date.now(), more: true }; CR.cont = null; }
     return;
   }
+  if (!CR.capt && (m = CR.re.mine.exec(raw))) { CR.add({ k: "emote", who: CR.me || "you", text: CR.clip(m[1], CR.textMax) }); return; }
   if (CR.capt) {
     if (CR.capt.ev.k == "news" && CR.re.more.test(raw)) { CR.cont = { ev: CR.capt.ev, at: Date.now() }; CR.finish(); return; }
     CR.capt.lines.push(raw);
