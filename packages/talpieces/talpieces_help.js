@@ -6,6 +6,7 @@ var hlTitle = "[talpieces] dragon talisman pieces toward the Elder Dragon set. C
 var hlRows = [
   ["TALPIECES", "progress, history and settings"],
   ["TALPIECES NEED", "pieces still needed, per colour and type"],
+  ["TALPIECES SURPLUS", "pieces beyond what the set needs, as one line to copy (the tab's Surplus view)"],
   ["TALPIECES RATE", "pieces per day: last 7 and 30 days, and all time"],
   ["TALPIECES GOAL <n|OFF>", "a goal of your own: collect n pieces from now, shown in place of the daily aim"],
   ["TALPIECES MARK", "store a history point now"],

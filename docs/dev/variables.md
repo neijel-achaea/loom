@@ -530,6 +530,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `talpieces_combine` | setting | 0.2 | queue TALISMAN COMBINE when you list |  |
 | `talpieces_goal` | setting | 1.1 | a goal of your own: pieces to collect, start, when set, reached |  |
 | `talpieces_span_days` | setting | 1.2 | days the graph shows, or `all` (default 30); the history is kept whole |  |
+| `talpieces_view` | setting | 1.3 | the Talismans tab's view: `needed` (default) or `surplus` |  |
 | `talpieces_pieces` | data | 0.2 | pieces owned | `tal_pieces` |
 | `talpieces_hist` | data | 0.2 | history | `tal_hist` |
 | `tal_graph_on` | legacy | 0.1 | old graph switch (1/0) |  |

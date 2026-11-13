@@ -13,6 +13,24 @@ if (tpSub === "" || tpSub === "status") {
 } else if (tpSub === "need") {
   run_function("talpieces_sync", [], "talpieces");
   run_function("talpieces_need", [], "talpieces");
+} else if (tpSub === "surplus") {
+  // TALPIECES SURPLUS: the Surplus view as one line to copy into a tell or a
+  // market channel. Printed only; Loom never sends it.
+  var tpSp = TP.surplus(), tpBy = [], tpCur = null, tpWorth = 0;
+  for (var tpK = 0; tpK < tpSp.length; tpK++) {
+    var tpE = tpSp[tpK];
+    tpWorth += tpE.worth;
+    if (!tpCur || tpCur.c !== tpE.colour) { tpCur = { c: tpE.colour, bits: [] }; tpBy.push(tpCur); }
+    tpCur.bits.push(tpE.type + " " + TP.levelsTxt(tpE.levels, true));
+  }
+  if (!tpBy.length) {
+    display_notice("[talpieces] no surplus pieces yet: a type has some once it holds what the set needs (64 of each common, 4 of the rare).", C);
+  } else {
+    var tpLine = [];
+    for (var tpB = 0; tpB < tpBy.length; tpB++) tpLine.push(tpBy[tpB].c + ": " + tpBy[tpB].bits.join(", "));
+    display_notice("[talpieces] surplus, worth " + tpWorth + " level-1 pieces:", C);
+    display_notice("Spare dragon talisman pieces - " + tpLine.join("; "), "white");
+  }
 } else if (tpSub === "rate") {
   run_function("talpieces_rate", [], "talpieces");
 } else if (tpSub === "mark") {
