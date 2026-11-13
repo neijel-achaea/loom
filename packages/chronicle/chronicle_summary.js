@@ -26,7 +26,14 @@ CR.getKey = function () { try { return localStorage.getItem(CR.keyName) || ""; }
 CR.setKey = function (k) {
   try { if (k) localStorage.setItem(CR.keyName, k); else localStorage.removeItem(CR.keyName); return true; } catch (e) { return false; }
 };
-CR.str = function (name, dflt) { var v = CR.readVar(name); return typeof v == "string" ? v : dflt; };
+// Text settings are saved as plain strings ("first", a model name, the
+// voice notes), not JSON, so they're read raw: through CR.readVar they failed
+// to parse and every one fell back to its default at each load.
+CR.str = function (name, dflt) {
+  var v;
+  try { v = get_variable(name); } catch (e) { v = undefined; }
+  return typeof v == "string" ? v : dflt;
+};
 CR.voice = CR.str("chronicle_voice", "");
 CR.person = CR.str("chronicle_person", "third") === "first" ? "first" : "third";
 CR.model = CR.str("chronicle_model", "") || CR.defaultModel;
