@@ -100,6 +100,23 @@ if (crCmd === "" || crCmd === "STATUS") {
   display_notice("[chronicle] " + (crF ? crF + " failed summar" + (crF === 1 ? "y" : "ies") + " will be tried again" : "nothing had failed") + "; writing what's due.", "lime");
   CR.due();
   run_function("chronicle_render", [], "chronicle");
+} else if (crCmd === "IGNORE" || crCmd === "UNIGNORE") {
+  var crWho = String(crW[1] || "").replace(/[^A-Za-z]/g, "");
+  if (!crWho) display_notice("[chronicle] " + (CR.ignore.length ? "left out of the record: " + CR.ignore.map(function (n) { return n.charAt(0).toUpperCase() + n.slice(1); }).join(", ") + "." : "no one is left out of the record.") + " CHRONICLE IGNORE|UNIGNORE <name>.", "cyan");
+  else {
+    var crLc = crWho.toLowerCase(), crNm = crLc.charAt(0).toUpperCase() + crLc.slice(1);
+    if (crCmd === "IGNORE") {
+      if (CR.ignore.indexOf(crLc) < 0) CR.ignore.push(crLc);
+      set_variable("chronicle_ignore", JSON.stringify(CR.ignore));
+      var crGone = CR.purge(crLc);
+      CR.save();
+      display_notice("[chronicle] " + crNm + " is left out of the record from now on: their words, emotes, messages and posts aren't kept, and other lines say \"someone\" for them." + (crGone ? " " + crGone + " line" + (crGone === 1 ? "" : "s") + " already kept were removed." : "") + " Summaries already written stay as they are (CHRONICLE WRITE <day> rewrites one).", "lime");
+    } else {
+      CR.ignore = CR.ignore.filter(function (n) { return n !== crLc; });
+      set_variable("chronicle_ignore", JSON.stringify(CR.ignore));
+      display_notice("[chronicle] " + crNm + " is recorded again from now on.", "lime");
+    }
+  }
 } else if (crCmd === "VIEW") {
   var crV = String(crW[1] || "").toLowerCase();
   if (crV !== "days" && crV !== "months" && crV !== "years") display_notice("[chronicle] usage: CHRONICLE VIEW DAYS|MONTHS|YEARS (or click them in the tab).", "orange");

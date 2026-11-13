@@ -18,6 +18,7 @@ It keeps by itself:
 - **Emotes** by other players in your room: lines that start with their name, except their talk (which comes with the channels) and their comings and goings. Someone with more than six such lines in a minute is fighting, not emoting: their lines are left out for two minutes. Housekeeping (curing, putting gold away, wielding, following) is left out too.
 - **Repeats** of the same line within two minutes count up the first one (×10) rather than filling the record.
 - **What you read**: letters, messages and news posts, up to the prompt. A news post read over several MOREs is kept as one entry; a message or post read again isn't kept twice.
+- **Leaving someone out**: `CHRONICLE IGNORE <name>` keeps nothing of theirs from then on (what they say, their tells to you and yours to them, their emotes, messages and posts), leaves them off the lists of who was there, and puts "someone" where another line names them. What was already kept about them is removed at once; summaries already written stay as they are (`CHRONICLE WRITE <day>` rewrites one). `CHRONICLE IGNORE` lists them, `CHRONICLE UNIGNORE <name>` records them again. Use it for anyone who'd rather not be in your record or sent to the summariser.
 - **Notes** of your own: `CHRONICLE NOTE <text>`, for whatever the record can't see.
 
 The date comes from the game's own date lines (each new day's, or `DATE`), or from **ledger** when it's installed. From one known date, Chronicle works out any moment's day, since a new Achaean day begins at the top of every real hour. Entries from before the first date are kept under "Before the date was known" and move to their day once it's known.
@@ -60,6 +61,7 @@ The lines of a day are kept while it's among the last 30 played (or until the re
 | `CHRONICLE RETRY` | try again every summary that failed, and write what's due |
 | `CHRONICLE VIEW DAYS\|MONTHS\|YEARS` | what the tab shows (or click the headings) |
 | `CHRONICLE MODEL [id\|DEFAULT]` | the model that writes them |
+| `CHRONICLE IGNORE\|UNIGNORE [name]` | leave someone out of the record (and its summaries) entirely |
 | `CHRONICLE EXPORT` | download the whole record as a Markdown file |
 | `CHRONICLE EXPORT SHOW` | print the last export here, if no download started |
 | `CHRONICLE DEBUG` | internal state |

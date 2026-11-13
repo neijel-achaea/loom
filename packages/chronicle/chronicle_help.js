@@ -18,6 +18,7 @@ var hlRows = [
   ["CHRONICLE RETRY", "try again every summary that failed, and write what's due"],
   ["CHRONICLE VIEW DAYS|MONTHS|YEARS", "what the tab shows (or click the headings)"],
   ["CHRONICLE MODEL [id|DEFAULT]", "the model that writes them"],
+  ["CHRONICLE IGNORE|UNIGNORE [name]", "leave someone out of the record (and its summaries) entirely"],
   ["CHRONICLE EXPORT", "download the whole record as a Markdown file"],
   ["CHRONICLE EXPORT SHOW", "print the last export here, if no download started"],
   ["CHRONICLE DEBUG", "internal state"],

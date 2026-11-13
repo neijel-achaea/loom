@@ -71,6 +71,42 @@ if (!CR.over || typeof CR.over != "object") {
   var crO = CR.readVar("chronicle_channels");
   CR.over = (crO && typeof crO == "object" && !Array.isArray(crO)) ? crO : {};
 }
+// People left out of the record entirely (CHRONICLE IGNORE): their words,
+// emotes, messages and posts aren't kept, and their name is left off the
+// lists of who was there. Lower case.
+if (!Array.isArray(CR.ignore)) {
+  var crIg = CR.readVar("chronicle_ignore");
+  CR.ignore = Array.isArray(crIg) ? crIg.filter(function (n) { return typeof n == "string" && n; }).map(function (n) { return n.toLowerCase(); }) : [];
+}
+CR.ignored = function (name) { return !!name && CR.ignore.indexOf(String(name).split(/[\s,]+/)[0].toLowerCase()) >= 0; };
+// Their name, where another line mentions it, becomes "someone".
+CR.scrub = function (text) {
+  text = String(text);
+  for (var i = 0; i < CR.ignore.length; i++) text = text.replace(new RegExp("\\b" + CR.ignore[i] + "\\b", "gi"), "someone");
+  return text;
+};
+// Takes what's already kept about them back out (summaries already written
+// stay as they are).
+CR.purge = function (name) {
+  var lc = String(name).toLowerCase(), n = 0;
+  for (var i = 0; i < CR.days.length; i++) {
+    var b = CR.days[i], before = b.ev.length;
+    b.ev = b.ev.filter(function (e) {
+      if ((e.k == "chan" || e.k == "emote" || e.k == "msg") && String(e.who).split(/[\s,]+/)[0].toLowerCase() === lc) return false;
+      if (e.k == "chan" && e.to && String(e.to).toLowerCase() === lc) return false;
+      if (e.k == "news" && String(e.from || "").split(/[\s,]+/)[0].toLowerCase() === lc) return false;
+      return true;
+    });
+    n += before - b.ev.length;
+    for (var j = 0; j < b.ev.length; j++) {
+      var e = b.ev[j];
+      if (e.with && e.with.length) e.with = e.with.filter(function (w) { return String(w).toLowerCase() !== lc; });
+      if (e.k == "link" || e.k == "chan" || e.k == "emote") e.text = CR.scrub(e.text);
+    }
+  }
+  CR.dirty();
+  return n;
+};
 if (CR.me === undefined) { var crM = CR.readVar("chronicle_name"); CR.me = typeof crM == "string" ? crM : ""; }
 if (!CR.seen) CR.seen = {};        // channel key -> true, heard this session
 if (!CR.captions) CR.captions = {};
@@ -259,6 +295,8 @@ CR.chan = function (g) {
   if (!k) return;
   CR.seen[CR.chanKey(k)] = true;
   if (!CR.chanOn(k)) return;
+  var to = /^tell\s+(\S+)/i.exec(k);
+  if (CR.ignored(g.talker) || (to && CR.ignored(to[1]))) return;
   var text = CR.ic(CR.plain(g.text));
   if (!text) return;
   // The channel's own prefix ("(Heartwood): ") goes: the entry names it.
@@ -273,7 +311,9 @@ CR.chan = function (g) {
       if (b.ev[i].k == "emote" && b.ev[i].text == text && now - b.ev[i].t < 5000) b.ev.splice(i, 1);
     }
   }
-  CR.add({ t: now, k: "chan", ch: CR.chanKey(k), name: CR.chanName(k), who: String(g.talker || ""), text: CR.clip(bare, CR.textMax) });
+  var cev = { t: now, k: "chan", ch: CR.chanKey(k), name: CR.chanName(k), who: String(g.talker || ""), text: CR.clip(CR.scrub(bare), CR.textMax) };
+  if (to) cev.to = to[1];
+  CR.add(cev);
 };
 
 // --- places ---------------------------------------------------------------------
@@ -293,7 +333,7 @@ CR.leave = function (now) {
 };
 CR.withList = function (r) {
   var out = [];
-  for (var n in r.with) { if (r.with.hasOwnProperty(n)) out.push(r.with[n]); }
+  for (var n in r.with) { if (r.with.hasOwnProperty(n) && !CR.ignored(n)) out.push(r.with[n]); }
   return out;
 };
 CR.meet = function (name) {
@@ -367,7 +407,7 @@ CR.line = function (raw) {
     if (CR.cont && Date.now() - CR.cont.at < 600000) { CR.capt = { ev: CR.cont.ev, lines: [], at: Date.now(), more: true }; CR.cont = null; }
     return;
   }
-  if (!CR.capt && (m = CR.re.mine.exec(raw))) { CR.add({ k: "emote", who: CR.me || "you", text: CR.clip(m[1], CR.textMax) }); return; }
+  if (!CR.capt && (m = CR.re.mine.exec(raw))) { CR.add({ k: "emote", who: CR.me || "you", text: CR.clip(CR.scrub(m[1]), CR.textMax) }); return; }
   if (CR.capt) {
     if (CR.capt.ev.k == "news" && CR.re.more.test(raw)) { CR.cont = { ev: CR.capt.ev, at: Date.now() }; CR.finish(); return; }
     CR.capt.lines.push(raw);
@@ -408,6 +448,7 @@ CR.finish = function () {
     return;
   }
   ev.text = CR.clip(text, CR.longMax);
+  if ((ev.k == "msg" && CR.ignored(ev.who)) || (ev.k == "news" && CR.ignored(ev.from))) return;
   if (!CR.known(ev)) CR.add(ev);
   else if (CR.cont && CR.cont.ev === ev) CR.cont = null;
 };
@@ -434,6 +475,7 @@ CR.emote = function (raw) {
   if (!m) return;
   var lc = m[1].toLowerCase();
   if (!CR.players[lc] && lc !== String(CR.me).toLowerCase()) return;
+  if (CR.ignored(lc)) return;
   if (CR.re.talk.test(raw) || CR.re.move.test(raw) || CR.re.chore.test(raw) || / says,? "/.test(raw)) return;
   var now = Date.now(), i;
   for (i = 0; i < CR.recent.length; i++) { if (CR.recent[i][0] == raw) return; }
@@ -449,7 +491,7 @@ CR.emote = function (raw) {
     CR.dirty();
     return;
   }
-  CR.add({ t: now, k: "emote", who: m[1], text: CR.clip(raw, CR.textMax) });
+  CR.add({ t: now, k: "emote", who: m[1], text: CR.clip(CR.scrub(raw), CR.textMax) });
 };
 
 // --- the record as text ----------------------------------------------------------
@@ -524,7 +566,7 @@ CR.entry = {
     for (var i = 0; i < CR.days.length; i++) {
       for (var j = 0; j < CR.days[i].ev.length; j++) { var e = CR.days[i].ev[j]; if (e.k == "link" && e.src == src && e.key == key) return false; }
     }
-    CR.add({ t: (typeof it.at == "number" && it.at > 0 && it.at <= Date.now()) ? it.at : Date.now(), k: "link", src: src, key: key, text: CR.clip(String(it.text), CR.textMax) });
+    CR.add({ t: (typeof it.at == "number" && it.at > 0 && it.at <= Date.now()) ? it.at : Date.now(), k: "link", src: src, key: key, text: CR.clip(CR.scrub(String(it.text)), CR.textMax) });
     return true;
   },
   withdraw: function (source, key) {
