@@ -17,6 +17,7 @@ CR.keyName = "loom_chronicle_key";
 CR.api = "https://api.anthropic.com/v1/messages";
 CR.defaultModel = "claude-haiku-5-5";
 CR.words = 100;
+CR.quietLines = 15;     // fewer lines than this (places aside) make a quiet day
 CR.budget = 24000;               // characters of record sent for one day
 CR.retryMs = [30000, 120000, 600000];
 
@@ -89,11 +90,13 @@ CR.system = function (prev, scope) {
   p.push("Use the world's own terms. Never mention game mechanics: experience, levels, renown, credits, kill counts, minutes, commands, quests as such, or the client. Hunting is hunting; a quest is a task or a deed.");
   p.push("Leave out anything out of character: talk of the game and its tools, the real world, and anything that reads as players talking rather than their characters.");
   p.push("Invent nothing: no events, motives, feelings or relationships the lines don't show. Where they're unclear, say less.");
+  p.push("Don't guess anyone's sex: use a person's pronouns only when the lines or the notes give them (a 'she says', 'his', a note); otherwise use their name, or 'they'.");
   p.push("No padding: a quiet day gets a sentence or two, not scenery. Atmosphere only from what the lines name (a room's name, the weather, an emote); no invented actions, sights or sensations to fill space.");
   p.push("Write from the chronicler's own knowledge: never mention the record, its lines, or what it doesn't say, and don't remark on gaps or abrupt endings. Don't open with the date.");
   p.push("Tells reach someone from afar: a person heard only through tells wasn't there in person. Who was present shows in what was said aloud, emotes, and who was in the room. Say who did what: don't credit " + name + " with what a companion did.");
   p.push("Keep what changes things: people met, promises made, tasks taken on, letters, messages and news, places first seen, words that mattered. Pass over routine. Name people as the record names them.");
-  if (scope.what === "day") p.push("Write one paragraph of about " + scope.words + " words (fewer for a quiet day), plain text, no heading and no date: the date is shown above it. British spelling.");
+  if (scope.what === "day" && scope.quiet) p.push("This was a quiet day. Write at most two short sentences (about " + scope.words + " words), plain text, no heading and no date. Say what little happened and stop; don't add duration, scenery or reflection.");
+  else if (scope.what === "day") p.push("Write one paragraph of about " + scope.words + " words (fewer for a quiet day), plain text, no heading and no date: the date is shown above it. British spelling.");
   else p.push("You are given the entries already written for each " + (scope.what === "month" ? "day of a month" : "month of a year") + ". From them, write the entry for the whole " + scope.what + ": what changed and what mattered over it (people, turning points, tasks begun and finished, where " + name + " stands at its end), not a list of " + (scope.what === "month" ? "days" : "months") + ". About " + scope.words + " words, one or two paragraphs, plain text, no heading and no date. British spelling.");
   var f = CR.facts();
   if (f) p.push("Who " + name + " is, as the world knows: " + f);
@@ -115,7 +118,9 @@ CR.recordText = function (b) {
   for (var i = 0; i < b.ev.length; i++) {
     var e = b.ev[i];
     if (e.k == "link" && e.src == "chronicle") continue;
-    var ln = CR.phase(e.t) + " " + e.k + ": " + CR.clip(CR.show(e), 1500).replace(/\n/g, " / ");
+    // A stay's minutes are the real clock: say how long in the world's terms.
+    var what = e.k == "stay" ? "Stayed " + ((e.min || 0) >= 30 ? "most of the day" : (e.min || 0) >= 15 ? "a good while" : "a while") + " in " + e.room + (e.area ? ", " + e.area : "") + (e.with && e.with.length ? ", with " + e.with.join(", ") : "") : CR.show(e);
+    var ln = CR.phase(e.t) + " " + e.k + ": " + CR.clip(what, 1500).replace(/\n/g, " / ");
     if (len + ln.length > CR.budget) { out.push("(the rest of the record is cut short)"); break; }
     out.push(ln);
     len += ln.length + 1;
@@ -242,7 +247,11 @@ CR.write = function (it, manual) {
   if (typeof it == "number") {
     var b = CR.bucket(it, false);
     if (!b || !b.ev.length) { if (manual) display_notice("[chronicle] nothing recorded for " + CR.dayName(it) + ".", "cyan"); CR.pump(); return; }
-    sys = CR.system(CR.prevSum(it), { what: "day", words: CR.words });
+    // A quiet day (few lines beyond places) is told as one: a sentence or two.
+    var said = 0;
+    for (var qi = 0; qi < b.ev.length; qi++) { if (b.ev[qi].k != "place" && b.ev[qi].k != "stay") said += b.ev[qi].n || 1; }
+    var quiet = said < CR.quietLines;
+    sys = CR.system(CR.prevSum(it), { what: "day", words: quiet ? 40 : CR.words, quiet: quiet });
     user = "The record of " + CR.dayName(it) + ", line by line (part of the day, kind, what happened):\n\n" + CR.recordText(b) + "\n\nWrite the entry for this day.";
   } else if (it.charAt(0) === "m") {
     var m = +it.slice(1), mt = CR.monthText(m);
