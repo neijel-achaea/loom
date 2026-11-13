@@ -234,6 +234,7 @@ With every package installed, each link does its part, and switching it off (`LO
 - [ ] `partycomms-room` *(party)*: members' names after ◂ on the mobs they target, in the mob names' font and size, moving as they retarget; a member who leaves or stops reporting is gone within ~30 s.
 - [ ] `social-basher`: an enemy arriving mid-run is named as one.
 - [ ] `harvesting-ledger`: "Harvest run" when a plant is under 90% of its minimum; gone when all are back. `DROP` keeps it away until then.
+- [ ] Talismans tab: *surplus* shows only pieces beyond each type's need (kept back highest level first), *needed* returns; the view survives a reload. `TALPIECES SURPLUS` prints the same as one line.
 - [ ] `talpieces-ledger`: a complete colour, and spares at 16+; no flicker during a listing.
 - [ ] `levelgraph-ledger`: "Reach level N at P%" at the day's first prompt; reaching it: lime "✓ Aim reached", item gone; a reload the same day doesn't bring it back; `DROP` it: back the next day.
 - [ ] Aims' progress (#460): both aim items show `x/N` or `P%` and a small bar before "fresh", moving as you play; the Level tab shows the aim (tick, band, line); the Talismans tab its goal bar. `DROP` an aim: it leaves the tab too. `LEVELGRAPH GOAL` / `TALPIECES GOAL` replace the aim in their tab; `OFF` brings it back.

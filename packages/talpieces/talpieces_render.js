@@ -223,8 +223,54 @@ function goalBar() {
   return out;
 }
 
+// ------------------------------------------------------- surplus view ---
+// What you hold beyond the set's needs, as the real pieces you could give
+// away: per type, the levels and how many of each, and what they're worth in
+// level-1 pieces.
+function surplusBody() {
+  var sp = TP.surplus ? TP.surplus() : [];
+  var worth = 0, types = 0, pcs = 0, k, m;
+  for (k = 0; k < sp.length; k++) { worth += sp[k].worth; types++; for (m = 0; m < sp[k].levels.length; m++) pcs += sp[k].levels[m][1]; }
+  var out = '<div style="margin:6px 0 2px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + AME + ';">' + thou(pcs) + '</span> ';
+  out += '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">' + (pcs === 1 ? 'piece' : 'pieces') + ' to sell or trade &mdash; worth ' + thou(worth) + ' level-1 piece' + (worth === 1 ? '' : 's') + ', in ' + types + ' type' + (types === 1 ? '' : 's') + '</span></div>';
+  if (!sp.length) {
+    return out + section("Surplus", quiet("Nothing spare yet. A type's pieces become surplus once it holds what the set needs: 64 of each common, 4 of the rare."));
+  }
+  var cell = 'padding:1px 0 1px 6px;';
+  var tb = '<table style="width:100%;border-collapse:collapse;font-family:' + MONO + ';font-size:10px;color:' + TXT + ';">';
+  tb += '<tr style="color:' + MUTED + ';font-family:' + SERIF + ';font-size:11px;font-variant:small-caps;letter-spacing:0.06em;border-bottom:1px solid ' + RULE + ';"><td style="padding:0 0 2px;">colour</td><td style="' + cell + '">piece</td><td style="' + cell + '">pieces</td><td style="' + cell + 'text-align:right;">worth</td></tr>';
+  var prev = "";
+  for (k = 0; k < sp.length; k++) {
+    var e = sp[k], first = e.colour !== prev;
+    prev = e.colour;
+    tb += '<tr style="border-bottom:1px dotted ' + RULE + ';' + (first && k > 0 ? 'border-top:1px solid ' + DEEP + ';' : '') + '">' +
+      '<td style="padding:1px 0;color:' + nameCol[e.colour] + ';white-space:nowrap;">' + (first ? swatch(e.colour) + e.colour : '') + '</td>' +
+      '<td style="' + cell + 'white-space:nowrap;">' + esc(e.type) + (e.rare ? ' <span style="color:' + MUTED + ';">rare</span>' : '') + '</td>' +
+      '<td style="' + cell + 'color:' + HI + ';">' + esc(TP.levelsTxt(e.levels)) + '</td>' +
+      '<td style="' + cell + 'text-align:right;color:' + DONE + ';">' + thou(e.worth) + '</td></tr>';
+  }
+  tb += '</table>';
+  tb += '<div style="color:' + MUTED + ';margin-top:3px;font-family:' + SERIF + ';font-style:italic;">A level-n piece is worth 2^(n-1) level-1 pieces. What the set needs is kept back, highest levels first. TALPIECES SURPLUS prints this as one line to copy.</div>';
+  return out + section("Surplus", tb);
+}
+
 // -------------------------------------------------------------- the tab ---
+// The view switch (Needed | Surplus): two labels in the house style, the one
+// shown lit; a click goes through window.loomTalpieces (see setup).
+var view = TP.view === "surplus" ? "surplus" : "needed";
+function tog(v, label, tip) {
+  var on = view === v;
+  return '<span onclick="window.loomTalpieces&&window.loomTalpieces.view(\'' + v + '\')" title="' + tip + '" style="cursor:pointer;user-select:none;padding:0 7px;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;font-size:11px;' +
+    (on ? 'background:' + DEEP + ';color:' + HI + ';' : 'color:' + MUTED + ';') + '">' + label + '</span>';
+}
+var sw = '<div style="display:flex;gap:0;margin-top:5px;border:1px solid ' + DEEP + ';width:max-content;">' +
+  tog("needed", "needed", "pieces still needed for the set") + tog("surplus", "surplus", "pieces beyond what the set needs, to sell or trade") + '</div>';
+
 var html = PANEL + header("TALISMANS", coloursDone + ' of ' + t.colors.length + ' colours done');
+html += sw;
+if (view === "surplus") {
+  html += surplusBody() + '</div>';
+} else {
 html += headline();
 html += goalBar();
 
@@ -274,6 +320,7 @@ if (TP.graphOn) {
   html += '<div style="color:' + MUTED + ';margin-top:5px;font-family:' + SERIF + ';font-style:italic;">Solid line: pieces counted toward the goal' + (TP.span > 0 ? ', scaled to the window' : '') + '. TALPIECES SPAN for the window, TALPIECES RATE for figures.</div>';
 }
 html += '</div>';
+}
 
 // The whole tab in the panel's colour (#355), as Self and Comms do: the
 // panel fills the tab, and the tab itself takes the colour while it resizes.

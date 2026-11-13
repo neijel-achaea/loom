@@ -3,7 +3,7 @@
 *Dragon talisman pieces counted toward the Elder Dragon set: what you have, what you still need, and how fast they're coming in.*
 
 <!-- loom:version talpieces -->
-*This page describes talpieces 1.2.0.*
+*This page describes talpieces 1.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -16,8 +16,17 @@ TalPieces keeps count of your dragon talisman pieces as you find them, trade the
 - **A goal bar**, when you set a goal of your own or have today's aim from the ledger.
 - **A graph** of your progress over the last 30 days (or any span you pick), and your pace over the last seven days.
 - **A grid of what's still needed**, by colour (black, blue, gold, green, red, silver) and piece type, coloured from green (nearly there) to red (far off).
+- **A Surplus view**: click *surplus* at the top of the tab (*needed* brings the usual view back) to see the pieces you hold beyond what the set needs, the ones you can sell or trade, listed by colour and type with their levels and what they're worth.
 
 The set needs, per colour, 64 of each of the seven common pieces and 4 of the rare one. Higher-level pieces count for more: a level-n piece is worth 2^(n-1) level-1 pieces, so a level-3 claw counts as 4. Extra pieces beyond what a type needs don't count toward the goal (100 black claws still count as 64).
+
+Those extra pieces are your **surplus**. It's counted in real pieces, since that's what you trade: for each type the highest-level pieces are kept back until the need is met (one level-7 claw covers all 64), and whatever is left over is surplus. A type below its need has no surplus at all, even if it holds pieces of many levels. `TALPIECES SURPLUS` prints the same list as one line you can copy into a tell or a market channel, for example:
+
+```
+Spare dragon talisman pieces - black: claw L3+L1; gold: eye L6, scale L2x2
+```
+
+(Made-up example.) Loom only prints the line; it never sends it anywhere.
 
 It counts from the game's lines:
 
@@ -32,6 +41,7 @@ It counts from the game's lines:
 |---|---|
 | `TALPIECES` | progress, history and settings |
 | `TALPIECES NEED` | pieces still needed, per colour and type |
+| `TALPIECES SURPLUS` | pieces beyond what the set needs, as one line to copy (the tab's Surplus view) |
 | `TALPIECES RATE` | pieces per day: last 7 and 30 days, and all time |
 | `TALPIECES GOAL <n\|OFF>` | a goal of your own: collect n pieces from now, shown in place of the daily aim |
 | `TALPIECES MARK` | store a history point now |

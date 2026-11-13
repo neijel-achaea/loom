@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.talpieces) client.loom.talpieces = {};
-client.loom.registry.talpieces = { version: "1.2.0", keyword: "TALPIECES", desc: "{{description}}",
+client.loom.registry.talpieces = { version: "1.3.0", keyword: "TALPIECES", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("talpieces_render", [], "talpieces"); } };
 var TP = client.loom.talpieces;
@@ -139,6 +139,57 @@ TP.histSoft = 700;
 TP.histCap = 1500;
 if (TP.building === undefined) TP.building = false;
 if (TP.forceMark === undefined) TP.forceMark = false;
+
+// --- surplus (the Surplus view, TALPIECES SURPLUS) --------------------------
+// The pieces a type holds beyond what the set needs, as real pieces you can
+// trade, not level-1 counts: keep the highest-level pieces until the need is
+// met, the rest are surplus. Levels are powers of two and so is the need, so
+// what's kept never overshoots unless one piece alone is worth more than the
+// need (then nothing of it can be given away).
+//   TP.spare(colour, type, need) -> { levels: [[level, count]...] highest
+//     first, worth } in level-1 pieces.
+TP.spare = function (color, type, need) {
+  var lv = (this.pieces[color] || {})[this.real(type)] || {}, ks = [], out = [], kept = 0, worth = 0;
+  for (var k in lv) { if (lv.hasOwnProperty(k) && Number(lv[k]) > 0 && !isNaN(Number(k))) ks.push(Number(k)); }
+  ks.sort(function (a, b) { return b - a; });
+  for (var i = 0; i < ks.length; i++) {
+    var each = Math.pow(2, ks[i] - 1), n = Math.floor(Number(lv[String(ks[i])]) || 0), give = 0;
+    for (var j = 0; j < n; j++) { if (kept < need) kept += each; else give++; }
+    if (give > 0) { out.push([ks[i], give]); worth += give * each; }
+  }
+  return { levels: out, worth: worth };
+};
+// TP.surplus() -> [{ colour, type, rare, levels, worth }] for every type with
+// something to give, colours and types in the tab's order (rare last).
+TP.surplus = function () {
+  var out = [];
+  for (var ci = 0; ci < this.colors.length; ci++) {
+    var c = this.colors[ci], ty = this.commonTypes.concat([this.colorrare[c]]);
+    for (var ti = 0; ti < ty.length; ti++) {
+      var rare = ti === ty.length - 1, sp = this.spare(c, ty[ti], rare ? this.reqRare : this.reqCommon);
+      if (sp.worth > 0) out.push({ colour: c, type: ty[ti], rare: rare, levels: sp.levels, worth: sp.worth });
+    }
+  }
+  return out;
+};
+// A surplus entry's pieces: "L3, L1 \u00d72" for the tab, or with plain set
+// "L3+L1x2" for the one-liner (plain ASCII, as it may be pasted into the game).
+TP.levelsTxt = function (lv, plain) {
+  var b = [];
+  for (var i = 0; i < lv.length; i++) b.push("L" + lv[i][0] + (lv[i][1] > 1 ? (plain ? "x" : " \u00d7") + lv[i][1] : ""));
+  return b.join(plain ? "+" : ", ");
+};
+
+// Which view the Talismans tab shows: "needed" (the default) or "surplus",
+// switched by clicking the tab's toggle; saved as talpieces_view.
+TP.view = String(get_variable("talpieces_view") || "") === "surplus" ? "surplus" : "needed";
+TP.setView = function (v) {
+  TP.view = v === "surplus" ? "surplus" : "needed";
+  try { set_variable("talpieces_view", TP.view); } catch (e) {}
+  run_function("talpieces_render", [], "talpieces");
+};
+// The tab's HTML can't hold scripts; its onclick reaches this.
+try { window.loomTalpieces = { view: function (v) { if (client.loom && client.loom.talpieces && client.loom.talpieces.setView) client.loom.talpieces.setView(v); } }; } catch (e) {}
 
 // The read-only look other packages see through loom (#159, #54): what you
 // hold against what the set needs, never the piece book itself. Counts are
