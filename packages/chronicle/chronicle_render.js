@@ -30,7 +30,7 @@ function quiet(t) { return '<div style="color:' + MUTED + ';font-family:' + SERI
 // (letters, news) show their first line; the whole text on hover.
 function row(e) {
   var kd = KIND[e.k] || [TXT, e.k];
-  var full = CR.describe(e);
+  var full = CR.show(e);
   var first = full.split("\n")[0];
   var more = full.indexOf("\n") >= 0;
   return '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;"' + (more ? ' title="' + esc(CR.clip(full, 1500)) + '"' : '') + '>' +

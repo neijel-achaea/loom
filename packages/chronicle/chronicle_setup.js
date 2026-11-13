@@ -152,6 +152,18 @@ CR.put = function (ev) {
 CR.add = function (ev) {
   if (!ev.t) ev.t = Date.now();
   CR.borrowDate();
+  // The same line again within two minutes (an NPC thanking you for each
+  // corpse, someone following you room after room) counts up the first.
+  if (ev.k == "chan" || ev.k == "emote") {
+    var rb = CR.bucket(CR.dayOf(ev.t), false);
+    if (rb) {
+      for (var ri = rb.ev.length - 1; ri >= 0 && ri >= rb.ev.length - 8; ri--) {
+        var re = rb.ev[ri];
+        if (ev.t - re.t > 120000) break;
+        if (re.k == ev.k && re.text == ev.text) { re.n = (re.n || 1) + 1; CR.dirty(); return re; }
+      }
+    }
+  }
   CR.put(ev);
   CR.dirty();
   return ev;
@@ -191,7 +203,9 @@ CR.chanName = function (k) {
   k = String(k || "");
   if (/^tell\s/i.test(k)) return "tell";
   if (CR.captions[k]) return CR.captions[k].replace(/^the\s+(?:clan\s+of\s+)?/i, "");
-  return k;
+  // Until the game sends the channel list (at login): the key, readably.
+  var nice = { says: "Says", ct: "City", ht: "House", gt: "House", hnt: "House newbie", gnt: "House newbie", ot: "Order", yell: "Yell", yells: "Yell", emotes: "Emotes" };
+  return nice[k] || k;
 };
 // Anything after // is OOC (Ricardo) and left out; a line with nothing IC
 // left goes altogether. A URL's :// is not a marker.
@@ -295,6 +309,8 @@ CR.re = {
   // Lines starting with a name that aren't emotes: talk (it comes by GMCP)
   // and comings and goings.
   talk: /^\w+ (?:says|asks|exclaims|whispers|yells|shouts|tells|answers|replies|mutters|sings|quietly says)\b/,
+  // Housekeeping, not roleplay: curing, gold, wielding, following.
+  chore: /^\w+ (?:takes some salve|rubs some|eats (?:a|an|some)\b|sips|quaffs|smokes|applies|presses|touches|puts some gold sovereigns|picks up \d+ gold|starts to wield|ceases to wield|begins to wield|follows you|follows \w+ |begins to follow|stops following|stands up|sits down)/,
   move: /^\w+ (?:arrives|leaves|has arrived|has left|enters|walks|flies|swims|rides|sprints|bounds|lopes|slithers|crawls|limps|strides|trots|glides|wanders|stumbles|is here|appears|vanishes|disappears)\b/
 };
 CR.line = function (raw) {
@@ -375,7 +391,7 @@ CR.emote = function (raw) {
   if (!m) return;
   var lc = m[1].toLowerCase();
   if (!CR.players[lc] && lc !== String(CR.me).toLowerCase()) return;
-  if (CR.re.talk.test(raw) || CR.re.move.test(raw) || / says,? "/.test(raw)) return;
+  if (CR.re.talk.test(raw) || CR.re.move.test(raw) || CR.re.chore.test(raw) || / says,? "/.test(raw)) return;
   var now = Date.now(), i;
   for (i = 0; i < CR.recent.length; i++) { if (CR.recent[i][0] == raw) return; }
   var rt = CR.rate[lc] || (CR.rate[lc] = { at: [], mute: 0 });
@@ -409,6 +425,7 @@ CR.describe = function (e) {
   }
   return String(e.text || "");
 };
+CR.show = function (e) { return CR.describe(e) + (e.n > 1 ? " (\u00d7" + e.n + ")" : ""); };
 CR.markdown = function (days) {
   var out = ["# Chronicle" + (CR.me ? " of " + CR.me : ""), ""];
   for (var i = 0; i < days.length; i++) {
@@ -416,7 +433,7 @@ CR.markdown = function (days) {
     if (!b.ev.length) continue;
     out.push("## " + CR.dayName(b.d), "");
     for (var j = 0; j < b.ev.length; j++) {
-      var e = b.ev[j], txt = CR.describe(e).split("\n");
+      var e = b.ev[j], txt = CR.show(e).split("\n");
       out.push("- " + CR.hhmm(e.t) + " **" + e.k + "** " + txt[0]);
       for (var l = 1; l < txt.length; l++) out.push("  > " + txt[l]);
     }
