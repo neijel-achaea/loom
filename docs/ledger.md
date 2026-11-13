@@ -111,7 +111,7 @@ Each is on as soon as both packages are installed; `LOOM LINKS` lists them, and 
 
 ## Goals
 
-Goals are what you're working towards over a long time: be inducted into an order, open a shop, join a city with someone. They're kept apart from the items above: no dates, no reminders, not in the digest; they change only when you change them. `LEDGER GOAL <text>` adds one (numbered G1, G2…), `LEDGER GOALS` lists them, `LEDGER GOAL DONE <G#>` marks one achieved (kept, with the Achaean day it was reached), `LEDGER GOAL DROP <G#>` removes it, `LEDGER GOAL REOPEN <G#>` opens an achieved one again. They show in the tab under Goals, the five latest achieved ones struck through below the open ones. Keep the list short: a handful of real aims says more than thirty.
+Goals are what you're working towards over a long time: be inducted into an order, open a shop, join a city with someone. They're kept apart from the items above: no dates, no reminders, not in the digest; they change only when you change them. `LEDGER GOAL <text>` adds one (numbered G1, G2…), `LEDGER GOALS` lists them, `LEDGER GOAL DONE <G#>` marks one achieved (kept, with the Achaean day it was reached), `LEDGER GOAL DROP <G#>` removes it, `LEDGER GOAL REOPEN <G#>` opens an achieved one again. They open the tab, in a framed panel above everything else, each open goal in large type; the five latest achieved ones follow in a line, struck through, with the day they were reached. Keep the list short: a handful of real aims says more than thirty.
 
 ## Working with other packages
 

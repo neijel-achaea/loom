@@ -152,6 +152,34 @@ if (dated.length === 0) {
     ap += entry(dated[i].id, txt, right, col, diff < 0 ? WAX : TXT);
   }
 }
+// Goals (#493), first and set apart: what you're working towards. A framed
+// panel, each open goal in the serif hand at a larger size; the latest
+// achieved ones in a line below it, with the day they were reached.
+var lgGoals = client.loom.ledger.goals ? client.loom.ledger.goals() : [];
+if (lgGoals.length) {
+  var gOpen = [], gDone = [];
+  for (var gi = 0; gi < lgGoals.length; gi++) { if (lgGoals[gi].done) gDone.push(lgGoals[gi]); else gOpen.push(lgGoals[gi]); }
+  var star = '<span style="color:' + SEPIA + ';margin-right:7px;font-size:11px;">✦</span>';
+  var gb = '<div style="margin-top:8px;border:1px solid ' + SEPIA + ';border-left:3px solid ' + PARCH + ';background:' + AHEAD + ';padding:5px 8px 6px;">';
+  gb += '<div style="display:flex;justify-content:space-between;align-items:baseline;">' + caps("✦ Goals", PARCH) +
+    '<span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:10px;">' + gOpen.length + ' open' + (gDone.length ? ' &middot; ' + gDone.length + ' achieved' : '') + '</span></div>';
+  if (!gOpen.length) gb += quiet("Every goal achieved. LEDGER GOAL <text> sets a new one.");
+  for (var go2 = 0; go2 < gOpen.length; go2++) {
+    gb += '<div style="display:flex;align-items:baseline;gap:4px;padding:2px 0;">' + star +
+      '<span style="flex:1 1 auto;font-family:' + SERIF + ';font-size:14px;line-height:1.3;color:' + PARCH + ';">' + esc(gOpen[go2].text) + '</span>' +
+      '<span style="color:' + MUTED + ';font-size:9px;">G' + gOpen[go2].id + '</span></div>';
+  }
+  if (gDone.length) {
+    var ach = [];
+    for (var gd = Math.max(0, gDone.length - 5); gd < gDone.length; gd++) {
+      ach.push('<span title="G' + gDone[gd].id + '"><span style="text-decoration:line-through;text-decoration-color:' + MUTED + ';">' + esc(gDone[gd].text) + '</span>' +
+        (gDone[gd].done > 0 ? ' <span style="color:' + LIME + ';">' + dayName(gDone[gd].done) + '</span>' : '') + '</span>');
+    }
+    gb += '<div style="margin-top:4px;border-top:1px dotted ' + RULE + ';padding-top:3px;font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">Achieved: ' + ach.join(' &middot; ') + '</div>';
+  }
+  html += gb + '</div>';
+}
+
 html += section("Approaching", ap, PARCH);
 
 // Standing: undated items, oldest touch first; long neglect warms toward amber.
@@ -169,21 +197,7 @@ if (standing.length === 0) {
 }
 html += section("Standing", st, PARCH);
 
-// Goals (#493): what you're working towards, no dates; the latest achieved
-// below, muted, with the day they were reached.
-var lgGoals = client.loom.ledger.goals ? client.loom.ledger.goals() : [];
-if (lgGoals.length) {
-  var go = "", gdone = [];
-  for (i = 0; i < lgGoals.length; i++) {
-    if (lgGoals[i].done) { gdone.push(lgGoals[i]); continue; }
-    go += entry("G" + lgGoals[i].id, esc(lgGoals[i].text), "", MUTED);
-  }
-  if (!go) go = quiet("Every goal achieved. LEDGER GOAL <text> sets a new one.");
-  for (i = Math.max(0, gdone.length - 5); i < gdone.length; i++) {
-    go += entry("G" + gdone[i].id, '<span style="text-decoration:line-through;text-decoration-color:' + MUTED + ';">' + esc(gdone[i].text) + '</span>', gdone[i].done > 0 ? dayName(gdone[i].done) : "achieved", LIME, MUTED);
-  }
-  html += section("Goals", go, PARCH);
-}
+
 
 html += '</div>';
 // The whole tab in the panel's colour (#355), as Self and Comms do: the
