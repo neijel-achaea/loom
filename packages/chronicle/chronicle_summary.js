@@ -100,13 +100,21 @@ CR.system = function (prev, scope) {
   if (prev) p.push("The previous " + scope.what + "'s entry, for continuity only (don't repeat it): " + prev);
   return p.join("\n\n");
 };
+// The time of the Achaean day a moment falls in. The real clock means
+// nothing in the world (a day is one real hour), so the summary is given the
+// part of the day instead (Ricardo). Assumes the day starts at midnight on
+// the hour and has 24 hours of 2.5 real minutes.
+CR.phase = function (t) {
+  var d = new Date(t), h = (d.getMinutes() + d.getSeconds() / 60) * 24 / 60;
+  return h < 5 ? "night" : h < 7 ? "dawn" : h < 12 ? "morning" : h < 14 ? "midday" : h < 18 ? "afternoon" : h < 21 ? "evening" : "late evening";
+};
 // The day's record as lines, cut to the budget.
 CR.recordText = function (b) {
   var out = [], len = 0;
   for (var i = 0; i < b.ev.length; i++) {
     var e = b.ev[i];
     if (e.k == "link" && e.src == "chronicle") continue;
-    var ln = CR.hhmm(e.t) + " " + e.k + ": " + CR.clip(CR.show(e), 1500).replace(/\n/g, " / ");
+    var ln = CR.phase(e.t) + " " + e.k + ": " + CR.clip(CR.show(e), 1500).replace(/\n/g, " / ");
     if (len + ln.length > CR.budget) { out.push("(the rest of the record is cut short)"); break; }
     out.push(ln);
     len += ln.length + 1;
@@ -234,7 +242,7 @@ CR.write = function (it, manual) {
     var b = CR.bucket(it, false);
     if (!b || !b.ev.length) { if (manual) display_notice("[chronicle] nothing recorded for " + CR.dayName(it) + ".", "cyan"); CR.pump(); return; }
     sys = CR.system(CR.prevSum(it), { what: "day", words: CR.words });
-    user = "The record of " + CR.dayName(it) + ", line by line (time, kind, what happened):\n\n" + CR.recordText(b) + "\n\nWrite the entry for this day.";
+    user = "The record of " + CR.dayName(it) + ", line by line (part of the day, kind, what happened):\n\n" + CR.recordText(b) + "\n\nWrite the entry for this day.";
   } else if (it.charAt(0) === "m") {
     var m = +it.slice(1), mt = CR.monthText(m);
     if (!/\S/.test(mt)) { if (manual) display_notice("[chronicle] no day of " + CR.monthName(m) + " has its summary yet.", "cyan"); CR.pump(); return; }
