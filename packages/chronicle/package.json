@@ -1,0 +1,89 @@
+{
+  "type": "group",
+  "name": "chronicle",
+  "enabled": true,
+  "items": [
+    {
+      "type": "function",
+      "name": "onInstall",
+      "enabled": true,
+      "code": "@file:oninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onUninstall",
+      "enabled": true,
+      "code": "@file:onuninstall.js"
+    },
+    {
+      "type": "function",
+      "name": "onLoad",
+      "enabled": true,
+      "code": "@file:onload.js"
+    },
+    {
+      "type": "function",
+      "name": "onGMCP",
+      "enabled": true,
+      "code": "@file:ongmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "chronicle_setup",
+      "enabled": true,
+      "code": "@file:chronicle_setup.js"
+    },
+    {
+      "type": "function",
+      "name": "chronicle_gmcp",
+      "enabled": true,
+      "code": "@file:chronicle_gmcp.js"
+    },
+    {
+      "type": "function",
+      "name": "chronicle_render",
+      "enabled": true,
+      "code": "@file:chronicle_render.js"
+    },
+    {
+      "type": "function",
+      "name": "chronicle_help",
+      "enabled": true,
+      "code": "@file:chronicle_help.js"
+    },
+    {
+      "type": "alias",
+      "name": "Chronicle control",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:alias_chronicle.js"
+        }
+      ],
+      "text": "^chronicle(?:\\s+(.*))?$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": false,
+      "prefix_suffix": true
+    },
+    {
+      "type": "trigger",
+      "name": "Chronicle every line",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_every_line.js"
+        }
+      ],
+      "text": "^(.*)$",
+      "matching": "regexp",
+      "whole_words": false,
+      "case_sensitive": true
+    }
+  ],
+  "description": "A record of each Achaean day: places, IC talk, letters and news, notes"
+}

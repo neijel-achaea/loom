@@ -55,6 +55,15 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `basher_flee_dir` | setting | 0.6 | the direction wimpy steps you |  |
 | `basher_name` | state | 0.6 | your name, from GMCP |  |
 
+## chronicle
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `chronicle_days` | data | 1.2 | the record: the last 30 days played, each a list of entries |  |
+| `chronicle_anchor` | state | 1.2 | the last date read, and when (every other day is worked out from it) |  |
+| `chronicle_channels` | setting | 1.2 | channels kept or left out by hand |  |
+| `chronicle_name` | state | 1.2 | your name, from GMCP |  |
+
 ## civic
 
 | Variable | Kind | Since | Holds | Was |

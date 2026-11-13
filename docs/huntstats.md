@@ -123,6 +123,7 @@ Huntstats works on its own. **hunting**'s F9 key shows the hunt under way when H
 | `social-huntstats` | social | Companions, the hunt's party and recent hunts' "with …" in the Stats tab in their social group colour. |
 | `dmgchart-huntstats` | dmgchart | The damage you took per combat second and the biggest hit, per hunt and per area, in the filing notice, `HUNTSTATS AREAS`, `LOG` and the Stats tab. Nothing is recorded for a hunt the page reloaded in the middle of. |
 | `huntstats-coffers` | coffers | When you start hunting in an area with hunts on record, Coffers proposes a gold goal 10% over your average hunt there. It's taken back when the hunt is filed or you leave. |
+| `huntstats-chronicle` | chronicle | Each hunt filed is a line in the Chronicle's record of the day: the area, how long, and who hunted with you. |
 | `huntstats-standings` | standings | A filed hunt of 30 minutes or more with a party suggests a small friendly dealing (+) with each member, to review in Standings ("hunted together in Annwyn for 45m"). |
 | `coffers-standings` | coffers, standings | Gold from someone in your party is the split being settled, so it isn't treated as a gift. |
 

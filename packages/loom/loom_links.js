@@ -1058,3 +1058,21 @@ L.addLink({
     }
   }
 });
+
+// #491 huntstats -> chronicle: each hunt huntstats files is a line in the
+// day's record ("Hunted in the Grukai Swamp for 42 min, with Oceana").
+// Recorded once per hunt (keyed on when it was filed), and only a hunt filed
+// in the last two hours, so installing chronicle doesn't bring in an old one.
+L.addLink({
+  id: "huntstats-chronicle", src: "huntstats", dst: "chronicle", issue: 491,
+  desc: "Each hunt you finish, as a line in the Chronicle's record of the day",
+  update: function () {
+    var hs = client.loom.huntstats, cr = client.loom.chronicle;
+    if (!hs || !hs.look || !hs.look.filed || !cr || !cr.entry) return;
+    var f = hs.look.filed();
+    if (!f || typeof f.at != "number" || Date.now() - f.at > 7200000 || !f.area) return;
+    var min = Math.max(1, Math.round((Number(f.ms) || 0) / 60000));
+    var who = Array.isArray(f.players) ? f.players.filter(function (p) { return p; }) : [];
+    cr.entry.record({ source: "huntstats", key: String(f.at), at: f.at, text: "Hunted in " + f.area + " for " + min + " min" + (who.length ? ", with " + who.join(", ") : "") });
+  }
+});
