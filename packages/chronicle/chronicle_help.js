@@ -14,6 +14,8 @@ var hlRows = [
   ["CHRONICLE PERSON FIRST|THIRD", "a chronicler's record (third, default) or the character's journal"],
   ["CHRONICLE SUMMARIES ON|OFF", "a summary at the end of each Achaean day (on)"],
   ["CHRONICLE WRITE [day]", "write a day's summary now: today, yesterday, or e.g. 8 Scarlatan"],
+  ["CHRONICLE WRITE MONTH|YEAR [which]", "write a month's or year's now (this one so far if none named)"],
+  ["CHRONICLE VIEW DAYS|MONTHS|YEARS", "what the tab shows (or click the headings)"],
   ["CHRONICLE MODEL [id|DEFAULT]", "the model that writes them"],
   ["CHRONICLE EXPORT", "download the whole record as a Markdown file"],
   ["CHRONICLE EXPORT SHOW", "print the last export here, if no download started"],

@@ -35,7 +35,11 @@ With your own API key, Chronicle writes a short summary of each Achaean day when
 - A day that ends while you're away is written at your next login. A summary that fails is tried again after 30 seconds, 2 minutes and 10 minutes, then left: `CHRONICLE WRITE <day>` tries again by hand. A rejected key or model stops and tells you.
 - `CHRONICLE WRITE TODAY` writes the day so far (marked "so far"; rewritten when the day ends). `CHRONICLE SUMMARIES OFF` stops the automatic ones; `CHRONICLE MODEL <id>` changes the model (default `claude-haiku-5-5`). `CHRONICLE` shows how many have been written and the tokens used.
 
-The lines of a day are kept while it's among the last 30 played (or until the record is too big); its summary is kept longer. Rolling summaries up into months and years is planned.
+### Months and years
+
+The tab has three views, **Days**, **Months** and **Years** (click them, or `CHRONICLE VIEW DAYS|MONTHS|YEARS`). When an Achaean month ends (about a day of real time), its summary is written from the summaries of the days you played in it, and your notes; when a year ends (about twelve days), from its months. Each is about two hundred words, and sees the one before it. `CHRONICLE WRITE MONTH` writes this month so far (or `WRITE MONTH <name>` a past one), `CHRONICLE WRITE YEAR [number]` the same for years. Months shows this year's and last year's; Years shows them all. The export starts with the years and months, then the days.
+
+The lines of a day are kept while it's among the last 30 played (or until the record is too big); its summary is kept longer, and once its month has a summary the day's own can go when space runs short. Months and years are kept for good.
 
 ## Commands
 
@@ -52,6 +56,8 @@ The lines of a day are kept while it's among the last 30 played (or until the re
 | `CHRONICLE PERSON FIRST\|THIRD` | a chronicler's record (third, default) or the character's journal |
 | `CHRONICLE SUMMARIES ON\|OFF` | a summary at the end of each Achaean day (on) |
 | `CHRONICLE WRITE [day]` | write a day's summary now: today, yesterday, or e.g. 8 Scarlatan |
+| `CHRONICLE WRITE MONTH\|YEAR [which]` | write a month's or year's now (this one so far if none named) |
+| `CHRONICLE VIEW DAYS\|MONTHS\|YEARS` | what the tab shows (or click the headings) |
 | `CHRONICLE MODEL [id\|DEFAULT]` | the model that writes them |
 | `CHRONICLE EXPORT` | download the whole record as a Markdown file |
 | `CHRONICLE EXPORT SHOW` | print the last export here, if no download started |

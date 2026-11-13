@@ -59,52 +59,93 @@ if (today) {
 }
 
 // A summary, in the chronicle's hand.
-function prose(sum) {
-  return '<div style="font-family:' + SERIF + ';font-size:12px;line-height:1.45;color:' + TXT + ';margin:3px 0 4px;">' + esc(sum.text) +
+function prose(sum, size) {
+  return '<div style="font-family:' + SERIF + ';font-size:' + (size || 12) + 'px;line-height:1.45;color:' + TXT + ';margin:3px 0 4px;">' + esc(sum.text) +
     (sum.draft ? ' <span style="color:' + MUTED + ';font-style:italic;font-size:10px;">(so far)</span>' : '') + '</div>';
 }
-// Today, newest first.
-var td = "";
-if (cur && cur.sum) td += prose(cur.sum);
-if (!cur || !cur.ev.length) td = quiet("Nothing recorded yet this day.");
-else {
-  var shown = 0;
-  for (var i = cur.ev.length - 1; i >= 0 && shown < 150; i--, shown++) td += row(cur.ev[i]);
-  if (cur.ev.length > shown) td += quiet((cur.ev.length - shown) + " earlier entries: CHRONICLE EXPORT for all of them.");
+// What a summary still to come says about itself.
+function pending(it, finished) {
+  if (CR.busy && CR.writing === it) return "being written…";
+  if (!CR.getKey() || !finished) return "";
+  if (CR.fails(it) >= CR.retryMs.length) return "summary failed";
+  return CR.auto ? "summary to come" : "";
 }
-html += section(today ? "This day" : "Before the date was known", td, PARCH);
-
-// Earlier days, newest first: the summary when there is one, and what the
-// record holds. Summaries being written, or failed, say so.
-var ea = "";
-for (var j = CR.days.length - 1; j >= 0; j--) {
-  var b = CR.days[j];
-  if (b === cur) continue;
-  var n = {};
-  for (var k = 0; k < b.ev.length; k++) n[b.ev[k].k] = (n[b.ev[k].k] || 0) + 1;
-  var bits = [];
-  if (n.place || n.stay) bits.push(((n.place || 0) + (n.stay || 0)) + " places");
-  if (n.chan) bits.push(n.chan + " said");
-  if (n.emote) bits.push(n.emote + " emotes");
-  if (n.letter || n.msg || n.news) bits.push(((n.letter || 0) + (n.msg || 0) + (n.news || 0)) + " read");
-  if (n.note) bits.push(n.note + " notes");
-  if (n.link) bits.push(n.link + " deeds");
-  var state = "";
-  if (!b.sum && b.d > 0 && b.ev.length) {
-    if (CR.busy && CR.writing === b.d) state = "being written\u2026";
-    else if (b.fails >= CR.retryMs.length) state = "summary failed";
-    else if (!CR.getKey()) state = "";
-    else if (CR.auto) state = "summary to come";
-  }
-  ea += '<div style="border-bottom:1px dotted ' + RULE + ';padding:3px 0;">' +
+function entry(title, right, sum, size) {
+  return '<div style="border-bottom:1px dotted ' + RULE + ';padding:3px 0;">' +
     '<div style="display:flex;gap:6px;align-items:baseline;">' +
-    '<span style="flex:1 1 auto;color:' + PARCH + ';font-family:' + SERIF + ';">' + esc(CR.dayName(b.d)) + '</span>' +
-    '<span style="color:' + MUTED + ';white-space:nowrap;">' + esc(state || bits.join(" \u00b7 ") || (b.sum ? "" : "empty")) + '</span></div>' +
-    (b.sum ? prose(b.sum) : '') + '</div>';
+    '<span style="flex:1 1 auto;color:' + PARCH + ';font-family:' + SERIF + ';font-size:' + (size ? size + 1 : 12) + 'px;">' + esc(title) + '</span>' +
+    '<span style="color:' + MUTED + ';white-space:nowrap;">' + esc(right || "") + '</span></div>' +
+    (sum ? prose(sum, size) : '') + '</div>';
 }
-if (ea) html += section("Earlier days", ea, PARCH);
-if (!CR.getKey()) html += '<div style="margin-top:8px;color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">No summaries without an API key: CHRONICLE HELP.</div>';
+// The three views, as headings to click.
+var VIEWS = [["days", "Days"], ["months", "Months"], ["years", "Years"]];
+var tabs = '<div style="display:flex;gap:14px;margin:7px 0 0;border-bottom:1px solid ' + RULE + ';">';
+for (var v = 0; v < VIEWS.length; v++) {
+  var on = CR.view === VIEWS[v][0];
+  tabs += '<span onclick="window.loomChronicle&&window.loomChronicle.view(\'' + VIEWS[v][0] + '\')" style="cursor:pointer;user-select:none;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:12px;padding:0 1px 2px;' +
+    'color:' + (on ? PARCH : MUTED) + ';border-bottom:2px solid ' + (on ? SEPIA : "transparent") + ';margin-bottom:-1px;">' + VIEWS[v][1] + '</span>';
+}
+html += tabs + '</div>';
 
+var curM = today ? CR.monthOf(today) : -1, curY = today ? CR.yearOf(today) : -1;
+if (CR.view === "months") {
+  // The months of this year (and the last, while this one is young), newest first.
+  var mset = {}, mk;
+  for (var di = 0; di < CR.days.length; di++) { if (CR.days[di].d > 0) mset[CR.monthOf(CR.days[di].d)] = true; }
+  for (mk in CR.annals.m) { if (CR.annals.m.hasOwnProperty(mk)) mset[mk] = true; }
+  var mlist = Object.keys(mset).map(Number).filter(function (m) { return curY < 0 || Math.floor(m / 12) >= curY - 1; }).sort(function (a, b) { return b - a; });
+  var mh = "";
+  for (var mi = 0; mi < mlist.length; mi++) {
+    var m = mlist[mi], ds = CR.daysOfMonth(m), sm = CR.annals.m[m];
+    var played = ds.length + " day" + (ds.length === 1 ? "" : "s") + " played";
+    mh += entry(CR.monthName(m), (m === curM ? "this month · " : "") + (sm ? played : (pending("m" + m, m < curM) || played)), sm, 12);
+  }
+  html += mh || '<div style="margin-top:6px;">' + quiet("No months yet. A month's summary is written when it ends, from the summaries of its days (an Achaean month is about a day of real time).") + '</div>';
+} else if (CR.view === "years") {
+  var yset = {}, yk;
+  for (var dj = 0; dj < CR.days.length; dj++) { if (CR.days[dj].d > 0) yset[CR.yearOf(CR.days[dj].d)] = true; }
+  for (yk in CR.annals.m) { if (CR.annals.m.hasOwnProperty(yk)) yset[Math.floor(yk / 12)] = true; }
+  for (yk in CR.annals.y) { if (CR.annals.y.hasOwnProperty(yk)) yset[yk] = true; }
+  var ylist = Object.keys(yset).map(Number).sort(function (a, b) { return b - a; });
+  var yh = "";
+  for (var yi = 0; yi < ylist.length; yi++) {
+    var y = ylist[yi], sy = CR.annals.y[y], nm = CR.monthsOfYear(y).length;
+    var mp = nm + " month" + (nm === 1 ? "" : "s");
+    yh += entry(CR.yearName(y).replace(/^the y/, "Y"), (y === curY ? "this year · " : "") + (sy ? mp : (pending("y" + y, y < curY) || mp)), sy, 13);
+  }
+  html += yh || '<div style="margin-top:6px;">' + quiet("No years yet. A year's summary is written when it ends, from its months (an Achaean year is about twelve days of real time).") + '</div>';
+} else {
+  // Today, newest first.
+  var td = "";
+  if (cur && cur.sum) td += prose(cur.sum);
+  if (!cur || !cur.ev.length) td += quiet("Nothing recorded yet this day.");
+  else {
+    var shown = 0;
+    for (var i = cur.ev.length - 1; i >= 0 && shown < 150; i--, shown++) td += row(cur.ev[i]);
+    if (cur.ev.length > shown) td += quiet((cur.ev.length - shown) + " earlier entries: CHRONICLE EXPORT for all of them.");
+  }
+  html += section(today ? "This day" : "Before the date was known", td, PARCH);
+  // Earlier days, newest first: the summary when there is one, and what the
+  // record holds.
+  var ea = "";
+  for (var j = CR.days.length - 1; j >= 0; j--) {
+    var b = CR.days[j];
+    if (b === cur) continue;
+    var n = {};
+    for (var k = 0; k < b.ev.length; k++) n[b.ev[k].k] = (n[b.ev[k].k] || 0) + 1;
+    var bits = [];
+    if (n.place || n.stay) bits.push(((n.place || 0) + (n.stay || 0)) + " places");
+    if (n.chan) bits.push(n.chan + " said");
+    if (n.emote) bits.push(n.emote + " emotes");
+    if (n.letter || n.msg || n.news) bits.push(((n.letter || 0) + (n.msg || 0) + (n.news || 0)) + " read");
+    if (n.note) bits.push(n.note + " notes");
+    if (n.link) bits.push(n.link + " deeds");
+    var state = (!b.sum && b.d > 0 && b.ev.length) ? pending(b.d, true) : "";
+    ea += entry(CR.dayName(b.d), state || bits.join(" · ") || (b.sum ? "" : "empty"), b.sum);
+  }
+  if (ea) html += section("Earlier days", ea, PARCH);
+}
+if (!CR.getKey()) html += '<div style="margin-top:8px;color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;">No summaries without an API key: CHRONICLE HELP.</div>';
 html += '</div>';
 // The whole tab in the panel's colour (#355), as Ledger does.
 try {

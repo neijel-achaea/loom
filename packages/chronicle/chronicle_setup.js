@@ -80,6 +80,14 @@ if (!CR.area) CR.area = null;
 if (!CR.rate) CR.rate = {};
 if (!CR.recent) CR.recent = [];    // channel lines just heard: [plain, at]
 if (CR.capt === undefined) CR.capt = null;
+if (!CR.view) { var crVw = CR.readVar("chronicle_view"); CR.view = (crVw === "months" || crVw === "years") ? crVw : "days"; }
+CR.setView = function (v) {
+  CR.view = v;
+  set_variable("chronicle_view", v);
+  run_function("chronicle_render", [], "chronicle");
+};
+// The tab's headings are clicked through this (inline handlers, as atlas's).
+window.loomChronicle = { view: function (v) { if (client.loom && client.loom.chronicle && client.loom.chronicle.setView) client.loom.chronicle.setView(v); } };
 if (CR.cont === undefined) CR.cont = null;
 
 // --- time and days ---------------------------------------------------------
@@ -192,10 +200,14 @@ CR.save = function () {
   }
   CR.days = CR.days.filter(function (b) { return b.ev.length || b.sum; });
   var s = JSON.stringify(CR.days);
+  // Then the days of months that have their own summary; then the oldest.
+  var an = CR.annals && CR.annals.m;
   while (s.length > CR.maxBytes) {
-    var cut = -1;
+    var cut = -1, drop = -1;
     for (i = 0; i < CR.days.length - 1 && cut < 0; i++) { if (CR.days[i].sum && CR.days[i].ev.length) cut = i; }
+    for (i = 0; an && cut < 0 && i < CR.days.length - 1 && drop < 0; i++) { var mm = an[Math.floor((CR.days[i].d - 1) / 25)]; if (mm && !mm.draft) drop = i; }
     if (cut >= 0) CR.days[cut].ev = [];
+    else if (drop >= 0) CR.days.splice(drop, 1);
     else if (CR.days.length > 1) CR.days.shift();
     else break;
     s = JSON.stringify(CR.days);
@@ -458,13 +470,20 @@ CR.describe = function (e) {
 };
 CR.show = function (e) { return CR.describe(e) + (e.n > 1 ? " (\u00d7" + e.n + ")" : ""); };
 CR.markdown = function (days) {
-  var out = ["# Chronicle" + (CR.me ? " of " + CR.me : ""), ""];
+  var out = ["# Chronicle" + (CR.me ? " of " + CR.me : ""), ""], k;
+  var an = CR.annals || { m: {}, y: {} };
+  var ys = Object.keys(an.y || {}).map(Number).sort(function (a, b) { return a - b; });
+  var ms = Object.keys(an.m || {}).map(Number).sort(function (a, b) { return a - b; });
+  if (ys.length) { out.push("## Years", ""); for (k = 0; k < ys.length; k++) out.push("### " + CR.yearName(ys[k]).replace(/^the y/, "Y") + (an.y[ys[k]].draft ? " (so far)" : ""), "", an.y[ys[k]].text, ""); }
+  if (ms.length) { out.push("## Months", ""); for (k = 0; k < ms.length; k++) out.push("### " + CR.monthName(ms[k]) + (an.m[ms[k]].draft ? " (so far)" : ""), "", an.m[ms[k]].text, ""); }
+  var dh = (ys.length || ms.length) ? "### " : "## ";
+  if (ys.length || ms.length) out.push("## Days", "");
   for (var i = 0; i < days.length; i++) {
     var b = days[i];
     if (!b.ev.length && !b.sum) continue;
-    out.push("## " + CR.dayName(b.d), "");
+    out.push(dh + CR.dayName(b.d), "");
     if (b.sum) out.push(b.sum.text, "");
-    if (b.sum && b.ev.length) out.push("### The record", "");
+    if (b.sum && b.ev.length) out.push("The record:", "");
     for (var j = 0; j < b.ev.length; j++) {
       var e = b.ev[j], txt = CR.show(e).split("\n");
       out.push("- " + CR.hhmm(e.t) + " **" + e.k + "** " + txt[0]);

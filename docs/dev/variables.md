@@ -69,6 +69,8 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `chronicle_model` | setting | 1.2 | the model, "" for the default |  |
 | `chronicle_auto` | setting | 1.2 | "off" stops the automatic summaries |  |
 | `chronicle_usage` | data | 1.2 | summaries written and tokens used |  |
+| `chronicle_annals` | data | 1.2 | month and year summaries, and their failed tries |  |
+| `chronicle_view` | state | 1.2 | the tab's view: days, months or years |  |
 
 The API key is in the browser's localStorage (`loom_chronicle_key`), never in a variable.
 

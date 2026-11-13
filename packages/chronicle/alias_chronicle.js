@@ -85,10 +85,14 @@ if (crCmd === "" || crCmd === "STATUS") {
   if (crS !== "ON" && crS !== "OFF") display_notice("[chronicle] usage: CHRONICLE SUMMARIES ON|OFF (now " + (CR.auto ? "on" : "off") + ").", "orange");
   else { CR.auto = crS === "ON"; set_variable("chronicle_auto", CR.auto ? "on" : "off"); display_notice("[chronicle] summaries at the end of each day " + (CR.auto ? "on." : "off: CHRONICLE WRITE still writes one by hand."), "lime"); if (CR.auto) CR.due(); }
 } else if (crCmd === "WRITE") {
-  var crWd = CR.findDay(crRest);
-  if (!crWd) display_notice("[chronicle] no such day in the record" + (crRest ? " ('" + crRest + "')" : "") + ". CHRONICLE WRITE [today|yesterday|<day> <month>].", "orange");
+  var crWd = CR.findItem(crRest);
+  if (!crWd) display_notice("[chronicle] nothing by that name in the record" + (crRest ? " ('" + crRest + "')" : "") + ". CHRONICLE WRITE [today|yesterday|<day> <month>|MONTH [name]|YEAR [number]].", "orange");
   else if (CR.busy) display_notice("[chronicle] a summary is being written; try again in a moment.", "orange");
-  else { display_notice("[chronicle] writing " + CR.dayName(crWd) + "...", "cyan"); CR.write(crWd, true); }
+  else { display_notice("[chronicle] writing " + CR.label(crWd) + "...", "cyan"); CR.write(crWd, true); }
+} else if (crCmd === "VIEW") {
+  var crV = String(crW[1] || "").toLowerCase();
+  if (crV !== "days" && crV !== "months" && crV !== "years") display_notice("[chronicle] usage: CHRONICLE VIEW DAYS|MONTHS|YEARS (or click them in the tab).", "orange");
+  else CR.setView(crV);
 } else if (crCmd === "DEBUG") {
   var crN = 0;
   for (var crD = 0; crD < CR.days.length; crD++) crN += CR.days[crD].ev.length;

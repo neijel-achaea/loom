@@ -77,7 +77,8 @@ CR.facts = function () {
 };
 
 // Layer 1, and the rules.
-CR.system = function (prev) {
+CR.system = function (prev, scope) {
+  scope = scope || { what: "day", words: CR.words };
   var name = CR.me || "the adventurer";
   var p = [];
   if (CR.person === "first") {
@@ -89,11 +90,12 @@ CR.system = function (prev) {
   p.push("Leave out anything out of character: talk of the game and its tools, the real world, and anything that reads as players talking rather than their characters.");
   p.push("Invent nothing: no events, motives, feelings or relationships the record doesn't show. Where the record is unclear, say less.");
   p.push("Keep what changes things: people met, promises made, tasks taken on, letters, messages and news, places first seen, words that mattered. Pass over routine. Name people as the record names them.");
-  p.push("Write one paragraph of about " + CR.words + " words (fewer for a quiet day), plain text, no heading and no date: the date is shown above it. British spelling.");
+  if (scope.what === "day") p.push("Write one paragraph of about " + scope.words + " words (fewer for a quiet day), plain text, no heading and no date: the date is shown above it. British spelling.");
+  else p.push("You are given the entries already written for each " + (scope.what === "month" ? "day of a month" : "month of a year") + ". From them, write the entry for the whole " + scope.what + ": what changed and what mattered over it (people, turning points, tasks begun and finished, where " + name + " stands at its end), not a list of " + (scope.what === "month" ? "days" : "months") + ". About " + scope.words + " words, one or two paragraphs, plain text, no heading and no date. British spelling.");
   var f = CR.facts();
   if (f) p.push("Who " + name + " is, as the world knows: " + f);
   if (CR.voice) p.push("What the player tells you about " + name + " (take it as true, and let it shape what matters, without repeating it): " + CR.voice);
-  if (prev) p.push("The previous entry, for continuity only (don't repeat it): " + prev);
+  if (prev) p.push("The previous " + scope.what + "'s entry, for continuity only (don't repeat it): " + prev);
   return p.join("\n\n");
 };
 // The day's record as lines, cut to the budget.
@@ -114,66 +116,163 @@ CR.prevSum = function (d) {
   return "";
 };
 
+// --- months and years --------------------------------------------------------
+// A day number's month and year: day d is year * 300 + month * 25 + day, so
+// (d - 1) / 25 counts months and (d - 1) / 300 years from 0 AF.
+CR.monthOf = function (d) { return Math.floor((d - 1) / 25); };
+CR.yearOf = function (d) { return Math.floor((d - 1) / 300); };
+CR.monthName = function (m) { return CR.months[m % 12] + ", " + Math.floor(m / 12) + " AF"; };
+CR.yearName = function (y) { return "the year " + y + " AF"; };
+// The rollups, saved apart from the days: chronicle_annals = { m: { month:
+// sum }, y: { year: sum }, f: { "m123": failures } }.
+if (!CR.annals || typeof CR.annals != "object") {
+  var crAn = CR.readVar("chronicle_annals");
+  CR.annals = (crAn && typeof crAn == "object" && !Array.isArray(crAn)) ? crAn : {};
+}
+if (!CR.annals.m || typeof CR.annals.m != "object") CR.annals.m = {};
+if (!CR.annals.y || typeof CR.annals.y != "object") CR.annals.y = {};
+if (!CR.annals.f || typeof CR.annals.f != "object") CR.annals.f = {};
+CR.saveAnnals = function () { set_variable("chronicle_annals", JSON.stringify(CR.annals)); };
+CR.daysOfMonth = function (m) { return CR.days.filter(function (b) { return b.d > 0 && CR.monthOf(b.d) === m; }); };
+CR.monthsOfYear = function (y) {
+  var seen = {}, out = [], i;
+  for (i = 0; i < CR.days.length; i++) { if (CR.days[i].d > 0 && CR.yearOf(CR.days[i].d) === y) seen[CR.monthOf(CR.days[i].d)] = true; }
+  for (var k in CR.annals.m) { if (CR.annals.m.hasOwnProperty(k) && Math.floor(k / 12) === y) seen[k] = true; }
+  for (var n in seen) { if (seen.hasOwnProperty(n)) out.push(parseInt(n, 10)); }
+  return out.sort(function (a, b) { return a - b; });
+};
+// What a rollup is written from: the entries below it, and the player's own
+// notes (they're what a summary of summaries most easily loses).
+CR.monthText = function (m) {
+  var out = [], notes = [], ds = CR.daysOfMonth(m);
+  for (var i = 0; i < ds.length; i++) {
+    if (ds[i].sum && !ds[i].sum.draft) out.push("[" + CR.dayName(ds[i].d).replace(/,.*$/, "") + "] " + ds[i].sum.text);
+    for (var j = 0; j < ds[i].ev.length; j++) { if (ds[i].ev[j].k == "note") notes.push(ds[i].ev[j].text); }
+  }
+  return out.join("\n\n") + (notes.length ? "\n\nNotes the player made this month: " + notes.join(" / ") : "");
+};
+CR.yearText = function (y) {
+  var out = [], ms = CR.monthsOfYear(y);
+  for (var i = 0; i < ms.length; i++) { var a = CR.annals.m[ms[i]]; if (a && !a.draft) out.push("[" + CR.months[ms[i] % 12] + "] " + a.text); }
+  return out.join("\n\n");
+};
+
 // --- the queue ----------------------------------------------------------------
-// Every day before today that has a record and no summary (and hasn't failed
-// three times) is written, one at a time, oldest first: at each new day, and
-// at load, so a day you logged out in is written next time.
+// Items: a day number, "m<month>" or "y<year>". Every finished day with a
+// record and no summary (or a draft), then every finished month whose days
+// are all done, then every finished year whose months are: written one at a
+// time, oldest first, at each new day and at load. Three failures leave an
+// item for CHRONICLE WRITE.
+CR.fails = function (it) { return typeof it == "number" ? ((CR.bucket(it, false) || {}).fails || 0) : (CR.annals.f[it] || 0); };
 CR.due = function () {
   var today = CR.today();
-  if (!today) return;
-  for (var i = 0; i < CR.days.length; i++) {
+  if (!today || CR.retryT) return;
+  var curM = CR.monthOf(today), curY = CR.yearOf(today), i, max = CR.retryMs.length;
+  var add = function (it) { if (CR.queue.indexOf(it) < 0 && CR.fails(it) < max) CR.queue.push(it); };
+  var months = {}, years = {};
+  for (i = 0; i < CR.days.length; i++) {
     var b = CR.days[i];
-    if (b.d > 0 && b.d < today && b.ev.length && (!b.sum || b.sum.draft) && (b.fails || 0) < CR.retryMs.length && !CR.retryT && CR.queue.indexOf(b.d) < 0) CR.queue.push(b.d);
+    if (b.d <= 0) continue;
+    if (b.d < today && b.ev.length && (!b.sum || b.sum.draft)) add(b.d);
+    months[CR.monthOf(b.d)] = true;
   }
-  CR.queue.sort(function (a, c) { return a - c; });
+  for (var m in months) {
+    if (!months.hasOwnProperty(m)) continue;
+    m = parseInt(m, 10);
+    years[Math.floor(m / 12)] = true;
+    var am = CR.annals.m[m];
+    if (m >= curM || (am && !am.draft)) continue;
+    var ds = CR.daysOfMonth(m), ready = true, any = false;
+    for (i = 0; i < ds.length; i++) {
+      if (ds[i].sum && !ds[i].sum.draft) any = true;
+      else if (ds[i].ev.length && (ds[i].fails || 0) < max) ready = false;
+    }
+    if (ready && any) add("m" + m);
+  }
+  for (var k in CR.annals.m) { if (CR.annals.m.hasOwnProperty(k)) years[Math.floor(k / 12)] = true; }
+  for (var y in years) {
+    if (!years.hasOwnProperty(y)) continue;
+    y = parseInt(y, 10);
+    var ay = CR.annals.y[y];
+    if (y >= curY || (ay && !ay.draft)) continue;
+    var ms = CR.monthsOfYear(y), done = true, has = false;
+    for (i = 0; i < ms.length; i++) {
+      var a = CR.annals.m[ms[i]];
+      if (a && !a.draft) has = true;
+      else if ((CR.annals.f["m" + ms[i]] || 0) < max && CR.daysOfMonth(ms[i]).length) done = false;
+    }
+    if (done && has) add("y" + y);
+  }
+  var rank = function (it) { return typeof it == "number" ? [0, it] : it.charAt(0) === "m" ? [1, +it.slice(1)] : [2, +it.slice(1)]; };
+  CR.queue.sort(function (a, c) { var x = rank(a), z = rank(c); return x[0] - z[0] || x[1] - z[1]; });
   CR.pump();
 };
 CR.pump = function () {
   if (CR.busy || !CR.queue.length || !CR.auto || !CR.getKey()) return;
   CR.write(CR.queue.shift(), false);
 };
+CR.label = function (it) { return typeof it == "number" ? CR.dayName(it) : it.charAt(0) === "m" ? CR.monthName(+it.slice(1)) : CR.yearName(+it.slice(1)); };
 // One call. manual: CHRONICLE WRITE, which reports back and ignores past
-// failures. A day still going (today) gets a draft, replaced when it ends.
-CR.write = function (d, manual) {
-  var b = CR.bucket(d, false), key = CR.getKey();
-  if (!b || !b.ev.length) { if (manual) display_notice("[chronicle] nothing recorded for " + CR.dayName(d) + ".", "cyan"); CR.busy = false; CR.pump(); return; }
+// failures. Something still going (today, this month) gets a draft, replaced
+// when it ends.
+CR.write = function (it, manual) {
+  var key = CR.getKey(), sys, user;
+  if (typeof it == "number") {
+    var b = CR.bucket(it, false);
+    if (!b || !b.ev.length) { if (manual) display_notice("[chronicle] nothing recorded for " + CR.dayName(it) + ".", "cyan"); CR.pump(); return; }
+    sys = CR.system(CR.prevSum(it), { what: "day", words: CR.words });
+    user = "The record of " + CR.dayName(it) + ", line by line (time, kind, what happened):\n\n" + CR.recordText(b) + "\n\nWrite the entry for this day.";
+  } else if (it.charAt(0) === "m") {
+    var m = +it.slice(1), mt = CR.monthText(m);
+    if (!/\S/.test(mt)) { if (manual) display_notice("[chronicle] no day of " + CR.monthName(m) + " has its summary yet.", "cyan"); CR.pump(); return; }
+    var pm = CR.annals.m[m - 1];
+    sys = CR.system(pm ? pm.text : "", { what: "month", words: 200 });
+    user = "The entries for the days of " + CR.monthName(m) + " that were played, in order:\n\n" + mt + "\n\nWrite the entry for this month.";
+  } else {
+    var y = +it.slice(1), yt = CR.yearText(y);
+    if (!/\S/.test(yt)) { if (manual) display_notice("[chronicle] no month of " + CR.yearName(y) + " has its summary yet.", "cyan"); CR.pump(); return; }
+    var py = CR.annals.y[y - 1];
+    sys = CR.system(py ? py.text : "", { what: "year", words: 250 });
+    user = "The entries for the months of " + CR.yearName(y) + " that were played, in order:\n\n" + yt + "\n\nWrite the entry for this year.";
+  }
   if (!key) { if (manual) display_notice("[chronicle] no API key in this browser: CHRONICLE KEY <key> first.", "orange"); return; }
   CR.busy = true;
-  CR.writing = d;
-  var body = {
-    model: CR.model,
-    max_tokens: 600,
-    system: CR.system(CR.prevSum(d)),
-    messages: [{ role: "user", content: "The record of " + CR.dayName(d) + ", line by line (time, kind, what happened):\n\n" + CR.recordText(b) + "\n\nWrite the entry for this day." }]
-  };
+  CR.writing = it;
   var started = Date.now();
   fetch(CR.api, {
     method: "POST",
     headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true", "content-type": "application/json" },
-    body: JSON.stringify(body)
+    body: JSON.stringify({ model: CR.model, max_tokens: 900, system: sys, messages: [{ role: "user", content: user }] })
   }).then(function (r) {
     return r.json().then(function (j) { return { status: r.status, j: j }; }, function () { return { status: r.status, j: null }; });
   }).then(function (res) {
-    client.loom.chronicle.written(d, res, manual, started);
+    client.loom.chronicle.written(it, res, manual, started);
   }).catch(function (e) {
-    client.loom.chronicle.written(d, { status: 0, j: null, err: String(e && e.message || e) }, manual, started);
+    client.loom.chronicle.written(it, { status: 0, j: null, err: String(e && e.message || e) }, manual, started);
   });
 };
-CR.written = function (d, res, manual, started) {
+CR.written = function (it, res, manual, started) {
   CR.busy = false;
-  CR.writing = 0;
-  var b = CR.bucket(d, false);
-  var j = res.j || {};
+  CR.writing = null;
+  var j = res.j || {}, today = CR.today();
   var text = (j.content && j.content[0] && typeof j.content[0].text == "string") ? j.content[0].text.replace(/^\s+|\s+$/g, "") : "";
-  if (res.status === 200 && text && b) {
+  var label = CR.label(it);
+  if (res.status === 200 && text) {
     if (j.usage) { CR.usage.calls++; CR.usage.inTok += j.usage.input_tokens || 0; CR.usage.outTok += j.usage.output_tokens || 0; set_variable("chronicle_usage", JSON.stringify(CR.usage)); }
-    b.sum = { text: text, at: Date.now(), model: CR.model, draft: d >= CR.today() };
-    delete b.fails;
+    var sum = { text: text, at: Date.now(), model: CR.model };
+    if (typeof it == "number") {
+      var b = CR.bucket(it, false);
+      if (b) { sum.draft = it >= today; b.sum = sum; delete b.fails; }
+    } else if (it.charAt(0) === "m") {
+      sum.draft = +it.slice(1) >= CR.monthOf(today); CR.annals.m[+it.slice(1)] = sum; delete CR.annals.f[it]; CR.saveAnnals();
+    } else {
+      sum.draft = +it.slice(1) >= CR.yearOf(today); CR.annals.y[+it.slice(1)] = sum; delete CR.annals.f[it]; CR.saveAnnals();
+    }
     CR.lastErr = "";
-    if (manual) display_notice("[chronicle] " + CR.dayName(d) + " written.", "lime");
+    if (manual) display_notice("[chronicle] " + label + " written.", "lime");
     CR.save();
     CR.dirty();
-    CR.pump();
+    if (!manual) CR.due(); else CR.pump();
     return;
   }
   var why = res.err ? "no answer (" + res.err + ")" : (j.error && j.error.message) ? res.status + ": " + j.error.message : "answer " + res.status;
@@ -181,34 +280,50 @@ CR.written = function (d, res, manual, started) {
   // A bad key or a bad model won't get better by waiting: stop and say so.
   if (res.status === 401 || res.status === 403 || res.status === 404 || res.status === 400) {
     CR.queue = [];
-    display_notice("[chronicle] the summary for " + CR.dayName(d) + " failed, " + why + ". " +
+    display_notice("[chronicle] the summary for " + label + " failed, " + why + ". " +
       (res.status === 401 || res.status === 403 ? "Check your key (CHRONICLE KEY <key>)." : "Check the model (CHRONICLE MODEL)."), "orange");
     CR.dirty();
     return;
   }
-  if (b && !manual) b.fails = (b.fails || 0) + 1;
-  var n = b ? (b.fails || 0) : 0;
-  if (manual) display_notice("[chronicle] the summary for " + CR.dayName(d) + " failed, " + why + ".", "orange");
+  var n = 0;
+  if (!manual) {
+    if (typeof it == "number") { var fb = CR.bucket(it, false); if (fb) n = fb.fails = (fb.fails || 0) + 1; }
+    else { n = CR.annals.f[it] = (CR.annals.f[it] || 0) + 1; CR.saveAnnals(); }
+  }
+  if (manual) display_notice("[chronicle] the summary for " + label + " failed, " + why + ".", "orange");
   else if (n < CR.retryMs.length) {
+    CR.queue = [];
     CR.retryT = setTimeout(function () { var c = client.loom.chronicle; c.retryT = null; c.due(); }, CR.retryMs[n - 1]);
-  } else display_notice("[chronicle] gave up on the summary for " + CR.dayName(d) + " after " + n + " tries (" + why + "). CHRONICLE WRITE " + CR.dayName(d).replace(/,.*$/, "") + " to try again.", "orange");
+  } else display_notice("[chronicle] gave up on the summary for " + label + " after " + n + " tries (" + why + "). CHRONICLE WRITE to try again.", "orange");
   CR.save();
   CR.dirty();
   CR.pump();
 };
-// A day by name ("8th Scarlatan", "8 scarlatan", "today", "yesterday"), or
-// the last day before today.
-CR.findDay = function (s) {
+// What CHRONICLE WRITE names: a day ("8 Scarlatan", "today", "yesterday", or
+// nothing for the last day before today), MONTH [name] (this month if none),
+// or YEAR [number] (this year if none).
+CR.findItem = function (s) {
   s = String(s || "").replace(/^\s+|\s+$/g, "").toLowerCase();
-  var today = CR.today();
+  var today = CR.today(), m;
+  if ((m = /^month(?:\s+(.+))?$/.exec(s))) {
+    if (!m[1]) return today ? "m" + CR.monthOf(today) : 0;
+    for (var k = CR.months.length - 1; k >= 0; k--) {
+      if (CR.months[k].toLowerCase().indexOf(m[1]) === 0) {
+        var cm = CR.monthOf(today), yy = Math.floor(cm / 12);
+        var mi = yy * 12 + k;
+        if (mi > cm) mi -= 12;
+        return "m" + mi;
+      }
+    }
+    return 0;
+  }
+  if ((m = /^year(?:\s+(\d+))?$/.exec(s))) return m[1] ? "y" + parseInt(m[1], 10) : (today ? "y" + CR.yearOf(today) : 0);
   if (!s) { for (var i = CR.days.length - 1; i >= 0; i--) { if (CR.days[i].d > 0 && CR.days[i].d < today && CR.days[i].ev.length) return CR.days[i].d; } return 0; }
   if (s === "today") return today;
   if (s === "yesterday") return today - 1;
-  var m = /^(\d+)(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]+)/.exec(s);
-  if (!m) return 0;
+  if (!(m = /^(\d+)(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]+)/.exec(s))) return 0;
   for (var j = CR.days.length - 1; j >= 0; j--) {
-    var nm = CR.dayName(CR.days[j].d).toLowerCase();
-    if (nm.indexOf(CR.ord(parseInt(m[1], 10)) + " " + m[2]) === 0) return CR.days[j].d;
+    if (CR.dayName(CR.days[j].d).toLowerCase().indexOf(CR.ord(parseInt(m[1], 10)) + " " + m[2]) === 0) return CR.days[j].d;
   }
   return 0;
 };
