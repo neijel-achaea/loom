@@ -167,7 +167,9 @@ function stPron(p) {
   if (p === "she/her") { return "\u2640\ufe0e"; }
   return p.split("/")[0];
 }
-ST.F = { pron: stPron, SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
+// Its colour (Ricardo): blue for he, pink for she, green for any other.
+function stPronCol(p) { return p === "he/him" ? "#6ea8e8" : p === "she/her" ? "#e88fc0" : "#8fd18a"; }
+ST.F = { pron: stPron, pronCol: stPronCol, SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
 if (!ST.db) {
   var stDb = stLoad("standings_db", null);
   if (!stDb || typeof stDb !== "object" || !stDb.e) { stDb = { e: {}, pending: [] }; }

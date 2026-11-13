@@ -122,7 +122,7 @@ function dealings(items) {
 function personRow(e) {
   var b = F.band(e.s);
   return '<div style="display:flex;gap:6px;border-bottom:1px dotted ' + RULE + ';padding:1px 0;">' +
-    '<span style="flex:1 1 auto;font-family:' + SERIF + ';font-size:11px;color:' + TXT + ';">' + esc(e.name) + (e.pron ? ' <span title="' + esc(e.pron) + '" style="color:' + MUTED + ';font-size:10px;">' + esc(F.pron(e.pron)) + '</span>' : '') + '</span>' +
+    '<span style="flex:1 1 auto;font-family:' + SERIF + ';font-size:11px;color:' + TXT + ';">' + esc(e.name) + (e.pron ? ' <span title="' + esc(e.pron) + '" style="color:' + F.pronCol(e.pron) + ';font-size:' + (F.pron(e.pron).length > 2 ? '11px;font-style:italic' : '16px') + ';line-height:1;">' + esc(F.pron(e.pron)) + '</span>' : '') + '</span>' +
     '<span style="color:' + b[2] + ';min-width:6.5em;text-align:right;">' + b[1] + '</span>' +
     '<span style="color:' + b[2] + ';min-width:3.5em;text-align:right;">' + F.signed(e.s) + '</span>' +
     '<span style="color:' + MUTED + ';min-width:5.5em;text-align:right;">' + F.dealings(e) + ' dealt</span></div>';
@@ -167,7 +167,7 @@ if (vk && vk.charAt(0) !== "@" && E) {
   // ------------------------------------------------------------ a person ---
   var b = F.band(E.s);
   html += '<div style="margin:6px 0 0;font-family:' + SERIF + ';font-size:17px;color:' + TXT + ';">' + esc(E.name) +
-    (E.pron ? ' <span title="' + esc(E.pron) + '" style="font-size:12px;color:' + MUTED + ';border:1px solid ' + RULE + ';border-radius:8px;padding:0 5px;vertical-align:2px;cursor:default;">' + esc(F.pron(E.pron)) + '</span>' : '') + '</div>';
+    (E.pron ? ' <span title="' + esc(E.pron) + '" style="font-size:' + (F.pron(E.pron).length > 2 ? '13px;font-style:italic' : '20px') + ';line-height:1;color:' + F.pronCol(E.pron) + ';border:1px solid ' + RULE + ';border-radius:11px;padding:1px 7px;vertical-align:1px;cursor:default;">' + esc(F.pron(E.pron)) + '</span>' : '') + '</div>';
   if (E.who) { html += '<div style="margin:0 0 3px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + esc(E.who) + '</div>'; }
   html += '<div style="margin:0 0 2px;">' + standing(E.s, 26) + ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + b[2] + ';font-size:13px;">' + b[1] + '</span></div>';
   html += scale(E.s);

@@ -108,7 +108,7 @@ Some dealings are suggested rather than recorded: by other packages through Loom
 
 `STANDINGS <name> WHO <text>` says who someone is to you, in your words: "my daughter, teases me without mercy", "Collective housemate, teaches me shopkeeping". It shows under their name in the tab and in `STANDINGS <name>`; `STANDINGS <name> WHO` shows it, `… WHO CLEAR` removes it.
 
-`STANDINGS <name> PRONOUNS she` (or `he`, `they`, `fae/faer`, any short form) sets their pronouns: a small mark by their name in the tab (♀ for she, ♂ for he, the word itself for any other; the full form on hover). `… PRONOUNS CLEAR` removes them.
+`STANDINGS <name> PRONOUNS she` (or `he`, `they`, `fae/faer`, any short form) sets their pronouns: a small mark by their name in the tab (♀ in pink for she, ♂ in blue for he, the word itself in green for any other; the full form on hover). `… PRONOUNS CLEAR` removes them.
 
 Neither needs any dealings, so you can describe anyone. Other packages use both: Chronicle's summaries get them through the `standings-chronicle` link.
 
