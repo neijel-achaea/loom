@@ -89,6 +89,7 @@ CR.system = function (prev, scope) {
   p.push("Use the world's own terms. Never mention game mechanics: experience, levels, renown, credits, kill counts, minutes, commands, quests as such, or the client. Hunting is hunting; a quest is a task or a deed.");
   p.push("Leave out anything out of character: talk of the game and its tools, the real world, and anything that reads as players talking rather than their characters.");
   p.push("Invent nothing: no events, motives, feelings or relationships the lines don't show. Where they're unclear, say less.");
+  p.push("No padding: a quiet day gets a sentence or two, not scenery. Atmosphere only from what the lines name (a room's name, the weather, an emote); no invented actions, sights or sensations to fill space.");
   p.push("Write from the chronicler's own knowledge: never mention the record, its lines, or what it doesn't say, and don't remark on gaps or abrupt endings. Don't open with the date.");
   p.push("Tells reach someone from afar: a person heard only through tells wasn't there in person. Who was present shows in what was said aloud, emotes, and who was in the room. Say who did what: don't credit " + name + " with what a companion did.");
   p.push("Keep what changes things: people met, promises made, tasks taken on, letters, messages and news, places first seen, words that mattered. Pass over routine. Name people as the record names them.");
