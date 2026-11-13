@@ -107,7 +107,7 @@ CR.purge = function (name) {
   CR.dirty();
   return n;
 };
-if (CR.me === undefined) { var crM = CR.readVar("chronicle_name"); CR.me = typeof crM == "string" ? crM : ""; }
+if (CR.me === undefined) { var crM; try { crM = get_variable("chronicle_name"); } catch (e) { crM = ""; } CR.me = typeof crM == "string" ? crM : ""; }  // plain string, not JSON
 if (!CR.seen) CR.seen = {};        // channel key -> true, heard this session
 if (!CR.captions) CR.captions = {};
 if (!CR.players) CR.players = {};  // lower-case name -> name, in your room
@@ -116,7 +116,8 @@ if (!CR.area) CR.area = null;
 if (!CR.rate) CR.rate = {};
 if (!CR.recent) CR.recent = [];    // channel lines just heard: [plain, at]
 if (CR.capt === undefined) CR.capt = null;
-if (!CR.view) { var crVw = CR.readVar("chronicle_view"); CR.view = (crVw === "months" || crVw === "years") ? crVw : "days"; }
+if (!CR.view) { var crVw; try { crVw = get_variable("chronicle_view"); } catch (e) { crVw = ""; }  // plain string, not JSON
+  CR.view = (crVw === "months" || crVw === "years") ? crVw : "days"; }
 CR.setView = function (v) {
   CR.view = v;
   set_variable("chronicle_view", v);
