@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.ledger) client.loom.ledger = {};
-client.loom.registry.ledger = { version: "1.1.1", keyword: "LEDGER", desc: "{{description}}",
+client.loom.registry.ledger = { version: "1.2.0", keyword: "LEDGER", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("ledger_render", [], "ledger"); } };
 var LG = client.loom.ledger;
@@ -185,9 +185,33 @@ LG.entry = {
 //     state is "overdue", "soon" (due today or within 5 days, as the tab
 //     marks it), "later" or "standing" (no date); when is how the ledger
 //     says it ("overdue 2d", "today", "in 1mo 3d", "" for standing).
+// Goals (#493), kept apart from the items in ledger_goals: [{ id, text,
+// created, done }] where done is the Achaean day it was achieved (-1 when the
+// date wasn't known). Read fresh each time; the list is short.
+LG.goals = function () {
+  var a;
+  try { a = JSON.parse(get_variable("ledger_goals")); } catch (e) { a = null; }
+  if (!Array.isArray(a)) return [];
+  return a.filter(function (g) { return g && typeof g == "object" && typeof g.id == "number" && typeof g.text == "string"; });
+};
+LG.saveGoals = function (a) { set_variable("ledger_goals", JSON.stringify(a)); if (client.loom.notify) client.loom.notify("ledger"); };
+LG.dayText = function (d) {
+  if (!(d > 0)) return "";
+  var n = d - 1, y = Math.floor(n / 300), r = n - y * 300;
+  return LG.ord((r % 25) + 1) + " of " + LG.months[Math.floor(r / 25)] + ", " + y;
+};
 LG.soonDays = 5;
 LG.span = function (d) { var m = Math.floor(d / 25), r = d % 25; return ((m ? m + "mo " : "") + (r || !m ? r + "d" : "")).trim(); };
 LG.look = {
+  // goals() -> { open: [text], achieved: [{ text, day, when }] } (#493).
+  goals: function () {
+    var g = LG.goals(), out = { open: [], achieved: [] };
+    for (var i = 0; i < g.length; i++) {
+      if (g[i].done) out.achieved.push({ text: g[i].text, day: g[i].done > 0 ? g[i].done : 0, when: LG.dayText(g[i].done) });
+      else out.open.push(g[i].text);
+    }
+    return out;
+  },
   about: function (name) {
     name = String(name || "").trim();
     if (!/^[A-Za-z]+$/.test(name)) return [];

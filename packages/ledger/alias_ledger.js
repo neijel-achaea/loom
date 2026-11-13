@@ -111,6 +111,36 @@ if (lgSub === "" || lgSub === "status") {
     lgSay("#" + lgWant + " " + (lgSub === "done" ? "done" : "dropped") + " - " + gone, lgSub === "done" ? "lime" : "orange");
   }
   run_function("ledger_render", [], "ledger");
+} else if (lgSub === "goal" || lgSub === "goals") {
+  // Goals (#493): long-term aims, apart from reminders. No dates, no
+  // nagging, not in the digest; achieved ones are kept with the day they
+  // were reached. LEDGER GOAL <text> | GOAL DONE|DROP <#> | GOALS.
+  var gls = LG.goals();
+  var gw = lgRest.split(/\s+/), gv = (gw[0] || "").toLowerCase(), gn = parseInt(String(gw[1] || "").replace(/^[#gG]+/, ""), 10);
+  var gi = -1;
+  for (var gk = 0; gk < gls.length; gk++) { if (gls[gk].id === gn) gi = gk; }
+  if (lgSub === "goals" || !lgRest) {
+    var gOpen = gls.filter(function (g) { return !g.done; }), gDone = gls.filter(function (g) { return g.done; });
+    if (!gls.length) lgSay("no goals yet. LEDGER GOAL <text> adds one: something you're working towards, with no date.");
+    else {
+      lgSay(gOpen.length + " goal" + (gOpen.length === 1 ? "" : "s") + (gDone.length ? ", " + gDone.length + " achieved" : "") + ":");
+      for (var gq = 0; gq < gOpen.length; gq++) display_notice("  G" + gOpen[gq].id + "  " + gOpen[gq].text, "cyan");
+      for (var gr = 0; gr < gDone.length; gr++) display_notice("  G" + gDone[gr].id + "  " + gDone[gr].text + " (achieved " + (gDone[gr].done > 0 ? LG.dayText(gDone[gr].done) : "") + ")", "lime");
+    }
+  } else if ((gv === "done" || gv === "drop" || gv === "reopen") && gw.length === 2) {
+    if (gi < 0) lgSay("no goal G" + (isNaN(gn) ? "?" : gn) + ". LEDGER GOALS lists them.", "orange");
+    else if (gv === "drop") { var gGone = gls.splice(gi, 1)[0]; LG.saveGoals(gls); lgSay("G" + gn + " dropped - " + gGone.text, "orange"); }
+    else if (gv === "reopen") { delete gls[gi].done; LG.saveGoals(gls); lgSay("G" + gn + " open again - " + gls[gi].text, "lime"); }
+    else if (gls[gi].done) lgSay("G" + gn + " is already achieved.", "cyan");
+    else { gls[gi].done = LG.day > 0 ? LG.day : -1; LG.saveGoals(gls); lgSay("G" + gn + " achieved" + (LG.day > 0 ? " on the " + LG.dayText(LG.day) : "") + " - " + gls[gi].text, "lime"); }
+  } else {
+    var gseq = parseInt(get_variable("ledger_goal_seq") || "0", 10) + 1;
+    gls.push({ id: gseq, text: lgRest.slice(0, 200), created: LG.day });
+    LG.saveGoals(gls);
+    set_variable("ledger_goal_seq", "" + gseq);
+    lgSay("goal G" + gseq + " added: " + lgRest.slice(0, 200), "lime");
+  }
+  run_function("ledger_render", [], "ledger");
 } else if (lgSub === "dismissed") {
   // Reminders other packages made that you DONE/DROPped, kept away until
   // their condition clears (#34).

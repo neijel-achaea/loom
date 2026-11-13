@@ -167,6 +167,7 @@ if (vk && vk.charAt(0) !== "@" && E) {
   // ------------------------------------------------------------ a person ---
   var b = F.band(E.s);
   html += '<div style="margin:6px 0 0;font-family:' + SERIF + ';font-size:17px;color:' + TXT + ';">' + esc(E.name) + '</div>';
+  if (E.who) { html += '<div style="margin:0 0 3px;font-family:' + SERIF + ';font-style:italic;font-size:12px;color:' + MUTED + ';">' + esc(E.who) + '</div>'; }
   html += '<div style="margin:0 0 2px;">' + standing(E.s, 26) + ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + b[2] + ';font-size:13px;">' + b[1] + '</span></div>';
   html += scale(E.s);
   var lists = F.lists(E.name);

@@ -140,7 +140,7 @@ function stSave() {
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "1.0.2", keyword: "STANDINGS", desc: "{{description}}",
+client.loom.registry.standings = { version: "1.1.0", keyword: "STANDINGS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("standings_render", [], "standings"); } };
 var ST = client.loom.standings;
@@ -244,5 +244,18 @@ ST.look = {
     var sum = 0, n = 0;
     for (var i = 0; i < e.log.length; i++) { if (e.log[i][0] >= since) { sum += e.log[i][2] || 0; n++; } }
     return { band: b[1], colour: b[2], icon: b[3] || "", svg: b[4] || "", score: e.s, trend: sum > 0 ? 1 : (sum < 0 ? -1 : 0), recent: n };
+  },
+  // person(name) -> { name, who, band, score, notes } or undefined when they
+  // aren't on the books (#493): their description, and the notes of their
+  // last few dealings, newest last, as "IC date: note".
+  person: function (name, n) {
+    if (!name || !ST.db || !ST.db.e) { return undefined; }
+    var e = ST.db.e[stKey(name)];
+    if (!e || e.org) { return undefined; }
+    var out = { name: e.name, who: e.who || "", band: "", score: e.s, notes: [] };
+    if (e.log && e.log.length) out.band = stBand(e.s)[1];
+    var log = e.log || [], k = Math.max(0, log.length - (n || 3));
+    for (var i = k; i < log.length; i++) { if (log[i][3]) out.notes.push((stIcTxt(log[i][1]) ? stIcTxt(log[i][1]) + ": " : "") + log[i][3]); }
+    return out;
   }
 };

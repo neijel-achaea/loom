@@ -3,13 +3,13 @@
 *A record of each Achaean day: where you went, what was said, what you read, and what you did.*
 
 <!-- loom:version chronicle -->
-*This page describes chronicle 0.1.0.*
+*This page describes chronicle 0.2.0.*
 <!-- /loom:version -->
 
 > **Before you turn on summaries: cost and privacy.** The record itself stays with your character and costs nothing. Summaries are optional, and turning them on (`CHRONICLE KEY`) means:
 >
 > - **They cost money, on your own Anthropic API key.** Each Achaean day you play (one real hour) is one paid request, and so is each month and year. With the default model (Haiku) a busy day costs a fraction of a cent; with a larger model (`CHRONICLE MODEL`) it can be around twenty times that. Anthropic bills you directly; Loom never sees your key or your bill. `CHRONICLE` shows the tokens used so far, and `CHRONICLE SUMMARIES OFF` or `CHRONICLE KEY CLEAR` stops it.
-> - **Other people's words leave the game.** Each day's record, including what other players said and emoted around you, their tells to you, and the letters, messages and news you read, is sent to Anthropic to write the summary, along with your `CHRONICLE VOICE` notes and what the game says of your character. Anthropic's terms for its API apply to that data. Other players haven't agreed to this: if someone would rather not be included, `CHRONICLE IGNORE <name>` leaves them out, and it's courteous to honour that whenever asked. What has already been sent can't be recalled.
+> - **Other people's words leave the game.** Each day's record, including what other players said and emoted around you, their tells to you, and the letters, messages and news you read, is sent to Anthropic to write the summary, along with your `CHRONICLE VOICE` notes, what the game says of your character, and, with standings or ledger installed, your WHO descriptions and dealing notes for the people in it and your ledger goals and items (`LOOM LINK standings-chronicle OFF` or `ledger-chronicle OFF` keeps them out). Anthropic's terms for its API apply to that data. Other players haven't agreed to this: if someone would rather not be included, `CHRONICLE IGNORE <name>` leaves them out, and it's courteous to honour that whenever asked. What has already been sent can't be recalled.
 > - **Your key is stored in this browser** (its local storage), not in your Nexus settings or any file Loom exports. Anyone with access to this browser profile could read it: don't set it on a shared computer.
 
 ## What it is
@@ -93,10 +93,12 @@ Nothing: it records as you play. Add a `CHRONICLE NOTE` when something happens i
 
 ## Working with other packages
 
-Chronicle works on its own. Loom's integrations add to the record; each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
+Chronicle works on its own. Loom's integrations add to the record and give the summaries context: who the people in a day are to you, and what you're working towards; each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
 
 | Link | With | What it does |
 | --- | --- | --- |
+| `standings-chronicle` | standings | For each person named in a day (or month) being summarised: who they are to you (`STANDINGS <name> WHO`), their band and the notes of your last few dealings. |
+| `ledger-chronicle` | ledger | Your goals (`LEDGER GOAL`): those open, those achieved in the stretch being written (so the summary marks them) and before; and the open ledger items that name the day's people. |
 | `huntstats-chronicle` | huntstats | Each hunt huntstats files is a line in the day's record: the area, how long, and who hunted with you. Switching the link off takes the current day's hunts back out; earlier days are kept. |
 
 Other packages can add to the record through its entry: `client.loom.chronicle.entry.record({ source, key, text, at })`, once per source and key.

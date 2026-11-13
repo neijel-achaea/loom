@@ -59,7 +59,7 @@ function progMark(it) {
 // One ledger line: entry number in the margin, the text, and the reckoning on the right.
 function entry(id, text, right, rightCol, textCol) {
   return '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:2px 0;">' +
-    '<span style="color:' + SEPIA + ';min-width:2.4em;">#' + id + '</span>' +
+    '<span style="color:' + SEPIA + ';min-width:2.4em;">' + (typeof id == "number" ? "#" : "") + id + '</span>' +
     '<span style="flex:1 1 auto;min-width:0;color:' + (textCol || TXT) + ';">' + text + '</span>' +
     '<span style="color:' + rightCol + ';white-space:nowrap;text-align:right;">' + right + '</span></div>';
 }
@@ -168,6 +168,22 @@ if (standing.length === 0) {
   }
 }
 html += section("Standing", st, PARCH);
+
+// Goals (#493): what you're working towards, no dates; the latest achieved
+// below, muted, with the day they were reached.
+var lgGoals = client.loom.ledger.goals ? client.loom.ledger.goals() : [];
+if (lgGoals.length) {
+  var go = "", gdone = [];
+  for (i = 0; i < lgGoals.length; i++) {
+    if (lgGoals[i].done) { gdone.push(lgGoals[i]); continue; }
+    go += entry("G" + lgGoals[i].id, esc(lgGoals[i].text), "", MUTED);
+  }
+  if (!go) go = quiet("Every goal achieved. LEDGER GOAL <text> sets a new one.");
+  for (i = Math.max(0, gdone.length - 5); i < gdone.length; i++) {
+    go += entry("G" + gdone[i].id, '<span style="text-decoration:line-through;text-decoration-color:' + MUTED + ';">' + esc(gdone[i].text) + '</span>', gdone[i].done > 0 ? dayName(gdone[i].done) : "achieved", LIME, MUTED);
+  }
+  html += section("Goals", go, PARCH);
+}
 
 html += '</div>';
 // The whole tab in the panel's colour (#355), as Self and Comms do: the

@@ -1076,3 +1076,57 @@ L.addLink({
     cr.entry.record({ source: "huntstats", key: String(f.at), at: f.at, text: "Hunted in " + f.area + " for " + min + " min" + (who.length ? ", with " + who.join(", ") : "") });
   }
 });
+
+// #493 standings -> chronicle: who the people in a day are to you, for its
+// summary. Each person named in the day (or month) the summary covers is
+// described from standings: your WHO for them, their band, and the notes of
+// your last few dealings.
+L.addLink({
+  id: "standings-chronicle", src: "standings", dst: "chronicle", issue: 493,
+  desc: "Who the people in a day are to you (STANDINGS WHO, band, recent notes), for its summary",
+  answers: {
+    "person.context": function (n) {
+      var st = client.loom.standings;
+      var p = st && st.look && st.look.person ? st.look.person(n) : undefined;
+      if (!p) return undefined;
+      var bits = [];
+      if (p.who) bits.push(p.who);
+      if (p.band && p.band !== "Neutral") bits.push("standing: " + p.band);
+      if (p.notes && p.notes.length) bits.push("recent dealings: " + p.notes.join(" / "));
+      return bits.join("; ") || undefined;
+    }
+  }
+});
+
+// #493 ledger -> chronicle: what you're working towards, for the summaries.
+// Your open goals, those achieved in the stretch being written (and before
+// it), and open ledger items that name the people in it.
+L.addLink({
+  id: "ledger-chronicle", src: "ledger", dst: "chronicle", issue: 493,
+  desc: "Your goals, and ledger items naming the day's people, for the Chronicle's summaries",
+  answers: {
+    "character.goals": function (span) {
+      var lg = client.loom.ledger;
+      var g = lg && lg.look && lg.look.goals ? lg.look.goals() : undefined;
+      if (!g || (!g.open.length && !g.achieved.length)) return undefined;
+      var out = [], now = [], before = [];
+      for (var i = 0; i < g.achieved.length; i++) {
+        var a = g.achieved[i];
+        if (span && a.day >= span.from && a.day <= span.to) now.push(a.text + (a.when ? " (" + a.when + ")" : ""));
+        else if (!span || !a.day || a.day < span.from) before.push(a.text);
+      }
+      if (g.open.length) out.push("What the character is working towards (their own goals): " + g.open.join("; ") + ".");
+      if (now.length) out.push("Goals achieved in this time: " + now.join("; ") + ". Mark them.");
+      if (before.length) out.push("Goals achieved earlier: " + before.join("; ") + ".");
+      return out.join("\n");
+    },
+    "person.aims": function (n) {
+      var lg = client.loom.ledger;
+      var it = lg && lg.look && lg.look.about ? lg.look.about(n) : [];
+      if (!it || !it.length) return undefined;
+      var t = [];
+      for (var i = 0; i < it.length && i < 3; i++) t.push(it[i].text);
+      return "on the character's list: " + t.join(" / ");
+    }
+  }
+});
