@@ -3,7 +3,7 @@
 *Reminders and standing items on the Achaean calendar, with reminders other packages add for you.*
 
 <!-- loom:version ledger -->
-*This page describes ledger 1.1.1.*
+*This page describes ledger 1.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -38,6 +38,9 @@ Ledger learns the date from the game itself: it asks `DATE` once at login (and h
 | `LEDGER DONE <#>` | done: removed, or moved to its next date if it repeats |
 | `LEDGER DROP <#>` | remove without doing it |
 | `LEDGER TOUCH <#>` | mark a standing item as looked at today |
+| `LEDGER GOAL <text>` | a goal: something you're working towards, no date, no reminders |
+| `LEDGER GOAL DONE\|DROP\|REOPEN <G#>` | achieved (kept, with the day), dropped, or open again |
+| `LEDGER GOALS` | your goals, open and achieved |
 | `LEDGER DATE` | ask the game for today's date |
 | `LEDGER DEBUG [ON\|OFF]` | internal state, or debug notices |
 | `LEDGER RESET` | rebuild from the saved variables (your items are kept) |
@@ -106,6 +109,10 @@ The daily aims come once a day, with the day's first prompt or piece: a reached 
 
 Each is on as soon as both packages are installed; `LOOM LINKS` lists them, and `LOOM LINK <id> OFF` switches one off and takes its item back.
 
+## Goals
+
+Goals are what you're working towards over a long time: be inducted into an order, open a shop, join a city with someone. They're kept apart from the items above: no dates, no reminders, not in the digest; they change only when you change them. `LEDGER GOAL <text>` adds one (numbered G1, G2…), `LEDGER GOALS` lists them, `LEDGER GOAL DONE <G#>` marks one achieved (kept, with the Achaean day it was reached), `LEDGER GOAL DROP <G#>` removes it, `LEDGER GOAL REOPEN <G#>` opens an achieved one again. They open the tab, in a framed panel above everything else, each open goal in large type; the five latest achieved ones follow in a line, struck through, with the day they were reached. Keep the list short: a handful of real aims says more than thirty.
+
 ## Working with other packages
 
 Besides the reminders above, Ledger shares what it knows:
@@ -114,6 +121,7 @@ Besides the reminders above, Ledger shares what it knows:
 | --- | --- |
 | patrolling, standings | today's Achaean day, for their own dates |
 | social (link `ledger-online`) | a quill ✎ in the Online tab on people your open items name (as a capitalised word: "pay back Ana" names Ana), red when one is overdue, amber when one is due within 5 days, the items on hover |
+| chronicle (link `ledger-chronicle`) | your goals (open, achieved in the stretch being written, achieved before) and the open items that name the people in it, for the Chronicle's summaries; sent to Anthropic with them |
 | social (link `ledger-login`) | those items after the person's login notice: "Ana has awoken. · ledger: #1 Return the book (in 1d)" |
 
 ## Troubleshooting

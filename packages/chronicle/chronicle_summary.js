@@ -1,4 +1,5 @@
-// chronicle_summary -- run from chronicle_setup. Summaries: when an Achaean
+// chronicle_summary -- run from chronicle_setup. Context from other
+// packages (#493) comes through loom's links, see CR.context. Summaries: when an Achaean
 // day ends, its record is sent to an LLM (Anthropic's API, with the player's
 // own key) and comes back as a short paragraph in the chronicle's voice.
 //
@@ -101,6 +102,7 @@ CR.system = function (prev, scope) {
   var f = CR.facts();
   if (f) p.push("Who " + name + " is, as the world knows: " + f);
   if (CR.voice) p.push("What the player tells you about " + name + " (take it as true, and let it shape what matters, without repeating it): " + CR.voice);
+  if (scope.ctx) p.push(scope.ctx);
   if (prev) p.push("The previous " + scope.what + "'s entry, for continuity only (don't repeat it): " + prev);
   return p.join("\n\n");
 };
@@ -130,6 +132,51 @@ CR.recordText = function (b) {
 CR.prevSum = function (d) {
   for (var i = CR.days.length - 1; i >= 0; i--) { if (CR.days[i].d < d && CR.days[i].sum) return CR.days[i].sum.text; }
   return "";
+};
+
+// --- what other packages know, through loom (#493) ---------------------------
+// The people in a stretch of days, and what the character's own books say
+// about them and about what they're after: asked of loom's links as
+// questions (person.context, person.aims, character.goals), so chronicle
+// knows nothing of standings or ledger. With no links, nothing is added.
+CR.people = function (ds) {
+  var seen = {}, out = [], me = String(CR.me || "").toLowerCase();
+  var add = function (n) {
+    n = String(n || "").split(/[\s,]+/)[0];
+    if (!/^[A-Za-z]{2,}$/.test(n)) return;
+    var lc = n.toLowerCase();
+    if (lc === me || lc === "you" || seen[lc] || CR.ignored(lc)) return;
+    seen[lc] = true;
+    out.push(n.charAt(0).toUpperCase() + n.slice(1).toLowerCase());
+  };
+  for (var i = 0; i < ds.length; i++) {
+    for (var j = 0; j < ds[i].ev.length; j++) {
+      var e = ds[i].ev[j];
+      if (e.k == "chan" || e.k == "emote" || e.k == "msg") add(e.who);
+      if (e.to) add(e.to);
+      if (e.k == "news") add(e.from);
+      if (e.with) { for (var w = 0; w < e.with.length; w++) add(e.with[w]); }
+    }
+  }
+  return out;
+};
+CR.context = function (ds, from, to) {
+  var LL = client.loom && client.loom.loom;
+  if (!LL || typeof LL.answer != "function") return "";
+  var lines = [], names = CR.people(ds).slice(0, 20);
+  for (var i = 0; i < names.length; i++) {
+    var bits = [];
+    var who = LL.answers("chronicle", "person.context", names[i]);
+    for (var a = 0; a < who.length; a++) bits.push(String(who[a].value));
+    var aims = LL.answers("chronicle", "person.aims", names[i]);
+    for (var b = 0; b < aims.length; b++) bits.push(String(aims[b].value));
+    if (bits.length) lines.push("- " + names[i] + ": " + bits.join("; "));
+  }
+  var out = [];
+  if (lines.length) out.push("The people in it, as " + (CR.me || "the character") + "'s own books describe them (true; use what matters, don't recite it):\n" + lines.join("\n"));
+  var goals = LL.answers("chronicle", "character.goals", { from: from, to: to });
+  for (var g = 0; g < goals.length; g++) out.push(String(goals[g].value));
+  return out.join("\n\n");
 };
 
 // --- months and years --------------------------------------------------------
@@ -251,19 +298,19 @@ CR.write = function (it, manual) {
     var said = 0;
     for (var qi = 0; qi < b.ev.length; qi++) { if (b.ev[qi].k != "place" && b.ev[qi].k != "stay") said += b.ev[qi].n || 1; }
     var quiet = said < CR.quietLines;
-    sys = CR.system(CR.prevSum(it), { what: "day", words: quiet ? 40 : CR.words, quiet: quiet });
+    sys = CR.system(CR.prevSum(it), { what: "day", words: quiet ? 40 : CR.words, quiet: quiet, ctx: CR.context([b], it, it) });
     user = "The record of " + CR.dayName(it) + ", line by line (part of the day, kind, what happened):\n\n" + CR.recordText(b) + "\n\nWrite the entry for this day.";
   } else if (it.charAt(0) === "m") {
     var m = +it.slice(1), mt = CR.monthText(m);
     if (!/\S/.test(mt)) { if (manual) display_notice("[chronicle] no day of " + CR.monthName(m) + " has its summary yet.", "cyan"); CR.pump(); return; }
     var pm = CR.annals.m[m - 1];
-    sys = CR.system(pm ? pm.text : "", { what: "month", words: 200 });
+    sys = CR.system(pm ? pm.text : "", { what: "month", words: 200, ctx: CR.context(CR.daysOfMonth(m), m * 25 + 1, m * 25 + 25) });
     user = "The entries for the days of " + CR.monthName(m) + " that were played, in order:\n\n" + mt + "\n\nWrite the entry for this month.";
   } else {
     var y = +it.slice(1), yt = CR.yearText(y);
     if (!/\S/.test(yt)) { if (manual) display_notice("[chronicle] no month of " + CR.yearName(y) + " has its summary yet.", "cyan"); CR.pump(); return; }
     var py = CR.annals.y[y - 1];
-    sys = CR.system(py ? py.text : "", { what: "year", words: 250 });
+    sys = CR.system(py ? py.text : "", { what: "year", words: 250, ctx: CR.context([], y * 300 + 1, y * 300 + 300) });
     user = "The entries for the months of " + CR.yearName(y) + " that were played, in order:\n\n" + yt + "\n\nWrite the entry for this year.";
   }
   if (!key) { if (manual) display_notice("[chronicle] no API key in this browser: CHRONICLE KEY <key> first.", "orange"); return; }

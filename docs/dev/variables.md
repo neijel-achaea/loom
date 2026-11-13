@@ -307,6 +307,8 @@ The API key is in the browser's localStorage (`loom_chronicle_key`), never in a 
 | `ledger_seq` | data | 0.2 | the last item number | `lg_seq` |
 | `ledger_dismissed` | data | 0.5 | generated items done or dropped by hand |  |
 | `ledger_day` | state | 0.2 | the Achaean day last read | `lg_day` |
+| `ledger_goals` | data | 1.2 | goals: id, text, created, done (the day achieved) |  |
+| `ledger_goal_seq` | data | 1.2 | the last goal number |  |
 | `lg_items` | legacy | 0.1 | old name of ledger_items |  |
 | `lg_seq` | legacy | 0.1 | old name of ledger_seq |  |
 | `lg_day` | legacy | 0.1 | old name of ledger_day |  |

@@ -140,7 +140,7 @@ function stSave() {
 if (!client.loom) { client.loom = {}; }
 if (!client.loom.registry) { client.loom.registry = {}; }
 if (!client.loom.standings) { client.loom.standings = {}; }
-client.loom.registry.standings = { version: "1.0.2", keyword: "STANDINGS", desc: "{{description}}",
+client.loom.registry.standings = { version: "1.1.0", keyword: "STANDINGS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("standings_render", [], "standings"); } };
 var ST = client.loom.standings;
@@ -161,7 +161,15 @@ if (client.stF) { client.stF = undefined; }
 // The helpers are rebuilt on every run (they're only functions and tables),
 // so a reimport brings in changed ones at once: kept from the first run, a
 // reimport left the old band names in place until a page reload (#218).
-ST.F = { SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
+function stPron(p) {
+  if (!p) { return ""; }
+  if (p === "he/him") { return "\u2642\ufe0e"; }
+  if (p === "she/her") { return "\u2640\ufe0e"; }
+  return p.split("/")[0];
+}
+// Its colour (Ricardo): blue for he, pink for she, green for any other.
+function stPronCol(p) { return p === "he/him" ? "#6ea8e8" : p === "she/her" ? "#e88fc0" : "#8fd18a"; }
+ST.F = { pron: stPron, pronCol: stPronCol, SIZES: SIZES, BANDS: BANDS, MONTHS: MONTHS, score: stScore, band: stBand, key: stKey, proper: stProper, signed: stSigned, steps: stSteps, ic: stIc, icTxt: stIcTxt, realTxt: stRealTxt, dealings: stDealings, hasTag: stHasTag, tagAvg: stTagAvg, lists: stLists, save: stSave };
 if (!ST.db) {
   var stDb = stLoad("standings_db", null);
   if (!stDb || typeof stDb !== "object" || !stDb.e) { stDb = { e: {}, pending: [] }; }
@@ -229,6 +237,8 @@ ST.entry = {
 
 // The read-only look other tabs see through loom's display entry point
 // (#159): what standings knows about a person, never its book.
+// F.pron(e): the little mark by a name for its pronouns: a symbol for he
+// and she, the word itself for any other (#493).
 //   look.standing(name) -> { band, colour, icon, score, trend, recent } or
 //     undefined when they aren't on the books. trend: the sign of the
 //     nudges in the last ST.recentDays real days (1 up, -1 down, 0 none);
@@ -244,5 +254,18 @@ ST.look = {
     var sum = 0, n = 0;
     for (var i = 0; i < e.log.length; i++) { if (e.log[i][0] >= since) { sum += e.log[i][2] || 0; n++; } }
     return { band: b[1], colour: b[2], icon: b[3] || "", svg: b[4] || "", score: e.s, trend: sum > 0 ? 1 : (sum < 0 ? -1 : 0), recent: n };
+  },
+  // person(name) -> { name, who, band, score, notes } or undefined when they
+  // aren't on the books (#493): their description, and the notes of their
+  // last few dealings, newest last, as "IC date: note".
+  person: function (name, n) {
+    if (!name || !ST.db || !ST.db.e) { return undefined; }
+    var e = ST.db.e[stKey(name)];
+    if (!e || e.org) { return undefined; }
+    var out = { name: e.name, who: e.who || "", pron: e.pron || "", band: "", score: e.s, notes: [] };
+    if (e.log && e.log.length) out.band = stBand(e.s)[1];
+    var log = e.log || [], k = Math.max(0, log.length - (n || 3));
+    for (var i = k; i < log.length; i++) { if (log[i][3]) out.notes.push((stIcTxt(log[i][1]) ? stIcTxt(log[i][1]) + ": " : "") + log[i][3]); }
+    return out;
   }
 };

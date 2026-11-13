@@ -3,7 +3,7 @@
 *How you stand with people and organisations, kept as a ledger of dealings, from Nemesis to Soulmate.*
 
 <!-- loom:version standings -->
-*This page describes standings 1.0.2.*
+*This page describes standings 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -42,6 +42,8 @@ Each of your characters keeps its own book.
 | `STANDINGS <name> - \| -- \| ---` | nudge down, small to large [note] |
 | `STANDINGS <name> SET <-10..10> [note]` | place a standing outright, to catch up on the past |
 | `STANDINGS <name> NOTE <text>` | a note without a nudge |
+| `STANDINGS <name> WHO [text\|CLEAR]` | who they are to you, shown in the tab |
+| `STANDINGS <name> PRONOUNS [she\|he\|they\|...\|CLEAR]` | their pronouns, marked by their name |
 | `STANDINGS <name> UNDO` | remove the last entry |
 | `STANDINGS <name> TAG <t> [t2..]` | tags: plain or typed (city:eleusis, house:sentaari, order:gaia) |
 | `STANDINGS <name> UNTAG <t>` | remove a tag |
@@ -102,6 +104,14 @@ Some dealings are suggested rather than recorded: by other packages through Loom
 
 `STANDINGS OK` records the first one as suggested; `STANDINGS OK ++ a great hunt` records it with another size and your own note. `STANDINGS SKIP` dismisses it. Nothing goes in the book until you say OK.
 
+## Who someone is
+
+`STANDINGS <name> WHO <text>` says who someone is to you, in your words: "my daughter, teases me without mercy", "Collective housemate, teaches me shopkeeping". It shows under their name in the tab and in `STANDINGS <name>`; `STANDINGS <name> WHO` shows it, `… WHO CLEAR` removes it.
+
+`STANDINGS <name> PRONOUNS she` (or `he`, `they`, `fae/faer`, any short form) sets their pronouns: a small mark by their name in the tab (♀ in pink for she, ♂ in blue for he, the word itself in green for any other; the full form on hover). `… PRONOUNS CLEAR` removes them.
+
+Neither needs any dealings, so you can describe anyone. Other packages use both: Chronicle's summaries get them through the `standings-chronicle` link.
+
 ## Working with other packages
 
 Standings works on its own. It reads **ledger**'s date and **social**'s lists when they're installed. Through Loom's integrations, it shows elsewhere and takes suggestions. Each is a link, on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
@@ -110,6 +120,7 @@ Where your standings show:
 
 | Link | With | What it does |
 | --- | --- | --- |
+| `standings-chronicle` | chronicle | For each person in a day the Chronicle summarises: their pronouns, your WHO for them, their band (unless Neutral) and the notes of your last few dealings. Sent to Anthropic with the summary. |
 | `standings-online` | social | A column in the Online tab: the band's icon in its colour, an arrow when it moved in the last 3 days; band, score and recent dealings on hover. |
 | `standings-login` | social | The icon in the login notice: "Ana ☺ has awoken." |
 | `standings-social` | social | With `SOCIAL COLOURS STANDINGS`, names everywhere take their band's colour. |
