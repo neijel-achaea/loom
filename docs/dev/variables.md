@@ -55,6 +55,27 @@ The map itself isn't a Nexus variable: it's kept in the browser's IndexedDB (dat
 | `basher_flee_dir` | setting | 0.6 | the direction wimpy steps you |  |
 | `basher_name` | state | 0.6 | your name, from GMCP |  |
 
+## chronicle
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `chronicle_days` | data | 1.2 | the record: the last 30 days played, each a list of entries |  |
+| `chronicle_anchor` | state | 1.2 | the last date read, and when (every other day is worked out from it) |  |
+| `chronicle_channels` | setting | 1.2 | channels kept or left out by hand |  |
+| `chronicle_ignore` | setting | 1.2 | people left out of the record (lower case) |  |
+| `chronicle_name` | state | 1.2 | your name, from GMCP |  |
+| `chronicle_char` | state | 1.2 | race, class, age, city, house, order from Char.Status (race kept from out of dragonform) |  |
+| `chronicle_voice` | setting | 1.2 | your notes on the character, for summaries |  |
+| `chronicle_person` | setting | 1.2 | "third" (default) or "first" |  |
+| `chronicle_model` | setting | 1.2 | the model, "" for the default |  |
+| `chronicle_auto` | setting | 1.2 | "off" stops the automatic summaries |  |
+| `chronicle_usage` | data | 1.2 | summaries written and tokens used |  |
+| `chronicle_annals` | data | 1.2 | month and year summaries, and their failed tries |  |
+| `chronicle_view` | state | 1.2 | the tab's view: days, months or years |  |
+
+The API key is in the browser's localStorage (`loom_chronicle_key`), never in a variable.
+
+
 ## civic
 
 | Variable | Kind | Since | Holds | Was |

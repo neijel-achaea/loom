@@ -80,6 +80,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 
 | Package | Tab | What it does |
 | --- | --- | --- |
+| [chronicle](chronicle.md) | Chronicle | A record of each Achaean day: places, IC talk, letters and news, notes |
 | [roleplay](roleplay.md) | — | Ambient emotes in your own voice, per race and class |
 
 ## The suite

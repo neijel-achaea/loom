@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.1.2.*
+*This page describes loom 1.1.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -96,6 +96,7 @@ Every link:
 | `waypoints-atlas` | [waypoints](waypoints.md) | [atlas](atlas.md) | Saved waypoints as a flag on their room in the Atlas map |
 | `questbook-atlas` | [questbook](questbook.md) | [atlas](atlas.md) | The followed quest's steps and where ready quests start, on the Atlas map |
 | `partycomms-atlas` | [partycomms](partycomms.md) | [atlas](atlas.md) | Party members as coloured circles on their rooms in the Atlas map |
+| `huntstats-chronicle` | [huntstats](huntstats.md) | [chronicle](chronicle.md) | Each hunt you finish, as a line in the Chronicle's record of the day |
 <!-- /loom:links -->
 
 Each package's page explains its links in more detail.
