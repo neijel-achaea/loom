@@ -171,7 +171,7 @@ else {
     var ew = ent(who, false);
     var wtxt = restOf(2);
     if (!wtxt) {
-      if (!ew || !ew.who) { say((ew ? ew.name : F.proper(who)) + " has no description. STANDINGS " + who.toUpperCase() + " WHO <text> gives one (pronouns too, e.g. 'she; my daughter').", "cyan"); }
+      if (!ew || !ew.who) { say((ew ? ew.name : F.proper(who)) + " has no description. STANDINGS " + who.toUpperCase() + " WHO <text> gives one (e.g. 'my daughter, teases me'); PRONOUNS sets their pronouns.", "cyan"); }
       else { say(ew.name + ": " + ew.who, "cyan"); }
     }
     else if (wtxt.toLowerCase() === "clear") {
@@ -184,6 +184,27 @@ else {
       F.save();
       say(ew.name + ": " + ew.who, "lime");
       client.loom.standings.view = { k: kOf(ew) };
+      render();
+    }
+  }
+  else if (verb === "pronouns" || verb === "pronoun") {
+    // Their pronouns (#493): shown by their name in the tab, and offered to
+    // other packages with WHO. Any short form: she, he/him, they/them, fae/faer.
+    var ep = ent(who, false);
+    var ptxt = restOf(2).toLowerCase().replace(/\s+/g, "");
+    if (!ptxt) { say(ep && ep.pron ? ep.name + ": " + ep.pron + "." : (ep ? ep.name : F.proper(who)) + " has no pronouns set. STANDINGS " + who.toUpperCase() + " PRONOUNS she|he|they|fae/faer|...", "cyan"); }
+    else if (ptxt === "clear") {
+      if (ep && ep.pron) { delete ep.pron; F.save(); say(ep.name + "'s pronouns cleared.", "lime"); client.loom.standings.view = { k: kOf(ep) }; render(); }
+      else { say("nothing to clear.", "cyan"); }
+    }
+    else if (!/^[a-z]{1,8}(\/[a-z]{1,8}){0,2}$/.test(ptxt)) { say("usage: STANDINGS <name> PRONOUNS she|he|they|fae/faer (letters, up to three forms with /)", "orange"); }
+    else {
+      ep = ent(who, true);
+      var full = { he: "he/him", she: "she/her", they: "they/them", fae: "fae/faer", it: "it/its", xe: "xe/xem", ze: "ze/zir" };
+      ep.pron = full[ptxt] || ptxt;
+      F.save();
+      say(ep.name + ": " + ep.pron + ".", "lime");
+      client.loom.standings.view = { k: kOf(ep) };
       render();
     }
   }
@@ -200,7 +221,7 @@ else {
       var kv = ev ? kOf(ev) : "@" + who.slice(1).toLowerCase();
       client.loom.standings.view = { k: kv };
       render();
-      if (ev && !ev.org) { var bv = F.band(ev.s); say(ev.name + (ev.who ? " (" + ev.who + ")" : "") + ": " + F.signed(ev.s) + " (" + bv[1] + "), " + F.dealings(ev) + (F.dealings(ev) === 1 ? " dealing" : " dealings") + ". Details in the Standings tab.", bv[2]); }
+      if (ev && !ev.org) { var bv = F.band(ev.s); say(ev.name + (ev.pron ? " [" + ev.pron + "]" : "") + (ev.who ? " (" + ev.who + ")" : "") + ": " + F.signed(ev.s) + " (" + bv[1] + "), " + F.dealings(ev) + (F.dealings(ev) === 1 ? " dealing" : " dealings") + ". Details in the Standings tab.", bv[2]); }
       else { var tv = F.tagAvg(kv.slice(1)); say(kv + ": members average " + F.signed(tv.avg) + " over " + tv.n + " people" + (ev ? ", direct standing " + F.signed(ev.s) : "") + ". Details in the Standings tab."); }
     }
   }

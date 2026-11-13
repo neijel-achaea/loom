@@ -42,7 +42,8 @@ Each of your characters keeps its own book.
 | `STANDINGS <name> - \| -- \| ---` | nudge down, small to large [note] |
 | `STANDINGS <name> SET <-10..10> [note]` | place a standing outright, to catch up on the past |
 | `STANDINGS <name> NOTE <text>` | a note without a nudge |
-| `STANDINGS <name> WHO [text\|CLEAR]` | who they are to you (pronouns too), shown in the tab |
+| `STANDINGS <name> WHO [text\|CLEAR]` | who they are to you, shown in the tab |
+| `STANDINGS <name> PRONOUNS [she\|he\|they\|...\|CLEAR]` | their pronouns, marked by their name |
 | `STANDINGS <name> UNDO` | remove the last entry |
 | `STANDINGS <name> TAG <t> [t2..]` | tags: plain or typed (city:eleusis, house:sentaari, order:gaia) |
 | `STANDINGS <name> UNTAG <t>` | remove a tag |
@@ -105,7 +106,11 @@ Some dealings are suggested rather than recorded: by other packages through Loom
 
 ## Who someone is
 
-`STANDINGS <name> WHO <text>` says who someone is to you, in your words: "she; my daughter, teases me without mercy", "Collective housemate, teaches me shopkeeping". It shows under their name in the tab and in `STANDINGS <name>`; `STANDINGS <name> WHO` shows it, `… WHO CLEAR` removes it. It needs no dealings, so you can describe anyone. Pronouns belong here too: other packages (Chronicle's summaries) use them.
+`STANDINGS <name> WHO <text>` says who someone is to you, in your words: "my daughter, teases me without mercy", "Collective housemate, teaches me shopkeeping". It shows under their name in the tab and in `STANDINGS <name>`; `STANDINGS <name> WHO` shows it, `… WHO CLEAR` removes it.
+
+`STANDINGS <name> PRONOUNS she` (or `he`, `they`, `fae/faer`, any short form) sets their pronouns: a small mark by their name in the tab (♀ for she, ♂ for he, the word itself for any other; the full form on hover). `… PRONOUNS CLEAR` removes them.
+
+Neither needs any dealings, so you can describe anyone. Other packages use both: Chronicle's summaries get them through the `standings-chronicle` link.
 
 ## Working with other packages
 
@@ -115,7 +120,7 @@ Where your standings show:
 
 | Link | With | What it does |
 | --- | --- | --- |
-| `standings-chronicle` | chronicle | For each person in a day the Chronicle summarises: your WHO for them, their band (unless Neutral) and the notes of your last few dealings. Sent to Anthropic with the summary. |
+| `standings-chronicle` | chronicle | For each person in a day the Chronicle summarises: their pronouns, your WHO for them, their band (unless Neutral) and the notes of your last few dealings. Sent to Anthropic with the summary. |
 | `standings-online` | social | A column in the Online tab: the band's icon in its colour, an arrow when it moved in the last 3 days; band, score and recent dealings on hover. |
 | `standings-login` | social | The icon in the login notice: "Ana ☺ has awoken." |
 | `standings-social` | social | With `SOCIAL COLOURS STANDINGS`, names everywhere take their band's colour. |

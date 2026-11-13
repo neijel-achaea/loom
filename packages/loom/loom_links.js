@@ -1079,8 +1079,8 @@ L.addLink({
 
 // #493 standings -> chronicle: who the people in a day are to you, for its
 // summary. Each person named in the day (or month) the summary covers is
-// described from standings: your WHO for them, their band, and the notes of
-// your last few dealings.
+// described from standings: their pronouns, your WHO for them, their band,
+// and the notes of your last few dealings.
 L.addLink({
   id: "standings-chronicle", src: "standings", dst: "chronicle", issue: 493,
   desc: "Who the people in a day are to you (STANDINGS WHO, band, recent notes), for its summary",
@@ -1090,6 +1090,7 @@ L.addLink({
       var p = st && st.look && st.look.person ? st.look.person(n) : undefined;
       if (!p) return undefined;
       var bits = [];
+      if (p.pron) bits.push("pronouns " + p.pron);
       if (p.who) bits.push(p.who);
       if (p.band && p.band !== "Neutral") bits.push("standing: " + p.band);
       if (p.notes && p.notes.length) bits.push("recent dealings: " + p.notes.join(" / "));

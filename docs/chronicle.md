@@ -97,7 +97,7 @@ Chronicle works on its own. Loom's integrations add to the record and give the s
 
 | Link | With | What it does |
 | --- | --- | --- |
-| `standings-chronicle` | standings | For each person named in a day (or month) being summarised: who they are to you (`STANDINGS <name> WHO`), their band and the notes of your last few dealings. |
+| `standings-chronicle` | standings | For each person named in a day (or month) being summarised: their pronouns and who they are to you (`STANDINGS <name> PRONOUNS`, `WHO`), their band and the notes of your last few dealings. |
 | `ledger-chronicle` | ledger | Your goals (`LEDGER GOAL`): those open, those achieved in the stretch being written (so the summary marks them) and before; and the open ledger items that name the day's people. |
 | `huntstats-chronicle` | huntstats | Each hunt huntstats files is a line in the day's record: the area, how long, and who hunted with you. Switching the link off takes the current day's hunts back out; earlier days are kept. |
 
