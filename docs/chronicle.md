@@ -32,7 +32,7 @@ With your own API key, Chronicle writes a short summary of each Achaean day when
 - The voice has three layers: a chronicler's voice that fits Achaea (built in); what the game says of your character (race, class, age, city, house, order, from GMCP; in dragonform your race is remembered from before); and your own notes, `CHRONICLE VOICE <text>`: who they are, what they're after, the people around them, how they speak. The notes shape what the summaries notice; they aren't repeated.
 - `CHRONICLE PERSON THIRD` (default) writes a chronicler's record; `PERSON FIRST` writes it as your character's own journal.
 - Each summary sees the one before, for continuity. Game mechanics, numbers and out-of-character talk are left out, and nothing is invented.
-- A day that ends while you're away is written at your next login. A summary that fails is tried again after 30 seconds, 2 minutes and 10 minutes, then left: `CHRONICLE WRITE <day>` tries again by hand. A rejected key or model stops and tells you.
+- A day that ends while you're away is written at your next login. A summary that fails is tried again after 30 seconds, 2 minutes and 10 minutes, then left: `CHRONICLE WRITE <day>` tries one again by hand, `CHRONICLE RETRY` all of them. A rejected key or model stops and tells you.
 - `CHRONICLE WRITE TODAY` writes the day so far (marked "so far"; rewritten when the day ends). `CHRONICLE SUMMARIES OFF` stops the automatic ones; `CHRONICLE MODEL <id>` changes the model (default `claude-haiku-5-5`). `CHRONICLE` shows how many have been written and the tokens used.
 
 ### Months and years
@@ -57,6 +57,7 @@ The lines of a day are kept while it's among the last 30 played (or until the re
 | `CHRONICLE SUMMARIES ON\|OFF` | a summary at the end of each Achaean day (on) |
 | `CHRONICLE WRITE [day]` | write a day's summary now: today, yesterday, or e.g. 8 Scarlatan |
 | `CHRONICLE WRITE MONTH\|YEAR [which]` | write a month's or year's now (this one so far if none named) |
+| `CHRONICLE RETRY` | try again every summary that failed, and write what's due |
 | `CHRONICLE VIEW DAYS\|MONTHS\|YEARS` | what the tab shows (or click the headings) |
 | `CHRONICLE MODEL [id\|DEFAULT]` | the model that writes them |
 | `CHRONICLE EXPORT` | download the whole record as a Markdown file |

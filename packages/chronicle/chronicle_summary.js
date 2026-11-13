@@ -255,7 +255,18 @@ CR.written = function (it, res, manual, started) {
   CR.busy = false;
   CR.writing = null;
   var j = res.j || {}, today = CR.today();
-  var text = (j.content && j.content[0] && typeof j.content[0].text == "string") ? j.content[0].text.replace(/^\s+|\s+$/g, "") : "";
+  // The answer's text blocks (a model may put other blocks, such as its
+  // thinking, before them).
+  var text = "", kinds = [];
+  if (Array.isArray(j.content)) {
+    for (var ci = 0; ci < j.content.length; ci++) {
+      var blk = j.content[ci] || {};
+      kinds.push(blk.type || "?");
+      if (blk.type === "text" && typeof blk.text == "string") text += (text ? "\n\n" : "") + blk.text;
+    }
+  }
+  text = text.replace(/^\s+|\s+$/g, "");
+  try { CR.lastRes = res.status + " " + CR.clip(JSON.stringify(j), 600); } catch (e) { CR.lastRes = String(res.status); }
   var label = CR.label(it);
   if (res.status === 200 && text) {
     if (j.usage) { CR.usage.calls++; CR.usage.inTok += j.usage.input_tokens || 0; CR.usage.outTok += j.usage.output_tokens || 0; set_variable("chronicle_usage", JSON.stringify(CR.usage)); }
@@ -275,7 +286,8 @@ CR.written = function (it, res, manual, started) {
     if (!manual) CR.due(); else CR.pump();
     return;
   }
-  var why = res.err ? "no answer (" + res.err + ")" : (j.error && j.error.message) ? res.status + ": " + j.error.message : "answer " + res.status;
+  var why = res.err ? "no answer (" + res.err + ")" : (j.error && j.error.message) ? res.status + ": " + j.error.message :
+    res.status === 200 ? "an answer with no text (stop: " + (j.stop_reason || "?") + ", blocks: " + (kinds.join(", ") || "none") + "; CHRONICLE DEBUG shows it)" : "answer " + res.status;
   CR.lastErr = why;
   // A bad key or a bad model won't get better by waiting: stop and say so.
   if (res.status === 401 || res.status === 403 || res.status === 404 || res.status === 400) {

@@ -89,6 +89,17 @@ if (crCmd === "" || crCmd === "STATUS") {
   if (!crWd) display_notice("[chronicle] nothing by that name in the record" + (crRest ? " ('" + crRest + "')" : "") + ". CHRONICLE WRITE [today|yesterday|<day> <month>|MONTH [name]|YEAR [number]].", "orange");
   else if (CR.busy) display_notice("[chronicle] a summary is being written; try again in a moment.", "orange");
   else { display_notice("[chronicle] writing " + CR.label(crWd) + "...", "cyan"); CR.write(crWd, true); }
+} else if (crCmd === "RETRY") {
+  var crF = 0;
+  for (var crR = 0; crR < CR.days.length; crR++) { if (CR.days[crR].fails) { crF++; delete CR.days[crR].fails; } }
+  for (var crAf in CR.annals.f) { if (CR.annals.f.hasOwnProperty(crAf)) crF++; }
+  CR.annals.f = {};
+  CR.saveAnnals();
+  if (CR.retryT) { clearTimeout(CR.retryT); CR.retryT = null; }
+  CR.save();
+  display_notice("[chronicle] " + (crF ? crF + " failed summar" + (crF === 1 ? "y" : "ies") + " will be tried again" : "nothing had failed") + "; writing what's due.", "lime");
+  CR.due();
+  run_function("chronicle_render", [], "chronicle");
 } else if (crCmd === "VIEW") {
   var crV = String(crW[1] || "").toLowerCase();
   if (crV !== "days" && crV !== "months" && crV !== "years") display_notice("[chronicle] usage: CHRONICLE VIEW DAYS|MONTHS|YEARS (or click them in the tab).", "orange");
@@ -101,7 +112,7 @@ if (crCmd === "" || crCmd === "STATUS") {
     " room=" + (CR.room ? CR.room.name + " (" + Math.round((Date.now() - CR.room.at) / 1000) + "s)" : "none") +
     " area=" + (CR.area ? CR.area.name : "none") + " players=" + Object.keys(CR.players).join(",") +
     " capture=" + (CR.capt ? CR.capt.ev.k + "/" + CR.capt.lines.length : "none") + " more=" + (CR.cont ? "waiting" : "no") +
-    " overrides=" + JSON.stringify(CR.over) + " queue=" + JSON.stringify(CR.queue) + " busy=" + CR.busy + " key=" + (CR.getKey() ? "set" : "none") + " char=" + JSON.stringify(CR.char), "cyan");
+    " overrides=" + JSON.stringify(CR.over) + " queue=" + JSON.stringify(CR.queue) + " busy=" + CR.busy + " key=" + (CR.getKey() ? "set" : "none") + " char=" + JSON.stringify(CR.char) + (CR.lastRes ? " lastAnswer=" + CR.lastRes : ""), "cyan");
 } else if (crCmd === "RESET") {
   if (CR.saveT) { clearTimeout(CR.saveT); CR.saveT = null; CR.save(); }
   client.loom.chronicle = {};
