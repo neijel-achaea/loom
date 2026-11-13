@@ -6,6 +6,12 @@
 *This page describes chronicle 0.1.0.*
 <!-- /loom:version -->
 
+> **Before you turn on summaries: cost and privacy.** The record itself stays with your character and costs nothing. Summaries are optional, and turning them on (`CHRONICLE KEY`) means:
+>
+> - **They cost money, on your own Anthropic API key.** Each Achaean day you play (one real hour) is one paid request, and so is each month and year. With the default model (Haiku) a busy day costs a fraction of a cent; with a larger model (`CHRONICLE MODEL`) it can be around twenty times that. Anthropic bills you directly; Loom never sees your key or your bill. `CHRONICLE` shows the tokens used so far, and `CHRONICLE SUMMARIES OFF` or `CHRONICLE KEY CLEAR` stops it.
+> - **Other people's words leave the game.** Each day's record, including what other players said and emoted around you, their tells to you, and the letters, messages and news you read, is sent to Anthropic to write the summary, along with your `CHRONICLE VOICE` notes and what the game says of your character. Anthropic's terms for its API apply to that data. Other players haven't agreed to this: if someone would rather not be included, `CHRONICLE IGNORE <name>` leaves them out, and it's courteous to honour that whenever asked. What has already been sent can't be recalled.
+> - **Your key is stored in this browser** (its local storage), not in your Nexus settings or any file Loom exports. Anyone with access to this browser profile could read it: don't set it on a shared computer.
+
 ## What it is
 
 Chronicle keeps a record of what happens to your character, one Achaean day (one real hour) at a time, in a **Chronicle** tab. It's meant as the raw material for a journal: read it back, or export it and write from it.
