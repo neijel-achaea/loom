@@ -92,6 +92,19 @@ else if (huSub === "autogold") {
     display_notice("[hunting] autogold is ON, ALL or OFF.", "orange");
   }
 }
+else if (huSub === "parry") {
+  // HUNTING PARRY [ON|OFF] (#484): guard the limb taking the damage.
+  if (huVal === "on" || huVal === "off") {
+    set_variable("hunting_parry", huVal);
+    if (huVal === "off") HU.parrySent = null;
+    var huPc = HU.parryCmd();
+    display_notice("[hunting] auto-parry " + huVal.toUpperCase() + (huVal === "on" ? (huPc ? ": " + huPc.split(" ")[0].toUpperCase() + " on the limb taking the most damage." : ": " + (HU.cls || "this class") + " has no parry yet (dragons: CLAWPARRY), so nothing is sent.") : ".") , "lime");
+  } else if (huVal === "") {
+    display_notice("[hunting] auto-parry is " + (get_variable("hunting_parry") == "on" ? "ON" : "OFF") + (HU.parryLimb ? ", parrying your " + HU.parryLimb : "") + ". HUNTING PARRY ON or OFF.", C);
+  } else {
+    display_notice("[hunting] auto-parry is ON or OFF.", "orange");
+  }
+}
 else if (huSub === "highlight") {
   // One switch for every key (Ricardo, #409): off = nothing lights, the
   // basher's STOP key included.

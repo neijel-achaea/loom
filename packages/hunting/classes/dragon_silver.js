@@ -19,6 +19,8 @@ HU.classes["Silver Dragon"] = {
   ],
   // PK MODE: Ctrl+numpad rends a limb (hunting_classes, HU.dragonPkPad).
   pkPad: HU.dragonPkPad,
+  // Auto-parry (HUNTING PARRY, hunting_classes, HU.dragonParry).
+  parry: HU.dragonParry,
   rage: { Overwhelm: 14, Sizzle: 25, Splinter: 17, Dragonspark: 36, Stormflare: 25, Galvanize: 18 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Splinter"],

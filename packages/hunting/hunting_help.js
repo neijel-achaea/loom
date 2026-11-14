@@ -13,6 +13,7 @@ var hlRows = [
   ["HUNTING", "status"],
   ["HUNTING DRAGONMODE [PHY|MAG|AUTO]", "gut, incantation, or whichever pool is fuller (no argument: next mode)"],
   ["HUNTING AUTOGOLD [ON|ALL|OFF]", "pick up gold from your kills, from any corpse, or not at all"],
+  ["HUNTING PARRY [ON|OFF]", "parry the limb taking the most damage (dragons: CLAWPARRY; default OFF)"],
   ["HUNTING PARTYTARGET [name|OFF]", "who party-aimed keys act on (the druid's Remedy key)"],
   ["HUNTING AFTERFORM [cmd|OFF]", "command sent when dragonform rises or falls, e.g. DEFCON INIT"],
   ["HUNTING MAIN [name]", "your class's main attack on F1 (no name: list them); dragons: GUT, INCANTATION or AUTO, as DRAGONMODE"],

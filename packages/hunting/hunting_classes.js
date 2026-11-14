@@ -17,6 +17,9 @@ HU.dragonPkPad = {
   "1": "queue add eb!wu!t!p rend @tar leftleg",
   "3": "queue add eb!wu!t!p rend @tar rightleg"
 };
+// Auto-parry for every dragon colour (#484, HUNTING PARRY): CLAWPARRY takes
+// no balance. @limb is the game's word, as for REND (leftleg, head...).
+HU.dragonParry = "clawparry @limb";
 // Lines every class shares (Provoke, level 100, is the same for all), checked
 // after the current class's own lines.
 HU.sharedLines = [

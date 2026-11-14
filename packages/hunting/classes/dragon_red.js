@@ -19,6 +19,8 @@ HU.classes["Red Dragon"] = {
   ],
   // PK MODE: Ctrl+numpad rends a limb (hunting_classes, HU.dragonPkPad).
   pkPad: HU.dragonPkPad,
+  // Auto-parry (HUNTING PARRY, hunting_classes, HU.dragonParry).
+  parry: HU.dragonParry,
   rage: { Overwhelm: 14, Dragontaunt: 18, Melt: 17, Dragonblaze: 36, Flamebath: 25, Scorch: 18 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Melt"],
