@@ -3,7 +3,7 @@
 *Your class's attacks on the F-keys, lit when they're ready, with battlerage cooldowns, attack lines tagged, dragon attacks and gold pickup.*
 
 <!-- loom:version hunting -->
-*This page describes hunting 1.3.2.*
+*This page describes hunting 1.3.3.*
 <!-- /loom:version -->
 
 ## What it is
@@ -83,6 +83,8 @@ While dragonform is rising, Loom is paused (anything sent would interrupt it), a
 | `HUNTING AUTOGOLD ON` | picked up if the kill was yours, in the last 5 seconds |
 | `HUNTING AUTOGOLD ALL` | always picked up |
 | `HUNTING AUTOGOLD OFF` | left where it lies |
+
+A kill is yours when the game says you slew it, or when it gives you experience (that still shows when something has taken your senses and hidden the kill). A pickup refused because you were stunned or paralysed goes again once you can act. In the Mnemosyne, the gold from a ripple's last kill stays behind when the wade moves you on, so nothing is sent for it.
 
 ### Party target
 

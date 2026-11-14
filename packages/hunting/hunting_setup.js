@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "1.3.2", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "1.3.3", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -42,6 +42,38 @@ if (client.loom.loom && client.loom.loom.themeSetPk) client.loom.loom.themeSetPk
 HU.pkKeys = {};
 try { HU.pkKeys = JSON.parse(get_variable("hunting_pk") || "{}") || {}; } catch (e) { HU.pkKeys = {}; }
 if (typeof HU.pkKeys != "object" || Array.isArray(HU.pkKeys)) HU.pkKeys = {};
+// Autogold's pickup (hunting_gold): { at, sent, tries, retry } while gold is
+// waiting for you, null once picked up or gone.
+if (HU.gold === undefined) HU.gold = null;
+HU.goldWaitMs = 100;   // the pickup waits this long for a ripple's end
+HU.goldMs = 20000;     // gold not picked up by then is given up
+HU.goldTries = 3;      // pickups sent at most, retries included
+HU.goldSend = function () {
+  var g = HU.gold;
+  if (!g || get_variable("pauseTriggers") == "on") return;
+  if (new Date().getTime() - g.at > HU.goldMs || g.tries >= HU.goldTries) { HU.gold = null; return; }
+  g.tries++; g.sent = new Date().getTime(); g.retry = false;
+  send_command("queue add be get gold", 1);
+  var pack = (client.loom.security && client.loom.security.backpack) || get_variable("backpack");
+  if (pack) send_command("queue add be put gold in " + pack, 1);
+};
+// The lines around a pickup (one trigger, hunting's autogold group).
+HU.goldLine = function (line) {
+  var g = HU.gold;
+  if (/^You have gained \d+ experience\.$/.test(line)) { HU.kill = new Date().getTime(); return; }
+  if (!g) return;
+  if (line === "Wading the Mnemosyne.") {
+    // The ripple ended with the kill: the gold stayed behind.
+    if (!g.sent) HU.gold = null;
+  } else if (/^(?:You pick up \d+ gold sovereigns?|I see no "gold" to take)\.$/.test(line)) {
+    HU.gold = null;
+  } else if (/^(?:You are too stunned to be able to do anything|Paralysed as you are, your body is not able to pick up anything)\.$/.test(line)) {
+    if (g.sent) g.retry = true;
+  } else if (/^(?:You are no longer stunned|Your muscles unlock; you are no longer paralysed)\.$/.test(line)) {
+    if (g.retry) HU.goldSend();
+  }
+};
+
 HU.pkSave = function () {
   var any = false;
   for (var c in HU.pkKeys) { if (HU.pkKeys.hasOwnProperty(c)) { var n = 0; for (var k in HU.pkKeys[c]) if (HU.pkKeys[c].hasOwnProperty(k)) n++; if (n) any = true; else delete HU.pkKeys[c]; } }
