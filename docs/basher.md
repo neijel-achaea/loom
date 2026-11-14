@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.2.0.*
+*This page describes basher 1.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -57,7 +57,7 @@ Along the way it fires battlerage on its own clock, razes a shielded target, ask
 
 When the room runs out of targets the run ends and the basher stays primed: "run over, still primed. Attack something to start again."
 
-`BASHER STOP` (or `BASHER OFF`) stops everything at once. While a run lasts, **F1 becomes a lit STOP key** that sends `BASHER END`: the run ends at once and the basher stays primed, so your next attack starts a new one. When the run ends, however it ends, F1 goes back to your main attack. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…). Raising your own shield mid-run (`TOUCH SHIELD`, F12) ends the run the same way, since the next attack would drop it.
+`BASHER STOP` (or `BASHER OFF`) stops everything at once. While a run lasts, **F1 becomes a lit STOP key** that sends `BASHER END`: the run ends at once and the basher stays primed, so your next attack starts a new one. When the run ends, however it ends, F1 goes back to your main attack. `BASHER` alone says whether it's off, primed or running, and if it's waiting, why (no balance, a shield, low health…). Raising your own shield mid-run (`TOUCH SHIELD`, F12) ends the run the same way, since the next attack would drop it. The shield a kill gives you in the Mnemosyne (the Shattered Glass boon, "A magical shield springs up around you in the wake of your triumph.") doesn't: the run goes on.
 
 <img src="img/fkeys.png" alt="The F-key bar during a run: F1 has become the STOP key.">
 
@@ -65,7 +65,7 @@ The basher also ends the run after 3 attacks in a row that took no balance: some
 
 ### The main attack
 
-The attack is hunting's main attack for your class (`HUNTING MAIN`); for dragons, the F1 attack. It's sent bare when balance and equilibrium return, not through the game's queue, with `@tar` replaced by your target.
+The attack is hunting's main attack for your class (`HUNTING MAIN`); for dragons, the F1 attack. It's sent bare when balance and equilibrium return, not through the game's queue, with `@tar` replaced by your target. A dragon in `AUTO` mode attacks with incantation instead of gut while an arm is broken or badly damaged, since gut needs both arms; gut comes back once the arm mends.
 
 ### Wimpy
 
@@ -96,7 +96,7 @@ Some classes have no shieldbreak key yet: Alchemist (Caustic), Runewarden (Fragm
 
 ### Venom confusion
 
-While the basher is on, "You are confused as to the effects of the venom." sends `DIAGNOSE` on the next recovery, once per confusion, so your curing can see what to cure.
+While the basher is on, "You are confused as to the effects of the venom." sends `DIAGNOSE` on the next recovery, once per confusion, so your curing can see what to cure. With [self](self.md) installed, only self's notice shows ("a venom's effects are unknown"); the basher sends the `DIAGNOSE` all the same.
 
 In dragonform, being entangled, webbed or bound sends `DRAGONFLEX` on the next recovery, before anything else (fleeing included): it frees you at once, where the curing's `WRITHE` takes a while. If two don't free you, the basher says so and leaves the binding to your curing.
 

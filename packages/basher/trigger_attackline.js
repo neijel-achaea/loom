@@ -6,6 +6,8 @@
 var B = client.loom && client.loom.basher;
 if (B && B.on) {
   var bsLine = String(args[1] || "");
+  if (bsLine === B.TRIUMPH) B.triumphAt = Date.now();
+  B.armLine(bsLine);
   // Stunned or knocked down (Ricardo's log 2026-10-28): the attack never went
   // out, so it isn't a miss; it goes again on the next recovery.
   if (B.rageSent && bsLine === "You cannot use that ability again so soon.") B.rageSent.soon = true;

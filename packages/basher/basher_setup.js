@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "1.2.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "1.3.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -145,6 +145,57 @@ B.boundBy = function () {
   for (var k in B.bindings) { if (B.bindings.hasOwnProperty(k)) return k; }
   return "";
 };
+// Your arms, from the game's lines (Ricardo's wade log, 2026-11-15): GUT
+// needs both whole ("You cannot do that because both of your arms must be
+// whole and unbound."), so in AUTO dragon mode a broken or damaged arm
+// sends INCANTATION instead until it mends. { left: at, right: at }.
+if (!B.arms) B.arms = {};
+B.armMs = 15000;   // an arm not seen mended by then counts as mended
+B.armLine = function (line) {
+  var m = /^Your (left|right) arm (?:breaks with a loud crack|is greatly damaged from the beating)\.$/.exec(line);
+  if (m) { B.arms[m[1]] = Date.now(); return true; }
+  m = /^(?:The bones in your (left|right) arm mend|Your (left|right) arm feels stronger and healthier)\.$/.exec(line);
+  if (m) { delete B.arms[m[1] || m[2]]; return true; }
+  return false;
+};
+B.armHurt = function () {
+  var now = Date.now(), hurt = false;
+  for (var k in B.arms) {
+    if (!B.arms.hasOwnProperty(k)) continue;
+    if (now - B.arms[k] > B.armMs) delete B.arms[k]; else hurt = true;
+  }
+  return hurt;
+};
+
+// Your own shield going up mid-run (Char.Defences.Add "shield"): a kill's
+// shield from the Mnemosyne's Shattered Glass boon ("A magical shield springs
+// up around you in the wake of your triumph.", Ricardo's wade log: 26 runs
+// ended on kills) keeps the run going; any other ends it (#387). GMCP comes
+// just before the line, so attacks hold for shieldWaitMs while it's decided.
+B.TRIUMPH = "A magical shield springs up around you in the wake of your triumph.";
+B.shieldWaitMs = 300;
+B.selfShieldAt = B.selfShieldAt || 0;  // a shield of yours seen, not yet decided
+B.triumphAt = B.triumphAt || 0;    // the boon's line last seen
+B.selfShield = function () {
+  B.selfShieldAt = Date.now();
+  setTimeout(function () { client.loom.basher.selfShieldDecide(); }, B.shieldWaitMs);
+};
+B.selfShieldDecide = function () {
+  var at = B.selfShieldAt;
+  if (!at) return;
+  B.selfShieldAt = 0;
+  // The boon's line comes with the same packet: just before or after GMCP.
+  if (B.triumphAt && B.triumphAt >= at - 200 && B.triumphAt <= at + B.shieldWaitMs) {
+    B.triumphAt = 0;
+    if (get_variable("debug") == "on") display_notice("[debug][basher] a kill's shield (Shattered Glass): the run goes on", "cyan");
+    B.tick();
+    return;
+  }
+  if (!B.on || !B.run) return;
+  B.fleeing = null; B.rageSent = null; B.diag = false;
+  B.end("you shielded yourself");
+};
+
 // In dragonform: hunting's class is a dragon colour ("Black Dragon"...).
 B.dragon = function () {
   var hu = B.hunting();
@@ -196,6 +247,7 @@ B.commands = function (tar) {
 B.prep = function (cmd, tar) {
   var staff = (client.loom.magi && client.loom.magi.staff) || get_variable("magi_staff") || get_variable("artificing_staff") || "scintilla";
   var dragon = get_variable("hunting_dragon_attack") || "gut";
+  if (dragon === "gut" && get_variable("hunting_dragon_mode") == "auto" && B.armHurt()) dragon = "incantation";
   var party = get_variable("hunting_party_target") || "";
   var sep = (client._settings && typeof client._settings.stack_delimiter == "string" && client._settings.stack_delimiter) || "|";
   var parts = String(cmd || "").split("|");
@@ -682,6 +734,7 @@ B.held = function () {
   var hu = B.hunting();
   if (!B.main()) return "no main attack for " + (hu.cls || "this class") + " (HUNTING MAIN)";
   if (B.fleeing) return "fleeing " + B.fleeing.dir;
+  if (B.selfShieldAt) return "checking your shield";
   var t = B.target();
   if (t.why) return t.why;
   var tn = B.targetName(t);
@@ -781,7 +834,9 @@ B.tick = function () {
 B.confused = function () {
   if (!B.on || B.diag) return;
   B.diag = true;
-  display_notice("[basher] confused by venom: DIAGNOSE on the next recovery.", "orange");
+  // Self says it already ("a venom's effects are unknown"): one notice, not two.
+  if (!(client.loom.registry && client.loom.registry.self)) display_notice("[basher] confused by venom: DIAGNOSE on the next recovery.", "orange");
+  else if (get_variable("debug") == "on") display_notice("[debug][basher] confused by venom: DIAGNOSE on the next recovery", "cyan");
 };
 
 // Health and mana as percents (null while unknown).
