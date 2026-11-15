@@ -19,6 +19,8 @@ client.loom.hooks.hunting.gmcp = function (args) {
     if (huG.class != HU.cls) {
       HU.cls = huG.class;
       HU.cd = {};
+      // Another form, another parry (CLAWPARRY is dragonform's): none known.
+      HU.parryLimb = ""; HU.parrySent = null;
       HU.glob = true;
       set_variable("hunting_class", HU.cls);
       run_function("hunting_buttons", [], "hunting");

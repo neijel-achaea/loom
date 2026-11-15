@@ -262,6 +262,7 @@ The API key is in the browser's localStorage (`loom_chronicle_key`), never in a 
 | `hunting_dragon_mode` | setting | 0.2 | dragon attack mode | `dragonMode` |
 | `hunting_dragon_attack` | setting | 0.2 | dragon attack | `dragonAttack` |
 | `hunting_autogold` | setting | 0.2 | pick up and put away gold | `autogold` |
+| `hunting_parry` | setting | 1.2 | auto-parry the most-hurt limb ("on"/"off") |  |
 | `hunting_after_form` | setting | 0.2 | command sent when dragonform rises or falls |  |
 | `hunting_party_target` | setting | 0.2 | party target announcements |  |
 | `hunting_highlight` | setting | 1.1 | F-keys light when ready ("off": never; absent = on) |  |

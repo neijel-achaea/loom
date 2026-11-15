@@ -20,6 +20,8 @@ HU.classes["Gold Dragon"] = {
   ],
   // PK MODE: Ctrl+numpad rends a limb (hunting_classes, HU.dragonPkPad).
   pkPad: HU.dragonPkPad,
+  // Auto-parry (HUNTING PARRY, hunting_classes, HU.dragonParry).
+  parry: HU.dragonParry,
   rage: { Overwhelm: 14, Deaden: 24, Psishatter: 17, Psiblast: 36, Psistorm: 25, Psidaze: 31 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Psishatter"],

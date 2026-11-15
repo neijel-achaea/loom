@@ -53,7 +53,7 @@ The packages below send commands without you typing each one. Check them against
 | [harvesting](harvesting.md) | While on: harvests and stores what's short in each room you enter | `HARVESTING OFF` |
 | [gathering](gathering.md) | While on: gathers and stores what's short in each room you enter | `GATHERING OFF` |
 | [transmutation](transmutation.md) | While on: extracts and stores the area's mineral when short, in each mountain or underground room you enter; sends `MINERALS` once in an area it doesn't know | `TRANSMUTATION OFF` |
-| [hunting](hunting.md) | Autogold picks up gold from your kills (if set) | `HUNTING AUTOGOLD OFF` |
+| [hunting](hunting.md) | Autogold picks up gold from your kills (if set); auto-parry guards the limb a blow damaged (if set), a defence like the game's own curing choosing what to cure | `HUNTING AUTOGOLD OFF`, `HUNTING PARRY OFF` |
 | [magi](magi.md) | Picks up pearls; a refine run sends `REFINE` until done; **opens a sonic portal when a city member tells you "Gate."** (off by default) | `MAGI PEARLS OFF`, `REFINE STOP`, `PORTAL OFF` |
 | [civic](civic.md) | **Accepts lesson requests** from others (not enemies) | `LOOM PAUSE ON` |
 | [conjuration](conjuration.md) | A ritual's steps, one after another | the ritual ends, `CONJURATION STOP` |

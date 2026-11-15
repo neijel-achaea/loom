@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "1.3.3", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "1.4.0", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -42,6 +42,68 @@ if (client.loom.loom && client.loom.loom.themeSetPk) client.loom.loom.themeSetPk
 HU.pkKeys = {};
 try { HU.pkKeys = JSON.parse(get_variable("hunting_pk") || "{}") || {}; } catch (e) { HU.pkKeys = {}; }
 if (typeof HU.pkKeys != "object" || Array.isArray(HU.pkKeys)) HU.pkKeys = {};
+// Auto-parry (#484, HUNTING PARRY ON): the game's limb-damage line names the
+// limb a blow hurt ("...you perceive that he has dealt 30.0% damage to your
+// left leg."); the class's parry command (e.g. CLAWPARRY) guards the limb
+// that has taken the most damage lately. Ricardo's wade log (2026-11-15): 15
+// of 16 blows on the parried leg were parried ("You parry the assault to your
+// right leg with a deft manoeuvre."); instant breaks ("...breaks with a loud
+// crack.") and skull fractures went through, so only the damage line counts.
+// The limb being parried is tracked from the game's confirmation, not from the
+// defence list (#486: switching leaves the old one in GMCP).
+HU.LIMBS = { "head": "head", "torso": "torso", "left arm": "leftarm", "right arm": "rightarm", "left leg": "leftleg", "right leg": "rightleg" };
+if (HU.parryLimb === undefined) HU.parryLimb = "";  // the limb the game says you parry ("left leg"), "" none known
+if (!HU.parryDmg) HU.parryDmg = {};                // { "left leg": [[pct, at], ...] }
+HU.parrySent = HU.parrySent || null;               // { limb, at }: a parry sent, not yet confirmed
+HU.parryWindowMs = 60000;  // damage older than this no longer counts
+HU.parryWaitMs = 2000;     // a parry sent and not confirmed by then may be sent again
+// The class's parry command, with @limb for the game's limb word, or "".
+HU.parryCmd = function () { var e = HU.classes && HU.classes[HU.cls]; return (e && e.parry) || ""; };
+// Damage a limb has taken in the window, in percent.
+HU.parryHurt = function (limb) {
+  var l = HU.parryDmg[limb] || [], now = new Date().getTime(), sum = 0, keep = [];
+  for (var i = 0; i < l.length; i++) if (now - l[i][1] < HU.parryWindowMs) { sum += l[i][0]; keep.push(l[i]); }
+  HU.parryDmg[limb] = keep;
+  return sum;
+};
+// After a blow (pct on limb): parry the most-hurt limb, switching only when it
+// leads the one parried by at least a blow's worth, so a mob splitting its
+// blows between two limbs can't flip the parry on every hit.
+HU.parryPick = function (pct) {
+  var cmd = HU.parryCmd();
+  if (get_variable("hunting_parry") != "on" || !cmd || get_variable("pauseTriggers") == "on") return;
+  var best = "", bestD = 0;
+  for (var limb in HU.LIMBS) {
+    if (!HU.LIMBS.hasOwnProperty(limb)) continue;
+    var d = HU.parryHurt(limb);
+    if (d > bestD) { best = limb; bestD = d; }
+  }
+  if (!best || best === HU.parryLimb) return;
+  if (HU.parryLimb && bestD - HU.parryHurt(HU.parryLimb) < pct) return;
+  var now = new Date().getTime();
+  if (HU.parrySent && now - HU.parrySent.at < HU.parryWaitMs) return;
+  send_command(cmd.replace(/@limb\b/g, HU.LIMBS[best]), 1);
+  HU.parrySent = { limb: best, at: now };
+  if (get_variable("debug") == "on") display_notice("[debug][hunting] parry " + best + " (" + bestD + "% lately)", "cyan");
+};
+// The lines (one trigger): damage, the game's confirmation, a parried blow, a
+// limb restored.
+HU.parryLine = function (line) {
+  var L = "(head|torso|left arm|right arm|left leg|right leg)";
+  var m = new RegExp("you perceive that .+ dealt ([\\d.]+)% damage to your " + L + "\\.$").exec(line);
+  if (m) {
+    var pct = parseFloat(m[1]) || 0;
+    if (!HU.parryDmg[m[2]]) HU.parryDmg[m[2]] = [];
+    HU.parryDmg[m[2]].push([pct, new Date().getTime()]);
+    HU.parryPick(pct);
+    return;
+  }
+  m = new RegExp("^(?:You will now attempt to parry attacks to your " + L + "|You parry the assault to your " + L + " with a deft manoeuvre)\\.$").exec(line);
+  if (m) { HU.parryLimb = m[1] || m[2]; HU.parrySent = null; return; }
+  m = new RegExp("^Your " + L + " feels stronger and healthier\\.$").exec(line);
+  if (m) HU.parryDmg[m[1]] = [];
+};
+
 // Autogold's pickup (hunting_gold): { at, sent, tries, retry } while gold is
 // waiting for you, null once picked up or gone.
 if (HU.gold === undefined) HU.gold = null;
@@ -144,5 +206,6 @@ else if (/^\s*defcon\s+up\s*$/i.test(String(huAf))) {
 if (!get_variable("hunting_dragon_mode")) set_variable("hunting_dragon_mode", "auto");
 if (!get_variable("hunting_dragon_attack")) set_variable("hunting_dragon_attack", "gut");
 if (!get_variable("hunting_autogold")) set_variable("hunting_autogold", "off");
+if (!get_variable("hunting_parry")) set_variable("hunting_parry", "off");
 var huPt = get_variable("hunting_party_target");
 if (huPt === null || huPt === undefined) set_variable("hunting_party_target", "");

@@ -53,6 +53,7 @@ And for the suite:
 - [ ] `HUNTING MAIN` lists the main attacks; switching one changes F1 and survives a reload. `HUNTING MAIN TEST = say hello` adds one; `HUNTING MAIN TEST =` removes it.
 - [ ] Criticals highlighted by tier; your own only.
 - [ ] `HUNTING AUTOGOLD ON`: gold from your kill is picked up (into the backpack with security); someone else's kill: left. `ALL`: anyone's. `OFF`: none. Stunned or paralysed as the gold spills: picked up once you can act. Mnemosyne: a ripple's last kill sends no pickup (no "I see no gold").
+- [ ] *Dragon:* `HUNTING PARRY ON`; a mob that damages a limb ("...you perceive that he has dealt 30.0% damage to your left leg."): one `CLAWPARRY leftleg`, confirmed, never sent twice; hits on two legs switch it every other blow; `HUNTING` shows the limb. `OFF`: nothing sent.
 - [ ] Change class or form: keys and rage costs switch; `HUNTING RAGE` shows only the new class's abilities, cooldowns empty.
 - [ ] *Dragon:* F8 cycles PHY → MAG → AUTO; in AUTO, F1 flips between Gut and Incantation as endurance and willpower drain. `HUNTING AFTERFORM DEFCON INIT`, then dragonform: nothing is sent during the transformation (triggers paused, elder dragons too), init after the roar and after it melts. Start dragonform and interrupt it: "dragonform interrupted: Loom resumes.", `LOOM` no longer paused.
 - [ ] *Dragon:* use a rage ability, shift form, shift back: the rage keys light again (the shared cooldown never stays stuck), and the basher fires rage.

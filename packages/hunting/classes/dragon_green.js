@@ -20,6 +20,8 @@ HU.classes["Green Dragon"] = {
   ],
   // PK MODE: Ctrl+numpad rends a limb (hunting_classes, HU.dragonPkPad).
   pkPad: HU.dragonPkPad,
+  // Auto-parry (HUNTING PARRY, hunting_classes, HU.dragonParry).
+  parry: HU.dragonParry,
   rage: { Dragonspit: 14, Scour: 18, Deteriorate: 17, Override: 36, Slaver: 25, Dragonsap: 22 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Deteriorate"],

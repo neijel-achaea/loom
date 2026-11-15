@@ -3,7 +3,7 @@
 *Your class's attacks on the F-keys, lit when they're ready, with battlerage cooldowns, attack lines tagged, dragon attacks and gold pickup.*
 
 <!-- loom:version hunting -->
-*This page describes hunting 1.3.3.*
+*This page describes hunting 1.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -36,6 +36,7 @@ Your class, specialisation, balance, equilibrium and rage come from the game (GM
 | `HUNTING` | status |
 | `HUNTING DRAGONMODE [PHY\|MAG\|AUTO]` | gut, incantation, or whichever pool is fuller (no argument: next mode) |
 | `HUNTING AUTOGOLD [ON\|ALL\|OFF]` | pick up gold from your kills, from any corpse, or not at all |
+| `HUNTING PARRY [ON\|OFF]` | parry the limb taking the most damage (dragons: CLAWPARRY; default OFF) |
 | `HUNTING PARTYTARGET [name\|OFF]` | who party-aimed keys act on (the druid's Remedy key) |
 | `HUNTING AFTERFORM [cmd\|OFF]` | command sent when dragonform rises or falls, e.g. DEFCON INIT |
 | `HUNTING MAIN [name]` | your class's main attack on F1 (no name: list them); dragons: GUT, INCANTATION or AUTO, as DRAGONMODE |
@@ -85,6 +86,15 @@ While dragonform is rising, Loom is paused (anything sent would interrupt it), a
 | `HUNTING AUTOGOLD OFF` | left where it lies |
 
 A kill is yours when the game says you slew it, or when it gives you experience (that still shows when something has taken your senses and hidden the kill). A pickup refused because you were stunned or paralysed goes again once you can act. In the Mnemosyne, the gold from a ripple's last kill stays behind when the wade moves you on, so nothing is sent for it.
+
+### Parry
+
+`HUNTING PARRY ON` guards your limbs as a fight goes. When a blow damages a limb, the game says so ("As a wraith of the admiralty's blow crunches into you, you perceive that he has dealt 30.0% damage to your left leg."), and hunting parries the limb that has taken the most damage over the last minute. Dragons parry with `CLAWPARRY`, which takes no balance, so no attack is lost. Other classes have no parry yet, so nothing is sent for them.
+
+- It switches only when another limb has taken at least one blow's worth more than the one you're parrying, so a mob that hits two limbs makes it change every other blow, not on every hit.
+- It goes by the game's own lines ("You will now attempt to parry attacks to your left leg.", "You parry the assault to your left leg..."), so it never sends the parry you already have. A restored limb ("Your left leg feels stronger and healthier.") starts again from nothing.
+- A parry only stops blows that damage a limb. Instant breaks ("Your right leg breaks with a loud crack.") and skull fractures get through.
+- Off by default. It works whenever it's on, hunting or in PK MODE; `HUNTING` shows it and the limb being parried.
 
 ### Party target
 

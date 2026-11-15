@@ -18,6 +18,8 @@ HU.classes["Black Dragon"] = {
   ],
   // PK MODE: Ctrl+numpad rends a limb (hunting_classes, HU.dragonPkPad).
   pkPad: HU.dragonPkPad,
+  // Auto-parry (HUNTING PARRY, hunting_classes, HU.dragonParry).
+  parry: HU.dragonParry,
   rage: { Dragonspit: 14, Dragonsting: 25, Dissolve: 17, Override: 36, Corrode: 25, Dragonfear: 29, Provoke: 32 },
   // Shieldbreak: no cooldown, no global cooldown (see README, razes).
   razes: ["Dissolve"],

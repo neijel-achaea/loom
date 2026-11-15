@@ -1049,6 +1049,22 @@
           "enabled": true,
           "actions": [
             {
+              "type": "script",
+              "enabled": true,
+              "script": "@file:parry__trigger_limb_lines.js"
+            }
+          ],
+          "text": "(?:you perceive that .+ dealt [\\d.]+% damage to your (?:head|torso|(?:left|right) (?:arm|leg))|^You will now attempt to parry attacks to your .+|^You parry the assault to your .+ with a deft manoeuvre|^Your (?:head|torso|(?:left|right) (?:arm|leg)) feels stronger and healthier)\\.$",
+          "matching": "regexp",
+          "whole_words": true,
+          "case_sensitive": true
+        },
+        {
+          "type": "trigger",
+          "name": "",
+          "enabled": true,
+          "actions": [
+            {
               "type": "highlight",
               "enabled": true,
               "highlight_fg": "#6998de",

@@ -7,5 +7,6 @@ display_notice("[hunting] class " + (HU.cls || "unknown") + (HU.cls && !(HU.clas
   + " (" + get_variable("hunting_dragon_attack") + "), autogold " + String(get_variable("hunting_autogold")).toUpperCase()
   + (HU.mainNow ? ", main attack " + HU.mainNow.name.toUpperCase() : "")
   + ", highlights " + (get_variable("hunting_highlight") == "off" ? "OFF" : "ON")
+  + ", auto-parry " + (get_variable("hunting_parry") == "on" ? "ON" + (HU.parryLimb ? " (" + HU.parryLimb + ")" : "") : "OFF")
   + ", party target " + (huPt ? huPt : "none") + ", after form " + (huAf ? huAf.toUpperCase() : "nothing")
   + ". HUNTING HELP for commands.", "cyan");
