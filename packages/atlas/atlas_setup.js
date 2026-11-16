@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.11.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.11.1", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -628,6 +628,17 @@ AT.setWild = function (on) {
 };
 // The map's lines as HTML: one row each, the game's colours kept.
 AT.wildColour = function (c) { return typeof c == "string" && /^#[0-9a-fA-F]{3,8}$/.test(c) ? c : null; };
+// Nexus hands the map's text over HTML-escaped: the game's "&" (a terrain
+// in city subdivisions) arrives as "&amp;", five cells instead of one, and
+// every row with one grew wider and slid sideways (Ricardo's subdivision
+// dump, 2026-11-16). Back to the characters the game sent.
+AT.wildEnt = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+AT.wildText = function (t) {
+  return String(t).replace(/&(#x[0-9a-fA-F]+|#[0-9]+|[a-zA-Z]+);/g, function (m, e) {
+    if (e.charAt(0) === "#") { var n = e.charAt(1) === "x" || e.charAt(1) === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10); return n > 0 && n < 65536 ? String.fromCharCode(n === 160 ? 32 : n) : m; }
+    return Object.prototype.hasOwnProperty.call(AT.wildEnt, e.toLowerCase()) ? AT.wildEnt[e.toLowerCase()] : m;
+  });
+};
 AT.wildLines = function (lines) {
   if (!Array.isArray(lines)) return;
   var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
@@ -639,7 +650,7 @@ AT.wildLines = function (lines) {
       for (var k = 0; k < ch.length; k++) {
         var C = ch[k] || {};
         if (C._txt !== undefined) {
-          var t = String(C._txt).slice(0, 300);
+          var t = AT.wildText(C._txt).slice(0, 300);
           if (!t) continue;
           n += t.length;
           for (var q = 0; q < t.length; q++) cells.push([t.charAt(q), fg, bg]);
@@ -671,20 +682,27 @@ AT.wildLines = function (lines) {
 };
 // Room.Info in the wilderness: no sketch, no counts; the tab shows the
 // game's map (it comes just before this Room.Info).
-// Where you are on the map: the @; else (flying shows another mark) a white
-// character that appears only once on the map (roads are white too, but
-// many), nearest the middle. The map isn't always centred on you.
+// Where you are on the map: your @ is white; other @s (purple in city
+// subdivisions: other people) aren't you. Else (flying shows another mark) a
+// white character that appears only once on the map (roads are white too,
+// but many), nearest the middle. The map isn't always centred on you.
 AT.wildMe = function (grid) {
-  var h = grid.length, w = 0, cnt = {}, cand = [];
+  var h = grid.length, w = 0, cnt = {}, cand = [], at = [];
   for (var y = 0; y < h; y++) {
     if (grid[y].length > w) w = grid[y].length;
     for (var x = 0; x < grid[y].length; x++) {
       var c = grid[y][x];
-      if (c[0] === "@") return { x: x, y: y };
+      if (c[0] === "@") { at.push([x, y, /^#f{3}(?:f{3})?$/i.test(c[1] || "") ? 0 : 1]); continue; }
       if (c[0] !== " " && c[0] !== "?" && /^#f{3}(?:f{3})?$/i.test(c[1] || "")) { var k = c[0] + "|" + (c[2] || ""); cnt[k] = (cnt[k] || 0) + 1; cand.push([x, y, k]); }
     }
   }
   var best = 1e9, me = null;
+  // The @s: a white one first, then the one nearest the middle.
+  for (var j = 0; j < at.length; j++) {
+    var dj = at[j][2] * 1e6 + Math.abs(at[j][0] - w / 2) + Math.abs(at[j][1] - h / 2);
+    if (dj < best) { best = dj; me = { x: at[j][0], y: at[j][1] }; }
+  }
+  if (me) return me;
   for (var i = 0; i < cand.length; i++) {
     if (cnt[cand[i][2]] !== 1) continue;
     var d = Math.abs(cand[i][0] - w / 2) + Math.abs(cand[i][1] - h / 2);
