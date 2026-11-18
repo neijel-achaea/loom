@@ -1035,22 +1035,6 @@
             {
               "type": "script",
               "enabled": true,
-              "script": "@file:autogold__trigger_pickup_lines.js"
-            }
-          ],
-          "text": "^(?:You have gained \\d+ experience|You pick up \\d+ gold sovereigns?|I see no \"gold\" to take|You are too stunned to be able to do anything|Paralysed as you are, your body is not able to pick up anything|You are no longer stunned|Your muscles unlock; you are no longer paralysed)\\.$|^Wading the Mnemosyne\\.$",
-          "matching": "regexp",
-          "whole_words": true,
-          "case_sensitive": true
-        },
-        {
-          "type": "trigger",
-          "name": "",
-          "enabled": true,
-          "actions": [
-            {
-              "type": "script",
-              "enabled": true,
               "script": "@file:parry__trigger_limb_lines.js"
             }
           ],
