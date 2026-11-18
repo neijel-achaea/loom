@@ -3,7 +3,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.hunting) client.loom.hunting = {};
-client.loom.registry.hunting = { version: "1.4.0", keyword: "HUNTING", desc: "{{description}}" };
+client.loom.registry.hunting = { version: "1.4.1", keyword: "HUNTING", desc: "{{description}}" };
 
 var HU = client.loom.hunting;
 
@@ -107,6 +107,7 @@ HU.parryLine = function (line) {
 // Autogold's pickup (hunting_gold): { at, sent, tries, retry } while gold is
 // waiting for you, null once picked up or gone.
 if (HU.gold === undefined) HU.gold = null;
+HU.otherKillMs = 3000; // after someone else's kill, experience doesn't arm autogold
 HU.goldWaitMs = 100;   // the pickup waits this long for a ripple's end
 HU.goldMs = 20000;     // gold not picked up by then is given up
 HU.goldTries = 3;      // pickups sent at most, retries included
@@ -122,7 +123,13 @@ HU.goldSend = function () {
 // The lines around a pickup (one trigger, hunting's autogold group).
 HU.goldLine = function (line) {
   var g = HU.gold;
-  if (/^You have gained \d+ experience\.$/.test(line)) { HU.kill = new Date().getTime(); return; }
+  if (/^You have gained \d+ experience\.$/.test(line)) {
+    // Your kill's experience arms autogold (a kill line can go unseen, e.g.
+    // devoid of senses), but not experience shared from another's kill.
+    var now = new Date().getTime();
+    if (!HU.otherKill || now - HU.otherKill > HU.otherKillMs) HU.kill = now;
+    return;
+  }
   if (!g) return;
   if (line === "Wading the Mnemosyne.") {
     // The ripple ended with the kill: the gold stayed behind.
