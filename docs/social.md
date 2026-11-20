@@ -8,7 +8,7 @@
 
 ## What it is
 
-Social keeps your lists of people (family, order, house, city, friends, enemies, allies) and does three things with them:
+Social keeps your lists of people (family, order, house, city, enemies, friends, allies) and does three things with them:
 
 - **Colours their names** wherever they appear in the game's text, each group in its own colour, and your own name in yellow.
 - **Tells you when they log in or out**: "Ana has awoken." and "Ana has drifted into slumber.", in their group's colour.
@@ -38,7 +38,7 @@ It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POL
 | `SOCIAL SYNC [ON\|OFF]` | load the enemies group from your city's enemies list (default ON; no word: show) |
 | `SOCIAL RESET` | reload the lists, re-prime the watchlist |
 | `SOCIAL DEBUG [ON\|OFF]` | internal state; ON shows each poll |
-| **Groups, highest priority first: family, order, house, city, friends, enemies, allies.** | |
+| **Groups, highest priority first: family, order, house, city, enemies, friends, allies.** | |
 | **With SYNC on, your city's enemies list replaces the enemies group whenever the game shows it (e.g. CITY ENEMIES).** | |
 <!-- /loom:commands -->
 

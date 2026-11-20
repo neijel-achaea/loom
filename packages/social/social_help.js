@@ -19,7 +19,7 @@ var hlRows = [
   ["SOCIAL SYNC [ON|OFF]", "load the enemies group from your city's enemies list (default ON; no word: show)"],
   ["SOCIAL RESET", "reload the lists, re-prime the watchlist"],
   ["SOCIAL DEBUG [ON|OFF]", "internal state; ON shows each poll"],
-  ["Groups, highest priority first: family, order, house, city, friends, enemies, allies."],
+  ["Groups, highest priority first: family, order, house, city, enemies, friends, allies."],
   ["With SYNC on, your city's enemies list replaces the enemies group whenever the game shows it (e.g. CITY ENEMIES)."]
 ];
 var hlW = 0;
