@@ -22,7 +22,7 @@ client.loom.registry.social = { version: "1.1.0", keyword: "SOCIAL", desc: "{{de
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.
-S.groups = ["family", "order", "house", "enemies", "city", "allies", "friends"];
+S.groups = ["family", "order", "house", "city", "friends", "enemies", "allies"];
 S.defColor = { family: "#30c4ff", enemies: "#ff5f5f", order: "#e0b8ff", house: "#b8ff29", city: "#27f5c5", allies: "#ff9f4f", friends: "#ffd77f", self: "#fdff4d" };
 
 // One-time migration from the hl*/wl* variables, then cleared.
