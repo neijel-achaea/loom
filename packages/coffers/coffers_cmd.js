@@ -254,7 +254,6 @@ else if (c === "wipe") {
 else if (c === "reset") {
   // COFFERS RESET (#137; REBUILD, its old name, went in Loom 1.1).
   CO.f = undefined;
-  CO.tiers = undefined;
   if (!client.loom || !client.loom.coffers || !client.loom.coffers.f) run_function("coffers_setup", [], "coffers");
 var CO = client.loom.coffers;
   say("reset: helpers and rank table rebuilt from the code; your books are untouched.", "lime");
