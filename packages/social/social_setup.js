@@ -10,7 +10,7 @@ if (!client.loom.social) client.loom.social = {};
 // colours (Here, Comms).
 // busy (#318): true while a QW poll's answer is still coming, so Here's
 // loyal probe waits its turn. A capture open for 5 s no longer counts.
-client.loom.registry.social = { version: "1.0.2", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+client.loom.registry.social = { version: "1.1.0", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
   var Sq = client.loom.social;
   return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
 }, redraw: function () {
@@ -22,7 +22,7 @@ client.loom.registry.social = { version: "1.0.2", keyword: "SOCIAL", desc: "{{de
 var S = client.loom.social;
 
 // Groups in priority order: a name in two groups takes the colour of the first.
-S.groups = ["family", "enemies", "order", "house", "city", "allies", "friends"];
+S.groups = ["family", "order", "house", "enemies", "city", "allies", "friends"];
 S.defColor = { family: "#30c4ff", enemies: "#ff5f5f", order: "#e0b8ff", house: "#b8ff29", city: "#27f5c5", allies: "#ff9f4f", friends: "#ffd77f", self: "#fdff4d" };
 
 // One-time migration from the hl*/wl* variables, then cleared.

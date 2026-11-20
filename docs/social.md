@@ -3,12 +3,12 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 1.0.2.*
+*This page describes social 1.1.0.*
 <!-- /loom:version -->
 
 ## What it is
 
-Social keeps your lists of people (family, enemies, order, house, city, allies, friends) and does three things with them:
+Social keeps your lists of people (family, order, house, enemies, city, allies, friends) and does three things with them:
 
 - **Colours their names** wherever they appear in the game's text, each group in its own colour, and your own name in yellow.
 - **Tells you when they log in or out**: "Ana has awoken." and "Ana has drifted into slumber.", in their group's colour.
@@ -38,13 +38,13 @@ It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POL
 | `SOCIAL SYNC [ON\|OFF]` | load the enemies group from your city's enemies list (default ON; no word: show) |
 | `SOCIAL RESET` | reload the lists, re-prime the watchlist |
 | `SOCIAL DEBUG [ON\|OFF]` | internal state; ON shows each poll |
-| **Groups, highest priority first: family, enemies, order, house, city, allies, friends.** | |
+| **Groups, highest priority first: family, order, house, enemies, city, allies, friends.** | |
 | **With SYNC on, your city's enemies list replaces the enemies group whenever the game shows it (e.g. CITY ENEMIES).** | |
 <!-- /loom:commands -->
 
 ### Lists
 
-Names go in a group with `SOCIAL ADD <group> <name>`, for example `SOCIAL ADD friends Ana`. Case doesn't matter. Someone in two groups takes the colour of the first in priority order (family before enemies before order, and so on), as the game's own highlights do.
+Names go in a group with `SOCIAL ADD <group> <name>`, for example `SOCIAL ADD friends Ana`. Case doesn't matter. Someone in two groups takes the colour of the first in priority order (family, then order, then house, then enemies, and so on).
 
 `SOCIAL LIST` gives the size of each group; `SOCIAL LIST friends` lists its names.
 
