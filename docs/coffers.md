@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 1.2.0.*
+*This page describes coffers 1.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -147,7 +147,7 @@ You don't need to do anything for Coffers to work: log in and play. A typical da
 
 - **When you log in**, Coffers opens a session and prints your starting fortune: "the books are open: 1,240,500 gold".
 - **While you play**, glance at the tab. The big number is your fortune. Below it, a bar shows how it splits between purse (gold) and bank (bronze), how far you are from the next rank, and how far from your goal (or, with no goal and ledger installed, today's aim). The **Session** and **Today** boxes show net, in and out, and the session's gold per hour. **Records** shows your peak fortune, best day and best session. A star appears under Today when you're on track for a record day.
-- **Notices** tell you when something worth knowing happens: a large single gain or loss (`BIGCOIN`), a new rank ("*** MILESTONE *** … Welcome to the Vault"), a goal reached.
+- **Notices** tell you when something worth knowing happens: a large single gain or loss (`BIGCOIN`), a new rank ("*** MILESTONE *** … You are now Opulent"), a goal reached.
 - **When you stop**, the session closes after 30 quiet minutes and prints its summary, with a note if it was your most profitable session yet. Use `COFFERS NEW` to close it right away.
 - **The next day**, the first prompt closes yesterday's books. If it was your best day so far, Coffers says so.
 
@@ -162,16 +162,26 @@ Some habits that help:
 
 | Fortune from | Rank |
 | ---: | --- |
-| 0 | Empty Pockets |
-| 10,000 | Coin Purse |
-| 100,000 | Strongbox |
-| 500,000 | Coffer |
-| 1,000,000 | Counting House |
-| 2,500,000 | Vault |
-| 5,000,000 | Treasury |
-| 10,000,000 | Hoard |
-| 50,000,000 | Dragon's Hoard |
-| 250,000,000 | Mountain of Gold |
+| 0 | Destitute |
+| 1,000 | Beggar |
+| 2,500 | Wretched |
+| 5,000 | Humble |
+| 10,000 | Meagre |
+| 25,000 | Frugal |
+| 50,000 | Ordinary |
+| 100,000 | Comforted |
+| 250,000 | Prosperous |
+| 500,000 | Affluent |
+| 1,000,000 | Wealthy |
+| 2,500,000 | Opulent |
+| 5,000,000 | Magnate |
+| 10,000,000 | Rich |
+| 25,000,000 | Patrician |
+| 50,000,000 | Illustrious |
+| 100,000,000 | Magnificent |
+| 250,000,000 | Exalted |
+| 500,000,000 | Sovereign |
+| 1,000,000,000 | Legendary |
 
 The milestone notice comes once per rank, the first time you reach it. Dropping below a rank and climbing back doesn't announce it again.
 

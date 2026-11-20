@@ -114,7 +114,7 @@ if (g !== undefined && b !== undefined) {
   else if (tAt > R.tierAt) {
     R.tierAt = tAt;
     force = true;
-    display_notice("[coffers] *** MILESTONE *** your fortune passes " + F.n(CO.tiers[ti][0]) + " gold. Welcome to the " + CO.tiers[ti][1] + ".", "lime");
+    display_notice("[coffers] *** MILESTONE *** your fortune passes " + F.n(CO.tiers[ti][0]) + " gold. You are now " + CO.tiers[ti][1] + ".", "lime");
   }
 
   // Goal: take the base on the first reading after it was set, and announce

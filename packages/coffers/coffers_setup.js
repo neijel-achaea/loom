@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "1.2.0", keyword: "COFFERS", desc: "{{description}}",
+client.loom.registry.coffers = { version: "1.3.0", keyword: "COFFERS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("coffers_render", [], "coffers"); } };
 var CO = client.loom.coffers;
@@ -115,9 +115,11 @@ function gcTier(w) {
 }
 
 // Wealth tiers, lowest first: [threshold, title]. Data, not branching.
-if (!CO.tiers) {
-  CO.tiers = [[0, "Empty Pockets"], [10000, "Coin Purse"], [100000, "Strongbox"], [500000, "Coffer"], [1000000, "Counting House"], [2500000, "Vault"], [5000000, "Treasury"], [10000000, "Hoard"], [50000000, "Dragon's Hoard"], [250000000, "Mountain of Gold"]];
-}
+// Rebuilt every run (helpers, not data), so an edited table reaches players
+// without COFFERS RESET. Bump CO.tiersId when the table changes: the rank
+// ratchet then reseats quietly instead of announcing ranks already held.
+CO.tiers = [[0, "Destitute"], [1000, "Beggar"], [2500, "Wretched"], [5000, "Humble"], [10000, "Meagre"], [25000, "Frugal"], [50000, "Ordinary"], [100000, "Comforted"], [250000, "Prosperous"], [500000, "Affluent"], [1000000, "Wealthy"], [2500000, "Opulent"], [5000000, "Magnate"], [10000000, "Rich"], [25000000, "Patrician"], [50000000, "Illustrious"], [100000000, "Magnificent"], [250000000, "Exalted"], [500000000, "Sovereign"], [1000000000, "Legendary"]];
+CO.tiersId = 2;
 if (!CO.f) {
   CO.f = { n: gcN, s: gcS, k: gcK, dur: gcDur, dayKey: gcDayKey, dayStart: gcDayStart, date: gcDate, hm: gcHM, tier: gcTier };
 }
@@ -131,6 +133,9 @@ if (!CO.rec) {
   if (!rec || typeof rec !== "object") { rec = {}; }
   CO.rec = rec;
 }
+// A new rank table: forget the old ratchet so the next tick sets it from the
+// current fortune without a MILESTONE notice.
+if (CO.rec.tiersId !== CO.tiersId) { delete CO.rec.tierAt; CO.rec.tiersId = CO.tiersId; }
 if (CO.sess === undefined) {
   var ss = gcJSON("coffers_sess", null);
   if (!ss || typeof ss !== "object" || ss.s === undefined) { ss = null; }
