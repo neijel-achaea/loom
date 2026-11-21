@@ -25,7 +25,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_fog = "off" while fog of war is off (absent: on);
 //   atlas_walk = "atlas" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
-//   atlas_worms = "off" while Atlas's routes leave wormholes out (absent: used);
+//   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
 //   atlas_wild = "off" while the wilderness map stays in the main window
 //     (absent: Atlas shows it);
 //   atlas_wild_style = "text" for the game's letters as sent (absent: tiles);
@@ -1074,15 +1074,16 @@ AT.placeView = function () {
 AT.walkWait = 4000;
 // Wormholes (the crowdmap's special exit "worm warp", 650 of them, nearly all
 // both ways): a warp counts as AT.wormCost steps when routes are compared, and
-// its answer is waited for longer (AT.warpWait). ATLAS WORMHOLES OFF leaves
-// them out (setting atlas_worms = "off"). Other special exits: not yet; never
-// "buy …" or the crowdmap's "script:" exits (Ricardo).
+// its answer is waited for longer (AT.warpWait). Shortcuts are off until you
+// turn them on, since most characters can't use them (Ricardo): ATLAS
+// WORMHOLES ON (setting atlas_worms = "on"). Other special exits: not yet;
+// never "buy …" or the crowdmap's "script:" exits (Ricardo).
 AT.wormCost = 5;
 AT.warpWait = 20000;
-AT.useWorms = get_variable("atlas_worms") !== "off";
+AT.useWorms = get_variable("atlas_worms") === "on";
 AT.setWorms = function (on) {
   AT.useWorms = !!on;
-  if (on) delete_variable("atlas_worms"); else set_variable("atlas_worms", "off");
+  if (on) set_variable("atlas_worms", "on"); else delete_variable("atlas_worms");
 };
 // The cost of a special exit for routes, 0 when Atlas doesn't take it.
 AT.specialCost = function (cmd) {
