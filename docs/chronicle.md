@@ -3,7 +3,7 @@
 *A record of each Achaean day: where you went, what was said, what you read, and what you did.*
 
 <!-- loom:version chronicle -->
-*This page describes chronicle 0.2.1.*
+*This page describes chronicle 0.2.2.*
 <!-- /loom:version -->
 
 > **Before you turn on summaries: cost and privacy.** The record itself stays with your character and costs nothing. Summaries are optional, and turning them on (`CHRONICLE KEY`) means:
@@ -20,8 +20,8 @@ It keeps by itself:
 
 - **Places**: each area you spend a minute or more in, and each room you stay in for five minutes or more, with who was there.
 - **IC channels**: say, tells, yell, your city, house and order, house newbie, group, clans, and the gods' emotes. Other channels (party, newbie, market…) are left out; `CHRONICLE CHANNELS` lists what you've heard this session and `CHRONICLE CHANNEL <name> ON|OFF` changes it. Anything after `//` in a line is taken as OOC and left out.
-- **Your custom emotes** (`EMOTE`, and roleplay's ambient ones), from the game's "You have emoted: …". Socials ("You skip about merrily.") aren't kept.
-- **Emotes** by other players in your room: lines that start with their name, except their talk (which comes with the channels) and their comings and goings. Someone with more than six such lines in a minute is fighting, not emoting: their lines are left out for two minutes. Housekeeping (curing, putting gold away, wielding, following) is left out too.
+- **Your custom emotes** (`EMOTE`), from the game's "You have emoted: …". Roleplay's ambient emotes (`ROLEPLAY AEM`) aren't kept: they're flavour on a timer, not something your character did, and they threw the summaries off. An `EMOTE` you type in the five seconds after an ambient one is left out with it. Socials ("You skip about merrily.") aren't kept.
+- **Emotes** by other players in your room: lines that start with their name followed by a lowercase word (lists such as house or party members, which go on with a number, a title or columns, aren't emotes), except their talk (which comes with the channels) and their comings and goings. Someone with more than six such lines in a minute is fighting, not emoting: their lines are left out for two minutes. Housekeeping (curing, putting gold away, wielding, following) is left out too.
 - **Repeats** of the same line within two minutes count up the first one (×10) rather than filling the record.
 - **What you read**: letters, messages and news posts, up to the prompt. A news post read over several MOREs is kept as one entry; a message or post read again isn't kept twice.
 - **Leaving someone out**: `CHRONICLE IGNORE <name>` keeps nothing of theirs from then on (what they say, their tells to you and yours to them, their emotes, messages and posts), leaves them off the lists of who was there, and puts "someone" where another line names them. What was already kept about them is removed at once; summaries already written stay as they are (`CHRONICLE WRITE <day>` rewrites one). `CHRONICLE IGNORE` lists them, `CHRONICLE UNIGNORE <name>` records them again. Use it for anyone who'd rather not be in your record or sent to the summariser.
@@ -44,7 +44,7 @@ With your own API key, Chronicle writes a short summary of each Achaean day when
 
 ### Months and years
 
-The tab has three views, **Days**, **Months** and **Years** (click them, or `CHRONICLE VIEW DAYS|MONTHS|YEARS`). When an Achaean month ends (about a day of real time), its summary is written from the summaries of the days you played in it, and your notes; when a year ends (about twelve days), from its months. Each is about two hundred words, and sees the one before it. `CHRONICLE WRITE MONTH` writes this month so far (or `WRITE MONTH <name>` a past one), `CHRONICLE WRITE YEAR [number]` the same for years. Months shows this year's and last year's; Years shows them all. The export starts with the years and months, then the days.
+The tab has three views, **Days**, **Months** and **Years** (click them, or `CHRONICLE VIEW DAYS|MONTHS|YEARS`). When an Achaean month ends (about a day of real time), its summary is written from the summaries of the days you played in it, and your notes; when a year ends (about twelve days), from its months. A month is about two hundred words; a year about five hundred, in a few paragraphs that each follow one thread (a person, an aim, a place) through it. Each sees the one before it. `CHRONICLE WRITE MONTH` writes this month so far (or `WRITE MONTH <name>` a past one), `CHRONICLE WRITE YEAR [number]` the same for years. Months shows this year's and last year's; Years shows them all. The export starts with the years and months, then the days.
 
 The lines of a day are kept while it's among the last 30 played (or until the record is too big); its summary is kept longer, and once its month has a summary the day's own can go when space runs short. Months and years are kept for good.
 

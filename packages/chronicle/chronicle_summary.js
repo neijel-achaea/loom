@@ -18,6 +18,8 @@ CR.keyName = "loom_chronicle_key";
 CR.api = "https://api.anthropic.com/v1/messages";
 CR.defaultModel = "claude-haiku-5-5";
 CR.words = 100;
+CR.monthWords = 200;
+CR.yearWords = 500;     // a year draws on twelve months: room for its arc (Ricardo)
 CR.quietLines = 15;     // fewer lines than this (places aside) make a quiet day
 CR.budget = 24000;               // characters of record sent for one day
 CR.retryMs = [30000, 120000, 600000];
@@ -105,7 +107,7 @@ CR.system = function (prev, scope) {
   p.push("Keep what changes things: people met, promises made, tasks taken on, letters, messages and news, places first seen, words that mattered. Pass over routine. Name people as the record names them.");
   if (scope.what === "day" && scope.quiet) p.push("This was a quiet day. Write at most two short sentences (about " + scope.words + " words), plain text, no heading and no date. Say what little happened and stop; don't add duration, scenery or reflection.");
   else if (scope.what === "day") p.push("Write one paragraph of about " + scope.words + " words (fewer for a quiet day), plain text, no heading and no date: the date is shown above it. British spelling.");
-  else p.push("You are given the entries already written for each " + (scope.what === "month" ? "day of a month" : "month of a year") + ". From them, write the entry for the whole " + scope.what + ": what changed and what mattered over it (people, turning points, tasks begun and finished, where " + name + " stands at its end), not a list of " + (scope.what === "month" ? "days" : "months") + ". About " + scope.words + " words, one or two paragraphs, plain text, no heading and no date. British spelling.");
+  else p.push("You are given the entries already written for each " + (scope.what === "month" ? "day of a month" : "month of a year") + ". From them, write the entry for the whole " + scope.what + ": what changed and what mattered over it (people, turning points, tasks begun and finished, where " + name + " stands at its end), not a list of " + (scope.what === "month" ? "days" : "months") + ". About " + scope.words + " words, " + (scope.what === "year" ? "three to five paragraphs, each following one thread of the year (a person, an aim, a place) rather than one stretch of months" : "one or two paragraphs") + ", plain text, no heading and no date. British spelling.");
   var f = CR.facts();
   if (f) p.push("Who " + name + " is, as the world knows: " + f);
   if (CR.voice) p.push("What the player tells you about " + name + " (take it as true, and let it shape what matters, without repeating it): " + CR.voice);
@@ -284,12 +286,12 @@ CR.pump = function () {
 CR.label = function (it) { return typeof it == "number" ? CR.dayName(it) : it.charAt(0) === "m" ? CR.monthName(+it.slice(1)) : CR.yearName(+it.slice(1)); };
 // The request. Recent models think before answering, and thinking counts
 // against max_tokens: a busy day's thinking used up 900 and left no text
-// (Ricardo, 2026-11-13). So: room for both, and low effort (a summary
+// (Ricardo, 2026-11-13); a year's entry is the longest. So: room for both, and low effort (a summary
 // doesn't need deep thought). A model that refuses those settings (400) is
 // asked again without them, and they stay off for the session.
 CR.lean = CR.lean !== false;
 CR.request = function (sys, user) {
-  var r = { model: CR.model, max_tokens: 4000, system: sys, messages: [{ role: "user", content: user }] };
+  var r = { model: CR.model, max_tokens: 6000, system: sys, messages: [{ role: "user", content: user }] };
   if (CR.lean) { r.thinking = { type: "adaptive" }; r.output_config = { effort: "low" }; }
   return r;
 };
@@ -311,13 +313,13 @@ CR.write = function (it, manual) {
     var m = +it.slice(1), mt = CR.monthText(m);
     if (!/\S/.test(mt)) { if (manual) display_notice("[chronicle] no day of " + CR.monthName(m) + " has its summary yet.", "cyan"); CR.pump(); return; }
     var pm = CR.annals.m[m - 1];
-    sys = CR.system(pm ? pm.text : "", { what: "month", words: 200, ctx: CR.context(CR.daysOfMonth(m), m * 25 + 1, m * 25 + 25) });
+    sys = CR.system(pm ? pm.text : "", { what: "month", words: CR.monthWords, ctx: CR.context(CR.daysOfMonth(m), m * 25 + 1, m * 25 + 25) });
     user = "The entries for the days of " + CR.monthName(m) + " that were played, in order:\n\n" + mt + "\n\nWrite the entry for this month.";
   } else {
     var y = +it.slice(1), yt = CR.yearText(y);
     if (!/\S/.test(yt)) { if (manual) display_notice("[chronicle] no month of " + CR.yearName(y) + " has its summary yet.", "cyan"); CR.pump(); return; }
     var py = CR.annals.y[y - 1];
-    sys = CR.system(py ? py.text : "", { what: "year", words: 250, ctx: CR.context([], y * 300 + 1, y * 300 + 300) });
+    sys = CR.system(py ? py.text : "", { what: "year", words: CR.yearWords, ctx: CR.context([], y * 300 + 1, y * 300 + 300) });
     user = "The entries for the months of " + CR.yearName(y) + " that were played, in order:\n\n" + yt + "\n\nWrite the entry for this year.";
   }
   if (!key) { if (manual) display_notice("[chronicle] no API key in this browser: CHRONICLE KEY <key> first.", "orange"); return; }

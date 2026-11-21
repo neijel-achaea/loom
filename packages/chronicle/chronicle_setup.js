@@ -24,7 +24,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.chronicle) client.loom.chronicle = {};
-client.loom.registry.chronicle = { version: "0.2.1", keyword: "CHRONICLE", desc: "{{description}}",
+client.loom.registry.chronicle = { version: "0.2.2", keyword: "CHRONICLE", desc: "{{description}}",
   redraw: function () { run_function("chronicle_render", [], "chronicle"); } };
 var CR = client.loom.chronicle;
 
@@ -389,6 +389,12 @@ CR.re = {
   // ("You skip about merrily.") aren't kept: they look like every other
   // "You ..." line.
   mine: /^You have emoted: (.+)$/,
+  // An emote reads "<Name> <does something>": the name, maybe 's or a comma,
+  // then a lowercase word. Lines that start with a name but go on with a
+  // number, a capital (a full name and title) or a run of spaces are tables
+  // (house, clan and party lists: "Neijel  04  On  On  No  Dragon").
+  emoteShape: /^[A-Z][a-z]+(?:['\u2019]s?)?,? [a-z]/,
+  table: /\S {2,}\S/,
   // Lines starting with a name that aren't emotes: talk (it comes by GMCP)
   // and comings and goings.
   talk: /^\w+ (?:says|asks|exclaims|whispers|yells|shouts|tells|answers|replies|mutters|sings|quietly says)\b/,
@@ -408,7 +414,10 @@ CR.line = function (raw) {
     if (CR.cont && Date.now() - CR.cont.at < 600000) { CR.capt = { ev: CR.cont.ev, lines: [], at: Date.now(), more: true }; CR.cont = null; }
     return;
   }
-  if (!CR.capt && (m = CR.re.mine.exec(raw))) { CR.add({ k: "emote", who: CR.me || "you", text: CR.clip(CR.scrub(m[1]), CR.textMax) }); return; }
+  if (!CR.capt && (m = CR.re.mine.exec(raw))) {
+    if (!CR.aem()) CR.add({ k: "emote", who: CR.me || "you", text: CR.clip(CR.scrub(m[1]), CR.textMax) });
+    return;
+  }
   if (CR.capt) {
     if (CR.capt.ev.k == "news" && CR.re.more.test(raw)) { CR.cont = { ev: CR.capt.ev, at: Date.now() }; CR.finish(); return; }
     CR.capt.lines.push(raw);
@@ -474,8 +483,11 @@ CR.known = function (ev) {
 CR.emote = function (raw) {
   var m = /^([A-Z][a-z]+)\b/.exec(raw);
   if (!m) return;
+  if (!CR.re.emoteShape.test(raw) || CR.re.table.test(raw)) return;
   var lc = m[1].toLowerCase();
-  if (!CR.players[lc] && lc !== String(CR.me).toLowerCase()) return;
+  var mine = lc === String(CR.me).toLowerCase();
+  if (!CR.players[lc] && !mine) return;
+  if (mine && CR.aem()) return;
   if (CR.ignored(lc)) return;
   if (CR.re.talk.test(raw) || CR.re.move.test(raw) || CR.re.chore.test(raw) || / says,? "/.test(raw)) return;
   var now = Date.now(), i;
@@ -493,6 +505,16 @@ CR.emote = function (raw) {
     return;
   }
   CR.add({ t: now, k: "emote", who: m[1], text: CR.clip(CR.scrub(raw), CR.textMax) });
+};
+
+// Roleplay's ambient emotes (ROLEPLAY AEM) are flavour on a timer, not
+// something the character did that day: their echo, which comes within a few
+// seconds of roleplay sending one, isn't kept (Ricardo: they threw the
+// summaries off). An EMOTE you type yourself in those seconds is lost too.
+CR.aemMs = 5000;
+CR.aem = function () {
+  var rp = client.loom && client.loom.roleplay;
+  return !!(rp && rp.sentAt && Date.now() - rp.sentAt < CR.aemMs);
 };
 
 // --- the record as text ----------------------------------------------------------
