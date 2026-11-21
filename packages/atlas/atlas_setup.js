@@ -1347,8 +1347,13 @@ AT.goPlace = function (text) {
   if (fa && !fa.rest) aids = [fa.aid];
   else if (!/^\d/.test(t)) aids = AT.areasNamed(t);
   if (aids.length) { AT.goArea(aids); return; }
+  // Areas whose name has words starting with what you typed ("azdun": the
+  // Azdun Dungeon, the Azdun Catacombs): offered to pick from, with any
+  // denizens that match, rather than walking to a denizen you didn't mean.
+  var like = /^\d/.test(t) ? [] : AT.areasLike(t);
   display_notice("[atlas] looking for " + t + "…", "cyan");
   AT.denLoad(function (ok) {
+    if (like.length) { AT.suggest(t, like, ok ? AT.denFind(t) : []); return; }
     if (!ok) { display_notice("[atlas] the crowdmap's denizen list couldn't be loaded: ATLAS GO <room number> or <area>.", "orange"); return; }
     AT.goDenizen(t);
   });
@@ -1364,6 +1369,52 @@ AT.areasNamed = function (t) {
     if (short === tl) out.push(atNum(a));
   }
   return out;
+};
+// Areas with a word starting with each word you typed, by short name (one
+// entry per short name, since ATLAS GO <short name> takes the nearest of
+// those): [{ short, title, n }] in name order, at most AT.suggestMax.
+AT.suggestMax = 8;
+AT.areasLike = function (t) {
+  var words = String(t || "").toLowerCase().replace(/^the\s+/, "").split(/[^a-z0-9']+/).filter(Boolean), seen = {}, out = [];
+  if (!words.length || !AT.map) return out;
+  for (var a in AT.map.areas) {
+    if (!AT.map.areas.hasOwnProperty(a)) continue;
+    var full = String(AT.map.areas[a]), tokens = full.toLowerCase().split(/[^a-z0-9']+/).filter(Boolean), all = true;
+    for (var i = 0; i < words.length && all; i++) {
+      var hit = false;
+      for (var j = 0; j < tokens.length && !hit; j++) if (tokens[j].indexOf(words[i]) === 0) hit = true;
+      all = hit;
+    }
+    if (!all) continue;
+    var short = full.split(",")[0].replace(/\s+/g, " ").trim();
+    var key = short.toLowerCase().replace(/^the /, "");
+    if (seen[key]) { seen[key].n++; continue; }
+    seen[key] = { short: short.replace(/^the /i, ""), title: AT.title(atNum(a)), n: 1 };
+    out.push(seen[key]);
+  }
+  out.sort(function (p, q) { return p.short.toLowerCase() < q.short.toLowerCase() ? -1 : 1; });
+  return out.slice(0, AT.suggestMax);
+};
+// Offer areas (and denizens) to pick: clickable ATLAS GO lines where Nexus
+// can show them (links of the kind its exits use), else a notice to type from.
+AT.suggest = function (t, areas, dens) {
+  var esc = function (v) { return String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); };
+  var picks = [], seen = {}, i;
+  for (i = 0; i < areas.length; i++) picks.push({ cmd: "ATLAS GO " + areas[i].short.toLowerCase(), text: areas[i].title + (areas[i].n > 1 ? " (" + areas[i].n + " areas)" : ""), kind: "area" });
+  for (i = 0; i < dens.length && picks.length < AT.suggestMax + 3; i++) {
+    if (seen[dens[i][1]]) continue;
+    seen[dens[i][1]] = true;
+    picks.push({ cmd: "ATLAS GO " + dens[i][1], text: dens[i][1], kind: "denizen" });
+  }
+  var head = "[atlas] no area called " + t + ". Did you mean:";
+  var html = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
+  if (html) {
+    var rows = picks.map(function (p) {
+      return '  <a class="mxp_send" href="#" rel="' + esc(p.cmd) + '" title="' + esc(p.cmd) + '" style="color:#7fd4ff;text-decoration:underline">' + esc(p.text) + '</a>' +
+        (p.kind === "denizen" ? ' <span style="color:#888">(denizen)</span>' : '');
+    });
+    nexusclient.add_html_line('<span style="color:cyan;white-space:pre-wrap">' + esc(head) + '\n' + rows.join("\n") + '</span>');
+  } else display_notice(head + " " + picks.map(function (p) { return p.cmd; }).join("; ") + ".", "cyan");
 };
 // The nearest room of one of these areas (several share a short name).
 AT.goArea = function (aids) {
