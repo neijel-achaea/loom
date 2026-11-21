@@ -1079,7 +1079,27 @@ AT.walkWait = 4000;
 // WORMHOLES ON (setting atlas_worms = "on"). Other special exits: not yet;
 // never "buy …" or the crowdmap's "script:" exits (Ricardo).
 AT.wormCost = 5;
-AT.warpWait = 20000;
+AT.warpWait = 6000;          // a warp is instant (Ricardo): no room in 6 s, it isn't there
+// Shortcuts the crowdmap has that the game doesn't (Ricardo: no wormhole at
+// 9553, the map says there is one): a special step with no answer is marked
+// broken, left out of routes, and the walk goes another way from where you
+// are (at most AT.detourMax times a walk). Kept in the browser (key "broken",
+// { "room|command": when }) for AT.brokenDays; ATLAS BROKEN lists them,
+// ATLAS BROKEN CLEAR forgets them. Ordinary exits aren't marked: a step that
+// fails is more often you (stunned, prone) than the map.
+AT.detourMax = 3;
+AT.brokenDays = 30;
+if (!AT.broken || typeof AT.broken != "object") AT.broken = {};
+AT.brokenLoad = function () {
+  AT.idb("readonly", "broken").then(function (v) {
+    if (!v || typeof v != "object") return;
+    var old = Date.now() - AT.brokenDays * 86400000, gone = false;
+    for (var k in v) if (v.hasOwnProperty(k) && /^\d+\|.{1,60}$/.test(k)) { if (atNum(v[k]) > old) AT.broken[k] = atNum(v[k]); else gone = true; }
+    if (gone) AT.brokenSave();
+  });
+};
+AT.brokenSave = function () { AT.idb("readwrite", "broken", AT.broken); };
+AT.markBroken = function (room, cmd) { AT.broken[room + "|" + cmd] = Date.now(); AT.brokenSave(); };
 // A warp is instant but takes equilibrium (about 4 s, Ricardo): walking on
 // is fine, a second warp isn't. A warp step waits until Char.Vitals shows
 // equilibrium back (AT.eq), at most AT.eqWait. Atlas marks it lost itself
@@ -1156,7 +1176,7 @@ AT.routeAny = function (from, goal) {
     for (var cmd in sp) {
       if (!sp.hasOwnProperty(cmd)) continue;
       var cost = AT.specialCost(cmd);
-      if (!(cost > 0)) continue;
+      if (!(cost > 0) || AT.broken[u + "|" + cmd]) continue;
       var v2 = sp[cmd], V2 = M.rooms[v2];
       if (!V2 || V2[0] === AT.SKETCH) continue;
       var nd2 = d + cost;
@@ -1331,8 +1351,25 @@ AT.walkStep = function (again) {
   if (W.t) clearTimeout(W.t);
   var step = W.i;
   W.t = setTimeout(function () {
-    if (AT.walk === W && W.i === step) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
+    if (AT.walk !== W || W.i !== step) return;
+    if (AT.BACK[dir]) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
+    else AT.walkDetour(from, dir);
   }, AT.BACK[dir] ? AT.walkWait : AT.warpWait);
+};
+// A shortcut that isn't there: marked broken, and a new route from this room.
+AT.walkDetour = function (from, cmd) {
+  var W = AT.walk;
+  if (!W) return;
+  AT.markBroken(from, cmd);
+  if (!AT.BACK[cmd] && AT.eq === false) AT.eq = null;     // the warp didn't happen
+  W.detours = (W.detours || 0) + 1;
+  var what = cmd === "worm warp" ? "no wormhole in " + AT.label(from) : "\"" + cmd + "\" didn't work in " + AT.label(from);
+  if (W.detours > AT.detourMax) { AT.walkEnd(what + ", and too many shortcuts failed on this walk"); return; }
+  var P = AT.route(from, W.to);
+  if (!P) { AT.walkEnd(what + " (marked: ATLAS BROKEN), and no other route"); return; }
+  W.rooms = P.rooms; W.dirs = P.dirs; W.i = 0;
+  display_notice("[atlas] " + what + ", though the map has one: marked (ATLAS BROKEN), going another way, " + P.dirs.length + " step" + (P.dirs.length === 1 ? "" : "s") + ".", "orange");
+  AT.walkStep();
 };
 // Each room you arrive in (from roomInfo).
 AT.walkArrive = function (id) {
@@ -1471,5 +1508,5 @@ try {
 AT.wildHook();
 AT.seedExplored();
 if (AT.map) { AT.rebuildKnown(); for (var atS in AT.known) if (AT.known.hasOwnProperty(atS)) AT.recount(atNum(atS)); }
-if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); AT.officialLoad(); }
+if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); AT.officialLoad(); AT.brokenLoad(); }
 if (client.loom.notify) client.loom.notify("atlas");
