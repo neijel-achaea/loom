@@ -60,7 +60,7 @@ Comms reads nothing from other packages on its own. With others installed, Loom'
 
 | Link | With | What it does |
 | --- | --- | --- |
-| `social-comms` | social | Talkers' names, every other name social knows anywhere in a line, the people in Tells and the open conversation's header in their social group colour (or their standing's colour, with `SOCIAL COLOURS STANDINGS`), and their social tags (novice, org lead, kill on sight) after talkers' names. |
+| `social-comms` | social | Talkers' names, every other name social knows anywhere in a line, the people in Tells and the open conversation's header in their social group colour (or their standing's colour, with `SOCIAL COLOURS STANDINGS`), and their social tags (novice, org lead, Loom user, kill on sight) after talkers' names. |
 | `standings-comms` | standings | Your standing with a talker on hover over their name: icon, band and score ("☠ Nemesis -7.0"). |
 | `room-comms` | room | A green leaf after the names of people last seen with a newbie title (`ROOM NOVICE`; Uaithne, Ithin, Tuqad by default). |
 

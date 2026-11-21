@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 1.2.0.*
+*This page describes social 1.3.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -30,7 +30,7 @@ It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POL
 | `SOCIAL LIST [group]` | names in a group (no group: counts) |
 | `SOCIAL COLOR <group\|self> [#rrggbb]` | highlight colour (no colour: back to the default) |
 | `SOCIAL COLOURS [GROUPS\|STANDINGS]` | colour names by group (default) or by standing band |
-| `SOCIAL TAG <tag> <name>` | mark someone with an icon after their name: novice, lead (org lead), kos (kill on sight) |
+| `SOCIAL TAG <tag> <name>` | mark someone with an icon after their name: novice, lead (org lead), loom (Loom user), kos (kill on sight) |
 | `SOCIAL UNTAG <tag> <name>` | take the mark off |
 | `SOCIAL TAGS [tag]` | who carries which tag |
 | `SOCIAL WATCH [group]` | announce when that group's names log in or out (no group: show) |
@@ -80,6 +80,7 @@ A tag is a mark you put on someone by hand: a small icon after their name in the
 | --- | --- | --- |
 | `novice` | green leaf | a novice, in a city whose newbies carry no title (Cyrene) |
 | `lead` | gold crown | an org lead: a minister, a house or order leader |
+| `loom` | lilac weave | a fellow Loom user (set by hand; nothing detects it) |
 | `kos` | red crosshair | kill on sight: an especially nasty enemy |
 
 `SOCIAL TAG novice Mealla` puts one on, `SOCIAL UNTAG novice Mealla` takes it off, `SOCIAL TAGS` lists who carries which (`SOCIAL TAGS kos` just one). Hover the icon for the tag's name. Tags stay until you take them off. People tagged `kos` are always in the Online tab (and its offline section), whether or not their group is watched, in their group's colour (the enemies colour if they're in no group); they still bring no login notices unless their group is watched. Room still gives the same leaf to anyone it sees wearing a newbie title, so tag only the ones it can't spot.

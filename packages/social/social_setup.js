@@ -10,7 +10,7 @@ if (!client.loom.social) client.loom.social = {};
 // colours (Here, Comms).
 // busy (#318): true while a QW poll's answer is still coming, so Here's
 // loyal probe waits its turn. A capture open for 5 s no longer counts.
-client.loom.registry.social = { version: "1.2.0", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+client.loom.registry.social = { version: "1.3.0", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
   var Sq = client.loom.social;
   return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
 }, redraw: function () {
@@ -213,6 +213,8 @@ S.look = {
 S.tagDefs = [
   { id: "novice", label: "novice", svg: '<path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/>' },
   { id: "lead", label: "org lead", svg: '<path d="M1 7.4L1.5 2.8L3.7 4.9L5 1.4L6.3 4.9L8.5 2.8L9 7.4Z" fill="#f2c14e"/><rect x="1" y="7.9" width="8" height="1.4" fill="#f2c14e"/>' },
+  // loom: a fellow Loom user, tagged by hand (nothing detects it).
+  { id: "loom", label: "Loom user", svg: '<path d="M1 3H9M1 7H9" stroke="#b39ddb" stroke-width="1.3"/><path d="M3 1V9M7 1V9" stroke="#7e6aa8" stroke-width="1.3"/><path d="M3 2.4V3.6M7 6.4V7.6" stroke="#b39ddb" stroke-width="1.5"/>' },
   { id: "kos", label: "kill on sight", svg: '<circle cx="5" cy="5" r="3.3" fill="none" stroke="#ff5f5f" stroke-width="1.2"/><path d="M5 0.4V3M5 7V9.6M0.4 5H3M7 5H9.6" stroke="#ff5f5f" stroke-width="1.2"/><circle cx="5" cy="5" r="0.9" fill="#ff5f5f"/>' }
 ];
 S.tagDef = function (id) {
