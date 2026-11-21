@@ -60,7 +60,7 @@ if (today) {
 
 // A summary, in the chronicle's hand.
 function prose(sum, size) {
-  return '<div style="font-family:' + SERIF + ';font-size:' + (size || 12) + 'px;line-height:1.45;color:' + TXT + ';margin:3px 0 4px;">' + esc(sum.text) +
+  return '<div style="font-family:' + SERIF + ';font-size:' + (size || 12) + 'px;line-height:1.45;white-space:pre-line;color:' + TXT + ';margin:3px 0 4px;">' + esc(sum.text) +
     (sum.draft ? ' <span style="color:' + MUTED + ';font-style:italic;font-size:10px;">(so far)</span>' : '') + '</div>';
 }
 // What a summary still to come says about itself.
