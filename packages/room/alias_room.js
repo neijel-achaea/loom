@@ -27,8 +27,27 @@ if (rmSub === "" || rmSub === "status") {
   // ROOM NOVICE (#389): the titles that get the green leaf.
   var rmNv = rmW[1] || "", rmNw = String(args[1] || "").trim().split(/\s+/).slice(2);
   var rmTl = function () { return R.newbieTitles.length ? R.newbieTitles.join(", ") : "none"; };
+  var rmTg = function () {
+    var ks = Object.keys(R.tagged).sort();
+    return ks.length ? ks.map(function (k) { return k.charAt(0).toUpperCase() + k.slice(1); }).join(", ") : "nobody";
+  };
   if (rmNv === "") {
     rmSay("titles that get the green leaf: " + rmTl() + ". ROOM NOVICE ADD|REMOVE <title>, or RESET for " + R.newbieDefault.join(", ") + ".");
+    rmSay("tagged by hand: " + rmTg() + ". ROOM NOVICE TAG|UNTAG <name>.");
+  } else if (rmNv === "tag" || rmNv === "untag") {
+    // A novice from a city without newbie titles (Ricardo: Cyrene has none).
+    if (rmNw.length !== 1 || !/^[A-Za-z]+$/.test(rmNw[0])) rmSay("one name: ROOM NOVICE " + rmNv.toUpperCase() + " Mealla.", "orange");
+    else {
+      var rmNk = rmNw[0].toLowerCase(), rmNc = rmNk.charAt(0).toUpperCase() + rmNk.slice(1);
+      if (rmNv === "tag" && R.tagged[rmNk]) rmSay(rmNc + " is already tagged as a novice.");
+      else if (rmNv === "untag" && !R.tagged[rmNk]) rmSay(rmNc + " isn't tagged. Tagged: " + rmTg() + ".", "orange");
+      else {
+        if (rmNv === "tag") R.tagged[rmNk] = Date.now(); else delete R.tagged[rmNk];
+        R.saveTagged();
+        if (R.drawSoon) R.drawSoon(); else run_function("room_render", [], "room");
+        rmSay(rmNv === "tag" ? rmNc + " is tagged as a novice: a green leaf after their name, until ROOM NOVICE UNTAG " + rmNc + "." : rmNc + " is no longer tagged.", "lime");
+      }
+    }
   } else if (rmNv === "add" || rmNv === "remove") {
     if (rmNw.length !== 1 || !/^[A-Za-z']+$/.test(rmNw[0])) rmSay("one word, the title as the game shows it: ROOM NOVICE " + rmNv.toUpperCase() + " Ithin.", "orange");
     else {
@@ -48,7 +67,7 @@ if (rmSub === "" || rmSub === "status") {
     R.saveNovice();
     rmSay("titles back to " + rmTl() + ".", "lime");
   } else {
-    rmSay("ROOM NOVICE, ROOM NOVICE ADD|REMOVE <title>, ROOM NOVICE RESET.", "orange");
+    rmSay("ROOM NOVICE, ROOM NOVICE ADD|REMOVE <title>, ROOM NOVICE RESET, ROOM NOVICE TAG|UNTAG <name>.", "orange");
   }
 } else if (rmSub === "probe") {
   var rmPv = rmW[1] || "";

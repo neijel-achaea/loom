@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.2.0", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.3.0", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -149,6 +149,26 @@ R.seen = function (name, full) {
   return false;
 };
 R.saveNewbies = function () { try { set_variable("room_newbies", JSON.stringify(R.newbies)); } catch (e) {} };
+// Tagged novices (Ricardo): cities with no newbie titles (Cyrene) can't be
+// told by name, so ROOM NOVICE TAG <name> marks someone by hand. Kept apart
+// from the remembered ones (room_novice_tags, name -> when tagged): being
+// seen without a title, which is always for them, doesn't forget a tag.
+// Only ROOM NOVICE UNTAG does.
+if (!R.tagged || typeof R.tagged != "object") {
+  try { R.tagged = JSON.parse(get_variable("room_novice_tags") || "{}") || {}; } catch (e) { R.tagged = {}; }
+  if (typeof R.tagged != "object" || Array.isArray(R.tagged)) R.tagged = {};
+}
+R.saveTagged = function () {
+  try { if (Object.keys(R.tagged).length) set_variable("room_novice_tags", JSON.stringify(R.tagged)); else delete_variable("room_novice_tags"); } catch (e) {}
+  if (client.loom.notify) client.loom.notify("room");
+};
+// The leaf's reason for a name: the newbie title it carries now (full name
+// given) or was last seen with, else "tagged", else "".
+R.novice = function (name, full) {
+  var k = String(name || "").toLowerCase();
+  var t = full !== undefined ? R.newbieTitle(name, full) : (R.newbies[k] ? R.newbies[k].title : "");
+  return t || (R.tagged[k] ? "tagged" : "");
+};
 R.leaf = function (title) { return '<span title="' + String(title || "newbie").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;") + '" style="margin-left:4px;cursor:default;"><svg width="10" height="10" viewBox="0 0 10 10" style="vertical-align:-1px;" xmlns="http://www.w3.org/2000/svg"><path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/></svg></span>'; };
 // Loyals (Ricardo): GMCP says nothing about whose a mob is (a loyal is
 // attrib "m" like any other), but PROBE does: "He is loyal to Falau." (and
@@ -638,7 +658,8 @@ R.probeEnd = function (ok) {
 };
 // The read-only look other packages see through loom: never its variables.
 //   look.newbie(name) -> the newbie title ("Ithin") someone was last seen
-//     with, or undefined.
+//     with, "tagged" for someone tagged by hand (ROOM NOVICE TAG), or
+//     undefined.
 //   look.loyal(id) -> the owner's name when that mob is someone's loyal, ""
 //     when probed and loyal to nobody, undefined when not probed yet.
 //   look.mark() -> the remembered room { id, name, area, at } (at: when it
@@ -647,6 +668,6 @@ R.probeEnd = function (ok) {
 R.look = {
   mark: function () { var m = client.loom.room.mark; return m ? { id: m.id, name: m.name, area: m.area, at: m.at } : null; },
   here: function () { var i = client.loom.room.info; return i && i.num ? String(i.num) : ""; },
-  newbie: function (name) { var e = R.newbies[String(name || "").toLowerCase()]; return e ? e.title : undefined; },
+  newbie: function (name) { return R.novice(name) || undefined; },
   loyal: function (id) { return R.ownerOf(id); }
 };

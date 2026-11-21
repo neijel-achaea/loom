@@ -14,6 +14,7 @@ var hlRows = [
   ["ROOM NOVICE", "the titles that get a green leaf after a player's name (default Uaithne, Ithin, Tuqad)"],
   ["ROOM NOVICE ADD|REMOVE <title>", "add or take off a title (one word, as the game shows it)"],
   ["ROOM NOVICE RESET", "back to the default titles"],
+  ["ROOM NOVICE TAG|UNTAG <name>", "mark someone as a novice by hand, for cities without newbie titles (Cyrene)"],
   ["ROOM REMEMBER", "remember this room (REMEMBER in Here does the same)"],
   ["ROOM BACK", "walk back to the remembered room with PATH FIND (GO BACK in Here)"],
   ["ROOM FORGET", "forget the remembered room"],

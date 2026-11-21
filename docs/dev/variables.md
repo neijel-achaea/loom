@@ -417,6 +417,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `room_city` | state | 1.1 | your city, from GMCP, for your own city's denizens in green |  |
 | `room_newbies` | data | 0.5 | players seen with newbie titles |  |
 | `room_novice_titles` | setting | 1.1 | the newbie titles that get the leaf (JSON list; absent = Uaithne, Ithin, Tuqad) |  |
+| `room_novice_tags` | data | 1.3 | players tagged as novices by hand (ROOM NOVICE TAG), name -> when; absent when none |  |
 | `room_name` | state | 0.4 | your name, from GMCP |  |
 | `room_mark` | state | 1.0 | the remembered room (REMEMBER / GO BACK), with when (since 1.1) |  |
 
