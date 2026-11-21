@@ -93,6 +93,7 @@ With other Loom packages installed, Loom's integrations put what they know on th
 | Link | With | What it does |
 | --- | --- | --- |
 | `waypoints-atlas` | waypoints | A saved waypoint shows as a ⚑ (a red pennant on a light circle) at its room's top right corner; its name and note on hover. |
+| `atlas-waypoints` | waypoints | With `ATLAS WALK ATLAS`, a click on a waypoint in the Waypoints tab walks Atlas's route, as `ATLAS GO` does; otherwise Waypoints sends the game's `PATH FIND`. |
 | `partycomms-atlas` | partycomms | Party members not in your room: a ring around their room like yours, the same size, in their own colour (several in one room share the ring, an arc each; names on hover). Members in another area, on another level or in a room you haven't explored are listed under the map, **Party elsewhere**, each with a dot in their colour and where they are; a click shows that room. Their colour is also on their Party chip. Needs partycomms 1.1.0 on their side, which sends the room. |
 | `questbook-atlas` | questbook | The quest you're following: each GO step numbered at its room's top left corner, the step you're on in amber, the others in blue. Every quest you can start now: a gold **!** where its first GO step is. Hover for the quest's name. |
 

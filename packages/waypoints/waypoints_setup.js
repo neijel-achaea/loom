@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.waypoints) client.loom.waypoints = {};
-client.loom.registry.waypoints = { version: "1.0.0", keyword: "WAYPOINTS", desc: "{{description}}",
+client.loom.registry.waypoints = { version: "1.0.1", keyword: "WAYPOINTS", desc: "{{description}}",
   redraw: function () { run_function("waypoints_render", [], "waypoints"); } };
 var WP = client.loom.waypoints;
 
@@ -105,6 +105,9 @@ WP.remove = function (w) {
 WP.go = function (w) {
   if (get_variable("pauseTriggers") == "on") { display_notice("[waypoints] Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
   if (WP.here && WP.here.id === w.id) { display_notice("[waypoints] you're at " + WP.label(w) + " already.", "cyan"); return; }
+  // Atlas walks its own route when you've turned that on (link atlas-waypoints).
+  var L = client.loom.loom, walk = (L && L.answer) ? L.answer("waypoints", "waypoints.walk") : undefined;
+  if (walk && typeof walk.go == "function") { walk.go(w.id); return; }
   send_command("path find " + w.id, 1);
   display_notice("[waypoints] walking to " + WP.label(w) + ".", "cyan");
 };

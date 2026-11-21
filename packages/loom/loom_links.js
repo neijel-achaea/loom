@@ -1033,6 +1033,21 @@ L.addLink({
   }
 });
 
+// atlas -> waypoints (Ricardo): with Atlas's own walking on (ATLAS WALK
+// ATLAS), a waypoint's click walks Atlas's route, as ATLAS GO does; else
+// Waypoints sends the game's PATH FIND as before. Answers waypoints.walk ->
+// { go(room) } only while Atlas walks its own routes.
+L.addLink({
+  id: "atlas-waypoints", src: "atlas", dst: "waypoints", issue: 0,
+  desc: "With ATLAS WALK ATLAS, waypoints walk Atlas's route (wormholes too, if on) instead of PATH FIND",
+  answers: {
+    "waypoints.walk": function () {
+      var a = client.loom.atlas;
+      return (a && a.ownWalk && typeof a.go == "function") ? { go: a.go } : undefined;
+    }
+  }
+});
+
 // #451 questbook -> atlas: the followed quest's GO steps numbered on the map
 // (the current one highlighted) and a marker where each quest you can start
 // now begins (Ricardo). Answers atlas.quests -> questbook's look.marks().

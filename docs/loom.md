@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.1.5.*
+*This page describes loom 1.1.6.*
 <!-- /loom:version -->
 
 ## What it is
@@ -94,6 +94,7 @@ Every link:
 | `talpieces-aim-ledger` | [talpieces](talpieces.md) | [ledger](ledger.md) | A daily talisman pieces aim in the ledger, sized to your last 7 days, also shown in the Talismans tab |
 | `coffers-aim-ledger` | [coffers](coffers.md) | [ledger](ledger.md) | A daily gold aim in the ledger, sized to your last 7 days, also shown in the Coffers tab |
 | `waypoints-atlas` | [waypoints](waypoints.md) | [atlas](atlas.md) | Saved waypoints as a flag on their room in the Atlas map |
+| `atlas-waypoints` | [atlas](atlas.md) | [waypoints](waypoints.md) | With ATLAS WALK ATLAS, waypoints walk Atlas's route (wormholes too, if on) instead of PATH FIND |
 | `questbook-atlas` | [questbook](questbook.md) | [atlas](atlas.md) | The followed quest's steps and where ready quests start, on the Atlas map |
 | `partycomms-atlas` | [partycomms](partycomms.md) | [atlas](atlas.md) | Party members as coloured circles on their rooms in the Atlas map |
 | `huntstats-chronicle` | [huntstats](huntstats.md) | [chronicle](chronicle.md) | Each hunt you finish, as a line in the Chronicle's record of the day |
