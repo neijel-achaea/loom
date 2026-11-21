@@ -1143,13 +1143,34 @@ AT.go = function (id) {
   AT.walkStep();
   run_function("atlas_render", {}, "atlas");
 };
-// Send the next step (opening a door the map marks closed first).
-AT.walkStep = function () {
+// Moving too fast ("Now now, don't be so hasty!", the trigger "Atlas walk too
+// hasty"): the step wasn't taken, so it's sent again after AT.hastyMs, at
+// most AT.hastyMax times in a row (Ricardo's log: two quick steps, the third
+// refused 0.15 s after the second arrived).
+AT.hastyMs = 300;
+AT.hastyMax = 20;
+AT.walkHasty = function () {
+  var W = AT.walk;
+  if (!W) return;
+  if (W.t) { clearTimeout(W.t); W.t = null; }
+  if (W.retry) return;                              // one resend at a time
+  W.hasty = (W.hasty || 0) + 1;
+  if (W.hasty > AT.hastyMax) { AT.walkEnd("the game kept saying you're moving too fast"); return; }
+  var step = W.i;
+  W.retry = setTimeout(function () {
+    W.retry = null;
+    if (AT.walk === W && W.i === step) AT.walkStep(true);
+  }, AT.hastyMs);
+};
+// Send the next step (opening a door the map marks closed first; not again
+// on a resend).
+AT.walkStep = function (again) {
   var W = AT.walk;
   if (!W) return;
   if (get_variable("pauseTriggers") == "on") { AT.walkEnd("Loom was paused"); return; }
+  if (!again) { W.hasty = 0; if (W.retry) { clearTimeout(W.retry); W.retry = null; } }
   var from = W.rooms[W.i], dir = W.dirs[W.i], R = AT.map && AT.map.rooms[from];
-  if (R && R[10] && R[10][dir] === 2) send_command("open door " + dir, 1);
+  if (!again && R && R[10] && R[10][dir] === 2) send_command("open door " + dir, 1);
   send_command(dir, 1);
   W.at = Date.now();
   if (W.t) clearTimeout(W.t);
@@ -1172,6 +1193,7 @@ AT.walkEnd = function (why) {
   var W = AT.walk;
   if (!W) return;
   if (W.t) clearTimeout(W.t);
+  if (W.retry) clearTimeout(W.retry);
   AT.walk = null;
   if (why === "") display_notice("[atlas] arrived at " + AT.label(W.to) + ".", "lime");
   else if (why) display_notice("[atlas] stopped walking to " + AT.label(W.to) + ": " + why + ".", "orange");
