@@ -11,7 +11,7 @@ var hlRows = [
   ["SOCIAL LIST [group]", "names in a group (no group: counts)"],
   ["SOCIAL COLOR <group|self> [#rrggbb]", "highlight colour (no colour: back to the default)"],
   ["SOCIAL COLOURS [GROUPS|STANDINGS]", "colour names by group (default) or by standing band"],
-  ["SOCIAL TAG <tag> <name>", "mark someone with an icon after their name: novice, lead (org lead), kos (kill on sight)"],
+  ["SOCIAL TAG <tag> <name>", "mark someone with an icon after their name: novice, lead (org lead), loom (Loom user), kos (kill on sight)"],
   ["SOCIAL UNTAG <tag> <name>", "take the mark off"],
   ["SOCIAL TAGS [tag]", "who carries which tag"],
   ["SOCIAL WATCH [group]", "announce when that group's names log in or out (no group: show)"],
