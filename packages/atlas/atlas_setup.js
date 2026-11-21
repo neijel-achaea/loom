@@ -25,7 +25,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_fog = "off" while fog of war is off (absent: on);
 //   atlas_walk = "custom" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
-//   atlas_veil = "on" while routes may start with PIERCE THE VEIL in dragonform;
+//   atlas_veil = "off" while routes leave PIERCE THE VEIL out (absent: used in dragonform);
 //   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
 //   atlas_wild = "off" while the wilderness map stays in the main window
 //     (absent: Atlas shows it);
@@ -1118,21 +1118,22 @@ if (AT.eq === undefined) AT.eq = null;
 AT.queuedMs = 1500;
 // ---- Teleports: shortcuts from anywhere (off until you turn them on) -----
 // PIERCE THE VEIL (Ricardo): in dragonform, to Dragonspire Mount (12695) in
-// the Parthren Gare, whose ordinary exits lead to many places. Used only
-// while Char.Status says your class is a dragon ("Black Dragon"; AT.cls, or
-// the self package's when Atlas loads later; unknown counts as yes), and
-// only from where a walk starts. ATLAS VEIL ON (setting atlas_veil = "on").
+// the Parthren Gare, whose ordinary exits lead to many places. On unless
+// you turn it off (Ricardo: no harm, the class is the check): used only while
+// Char.Status says your class is a dragon ("Black Dragon"; AT.cls, or the
+// self package's when Atlas loads later; unknown counts as no), and only
+// from where a walk starts. ATLAS VEIL OFF (setting atlas_veil = "off").
 // A teleport that doesn't land you within AT.teleWait isn't marked broken
 // (it's usually you, interrupted, not the map): the walk goes another way.
 AT.teleWait = 30000;
 AT.veilCost = 20;            // a guess until we know how long the Veil takes
-AT.useVeil = get_variable("atlas_veil") === "on";
-AT.setVeil = function (on) { AT.useVeil = !!on; if (on) set_variable("atlas_veil", "on"); else delete_variable("atlas_veil"); };
+AT.useVeil = get_variable("atlas_veil") !== "off";
+AT.setVeil = function (on) { AT.useVeil = !!on; if (on) delete_variable("atlas_veil"); else set_variable("atlas_veil", "off"); };
 if (AT.cls === undefined) AT.cls = null;
 AT.isDragon = function () {
   var c = AT.cls;
   if (c === null) { var S = client.loom && client.loom.self; c = S && S.info && S.info["class"] ? String(S.info["class"]) : null; }
-  return c === null ? true : /dragon/i.test(c);
+  return c !== null && /dragon/i.test(c);
 };
 AT.teleports = [
   { cmd: "pierce the veil", to: 12695, name: "the Veil", cost: function () { return AT.veilCost; }, on: function () { return AT.useVeil && AT.isDragon(); } }
