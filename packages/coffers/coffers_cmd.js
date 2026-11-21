@@ -49,8 +49,10 @@ function sessLine(o, open) {
   var dur = Math.max(0, o.e - o.s);
   var net = o.inn - o.out;
   var ph = dur >= 600 ? F.s(Math.round(net / (dur / 3600))) : "-";
-  return rpad(F.date(o.s), 7) + rpad(F.hm(o.s), 6) + lpad(F.dur(dur), 8) + lpad(F.s(net), 11) + lpad(F.n(o.inn), 10) + lpad(F.n(o.out), 10) + lpad(ph, 10) + (open ? "  (open)" : "");
+  return rpad(F.date(o.s), 7) + rpad(F.hm(o.s), 6) + lpad(F.dur(dur), 8) + lpad(F.s(net), 11) + lpad(F.n(o.inn), 10) + lpad(F.n(o.out), 10) + lpad(ph, 10) + lpad(expl(o.src), 11) + (open ? "  (open)" : "");
 }
+// "explained" (#236): the share of the money named by a source, or "-".
+function expl(src) { var p = CO.explained ? CO.explained(src) : null; return p === null ? "-" : p + "%"; }
 function csvTime(t) {
   var d = new Date(t * 1000);
   var mm = d.getMonth() + 1, dd = d.getDate(), hh = d.getHours(), mi = d.getMinutes();
@@ -91,18 +93,42 @@ else if (c === "sessions") {
   var ns = Math.max(1, Math.min(50, parseInt(p1, 10) || 10));
   var list = CO.sessions.slice(-ns);
   say("last " + list.length + " closed session(s)" + (CO.sess ? ", plus the open one" : "") + ":");
-  plain(rpad("date", 7) + rpad("start", 6) + lpad("length", 8) + lpad("net", 11) + lpad("in", 10) + lpad("out", 10) + lpad("per hr", 10));
+  plain(rpad("date", 7) + rpad("start", 6) + lpad("length", 8) + lpad("net", 11) + lpad("in", 10) + lpad("out", 10) + lpad("per hr", 10) + lpad("explained", 11));
   for (var si = 0; si < list.length; si++) { plain(sessLine(list[si], false)); }
-  if (CO.sess) { var o = CO.sess; plain(sessLine({ s: o.s, e: o.last, inn: o.inn, out: o.out }, true)); }
+  if (CO.sess) { var o = CO.sess; plain(sessLine({ s: o.s, e: o.last, inn: o.inn, out: o.out, src: o.src }, true)); }
 }
 else if (c === "days") {
   var nd = Math.max(1, Math.min(365, parseInt(p1, 10) || 14));
   var dl = CO.days.slice(-nd);
   say("last " + dl.length + " day(s), newest last:");
-  plain(rpad("date", 8) + lpad("net", 11) + lpad("in", 10) + lpad("out", 10) + lpad("fortune", 12));
+  plain(rpad("date", 8) + lpad("net", 11) + lpad("in", 10) + lpad("out", 10) + lpad("fortune", 12) + lpad("explained", 11));
   for (var di = 0; di < dl.length; di++) {
     var r = dl[di];
-    plain(rpad(F.date(r[0]), 8) + lpad(F.s((r[3] || 0) - (r[4] || 0)), 11) + lpad(F.n(r[3] || 0), 10) + lpad(F.n(r[4] || 0), 10) + lpad(F.n(r[1] + r[2]), 12));
+    plain(rpad(F.date(r[0]), 8) + lpad(F.s((r[3] || 0) - (r[4] || 0)), 11) + lpad(F.n(r[3] || 0), 10) + lpad(F.n(r[4] || 0), 10) + lpad(F.n(r[1] + r[2]), 12) + lpad(expl(r[5]), 11));
+  }
+}
+else if (c === "log") {
+  // COFFERS LOG [n] / LOG UNKNOWN [n] (#236): the recent moves, newest last;
+  // unknown ones with the lines kept with them, to find the line that moved
+  // the money.
+  var lgUnk = p1 === "unknown" || p1 === "?";
+  var lgN = Math.max(1, Math.min(200, parseInt(lgUnk ? p2 : p1, 10) || (lgUnk ? 5 : 20)));
+  var lgAll = CO.moves || [], lgPick = [];
+  for (var lgI = lgAll.length - 1; lgI >= 0 && lgPick.length < lgN; lgI--) { if (!lgUnk || lgAll[lgI].u) lgPick.unshift(lgAll[lgI]); }
+  if (!lgPick.length) { say(lgUnk ? "no unknown moves kept. Every change of fortune so far has a source." : "no moves kept yet: each change of fortune is kept from now on."); }
+  else {
+    var lgExp = CO.explained(CO.srcFor("session", now));
+    say("the last " + lgPick.length + (lgUnk ? " unknown" : "") + " move(s), newest last" + (lgExp !== null ? "; this session " + lgExp + "% explained" : "") + ":");
+    for (var lgJ = 0; lgJ < lgPick.length; lgJ++) {
+      var lgR = lgPick[lgJ];
+      display_notice(rpad((F.dayKey(lgR.t) === F.dayKey(now) ? "" : F.date(lgR.t) + " ") + F.hm(lgR.t), 13) + lpad(F.s(lgR.d), 11) + "  " + CO.describe(lgR), lgR.u ? "orange" : "white");
+      if (lgUnk || (lgR.u && lgPick.length <= 5)) {
+        var lgX = lgR.x || [];
+        if (!lgX.length) display_notice("    (no lines kept for this one)", "#8c8170");
+        for (var lgK = 0; lgK < lgX.length; lgK++) display_notice("    | " + lgX[lgK], "#8c8170");
+      }
+    }
+    if (lgUnk) say("copy the line that moved the money into an issue or a chat, and it can become a source.");
   }
 }
 else if (c === "new") {
@@ -236,9 +262,10 @@ else if (c === "csv") {
   }
 }
 else if (c === "wipe") {
-  if (p1 !== "confirm") { say("this burns the whole ledger: buffers, sessions, records, the goal and every proposal. Type COFFERS WIPE CONFIRM to proceed.", "orange"); }
+  if (p1 !== "confirm") { say("this burns the whole ledger: buffers, sessions, records, the moves, the goal and every proposal. Type COFFERS WIPE CONFIRM to proceed.", "orange"); }
   else {
     CO.min = []; CO.days = []; CO.sessions = []; CO.rec = {}; CO.sess = null;
+    CO.moves = []; CO.queue = []; CO.strays = []; save("coffers_moves", "[]");
     save("coffers_min", "[]"); save("coffers_days", "[]"); save("coffers_sessions", "[]"); save("coffers_rec", "{}"); save("coffers_sess", "");
     // Everything goes: the goal, pending proposals and dismissals. A source
     // whose reason still holds may propose again later.
@@ -260,6 +287,7 @@ var CO = client.loom.coffers;
   render();
 }
 else if (c === "debug") {
+  say("accounts: " + (CO.moves || []).length + " move(s) kept, " + (CO.queue || []).length + " label(s) waiting " + JSON.stringify(CO.queue || []) + ", strays " + JSON.stringify(CO.strays || []) + ", view " + CO.view + "/" + CO.period + ".");
   say("live: " + JSON.stringify(CO.live));
   say("open session: " + JSON.stringify(CO.sess));
   say("buffers: " + CO.min.length + " minute point(s), " + CO.days.length + " day(s), " + CO.sessions.length + " closed session(s).");

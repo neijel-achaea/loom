@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "1.3.0", keyword: "COFFERS", desc: "{{description}}",
+client.loom.registry.coffers = { version: "1.4.0", keyword: "COFFERS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("coffers_render", [], "coffers"); } };
 var CO = client.loom.coffers;
@@ -332,4 +332,189 @@ CO.look = {
     for (var i = 0; i < CO.gifts.length; i++) { if (!since || CO.gifts[i].t > since) out.push({ who: CO.gifts[i].who, amount: CO.gifts[i].amount, t: CO.gifts[i].t }); }
     return out;
   }
+};
+
+// ---- Accounts (#236): where the money comes from and where it goes ------
+// GMCP's gold + bank stays the only truth. Every prompt coffers books a
+// change of fortune (coffers_tick, a prompt after the money moved) becomes a
+// row; game lines that name an amount (CO.srcDefs) queue labels with
+// CO.note, and the booking takes them all: whatever they don't explain is
+// "unknown" (source "?"). Exact sums only, no guessing: a label can only
+// explain money, never make or hide any. Unknown rows keep the game lines
+// that came since the prompt before, so the line that moved the money can be
+// found (Nexus keeps no logs) and added to the table.
+// The money lines, data: { id, re, sign (+1 in, -1 out), amt (group with the
+// amount), det (group with a detail: who, what) }. Rebuilt every run, so a
+// reimport brings new ones at once. Several lines can share an id.
+CO.srcDefs = [
+  { id: "pickup", re: /^You pick up ([\d,]+) gold sovereigns?\.$/, sign: 1, amt: 1 },
+  { id: "gift", re: /^([A-Z][a-z]+) gives ([\d,]+) gold sovereigns? to you\.$/, sign: 1, amt: 2, det: 1 },
+  { id: "container", re: /^You get ([\d,]+) gold sovereigns? from (.+)\.$/, sign: 1, amt: 1, det: 2 },
+  { id: "gave", re: /^You give ([\d,]+) gold sovereigns? to ([A-Z][a-z]+)\.$/, sign: -1, amt: 1, det: 2 },
+  { id: "drop", re: /^You drop ([\d,]+) gold sovereigns?\.$/, sign: -1, amt: 1 },
+  { id: "shop", re: /^You pay ([\d,]+) (?:gold )?sovereigns? and receive (.+)\.$/, sign: -1, amt: 1, det: 2 },
+  { id: "shop", re: /^You purchase [\d,]+ (.+) for ([\d,]+) gold\.$/, sign: -1, amt: 2, det: 1 }
+];
+// Names as the tab and LOG show them, in the order the donuts colour them.
+CO.srcNames = { pickup: "picked up", gift: "gifts", container: "out of containers", gave: "given away", drop: "dropped", shop: "shops", "?": "unknown" };
+CO.srcOrder = ["pickup", "gift", "container", "gave", "drop", "shop"];
+CO.srcName = function (id) { return CO.srcNames[id] || id; };
+CO.movesMax = 200;     // rows kept
+CO.movesLines = 40;    // newest unknown rows that keep their lines
+CO.linesPerRow = 15;   // lines kept with one unknown row
+
+if (!CO.moves) {
+  var mvRaw = gcArr("coffers_moves"), mvOk = [];
+  for (var mvI = 0; mvI < mvRaw.length; mvI++) {
+    var mv = mvRaw[mvI];
+    if (mv && typeof mv === "object" && typeof mv.t === "number" && typeof mv.d === "number") {
+      if (!Array.isArray(mv.l)) mv.l = [];
+      mvOk.push(mv);
+    }
+  }
+  CO.moves = mvOk;
+}
+// Each row's own number (n), for the tab to open one: times repeat within a second.
+if (CO.moveSeq === undefined) {
+  CO.moveSeq = 1;
+  for (var msI = 0; msI < CO.moves.length; msI++) { if (!(CO.moves[msI].n > 0)) CO.moves[msI].n = CO.moveSeq; CO.moveSeq = Math.max(CO.moveSeq, CO.moves[msI].n + 1); }
+}
+if (!CO.queue) CO.queue = [];    // labels waiting for the booking: { s, a (signed), d, age }
+if (!CO.strays) CO.strays = [];  // labels no change of fortune came for (memory only, last 10)
+if (!CO.lineBuf) CO.lineBuf = [];
+if (CO.lineN === undefined) { CO.lineN = 0; CO.lineMark = 0; }
+
+// Queue a label for the next booking.
+CO.note = function (src, amount, detail) {
+  var a = Math.round(Number(amount));
+  if (!src || !a) return false;
+  CO.queue.push({ s: String(src), a: a, d: detail ? String(detail) : "", age: 0 });
+  if (CO.queue.length > 50) CO.queue.shift();
+  return true;
+};
+// Every game line (coffers every line): keep it for unknown rows, and label it
+// if it is a money line.
+CO.line = function (t) {
+  t = t === undefined || t === null ? "" : String(t);
+  if (!t || /^\s*$/.test(t)) return;
+  // The prompt itself says nothing about money (the usual "3000h, 2000m, ..." shape).
+  if (/^\d+h, \d+m\b/.test(t)) return;
+  CO.lineBuf.push(t.length > 200 ? t.slice(0, 200) + "…" : t);
+  if (CO.lineBuf.length > 40) CO.lineBuf.shift();
+  CO.lineN++;
+  for (var i = 0; i < CO.srcDefs.length; i++) {
+    var D = CO.srcDefs[i], m = D.re.exec(t);
+    if (m) {
+      var a = parseInt(String(m[D.amt]).replace(/,/g, ""), 10);
+      if (a > 0) CO.note(D.id, D.sign * a, D.det ? m[D.det] : "");
+      return;
+    }
+  }
+};
+// { id: [in, out] } totals; "?" is unknown.
+CO.addSrc = function (o, id, a) {
+  if (!o[id] || !Array.isArray(o[id])) o[id] = [0, 0];
+  if (a > 0) o[id][0] += a; else o[id][1] -= a;
+};
+// Run by coffers_tick on every prompt it reads: d is the change of fortune
+// (0 when none). Books a row when the fortune moved; otherwise ages the
+// labels, and drops those two readings old as strays.
+CO.book = function (d, now, S, T) {
+  var Q = CO.queue, i;
+  var seen = CO.lineN - CO.lineMark;
+  CO.lineMark = CO.lineN;
+  if (!d) {
+    var keep = [], net = 0;
+    for (i = 0; i < Q.length; i++) net += Q[i].a;
+    for (i = 0; i < Q.length; i++) {
+      if (net === 0) continue;          // in and out again (picked up, dropped): nothing to explain
+      Q[i].age++;
+      if (Q[i].age < 2) keep.push(Q[i]);
+      else { CO.strays.push({ t: now, s: Q[i].s, a: Q[i].a }); if (CO.strays.length > 10) CO.strays.shift(); }
+    }
+    CO.queue = keep;
+    return null;
+  }
+  var row = { n: CO.moveSeq++, t: now, d: d, l: [] }, sum = 0;
+  for (i = 0; i < Q.length; i++) { row.l.push([Q[i].s, Q[i].a, Q[i].d]); sum += Q[i].a; }
+  CO.queue = [];
+  var u = d - sum;
+  if (u) {
+    row.u = u;
+    var n = Math.min(seen, CO.linesPerRow, CO.lineBuf.length);
+    row.x = n > 0 ? CO.lineBuf.slice(-n) : [];
+  }
+  CO.moves.push(row);
+  while (CO.moves.length > CO.movesMax) CO.moves.shift();
+  var withLines = 0;
+  for (i = CO.moves.length - 1; i >= 0; i--) {
+    if (CO.moves[i].x) { withLines++; if (withLines > CO.movesLines) delete CO.moves[i].x; }
+  }
+  if (S) { if (!S.src || typeof S.src !== "object") S.src = {}; }
+  if (T) { if (!T[5] || typeof T[5] !== "object") T[5] = {}; }
+  for (i = 0; i < row.l.length; i++) { if (S) CO.addSrc(S.src, row.l[i][0], row.l[i][1]); if (T) CO.addSrc(T[5], row.l[i][0], row.l[i][1]); }
+  if (u) { if (S) CO.addSrc(S.src, "?", u); if (T) CO.addSrc(T[5], "?", u); }
+  CO.movesDirty = true;
+  return row;
+};
+// Totals merged from several { id: [in, out] } objects.
+CO.srcSum = function (list) {
+  var out = {};
+  for (var i = 0; i < list.length; i++) {
+    var o = list[i];
+    if (!o || typeof o !== "object") continue;
+    for (var k in o) if (o.hasOwnProperty(k) && Array.isArray(o[k])) { if (!out[k]) out[k] = [0, 0]; out[k][0] += o[k][0] || 0; out[k][1] += o[k][1] || 0; }
+  }
+  return out;
+};
+// Share of the flow (in + out) that a source explains, 0-100, or null when
+// nothing moved. side: 0 in, 1 out, absent both.
+CO.explained = function (o, side) {
+  if (!o || typeof o !== "object") return null;
+  var flow = 0, unk = 0;
+  for (var k in o) if (o.hasOwnProperty(k) && Array.isArray(o[k])) {
+    var f = side === undefined ? (o[k][0] || 0) + (o[k][1] || 0) : (o[k][side] || 0);
+    flow += f;
+    if (k === "?") unk += f;
+  }
+  return flow > 0 ? Math.floor((flow - unk) / flow * 100) : null;
+};
+// The period the Accounts view shows: session, today or the last 7 days.
+CO.srcFor = function (period, now) {
+  if (period === "session") return CO.sess && CO.sess.src ? CO.srcSum([CO.sess.src]) : {};
+  var D = CO.days || [], list = [];
+  var from = period === "week" ? CO.f.dayStart(now) - 6 * 86400 : CO.f.dayStart(now);
+  for (var i = D.length - 1; i >= 0; i--) { if (D[i][0] < from) break; list.push(D[i][5]); }
+  return CO.srcSum(list);
+};
+// One row in words: "picked up +1,240", "gifts (Grulk) +5,000 · unknown -300".
+CO.describe = function (row) {
+  var parts = [];
+  for (var i = 0; i < row.l.length; i++) parts.push(CO.srcName(row.l[i][0]) + (row.l[i][2] ? " (" + row.l[i][2] + ")" : "") + (row.l.length > 1 || row.u ? " " + CO.f.s(row.l[i][1]) : ""));
+  if (row.u) parts.push("unknown" + (row.l.length ? " " + CO.f.s(row.u) : ""));
+  return parts.join(" · ");
+};
+
+// The tab's two views (Wealth, Accounts) and the Accounts period, kept as
+// plain strings; the unknown-only filter and the opened row are per page.
+if (!CO.view) { var cvRaw = gcRaw("coffers_view"); CO.view = String(cvRaw) === "accounts" ? "accounts" : "wealth"; }
+if (!CO.period) { var cpRaw = String(gcRaw("coffers_period")); CO.period = (cpRaw === "today" || cpRaw === "week") ? cpRaw : "session"; }
+if (CO.unknownOnly === undefined) CO.unknownOnly = false;
+if (CO.openRow === undefined) CO.openRow = 0;
+CO.setView = function (v) {
+  CO.view = v === "accounts" ? "accounts" : "wealth";
+  try { if (CO.view === "accounts") set_variable("coffers_view", "accounts"); else delete_variable("coffers_view"); } catch (e) {}
+  run_function("coffers_render", [], "coffers");
+};
+CO.setPeriod = function (p) {
+  CO.period = (p === "today" || p === "week") ? p : "session";
+  try { if (CO.period !== "session") set_variable("coffers_period", CO.period); else delete_variable("coffers_period"); } catch (e) {}
+  run_function("coffers_render", [], "coffers");
+};
+// The tab's clickable parts call through this (inline handlers, as chronicle's).
+window.loomCoffers = {
+  view: function (v) { var C = client.loom && client.loom.coffers; if (C && C.setView) C.setView(v); },
+  period: function (p) { var C = client.loom && client.loom.coffers; if (C && C.setPeriod) C.setPeriod(p); },
+  unknown: function () { var C = client.loom && client.loom.coffers; if (C) { C.unknownOnly = !C.unknownOnly; run_function("coffers_render", [], "coffers"); } },
+  open: function (t) { var C = client.loom && client.loom.coffers; if (C) { C.openRow = C.openRow === t ? 0 : t; run_function("coffers_render", [], "coffers"); } }
 };

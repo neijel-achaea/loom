@@ -124,6 +124,13 @@ function bar(pct, col, h) {
   return '<div style="background:' + TRACK + ';height:' + h + 'px;width:100%;margin:2px 0;"><div style="background:' + col + ';height:' + h + 'px;width:' + n1(pct) + '%;"></div></div>';
 }
 function box(inner) { return '<div style="flex:1 1 130px;min-width:130px;border-top:2px solid ' + BRONZE + ';padding:3px 2px 0;">' + inner + '</div>'; }
+// "explained" (#236): the share of this box's money the Accounts view can
+// name; clicking it opens that view.
+function explRow(src) {
+  var p = CO.explained ? CO.explained(src) : null;
+  if (p === null) return "";
+  return '<div onclick="window.loomCoffers&&window.loomCoffers.view(\'accounts\')" title="Where it came from and where it went: the Accounts view" style="cursor:pointer;">' + row("explained", p + "%", p >= 100 ? UP : AIM) + bar(p, p >= 100 ? UP : AIM, 2) + '</div>';
+}
 function section(title, inner) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title) + inner + '</div>'; }
 
 var coins = '<svg width="20" height="17" viewBox="0 0 20 17" style="vertical-align:-3px;margin-right:6px;" xmlns="http://www.w3.org/2000/svg">' +
@@ -151,109 +158,126 @@ if (g === undefined) {
   var ti = F.tier(W);
   html += '<div style="font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.1em;color:' + BRONZE + ';font-size:11px;">' + esc(T[ti][1]) + '</div></div>';
 
-  // The fortune itself, set large in the serif: this is the number that matters.
-  html += '<div style="margin:6px 0 1px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + GOLD + ';letter-spacing:0.02em;">' + F.n(W) + '</span>';
-  html += ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">gold sovereigns</span></div>';
-  var handPct = W > 0 ? g / W * 100 : 0;
-  html += '<div style="display:flex;height:6px;width:100%;margin:2px 0 1px;background:' + TRACK + ';"><div style="background:' + GOLD + ';width:' + n1(handPct) + '%;"></div><div style="background:' + BRONZE + ';width:' + n1(100 - handPct) + '%;"></div></div>';
-  html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span><span style="color:' + GOLD + ';">&#9632;</span> ' + F.n(g) + ' in the purse</span><span>' + F.n(b) + ' in the bank <span style="color:' + BRONZE + ';">&#9632;</span></span></div>';
-
-  // Next tier, and the personal goal if one is set.
-  if (ti < T.length - 1) {
-    var lo = T[ti][0], hi = T[ti + 1][0];
-    var tp = (W - lo) / (hi - lo) * 100;
-    html += '<div style="margin-top:6px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">next: <span style="font-family:' + SERIF + ';color:' + TXT + ';">' + esc(T[ti + 1][1]) + '</span> at ' + F.k(hi) + '</span><span style="color:' + TXT + ';">' + F.n(hi - W) + ' to go</span></div>';
-    html += bar(tp, BRONZE, 3);
+  // Two views (#236): Wealth, the tab as it always was, and Accounts.
+  var VW = [["wealth", "Wealth"], ["accounts", "Accounts"]];
+  html += '<div style="display:flex;gap:14px;margin:5px 0 0;border-bottom:1px solid ' + RULE + ';">';
+  for (var vw = 0; vw < VW.length; vw++) {
+    var vwOn = CO.view === VW[vw][0];
+    html += '<span onclick="window.loomCoffers&&window.loomCoffers.view(\'' + VW[vw][0] + '\')" style="cursor:pointer;user-select:none;font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.12em;font-size:12px;padding:0 1px 2px;color:' + (vwOn ? GOLD : MUTED) + ';border-bottom:2px solid ' + (vwOn ? BRONZE : "transparent") + ';margin-bottom:-1px;">' + VW[vw][1] + '</span>';
   }
-  if (CO.goal > 0 && CO.goalBase >= 0) {
-    var gEarn = W - CO.goalBase;
-    var gp = gEarn / CO.goal * 100;
-    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(CO.goal) + ' since ' + F.date(CO.goalT) + (CO.goalSrc ? ' &middot; ' + esc(CO.goalSrc) : '') + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
-    html += bar(gp, gp >= 100 ? UP : GOLD, 3);
-  } else if (CO.aim && CO.aim.to > CO.aim.base) {
-    // Loom's daily gold aim (#448), kept here by its link; your own goal,
-    // when set, takes its place (as in the Level and Talismans tabs).
-    var aA = CO.aim, aOf = aA.to - aA.base, aGot = W - aA.base;
-    var aDone = aA.done || aGot >= aOf;
-    var aPct = aDone ? 100 : Math.max(0, Math.min(100, Math.floor(aGot / aOf * 100)));
-    html += '<div style="margin-top:3px;display:flex;justify-content:space-between;gap:8px;"><span><span style="color:' + AIM + ';">today&rsquo;s aim</span> <span style="color:' + TXT + ';">earn ' + F.n(Math.round(aOf)) + '</span></span><span style="color:' + (aDone ? UP : color(aGot)) + ';white-space:nowrap;">' + (aDone ? "reached &#10003;" : F.s(aGot) + " &middot; " + aPct + "%") + '</span></div>';
-    html += bar(aPct, aDone ? UP : AIM, 3);
-  }
-  // Goals other packages proposed (#35), waiting for ACCEPT or DISMISS.
-  var PR = CO.proposals || [];
-  if (PR.length) {
-    var pin = "";
-    for (var pq = 0; pq < PR.length; pq++) {
-      pin += '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="color:' + MUTED + ';min-width:1.4em;">' + (pq + 1) + '.</span>' +
-        '<span style="flex:1 1 auto;min-width:0;color:' + TXT + ';">earn <span style="color:' + GOLD + ';">' + F.n(PR[pq].amount) + '</span>' + (PR[pq].why ? ' &mdash; ' + esc(PR[pq].why) : '') + ' <span style="color:' + MUTED + ';">&middot; ' + esc(PR[pq].src) + '</span></span></div>';
-    }
-    pin += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">COFFERS ACCEPT adds the first to your goal, COFFERS DISMISS drops it.</div>';
-    html += section("Proposed goals", pin);
-  }
-
-  // Three ledger columns: this session, today, and the all-time records.
-  var S = CO.sess;
-  var R = CO.rec || {};
-  var cols = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';
-  var sb = caps("This session");
-  if (S) {
-    var sDur = Math.max(0, S.last - S.s);
-    var sNet = S.inn - S.out;
-    sb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + color(sNet) + ';">' + F.s(sNet) + '</div>';
-    sb += row("since", F.hm(S.s) + " &middot; " + F.dur(sDur));
-    sb += row("in", F.n(S.inn), S.inn > 0 ? UP : TXT);
-    sb += row("out", F.n(S.out), S.out > 0 ? DOWN : TXT);
-    sb += row("per hour", sDur >= 600 ? F.s(Math.round(sNet / (sDur / 3600))) : "&hellip;", sDur >= 600 ? color(sNet) : MUTED);
-    if (S.big > 0) { sb += row("best haul", F.s(S.big), GOLD); }
+  html += '</div>';
+  if (CO.view === "accounts") {
+    CO.th = { TXT: TXT, MUTED: MUTED, RULE: RULE, BRONZE: BRONZE, GOLD: GOLD, UP: UP, DOWN: DOWN, SERIF: SERIF };
+    CO.acctHtml = "";
+    try { run_function("coffers_accounts", [], "coffers"); } catch (e) { CO.acctHtml = '<div style="color:' + DOWN + ';">The Accounts view failed to draw: ' + esc(String(e)) + '</div>'; }
+    html += CO.acctHtml;
   } else {
-    sb += '<div style="color:' + MUTED + ';">No session open.</div>';
-  }
-  cols += box(sb);
+    // The fortune itself, set large in the serif: this is the number that matters.
+    html += '<div style="margin:6px 0 1px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + GOLD + ';letter-spacing:0.02em;">' + F.n(W) + '</span>';
+    html += ' <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">gold sovereigns</span></div>';
+    var handPct = W > 0 ? g / W * 100 : 0;
+    html += '<div style="display:flex;height:6px;width:100%;margin:2px 0 1px;background:' + TRACK + ';"><div style="background:' + GOLD + ';width:' + n1(handPct) + '%;"></div><div style="background:' + BRONZE + ';width:' + n1(100 - handPct) + '%;"></div></div>';
+    html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span><span style="color:' + GOLD + ';">&#9632;</span> ' + F.n(g) + ' in the purse</span><span>' + F.n(b) + ' in the bank <span style="color:' + BRONZE + ';">&#9632;</span></span></div>';
 
-  var today = (days.length > 0 && F.dayKey(days[days.length - 1][0]) === F.dayKey(now)) ? days[days.length - 1] : null;
-  var tb = caps("Today");
-  var tIn = today ? (today[3] || 0) : 0;
-  var tOut = today ? (today[4] || 0) : 0;
-  var tNet = tIn - tOut;
-  tb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + color(tNet) + ';">' + F.s(tNet) + '</div>';
-  tb += row("date", F.date(now));
-  tb += row("in", F.n(tIn), tIn > 0 ? UP : TXT);
-  tb += row("out", F.n(tOut), tOut > 0 ? DOWN : TXT);
-  if (R.bestDay && R.bestDay.net > 0) {
-    if (tNet > R.bestDay.net) { tb += '<div style="color:' + GOLD + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">&#9733; record day in the making</div>'; }
-    else { tb += row("to beat", F.n(R.bestDay.net), MUTED); }
-  }
-  cols += box(tb);
-
-  var rb = caps("Records");
-  if (R.peak) { rb += row("peak fortune", F.n(R.peak.w), GOLD); }
-  rb += row("best day", R.bestDay ? "<span title='" + F.date(R.bestDay.t) + "'>" + F.s(R.bestDay.net) + "</span>" : "&mdash;", R.bestDay ? UP : MUTED);
-  rb += row("best session", R.bestSess ? "<span title='" + F.date(R.bestSess.s) + ", " + F.dur(R.bestSess.dur) + "'>" + F.s(R.bestSess.net) + "</span>" : "&mdash;", R.bestSess ? UP : MUTED);
-  rb += row("sessions kept", String((CO.sessions || []).length));
-  cols += box(rb);
-  html += cols + '</div>';
-
-  // The goal, or else today's aim, as a fortune for the graphs (as the bar
-  // above shows them: the goal wins while set).
-  var tgLine = null;
-  if (CO.goal > 0 && CO.goalBase >= 0) tgLine = { v: CO.goalBase + CO.goal, label: "goal" };
-  else if (CO.aim && CO.aim.to > CO.aim.base) tgLine = { v: CO.aim.to, label: "aim" };
-
-  if (CO.graphSess) {
-    if (mins.length < 2) {
-      html += section("Last " + CO.mins + " minutes", '<div style="color:' + MUTED + ';">Collecting; a point lands every minute.</div>');
-    } else {
-      html += section("Last " + CO.mins + " minutes", wealthChart(mins, 640, CO.chartH, false, S ? S.s : 0, tgLine));
+    // Next tier, and the personal goal if one is set.
+    if (ti < T.length - 1) {
+      var lo = T[ti][0], hi = T[ti + 1][0];
+      var tp = (W - lo) / (hi - lo) * 100;
+      html += '<div style="margin-top:6px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">next: <span style="font-family:' + SERIF + ';color:' + TXT + ';">' + esc(T[ti + 1][1]) + '</span> at ' + F.k(hi) + '</span><span style="color:' + TXT + ';">' + F.n(hi - W) + ' to go</span></div>';
+      html += bar(tp, BRONZE, 3);
     }
-  }
-  if (CO.graphLong) {
-    if (days.length < 2) {
-      html += section("Day by day", '<div style="color:' + MUTED + ';">Collecting; one entry per day. The graph appears from the second day.</div>');
+    if (CO.goal > 0 && CO.goalBase >= 0) {
+      var gEarn = W - CO.goalBase;
+      var gp = gEarn / CO.goal * 100;
+      html += '<div style="margin-top:3px;display:flex;justify-content:space-between;"><span style="color:' + MUTED + ';">goal ' + F.s(CO.goal) + ' since ' + F.date(CO.goalT) + (CO.goalSrc ? ' &middot; ' + esc(CO.goalSrc) : '') + '</span><span style="color:' + (gp >= 100 ? UP : color(gEarn)) + ';">' + (gp >= 100 ? "reached! " + F.s(gEarn) : F.s(gEarn) + " &middot; " + Math.max(0, Math.floor(gp)) + "%") + '</span></div>';
+      html += bar(gp, gp >= 100 ? UP : GOLD, 3);
+    } else if (CO.aim && CO.aim.to > CO.aim.base) {
+      // Loom's daily gold aim (#448), kept here by its link; your own goal,
+      // when set, takes its place (as in the Level and Talismans tabs).
+      var aA = CO.aim, aOf = aA.to - aA.base, aGot = W - aA.base;
+      var aDone = aA.done || aGot >= aOf;
+      var aPct = aDone ? 100 : Math.max(0, Math.min(100, Math.floor(aGot / aOf * 100)));
+      html += '<div style="margin-top:3px;display:flex;justify-content:space-between;gap:8px;"><span><span style="color:' + AIM + ';">today&rsquo;s aim</span> <span style="color:' + TXT + ';">earn ' + F.n(Math.round(aOf)) + '</span></span><span style="color:' + (aDone ? UP : color(aGot)) + ';white-space:nowrap;">' + (aDone ? "reached &#10003;" : F.s(aGot) + " &middot; " + aPct + "%") + '</span></div>';
+      html += bar(aPct, aDone ? UP : AIM, 3);
+    }
+    // Goals other packages proposed (#35), waiting for ACCEPT or DISMISS.
+    var PR = CO.proposals || [];
+    if (PR.length) {
+      var pin = "";
+      for (var pq = 0; pq < PR.length; pq++) {
+        pin += '<div style="display:flex;gap:6px;align-items:baseline;border-bottom:1px dotted ' + RULE + ';padding:1px 0;"><span style="color:' + MUTED + ';min-width:1.4em;">' + (pq + 1) + '.</span>' +
+          '<span style="flex:1 1 auto;min-width:0;color:' + TXT + ';">earn <span style="color:' + GOLD + ';">' + F.n(PR[pq].amount) + '</span>' + (PR[pq].why ? ' &mdash; ' + esc(PR[pq].why) : '') + ' <span style="color:' + MUTED + ';">&middot; ' + esc(PR[pq].src) + '</span></span></div>';
+      }
+      pin += '<div style="color:' + MUTED + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">COFFERS ACCEPT adds the first to your goal, COFFERS DISMISS drops it.</div>';
+      html += section("Proposed goals", pin);
+    }
+
+    // Three ledger columns: this session, today, and the all-time records.
+    var S = CO.sess;
+    var R = CO.rec || {};
+    var cols = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';
+    var sb = caps("This session");
+    if (S) {
+      var sDur = Math.max(0, S.last - S.s);
+      var sNet = S.inn - S.out;
+      sb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + color(sNet) + ';">' + F.s(sNet) + '</div>';
+      sb += row("since", F.hm(S.s) + " &middot; " + F.dur(sDur));
+      sb += row("in", F.n(S.inn), S.inn > 0 ? UP : TXT);
+      sb += row("out", F.n(S.out), S.out > 0 ? DOWN : TXT);
+      sb += row("per hour", sDur >= 600 ? F.s(Math.round(sNet / (sDur / 3600))) : "&hellip;", sDur >= 600 ? color(sNet) : MUTED);
+      if (S.big > 0) { sb += row("best haul", F.s(S.big), GOLD); }
+    sb += explRow(S.src);
     } else {
-      var lSpan = (days[days.length - 1][0] - days[0][0]) / 86400;
-      var lGain = wealth(days[days.length - 1]) - wealth(days[0]);
-      var note = '<div style="color:' + MUTED + ';margin:2px 0 4px;">fortune over ' + Math.max(1, Math.round(lSpan)) + 'd: <span style="color:' + color(lGain) + ';">' + F.s(lGain) + '</span>' + (lSpan >= 1 ? ' &middot; ' + F.s(Math.round(lGain / lSpan)) + '/day' : '') + '</div>';
-      html += section("Day by day", note + wealthChart(days, 640, CO.chartH, true, 0, tgLine));
+      sb += '<div style="color:' + MUTED + ';">No session open.</div>';
+    }
+    cols += box(sb);
+
+    var today = (days.length > 0 && F.dayKey(days[days.length - 1][0]) === F.dayKey(now)) ? days[days.length - 1] : null;
+    var tb = caps("Today");
+    var tIn = today ? (today[3] || 0) : 0;
+    var tOut = today ? (today[4] || 0) : 0;
+    var tNet = tIn - tOut;
+    tb += '<div style="font-family:' + SERIF + ';font-size:16px;color:' + color(tNet) + ';">' + F.s(tNet) + '</div>';
+    tb += row("date", F.date(now));
+    tb += row("in", F.n(tIn), tIn > 0 ? UP : TXT);
+    tb += row("out", F.n(tOut), tOut > 0 ? DOWN : TXT);
+  tb += explRow(today ? today[5] : null);
+    if (R.bestDay && R.bestDay.net > 0) {
+      if (tNet > R.bestDay.net) { tb += '<div style="color:' + GOLD + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">&#9733; record day in the making</div>'; }
+      else { tb += row("to beat", F.n(R.bestDay.net), MUTED); }
+    }
+    cols += box(tb);
+
+    var rb = caps("Records");
+    if (R.peak) { rb += row("peak fortune", F.n(R.peak.w), GOLD); }
+    rb += row("best day", R.bestDay ? "<span title='" + F.date(R.bestDay.t) + "'>" + F.s(R.bestDay.net) + "</span>" : "&mdash;", R.bestDay ? UP : MUTED);
+    rb += row("best session", R.bestSess ? "<span title='" + F.date(R.bestSess.s) + ", " + F.dur(R.bestSess.dur) + "'>" + F.s(R.bestSess.net) + "</span>" : "&mdash;", R.bestSess ? UP : MUTED);
+    rb += row("sessions kept", String((CO.sessions || []).length));
+    cols += box(rb);
+    html += cols + '</div>';
+
+    // The goal, or else today's aim, as a fortune for the graphs (as the bar
+    // above shows them: the goal wins while set).
+    var tgLine = null;
+    if (CO.goal > 0 && CO.goalBase >= 0) tgLine = { v: CO.goalBase + CO.goal, label: "goal" };
+    else if (CO.aim && CO.aim.to > CO.aim.base) tgLine = { v: CO.aim.to, label: "aim" };
+
+    if (CO.graphSess) {
+      if (mins.length < 2) {
+        html += section("Last " + CO.mins + " minutes", '<div style="color:' + MUTED + ';">Collecting; a point lands every minute.</div>');
+      } else {
+        html += section("Last " + CO.mins + " minutes", wealthChart(mins, 640, CO.chartH, false, S ? S.s : 0, tgLine));
+      }
+    }
+    if (CO.graphLong) {
+      if (days.length < 2) {
+        html += section("Day by day", '<div style="color:' + MUTED + ';">Collecting; one entry per day. The graph appears from the second day.</div>');
+      } else {
+        var lSpan = (days[days.length - 1][0] - days[0][0]) / 86400;
+        var lGain = wealth(days[days.length - 1]) - wealth(days[0]);
+        var note = '<div style="color:' + MUTED + ';margin:2px 0 4px;">fortune over ' + Math.max(1, Math.round(lSpan)) + 'd: <span style="color:' + color(lGain) + ';">' + F.s(lGain) + '</span>' + (lSpan >= 1 ? ' &middot; ' + F.s(Math.round(lGain / lSpan)) + '/day' : '') + '</div>';
+        html += section("Day by day", note + wealthChart(days, 640, CO.chartH, true, 0, tgLine));
+      }
     }
   }
   html += '</div>';

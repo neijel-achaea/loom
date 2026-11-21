@@ -64,7 +64,7 @@ if (g !== undefined && b !== undefined) {
     run_function("coffers_close", [], "coffers");
   }
   if (!CO.sess) {
-    CO.sess = { s: now, last: now, w0: W, w1: W, inn: 0, out: 0, peak: W, low: W, big: 0 };
+    CO.sess = { s: now, last: now, w0: W, w1: W, inn: 0, out: 0, peak: W, low: W, big: 0, src: {} };
     changed = true;
     force = true;
     display_notice("[coffers] the books are open: " + F.n(W) + " gold (" + F.n(g) + " in the purse, " + F.n(b) + " in the bank).", "cyan");
@@ -82,6 +82,9 @@ if (g !== undefined && b !== undefined) {
   // S.w1 is the last wealth this session accounted for. It is persisted with
   // the day row, so a reload mid-session neither loses nor double counts.
   var d = W - S.w1;
+  // Accounts (#236): the change as a row, with the labels the money lines
+  // queued; on a still prompt the labels just age.
+  if (CO.book) CO.book(d, now, S, T);
   if (d !== 0) {
     if (d > 0) {
       S.inn += d;
@@ -144,6 +147,7 @@ if (g !== undefined && b !== undefined) {
     try { set_variable("coffers_days", JSON.stringify(CO.days)); } catch (e) {}
     try { set_variable("coffers_sess", JSON.stringify(CO.sess)); } catch (e) {}
     try { set_variable("coffers_rec", JSON.stringify(CO.rec)); } catch (e) {}
+    if (CO.movesDirty) { CO.movesDirty = false; try { set_variable("coffers_moves", JSON.stringify(CO.moves)); } catch (e) {} }
   }
   if (changed) { run_function("coffers_render", [], "coffers"); }
   // The fortune moved, or a new day began: tell loom, for the daily gold aim

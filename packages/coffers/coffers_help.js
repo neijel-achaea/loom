@@ -5,7 +5,9 @@ var hlTitle = "[coffers] gold tracker: purse and bank, income and spending. Comm
 // [command, what it does]; a one-element row is a note or section line.
 var hlRows = [
   ["COFFERS", "fortune, rank, goal, session, today and records"],
-  ["COFFERS SESSIONS [n] / DAYS [n]", "the books, as tables"],
+  ["COFFERS SESSIONS [n] / DAYS [n]", "the books, as tables, with how much of the money is explained"],
+  ["COFFERS LOG [n]", "the last moves of money (20 by default), with their sources"],
+  ["COFFERS LOG UNKNOWN [n]", "the last unexplained moves (5 by default), with the game lines that came with them"],
   ["COFFERS NEW", "close this session now"],
   ["COFFERS GAP <5-240>", "minutes without a prompt that close a session"],
   ["COFFERS GOAL <amount|OFF>", "earn this much from now (50000, 50k, 1.5m)"],
@@ -19,7 +21,8 @@ var hlRows = [
   ["COFFERS SPAN SESSION <15-720>", "minutes the session graph covers"],
   ["COFFERS SPAN LONG <7-365>", "days the day-by-day graph covers"],
   ["COFFERS CSV [DAYS|SESSION|SESSIONS]", "the books as CSV lines"],
-  ["COFFERS WIPE CONFIRM", "burn the whole ledger, goal and proposals too"],
+  ["COFFERS WIPE CONFIRM", "burn the whole ledger, moves, goal and proposals too"],
+  ["The tab has two views: Wealth (fortune, goals, graphs) and Accounts (income and spending by source, recent moves)."],
   ["COFFERS RESET / DEBUG", "rebuild helpers and rank table (the books are kept) / internal state"]
 ];
 var hlW = 0;
