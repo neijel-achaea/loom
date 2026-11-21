@@ -14,7 +14,7 @@ var hlRows = [
   ["WAYPOINTS UNTAG <name|number> <tag>|ALL", "take a tag off, or all of them"],
   ["WAYPOINTS TAGS", "every tag in use, with how many waypoints carry it"],
   ["WAYPOINTS VIEW [AREA|TAG]", "group the tab by area or by tag (AREA · TAG in the tab too; kept)"],
-  ["WAYPOINTS GO <name|number>", "walk there (PATH FIND), as a click in the tab"],
+  ["WAYPOINTS GO <name|number>", "walk there (PATH FIND, or Atlas's route with ATLAS WALK CUSTOM), as a click in the tab"],
   ["WAYPOINTS RESET", "reload saved waypoints, redraw the tab"],
   ["WAYPOINTS DEBUG", "internal state"],
   ["The tab is a custom tab named Waypoints. Click a heading to fold it."]

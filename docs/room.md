@@ -3,7 +3,7 @@
 *The Here tab: the room you're in, who and what is in it, and your target, live.*
 
 <!-- loom:version room -->
-*This page describes room 1.3.0.*
+*This page describes room 1.3.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -38,7 +38,7 @@ What you see, top to bottom:
 | `ROOM NOVICE ADD\|REMOVE <title>` | add or take off a title (one word, as the game shows it) |
 | `ROOM NOVICE RESET` | back to the default titles |
 | `ROOM REMEMBER` | remember this room (REMEMBER in Here does the same) |
-| `ROOM BACK` | walk back to the remembered room with PATH FIND (GO BACK in Here) |
+| `ROOM BACK` | walk back to the remembered room with PATH FIND, or Atlas's route with ATLAS WALK CUSTOM (GO BACK in Here) |
 | `ROOM FORGET` | forget the remembered room |
 | `ROOM DEBUG` | the last room GMCP payloads, as they came |
 | **The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like.** | |
@@ -75,6 +75,7 @@ Room reads nothing from other packages on its own. With others installed, Loom's
 | `social-room` | social | Players in their social group's colour, the group added to the hover, and their social tags (novice, org lead, Loom user, kill on sight) after the name. |
 | `patrolling-room` | patrolling | Shrines and totems are coloured by their god's stance (`PATROLLING GODS`): friendly ones green, hostile ones orange with a tinted row and a "⚠ hostile shrine" warning in the header, neutral ones in the plain colour with the shrine icon. |
 | `sigils-room` | sigils | Monoliths marked ▮. In a city (Targossas, Cyrene, Hashan, Ashtan, Mhaldor, Eleusis), a room without one gets "⚠ no monolith" in the header, unless you told sigils to ignore it (`SIGILS IGNORE`). A monolith outside a city is flagged too. |
+| `atlas-room` | atlas | With Atlas's own walking on (`ATLAS WALK CUSTOM`), GO BACK (and `ROOM BACK`, and the pinned row in Waypoints) walks Atlas's route, step by step; otherwise the game's `PATH FIND`. The button's hover says which. |
 | `magi-room` | [magi](magi.md) | Barnacle encrusted oysters (they drop pearls) and glistening iridescent pearls show with a green name and a green ◉; hover says why. Corpses stay grey; your target's glow still wins. |
 | `harvesting-room` | harvesting and patrolling | A small line under the description with the plants this environment should hold: **green** here and stocked, **yellow** here but below your minimum, **red** missing, with a "⚠ N plants missing" warning. It appears once patrolling's plant check has seen the room (with `PATROLLING ON`). Hover a plant for its stock and minimum. |
 | `basher-room` | basher | Each living mob's place in the basher's kill order as a numbered badge (filled on your target, outlined in gold on the next one), types the basher ignores in this area dimmed, and the basher's state beside the room name (⚔ PRIMED, RUNNING or FLEEING). |

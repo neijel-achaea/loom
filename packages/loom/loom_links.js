@@ -1048,6 +1048,24 @@ L.addLink({
   }
 });
 
+// atlas -> room, atlas -> questbook (Ricardo): GO BACK (Here, ROOM BACK,
+// Waypoints' pinned row) and a quest's GO step walk Atlas's route too, when
+// you've turned it on; otherwise PATH FIND. Same answer as waypoints.walk.
+L.atlasWalk = function () {
+  var a = client.loom.atlas;
+  return (a && a.ownWalk && typeof a.go == "function") ? { go: a.go } : undefined;
+};
+L.addLink({
+  id: "atlas-room", src: "atlas", dst: "room", issue: 0,
+  desc: "With ATLAS WALK CUSTOM, GO BACK walks Atlas's route instead of PATH FIND",
+  answers: { "room.walk": function () { return L.atlasWalk(); } }
+});
+L.addLink({
+  id: "atlas-questbook", src: "atlas", dst: "questbook", issue: 0,
+  desc: "With ATLAS WALK CUSTOM, a quest's GO step walks Atlas's route instead of PATH FIND",
+  answers: { "questbook.walk": function () { return L.atlasWalk(); } }
+});
+
 // #451 questbook -> atlas: the followed quest's GO steps numbered on the map
 // (the current one highlighted) and a marker where each quest you can start
 // now begins (Ricardo). Answers atlas.quests -> questbook's look.marks().
