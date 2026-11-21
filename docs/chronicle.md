@@ -3,7 +3,7 @@
 *A record of each Achaean day: where you went, what was said, what you read, and what you did.*
 
 <!-- loom:version chronicle -->
-*This page describes chronicle 0.2.3.*
+*This page describes chronicle 0.2.4.*
 <!-- /loom:version -->
 
 > **Before you turn on summaries: cost and privacy.** The record itself stays with your character and costs nothing. Summaries are optional, and turning them on (`CHRONICLE KEY`) means:
@@ -44,7 +44,7 @@ With your own API key, Chronicle writes a short summary of each Achaean day when
 
 ### Months and years
 
-The tab has three views, **Days**, **Months** and **Years** (click them, or `CHRONICLE VIEW DAYS|MONTHS|YEARS`). When an Achaean month ends (about a day of real time), its summary is written from the summaries of the days you played in it, and your notes; when a year ends (about twelve days), from its months. A month is about two hundred words; a year about five hundred, in a few paragraphs that each follow one thread (a person, an aim, a place) through it, without month names or dates (at that scale they mean little). Each sees the one before it. `CHRONICLE WRITE MONTH` writes this month so far (or `WRITE MONTH <name>` a past one), `CHRONICLE WRITE YEAR [number]` the same for years. Months shows this year's and last year's; Years shows them all. The export starts with the years and months, then the days.
+The tab has three views, **Days**, **Months** and **Years** (click them, or `CHRONICLE VIEW DAYS|MONTHS|YEARS`). When an Achaean month ends (about a day of real time), its summary is written from the summaries of the days you played in it, and your notes; when a year ends (about twelve days), from its months. A month is about two hundred words; a year about five hundred, in a few paragraphs that each follow one thread (a person, an aim, a place) through it, without month names or dates (at that scale they mean little). Each sees the one before it. `CHRONICLE WRITE MONTH` writes this month so far (or `WRITE MONTH <name>` a past one), `CHRONICLE WRITE YEAR [number]` the same for years. Months shows this year's and last year's; Years shows them all. The export starts with the years and months, then the days. Every summary in the tab (day, month or year) has a **copy** button that puts its heading and text on the clipboard, ready to paste into a journal.
 
 The lines of a day are kept while it's among the last 30 played (or until the record is too big); its summary is kept longer, and once its month has a summary the day's own can go when space runs short. Months and years are kept for good.
 
