@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.1.4.*
+*This page describes loom 1.1.5.*
 <!-- /loom:version -->
 
 ## What it is
@@ -54,8 +54,8 @@ Every link:
 <!-- loom:links all -->
 | Link | From | To | What it does |
 |---|---|---|---|
-| `social-room` | [social](social.md) | [room](room.md) | Players in the Here tab in their highlight colours |
-| `social-comms` | [social](social.md) | [comms](comms.md) | Names in the Comms tab in their highlight colours |
+| `social-room` | [social](social.md) | [room](room.md) | Players in the Here tab in their highlight colours, with their tags |
+| `social-comms` | [social](social.md) | [comms](comms.md) | Names in the Comms tab in their highlight colours, with their tags |
 | `social-huntstats` | [social](social.md) | [huntstats](huntstats.md) | Hunting companions and parties in the Stats tab in their highlight colours |
 | `standings-online` | [standings](standings.md) | [social](social.md) | Your standing with each person in the Online tab |
 | `standings-comms` | [standings](standings.md) | [comms](comms.md) | Your standing with a talker, on hover in the Comms tab |

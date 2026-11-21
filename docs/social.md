@@ -3,7 +3,7 @@
 *Names coloured by who they are to you, notices when the people you watch come and go, and the Online tab.*
 
 <!-- loom:version social -->
-*This page describes social 1.1.0.*
+*This page describes social 1.2.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -30,6 +30,9 @@ It finds out who's online by asking the game's `QW` every 5 seconds (`SOCIAL POL
 | `SOCIAL LIST [group]` | names in a group (no group: counts) |
 | `SOCIAL COLOR <group\|self> [#rrggbb]` | highlight colour (no colour: back to the default) |
 | `SOCIAL COLOURS [GROUPS\|STANDINGS]` | colour names by group (default) or by standing band |
+| `SOCIAL TAG <tag> <name>` | mark someone with an icon after their name: novice, lead (org lead), kos (kill on sight) |
+| `SOCIAL UNTAG <tag> <name>` | take the mark off |
+| `SOCIAL TAGS [tag]` | who carries which tag |
 | `SOCIAL WATCH [group]` | announce when that group's names log in or out (no group: show) |
 | `SOCIAL OFFLINE [ON\|OFF]` | show or fold the Online tab's offline section (clicking its heading flips it too) |
 | `SOCIAL UNWATCH <group>` | stop announcing it |
@@ -69,6 +72,18 @@ Names go in a group with `SOCIAL ADD <group> <name>`, for example `SOCIAL ADD fr
 
 `SOCIAL COLOURS STANDINGS` colours names by your standing with each person instead (see [Working with other packages](#working-with-other-packages)); `SOCIAL COLOURS GROUPS` goes back.
 
+### Tags
+
+A tag is a mark you put on someone by hand: a small icon after their name in the Online tab, and in Here and Comms when room and comms are installed. Unlike groups, tags don't colour a name, and a person can carry several. The set is fixed:
+
+| Tag | Icon | For |
+| --- | --- | --- |
+| `novice` | green leaf | a novice, in a city whose newbies carry no title (Cyrene) |
+| `lead` | gold crown | an org lead: a minister, a house or order leader |
+| `kos` | red crosshair | kill on sight: an especially nasty enemy |
+
+`SOCIAL TAG novice Mealla` puts one on, `SOCIAL UNTAG novice Mealla` takes it off, `SOCIAL TAGS` lists who carries which (`SOCIAL TAGS kos` just one). Hover the icon for the tag's name. Tags stay until you take them off. Room still gives the same leaf to anyone it sees wearing a newbie title, so tag only the ones it can't spot.
+
 ### Watching
 
 Every group but enemies is watched on a new install (enemies are still coloured, and vision and the basher still flag them). `SOCIAL UNWATCH city` stops the login and logout notices for your city (useful in a big city), and its people leave the Online tab; their names are still coloured. `SOCIAL WATCH city` brings them back; `SOCIAL WATCH` alone shows which groups are watched.
@@ -88,7 +103,7 @@ If you used the older highlight and watchlist reflexes (`hl*` and `wl*` variable
 ## Daily use
 
 - **Reading the game.** Names you know stand out in every line: says, emotes, who's in the room, channel talk.
-- **Who's on.** The Online tab lists the watched people who are online, alphabetically, in their group's colour (hover a name for its group), with how long they've been on. Someone who just arrived glows for a few seconds; someone who just left stays greyed for as long. At the bottom, how many people `QW` showed, how many more it can't fully sense (hidden), and how many are online in all.
+- **Who's on.** The Online tab lists the watched people who are online, alphabetically, in their group's colour (hover a name for its group) with their tags, with how long they've been on. Someone who just arrived glows for a few seconds; someone who just left stays greyed for as long. At the bottom, how many people `QW` showed, how many more it can't fully sense (hidden), and how many are online in all.
 - **Who isn't.** The **offline** section below lists the other watched people, most recently seen first, with when you last saw them. Click its heading to fold it (or `SOCIAL OFFLINE OFF` to keep it folded).
 - **Notices.** "Ana has awoken." when a watched person logs in, "Ana has drifted into slumber." when they leave.
 
@@ -109,8 +124,8 @@ Social also feeds others:
 
 | Link | With | What it does |
 | --- | --- | --- |
-| `social-room` | room | Players in Here in their group colour, the group on hover. |
-| `social-comms` | comms | Talkers and the people in Tells in their group colour. |
+| `social-room` | room | Players in Here in their group colour, the group on hover, and their tags. |
+| `social-comms` | comms | Talkers and the people in Tells in their group colour, and their tags. |
 | `social-huntstats` | huntstats | Companions, the hunt's party and recent hunts' "with …" in the Stats tab in their group colour. |
 | `social-basher` | basher | An enemy arriving during a basher run makes the fight in progress the last one. |
 

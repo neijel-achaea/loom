@@ -44,6 +44,13 @@ function ledgerCell(n) {
 }
 // The newbie leaf (#242, from room through loom): a small green leaf after
 // the name of someone last seen with a newbie title; the title on hover.
+// After a name: the newbie leaf from room (a title seen), unless tagged
+// novice here, then this package's own tags.
+function marks(n) {
+  var tg = S.look.tags(n), nov = false, h = "";
+  for (var i = 0; i < tg.length; i++) { if (tg[i].id === "novice") nov = true; h += tg[i].icon; }
+  return (nov ? "" : leaf(ask("person.newbie", n))) + h;
+}
 function leaf(title) { return title ? '<span class="lo-leaf" title="newbie (' + esc(title) + ')"><svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"><path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/></svg></span>' : ''; }
 // House style shared with Stats, DmgChart, Standings: ink panel, serif
 // small-caps headings, monospace rows. The accent is a moonlit teal.
@@ -134,7 +141,7 @@ if (!watchedN) {
     var since = sinceAt ? now - sinceAt : null;
     var right = r.out ? "logged out" : (glow ? "logged in" : (since !== null ? forTxt(since) : ""));
     html += '<div class="lo-row' + (r.out ? ' lo-gone' : '') + '">';
-    html += '<span class="lo-name" title="' + esc(g2) + '" style="' + nameStyle + '">' + esc(cap(r.n)) + leaf(ask("person.newbie", cap(r.n))) + '</span>';
+    html += '<span class="lo-name" title="' + esc(g2) + '" style="' + nameStyle + '">' + esc(cap(r.n)) + marks(cap(r.n)) + '</span>';
     // Integration columns go here, between the name and the time: standing
     // (#196), then ledger (#197).
     html += ledgerCell(r.n);
@@ -164,7 +171,7 @@ if (watchedN && S.prev !== null) {
     for (var oi = 0; oi < off.length; oi++) {
       var o = off[oi];
       html += '<div class="lo-row lo-off">';
-      html += '<span class="lo-name" title="' + esc(grp[o.n]) + '" style="color:' + nameCol(o.n, grp[o.n]) + ';">' + esc(cap(o.n)) + leaf(ask("person.newbie", cap(o.n))) + '</span>';
+      html += '<span class="lo-name" title="' + esc(grp[o.n]) + '" style="color:' + nameCol(o.n, grp[o.n]) + ';">' + esc(cap(o.n)) + marks(cap(o.n)) + '</span>';
       html += ledgerCell(o.n);
       html += standCell(o.n);
       html += '<span class="lo-t">' + (o.seen ? agoTxt(now - o.seen) : "not seen yet") + '</span>';

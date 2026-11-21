@@ -146,11 +146,47 @@ if (soSub === "" || soSub === "status") {
   } else {
     display_notice("[social] SOCIAL COLOURS GROUPS|STANDINGS.", "orange");
   }
+} else if (soSub === "tag" || soSub === "untag") {
+  // SOCIAL TAG|UNTAG <tag> <name>: a mark by hand, an icon after the name.
+  var soTd = S.tagDef(soGroup), soTn = soW[2] || "", soIds = S.tagDefs.map(function (d) { return d.id; }).join(", ");
+  var soCap = soTn.charAt(0).toUpperCase() + soTn.slice(1);
+  if (!soTd || soW.length !== 3 || !/^[a-z]+$/.test(soTn)) {
+    display_notice("[social] SOCIAL " + soSub.toUpperCase() + " <tag> <name>. Tags: " + soIds + ".", "orange");
+  } else if (soSub === "tag") {
+    var soHas = S.tags[soTn] || [];
+    if (soHas.indexOf(soTd.id) >= 0) display_notice("[social] " + soCap + " is already tagged " + soTd.label + ".", C);
+    else {
+      soHas.push(soTd.id); S.tags[soTn] = soHas; S.saveTags();
+      display_notice("[social] " + soCap + " tagged " + soTd.label + ".", "lime");
+    }
+  } else {
+    var soAt = (S.tags[soTn] || []).indexOf(soTd.id);
+    if (soAt < 0) display_notice("[social] " + soCap + " isn't tagged " + soTd.label + ".", "orange");
+    else {
+      S.tags[soTn].splice(soAt, 1);
+      if (!S.tags[soTn].length) delete S.tags[soTn];
+      S.saveTags();
+      display_notice("[social] " + soCap + " is no longer tagged " + soTd.label + ".", "lime");
+    }
+  }
+} else if (soSub === "tags") {
+  // SOCIAL TAGS [tag]: who carries which.
+  var soOne = soGroup ? S.tagDef(soGroup) : null;
+  if (soGroup && !soOne) display_notice("[social] no tag '" + soGroup + "'. Tags: " + S.tagDefs.map(function (d) { return d.id; }).join(", ") + ".", "orange");
+  else {
+    for (var soDi = 0; soDi < S.tagDefs.length; soDi++) {
+      var soDf = S.tagDefs[soDi];
+      if (soOne && soOne !== soDf) continue;
+      var soWho = Object.keys(S.tags).filter(function (n) { return S.tags[n].indexOf(soDf.id) >= 0; }).sort().map(function (n) { return n.charAt(0).toUpperCase() + n.slice(1); });
+      display_notice("[social] " + soDf.id + " (" + soDf.label + "): " + (soWho.length ? soWho.join(", ") : "nobody"), C);
+    }
+    if (!soOne) display_notice("[social] SOCIAL TAG|UNTAG <tag> <name>.", C);
+  }
 } else {
   display_notice("[social] unknown command '" + soSub + "'. SOCIAL HELP for commands.", "orange");
 }
 // Lists, colours, watches and polling all show on the Online tab (#76).
-if (["add", "del", "clear", "color", "colour", "colours", "colors", "watch", "unwatch", "poll", "reset", "offline"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
+if (["add", "del", "clear", "color", "colour", "colours", "colors", "watch", "unwatch", "poll", "reset", "offline", "tag", "untag"].indexOf(soSub) >= 0) run_function("social_online", [], "social");
 // Lists and colours are what social's look reports (#159): tell loom, so the
 // tabs showing them redraw (guarded: social works without loom).
-if (["add", "del", "clear", "color", "colour", "colours", "colors"].indexOf(soSub) >= 0 && client.loom.notify) client.loom.notify("social");
+if (["add", "del", "clear", "color", "colour", "colours", "colors", "tag", "untag"].indexOf(soSub) >= 0 && client.loom.notify) client.loom.notify("social");
