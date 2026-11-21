@@ -1155,8 +1155,8 @@ AT.queuedMs = 1500;
 // from where a walk starts. ATLAS VEIL OFF (setting atlas_veil = "off").
 // A teleport that doesn't land you within AT.teleWait isn't marked broken
 // (it's usually you, interrupted, not the map): the walk goes another way.
-AT.teleWait = 30000;
-AT.veilCost = 20;            // a guess until we know how long the Veil takes
+AT.teleWait = 10000;         // the Veil takes 3 s (Ricardo)
+AT.veilCost = 8;             // 3 s at ~0.42 s a step, and the step itself
 AT.useVeil = get_variable("atlas_veil") !== "off";
 AT.setVeil = function (on) { AT.useVeil = !!on; if (on) delete_variable("atlas_veil"); else set_variable("atlas_veil", "off"); };
 if (AT.cls === undefined) AT.cls = null;
@@ -1474,6 +1474,17 @@ AT.walkHasty = function () {
     if (AT.walk === W && W.i === step) AT.walkStep(true);
   }, AT.hastyMs);
 };
+// The route to draw on the map: the walk under way, else the last ATLAS ROUTE
+// while you're still where it starts ({ rooms, dirs, from: steps taken, to }).
+AT.preview = AT.preview || null;
+AT.routeShown = function () {
+  var W = AT.walk;
+  if (W) return { rooms: W.rooms, dirs: W.dirs, from: W.i, to: W.to };
+  var P = AT.preview;
+  if (P && AT.here && P.rooms[0] === AT.here.id) return { rooms: P.rooms, dirs: P.dirs, from: 0, to: P.to };
+  AT.preview = null;
+  return null;
+};
 // Send the next step (opening a door the map marks closed first; not again
 // on a resend).
 AT.walkStep = function (again) {
@@ -1507,6 +1518,14 @@ AT.walkStep = function (again) {
     else AT.walkDetour(from, dir);
   }, AT.BACK[dir] ? AT.walkWait : (AT.teleport(dir) ? AT.teleWait : AT.warpWait));
 };
+// "There is no wormhole here." (the trigger "Atlas walk no wormhole"): at
+// once, rather than after AT.warpWait.
+AT.walkNoWorm = function () {
+  var W = AT.walk;
+  if (!W || W.dirs[W.i] !== "worm warp") return;
+  if (W.t) { clearTimeout(W.t); W.t = null; }
+  AT.walkDetour(W.rooms[W.i], "worm warp");
+};
 // A shortcut that isn't there: marked broken, and a new route from this room.
 AT.walkDetour = function (from, cmd) {
   var W = AT.walk;
@@ -1522,6 +1541,7 @@ AT.walkDetour = function (from, cmd) {
     W.rooms = PT.rooms; W.dirs = PT.dirs; W.i = 0;
     display_notice("[atlas] " + T.name + " didn't take you to " + AT.label(T.to) + " (interrupted?): walking another way, " + PT.dirs.length + " step" + (PT.dirs.length === 1 ? "" : "s") + ".", "orange");
     AT.walkStep();
+    run_function("atlas_render", {}, "atlas");
     return;
   }
   AT.markBroken(from, cmd);
@@ -1534,6 +1554,7 @@ AT.walkDetour = function (from, cmd) {
   W.rooms = P.rooms; W.dirs = P.dirs; W.i = 0;
   display_notice("[atlas] " + what + ", though the map has one: marked (ATLAS BROKEN), going another way, " + P.dirs.length + " step" + (P.dirs.length === 1 ? "" : "s") + ".", "orange");
   AT.walkStep();
+  run_function("atlas_render", {}, "atlas");
 };
 // Each room you arrive in (from roomInfo).
 AT.walkArrive = function (id) {
