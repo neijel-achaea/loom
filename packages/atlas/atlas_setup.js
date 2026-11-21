@@ -1080,6 +1080,18 @@ AT.walkWait = 4000;
 // never "buy …" or the crowdmap's "script:" exits (Ricardo).
 AT.wormCost = 5;
 AT.warpWait = 20000;
+// A warp is instant but takes equilibrium (about 4 s, Ricardo): walking on
+// is fine, a second warp isn't. A warp step waits until Char.Vitals shows
+// equilibrium back (AT.eq), at most AT.eqWait. Atlas marks it lost itself
+// as it sends a warp, since the room can arrive before the vitals that say
+// so. null: not known yet (taken as there).
+AT.eqWait = 15000;
+if (AT.eq === undefined) AT.eq = null;
+AT.vitals = function (v) {
+  AT.eq = String(v.eq) == "1";
+  var W = AT.walk;
+  if (AT.eq && W && W.eqWait) { W.eqWait = false; if (W.t) { clearTimeout(W.t); W.t = null; } AT.walkStep(); }
+};
 AT.useWorms = get_variable("atlas_worms") === "on";
 AT.setWorms = function (on) {
   AT.useWorms = !!on;
@@ -1185,6 +1197,8 @@ AT.walkHasty = function () {
   if (W.t) { clearTimeout(W.t); W.t = null; }
   if (W.retry) return;                              // one resend at a time
   W.hasty = (W.hasty || 0) + 1;
+  // A refused warp took no equilibrium: back to what the vitals say next.
+  if (!AT.BACK[W.dirs[W.i]] && AT.eq === false) AT.eq = null;
   if (W.hasty > AT.hastyMax) { AT.walkEnd("the game kept saying you're moving too fast"); return; }
   var step = W.i;
   W.retry = setTimeout(function () {
@@ -1200,8 +1214,19 @@ AT.walkStep = function (again) {
   if (get_variable("pauseTriggers") == "on") { AT.walkEnd("Loom was paused"); return; }
   if (!again) { W.hasty = 0; if (W.retry) { clearTimeout(W.retry); W.retry = null; } }
   var from = W.rooms[W.i], dir = W.dirs[W.i], R = AT.map && AT.map.rooms[from];
+  if (!AT.BACK[dir] && AT.eq === false) {
+    // A warp off equilibrium: wait for it (AT.vitals sends the step).
+    W.eqWait = true;
+    if (W.t) clearTimeout(W.t);
+    var held = W.i;
+    W.t = setTimeout(function () {
+      if (AT.walk === W && W.i === held && W.eqWait) AT.walkEnd("equilibrium didn't come back for " + dir + " in " + AT.label(from));
+    }, AT.eqWait);
+    return;
+  }
   if (!again && R && R[10] && R[10][dir] === 2) send_command("open door " + dir, 1);
   send_command(dir, 1);
+  if (!AT.BACK[dir]) AT.eq = false;
   W.at = Date.now();
   if (W.t) clearTimeout(W.t);
   var step = W.i;
