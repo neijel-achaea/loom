@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.14.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.15.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -25,6 +25,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_fog = "off" while fog of war is off (absent: on);
 //   atlas_walk = "custom" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
+//   atlas_veil = "on" while routes may start with PIERCE THE VEIL in dragonform;
 //   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
 //   atlas_wild = "off" while the wilderness map stays in the main window
 //     (absent: Atlas shows it);
@@ -1115,6 +1116,31 @@ AT.markBroken = function (room, cmd) { AT.broken[room + "|" + cmd] = Date.now();
 AT.eqWait = 15000;
 if (AT.eq === undefined) AT.eq = null;
 AT.queuedMs = 1500;
+// ---- Teleports: shortcuts from anywhere (off until you turn them on) -----
+// PIERCE THE VEIL (Ricardo): in dragonform, to Dragonspire Mount (12695) in
+// the Parthren Gare, whose ordinary exits lead to many places. Used only
+// while Char.Status says your class is a dragon ("Black Dragon"; AT.cls, or
+// the self package's when Atlas loads later; unknown counts as yes), and
+// only from where a walk starts. ATLAS VEIL ON (setting atlas_veil = "on").
+// A teleport that doesn't land you within AT.teleWait isn't marked broken
+// (it's usually you, interrupted, not the map): the walk goes another way.
+AT.teleWait = 30000;
+AT.veilCost = 20;            // a guess until we know how long the Veil takes
+AT.useVeil = get_variable("atlas_veil") === "on";
+AT.setVeil = function (on) { AT.useVeil = !!on; if (on) set_variable("atlas_veil", "on"); else delete_variable("atlas_veil"); };
+if (AT.cls === undefined) AT.cls = null;
+AT.isDragon = function () {
+  var c = AT.cls;
+  if (c === null) { var S = client.loom && client.loom.self; c = S && S.info && S.info["class"] ? String(S.info["class"]) : null; }
+  return c === null ? true : /dragon/i.test(c);
+};
+AT.teleports = [
+  { cmd: "pierce the veil", to: 12695, name: "the Veil", cost: function () { return AT.veilCost; }, on: function () { return AT.useVeil && AT.isDragon(); } }
+];
+AT.teleport = function (cmd) {
+  for (var i = 0; i < AT.teleports.length; i++) if (AT.teleports[i].cmd === cmd) return AT.teleports[i];
+  return null;
+};
 AT.vitals = function (v) {
   AT.eq = String(v.eq) == "1";
   var W = AT.walk;
@@ -1160,18 +1186,19 @@ if (AT.walk === undefined) AT.walk = null;
 AT.label = function (id) { var R = AT.room(id); return (R && R.n ? R.n + " " : "") + "(" + id + ")"; };
 // The shortest route from one room to another over ordinary exits, around
 // locked doors: { rooms: [from, …, to], dirs: [dir, …] }, or null.
-AT.route = function (from, to) {
+AT.route = function (from, to, opt) {
   if (!AT.map || !AT.map.rooms[to] || from === to) return null;
-  return AT.routeAny(from, function (u) { return u === to; });
+  return AT.routeAny(from, function (u) { return u === to; }, opt);
 };
 // The shortest route to the nearest room for which goal(room) is true (not
 // the room you start in): { rooms, dirs, to }, or null. One search, however
 // many rooms qualify: an area's rooms, the rooms an NPC is listed in.
-AT.routeAny = function (from, goal) {
+AT.routeAny = function (from, goal, opt) {
   var M = AT.map;
   if (!M || !M.rooms[from]) return null;
   var dist = {}, prev = {}, how = {}, heap = [[0, from]], to = null;
   dist[from] = 0;
+  var noTele = (opt && opt.noTele) || {};
   function push(x) { heap.push(x); var i = heap.length - 1; while (i) { var p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; var t = heap[p]; heap[p] = heap[i]; heap[i] = t; i = p; } }
   function pop() {
     var top = heap[0], last = heap.pop();
@@ -1210,6 +1237,14 @@ AT.routeAny = function (from, goal) {
       if (!V2 || V2[0] === AT.SKETCH) continue;
       var nd2 = d + cost;
       if (dist[v2] === undefined || nd2 < dist[v2]) { dist[v2] = nd2; prev[v2] = u; how[v2] = cmd; push([nd2, v2]); }
+    }
+    // Teleports work from anywhere at the same cost, so only from where you
+    // start (AT.teleports).
+    if (u === from) for (var ti = 0; ti < AT.teleports.length; ti++) {
+      var T = AT.teleports[ti];
+      if (noTele[T.cmd] || !T.on() || !M.rooms[T.to] || T.to === from) continue;
+      var nd3 = d + T.cost();
+      if (dist[T.to] === undefined || nd3 < dist[T.to]) { dist[T.to] = nd3; prev[T.to] = u; how[T.to] = T.cmd; push([nd3, T.to]); }
     }
   }
   if (to === null) return null;
@@ -1375,7 +1410,7 @@ AT.walkStep = function (again) {
   }
   if (!again && R && R[10] && R[10][dir] === 2) send_command("open door " + dir, 1);
   send_command(dir, 1);
-  if (!AT.BACK[dir]) AT.eq = false;
+  if (dir === "worm warp") AT.eq = false;      // known to cost equilibrium (the Veil: not known)
   W.at = Date.now();
   if (W.t) clearTimeout(W.t);
   var step = W.i;
@@ -1383,18 +1418,31 @@ AT.walkStep = function (again) {
     if (AT.walk !== W || W.i !== step) return;
     if (AT.BACK[dir]) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
     else AT.walkDetour(from, dir);
-  }, AT.BACK[dir] ? AT.walkWait : AT.warpWait);
+  }, AT.BACK[dir] ? AT.walkWait : (AT.teleport(dir) ? AT.teleWait : AT.warpWait));
 };
 // A shortcut that isn't there: marked broken, and a new route from this room.
 AT.walkDetour = function (from, cmd) {
   var W = AT.walk;
   if (!W) return;
+  var T = AT.teleport(cmd);
+  if (T) {
+    // Not marked: another way for this walk.
+    W.noTele = W.noTele || {};
+    W.noTele[cmd] = true;
+    if (AT.eq === false) AT.eq = null;
+    var PT = AT.route(from, W.to, { noTele: W.noTele });
+    if (!PT) { AT.walkEnd(T.name + " didn't take you to " + AT.label(T.to) + ", and there's no other route"); return; }
+    W.rooms = PT.rooms; W.dirs = PT.dirs; W.i = 0;
+    display_notice("[atlas] " + T.name + " didn't take you to " + AT.label(T.to) + " (interrupted?): walking another way, " + PT.dirs.length + " step" + (PT.dirs.length === 1 ? "" : "s") + ".", "orange");
+    AT.walkStep();
+    return;
+  }
   AT.markBroken(from, cmd);
   if (!AT.BACK[cmd] && AT.eq === false) AT.eq = null;     // the warp didn't happen
   W.detours = (W.detours || 0) + 1;
   var what = cmd === "worm warp" ? "no wormhole in " + AT.label(from) : "\"" + cmd + "\" didn't work in " + AT.label(from);
   if (W.detours > AT.detourMax) { AT.walkEnd(what + ", and too many shortcuts failed on this walk"); return; }
-  var P = AT.route(from, W.to);
+  var P = AT.route(from, W.to, { noTele: W.noTele });
   if (!P) { AT.walkEnd(what + " (marked: ATLAS BROKEN), and no other route"); return; }
   W.rooms = P.rooms; W.dirs = P.dirs; W.i = 0;
   display_notice("[atlas] " + what + ", though the map has one: marked (ATLAS BROKEN), going another way, " + P.dirs.length + " step" + (P.dirs.length === 1 ? "" : "s") + ".", "orange");
