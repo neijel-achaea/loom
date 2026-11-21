@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.11.1.*
+*This page describes atlas 0.11.2.*
 <!-- /loom:version -->
 
 *Atlas is still at 0.x: its commands and saved settings may still change in a 1.x release ([what 1.0 keeps stable](stability.md)).*
@@ -43,7 +43,7 @@ The figures count the rooms on the crowdmap you've explored, by the game's own r
 
 The first time, Atlas downloads the crowdmap (about 1 MB) from the project's own site on GitHub and keeps it in your browser. At every load after that it only checks the map's version number, and downloads it again when the crowdmap has changed. The copy in your browser is shared by every character you play on it. The game's environment names and colours come from each area's official map file on achaea.com, the same file the stock map loads when you enter an area; Atlas reads it once per area and remembers what it learns. Until it has, an environment is drawn in the crowdmap's colour, muted. Atlas downloads and never sends anything: nothing about you or your play leaves the game.
 
-**The game's own map fills the gaps.** The crowdmap can lag behind changes to the game: a street rebuilt, a room added. The game's own map file for an area (the one Atlas reads for colours) is always current, though it lacks hidden exits and special paths. So when you enter an area, Atlas lays the game's file over the crowdmap: a room the crowdmap lacks is added (placed to line up with the crowdmap's rooms around it), and an exit the game lists replaces the crowdmap's in that direction; exits only the crowdmap knows are kept. What the game's files add is remembered in your browser, so the corrections stay after a reload. An area you haven't entered since installing shows the crowdmap as it is.
+**The game's own map fills the gaps.** The crowdmap can lag behind changes to the game: a street rebuilt, a room added. The game's own map file for an area (the one Atlas reads for colours) is always current, though it lacks hidden exits and special paths. So when you enter an area, Atlas lays the game's file over the crowdmap: a room the crowdmap lacks is added (placed to line up with the crowdmap's rooms around it; a room with no crowdmap room around it goes into the crowdmap area that shares most rooms with that file, and a file sharing no rooms with the crowdmap adds nothing, since the game's area numbers and the crowdmap's don't always match), and an exit the game lists replaces the crowdmap's in that direction; exits only the crowdmap knows are kept. What the game's files add is remembered in your browser, so the corrections stay after a reload. An area you haven't entered since installing shows the crowdmap as it is.
 
 Corrections to the map go to the crowdmap project itself (its issues and pull requests), so every player using it gets them.
 

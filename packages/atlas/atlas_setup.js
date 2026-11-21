@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.11.1", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.11.2", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -279,6 +279,10 @@ AT.idb = function (mode, key, value) {
 };
 AT.useMap = function (m, source) {
   m.byArea = null;
+  // Rooms added from the official files (flag at index 8) can be in the
+  // cached map, saved after they were laid over it: take them out and lay
+  // the files again, so a placement rule fixed later fixes old caches too.
+  for (var rid in m.rooms) if (m.rooms.hasOwnProperty(rid) && m.rooms[rid] && m.rooms[rid][8] === 1) delete m.rooms[rid];
   AT.map = m;
   for (var og in AT.official) if (AT.official.hasOwnProperty(og)) AT.officialApply(atNum(og));
   AT.source = source;
@@ -406,6 +410,13 @@ AT.officialRead = function (gaid, xml) {
   }
   return n ? out : null;
 };
+// The crowdmap area most of a file's known rooms are in (off from
+// officialApply: { crowdmap area: { n } }), or 0 when it shares none.
+AT.officialHome = function (off) {
+  var home = 0, most = 0;
+  for (var k in off) if (off.hasOwnProperty(k) && off[k].n > most) { most = off[k].n; home = atNum(k); }
+  return home;
+};
 // Lay one game area's rooms over the map. True when anything changed.
 AT.officialApply = function (gaid) {
   var O = AT.official[gaid], M = AT.map;
@@ -432,8 +443,12 @@ AT.officialApply = function (gaid) {
       continue;
     }
     // A room the crowdmap lacks: in the crowdmap area of its neighbours
-    // (the one most of them are in), else the game's area number.
-    var votes = {}, best = 0, area = M.areas[gaid] ? gaid : 0;
+    // (the one most of them are in), else the crowdmap area sharing most
+    // rooms with this file, else nowhere. Never the crowdmap area with the
+    // game area's number: the two numberings differ (Lake Xulighae is game
+    // area 172, crowdmap area 283; game area 283 is the Valley of Nidh, which
+    // the crowdmap doesn't have, and it was drawn as a level under the lake).
+    var votes = {}, best = 0, area = AT.officialHome(off);
     for (var d2 in G2[5]) if (G2[5].hasOwnProperty(d2)) { var N = M.rooms[G2[5][d2]]; if (N) votes[N[0]] = (votes[N[0]] || 0) + 1; }
     for (var va in votes) if (votes.hasOwnProperty(va) && votes[va] > best) { best = votes[va]; area = atNum(va); }
     if (!area) continue;
@@ -555,7 +570,9 @@ AT.roomInfo = function (g) {
   }
   // As Nexus does: the room you're in is explored (once its area's list is known).
   if (gaid && AT.explored[gaid]) AT.addList(gaid, [id]);
-  if (gaid) AT.envFetch(gaid);          // the official file is per game area
+  // The official file is per game area: only asked for by the number the game
+  // sent, never a crowdmap area's number standing in for it.
+  if (atNum(co[0]) > 0) AT.envFetch(atNum(co[0]));
   AT.placeView();
   run_function("atlas_render", {}, "atlas");
   // The Areas tab: when a count changed, or you crossed into another area.
