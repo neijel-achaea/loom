@@ -56,6 +56,17 @@ if (atCmd === "" || atCmd === "status") {
 } else if (atCmd === "go") {
   if (/^\d+$/.test(atRest)) AT.go(atRest);
   else display_notice("[atlas] ATLAS GO <room number>.", "orange");
+} else if (atCmd === "stop") {
+  if (AT.walk) AT.walkEnd("ATLAS STOP");
+  else display_notice("[atlas] not walking anywhere.", "cyan");
+} else if (atCmd === "route") {
+  if (!/^\d+$/.test(atRest)) display_notice("[atlas] ATLAS ROUTE <room number>: the route Atlas would walk, without walking it.", "orange");
+  else if (!AT.here) display_notice("[atlas] Atlas doesn't know where you are yet: take a step.", "orange");
+  else {
+    var atP = AT.route(AT.here.id, Number(atRest));
+    if (!atP) display_notice("[atlas] no route from " + AT.label(AT.here.id) + " to " + AT.label(Number(atRest)) + " on the map (a click would ask the game's PATH FIND).", "orange");
+    else display_notice("[atlas] " + atP.dirs.length + " step" + (atP.dirs.length === 1 ? "" : "s") + " to " + AT.label(Number(atRest)) + ": " + atP.dirs.join(", ") + ".", "cyan");
+  }
 } else if (atCmd === "tag" || atCmd === "untag") {
   var atTa = AT.findArea(atRest);
   if (!atTa || !atTa.rest) display_notice("[atlas] ATLAS " + atCmd.toUpperCase() + " <area|number|HERE> <tag> [tag…]" + (atCmd === "untag" ? ", or ALL" : "") + (AT.map ? "" : " (the map isn't loaded)") + ".", "orange");

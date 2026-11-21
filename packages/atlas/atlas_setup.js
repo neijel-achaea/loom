@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.11.3", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.12.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -83,7 +83,7 @@ AT.iconAlias = { fish: "fishing", fishing: "fishing", temple: "shrine", altar: "
 // The crowdmap's room features (#468), shown in the bottom right corner of
 // their room, in the order of this list when a room has several (all of
 // them on hover). Same 16x16 drawing as the icons above.
-AT.CACHE_F = 2;
+AT.CACHE_F = 3;        // 3: rooms carry doors (index 10) for walking
 AT.features = {
   bank: ["bank", AT.icons.bank[1]],
   postoffice: ["post office", [["f", "M1.8 4h12.4v8.5H1.8z"], ["w", "M2.6 4.8 L8 9 L13.4 4.8 V5.9 L8 10.1 L2.6 5.9 Z"]]],
@@ -204,7 +204,15 @@ AT.compact = function (src, colors, v) {
         var fk = d.slice(8);
         if (AT.features[fk]) { if (!ft) ft = []; ft.push(fk); }
       }
-      out.rooms[id] = [aid, atFloat(r.x), atFloat(r.y), atFloat(r.z), String(r.name || "").slice(0, 120), atNum(r.env), ex, sp, 0, ft];
+      // Doors the mappers marked closed (2) or locked (3), by long direction:
+      // a walk opens a closed one and goes around a locked one.
+      var dr = 0;
+      if (r.doors && typeof r.doors == "object") for (d in r.doors) {
+        if (!r.doors.hasOwnProperty(d)) continue;
+        var ds = atNum(r.doors[d]), dl = AT.LONG[String(d).toLowerCase()] || String(d).toLowerCase();
+        if ((ds === 2 || ds === 3) && /^[a-z]{1,10}$/.test(dl)) { if (!dr) dr = {}; dr[dl] = ds; }
+      }
+      out.rooms[id] = [aid, atFloat(r.x), atFloat(r.y), atFloat(r.z), String(r.name || "").slice(0, 120), atNum(r.env), ex, sp, 0, ft, dr];
       out.n++;
     }
   }
@@ -574,6 +582,7 @@ AT.roomInfo = function (g) {
   // sent, never a crowdmap area's number standing in for it.
   if (atNum(co[0]) > 0) AT.envFetch(atNum(co[0]));
   AT.placeView();
+  if (AT.walk) AT.walkArrive(id);
   run_function("atlas_render", {}, "atlas");
   // The Areas tab: when a count changed, or you crossed into another area.
   var counted = AT.here.area ? AT.recount(AT.here.area) : false;
@@ -1050,15 +1059,110 @@ AT.placeView = function () {
 };
 
 // ---- Walking ---------------------------------------------------------
+// One click, one destination (docs/safety.md): Atlas finds the shortest
+// route on its own map, sends one step, waits for the game to put you in the
+// next room, sends the next, and stops on arrival. It also stops when you
+// leave the route (you moved, were moved, followed someone), when a step
+// gets no answer (AT.walkWait), on ATLAS STOP, and when Loom is paused. With
+// no route on the map, the game's PATH FIND is asked instead.
+// Ordinary exits only for now: special exits and wormholes come later.
+AT.walkWait = 4000;
+if (AT.walk === undefined) AT.walk = null;
+AT.label = function (id) { var R = AT.room(id); return (R && R.n ? R.n + " " : "") + "(" + id + ")"; };
+// The shortest route from one room to another over ordinary exits, around
+// locked doors: { rooms: [from, …, to], dirs: [dir, …] }, or null.
+AT.route = function (from, to) {
+  var M = AT.map;
+  if (!M || !M.rooms[from] || !M.rooms[to] || from === to) return null;
+  var dist = {}, prev = {}, how = {}, heap = [[0, from]];
+  dist[from] = 0;
+  function push(x) { heap.push(x); var i = heap.length - 1; while (i) { var p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; var t = heap[p]; heap[p] = heap[i]; heap[i] = t; i = p; } }
+  function pop() {
+    var top = heap[0], last = heap.pop();
+    if (heap.length) {
+      heap[0] = last;
+      for (var i = 0; ;) {
+        var a = 2 * i + 1, b = a + 1, m = i;
+        if (a < heap.length && heap[a][0] < heap[m][0]) m = a;
+        if (b < heap.length && heap[b][0] < heap[m][0]) m = b;
+        if (m === i) break;
+        var t = heap[m]; heap[m] = heap[i]; heap[i] = t; i = m;
+      }
+    }
+    return top;
+  }
+  while (heap.length) {
+    var top = pop(), d = top[0], u = top[1];
+    if (u === to) break;
+    if (d > dist[u]) continue;
+    var R = M.rooms[u];
+    if (!R) continue;
+    var ex = R[6] || {}, doors = R[10] || {};
+    for (var dir in ex) {
+      if (!ex.hasOwnProperty(dir) || doors[dir] === 3) continue;
+      var v = ex[dir], V = M.rooms[v];
+      if (!V || V[0] === AT.SKETCH) continue;
+      var nd = d + 1;
+      if (dist[v] === undefined || nd < dist[v]) { dist[v] = nd; prev[v] = u; how[v] = dir; push([nd, v]); }
+    }
+  }
+  if (dist[to] === undefined) return null;
+  var rooms = [to], dirs = [];
+  for (var c = to; c !== from; c = prev[c]) { dirs.unshift(how[c]); rooms.unshift(prev[c]); }
+  return { rooms: rooms, dirs: dirs };
+};
 AT.go = function (id) {
   id = atNum(id);
   if (!(id > 0)) return;
   if (get_variable("pauseTriggers") == "on") { display_notice("[atlas] Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
-  var R = AT.room(id), label = (R && R.n ? R.n + " " : "") + "(" + id + ")";
+  var R = AT.room(id), label = AT.label(id);
   if (AT.here && AT.here.id === id) { display_notice("[atlas] you're in " + label + " already.", "cyan"); return; }
   if (R && R.a === AT.SKETCH) { display_notice("[atlas] " + label + " is on no map: PATH FIND can't walk there. Use its exits.", "orange"); return; }
-  send_command("path find " + id, 1);
-  display_notice("[atlas] walking to " + label + ".", "cyan");
+  if (AT.walk) AT.walkEnd(null);
+  var P = AT.here ? AT.route(AT.here.id, id) : null;
+  if (!P) {
+    send_command("path find " + id, 1);
+    display_notice("[atlas] no route to " + label + " on the map: asking the game (PATH FIND).", "cyan");
+    return;
+  }
+  AT.walk = { to: id, rooms: P.rooms, dirs: P.dirs, i: 0, t: null, at: 0 };
+  display_notice("[atlas] walking to " + label + ": " + P.dirs.length + " step" + (P.dirs.length === 1 ? "" : "s") + ". ATLAS STOP to stop.", "cyan");
+  AT.walkStep();
+  run_function("atlas_render", {}, "atlas");
+};
+// Send the next step (opening a door the map marks closed first).
+AT.walkStep = function () {
+  var W = AT.walk;
+  if (!W) return;
+  if (get_variable("pauseTriggers") == "on") { AT.walkEnd("Loom was paused"); return; }
+  var from = W.rooms[W.i], dir = W.dirs[W.i], R = AT.map && AT.map.rooms[from];
+  if (R && R[10] && R[10][dir] === 2) send_command("open door " + dir, 1);
+  send_command(dir, 1);
+  W.at = Date.now();
+  if (W.t) clearTimeout(W.t);
+  var step = W.i;
+  W.t = setTimeout(function () {
+    if (AT.walk === W && W.i === step) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
+  }, AT.walkWait);
+};
+// Each room you arrive in (from roomInfo).
+AT.walkArrive = function (id) {
+  var W = AT.walk;
+  if (!W) return;
+  if (id === W.to) { AT.walkEnd(""); return; }
+  if (id === W.rooms[W.i]) return;                 // the same room again
+  if (id === W.rooms[W.i + 1]) { W.i++; AT.walkStep(); return; }
+  AT.walkEnd("you left the route in " + AT.label(id));
+};
+// why: "" arrived, null replaced by a new walk (quiet), else the reason it stopped.
+AT.walkEnd = function (why) {
+  var W = AT.walk;
+  if (!W) return;
+  if (W.t) clearTimeout(W.t);
+  AT.walk = null;
+  if (why === "") display_notice("[atlas] arrived at " + AT.label(W.to) + ".", "lime");
+  else if (why) display_notice("[atlas] stopped walking to " + AT.label(W.to) + ": " + why + ".", "orange");
+  run_function("atlas_render", {}, "atlas");
 };
 
 AT.setFog = function (on) {
