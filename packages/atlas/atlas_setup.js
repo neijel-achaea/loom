@@ -1071,6 +1071,7 @@ AT.placeView = function () {
 // no route on the map, the game's PATH FIND is asked instead.
 // Ordinary exits only for now: special exits and wormholes come later.
 AT.walkWait = 4000;
+AT.arrivedMs = 250;
 AT.setOwnWalk = function (on) {
   AT.ownWalk = !!on;
   if (on) set_variable("atlas_walk", "atlas"); else { delete_variable("atlas_walk"); if (AT.walk) AT.walkEnd("ATLAS WALK GAME"); }
@@ -1195,7 +1196,9 @@ AT.walkEnd = function (why) {
   if (W.t) clearTimeout(W.t);
   if (W.retry) clearTimeout(W.retry);
   AT.walk = null;
-  if (why === "") display_notice("[atlas] arrived at " + AT.label(W.to) + ".", "lime");
+  // Arrived: the room's information reaches Atlas before its text, so the
+  // notice waits a moment to show under the room rather than above it.
+  if (why === "") { var arrived = AT.label(W.to); setTimeout(function () { display_notice("[atlas] arrived at " + arrived + ".", "lime"); }, AT.arrivedMs); }
   else if (why) display_notice("[atlas] stopped walking to " + AT.label(W.to) + ": " + why + ".", "orange");
   run_function("atlas_render", {}, "atlas");
 };
