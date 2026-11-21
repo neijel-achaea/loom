@@ -86,7 +86,7 @@ function forTxt(ms) {
 
 // A name's colour: its first watched group's, or in SOCIAL COLOURS STANDINGS
 // mode its band's (plain when not on the books; groups ignored, #60).
-function nameCol(n, g) { return S.colourBy === "standings" ? (S.nameColour(n) || TXT) : (S.color[g] || TXT); }
+function nameCol(n, g) { return S.colourBy === "standings" ? (S.nameColour(n) || TXT) : (S.color[g] || (kosOnly[n] ? S.color.enemies : TXT) || TXT); }
 
 // name -> its first watched group, in priority order (the colour it takes).
 var grp = {};
@@ -97,6 +97,16 @@ for (var gi = 0; gi < S.groups.length; gi++) {
   for (var nm in S.lists[g]) {
     if (S.lists[g].hasOwnProperty(nm) && !grp[nm] && nm !== S.me) { grp[nm] = g; watchedN++; }
   }
+}
+// Tagged kill on sight: listed whether or not their group is watched
+// (Ricardo), under their first group, or "kill on sight" in the enemies
+// colour when they're in none. Only listed: no login notices for them.
+var kosOnly = {};
+for (var kn in S.tags) {
+  if (!S.tags.hasOwnProperty(kn) || grp[kn] || kn === S.me || S.tags[kn].indexOf("kos") < 0) continue;
+  grp[kn] = S.look.group(kn) || "kill on sight";
+  if (!S.lists[grp[kn]]) kosOnly[kn] = true;
+  watchedN++;
 }
 
 // Rows: watched and online, plus watched people who just left.

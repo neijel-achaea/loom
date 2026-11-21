@@ -82,7 +82,7 @@ A tag is a mark you put on someone by hand: a small icon after their name in the
 | `lead` | gold crown | an org lead: a minister, a house or order leader |
 | `kos` | red crosshair | kill on sight: an especially nasty enemy |
 
-`SOCIAL TAG novice Mealla` puts one on, `SOCIAL UNTAG novice Mealla` takes it off, `SOCIAL TAGS` lists who carries which (`SOCIAL TAGS kos` just one). Hover the icon for the tag's name. Tags stay until you take them off. Room still gives the same leaf to anyone it sees wearing a newbie title, so tag only the ones it can't spot.
+`SOCIAL TAG novice Mealla` puts one on, `SOCIAL UNTAG novice Mealla` takes it off, `SOCIAL TAGS` lists who carries which (`SOCIAL TAGS kos` just one). Hover the icon for the tag's name. Tags stay until you take them off. People tagged `kos` are always in the Online tab (and its offline section), whether or not their group is watched, in their group's colour (the enemies colour if they're in no group); they still bring no login notices unless their group is watched. Room still gives the same leaf to anyone it sees wearing a newbie title, so tag only the ones it can't spot.
 
 ### Watching
 
