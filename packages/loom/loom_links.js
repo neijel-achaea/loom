@@ -219,20 +219,22 @@ client.loom.gone = function (pkg) {
 // #162 social -> room: players in the Here tab in their highlight colours.
 L.addLink({
   id: "social-room", src: "social", dst: "room", issue: 162,
-  desc: "Players in the Here tab in their highlight colours",
+  desc: "Players in the Here tab in their highlight colours, with their tags",
   answers: {
     "person.colour": function (n) { var s = client.loom.social; return s && s.look ? s.look.colour(n) : undefined; },
-    "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; }
+    "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; },
+    "person.tags": function (n) { var s = client.loom.social; return s && s.look && s.look.tags ? s.look.tags(n) : undefined; }
   }
 });
 
 // #160 social -> comms: talkers and Tells in their highlight colours.
 L.addLink({
   id: "social-comms", src: "social", dst: "comms", issue: 160,
-  desc: "Names in the Comms tab in their highlight colours",
+  desc: "Names in the Comms tab in their highlight colours, with their tags",
   answers: {
     "person.colour": function (n) { var s = client.loom.social; return s && s.look ? s.look.colour(n) : undefined; },
-    "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; }
+    "person.group": function (n) { var s = client.loom.social; return s && s.look ? s.look.group(n) : undefined; },
+    "person.tags": function (n) { var s = client.loom.social; return s && s.look && s.look.tags ? s.look.tags(n) : undefined; }
   }
 });
 

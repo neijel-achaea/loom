@@ -493,6 +493,7 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 |---|---|---|---|---|
 | `social_lists` | setting | 0.2 | people per group | `hlFamily`, `hlEnemies`, `hlOrder`, `hlHouse`, `hlCity`, `hlAllies`, `hlFriends` |
 | `social_colors` | setting | 0.2 | group colours | `hlColor_<group>` |
+| `social_tags` | data | 1.2 | tags put on people by hand (`{ name: [novice, lead, kos] }`); absent when none |  |
 | `social_watch` | setting | 0.2 | groups watched in Online | `wlWatch` |
 | `social_poll` | setting | 0.2 | QW polling | `wlEnabled` |
 | `social_poll_every` | setting | 1.0 | seconds between polls |  |

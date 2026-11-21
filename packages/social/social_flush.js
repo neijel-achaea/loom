@@ -77,7 +77,8 @@ if (!soNames.length) {
 }
 // Last seen, for the Offline section: everyone listed who is online now. Those
 // who just left keep the time of the last poll that saw them.
-var soListed = function (n) { for (var g = 0; g < S.groups.length; g++) { if (S.lists[S.groups[g]][n]) return true; } return false; };
+// Tagged kill on sight counts too (they're in the Online tab whatever is watched).
+var soListed = function (n) { for (var g = 0; g < S.groups.length; g++) { if (S.lists[S.groups[g]][n]) return true; } return !!(S.tags && S.tags[n] && S.tags[n].indexOf("kos") >= 0); };
 var soSeenNow = Date.now();
 for (var soS1 = 0; soS1 < soNames.length; soS1++) { if (soListed(soNames[soS1])) S.seen[soNames[soS1]] = soSeenNow; }
 if (soDown > 0 || soSeenNow - S.seenSaved > 60000) {

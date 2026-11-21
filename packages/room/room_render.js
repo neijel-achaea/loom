@@ -190,6 +190,14 @@ if (!R.info) {
   // on; otherwise plain. The target glow still wins.
   var LL = client.loom.loom;
   var ask = function (q, n) { return (LL && LL.answer) ? LL.answer("room", q, n) : undefined; };
+  // After a name: the newbie leaf for a title worn now, unless social tags
+  // them novice too, then social's tags (novice, org lead, kill on sight).
+  var marks = function (n) {
+    var tg = ask("person.tags", n) || [], nov = false, h = "";
+    for (var ti = 0; ti < tg.length; ti++) { if (tg[ti].id === "novice") nov = true; h += tg[ti].icon || ""; }
+    var nt = R.newbieTitle(n, R.players[n]);
+    return (nt && !nov ? R.leaf("newbie (" + nt + ")") : "") + h;
+  };
   for (var pi = 0; pi < pl.length; pi++) {
     var isT = pl[pi] === tgtPl;
     var pHp = (isT && useGmcp && R.target.hp !== "") ? R.target.hp + "%" : (isT ? "target" : "");
@@ -197,7 +205,7 @@ if (!R.info) {
     var pGrp = ask("person.group", pl[pi]);
     var pTitle = R.players[pl[pi]] || "";
     if (pGrp) pTitle = (pTitle ? pTitle + " \u00b7 " : "") + pGrp;
-    html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>' + (R.newbieTitle(pl[pi], R.players[pl[pi]]) ? R.leaf("newbie (" + R.newbieTitle(pl[pi], R.players[pl[pi]]) + ")") : ''), pTitle, pHp, isT ? PGLOW : false);
+    html += row(1, '<span style="font-family:' + SERIF + ';font-size:14px;color:' + (isT ? PGLOW + ';text-shadow:0 0 6px ' + PGLOW + ',0 0 2px ' + PGLOW : (pCol || TXT)) + ';">' + esc(pl[pi]) + '</span>' + marks(pl[pi]), pTitle, pHp, isT ? PGLOW : false);
   }
 
   // Mobs and items, in the room's own order (R.order; ids not in it, which

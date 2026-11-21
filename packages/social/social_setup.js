@@ -10,7 +10,7 @@ if (!client.loom.social) client.loom.social = {};
 // colours (Here, Comms).
 // busy (#318): true while a QW poll's answer is still coming, so Here's
 // loyal probe waits its turn. A capture open for 5 s no longer counts.
-client.loom.registry.social = { version: "1.1.0", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
+client.loom.registry.social = { version: "1.2.0", keyword: "SOCIAL", desc: "{{description}}", busy: function () {
   var Sq = client.loom.social;
   return !!(Sq && Sq.capturing && Date.now() - (Sq.capAt || 0) < 5000);
 }, redraw: function () {
@@ -194,8 +194,54 @@ S.look = {
     for (var i = 0; i < S.groups.length; i++) { if (S.lists[S.groups[i]] && S.lists[S.groups[i]][n]) return S.groups[i]; }
     return undefined;
   },
-  colour: function (name) { return S.nameColour(name); }
+  colour: function (name) { return S.nameColour(name); },
+  // tags(name) -> [{ id, label, icon }] in S.tagDefs order; icon is a small
+  // inline span (styles inline, so any tab can drop it after a name).
+  tags: function (name) {
+    var ids = S.tags[String(name || "").trim().toLowerCase()], out = [];
+    if (!ids) return out;
+    for (var i = 0; i < S.tagDefs.length; i++) { var d = S.tagDefs[i]; if (ids.indexOf(d.id) >= 0) out.push({ id: d.id, label: d.label, icon: S.tagIcon(d.id) }); }
+    return out;
+  }
 };
+// Tags (Ricardo): a fixed set of marks put on people by hand, each an icon
+// after their name in Online, Here and Comms. Apart from groups: a group
+// colours a name and has a priority; a person can carry any number of tags.
+// novice: Cyrene has no newbie titles, so room can't spot its novices (room
+// still gives the same leaf to anyone seen with a newbie title). Saved as
+// social_tags: { lowercasename: [tag ids] }, absent when nobody is tagged.
+S.tagDefs = [
+  { id: "novice", label: "novice", svg: '<path d="M1.2 8.8C1.2 4.2 3.8 1.2 8.8 1.2C8.8 6.2 5.8 8.8 1.2 8.8Z" fill="#8fd694"/><path d="M1.6 8.4L6.2 3.8" stroke="#2f5532" stroke-width="0.9"/>' },
+  { id: "lead", label: "org lead", svg: '<path d="M1 7.4L1.5 2.8L3.7 4.9L5 1.4L6.3 4.9L8.5 2.8L9 7.4Z" fill="#f2c14e"/><rect x="1" y="7.9" width="8" height="1.4" fill="#f2c14e"/>' },
+  { id: "kos", label: "kill on sight", svg: '<circle cx="5" cy="5" r="3.3" fill="none" stroke="#ff5f5f" stroke-width="1.2"/><path d="M5 0.4V3M5 7V9.6M0.4 5H3M7 5H9.6" stroke="#ff5f5f" stroke-width="1.2"/><circle cx="5" cy="5" r="0.9" fill="#ff5f5f"/>' }
+];
+S.tagDef = function (id) {
+  id = String(id || "").toLowerCase();
+  for (var i = 0; i < S.tagDefs.length; i++) { if (S.tagDefs[i].id === id) return S.tagDefs[i]; }
+  return null;
+};
+S.tagIcon = function (id, tip) {
+  var d = S.tagDef(id);
+  if (!d) return "";
+  tip = String(tip || d.label).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  return '<span title="' + tip + '" style="margin-left:4px;cursor:default;"><svg width="10" height="10" viewBox="0 0 10 10" style="vertical-align:-1px;" xmlns="http://www.w3.org/2000/svg">' + d.svg + '</svg></span>';
+};
+if (!S.tags || typeof S.tags != "object") {
+  var soTg = null;
+  try { soTg = get_variable("social_tags"); if (typeof soTg == "string") soTg = JSON.parse(soTg); } catch (e) { soTg = null; }
+  S.tags = {};
+  if (soTg && typeof soTg == "object" && !Array.isArray(soTg)) {
+    for (var soTk in soTg) {
+      if (!soTg.hasOwnProperty(soTk) || !Array.isArray(soTg[soTk])) continue;
+      var soTl = soTg[soTk].filter(function (t) { return !!S.tagDef(t); });
+      if (soTl.length) S.tags[soTk] = soTl;
+    }
+  }
+}
+S.saveTags = function () {
+  try { if (Object.keys(S.tags).length) set_variable("social_tags", JSON.stringify(S.tags)); else delete_variable("social_tags"); } catch (e) {}
+};
+
 // A reimport may change lists or colours: tell loom (guarded: social works
 // without it).
 if (client.loom.notify) client.loom.notify("social");
