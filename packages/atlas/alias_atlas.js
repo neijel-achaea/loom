@@ -54,16 +54,31 @@ if (atCmd === "" || atCmd === "status") {
   else if (!atW) display_notice("[atlas] the wilderness map shows " + (AT.wildOn ? "in the Atlas tab, as " + (AT.wildStyle === "text" ? "the game's letters" : "tiles") : "in the main window") + ". ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND|DUMP.", "cyan");
   else display_notice("[atlas] ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND|DUMP.", "orange");
 } else if (atCmd === "go") {
-  if (/^\d+$/.test(atRest)) AT.go(atRest);
-  else display_notice("[atlas] ATLAS GO <room number>.", "orange");
+  if (atRest) AT.goPlace(atRest);
+  else display_notice("[atlas] ATLAS GO <room number | area | denizen>.", "orange");
 } else if (atCmd === "walk") {
   var atWk = atRest.toLowerCase();
-  if (atWk === "atlas" || atWk === "game") { AT.setOwnWalk(atWk === "atlas"); display_notice("[atlas] clicks now walk " + (atWk === "atlas" ? "Atlas's own route, a step at a time (the game's PATH FIND where the map has none). ATLAS WALK GAME to go back." : "with the game's PATH FIND."), "lime"); }
-  else display_notice("[atlas] clicks walk " + (AT.ownWalk ? "Atlas's own route" : "with the game's PATH FIND") + ". ATLAS WALK ATLAS|GAME.", atWk ? "orange" : "cyan");
+  // PATHFIND | CUSTOM (Ricardo); ATLAS | GAME still understood (test builds).
+  if (atWk === "atlas") atWk = "custom"; else if (atWk === "game") atWk = "pathfind";
+  if (atWk === "custom" || atWk === "pathfind") { AT.setOwnWalk(atWk === "custom"); display_notice("[atlas] clicks now walk " + (atWk === "custom" ? "Atlas's own route, a step at a time (the game's PATH FIND where the map has none). ATLAS WALK PATHFIND to go back." : "with the game's PATH FIND."), "lime"); }
+  else display_notice("[atlas] clicks walk " + (AT.ownWalk ? "Atlas's own route" : "with the game's PATH FIND") + ". ATLAS WALK PATHFIND|CUSTOM.", atWk ? "orange" : "cyan");
 } else if (atCmd === "wormholes" || atCmd === "worms") {
   var atWo = atRest.toLowerCase();
   if (atWo === "on" || atWo === "off") { AT.setWorms(atWo === "on"); display_notice("[atlas] Atlas's routes " + (atWo === "on" ? "take wormholes (WORM WARP) where they're shorter." : "leave wormholes out."), "lime"); }
   else display_notice("[atlas] Atlas's routes " + (AT.useWorms ? "take" : "leave out") + " wormholes. ATLAS WORMHOLES ON|OFF.", atWo ? "orange" : "cyan");
+} else if (atCmd === "broken") {
+  var atBk = Object.keys(AT.broken).sort();
+  if (/^clear\b/i.test(atRest)) {
+    var atBr = atRest.replace(/^clear\s*/i, "");
+    var atBn = 0;
+    for (var atBi = 0; atBi < atBk.length; atBi++) if (!atBr || atBk[atBi].split("|")[0] === atBr) { delete AT.broken[atBk[atBi]]; atBn++; }
+    AT.brokenSave();
+    display_notice("[atlas] forgot " + atBn + " broken shortcut" + (atBn === 1 ? "" : "s") + (atBr ? " in room " + atBr : "") + ": routes may take " + (atBn === 1 ? "it" : "them") + " again.", "lime");
+  } else if (!atBk.length) display_notice("[atlas] no broken shortcuts: every one the map has is used (when it's on).", "cyan");
+  else {
+    var atBl = atBk.map(function (k) { var p = k.split("|"); return p[1] + " in " + AT.label(Number(p[0])) + " (" + new Date(AT.broken[k]).toISOString().slice(0, 10) + ")"; });
+    display_notice("[atlas] " + atBk.length + " broken shortcut" + (atBk.length === 1 ? "" : "s") + ", left out of routes: " + atBl.join("; ") + ". ATLAS BROKEN CLEAR [room] forgets them.", "cyan");
+  }
 } else if (atCmd === "stop") {
   if (AT.walk) AT.walkEnd("ATLAS STOP");
   else display_notice("[atlas] not walking anywhere.", "cyan");

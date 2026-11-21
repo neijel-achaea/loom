@@ -16,14 +16,14 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.13.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.14.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
 AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 // Saved (per character, as every Nexus variable):
 //   atlas_fog = "off" while fog of war is off (absent: on);
-//   atlas_walk = "atlas" while clicks walk Atlas's own route (absent: the
+//   atlas_walk = "custom" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
 //   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
 //   atlas_wild = "off" while the wilderness map stays in the main window
@@ -40,7 +40,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //     exploring them (inns and the like), so they stay out of the totals.
 // A variable that isn't readable starts afresh (#135).
 AT.fog = get_variable("atlas_fog") !== "off";
-AT.ownWalk = get_variable("atlas_walk") === "atlas";
+AT.ownWalk = get_variable("atlas_walk") === "custom" || get_variable("atlas_walk") === "atlas";   // "atlas": test builds before the rename
 AT.wildOn = get_variable("atlas_wild") !== "off";
 AT.wildStyle = get_variable("atlas_wild_style") === "text" ? "text" : "tiles";
 AT.readJson = function (name) {
@@ -1063,7 +1063,7 @@ AT.placeView = function () {
 };
 
 // ---- Walking ---------------------------------------------------------
-// Opt in (ATLAS WALK ATLAS): until then a click sends the game's PATH FIND.
+// Opt in (ATLAS WALK CUSTOM): until then a click sends the game's PATH FIND.
 // One click, one destination (docs/safety.md): Atlas finds the shortest
 // route on its own map, sends one step, waits for the game to put you in the
 // next room, sends the next, and stops on arrival. It also stops when you
@@ -1078,19 +1078,68 @@ AT.walkWait = 4000;
 // turn them on, since most characters can't use them (Ricardo): ATLAS
 // WORMHOLES ON (setting atlas_worms = "on"). Other special exits: not yet;
 // never "buy …" or the crowdmap's "script:" exits (Ricardo).
-AT.wormCost = 5;
-AT.warpWait = 20000;
-// A warp is instant but takes equilibrium (about 4 s, Ricardo): walking on
-// is fine, a second warp isn't. A warp step waits until Char.Vitals shows
-// equilibrium back (AT.eq), at most AT.eqWait. Atlas marks it lost itself
-// as it sends a warp, since the room can arrive before the vitals that say
-// so. null: not known yet (taken as there).
+// Cost: the warp is instant, but you can't move for ~4.3 s after it while
+// equilibrium comes back (Ricardo's log 17:51), and a step takes ~0.42 s on
+// a walk: about 10 steps.
+AT.wormCost = 10;
+AT.warpWait = 6000;          // a warp is instant (Ricardo): no room in 6 s, it isn't there
+// Shortcuts the crowdmap has that the game doesn't (Ricardo: no wormhole at
+// 9553, the map says there is one): a special step with no answer is marked
+// broken, left out of routes, and the walk goes another way from where you
+// are (at most AT.detourMax times a walk). Kept in the browser (key "broken",
+// { "room|command": when }) for AT.brokenDays; ATLAS BROKEN lists them,
+// ATLAS BROKEN CLEAR forgets them. Ordinary exits aren't marked: a step that
+// fails is more often you (stunned, prone) than the map.
+AT.detourMax = 3;
+AT.brokenDays = 30;
+if (!AT.broken || typeof AT.broken != "object") AT.broken = {};
+AT.brokenLoad = function () {
+  AT.idb("readonly", "broken").then(function (v) {
+    if (!v || typeof v != "object") return;
+    var old = Date.now() - AT.brokenDays * 86400000, gone = false;
+    for (var k in v) if (v.hasOwnProperty(k) && /^\d+\|.{1,60}$/.test(k)) { if (atNum(v[k]) > old) AT.broken[k] = atNum(v[k]); else gone = true; }
+    if (gone) AT.brokenSave();
+  });
+};
+AT.brokenSave = function () { AT.idb("readwrite", "broken", AT.broken); };
+AT.markBroken = function (room, cmd) { AT.broken[room + "|" + cmd] = Date.now(); AT.brokenSave(); };
+// A warp is instant but takes equilibrium, and you can't move until it's
+// back ("You are recovering equilibrium and cannot move yet.", Ricardo's log
+// 17:51). So every step waits until Char.Vitals shows equilibrium (AT.eq),
+// at most AT.eqWait. Atlas marks it lost itself as it sends a warp, since the
+// room can arrive before the vitals that say so. null: not known yet (taken
+// as there). If the game refuses a step for it anyway (the trigger "Atlas
+// walk no equilibrium"), it keeps that move and makes it when equilibrium
+// returns (the log: you moved without a new command), so Atlas waits for the
+// room rather than resending, and resends only if none comes in AT.queuedMs.
 AT.eqWait = 15000;
 if (AT.eq === undefined) AT.eq = null;
+AT.queuedMs = 1500;
 AT.vitals = function (v) {
   AT.eq = String(v.eq) == "1";
   var W = AT.walk;
-  if (AT.eq && W && W.eqWait) { W.eqWait = false; if (W.t) { clearTimeout(W.t); W.t = null; } AT.walkStep(); }
+  if (!AT.eq || !W || !W.eqWait) return;
+  W.eqWait = false;
+  if (W.t) { clearTimeout(W.t); W.t = null; }
+  if (!W.queued) { AT.walkStep(); return; }
+  // The game holds the refused step and makes it now: wait for the room.
+  W.queued = false;
+  var step = W.i;
+  W.t = setTimeout(function () { if (AT.walk === W && W.i === step) AT.walkStep(true); }, AT.queuedMs);
+};
+// The game refused a step: "You are recovering equilibrium and cannot move yet."
+AT.walkNoEq = function () {
+  var W = AT.walk;
+  if (!W) return;
+  AT.eq = false;
+  W.eqWait = true;
+  W.queued = true;
+  if (W.t) clearTimeout(W.t);
+  if (W.retry) { clearTimeout(W.retry); W.retry = null; }
+  var step = W.i;
+  W.t = setTimeout(function () {
+    if (AT.walk === W && W.i === step && W.eqWait) AT.walkEnd("equilibrium didn't come back in " + AT.label(W.rooms[W.i]));
+  }, AT.eqWait);
 };
 AT.useWorms = get_variable("atlas_worms") === "on";
 AT.setWorms = function (on) {
@@ -1105,16 +1154,23 @@ AT.specialCost = function (cmd) {
 AT.arrivedMs = 250;
 AT.setOwnWalk = function (on) {
   AT.ownWalk = !!on;
-  if (on) set_variable("atlas_walk", "atlas"); else { delete_variable("atlas_walk"); if (AT.walk) AT.walkEnd("ATLAS WALK GAME"); }
+  if (on) set_variable("atlas_walk", "custom"); else { delete_variable("atlas_walk"); if (AT.walk) AT.walkEnd("ATLAS WALK PATHFIND"); }
 };
 if (AT.walk === undefined) AT.walk = null;
 AT.label = function (id) { var R = AT.room(id); return (R && R.n ? R.n + " " : "") + "(" + id + ")"; };
 // The shortest route from one room to another over ordinary exits, around
 // locked doors: { rooms: [from, …, to], dirs: [dir, …] }, or null.
 AT.route = function (from, to) {
+  if (!AT.map || !AT.map.rooms[to] || from === to) return null;
+  return AT.routeAny(from, function (u) { return u === to; });
+};
+// The shortest route to the nearest room for which goal(room) is true (not
+// the room you start in): { rooms, dirs, to }, or null. One search, however
+// many rooms qualify: an area's rooms, the rooms an NPC is listed in.
+AT.routeAny = function (from, goal) {
   var M = AT.map;
-  if (!M || !M.rooms[from] || !M.rooms[to] || from === to) return null;
-  var dist = {}, prev = {}, how = {}, heap = [[0, from]];
+  if (!M || !M.rooms[from]) return null;
+  var dist = {}, prev = {}, how = {}, heap = [[0, from]], to = null;
   dist[from] = 0;
   function push(x) { heap.push(x); var i = heap.length - 1; while (i) { var p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; var t = heap[p]; heap[p] = heap[i]; heap[i] = t; i = p; } }
   function pop() {
@@ -1133,8 +1189,8 @@ AT.route = function (from, to) {
   }
   while (heap.length) {
     var top = pop(), d = top[0], u = top[1];
-    if (u === to) break;
     if (d > dist[u]) continue;
+    if (u !== from && goal(u)) { to = u; break; }
     var R = M.rooms[u];
     if (!R) continue;
     var ex = R[6] || {}, doors = R[10] || {}, sp = R[7] || {};
@@ -1149,17 +1205,17 @@ AT.route = function (from, to) {
     for (var cmd in sp) {
       if (!sp.hasOwnProperty(cmd)) continue;
       var cost = AT.specialCost(cmd);
-      if (!(cost > 0)) continue;
+      if (!(cost > 0) || AT.broken[u + "|" + cmd]) continue;
       var v2 = sp[cmd], V2 = M.rooms[v2];
       if (!V2 || V2[0] === AT.SKETCH) continue;
       var nd2 = d + cost;
       if (dist[v2] === undefined || nd2 < dist[v2]) { dist[v2] = nd2; prev[v2] = u; how[v2] = cmd; push([nd2, v2]); }
     }
   }
-  if (dist[to] === undefined) return null;
+  if (to === null) return null;
   var rooms = [to], dirs = [];
   for (var c = to; c !== from; c = prev[c]) { dirs.unshift(how[c]); rooms.unshift(prev[c]); }
-  return { rooms: rooms, dirs: dirs };
+  return { rooms: rooms, dirs: dirs, to: to };
 };
 AT.go = function (id) {
   id = atNum(id);
@@ -1184,6 +1240,99 @@ AT.go = function (id) {
   display_notice("[atlas] walking to " + label + ": " + P.dirs.length + " step" + (P.dirs.length === 1 ? "" : "s") + ". ATLAS STOP to stop.", "cyan");
   AT.walkStep();
   run_function("atlas_render", {}, "atlas");
+};
+// ---- Going to an area or a denizen (ATLAS GO <name>) --------------------
+// An area: the nearest of its rooms by the route Atlas would take (your
+// shortcut settings included), then walked as ATLAS GO <room> walks.
+// A denizen: the crowdmap's denizen list (denizen.json beside the map:
+// [{ name, loc: room }], no longer updated since its service closed, so a
+// denizen that wanders or moved since may be elsewhere). Downloaded the
+// first time it's needed and kept in the browser (key "denizens", with the
+// map version it came with).
+if (AT.den === undefined) AT.den = null;      // [[name lower, name, room]]
+AT.denLoad = function (cb) {
+  if (AT.den) { cb(true); return; }
+  var v = AT.map ? AT.map.v : "";
+  AT.idb("readonly", "denizens").then(function (c) {
+    if (c && c.v === v && Array.isArray(c.list) && c.list.length) { AT.den = c.list; cb(true); return; }
+    if (typeof fetch != "function") { cb(false); return; }
+    AT.fetchJson(AT.base + "denizen.json").then(function (j) {
+      var list = [];
+      if (Array.isArray(j)) for (var i = 0; i < j.length; i++) {
+        var e = j[i], n = e && String(e.name || "").slice(0, 120), r = e && atNum(e.loc);
+        if (n && r > 0) list.push([n.toLowerCase(), n, r]);
+      }
+      if (!list.length) { cb(false); return; }
+      AT.den = list;
+      AT.idb("readwrite", "denizens", { v: v, at: Date.now(), list: list });
+      cb(true);
+    }, function () { cb(false); });
+  });
+};
+// ATLAS GO <text>: a room number, an area's name (or HERE / its number is
+// not taken: numbers are rooms), else a denizen's name.
+AT.goPlace = function (text) {
+  var t = String(text || "").trim();
+  if (/^\d+$/.test(t)) { AT.go(t); return; }
+  if (!AT.map) { display_notice("[atlas] the map isn't loaded (ATLAS RELOAD).", "orange"); return; }
+  if (!AT.here || !AT.map.rooms[AT.here.id]) { display_notice("[atlas] Atlas doesn't know where you are on the map: take a step.", "orange"); return; }
+  if (get_variable("pauseTriggers") == "on") { display_notice("[atlas] Loom is paused (LOOM PAUSE OFF to walk).", "orange"); return; }
+  var fa = /^\d/.test(t) ? null : AT.findArea(t), aids = [];
+  if (fa && !fa.rest) aids = [fa.aid];
+  else if (!/^\d/.test(t)) aids = AT.areasNamed(t);
+  if (aids.length) { AT.goArea(aids); return; }
+  display_notice("[atlas] looking for " + t + "…", "cyan");
+  AT.denLoad(function (ok) {
+    if (!ok) { display_notice("[atlas] the crowdmap's denizen list couldn't be loaded: ATLAS GO <room number> or <area>.", "orange"); return; }
+    AT.goDenizen(t);
+  });
+};
+// Areas by their short name, the crowdmap's name before the comma ("Ashtan"
+// for "Ashtan, the City of", "Delos" for "Delos, the Isle of"), any case.
+AT.areasNamed = function (t) {
+  var tl = String(t || "").toLowerCase().replace(/\s+/g, " ").trim().replace(/^the /, ""), out = [];
+  if (!tl || !AT.map) return out;
+  for (var a in AT.map.areas) {
+    if (!AT.map.areas.hasOwnProperty(a)) continue;
+    var short = String(AT.map.areas[a]).split(",")[0].toLowerCase().replace(/\s+/g, " ").trim().replace(/^the /, "");
+    if (short === tl) out.push(atNum(a));
+  }
+  return out;
+};
+// The nearest room of one of these areas (several share a short name).
+AT.goArea = function (aids) {
+  var M = AT.map, here = AT.here.id, want = {};
+  for (var i = 0; i < aids.length; i++) want[aids[i]] = true;
+  if (want[M.rooms[here][0]]) { display_notice("[atlas] you're in " + AT.title(M.rooms[here][0]) + " already.", "cyan"); return; }
+  var P = AT.routeAny(here, function (u) { return !!want[M.rooms[u][0]]; });
+  if (!P) { display_notice("[atlas] no route on the map into " + AT.title(aids[0]) + ".", "orange"); return; }
+  display_notice("[atlas] " + AT.title(M.rooms[P.to][0]) + ": the nearest room is " + AT.label(P.to) + ".", "cyan");
+  AT.go(P.to);
+};
+// Words of a name start where the query starts ("cheska" finds "Cheska, the
+// Innkeeper"; "keeper" doesn't).
+AT.denFind = function (q) {
+  var ql = String(q).toLowerCase().replace(/\s+/g, " ").trim(), out = [];
+  if (!ql || !AT.den) return out;
+  var re = new RegExp("(^|[^a-z0-9'])" + ql.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  for (var i = 0; i < AT.den.length; i++) if (re.test(AT.den[i][0]) && AT.map.rooms[AT.den[i][2]]) out.push(AT.den[i]);
+  return out;
+};
+AT.goDenizen = function (q) {
+  var found = AT.denFind(q), here = AT.here && AT.here.id;
+  if (!found.length) { display_notice("[atlas] nothing called " + q + " on the crowdmap's denizen list, nor an area by that name.", "orange"); return; }
+  var at = {}, i;
+  for (i = 0; i < found.length; i++) (at[found[i][2]] || (at[found[i][2]] = [])).push(found[i][1]);
+  if (at[here]) { display_notice("[atlas] " + at[here][0] + " is listed here, in " + AT.label(here) + ".", "cyan"); return; }
+  var P = AT.routeAny(here, function (u) { return !!at[u]; });
+  var to = P ? P.to : (Object.keys(at).length === 1 ? atNum(Object.keys(at)[0]) : 0);
+  if (!to) { display_notice("[atlas] no route on the map to " + found.length + " denizen" + (found.length === 1 ? "" : "s") + " called " + q + ".", "orange"); return; }
+  var others = [];
+  for (i = 0; i < found.length && others.length < 3; i++) if (found[i][2] !== to && others.indexOf(found[i][1]) < 0) others.push(found[i][1]);
+  var more = found.length - at[to].length;
+  display_notice("[atlas] " + at[to][0] + ": listed in " + AT.label(to) + " (the crowdmap's list; denizens move)" +
+    (more > 0 ? ". Also matching: " + others.join("; ") + (more > others.length ? " and " + (more - others.length) + " more" : "") + "." : "."), "cyan");
+  AT.go(to);
 };
 // Moving too fast ("Now now, don't be so hasty!", the trigger "Atlas walk too
 // hasty"): the step wasn't taken, so it's sent again after AT.hastyMs, at
@@ -1214,13 +1363,13 @@ AT.walkStep = function (again) {
   if (get_variable("pauseTriggers") == "on") { AT.walkEnd("Loom was paused"); return; }
   if (!again) { W.hasty = 0; if (W.retry) { clearTimeout(W.retry); W.retry = null; } }
   var from = W.rooms[W.i], dir = W.dirs[W.i], R = AT.map && AT.map.rooms[from];
-  if (!AT.BACK[dir] && AT.eq === false) {
-    // A warp off equilibrium: wait for it (AT.vitals sends the step).
+  if (AT.eq === false) {
+    // Off equilibrium (after a warp): wait for it (AT.vitals sends the step).
     W.eqWait = true;
     if (W.t) clearTimeout(W.t);
     var held = W.i;
     W.t = setTimeout(function () {
-      if (AT.walk === W && W.i === held && W.eqWait) AT.walkEnd("equilibrium didn't come back for " + dir + " in " + AT.label(from));
+      if (AT.walk === W && W.i === held && W.eqWait) AT.walkEnd("equilibrium didn't come back in " + AT.label(from));
     }, AT.eqWait);
     return;
   }
@@ -1231,8 +1380,25 @@ AT.walkStep = function (again) {
   if (W.t) clearTimeout(W.t);
   var step = W.i;
   W.t = setTimeout(function () {
-    if (AT.walk === W && W.i === step) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
+    if (AT.walk !== W || W.i !== step) return;
+    if (AT.BACK[dir]) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
+    else AT.walkDetour(from, dir);
   }, AT.BACK[dir] ? AT.walkWait : AT.warpWait);
+};
+// A shortcut that isn't there: marked broken, and a new route from this room.
+AT.walkDetour = function (from, cmd) {
+  var W = AT.walk;
+  if (!W) return;
+  AT.markBroken(from, cmd);
+  if (!AT.BACK[cmd] && AT.eq === false) AT.eq = null;     // the warp didn't happen
+  W.detours = (W.detours || 0) + 1;
+  var what = cmd === "worm warp" ? "no wormhole in " + AT.label(from) : "\"" + cmd + "\" didn't work in " + AT.label(from);
+  if (W.detours > AT.detourMax) { AT.walkEnd(what + ", and too many shortcuts failed on this walk"); return; }
+  var P = AT.route(from, W.to);
+  if (!P) { AT.walkEnd(what + " (marked: ATLAS BROKEN), and no other route"); return; }
+  W.rooms = P.rooms; W.dirs = P.dirs; W.i = 0;
+  display_notice("[atlas] " + what + ", though the map has one: marked (ATLAS BROKEN), going another way, " + P.dirs.length + " step" + (P.dirs.length === 1 ? "" : "s") + ".", "orange");
+  AT.walkStep();
 };
 // Each room you arrive in (from roomInfo).
 AT.walkArrive = function (id) {
@@ -1371,5 +1537,5 @@ try {
 AT.wildHook();
 AT.seedExplored();
 if (AT.map) { AT.rebuildKnown(); for (var atS in AT.known) if (AT.known.hasOwnProperty(atS)) AT.recount(atNum(atS)); }
-if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); AT.officialLoad(); }
+if (!AT.envLoaded) { AT.envLoaded = true; AT.envLoad(); AT.officialLoad(); AT.brokenLoad(); }
 if (client.loom.notify) client.loom.notify("atlas");

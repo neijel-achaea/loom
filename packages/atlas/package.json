@@ -99,6 +99,22 @@
       "matching": "substring",
       "whole_words": false,
       "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Atlas walk no equilibrium",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_walk_noeq.js"
+        }
+      ],
+      "text": "You are recovering equilibrium and cannot move yet.",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": "A map tab from the community crowdmap, with the rooms you've explored as fog"
