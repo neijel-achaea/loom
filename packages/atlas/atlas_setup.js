@@ -1395,8 +1395,9 @@ AT.areasLike = function (t) {
   out.sort(function (p, q) { return p.short.toLowerCase() < q.short.toLowerCase() ? -1 : 1; });
   return out.slice(0, AT.suggestMax);
 };
-// Offer areas (and denizens) to pick: clickable ATLAS GO lines where Nexus
-// can show them (links of the kind its exits use), else a notice to type from.
+// Offer areas (and denizens) to pick: clickable lines where Nexus can show
+// them (onclick → window.loomAtlas.pick(i), as Shopping's buttons; the last
+// list offered is kept in AT.picks), else a notice to type from.
 AT.suggest = function (t, areas, dens) {
   var esc = function (v) { return String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); };
   var picks = [], seen = {}, i;
@@ -1406,11 +1407,12 @@ AT.suggest = function (t, areas, dens) {
     seen[dens[i][1]] = true;
     picks.push({ cmd: "ATLAS GO " + dens[i][1], text: dens[i][1], kind: "denizen" });
   }
+  AT.picks = picks.map(function (p) { return p.cmd.replace(/^ATLAS GO /, ""); });
   var head = "[atlas] no area called " + t + ". Did you mean:";
   var html = (typeof nexusclient != "undefined" && nexusclient && typeof nexusclient.add_html_line == "function");
   if (html) {
-    var rows = picks.map(function (p) {
-      return '  <a class="mxp_send" href="#" rel="' + esc(p.cmd) + '" title="' + esc(p.cmd) + '" style="color:#7fd4ff;text-decoration:underline">' + esc(p.text) + '</a>' +
+    var rows = picks.map(function (p, i) {
+      return '  <span onclick="window.loomAtlas&&window.loomAtlas.pick(' + i + ')" title="' + esc(p.cmd) + '" style="cursor:pointer;color:#7fd4ff;text-decoration:underline">' + esc(p.text) + '</span>' +
         (p.kind === "denizen" ? ' <span style="color:#888">(denizen)</span>' : '');
     });
     nexusclient.add_html_line('<span style="color:cyan;white-space:pre-wrap">' + esc(head) + '\n' + rows.join("\n") + '</span>');
@@ -1663,7 +1665,8 @@ try {
     down: function (ev) { client.loom.atlas.down(ev); },
     move: function (ev) { client.loom.atlas.move(ev); },
     up: function (ev) { client.loom.atlas.up(ev); },
-    wheel: function (ev) { client.loom.atlas.wheel(ev); }
+    wheel: function (ev) { client.loom.atlas.wheel(ev); },
+    pick: function (i) { var p = client.loom.atlas.picks || []; if (p[i] !== undefined) client.loom.atlas.goPlace(p[i]); }
   };
 } catch (e) {}
 
