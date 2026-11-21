@@ -4,6 +4,14 @@
 // much each holds.
 if (!client.loom || !client.loom.chronicle || !client.loom.chronicle.line) run_function("chronicle_setup", [], "chronicle");
 var CR = client.loom.chronicle;
+// A summary being edited: no redraw while its box is on screen, so typing
+// isn't lost to new lines coming in (only opening, saving or cancelling, or
+// switching views, draws over it).
+var crEditBox = null;
+try { crEditBox = CR.editing ? document.getElementById("loom-chronicle-edit") : null; } catch (e) {}
+var crSkip = !!(crEditBox && !CR.editDraw);
+CR.editDraw = false;
+if (!crSkip) {
 CR.borrowDate();
 
 // Tab theme (#310): loom's city palette when one is on, else this tab's own colours.
@@ -59,9 +67,25 @@ if (today) {
 }
 
 // A summary, in the chronicle's hand.
-function prose(sum, size) {
+function prose(sum, size, it) {
+  if (it !== undefined && CR.editing === String(it)) return editBox(sum, size);
   return '<div style="font-family:' + SERIF + ';font-size:' + (size || 12) + 'px;line-height:1.45;white-space:pre-line;color:' + TXT + ';margin:3px 0 4px;">' + esc(sum.text) +
-    (sum.draft ? ' <span style="color:' + MUTED + ';font-style:italic;font-size:10px;">(so far)</span>' : '') + '</div>';
+    (sum.draft ? ' <span style="color:' + MUTED + ';font-style:italic;font-size:10px;">(so far)</span>' : '') +
+    (sum.edited ? ' <span style="color:' + MUTED + ';font-style:italic;font-size:10px;">(edited)</span>' : '') + '</div>';
+}
+// A small button in the tab's hand.
+function btn(label, onclick, tip) {
+  return '<span onclick="' + onclick + '" title="' + esc(tip) + '" style="cursor:pointer;user-select:none;color:' + SEPIA + ';font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.08em;font-size:10px;border:1px solid ' + RULE + ';border-radius:3px;padding:0 4px;white-space:nowrap;">' + label + '</span>';
+}
+// The summary as a box to correct, with save and cancel.
+function editBox(sum, size) {
+  var text = CR.editText !== undefined && CR.editText !== null && CR.editText !== "" ? CR.editText : sum.text;
+  var rows = Math.min(30, Math.max(4, Math.ceil(text.length / 70) + (text.match(/\n/g) || []).length));
+  return '<textarea id="loom-chronicle-edit" rows="' + rows + '" oninput="window.loomChronicle&&window.loomChronicle.editInput(this.value)" ' +
+    'style="display:block;width:100%;box-sizing:border-box;margin:4px 0;font-family:' + SERIF + ';font-size:' + (size || 12) + 'px;line-height:1.45;color:' + TXT + ';background:#0d0b08;border:1px solid ' + SEPIA + ';border-radius:3px;padding:4px 6px;resize:vertical;">' + esc(text) + '</textarea>' +
+    '<div style="display:flex;gap:6px;justify-content:flex-end;margin-bottom:4px;">' +
+    btn("save", "window.loomChronicle&&window.loomChronicle.editSave()", "Keep this text as the summary") +
+    btn("cancel", "window.loomChronicle&&window.loomChronicle.editCancel()", "Leave the summary as it was") + '</div>';
 }
 // What a summary still to come says about itself.
 function pending(it, finished) {
@@ -72,15 +96,20 @@ function pending(it, finished) {
 }
 // The copy button by a summary (#511 follow-up): heading and text to the clipboard.
 function copyBtn(it) {
-  return '<span onclick="window.loomChronicle&&window.loomChronicle.copy(\'' + it + '\',this)" title="Copy this summary" style="cursor:pointer;user-select:none;color:' + SEPIA + ';font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.08em;font-size:10px;border:1px solid ' + RULE + ';border-radius:3px;padding:0 4px;white-space:nowrap;">copy</span>';
+  return btn("copy", "window.loomChronicle&&window.loomChronicle.copy('" + it + "',this)", "Copy this summary");
+}
+// Copy, and edit for a finished summary (a draft is rewritten when its time ends).
+function sumBtns(it, sum) {
+  if (CR.editing === String(it)) return '';
+  return copyBtn(it) + (sum && !sum.draft ? btn("edit", "window.loomChronicle&&window.loomChronicle.edit('" + it + "')", "Correct this summary by hand") : '');
 }
 function entry(title, right, sum, size, it) {
   return '<div style="border-bottom:1px dotted ' + RULE + ';padding:3px 0;">' +
     '<div style="display:flex;gap:6px;align-items:baseline;">' +
     '<span style="flex:1 1 auto;color:' + PARCH + ';font-family:' + SERIF + ';font-size:' + (size ? size + 1 : 12) + 'px;">' + esc(title) + '</span>' +
     '<span style="color:' + MUTED + ';white-space:nowrap;">' + esc(right || "") + '</span>' +
-    (sum && it !== undefined ? copyBtn(it) : '') + '</div>' +
-    (sum ? prose(sum, size) : '') + '</div>';
+    (sum && it !== undefined ? sumBtns(it, sum) : '') + '</div>' +
+    (sum ? prose(sum, size, it) : '') + '</div>';
 }
 // The three views, as headings to click.
 var VIEWS = [["days", "Days"], ["months", "Months"], ["years", "Years"]];
@@ -122,7 +151,7 @@ if (CR.view === "months") {
 } else {
   // Today, newest first.
   var td = "";
-  if (cur && cur.sum) td += '<div style="display:flex;justify-content:flex-end;margin-top:3px;">' + copyBtn(today) + '</div>' + prose(cur.sum);
+  if (cur && cur.sum) td += '<div style="display:flex;gap:6px;justify-content:flex-end;margin-top:3px;">' + sumBtns(today, cur.sum) + '</div>' + prose(cur.sum, undefined, today);
   if (!cur || !cur.ev.length) td += quiet("Nothing recorded yet this day.");
   else {
     var shown = 0;
@@ -160,3 +189,6 @@ try {
   if (crSt.textContent !== crCss) crSt.textContent = crCss;
 } catch (e) {}
 try { set_custom_tab_html("Chronicle", html); } catch (e) {}
+// The box opened: put the cursor in it.
+if (CR.editing) { try { var crBox = document.getElementById("loom-chronicle-edit"); if (crBox && document.activeElement !== crBox) crBox.focus(); } catch (e) {} }
+}

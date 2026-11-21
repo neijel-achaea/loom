@@ -361,6 +361,9 @@ CR.written = function (it, res, manual, started) {
   if (res.status === 200 && text) {
     if (j.usage) { CR.usage.calls++; CR.usage.inTok += j.usage.input_tokens || 0; CR.usage.outTok += j.usage.output_tokens || 0; set_variable("chronicle_usage", JSON.stringify(CR.usage)); }
     var sum = { text: text, at: Date.now(), model: CR.model };
+    // Only CHRONICLE WRITE rewrites a finished summary, so an edit by hand is
+    // only lost when asked for: say so.
+    var old = CR.sumOf ? CR.sumOf(it) : null, lostEdit = !!(old && old.edited);
     if (typeof it == "number") {
       var b = CR.bucket(it, false);
       if (b) { sum.draft = it >= today; b.sum = sum; delete b.fails; }
@@ -370,7 +373,7 @@ CR.written = function (it, res, manual, started) {
       sum.draft = +it.slice(1) >= CR.yearOf(today); CR.annals.y[+it.slice(1)] = sum; delete CR.annals.f[it]; CR.saveAnnals();
     }
     CR.lastErr = "";
-    if (manual) display_notice("[chronicle] " + label + " written.", "lime");
+    if (manual) display_notice("[chronicle] " + label + " written." + (lostEdit ? " It replaces the summary you had edited." : ""), "lime");
     CR.save();
     CR.dirty();
     if (!manual) CR.due(); else CR.pump();
