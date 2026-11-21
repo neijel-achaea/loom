@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.12.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.13.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -25,6 +25,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_fog = "off" while fog of war is off (absent: on);
 //   atlas_walk = "atlas" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
+//   atlas_worms = "off" while Atlas's routes leave wormholes out (absent: used);
 //   atlas_wild = "off" while the wilderness map stays in the main window
 //     (absent: Atlas shows it);
 //   atlas_wild_style = "text" for the game's letters as sent (absent: tiles);
@@ -1069,8 +1070,25 @@ AT.placeView = function () {
 // leave the route (you moved, were moved, followed someone), when a step
 // gets no answer (AT.walkWait), on ATLAS STOP, and when Loom is paused. With
 // no route on the map, the game's PATH FIND is asked instead.
-// Ordinary exits only for now: special exits and wormholes come later.
+// Ordinary exits and wormholes; other special exits come later.
 AT.walkWait = 4000;
+// Wormholes (the crowdmap's special exit "worm warp", 650 of them, nearly all
+// both ways): a warp counts as AT.wormCost steps when routes are compared, and
+// its answer is waited for longer (AT.warpWait). ATLAS WORMHOLES OFF leaves
+// them out (setting atlas_worms = "off"). Other special exits: not yet; never
+// "buy …" or the crowdmap's "script:" exits (Ricardo).
+AT.wormCost = 5;
+AT.warpWait = 20000;
+AT.useWorms = get_variable("atlas_worms") !== "off";
+AT.setWorms = function (on) {
+  AT.useWorms = !!on;
+  if (on) delete_variable("atlas_worms"); else set_variable("atlas_worms", "off");
+};
+// The cost of a special exit for routes, 0 when Atlas doesn't take it.
+AT.specialCost = function (cmd) {
+  if (cmd === "worm warp") return AT.useWorms ? AT.wormCost : 0;
+  return 0;
+};
 AT.arrivedMs = 250;
 AT.setOwnWalk = function (on) {
   AT.ownWalk = !!on;
@@ -1106,13 +1124,23 @@ AT.route = function (from, to) {
     if (d > dist[u]) continue;
     var R = M.rooms[u];
     if (!R) continue;
-    var ex = R[6] || {}, doors = R[10] || {};
+    var ex = R[6] || {}, doors = R[10] || {}, sp = R[7] || {};
     for (var dir in ex) {
       if (!ex.hasOwnProperty(dir) || doors[dir] === 3) continue;
       var v = ex[dir], V = M.rooms[v];
       if (!V || V[0] === AT.SKETCH) continue;
       var nd = d + 1;
       if (dist[v] === undefined || nd < dist[v]) { dist[v] = nd; prev[v] = u; how[v] = dir; push([nd, v]); }
+    }
+    // Special exits Atlas uses: the command is the step (AT.specialCost).
+    for (var cmd in sp) {
+      if (!sp.hasOwnProperty(cmd)) continue;
+      var cost = AT.specialCost(cmd);
+      if (!(cost > 0)) continue;
+      var v2 = sp[cmd], V2 = M.rooms[v2];
+      if (!V2 || V2[0] === AT.SKETCH) continue;
+      var nd2 = d + cost;
+      if (dist[v2] === undefined || nd2 < dist[v2]) { dist[v2] = nd2; prev[v2] = u; how[v2] = cmd; push([nd2, v2]); }
     }
   }
   if (dist[to] === undefined) return null;
@@ -1178,7 +1206,7 @@ AT.walkStep = function (again) {
   var step = W.i;
   W.t = setTimeout(function () {
     if (AT.walk === W && W.i === step) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
-  }, AT.walkWait);
+  }, AT.BACK[dir] ? AT.walkWait : AT.warpWait);
 };
 // Each room you arrive in (from roomInfo).
 AT.walkArrive = function (id) {
