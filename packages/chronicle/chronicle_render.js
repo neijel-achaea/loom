@@ -70,11 +70,16 @@ function pending(it, finished) {
   if (CR.fails(it) >= CR.retryMs.length) return "summary failed";
   return CR.auto ? "summary to come" : "";
 }
-function entry(title, right, sum, size) {
+// The copy button by a summary (#511 follow-up): heading and text to the clipboard.
+function copyBtn(it) {
+  return '<span onclick="window.loomChronicle&&window.loomChronicle.copy(\'' + it + '\',this)" title="Copy this summary" style="cursor:pointer;user-select:none;color:' + SEPIA + ';font-family:' + SERIF + ';font-variant:small-caps;letter-spacing:0.08em;font-size:10px;border:1px solid ' + RULE + ';border-radius:3px;padding:0 4px;white-space:nowrap;">copy</span>';
+}
+function entry(title, right, sum, size, it) {
   return '<div style="border-bottom:1px dotted ' + RULE + ';padding:3px 0;">' +
     '<div style="display:flex;gap:6px;align-items:baseline;">' +
     '<span style="flex:1 1 auto;color:' + PARCH + ';font-family:' + SERIF + ';font-size:' + (size ? size + 1 : 12) + 'px;">' + esc(title) + '</span>' +
-    '<span style="color:' + MUTED + ';white-space:nowrap;">' + esc(right || "") + '</span></div>' +
+    '<span style="color:' + MUTED + ';white-space:nowrap;">' + esc(right || "") + '</span>' +
+    (sum && it !== undefined ? copyBtn(it) : '') + '</div>' +
     (sum ? prose(sum, size) : '') + '</div>';
 }
 // The three views, as headings to click.
@@ -98,7 +103,7 @@ if (CR.view === "months") {
   for (var mi = 0; mi < mlist.length; mi++) {
     var m = mlist[mi], ds = CR.daysOfMonth(m), sm = CR.annals.m[m];
     var played = ds.length + " day" + (ds.length === 1 ? "" : "s") + " played";
-    mh += entry(CR.monthName(m), (m === curM ? "this month · " : "") + (sm ? played : (pending("m" + m, m < curM) || played)), sm, 12);
+    mh += entry(CR.monthName(m), (m === curM ? "this month · " : "") + (sm ? played : (pending("m" + m, m < curM) || played)), sm, 12, "m" + m);
   }
   html += mh || '<div style="margin-top:6px;">' + quiet("No months yet. A month's summary is written when it ends, from the summaries of its days (an Achaean month is about a day of real time).") + '</div>';
 } else if (CR.view === "years") {
@@ -111,13 +116,13 @@ if (CR.view === "months") {
   for (var yi = 0; yi < ylist.length; yi++) {
     var y = ylist[yi], sy = CR.annals.y[y], nm = CR.monthsOfYear(y).length;
     var mp = nm + " month" + (nm === 1 ? "" : "s");
-    yh += entry(CR.yearName(y).replace(/^the y/, "Y"), (y === curY ? "this year · " : "") + (sy ? mp : (pending("y" + y, y < curY) || mp)), sy, 13);
+    yh += entry(CR.yearName(y).replace(/^the y/, "Y"), (y === curY ? "this year · " : "") + (sy ? mp : (pending("y" + y, y < curY) || mp)), sy, 13, "y" + y);
   }
   html += yh || '<div style="margin-top:6px;">' + quiet("No years yet. A year's summary is written when it ends, from its months (an Achaean year is about twelve days of real time).") + '</div>';
 } else {
   // Today, newest first.
   var td = "";
-  if (cur && cur.sum) td += prose(cur.sum);
+  if (cur && cur.sum) td += '<div style="display:flex;justify-content:flex-end;margin-top:3px;">' + copyBtn(today) + '</div>' + prose(cur.sum);
   if (!cur || !cur.ev.length) td += quiet("Nothing recorded yet this day.");
   else {
     var shown = 0;
@@ -141,7 +146,7 @@ if (CR.view === "months") {
     if (n.note) bits.push(n.note + " notes");
     if (n.link) bits.push(n.link + " deeds");
     var state = (!b.sum && b.d > 0 && b.ev.length) ? pending(b.d, true) : "";
-    ea += entry(CR.dayName(b.d), state || bits.join(" · ") || (b.sum ? "" : "empty"), b.sum);
+    ea += entry(CR.dayName(b.d), state || bits.join(" · ") || (b.sum ? "" : "empty"), b.sum, undefined, b.d);
   }
   if (ea) html += section("Earlier days", ea, PARCH);
 }

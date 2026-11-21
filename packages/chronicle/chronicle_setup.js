@@ -24,7 +24,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.chronicle) client.loom.chronicle = {};
-client.loom.registry.chronicle = { version: "0.2.3", keyword: "CHRONICLE", desc: "{{description}}",
+client.loom.registry.chronicle = { version: "0.2.4", keyword: "CHRONICLE", desc: "{{description}}",
   redraw: function () { run_function("chronicle_render", [], "chronicle"); } };
 var CR = client.loom.chronicle;
 
@@ -124,7 +124,43 @@ CR.setView = function (v) {
   run_function("chronicle_render", [], "chronicle");
 };
 // The tab's headings are clicked through this (inline handlers, as atlas's).
-window.loomChronicle = { view: function (v) { if (client.loom && client.loom.chronicle && client.loom.chronicle.setView) client.loom.chronicle.setView(v); } };
+window.loomChronicle = {
+  view: function (v) { if (client.loom && client.loom.chronicle && client.loom.chronicle.setView) client.loom.chronicle.setView(v); },
+  copy: function (it, el) { if (client.loom && client.loom.chronicle && client.loom.chronicle.copy) client.loom.chronicle.copy(it, el); }
+};
+// The copy button by a summary: its heading and text to the clipboard, for
+// pasting into a journal or a post. it: a day number, "m<month>" or "y<year>".
+CR.copyText = function (it) {
+  var sum, title;
+  if (typeof it == "number" || /^\d+$/.test(it)) { var b = CR.bucket(+it, false); sum = b && b.sum; title = CR.dayName(+it); }
+  else if (it.charAt(0) === "m") { sum = CR.annals.m[+it.slice(1)]; title = CR.monthName(+it.slice(1)); }
+  else { sum = CR.annals.y[+it.slice(1)]; title = CR.yearName(+it.slice(1)).replace(/^the y/, "Y"); }
+  if (!sum || !sum.text) return "";
+  return title + (sum.draft ? " (so far)" : "") + "\n\n" + sum.text;
+};
+CR.copy = function (it, el) {
+  var text = CR.copyText(it);
+  if (!text) return;
+  var done = function (ok) {
+    if (el) { var was = el.textContent; el.textContent = ok ? "copied" : "failed"; setTimeout(function () { el.textContent = was; }, 1500); }
+    if (!ok) display_notice("[chronicle] the browser wouldn't copy that. CHRONICLE EXPORT SHOW prints everything to copy by hand.", "orange");
+  };
+  // The old way, for browsers that refuse the clipboard API here.
+  var fallback = function () {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      done(ok);
+    } catch (e) { done(false); }
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    else fallback();
+  } catch (e) { fallback(); }
+};
 if (CR.cont === undefined) CR.cont = null;
 
 // --- time and days ---------------------------------------------------------
