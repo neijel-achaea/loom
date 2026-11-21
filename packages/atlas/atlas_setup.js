@@ -1078,7 +1078,10 @@ AT.walkWait = 4000;
 // turn them on, since most characters can't use them (Ricardo): ATLAS
 // WORMHOLES ON (setting atlas_worms = "on"). Other special exits: not yet;
 // never "buy …" or the crowdmap's "script:" exits (Ricardo).
-AT.wormCost = 5;
+// Cost: the warp is instant, but you can't move for ~4.3 s after it while
+// equilibrium comes back (Ricardo's log 17:51), and a step takes ~0.42 s on
+// a walk: about 10 steps.
+AT.wormCost = 10;
 AT.warpWait = 6000;          // a warp is instant (Ricardo): no room in 6 s, it isn't there
 // Shortcuts the crowdmap has that the game doesn't (Ricardo: no wormhole at
 // 9553, the map says there is one): a special step with no answer is marked
@@ -1100,17 +1103,43 @@ AT.brokenLoad = function () {
 };
 AT.brokenSave = function () { AT.idb("readwrite", "broken", AT.broken); };
 AT.markBroken = function (room, cmd) { AT.broken[room + "|" + cmd] = Date.now(); AT.brokenSave(); };
-// A warp is instant but takes equilibrium (about 4 s, Ricardo): walking on
-// is fine, a second warp isn't. A warp step waits until Char.Vitals shows
-// equilibrium back (AT.eq), at most AT.eqWait. Atlas marks it lost itself
-// as it sends a warp, since the room can arrive before the vitals that say
-// so. null: not known yet (taken as there).
+// A warp is instant but takes equilibrium, and you can't move until it's
+// back ("You are recovering equilibrium and cannot move yet.", Ricardo's log
+// 17:51). So every step waits until Char.Vitals shows equilibrium (AT.eq),
+// at most AT.eqWait. Atlas marks it lost itself as it sends a warp, since the
+// room can arrive before the vitals that say so. null: not known yet (taken
+// as there). If the game refuses a step for it anyway (the trigger "Atlas
+// walk no equilibrium"), it keeps that move and makes it when equilibrium
+// returns (the log: you moved without a new command), so Atlas waits for the
+// room rather than resending, and resends only if none comes in AT.queuedMs.
 AT.eqWait = 15000;
 if (AT.eq === undefined) AT.eq = null;
+AT.queuedMs = 1500;
 AT.vitals = function (v) {
   AT.eq = String(v.eq) == "1";
   var W = AT.walk;
-  if (AT.eq && W && W.eqWait) { W.eqWait = false; if (W.t) { clearTimeout(W.t); W.t = null; } AT.walkStep(); }
+  if (!AT.eq || !W || !W.eqWait) return;
+  W.eqWait = false;
+  if (W.t) { clearTimeout(W.t); W.t = null; }
+  if (!W.queued) { AT.walkStep(); return; }
+  // The game holds the refused step and makes it now: wait for the room.
+  W.queued = false;
+  var step = W.i;
+  W.t = setTimeout(function () { if (AT.walk === W && W.i === step) AT.walkStep(true); }, AT.queuedMs);
+};
+// The game refused a step: "You are recovering equilibrium and cannot move yet."
+AT.walkNoEq = function () {
+  var W = AT.walk;
+  if (!W) return;
+  AT.eq = false;
+  W.eqWait = true;
+  W.queued = true;
+  if (W.t) clearTimeout(W.t);
+  if (W.retry) { clearTimeout(W.retry); W.retry = null; }
+  var step = W.i;
+  W.t = setTimeout(function () {
+    if (AT.walk === W && W.i === step && W.eqWait) AT.walkEnd("equilibrium didn't come back in " + AT.label(W.rooms[W.i]));
+  }, AT.eqWait);
 };
 AT.useWorms = get_variable("atlas_worms") === "on";
 AT.setWorms = function (on) {
@@ -1334,13 +1363,13 @@ AT.walkStep = function (again) {
   if (get_variable("pauseTriggers") == "on") { AT.walkEnd("Loom was paused"); return; }
   if (!again) { W.hasty = 0; if (W.retry) { clearTimeout(W.retry); W.retry = null; } }
   var from = W.rooms[W.i], dir = W.dirs[W.i], R = AT.map && AT.map.rooms[from];
-  if (!AT.BACK[dir] && AT.eq === false) {
-    // A warp off equilibrium: wait for it (AT.vitals sends the step).
+  if (AT.eq === false) {
+    // Off equilibrium (after a warp): wait for it (AT.vitals sends the step).
     W.eqWait = true;
     if (W.t) clearTimeout(W.t);
     var held = W.i;
     W.t = setTimeout(function () {
-      if (AT.walk === W && W.i === held && W.eqWait) AT.walkEnd("equilibrium didn't come back for " + dir + " in " + AT.label(from));
+      if (AT.walk === W && W.i === held && W.eqWait) AT.walkEnd("equilibrium didn't come back in " + AT.label(from));
     }, AT.eqWait);
     return;
   }
