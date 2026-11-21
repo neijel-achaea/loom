@@ -54,12 +54,14 @@ if (atCmd === "" || atCmd === "status") {
   else if (!atW) display_notice("[atlas] the wilderness map shows " + (AT.wildOn ? "in the Atlas tab, as " + (AT.wildStyle === "text" ? "the game's letters" : "tiles") : "in the main window") + ". ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND|DUMP.", "cyan");
   else display_notice("[atlas] ATLAS WILDERNESS ON|OFF|TILES|TEXT|LEGEND|DUMP.", "orange");
 } else if (atCmd === "go") {
-  if (/^\d+$/.test(atRest)) AT.go(atRest);
-  else display_notice("[atlas] ATLAS GO <room number>.", "orange");
+  if (atRest) AT.goPlace(atRest);
+  else display_notice("[atlas] ATLAS GO <room number | area | denizen>.", "orange");
 } else if (atCmd === "walk") {
   var atWk = atRest.toLowerCase();
-  if (atWk === "atlas" || atWk === "game") { AT.setOwnWalk(atWk === "atlas"); display_notice("[atlas] clicks now walk " + (atWk === "atlas" ? "Atlas's own route, a step at a time (the game's PATH FIND where the map has none). ATLAS WALK GAME to go back." : "with the game's PATH FIND."), "lime"); }
-  else display_notice("[atlas] clicks walk " + (AT.ownWalk ? "Atlas's own route" : "with the game's PATH FIND") + ". ATLAS WALK ATLAS|GAME.", atWk ? "orange" : "cyan");
+  // PATHFIND | CUSTOM (Ricardo); ATLAS | GAME still understood (test builds).
+  if (atWk === "atlas") atWk = "custom"; else if (atWk === "game") atWk = "pathfind";
+  if (atWk === "custom" || atWk === "pathfind") { AT.setOwnWalk(atWk === "custom"); display_notice("[atlas] clicks now walk " + (atWk === "custom" ? "Atlas's own route, a step at a time (the game's PATH FIND where the map has none). ATLAS WALK PATHFIND to go back." : "with the game's PATH FIND."), "lime"); }
+  else display_notice("[atlas] clicks walk " + (AT.ownWalk ? "Atlas's own route" : "with the game's PATH FIND") + ". ATLAS WALK PATHFIND|CUSTOM.", atWk ? "orange" : "cyan");
 } else if (atCmd === "wormholes" || atCmd === "worms") {
   var atWo = atRest.toLowerCase();
   if (atWo === "on" || atWo === "off") { AT.setWorms(atWo === "on"); display_notice("[atlas] Atlas's routes " + (atWo === "on" ? "take wormholes (WORM WARP) where they're shorter." : "leave wormholes out."), "lime"); }
