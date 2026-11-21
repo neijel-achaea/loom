@@ -23,6 +23,8 @@ var AT = client.loom.atlas;
 AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 // Saved (per character, as every Nexus variable):
 //   atlas_fog = "off" while fog of war is off (absent: on);
+//   atlas_walk = "atlas" while clicks walk Atlas's own route (absent: the
+//     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
 //   atlas_wild = "off" while the wilderness map stays in the main window
 //     (absent: Atlas shows it);
 //   atlas_wild_style = "text" for the game's letters as sent (absent: tiles);
@@ -37,6 +39,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //     exploring them (inns and the like), so they stay out of the totals.
 // A variable that isn't readable starts afresh (#135).
 AT.fog = get_variable("atlas_fog") !== "off";
+AT.ownWalk = get_variable("atlas_walk") === "atlas";
 AT.wildOn = get_variable("atlas_wild") !== "off";
 AT.wildStyle = get_variable("atlas_wild_style") === "text" ? "text" : "tiles";
 AT.readJson = function (name) {
@@ -1059,6 +1062,7 @@ AT.placeView = function () {
 };
 
 // ---- Walking ---------------------------------------------------------
+// Opt in (ATLAS WALK ATLAS): until then a click sends the game's PATH FIND.
 // One click, one destination (docs/safety.md): Atlas finds the shortest
 // route on its own map, sends one step, waits for the game to put you in the
 // next room, sends the next, and stops on arrival. It also stops when you
@@ -1067,6 +1071,10 @@ AT.placeView = function () {
 // no route on the map, the game's PATH FIND is asked instead.
 // Ordinary exits only for now: special exits and wormholes come later.
 AT.walkWait = 4000;
+AT.setOwnWalk = function (on) {
+  AT.ownWalk = !!on;
+  if (on) set_variable("atlas_walk", "atlas"); else { delete_variable("atlas_walk"); if (AT.walk) AT.walkEnd("ATLAS WALK GAME"); }
+};
 if (AT.walk === undefined) AT.walk = null;
 AT.label = function (id) { var R = AT.room(id); return (R && R.n ? R.n + " " : "") + "(" + id + ")"; };
 // The shortest route from one room to another over ordinary exits, around
@@ -1119,6 +1127,11 @@ AT.go = function (id) {
   if (AT.here && AT.here.id === id) { display_notice("[atlas] you're in " + label + " already.", "cyan"); return; }
   if (R && R.a === AT.SKETCH) { display_notice("[atlas] " + label + " is on no map: PATH FIND can't walk there. Use its exits.", "orange"); return; }
   if (AT.walk) AT.walkEnd(null);
+  if (!AT.ownWalk) {
+    send_command("path find " + id, 1);
+    display_notice("[atlas] walking to " + label + ".", "cyan");
+    return;
+  }
   var P = AT.here ? AT.route(AT.here.id, id) : null;
   if (!P) {
     send_command("path find " + id, 1);

@@ -56,6 +56,10 @@ if (atCmd === "" || atCmd === "status") {
 } else if (atCmd === "go") {
   if (/^\d+$/.test(atRest)) AT.go(atRest);
   else display_notice("[atlas] ATLAS GO <room number>.", "orange");
+} else if (atCmd === "walk") {
+  var atWk = atRest.toLowerCase();
+  if (atWk === "atlas" || atWk === "game") { AT.setOwnWalk(atWk === "atlas"); display_notice("[atlas] clicks now walk " + (atWk === "atlas" ? "Atlas's own route, a step at a time (the game's PATH FIND where the map has none). ATLAS WALK GAME to go back." : "with the game's PATH FIND."), "lime"); }
+  else display_notice("[atlas] clicks walk " + (AT.ownWalk ? "Atlas's own route" : "with the game's PATH FIND") + ". ATLAS WALK ATLAS|GAME.", atWk ? "orange" : "cyan");
 } else if (atCmd === "stop") {
   if (AT.walk) AT.walkEnd("ATLAS STOP");
   else display_notice("[atlas] not walking anywhere.", "cyan");
