@@ -108,6 +108,9 @@ CR.system = function (prev, scope) {
   if (scope.what === "day" && scope.quiet) p.push("This was a quiet day. Write at most two short sentences (about " + scope.words + " words), plain text, no heading and no date. Say what little happened and stop; don't add duration, scenery or reflection.");
   else if (scope.what === "day") p.push("Write one paragraph of about " + scope.words + " words (fewer for a quiet day), plain text, no heading and no date: the date is shown above it. British spelling.");
   else p.push("You are given the entries already written for each " + (scope.what === "month" ? "day of a month" : "month of a year") + ". From them, write the entry for the whole " + scope.what + ": what changed and what mattered over it (people, turning points, tasks begun and finished, where " + name + " stands at its end), not a list of " + (scope.what === "month" ? "days" : "months") + ". About " + scope.words + " words, " + (scope.what === "year" ? "three to five paragraphs, each following one thread of the year (a person, an aim, a place) rather than one stretch of months" : "one or two paragraphs") + ", plain text, no heading and no date. British spelling.");
+  // Ricardo (2026-11-21): "the fifth of Valnuary" in a year's entry means
+  // nothing at that scale, and it isn't clear which month it belongs to.
+  if (scope.what === "year") p.push("Don't name months or give dates in the year's entry: at this scale they mean nothing. Where the order matters, say it roughly (early in the year, later, by its end).");
   var f = CR.facts();
   if (f) p.push("Who " + name + " is, as the world knows: " + f);
   if (CR.voice) p.push("What the player tells you about " + name + " (take it as true, and let it shape what matters, without repeating it): " + CR.voice);
@@ -358,6 +361,9 @@ CR.written = function (it, res, manual, started) {
   if (res.status === 200 && text) {
     if (j.usage) { CR.usage.calls++; CR.usage.inTok += j.usage.input_tokens || 0; CR.usage.outTok += j.usage.output_tokens || 0; set_variable("chronicle_usage", JSON.stringify(CR.usage)); }
     var sum = { text: text, at: Date.now(), model: CR.model };
+    // Only CHRONICLE WRITE rewrites a finished summary, so an edit by hand is
+    // only lost when asked for: say so.
+    var old = CR.sumOf ? CR.sumOf(it) : null, lostEdit = !!(old && old.edited);
     if (typeof it == "number") {
       var b = CR.bucket(it, false);
       if (b) { sum.draft = it >= today; b.sum = sum; delete b.fails; }
@@ -367,7 +373,7 @@ CR.written = function (it, res, manual, started) {
       sum.draft = +it.slice(1) >= CR.yearOf(today); CR.annals.y[+it.slice(1)] = sum; delete CR.annals.f[it]; CR.saveAnnals();
     }
     CR.lastErr = "";
-    if (manual) display_notice("[chronicle] " + label + " written.", "lime");
+    if (manual) display_notice("[chronicle] " + label + " written." + (lostEdit ? " It replaces the summary you had edited." : ""), "lime");
     CR.save();
     CR.dirty();
     if (!manual) CR.due(); else CR.pump();

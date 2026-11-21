@@ -24,7 +24,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.chronicle) client.loom.chronicle = {};
-client.loom.registry.chronicle = { version: "0.2.2", keyword: "CHRONICLE", desc: "{{description}}",
+client.loom.registry.chronicle = { version: "0.3.0", keyword: "CHRONICLE", desc: "{{description}}",
   redraw: function () { run_function("chronicle_render", [], "chronicle"); } };
 var CR = client.loom.chronicle;
 
@@ -120,11 +120,102 @@ if (!CR.view) { var crVw; try { crVw = get_variable("chronicle_view"); } catch (
   CR.view = (crVw === "months" || crVw === "years") ? crVw : "days"; }
 CR.setView = function (v) {
   CR.view = v;
+  CR.editDraw = true;
   set_variable("chronicle_view", v);
   run_function("chronicle_render", [], "chronicle");
 };
 // The tab's headings are clicked through this (inline handlers, as atlas's).
-window.loomChronicle = { view: function (v) { if (client.loom && client.loom.chronicle && client.loom.chronicle.setView) client.loom.chronicle.setView(v); } };
+window.loomChronicle = {
+  view: function (v) { if (client.loom && client.loom.chronicle && client.loom.chronicle.setView) client.loom.chronicle.setView(v); },
+  copy: function (it, el) { if (client.loom && client.loom.chronicle && client.loom.chronicle.copy) client.loom.chronicle.copy(it, el); },
+  edit: function (it) { var C = client.loom && client.loom.chronicle; if (C && C.editStart) C.editStart(it); },
+  editInput: function (v) { var C = client.loom && client.loom.chronicle; if (C) C.editText = v; },
+  editSave: function () { var C = client.loom && client.loom.chronicle; if (C && C.editSave) C.editSave(); },
+  editCancel: function () { var C = client.loom && client.loom.chronicle; if (C && C.editStop) C.editStop(); }
+};
+// --- editing a summary ------------------------------------------------------------
+// A finished summary (not a draft, which is rewritten when its day, month or
+// year ends) can be corrected by hand: the context was confusing, and a
+// slip in a day would otherwise roll up into its month and year (Ricardo).
+// While the box is open the tab isn't redrawn, so new lines can't wipe what
+// you're typing; CR.editText keeps it if the tab is drawn anyway.
+CR.sumOf = function (it) {
+  it = String(it);
+  if (/^\d+$/.test(it)) { var b = CR.bucket(+it, false); return b && b.sum; }
+  if (it.charAt(0) === "m") return CR.annals.m[+it.slice(1)];
+  if (it.charAt(0) === "y") return CR.annals.y[+it.slice(1)];
+  return null;
+};
+CR.editStart = function (it) {
+  var sum = CR.sumOf(it);
+  if (!sum || sum.draft) return;
+  CR.editing = String(it);
+  CR.editText = sum.text;
+  CR.editDraw = true;
+  run_function("chronicle_render", [], "chronicle");
+};
+CR.editStop = function () {
+  CR.editing = null;
+  CR.editText = "";
+  CR.editDraw = true;
+  run_function("chronicle_render", [], "chronicle");
+};
+CR.editSave = function () {
+  var it = CR.editing, sum = it && CR.sumOf(it);
+  var text = String(CR.editText || "").replace(/\r/g, "").replace(/^\s+|\s+$/g, "");
+  if (!sum || !text) { CR.editStop(); return; }
+  if (text !== sum.text) {
+    sum.text = text;
+    sum.edited = Date.now();
+    var note = "";
+    if (/^\d+$/.test(it)) {
+      CR.save();
+      var m = CR.monthOf(+it), am = CR.annals.m[m];
+      if (am && !am.draft) note = " " + CR.monthName(m) + " was summed up before this edit: CHRONICLE WRITE MONTH " + CR.months[m % 12] + " writes it again from its days.";
+    } else {
+      CR.saveAnnals();
+      if (it.charAt(0) === "m") {
+        var y = Math.floor(+it.slice(1) / 12), ay = CR.annals.y[y];
+        if (ay && !ay.draft) note = " " + CR.yearName(y).replace(/^t/, "T") + " was summed up before this edit: CHRONICLE WRITE YEAR " + y + " writes it again from its months.";
+      }
+    }
+    display_notice("[chronicle] your edit of " + CR.label(/^\d+$/.test(it) ? +it : it) + " is saved." + note, "lime");
+  }
+  CR.editStop();
+};
+// The copy button by a summary: its heading and text to the clipboard, for
+// pasting into a journal or a post. it: a day number, "m<month>" or "y<year>".
+CR.copyText = function (it) {
+  var sum, title;
+  if (typeof it == "number" || /^\d+$/.test(it)) { var b = CR.bucket(+it, false); sum = b && b.sum; title = CR.dayName(+it); }
+  else if (it.charAt(0) === "m") { sum = CR.annals.m[+it.slice(1)]; title = CR.monthName(+it.slice(1)); }
+  else { sum = CR.annals.y[+it.slice(1)]; title = CR.yearName(+it.slice(1)).replace(/^the y/, "Y"); }
+  if (!sum || !sum.text) return "";
+  return title + (sum.draft ? " (so far)" : "") + "\n\n" + sum.text;
+};
+CR.copy = function (it, el) {
+  var text = CR.copyText(it);
+  if (!text) return;
+  var done = function (ok) {
+    if (el) { var was = el.textContent; el.textContent = ok ? "copied" : "failed"; setTimeout(function () { el.textContent = was; }, 1500); }
+    if (!ok) display_notice("[chronicle] the browser wouldn't copy that. CHRONICLE EXPORT SHOW prints everything to copy by hand.", "orange");
+  };
+  // The old way, for browsers that refuse the clipboard API here.
+  var fallback = function () {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      done(ok);
+    } catch (e) { done(false); }
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, fallback);
+    else fallback();
+  } catch (e) { fallback(); }
+};
 if (CR.cont === undefined) CR.cont = null;
 
 // --- time and days ---------------------------------------------------------
