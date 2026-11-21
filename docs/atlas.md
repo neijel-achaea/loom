@@ -3,7 +3,7 @@
 *A map of the area you're in, from the community crowdmap, with the rooms you've explored as fog of war; and how much of each area you've explored.*
 
 <!-- loom:version atlas -->
-*This page describes atlas 0.11.2.*
+*This page describes atlas 0.11.3.*
 <!-- /loom:version -->
 
 *Atlas is still at 0.x: its commands and saved settings may still change in a 1.x release ([what 1.0 keeps stable](stability.md)).*
@@ -37,7 +37,7 @@ A second custom tab, **Areas**, shows every area you've visited as a chip, as ma
 - **Hidden areas.** Some of the crowdmap's areas aren't places to explore (player houses, manses). `ATLAS HIDE <area>` keeps one out of the list and the totals; it's listed, folded, under *hidden*, and `ATLAS UNHIDE` brings it back.
 - **A click on an area** shows it in the Atlas tab, centred on its main level, without going there; ⌖ or your next step brings the map back to you.
 
-The figures count the rooms on the crowdmap you've explored, by the game's own record, so a percentage never passes 100%. The game's exploration ranking counts rooms in its own way (some of the crowdmap's rooms don't count for it, and it has a few the crowdmap lacks), so read them as close, not as the game's figure.
+The figures count the rooms on the crowdmap you've explored, by the game's own record, so a percentage never passes 100%. The game's exploration ranking counts rooms in its own way (some of the crowdmap's rooms don't count for it, and it has a few the crowdmap lacks), so read them as close, not as the game's figure. The game sends each area's record when you enter it, and its areas don't always match the crowdmap's, so the record of a neighbouring area can cover a room or two of this one; Atlas keeps the highest count it has seen for an area, since exploring is never undone.
 
 ### Where the map comes from
 

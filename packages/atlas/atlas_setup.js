@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.11.2", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.11.3", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -895,18 +895,26 @@ AT.countLive = function (aid) {
   for (var i = 0; i < ids.length; i++) if (AT.exAll[ids[i]]) n++;
   return n;
 };
+// The live count can be partial: the game sends lists per game area, and a
+// crowdmap area is known once any list covers one of its rooms, so a
+// neighbour's list holding one Azdun Dungeon room counted 1 of 190 and saved
+// it over the real count (Ricardo). Exploring is never undone in the game, so
+// the saved count only ever rises.
 AT.recount = function (aid) {
   var n = AT.countLive(aid);
-  if (n < 0 || AT.counts[aid] === n) return false;
+  if (n < 0 || (AT.counts.hasOwnProperty(aid) && AT.counts[aid] >= n)) return false;
   AT.counts[aid] = n;
   set_variable("atlas_counts", JSON.stringify(AT.counts));
   return true;
 };
-// Explored in an area: live when its list came this session, else saved; -1 unknown.
+// Explored in an area: the higher of the live and saved counts, never more
+// than the rooms on the map; -1 unknown.
 AT.count = function (aid) {
   var n = AT.countLive(aid);
-  if (n >= 0) return n;
-  return AT.counts.hasOwnProperty(aid) ? AT.counts[aid] : -1;
+  if (AT.counts.hasOwnProperty(aid) && AT.counts[aid] > n) n = AT.counts[aid];
+  if (n < 0) return -1;
+  var mapped = AT.map ? AT.areaRooms(aid).length : n;
+  return n > mapped ? mapped : n;
 };
 // The game's word order: the crowdmap's "Delos, the Isle of" reads "the Isle of Delos".
 AT.title = function (aid) {
