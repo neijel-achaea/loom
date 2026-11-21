@@ -67,7 +67,7 @@ Waypoints reads nothing from other packages. With **room** or **atlas** installe
 | `waypoints-room` | room | A saved room's name as a ⚑ tag on Here's exits line, the note on hover. |
 | `room-waypoints` | room | Here's remembered room pinned at the top of Waypoints, with GO BACK, FORGET or REMEMBER HERE (the same as Here's button). |
 | `waypoints-atlas` | atlas | A saved room shows a small amber ⚑ on the Atlas map, name and note on hover. |
-| `atlas-waypoints` | atlas | With Atlas's own walking on (`ATLAS WALK ATLAS`), a waypoint walks Atlas's route, step by step, as `ATLAS GO` does (wormholes too, if you turned them on); otherwise the game's `PATH FIND`. |
+| `atlas-waypoints` | atlas | With Atlas's own walking on (`ATLAS WALK CUSTOM`), a waypoint walks Atlas's route, step by step, as `ATLAS GO` does (wormholes too, if you turned them on); otherwise the game's `PATH FIND`. |
 
 ## Troubleshooting
 

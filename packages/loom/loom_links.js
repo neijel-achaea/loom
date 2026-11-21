@@ -1039,7 +1039,7 @@ L.addLink({
 // { go(room) } only while Atlas walks its own routes.
 L.addLink({
   id: "atlas-waypoints", src: "atlas", dst: "waypoints", issue: 0,
-  desc: "With ATLAS WALK ATLAS, waypoints walk Atlas's route (wormholes too, if on) instead of PATH FIND",
+  desc: "With ATLAS WALK CUSTOM, waypoints walk Atlas's route (wormholes too, if on) instead of PATH FIND",
   answers: {
     "waypoints.walk": function () {
       var a = client.loom.atlas;
