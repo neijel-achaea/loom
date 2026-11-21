@@ -88,7 +88,7 @@ AT.iconAlias = { fish: "fishing", fishing: "fishing", temple: "shrine", altar: "
 // The crowdmap's room features (#468), shown in the bottom right corner of
 // their room, in the order of this list when a room has several (all of
 // them on hover). Same 16x16 drawing as the icons above.
-AT.CACHE_F = 3;        // 3: rooms carry doors (index 10) for walking
+AT.CACHE_F = 4;        // 3: rooms carry doors (index 10) for walking; 4: saved untouched by the game's files
 AT.features = {
   bank: ["bank", AT.icons.bank[1]],
   postoffice: ["post office", [["f", "M1.8 4h12.4v8.5H1.8z"], ["w", "M2.6 4.8 L8 9 L13.4 4.8 V5.9 L8 10.1 L2.6 5.9 Z"]]],
@@ -332,10 +332,15 @@ AT.load = function (force) {
         if (gen !== AT.gen) return;
         var m = AT.compact(r[0], r[1], v);
         if (!m) throw new Error("the community map came in a shape Atlas doesn't know");
-        AT.idb("readwrite", "crowdmap", m);
+        // Saved before the game's files are laid over it (useMap changes the
+        // map in place; a save still pending would keep their exits for good,
+        // as an event's exit at New Thera stayed after the event, Ricardo).
         var was = cached ? cached.v : "";
+        return AT.idb("readwrite", "crowdmap", m).then(function () {
+        if (gen !== AT.gen) return;
         AT.useMap(m, "download");
         display_notice("[atlas] community map " + (was && was !== m.v ? "updated to version " + m.v + " (was " + was + ")" : "version " + m.v + " loaded") + ": " + m.n.toLocaleString("en-US") + " rooms in " + Object.keys(m.areas).length + " areas.", "lime");
+        });
       });
     });
   }).catch(function (e) {
@@ -375,6 +380,7 @@ AT.envFetch = function (aid) {
     if (envs) AT.idb("readwrite", "envs", AT.envs);
     var rooms = AT.officialRead(aid, t);
     if (rooms) {
+      if (AT.map) AT.officialUndo(aid);
       AT.official[aid] = { at: Date.now(), rooms: rooms };
       AT.idb("readwrite", "official", AT.official);
     }
@@ -450,7 +456,9 @@ AT.officialApply = function (gaid) {
     var G2 = rooms[id], C2 = M.rooms[id];
     AT.offEx[id] = G2[5];
     if (C2) {
-      // Exits: the game's win in their direction.
+      // Exits: the game's win in their direction. The crowdmap's own are kept
+      // (index 11) so a newer file can be laid over them instead (officialUndo).
+      if (!C2[11]) C2[11] = JSON.parse(JSON.stringify(C2[6] || {}));
       var ex = C2[6] || (C2[6] = {});
       for (var d in G2[5]) if (G2[5].hasOwnProperty(d) && ex[d] !== G2[5][d]) { ex[d] = G2[5][d]; exits++; }
       continue;
@@ -476,6 +484,22 @@ AT.officialApply = function (gaid) {
     if (added) AT.rebuildKnown();
   }
   return !!(added || exits);
+};
+// Take one game area's file back off the map: its exits back to the
+// crowdmap's, its added rooms gone. Before a newer file of it is laid on
+// (exits that are gone from the game go from the map too).
+AT.officialUndo = function (gaid) {
+  var O = AT.official[gaid], M = AT.map;
+  if (!O || !O.rooms || !M) return;
+  for (var id in O.rooms) {
+    if (!O.rooms.hasOwnProperty(id)) continue;
+    var R = M.rooms[id];
+    delete AT.offEx[id];
+    if (!R) continue;
+    if (R[8] === 1) delete M.rooms[id];
+    else if (R[11]) { R[6] = JSON.parse(JSON.stringify(R[11])); delete R[11]; }
+  }
+  M.byArea = null;
 };
 AT.officialLoad = function () {
   AT.idb("readonly", "official").then(function (v) {
@@ -569,7 +593,12 @@ AT.roomInfo = function (g) {
   AT.here = { id: id, area: aid > 0 ? aid : null, name: String(g.name || "").replace(/\s*\((?:indoors|outdoors|road)\)\s*$/i, "").slice(0, 120),
     areaName: String(g.area || "").slice(0, 80), onMap: !!R && R.a !== AT.SKETCH, exits: {} };
   // The exits the game shows for this room: { destination: true }.
-  if (g.exits && typeof g.exits == "object") for (var ex in g.exits) if (g.exits.hasOwnProperty(ex) && atNum(g.exits[ex]) > 0) AT.here.exits[atNum(g.exits[ex])] = true;
+  // And by direction (long names), for walks: an exit the game doesn't list.
+  AT.here.dirs = {};
+  if (g.exits && typeof g.exits == "object") for (var ex in g.exits) if (g.exits.hasOwnProperty(ex) && atNum(g.exits[ex]) > 0) {
+    AT.here.exits[atNum(g.exits[ex])] = true;
+    AT.here.dirs[AT.LONG[String(ex).toLowerCase()] || String(ex).toLowerCase()] = true;
+  }
   if (Array.isArray(g.explored) && gaid) {
     var ids = [];
     for (var i = 0; i < g.explored.length; i++) { var x = atNum(g.explored[i]); if (x > 0) ids.push(x); }
@@ -1089,8 +1118,9 @@ AT.warpWait = 6000;          // a warp is instant (Ricardo): no room in 6 s, it 
 // broken, left out of routes, and the walk goes another way from where you
 // are (at most AT.detourMax times a walk). Kept in the browser (key "broken",
 // { "room|command": when }) for AT.brokenDays; ATLAS BROKEN lists them,
-// ATLAS BROKEN CLEAR forgets them. Ordinary exits aren't marked: a step that
-// fails is more often you (stunned, prone) than the map.
+// ATLAS BROKEN CLEAR forgets them. An ordinary exit is marked only when the
+// game didn't list it for the room you were in (Room.Info's exits): a step
+// through a listed exit that fails is you (stunned, prone), not the map.
 AT.detourMax = 3;
 AT.brokenDays = 30;
 if (!AT.broken || typeof AT.broken != "object") AT.broken = {};
@@ -1223,7 +1253,7 @@ AT.routeAny = function (from, goal, opt) {
     if (!R) continue;
     var ex = R[6] || {}, doors = R[10] || {}, sp = R[7] || {};
     for (var dir in ex) {
-      if (!ex.hasOwnProperty(dir) || doors[dir] === 3) continue;
+      if (!ex.hasOwnProperty(dir) || doors[dir] === 3 || AT.broken[u + "|" + dir]) continue;
       var v = ex[dir], V = M.rooms[v];
       if (!V || V[0] === AT.SKETCH) continue;
       var nd = d + 1;
@@ -1410,6 +1440,9 @@ AT.walkStep = function (again) {
     return;
   }
   if (!again && R && R[10] && R[10][dir] === 2) send_command("open door " + dir, 1);
+  // Did the game list this exit for the room you're in? (Not: the map may be
+  // wrong; a failure then marks it rather than stopping the walk.)
+  W.listed = !(AT.BACK[dir] && AT.here && AT.here.id === from && AT.here.dirs && !AT.here.dirs[dir]);
   send_command(dir, 1);
   if (dir === "worm warp") AT.eq = false;      // known to cost equilibrium (the Veil: not known)
   W.at = Date.now();
@@ -1417,7 +1450,7 @@ AT.walkStep = function (again) {
   var step = W.i;
   W.t = setTimeout(function () {
     if (AT.walk !== W || W.i !== step) return;
-    if (AT.BACK[dir]) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
+    if (AT.BACK[dir] && W.listed) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
     else AT.walkDetour(from, dir);
   }, AT.BACK[dir] ? AT.walkWait : (AT.teleport(dir) ? AT.teleWait : AT.warpWait));
 };
@@ -1441,7 +1474,7 @@ AT.walkDetour = function (from, cmd) {
   AT.markBroken(from, cmd);
   if (!AT.BACK[cmd] && AT.eq === false) AT.eq = null;     // the warp didn't happen
   W.detours = (W.detours || 0) + 1;
-  var what = cmd === "worm warp" ? "no wormhole in " + AT.label(from) : "\"" + cmd + "\" didn't work in " + AT.label(from);
+  var what = cmd === "worm warp" ? "no wormhole in " + AT.label(from) : (AT.BACK[cmd] ? "no exit " + cmd + " in " + AT.label(from) : "\"" + cmd + "\" didn't work in " + AT.label(from));
   if (W.detours > AT.detourMax) { AT.walkEnd(what + ", and too many shortcuts failed on this walk"); return; }
   var P = AT.route(from, W.to, { noTele: W.noTele });
   if (!P) { AT.walkEnd(what + " (marked: ATLAS BROKEN), and no other route"); return; }
