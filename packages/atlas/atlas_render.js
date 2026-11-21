@@ -452,9 +452,9 @@ var roomLine = H ? esc(H.name || "?") + ' &middot; ' + H.id : "";
     html += '<svg class="loom-atlas-svg" xmlns="http://www.w3.org/2000/svg" viewBox="' + AT.viewBox() + '" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none;"' +
       ' onpointerdown="window.loomAtlas&&window.loomAtlas.down(event)" onpointermove="window.loomAtlas&&window.loomAtlas.move(event)" onpointerup="window.loomAtlas&&window.loomAtlas.up(event)" onpointerleave="window.loomAtlas&&window.loomAtlas.up(event)" onwheel="window.loomAtlas&&window.loomAtlas.wheel(event)">';
     html += '<g stroke="' + MUTED + '" stroke-width="0.07" stroke-linecap="round">' + lines + '</g>';
-    // Wide and bright enough to read over the map's own lines (a first try at
-    // 0.16 / 85% was lost among them).
-    if (route) html += '<g stroke="#ffb347" stroke-width="0.24" stroke-linecap="round" pointer-events="none">' + route + '</g>';
+    // Bright, so it reads over the map's own lines (0.16 in the muted amber at
+    // 85% was lost among them; 0.24 bright was too thick, Ricardo).
+    if (route) html += '<g stroke="#ffb347" stroke-width="0.15" stroke-linecap="round" pointer-events="none">' + route + '</g>';
     html += '<g stroke-width="0.07" stroke-linecap="round">' + stubs + '</g>';
     html += '<g stroke="' + BG + '" stroke-width="0.04">' + rooms + '</g>';
     // The arrows outlined in black so they read on light rooms too (Ricardo).
