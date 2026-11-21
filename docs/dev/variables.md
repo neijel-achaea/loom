@@ -31,6 +31,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 |---|---|---|---|---|
 | `atlas_fog` | setting | 1.1 | `off` while fog of war is off (absent: on) |  |
 | `atlas_walk` | setting | 1.2 | `atlas` while clicks walk Atlas's own route (absent: the game's PATH FIND) |  |
+| `atlas_worms` | setting | 1.2 | `on` while Atlas's routes take wormholes (absent: left out) |  |
 | `atlas_wild` | setting | 1.1 | `off` while the wilderness map stays in the main window (absent: Atlas shows it) |  |
 | `atlas_wild_style` | setting | 1.1 | `text` for the wilderness map as the game's letters (absent: tiles) |  |
 | `atlas_counts` | data | 1.1 | per area: rooms on the community map you've explored there, from the game's lists |  |

@@ -12,6 +12,7 @@ var hlRows = [
   ["ATLAS WILDERNESS DUMP", "copy the last 8 wilderness maps as the game sent them, for a bug report"],
   ["ATLAS GO <room number>", "walk there, as a click on a room in the tab (the game's PATH FIND, or Atlas's own route with ATLAS WALK ATLAS)"],
   ["ATLAS WALK ATLAS|GAME", "clicks walk Atlas's own route, a step at a time, or use the game's PATH FIND (the default)"],
+  ["ATLAS WORMHOLES ON|OFF", "Atlas's routes take wormholes (WORM WARP) where they're shorter, or leave them out (default OFF: most characters can't use them)"],
   ["ATLAS STOP", "stop walking Atlas's route"],
   ["ATLAS ROUTE <room number>", "show the route Atlas would walk, without walking it"],
   ["ATLAS SORT [NAME|LEAST|MOST|LEFT]", "order the Areas tab's chips: by name, least or most explored first, or most rooms left first (also NAME · % · LEFT in the tab; kept)"],

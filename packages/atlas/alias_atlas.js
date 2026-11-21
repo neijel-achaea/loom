@@ -60,6 +60,10 @@ if (atCmd === "" || atCmd === "status") {
   var atWk = atRest.toLowerCase();
   if (atWk === "atlas" || atWk === "game") { AT.setOwnWalk(atWk === "atlas"); display_notice("[atlas] clicks now walk " + (atWk === "atlas" ? "Atlas's own route, a step at a time (the game's PATH FIND where the map has none). ATLAS WALK GAME to go back." : "with the game's PATH FIND."), "lime"); }
   else display_notice("[atlas] clicks walk " + (AT.ownWalk ? "Atlas's own route" : "with the game's PATH FIND") + ". ATLAS WALK ATLAS|GAME.", atWk ? "orange" : "cyan");
+} else if (atCmd === "wormholes" || atCmd === "worms") {
+  var atWo = atRest.toLowerCase();
+  if (atWo === "on" || atWo === "off") { AT.setWorms(atWo === "on"); display_notice("[atlas] Atlas's routes " + (atWo === "on" ? "take wormholes (WORM WARP) where they're shorter." : "leave wormholes out."), "lime"); }
+  else display_notice("[atlas] Atlas's routes " + (AT.useWorms ? "take" : "leave out") + " wormholes. ATLAS WORMHOLES ON|OFF.", atWo ? "orange" : "cyan");
 } else if (atCmd === "stop") {
   if (AT.walk) AT.walkEnd("ATLAS STOP");
   else display_notice("[atlas] not walking anywhere.", "cyan");
