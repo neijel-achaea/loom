@@ -1034,7 +1034,7 @@ L.addLink({
 });
 
 // atlas -> waypoints (Ricardo): with Atlas's own walking on (ATLAS WALK
-// ATLAS), a waypoint's click walks Atlas's route, as ATLAS GO does; else
+// CUSTOM), a waypoint's click walks Atlas's route, as ATLAS GO does; else
 // Waypoints sends the game's PATH FIND as before. Answers waypoints.walk ->
 // { go(room) } only while Atlas walks its own routes.
 L.addLink({
