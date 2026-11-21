@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 1.3.0.*
+*This page describes coffers 1.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -14,13 +14,13 @@ Coffers keeps your books. It watches the gold in your purse and in the bank, and
 
 Coffers only cares about money that enters or leaves your character. Your **fortune** is purse plus bank, so depositing or withdrawing changes nothing. Selling, looting and getting paid count as **in**. Buying, paying and losing gold count as **out**.
 
-Your gold and bank come from the game itself (GMCP), so there is no prompt to configure. Coffers reads them whenever the game reports them, and updates the books once per prompt, whatever your prompt looks like. Its one trigger notes who gives you gold, for the [standings integration](#working-with-other-packages).
+Your gold and bank come from the game itself (GMCP), so there is no prompt to configure. Coffers reads them whenever the game reports them, and updates the books once per prompt, whatever your prompt looks like. Its triggers recognise the game lines that name an amount (picking up gold, gifts, shop purchases), to say where the money came from, and note who gives you gold, for the [standings integration](#working-with-other-packages).
 
 What you get:
 
-- **The Coffers tab** shows your fortune, rank, goal, the open session, today, your records and two graphs.
+- **The Coffers tab** has two views. **Wealth** shows your fortune, rank, goal, the open session, today, your records and two graphs. **Accounts** shows where the money came from and where it went: income and spending by source, and the recent moves of money.
 - **Notices in the main window** for big gains and losses, new ranks, a reached goal, record days and sessions, and a summary of each session when it closes.
-- **The `COFFERS` command** shows all of this as text, prints tables of past sessions and days, and exports the books as CSV.
+- **The `COFFERS` command** shows all of this as text, prints tables of past sessions and days, lists the recent moves of money, and exports the books as CSV.
 
 ## Commands
 
@@ -30,7 +30,9 @@ Everything goes through one command, `COFFERS`. Commands aren't case-sensitive. 
 | Command | What it does |
 |---|---|
 | `COFFERS` | fortune, rank, goal, session, today and records |
-| `COFFERS SESSIONS [n] / DAYS [n]` | the books, as tables |
+| `COFFERS SESSIONS [n] / DAYS [n]` | the books, as tables, with how much of the money is explained |
+| `COFFERS LOG [n]` | the last moves of money (20 by default), with their sources |
+| `COFFERS LOG UNKNOWN [n]` | the last unexplained moves (5 by default), with the game lines that came with them |
 | `COFFERS NEW` | close this session now |
 | `COFFERS GAP <5-240>` | minutes without a prompt that close a session |
 | `COFFERS GOAL <amount\|OFF>` | earn this much from now (50000, 50k, 1.5m) |
@@ -44,7 +46,8 @@ Everything goes through one command, `COFFERS`. Commands aren't case-sensitive. 
 | `COFFERS SPAN SESSION <15-720>` | minutes the session graph covers |
 | `COFFERS SPAN LONG <7-365>` | days the day-by-day graph covers |
 | `COFFERS CSV [DAYS\|SESSION\|SESSIONS]` | the books as CSV lines |
-| `COFFERS WIPE CONFIRM` | burn the whole ledger, goal and proposals too |
+| `COFFERS WIPE CONFIRM` | burn the whole ledger, moves, goal and proposals too |
+| **The tab has two views: Wealth (fortune, goals, graphs) and Accounts (income and spending by source, recent moves).** | |
 | `COFFERS RESET / DEBUG` | rebuild helpers and rank table (the books are kept) / internal state |
 <!-- /loom:commands -->
 
@@ -67,6 +70,30 @@ date   start   length        net        in       out    per hr
 ...
 15 Oct 18:40      35m    +12,400    12,400         0   +21,257  (open)
 ```
+
+### Where the money comes from
+
+Every time your fortune changes, Coffers keeps the change as a **move**, with what it was. It knows a move by the game line that came with it: "You pick up 240 gold sovereigns." is *picked up*, "Grulk gives 5,000 gold sovereigns to you." is a *gift*, "You pay 200 sovereigns and receive a sturdy pack." is *shops*. The amounts must add up exactly. Whatever no line explains is **unknown**, so the books are never wrong, only less detailed. The total always comes from the game (GMCP); the lines only name it.
+
+| Command | What it does |
+| --- | --- |
+| `COFFERS LOG [n]` | The last *n* moves (default 20, up to 200), newest last: time, amount and source. A move can have several sources, and an unknown part ("picked up +500 · shops -200 · unknown -50"). |
+| `COFFERS LOG UNKNOWN [n]` | Only the moves with an unknown part (default 5), each with the game lines that came just before it. Copy the line that moved the money into an [issue](https://github.com/neijel-achaea/loom/issues/new/choose) and it can become a source, so the unknown share shrinks over time. |
+
+`COFFERS SESSIONS` and `COFFERS DAYS` have an **explained** column: the share of the money moved that a source names. Sessions and days from before coffers 1.4.0 show `-`.
+
+The sources Coffers knows so far:
+
+| Source | Lines |
+| --- | --- |
+| picked up | You pick up N gold sovereigns. |
+| gifts | X gives N gold sovereigns to you. |
+| out of containers | You get N gold sovereigns from (a container). |
+| given away | You give N gold sovereigns to X. |
+| dropped | You drop N gold sovereigns. |
+| shops | You pay N sovereigns and receive (an item). / You purchase N (a commodity) for N gold. |
+
+**Gold in containers.** The game counts only the gold you carry, so taking gold out of a pack counts as income and putting it back as spending. *Out of containers* names the first; putting gold away is unknown until its line is added.
 
 ### Sessions
 
@@ -123,11 +150,22 @@ Coffers proposes goals of its own too. When a single spend of more than a day's 
 | `COFFERS SPAN SESSION <15-720>` | Minutes the session graph covers (default 180). |
 | `COFFERS SPAN LONG <7-365>` | Days the day-by-day graph covers (default 100). Days older than this drop out of the books. |
 
+### The tab's views
+
+The tab opens on **Wealth**: fortune, goal, the Session and Today boxes, records and the graphs. The boxes have an **explained** row, which opens the other view.
+
+**Accounts** shows, for the session, today or the last 7 days (click to switch):
+
+- two donuts, **Income** and **Spending**, one slice per source and unknown always last, in orange. The middle says how much of that side is explained. Each source counts in full, so when money comes and goes on the same prompt (you pick up 500 and pay 200), the donuts show 500 in and 200 out while the Wealth view's in counts the net 300;
+- **Recent moves**, newest first. *unknown only* hides the rest. Click an unknown move to see the game lines kept with it.
+
+The tab remembers which view you left it on.
+
 ### Maintenance
 
 | Command | What it does |
 | --- | --- |
-| `COFFERS WIPE CONFIRM` | Burns everything: graphs, days, sessions, records, your goal, pending proposals and dismissals. Only your settings stay. `COFFERS WIPE` alone only asks for confirmation. |
+| `COFFERS WIPE CONFIRM` | Burns everything: graphs, days, sessions, records, moves, your goal, pending proposals and dismissals. Only your settings stay. `COFFERS WIPE` alone only asks for confirmation. |
 | `COFFERS RESET` | Rebuilds the formatting helpers and the rank table, after editing them, without reloading the page. Your books are untouched. |
 | `COFFERS DEBUG` | Shows the raw state: the last gold and bank readings, the open session, how much is stored, and the settings. Useful when reporting a problem. |
 
@@ -193,6 +231,7 @@ The milestone notice comes once per rank, the first time you reach it. Dropping 
 | Days | One line per day for the last 100 days (`SPAN LONG`). Days you didn't play are filled in flat. |
 | Sessions | The last 50 closed sessions. |
 | Records | Peak fortune, best day, best session, highest rank reached. Kept until `WIPE`. |
+| Moves | The last 200 changes of fortune with their sources. The newest 40 unknown ones keep up to 15 game lines each. Income and spending by source are kept with each session and day. |
 | Gifts | The last 30 times someone gave you gold, in memory only (gone on a page reload). Used only by the `coffers-standings` link. |
 
 ## Working with other packages
@@ -220,4 +259,6 @@ How proposals behave:
 - **The tab says the ledger is empty.** No reading of your gold has arrived yet. Type `SCORE` or make a small deposit; `COFFERS DEBUG` shows what has arrived.
 - **A deposit showed up as income or spending.** It shouldn't: Coffers waits one prompt after any gold or bank change so both halves of a deposit land first. If you see this, [report it](https://github.com/neijel-achaea/loom/issues/new/choose) with the `COFFERS DEBUG` output.
 - **`COFFERS GOAL` says there is nothing to count from.** The goal is measured from your current fortune, which isn't known yet. Wait for the next prompt and try again.
+- **Lots of unknown.** Expected at first: only the lines in [Where the money comes from](#where-the-money-comes-from) are known. `COFFERS LOG UNKNOWN` shows the lines that came with each unknown move; send the one that moved the money in an [issue](https://github.com/neijel-achaea/loom/issues/new/choose).
+- **A move named the wrong source.** Every money line on the same prompt counts towards the same move, so a line about someone else's gold that happens to match would be counted. Send the lines from `COFFERS LOG UNKNOWN` or `COFFERS LOG`.
 - **No goal was proposed when I started hunting.** The area needs at least one filed hunt in huntstats, and the link must be on (`LOOM LINKS`). A proposal you dismissed stays away until that hunt ends.

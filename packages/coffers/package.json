@@ -60,6 +60,12 @@
   },
   {
    "type": "function",
+   "name": "coffers_accounts",
+   "enabled": true,
+   "code": "@file:coffers_accounts.js"
+  },
+  {
+   "type": "function",
    "name": "coffers_cmd",
    "enabled": true,
    "code": "@file:coffers_cmd.js"
@@ -71,20 +77,36 @@
    "code": "@file:coffers_help.js"
   },
   {
-    "type": "trigger",
-    "name": "coffers gift",
-    "enabled": true,
-    "actions": [
-      {
-        "type": "script",
-        "enabled": true,
-        "script": "@file:trigger_gift.js"
-      }
-    ],
-    "text": "^([A-Z][a-z]+) gives ([\\d,]+) gold sovereigns? to you\\.$",
-    "matching": "regexp",
-    "whole_words": false,
-    "case_sensitive": true
+   "type": "trigger",
+   "name": "coffers gift",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "@file:trigger_gift.js"
+    }
+   ],
+   "text": "^([A-Z][a-z]+) gives ([\\d,]+) gold sovereigns? to you\\.$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "trigger",
+   "name": "coffers every line",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "@file:trigger_every_line.js"
+    }
+   ],
+   "text": "^(.*)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
   },
   {
    "type": "alias",

@@ -109,6 +109,9 @@ The API key is in the browser's localStorage (`loom_chronicle_key`), never in a 
 | `coffers_dismissed` | data | 0.5 | proposals dismissed until withdrawn |  |
 | `coffers_recoup` | setting | 1.1 | single spend that proposes earning it back (0 = OFF; absent = DAY: average gold per day, 20,000 until known) |  |
 | `coffers_recoup_base` | data | 1.1 | fortune before the big spend a pending recoup proposal aims back to |  |
+| `coffers_moves` | data | 1.2 | the last changes of fortune with their sources, and the game lines kept with unknown ones |  |
+| `coffers_view` | setting | 1.2 | the tab's view: "accounts" (absent: Wealth) |  |
+| `coffers_period` | setting | 1.2 | the Accounts view's period: "today" or "week" (absent: session) |  |
 | `gc_min` | legacy | 0.1 | old name of coffers_min |  |
 | `gc_days` | legacy | 0.1 | old name of coffers_days |  |
 | `gc_sessions` | legacy | 0.1 | old name of coffers_sessions |  |

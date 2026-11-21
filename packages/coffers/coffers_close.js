@@ -8,7 +8,7 @@ if (S) {
   var dur = S.last - S.s;
   var net = S.inn - S.out;
   if (dur >= 60 || S.inn > 0 || S.out > 0) {
-    CO.sessions.push({ s: S.s, e: S.last, w0: S.w0, w1: S.w1, inn: S.inn, out: S.out, peak: S.peak, low: S.low, big: S.big });
+    CO.sessions.push({ s: S.s, e: S.last, w0: S.w0, w1: S.w1, inn: S.inn, out: S.out, peak: S.peak, low: S.low, big: S.big, src: S.src || {} });
     while (CO.sessions.length > 50) { CO.sessions.shift(); }
     var R = CO.rec;
     var isRec = false;
