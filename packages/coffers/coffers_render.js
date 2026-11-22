@@ -124,13 +124,6 @@ function bar(pct, col, h) {
   return '<div style="background:' + TRACK + ';height:' + h + 'px;width:100%;margin:2px 0;"><div style="background:' + col + ';height:' + h + 'px;width:' + n1(pct) + '%;"></div></div>';
 }
 function box(inner) { return '<div style="flex:1 1 130px;min-width:130px;border-top:2px solid ' + BRONZE + ';padding:3px 2px 0;">' + inner + '</div>'; }
-// "explained" (#236): the share of this box's money the Accounts view can
-// name; clicking it opens that view.
-function explRow(src) {
-  var p = CO.explained ? CO.explained(src) : null;
-  if (p === null) return "";
-  return '<div onclick="window.loomCoffers&&window.loomCoffers.view(\'accounts\')" title="Where it came from and where it went: the Accounts view" style="cursor:pointer;">' + row("explained", p + "%", p >= 100 ? UP : AIM) + bar(p, p >= 100 ? UP : AIM, 2) + '</div>';
-}
 function section(title, inner) { return '<div style="border-top:1px solid ' + RULE + ';margin-top:8px;padding-top:5px;">' + caps(title) + inner + '</div>'; }
 
 var coins = '<svg width="20" height="17" viewBox="0 0 20 17" style="vertical-align:-3px;margin-right:6px;" xmlns="http://www.w3.org/2000/svg">' +
@@ -226,7 +219,6 @@ if (g === undefined) {
       sb += row("out", F.n(S.out), S.out > 0 ? DOWN : TXT);
       sb += row("per hour", sDur >= 600 ? F.s(Math.round(sNet / (sDur / 3600))) : "&hellip;", sDur >= 600 ? color(sNet) : MUTED);
       if (S.big > 0) { sb += row("best haul", F.s(S.big), GOLD); }
-    sb += explRow(S.src);
     } else {
       sb += '<div style="color:' + MUTED + ';">No session open.</div>';
     }
@@ -241,10 +233,9 @@ if (g === undefined) {
     tb += row("date", F.date(now));
     tb += row("in", F.n(tIn), tIn > 0 ? UP : TXT);
     tb += row("out", F.n(tOut), tOut > 0 ? DOWN : TXT);
-  tb += explRow(today ? today[5] : null);
     if (R.bestDay && R.bestDay.net > 0) {
+      // The best day to beat is under Records, right beside this box.
       if (tNet > R.bestDay.net) { tb += '<div style="color:' + GOLD + ';font-family:' + SERIF + ';font-style:italic;margin-top:2px;">&#9733; record day in the making</div>'; }
-      else { tb += row("to beat", F.n(R.bestDay.net), MUTED); }
     }
     cols += box(tb);
 
