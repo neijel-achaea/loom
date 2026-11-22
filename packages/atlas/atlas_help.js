@@ -16,6 +16,7 @@ var hlRows = [
   ["ATLAS WALK PATHFIND|CUSTOM", "clicks use the game's PATH FIND (the default), or walk Atlas's own route, a step at a time"],
   ["ATLAS WORMHOLES ON|OFF", "Atlas's routes take wormholes (WORM WARP) where they're shorter, or leave them out (default OFF: most characters can't use them)"],
   ["ATLAS EXITS ON|OFF", "routes take the map's special exits: enter, climb, jump, pull, touch, push, say… (default ON; never buy, kneel or scripts)"],
+  ["ATLAS HOURGLASS ON|OFF", "routes may start with TOUCH HOURGLASS to the Ruins of Seleucar (the way to Meropis), at full health and mana; Loom is paused while it moves you (default OFF)"],
   ["ATLAS VEIL ON|OFF", "in dragonform, routes may start with PIERCE THE VEIL to Dragonspire Mount in the Parthren Gare (default ON: only dragons can)"],
   ["ATLAS BROKEN [CLEAR [room]]", "shortcuts the map has that the game didn't (marked on a walk, left out of routes for 30 days), or forget them"],
   ["ATLAS STOP", "stop walking Atlas's route"],

@@ -70,6 +70,10 @@ if (atCmd === "" || atCmd === "status") {
   var atEx = atRest.toLowerCase();
   if (atEx === "on" || atEx === "off") { AT.setExits(atEx === "on"); display_notice("[atlas] Atlas's routes " + (atEx === "on" ? "take the map's special exits (enter, climb, jump, pull…; never buy, kneel or scripts)." : "leave the map's special exits out."), "lime"); }
   else display_notice("[atlas] Atlas's routes " + (AT.useExits ? "take" : "leave out") + " the map's special exits (enter, climb, jump, pull…; never buy, kneel or scripts). ATLAS EXITS ON|OFF.", atEx ? "orange" : "cyan");
+} else if (atCmd === "hourglass") {
+  var atHg = atRest.toLowerCase();
+  if (atHg === "on" || atHg === "off") { AT.setHour(atHg === "on"); display_notice("[atlas] Atlas's routes " + (atHg === "on" ? "may start with TOUCH HOURGLASS to the Ruins of Seleucar, at full health and mana (Loom is paused while it moves you)." : "leave the hourglass out."), "lime"); }
+  else display_notice("[atlas] Atlas's routes " + (AT.useHour ? "may start with TOUCH HOURGLASS at full health and mana" + (AT.fullVitals() ? "" : " (you're not at full now)") : "leave the hourglass out") + ". ATLAS HOURGLASS ON|OFF.", atHg ? "orange" : "cyan");
 } else if (atCmd === "veil") {
   var atVe = atRest.toLowerCase();
   if (atVe === "on" || atVe === "off") { AT.setVeil(atVe === "on"); display_notice("[atlas] Atlas's routes " + (atVe === "on" ? "may start with PIERCE THE VEIL to Dragonspire Mount while you're in dragonform." : "leave the Veil out."), "lime"); }

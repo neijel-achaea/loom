@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.16.1", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.17.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -26,6 +26,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_walk = "custom" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
 //   atlas_exits = "off" while routes leave the crowdmap's other special exits out (absent: used);
+//   atlas_hourglass = "on" while routes may start with TOUCH HOURGLASS (absent: left out);
 //   atlas_veil = "off" while routes leave PIERCE THE VEIL out (absent: used in dragonform);
 //   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
 //   atlas_wild = "off" while the wilderness map stays in the main window
@@ -1166,15 +1167,47 @@ AT.isDragon = function () {
   if (c === null) { var S = client.loom && client.loom.self; c = S && S.info && S.info["class"] ? String(S.info["class"]) : null; }
   return c !== null && /dragon/i.test(c);
 };
+// TOUCH HOURGLASS (Ricardo): a crystalline hourglass that moves you to A
+// shattered statue (68155) in the Ruins of Seleucar, the way to Meropis. Off
+// until you turn it on (ATLAS HOURGLASS ON, atlas_hourglass = "on": it needs
+// the item); only at full health and mana (the game requires it; Char.Vitals,
+// AT.vit; not known yet counts as not full). Anything you do meanwhile breaks
+// it ("Your concentration falters…": Loom drinking an elixir did), so Atlas
+// pauses Loom for it (pause: true) and lifts the pause when you land, when it
+// falters, or when the walk ends; only a pause Atlas made itself.
+AT.hourCost = 14;            // a guess until we know how long it takes
+AT.useHour = get_variable("atlas_hourglass") === "on";
+AT.setHour = function (on) { AT.useHour = !!on; if (on) set_variable("atlas_hourglass", "on"); else delete_variable("atlas_hourglass"); };
+AT.vit = AT.vit || null;
+AT.fullVitals = function () {
+  var v = AT.vit;
+  return !!(v && v.maxhp > 0 && v.maxmp > 0 && v.hp >= v.maxhp && v.mp >= v.maxmp);
+};
 AT.teleports = [
-  { cmd: "pierce the veil", to: 12695, name: "the Veil", cost: function () { return AT.veilCost; }, on: function () { return AT.useVeil && AT.isDragon(); } }
+  { cmd: "pierce the veil", to: 12695, name: "the Veil", cost: function () { return AT.veilCost; }, on: function () { return AT.useVeil && AT.isDragon(); } },
+  { cmd: "touch hourglass", to: 68155, name: "the hourglass", pause: true, cost: function () { return AT.hourCost; }, on: function () { return AT.useHour && AT.fullVitals(); } }
 ];
+// Loom paused for a teleport, and back (only Atlas's own pause).
+AT.walkPause = function (W) {
+  if (W.paused) return;
+  if (get_variable("pauseTriggers") == "on") return;        // already paused by you: leave it
+  set_variable("pauseTriggers", "on");
+  W.paused = true;
+  display_notice("[atlas] Loom paused while the hourglass moves you.", "cyan");
+};
+AT.walkUnpause = function (W) {
+  if (!W || !W.paused) return;
+  W.paused = false;
+  set_variable("pauseTriggers", "off");
+  display_notice("[atlas] Loom unpaused.", "cyan");
+};
 AT.teleport = function (cmd) {
   for (var i = 0; i < AT.teleports.length; i++) if (AT.teleports[i].cmd === cmd) return AT.teleports[i];
   return null;
 };
 AT.vitals = function (v) {
   AT.eq = String(v.eq) == "1";
+  if (v.hp !== undefined && v.maxhp !== undefined) AT.vit = { hp: atNum(v.hp), maxhp: atNum(v.maxhp), mp: atNum(v.mp), maxmp: atNum(v.maxmp) };
   var W = AT.walk;
   if (!AT.eq || !W || !W.eqWait) return;
   W.eqWait = false;
@@ -1544,7 +1577,7 @@ AT.routeShown = function () {
 AT.walkStep = function (again) {
   var W = AT.walk;
   if (!W) return;
-  if (get_variable("pauseTriggers") == "on") { AT.walkEnd("Loom was paused"); return; }
+  if (get_variable("pauseTriggers") == "on" && !W.paused) { AT.walkEnd("Loom was paused"); return; }
   if (!again) { W.hasty = 0; W.stumbles = 0; if (W.retry) { clearTimeout(W.retry); W.retry = null; } }
   var from = W.rooms[W.i], dir = W.dirs[W.i], R = AT.map && AT.map.rooms[from];
   if (AT.eq === false) {
@@ -1561,6 +1594,8 @@ AT.walkStep = function (again) {
   // Did the game list this exit for the room you're in? (Not: the map may be
   // wrong; a failure then marks it rather than stopping the walk.)
   W.listed = !(AT.BACK[dir] && AT.here && AT.here.id === from && AT.here.dirs && !AT.here.dirs[dir]);
+  var TP = AT.teleport(dir);
+  if (TP && TP.pause) AT.walkPause(W);
   var S = /^script:/.test(dir) ? AT.scriptRead(dir) : null;
   if (S) AT.walkScript(W, S);
   else send_command(dir, 1);
@@ -1593,13 +1628,24 @@ AT.walkNoWorm = function () {
   if (W.t) { clearTimeout(W.t); W.t = null; }
   AT.walkDetour(W.rooms[W.i], "worm warp");
 };
+// "Your concentration falters, and the nacreous vapour surrounding you
+// unravels into thin ribbons." (the trigger "Atlas walk hourglass falters"):
+// the hourglass broke off: another way, at once.
+AT.walkFalter = function () {
+  var W = AT.walk;
+  if (!W || W.dirs[W.i] !== "touch hourglass") return;
+  if (W.t) { clearTimeout(W.t); W.t = null; }
+  AT.walkUnpause(W);
+  AT.walkDetour(W.rooms[W.i], "touch hourglass");
+};
 // A shortcut that isn't there: marked broken, and a new route from this room.
 AT.walkDetour = function (from, cmd) {
   var W = AT.walk;
   if (!W) return;
   var T = AT.teleport(cmd);
   if (T) {
-    // Not marked: another way for this walk.
+    // Not marked: another way for this walk (and Loom unpaused, if Atlas paused it).
+    AT.walkUnpause(W);
     W.noTele = W.noTele || {};
     W.noTele[cmd] = true;
     if (AT.eq === false) AT.eq = null;
@@ -1627,6 +1673,7 @@ AT.walkDetour = function (from, cmd) {
 AT.walkArrive = function (id) {
   var W = AT.walk;
   if (!W) return;
+  if (W.paused && id !== W.rooms[W.i]) AT.walkUnpause(W);   // the hourglass landed you
   if (id === W.to) { AT.walkEnd(""); return; }
   if (id === W.rooms[W.i]) return;                 // the same room again
   if (id === W.rooms[W.i + 1]) { W.i++; AT.walkStep(); return; }
@@ -1678,6 +1725,7 @@ AT.walkEnd = function (why) {
   if (W.t) clearTimeout(W.t);
   if (W.retry) clearTimeout(W.retry);
   if (W.timers) for (var k = 0; k < W.timers.length; k++) clearTimeout(W.timers[k]);
+  AT.walkUnpause(W);
   AT.walk = null;
   // Arrived: the room's information reaches Atlas before its text, so the
   // notice waits a moment to show under the room rather than above it.
