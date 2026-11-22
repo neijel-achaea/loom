@@ -66,6 +66,10 @@ if (atCmd === "" || atCmd === "status") {
   var atWo = atRest.toLowerCase();
   if (atWo === "on" || atWo === "off") { AT.setWorms(atWo === "on"); display_notice("[atlas] Atlas's routes " + (atWo === "on" ? "take wormholes (WORM WARP) where they're shorter." : "leave wormholes out."), "lime"); }
   else display_notice("[atlas] Atlas's routes " + (AT.useWorms ? "take" : "leave out") + " wormholes. ATLAS WORMHOLES ON|OFF.", atWo ? "orange" : "cyan");
+} else if (atCmd === "exits") {
+  var atEx = atRest.toLowerCase();
+  if (atEx === "on" || atEx === "off") { AT.setExits(atEx === "on"); display_notice("[atlas] Atlas's routes " + (atEx === "on" ? "take the map's special exits (enter, climb, jump, pull…; never buy, kneel or scripts)." : "leave the map's special exits out."), "lime"); }
+  else display_notice("[atlas] Atlas's routes " + (AT.useExits ? "take" : "leave out") + " the map's special exits (enter, climb, jump, pull…; never buy, kneel or scripts). ATLAS EXITS ON|OFF.", atEx ? "orange" : "cyan");
 } else if (atCmd === "veil") {
   var atVe = atRest.toLowerCase();
   if (atVe === "on" || atVe === "off") { AT.setVeil(atVe === "on"); display_notice("[atlas] Atlas's routes " + (atVe === "on" ? "may start with PIERCE THE VEIL to Dragonspire Mount while you're in dragonform." : "leave the Veil out."), "lime"); }
@@ -94,7 +98,7 @@ if (atCmd === "" || atCmd === "status") {
     if (!atP) display_notice("[atlas] no route from " + AT.label(AT.here.id) + " to " + AT.label(Number(atRest)) + " on the map (a click would ask the game's PATH FIND).", "orange");
     else {
       AT.preview = { rooms: atP.rooms, dirs: atP.dirs, to: atP.to };
-      display_notice("[atlas] " + atP.dirs.length + " step" + (atP.dirs.length === 1 ? "" : "s") + " to " + AT.label(Number(atRest)) + ": " + atP.dirs.join(", ") + " (drawn on the map until you move).", "cyan");
+      display_notice("[atlas] " + atP.dirs.length + " step" + (atP.dirs.length === 1 ? "" : "s") + " to " + AT.label(Number(atRest)) + ": " + atP.dirs.map(AT.stepText).join(", ") + " (drawn on the map until you move).", "cyan");
       run_function("atlas_render", { full: true }, "atlas");
     }
   }

@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.15.1", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.16.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -25,6 +25,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_fog = "off" while fog of war is off (absent: on);
 //   atlas_walk = "custom" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
+//   atlas_exits = "off" while routes leave the crowdmap's other special exits out (absent: used);
 //   atlas_veil = "off" while routes leave PIERCE THE VEIL out (absent: used in dragonform);
 //   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
 //   atlas_wild = "off" while the wilderness map stays in the main window
@@ -1204,9 +1205,62 @@ AT.setWorms = function (on) {
   if (on) set_variable("atlas_worms", "on"); else delete_variable("atlas_worms");
 };
 // The cost of a special exit for routes, 0 when Atlas doesn't take it.
+// The crowdmap's other special exits (enter grate, jump north, pull curtain,
+// touch rift, climb down, push barrel, say oniar…): ordinary ways through the
+// world anyone can take, so on unless you turn them off (Ricardo; ATLAS EXITS
+// OFF, setting atlas_exits = "off"). The step is the exit's command, sent as
+// it is; one that doesn't move you is marked broken and walked around, as a
+// missing wormhole. Never "buy …" (it spends) or "kneel …" (may need you to
+// follow that god), Ricardo; a "script: …" only when it's plain commands
+// (AT.scriptRead).
+AT.exitCost = 2;
+AT.useExits = get_variable("atlas_exits") !== "off";
+AT.setExits = function (on) { AT.useExits = !!on; if (on) delete_variable("atlas_exits"); else set_variable("atlas_exits", "off"); };
+AT.exitNever = /^(buy\b|kneel\b|script:)/i;
+// The crowdmap's scripts (Ricardo: the way into the Mirror Caves is
+// `script: sendAll("pull pile", "down")`): most are only commands in a row,
+// with waits. A script made of nothing but send("…"), sendAll("…", …),
+// mmp.customwalkdelay(n) (the move takes n s) and tempTimer(n, [[send("…")]])
+// or tempTimer(n, [[cmd]]) (sent after n s) becomes a list of
+// { cmd, at: ms after the step starts } plus the time it takes; anything else
+// (conditions, triggers) isn't read, and the script isn't taken. Each command
+// still goes through AT.exitNever (so "kneel scarlatti" stays out).
+AT.scripts = AT.scripts || {};
+AT.scriptRead = function (code) {
+  if (AT.scripts.hasOwnProperty(code)) return AT.scripts[code];
+  var s = String(code).replace(/^script:\s*/, ""), out = { cmds: [], wait: 0 }, t = 0, m, ok = true;
+  var str = "(?:\"([^\"\\\\]*)\"|'([^'\\\\]*)')";
+  var reSend = new RegExp("^send\\(\\s*" + str + "\\s*\\)\\s*"), reAll = new RegExp("^sendAll\\(\\s*(" + str + "(?:\\s*,\\s*" + str + ")*)\\s*\\)\\s*");
+  var reDelay = /^mmp\.customwalkdelay\(\s*(\d+(?:\.\d+)?)\s*\)\s*/;
+  var reTimer = new RegExp("^tempTimer\\(\\s*(\\d+(?:\\.\\d+)?)\\s*,\\s*\\[\\[\\s*(?:send\\(\\s*" + str + "\\s*\\)|([a-z][a-z ]{0,30}))\\s*\\]\\]\\s*\\)\\s*", "i");
+  var reStrs = new RegExp(str, "g");
+  while (s.length && ok) {
+    if ((m = reSend.exec(s))) { out.cmds.push({ cmd: m[1] !== undefined ? m[1] : m[2], at: t }); s = s.slice(m[0].length); }
+    else if ((m = reAll.exec(s))) { var all = m[1].match(reStrs); for (var i = 0; i < all.length; i++) out.cmds.push({ cmd: all[i].slice(1, -1), at: t }); s = s.slice(m[0].length); }
+    else if ((m = reDelay.exec(s))) { out.wait = Math.max(out.wait, t + parseFloat(m[1]) * 1000); s = s.slice(m[0].length); }
+    else if ((m = reTimer.exec(s))) { var c = m[2] !== undefined ? m[2] : (m[3] !== undefined ? m[3] : m[4]); out.cmds.push({ cmd: String(c).trim(), at: parseFloat(m[1]) * 1000 }); s = s.slice(m[0].length); }
+    else ok = false;
+  }
+  for (var j = 0; ok && j < out.cmds.length; j++) if (!out.cmds[j].cmd || AT.exitNever.test(out.cmds[j].cmd) || !/^[a-z]/i.test(out.cmds[j].cmd)) ok = false;
+  if (!ok || !out.cmds.length) out = null;
+  else { out.cmds.sort(function (a, b) { return a.at - b.at; }); out.wait = Math.max(out.wait, out.cmds[out.cmds.length - 1].at); out.text = out.cmds.map(function (x) { return x.cmd; }).join(", "); }
+  AT.scripts[code] = out;
+  return out;
+};
+// How a step reads in notices: a script as its commands.
+AT.stepText = function (dir) {
+  if (/^script:/.test(dir)) { var S = AT.scriptRead(dir); return S ? S.text : dir; }
+  return dir;
+};
 AT.specialCost = function (cmd) {
   if (cmd === "worm warp") return AT.useWorms ? AT.wormCost : 0;
-  return 0;
+  if (!AT.useExits) return 0;
+  if (/^script:/.test(cmd)) {
+    var S = AT.scriptRead(cmd);
+    return S ? AT.exitCost * S.cmds.length + Math.round(S.wait / 420) : 0;   // ~0.42 s a step
+  }
+  if (AT.exitNever.test(cmd) || !/^[a-z]/i.test(cmd)) return 0;
+  return AT.exitCost;
 };
 AT.arrivedMs = 250;
 AT.setOwnWalk = function (on) {
@@ -1507,7 +1561,9 @@ AT.walkStep = function (again) {
   // Did the game list this exit for the room you're in? (Not: the map may be
   // wrong; a failure then marks it rather than stopping the walk.)
   W.listed = !(AT.BACK[dir] && AT.here && AT.here.id === from && AT.here.dirs && !AT.here.dirs[dir]);
-  send_command(dir, 1);
+  var S = /^script:/.test(dir) ? AT.scriptRead(dir) : null;
+  if (S) AT.walkScript(W, S);
+  else send_command(dir, 1);
   if (dir === "worm warp") AT.eq = false;      // known to cost equilibrium (the Veil: not known)
   W.at = Date.now();
   if (W.t) clearTimeout(W.t);
@@ -1516,7 +1572,18 @@ AT.walkStep = function (again) {
     if (AT.walk !== W || W.i !== step) return;
     if (AT.BACK[dir] && W.listed) AT.walkEnd("no answer to " + dir + " from " + AT.label(from) + " (blocked, or you couldn't move)");
     else AT.walkDetour(from, dir);
-  }, AT.BACK[dir] ? AT.walkWait : (AT.teleport(dir) ? AT.teleWait : AT.warpWait));
+  }, AT.BACK[dir] ? AT.walkWait : (AT.teleport(dir) ? AT.teleWait : AT.warpWait + (S ? S.wait : 0)));
+};
+// A script's commands, in order, each at its time (the walk's step stays the
+// same until the room it leads to arrives).
+AT.walkScript = function (W, S) {
+  var step = W.i;
+  if (W.timers) for (var k = 0; k < W.timers.length; k++) clearTimeout(W.timers[k]);
+  W.timers = [];
+  S.cmds.forEach(function (c) {
+    if (!c.at) { send_command(c.cmd, 1); return; }
+    W.timers.push(setTimeout(function () { if (AT.walk === W && W.i === step) send_command(c.cmd, 1); }, c.at));
+  });
 };
 // "There is no wormhole here." (the trigger "Atlas walk no wormhole"): at
 // once, rather than after AT.warpWait.
@@ -1571,6 +1638,7 @@ AT.walkEnd = function (why) {
   if (!W) return;
   if (W.t) clearTimeout(W.t);
   if (W.retry) clearTimeout(W.retry);
+  if (W.timers) for (var k = 0; k < W.timers.length; k++) clearTimeout(W.timers[k]);
   AT.walk = null;
   // Arrived: the room's information reaches Atlas before its text, so the
   // notice waits a moment to show under the room rather than above it.
