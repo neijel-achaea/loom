@@ -98,7 +98,7 @@ if (atCmd === "" || atCmd === "status") {
     if (!atP) display_notice("[atlas] no route from " + AT.label(AT.here.id) + " to " + AT.label(Number(atRest)) + " on the map (a click would ask the game's PATH FIND).", "orange");
     else {
       AT.preview = { rooms: atP.rooms, dirs: atP.dirs, to: atP.to };
-      display_notice("[atlas] " + atP.dirs.length + " step" + (atP.dirs.length === 1 ? "" : "s") + " to " + AT.label(Number(atRest)) + ": " + atP.dirs.join(", ") + " (drawn on the map until you move).", "cyan");
+      display_notice("[atlas] " + atP.dirs.length + " step" + (atP.dirs.length === 1 ? "" : "s") + " to " + AT.label(Number(atRest)) + ": " + atP.dirs.map(AT.stepText).join(", ") + " (drawn on the map until you move).", "cyan");
       run_function("atlas_render", { full: true }, "atlas");
     }
   }
