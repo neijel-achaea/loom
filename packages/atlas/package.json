@@ -147,6 +147,22 @@
       "matching": "substring",
       "whole_words": false,
       "case_sensitive": true
+    },
+    {
+      "type": "trigger",
+      "name": "Atlas walk hourglass falters",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_walk_falter.js"
+        }
+      ],
+      "text": "Your concentration falters, and the nacreous vapour surrounding you unravels into thin ribbons.",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
     }
   ],
   "description": "A map tab from the community crowdmap, with the rooms you've explored as fog"
