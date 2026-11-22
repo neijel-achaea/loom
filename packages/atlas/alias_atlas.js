@@ -70,6 +70,20 @@ if (atCmd === "" || atCmd === "status") {
   var atEx = atRest.toLowerCase();
   if (atEx === "on" || atEx === "off") { AT.setExits(atEx === "on"); display_notice("[atlas] Atlas's routes " + (atEx === "on" ? "take the map's special exits (enter, climb, jump, pull…; never buy, kneel or scripts)." : "leave the map's special exits out."), "lime"); }
   else display_notice("[atlas] Atlas's routes " + (AT.useExits ? "take" : "leave out") + " the map's special exits (enter, climb, jump, pull…; never buy, kneel or scripts). ATLAS EXITS ON|OFF.", atEx ? "orange" : "cyan");
+} else if (AT.wingRooms[atCmd] || atCmd === "wings") {
+  var atWw = atCmd === "wings" ? null : atCmd, atWp = atRest.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!atWw || !atWp.length) {
+    var atWl = AT.wingWords.map(function (k) { var e = AT.wings[k]; return k.toUpperCase() + ": " + (e ? "wings " + e.item + " → " + AT.label(AT.wingRooms[k]) : "none"); });
+    display_notice("[atlas] wings: " + atWl.join("; ") + ". ATLAS " + AT.wingWords.map(function (k) { return k.toUpperCase(); }).join("|") + " <item number>, or OFF.", "cyan");
+  } else if (atWp[0] === "off") {
+    delete AT.wings[atWw]; AT.wingsSave();
+    display_notice("[atlas] " + atWw.toUpperCase() + ": no wings; routes leave it out.", "lime");
+  } else if (!/^\d+$/.test(atWp[0]) || atWp.length > 1) {
+    display_notice("[atlas] ATLAS " + atWw.toUpperCase() + " <item number of your wings>, or OFF.", "orange");
+  } else {
+    AT.wings[atWw] = { item: Number(atWp[0]), room: AT.wingRooms[atWw] }; AT.wingsSave();
+    display_notice("[atlas] " + atWw.toUpperCase() + ": wings " + atWp[0] + " → " + AT.label(AT.wingRooms[atWw]) + ". Routes may start with WEAR " + atWp[0] + ", SAY " + atWw.toUpperCase() + ".", "lime");
+  }
 } else if (atCmd === "hourglass") {
   var atHg = atRest.toLowerCase();
   if (atHg === "on" || atHg === "off") { AT.setHour(atHg === "on"); display_notice("[atlas] Atlas's routes " + (atHg === "on" ? "may start with TOUCH HOURGLASS to the Ruins of Seleucar, at full health and mana (Loom is paused while it moves you)." : "leave the hourglass out."), "lime"); }
