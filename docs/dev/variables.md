@@ -32,6 +32,7 @@ Every variable Loom's packages save: what it holds, the release it first appeare
 | `atlas_fog` | setting | 1.1 | `off` while fog of war is off (absent: on) |  |
 | `atlas_walk` | setting | 1.2 | `custom` while clicks walk Atlas's own route (absent: the game's PATH FIND) |  |
 | `atlas_exits` | setting | 1.2 | `off` while routes leave the crowdmap's special exits out (absent: used) |  |
+| `atlas_wings` | setting | 1.2 | `{ duanatharic: { item } }` for the wings you have; absent: none |  |
 | `atlas_hourglass` | setting | 1.2 | `on` while routes may start with TOUCH HOURGLASS (absent: left out) |  |
 | `atlas_veil` | setting | 1.2 | `off` while routes leave PIERCE THE VEIL out (absent: used in dragonform) |  |
 | `atlas_worms` | setting | 1.2 | `on` while Atlas's routes take wormholes (absent: left out) |  |

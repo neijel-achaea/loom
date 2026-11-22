@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.17.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.18.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -26,6 +26,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_walk = "custom" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
 //   atlas_exits = "off" while routes leave the crowdmap's other special exits out (absent: used);
+//   atlas_wings = { duanatharic: { item } } for the wings you have;
 //   atlas_hourglass = "on" while routes may start with TOUCH HOURGLASS (absent: left out);
 //   atlas_veil = "off" while routes leave PIERCE THE VEIL out (absent: used in dragonform);
 //   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
@@ -1187,6 +1188,36 @@ AT.teleports = [
   { cmd: "pierce the veil", to: 12695, name: "the Veil", cost: function () { return AT.veilCost; }, on: function () { return AT.useVeil && AT.isDragon(); } },
   { cmd: "touch hourglass", to: 68155, name: "the hourglass", pause: true, cost: function () { return AT.hourCost; }, on: function () { return AT.useHour && AT.fullVitals(); } }
 ];
+// ---- Wings (Ricardo) ----------------------------------------------------
+// Each kind is flown by saying its word, and always lands in the same room
+// (AT.wingRooms). A character may own several and wears the right set first,
+// so each kind is set up with the item number of your wings: ATLAS
+// DUANATHARIC 12345. Unset: you don't have those wings. Kept per character in
+// atlas_wings ({ word: { item } }). DUANATHARIC first (Ricardo); DUANATHAR
+// and DUANATHARAN are a line in AT.wingRooms each once their rooms are known. On a walk: "wear <item>", wait until Char.Vitals
+// shows balance and equilibrium, then "say <word>"; the wings stay on.
+// From where a walk starts only, as the Veil. Not landing in AT.teleWait →
+// another way (not marked broken).
+AT.wingRooms = { duanatharic: 47571 };   // Far above a glimmering ocean (Clouds), Ricardo
+AT.wingWords = Object.keys(AT.wingRooms);
+AT.wingCost = 6;                         // a guess until we know how long a flight takes
+AT.wingsRead = function () {
+  var w = {};
+  try { w = JSON.parse(get_variable("atlas_wings") || "{}") || {}; } catch (e) { w = {}; }
+  AT.wings = {};
+  for (var i = 0; i < AT.wingWords.length; i++) {
+    var k = AT.wingWords[i], e = w[k];
+    if (e && atNum(e.item) > 0) AT.wings[k] = { item: atNum(e.item), room: AT.wingRooms[k] };
+  }
+};
+AT.wingsSave = function () {
+  var keys = Object.keys(AT.wings);
+  var out = {};
+  for (var i = 0; i < keys.length; i++) out[keys[i]] = { item: AT.wings[keys[i]].item };
+  if (keys.length) set_variable("atlas_wings", JSON.stringify(out)); else delete_variable("atlas_wings");
+};
+AT.wingsRead();
+AT.bal = AT.bal === undefined ? null : AT.bal;
 // Loom paused for a teleport, and back (only Atlas's own pause).
 AT.walkPause = function (W) {
   if (W.paused) return;
@@ -1201,6 +1232,16 @@ AT.walkUnpause = function (W) {
   set_variable("pauseTriggers", "off");
   display_notice("[atlas] Loom unpaused.", "cyan");
 };
+// Wings join the teleports by word (the room comes from your settings).
+(function () {
+  for (var i = 0; i < AT.wingWords.length; i++) (function (k) {
+    var T = { cmd: "say " + k, word: k, name: "your " + k.toUpperCase() + " wings", wings: true,
+      cost: function () { return AT.wingCost; },
+      on: function () { var e = AT.wings[k]; return !!(e && e.room > 0); } };
+    Object.defineProperty(T, "to", { get: function () { var e = AT.wings[k]; return e ? e.room : 0; } });
+    AT.teleports.push(T);
+  })(AT.wingWords[i]);
+})();
 AT.teleport = function (cmd) {
   for (var i = 0; i < AT.teleports.length; i++) if (AT.teleports[i].cmd === cmd) return AT.teleports[i];
   return null;
@@ -1208,6 +1249,9 @@ AT.teleport = function (cmd) {
 AT.vitals = function (v) {
   AT.eq = String(v.eq) == "1";
   if (v.hp !== undefined && v.maxhp !== undefined) AT.vit = { hp: atNum(v.hp), maxhp: atNum(v.maxhp), mp: atNum(v.mp), maxmp: atNum(v.maxmp) };
+  if (v.bal !== undefined) AT.bal = String(v.bal) == "1";
+  var Ww = AT.walk;
+  if (Ww && Ww.wingWait && AT.eq && AT.bal !== false) { Ww.wingWait = false; if (Ww.t) { clearTimeout(Ww.t); Ww.t = null; } AT.walkStep(); return; }
   var W = AT.walk;
   if (!AT.eq || !W || !W.eqWait) return;
   W.eqWait = false;
@@ -1596,6 +1640,18 @@ AT.walkStep = function (again) {
   W.listed = !(AT.BACK[dir] && AT.here && AT.here.id === from && AT.here.dirs && !AT.here.dirs[dir]);
   var TP = AT.teleport(dir);
   if (TP && TP.pause) AT.walkPause(W);
+  if (TP && TP.wings && W.worn !== W.i + "|" + dir) {
+    // Wear the wings, then the word once balance and equilibrium are back.
+    send_command("wear " + AT.wings[TP.word].item, 1);
+    W.worn = W.i + "|" + dir;
+    W.wingWait = true;
+    if (W.t) clearTimeout(W.t);
+    var wstep = W.i;
+    W.t = setTimeout(function () {
+      if (AT.walk === W && W.i === wstep && W.wingWait) { W.wingWait = false; AT.walkDetour(from, dir); }
+    }, AT.eqWait);
+    return;
+  }
   var S = /^script:/.test(dir) ? AT.scriptRead(dir) : null;
   if (S) AT.walkScript(W, S);
   else send_command(dir, 1);
