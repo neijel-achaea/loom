@@ -102,6 +102,22 @@
     },
     {
       "type": "trigger",
+      "name": "Atlas walk fog stumble",
+      "enabled": true,
+      "actions": [
+        {
+          "type": "script",
+          "enabled": true,
+          "script": "@file:trigger_walk_stumble.js"
+        }
+      ],
+      "text": "You stumble through the fog, attempting to find a way out.",
+      "matching": "substring",
+      "whole_words": false,
+      "case_sensitive": true
+    },
+    {
+      "type": "trigger",
       "name": "Atlas walk no equilibrium",
       "enabled": true,
       "actions": [
