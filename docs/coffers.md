@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 1.4.1.*
+*This page describes coffers 1.4.2.*
 <!-- /loom:version -->
 
 ## What it is
@@ -86,12 +86,14 @@ The sources Coffers knows so far:
 
 | Source | Lines |
 | --- | --- |
-| picked up | You pick up N gold sovereigns. |
+| picked up | You pick up N gold sovereigns. / You pick up (a small pile…) of golden sovereigns. |
 | gifts | X gives N gold sovereigns to you. |
 | out of containers | You get N gold sovereigns from (a container). |
 | given away | You give N gold sovereigns to X. |
 | dropped | You drop N gold sovereigns. |
 | shops | You pay N sovereigns and receive (an item). / You purchase N (a commodity) for N gold. |
+
+**Lines with no amount.** Some lines don't say how much ("You pick up a small pile of golden sovereigns."). Such a line takes whatever the lines with amounts leave unexplained on that move, and only if it goes the right way (a pickup only explains money coming in). Otherwise the move stays unknown.
 
 **Gold in containers.** The game counts only the gold you carry, so taking gold out of a pack counts as income and putting it back as spending. *Out of containers* names the first; putting gold away is unknown until its line is added.
 

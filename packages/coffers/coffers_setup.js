@@ -6,7 +6,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.coffers) client.loom.coffers = {};
-client.loom.registry.coffers = { version: "1.4.1", keyword: "COFFERS", desc: "{{description}}",
+client.loom.registry.coffers = { version: "1.4.2", keyword: "COFFERS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("coffers_render", [], "coffers"); } };
 var CO = client.loom.coffers;
@@ -346,8 +346,11 @@ CO.look = {
 // The money lines, data: { id, re, sign (+1 in, -1 out), amt (group with the
 // amount), det (group with a detail: who, what) }. Rebuilt every run, so a
 // reimport brings new ones at once. Several lines can share an id.
+// A line with no amount (no amt) is "open": it takes whatever the exact lines
+// leave unexplained on that move, and only when that goes its way (sign).
 CO.srcDefs = [
   { id: "pickup", re: /^You pick up ([\d,]+) gold sovereigns?\.$/, sign: 1, amt: 1 },
+  { id: "pickup", re: /^You pick up .+ of golden sovereigns\.$/, sign: 1 },
   { id: "gift", re: /^([A-Z][a-z]+) gives ([\d,]+) gold sovereigns? to you\.$/, sign: 1, amt: 2, det: 1 },
   { id: "container", re: /^You get ([\d,]+) gold sovereigns? from (.+)\.$/, sign: 1, amt: 1, det: 2 },
   { id: "gave", re: /^You give ([\d,]+) gold sovereigns? to ([A-Z][a-z]+)\.$/, sign: -1, amt: 1, det: 2 },
@@ -384,8 +387,14 @@ if (!CO.strays) CO.strays = [];  // labels no change of fortune came for (memory
 if (!CO.lineBuf) CO.lineBuf = [];
 if (CO.lineN === undefined) { CO.lineN = 0; CO.lineMark = 0; }
 
-// Queue a label for the next booking.
-CO.note = function (src, amount, detail) {
+// Queue a label for the next booking. amount null: an open label, with the
+// sign it may take (CO.srcDefs).
+CO.note = function (src, amount, detail, sign) {
+  if (src && amount === null && (sign === 1 || sign === -1)) {
+    CO.queue.push({ s: String(src), a: 0, open: sign, d: detail ? String(detail) : "", age: 0 });
+    if (CO.queue.length > 50) CO.queue.shift();
+    return true;
+  }
   var a = Math.round(Number(amount));
   if (!src || !a) return false;
   CO.queue.push({ s: String(src), a: a, d: detail ? String(detail) : "", age: 0 });
@@ -405,6 +414,7 @@ CO.line = function (t) {
   for (var i = 0; i < CO.srcDefs.length; i++) {
     var D = CO.srcDefs[i], m = D.re.exec(t);
     if (m) {
+      if (!D.amt) { CO.note(D.id, null, D.det ? m[D.det] : "", D.sign); return; }
       var a = parseInt(String(m[D.amt]).replace(/,/g, ""), 10);
       if (a > 0) CO.note(D.id, D.sign * a, D.det ? m[D.det] : "");
       return;
@@ -424,10 +434,10 @@ CO.book = function (d, now, S, T) {
   var seen = CO.lineN - CO.lineMark;
   CO.lineMark = CO.lineN;
   if (!d) {
-    var keep = [], net = 0;
-    for (i = 0; i < Q.length; i++) net += Q[i].a;
+    var keep = [], net = 0, open = false;
+    for (i = 0; i < Q.length; i++) { net += Q[i].a; if (Q[i].open) open = true; }
     for (i = 0; i < Q.length; i++) {
-      if (net === 0) continue;          // in and out again (picked up, dropped): nothing to explain
+      if (net === 0 && !open) continue; // in and out again (picked up, dropped): nothing to explain
       Q[i].age++;
       if (Q[i].age < 2) keep.push(Q[i]);
       else { CO.strays.push({ t: now, s: Q[i].s, a: Q[i].a }); if (CO.strays.length > 10) CO.strays.shift(); }
@@ -435,10 +445,18 @@ CO.book = function (d, now, S, T) {
     CO.queue = keep;
     return null;
   }
-  var row = { n: CO.moveSeq++, t: now, d: d, l: [] }, sum = 0;
-  for (i = 0; i < Q.length; i++) { row.l.push([Q[i].s, Q[i].a, Q[i].d]); sum += Q[i].a; }
+  var row = { n: CO.moveSeq++, t: now, d: d, l: [] }, sum = 0, opens = [];
+  for (i = 0; i < Q.length; i++) {
+    if (Q[i].open) { opens.push(Q[i]); continue; }
+    row.l.push([Q[i].s, Q[i].a, Q[i].d]); sum += Q[i].a;
+  }
   CO.queue = [];
   var u = d - sum;
+  // The open labels take what's left, if it goes their way: the first one
+  // names it (several open lines on one move can't be told apart).
+  for (i = 0; i < opens.length && u; i++) {
+    if ((u > 0 ? 1 : -1) === opens[i].open) { row.l.push([opens[i].s, u, opens[i].d]); u = 0; }
+  }
   if (u) {
     row.u = u;
     var n = Math.min(seen, CO.linesPerRow, CO.lineBuf.length);
