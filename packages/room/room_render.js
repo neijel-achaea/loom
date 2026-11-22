@@ -91,7 +91,7 @@ if (!R.info) {
     var mkLbl = !R.mark ? "remember" : (mkHere ? "remembered" : "go back");
     var mkCol = !R.mark ? MUTED : (mkHere ? DIM : AMBER);
     var mkFn = !R.mark ? "remember" : (mkHere ? "forget" : "back");
-    var mkTip = !R.mark ? "remember this room: then GO BACK walks you here" : (mkHere ? "remembered; click to forget it" : "walk back to " + R.markName(R.mark) + (R.mark.area ? ", " + R.mark.area : "") + " (PATH FIND)");
+    var mkTip = !R.mark ? "remember this room: then GO BACK walks you here" : (mkHere ? "remembered; click to forget it" : "walk back to " + R.markName(R.mark) + (R.mark.area ? ", " + R.mark.area : "") + " (" + R.walkBy() + ")");
     mkBtn = '<span class="loom-room-mark" onclick="window.loomRoom&&window.loomRoom.' + mkFn + '()" title="' + esc(mkTip) + '" style="cursor:pointer;padding:0 5px;border:1px solid ' + (R.mark && !mkHere ? mkCol : DEEP) + ';color:' + mkCol + ';font-family:' + MONO + ';font-size:10px;letter-spacing:0.08em;white-space:nowrap;">' + mkLbl.toUpperCase() + '</span>';
   }
   var titleRight = (bBadge || mkBtn) ? '<div style="flex:none;margin-top:3px;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">' + bBadge + mkBtn + '</div>' : '';

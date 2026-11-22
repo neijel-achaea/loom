@@ -15,7 +15,7 @@ var hlRows = [
   ["ROOM NOVICE ADD|REMOVE <title>", "add or take off a title (one word, as the game shows it)"],
   ["ROOM NOVICE RESET", "back to the default titles"],
   ["ROOM REMEMBER", "remember this room (REMEMBER in Here does the same)"],
-  ["ROOM BACK", "walk back to the remembered room with PATH FIND (GO BACK in Here)"],
+  ["ROOM BACK", "walk back to the remembered room with PATH FIND, or Atlas's route with ATLAS WALK CUSTOM (GO BACK in Here)"],
   ["ROOM FORGET", "forget the remembered room"],
   ["ROOM DEBUG", "the last room GMCP payloads, as they came"],
   ["The Here tab replaces the stock Room tab: create a custom tab named Here, then close the stock one from the layout if you like."]

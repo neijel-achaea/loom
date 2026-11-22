@@ -1,11 +1,11 @@
 // waypoints_setup -- run from onLoad and onInstall, and by any reflex that
 // finds the namespace missing. Waypoints (#369): rooms you save by number
 // with a name you give them (and an optional note), listed by area in the
-// Waypoints tab; a click walks you there with PATH FIND.
+// Waypoints tab; a click walks you there with PATH FIND (or Atlas's route).
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.waypoints) client.loom.waypoints = {};
-client.loom.registry.waypoints = { version: "1.0.1", keyword: "WAYPOINTS", desc: "{{description}}",
+client.loom.registry.waypoints = { version: "1.0.2", keyword: "WAYPOINTS", desc: "{{description}}",
   redraw: function () { run_function("waypoints_render", [], "waypoints"); } };
 var WP = client.loom.waypoints;
 

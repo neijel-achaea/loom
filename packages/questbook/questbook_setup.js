@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.questbook) client.loom.questbook = {};
-client.loom.registry.questbook = { version: "1.0.0", keyword: "QUESTBOOK", desc: "{{description}}",
+client.loom.registry.questbook = { version: "1.0.1", keyword: "QUESTBOOK", desc: "{{description}}",
   redraw: function () { run_function("questbook_render", [], "questbook"); } };
 var QU = client.loom.questbook;
 
@@ -33,7 +33,7 @@ QU.read = function (name, arr) {
 };
 
 // Step kinds: what a step holds and when it ticks (the issue's table).
-//   go    { room, name, area }        you arrive (click: PATH FIND)
+//   go    { room, name, area }        you arrive (click: PATH FIND, or Atlas's route)
 //   do    { cmd }                     any command (GREET, ASK, GIVE, PULL…):
 //                                     its button sends it, and that ticks it
 //   kill  { what, n }                 that many "You have slain …" lines
@@ -445,6 +445,11 @@ QU.act = function () {
   // A command goes through your aliases (and the command separator), as if
   // typed (Ricardo); PATH FIND skips them, so nothing can turn a walk into
   // something else.
+  if (s.k === "go") {
+    // Atlas walks its own route when you've turned that on (link atlas-questbook).
+    var L = client.loom.loom, walk = (L && L.answer) ? L.answer("questbook", "questbook.walk") : undefined;
+    if (walk && typeof walk.go == "function") { walk.go(s.room); return; }
+  }
   send_command(cmd, s.k === "go" ? 1 : 0);
   if (s.k === "do") QU.tick("Sent");
   else if (s.k === "go") QU.say("walking to " + (s.name || s.room) + " (" + s.room + ").", "cyan");

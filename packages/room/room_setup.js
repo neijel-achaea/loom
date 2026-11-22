@@ -14,7 +14,7 @@ if (!client.loom.room) client.loom.room = {};
 // busy (#318): true while a loyal probe's answer is still coming. Every
 // package that sends a command and reads its answer says so through its
 // registry entry's busy(), so others can wait their turn.
-client.loom.registry.room = { version: "1.3.0", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
+client.loom.registry.room = { version: "1.3.1", keyword: "ROOM", desc: "{{description}}", redraw: function () { var r = client.loom.room; if (r && r.drawSoon) r.drawSoon(); else run_function("room_render", [], "room"); }, soon: true, busy: function () { return !!(client.loom.room && client.loom.room.probing); } };
 var R = client.loom.room;
 // One draw for a burst of changes: a room step brings Room.Info, the players
 // and the items, and loom's integrations (basher, patrolling…) ask for a
@@ -55,7 +55,8 @@ R.tab = "Here";
 
 // A remembered room (#367, Ricardo): { id, name, area }, saved as room_mark.
 // Here's button next to the room number: REMEMBER marks this room; once you
-// have moved on it reads GO BACK and walks you there (PATH FIND <id>);
+// have moved on it reads GO BACK and walks you there (PATH FIND <id>, or
+// Atlas's route with ATLAS WALK CUSTOM);
 // arriving after GO BACK forgets it, so the button offers REMEMBER again.
 // In the marked room itself it reads "remembered" (a click forgets it).
 //   R.goingBack  true from GO BACK until you arrive (Room.Info in room_gmcp)
@@ -77,10 +78,18 @@ R.remember = function () {
   R.markSave();
   display_notice("[room] remembered " + R.markName(R.mark) + ". GO BACK in Here (or ROOM BACK) walks you here.", "lime");
 };
+// How a walk goes, for tooltips: Atlas's route (link atlas-room) or PATH FIND.
+R.walkBy = function () {
+  var L = client.loom.loom, w = (L && L.answer) ? L.answer("room", "room.walk") : undefined;
+  return w ? "Atlas's route" : "PATH FIND";
+};
 R.goBack = function () {
   if (!R.mark) { display_notice("[room] no room remembered: ROOM REMEMBER, or REMEMBER in Here.", "orange"); return; }
   if (R.info && String(R.info.num) === R.mark.id) { display_notice("[room] you're in " + R.markName(R.mark) + " already.", "cyan"); return; }
   R.goingBack = true;
+  // Atlas walks its own route when you've turned that on (link atlas-room).
+  var L = client.loom.loom, walk = (L && L.answer) ? L.answer("room", "room.walk") : undefined;
+  if (walk && typeof walk.go == "function") { display_notice("[room] going back to " + R.markName(R.mark) + ".", "cyan"); walk.go(R.mark.id); return; }
   send_command("path find " + R.mark.id, 1);
   display_notice("[room] going back to " + R.markName(R.mark) + ".", "cyan");
 };

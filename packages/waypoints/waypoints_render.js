@@ -77,6 +77,8 @@ html += '</span></div>';
 
 // Remembered (room's REMEMBER), through loom.
 var L = client.loom.loom;
+// How a click walks: Atlas's route (link atlas-waypoints) or PATH FIND.
+var walkBy = (L && L.answer && L.answer("waypoints", "waypoints.walk")) ? "Atlas's route" : "PATH FIND";
 var rem = (L && L.answer) ? L.answer("waypoints", "waypoints.remembered") : undefined;
 if (rem && rem.id) {
   var remHere = here.id === rem.id;
@@ -86,7 +88,7 @@ if (rem && rem.id) {
   html += '<span style="font-family:' + SERIF + ';font-size:14px;color:' + TXT + ';"><span style="font-family:' + SYM + ';color:' + AMBER + ';margin-right:4px;">&#8630;</span>Remembered</span>';
   html += '<span style="color:' + (remHere ? AMBER : MUTED) + ';letter-spacing:' + (remHere ? '0.08em' : '0') + ';">' + (remHere ? 'HERE &middot; ' : '') + esc(rem.id) + '</span></div>';
   html += '<div style="font-family:' + SERIF + ';font-style:italic;font-size:11px;color:' + MUTED + ';">' + sub + '</div></div>';
-  html += remHere ? chip('FORGET', "mark('forget')", DIM, DEEP, 'forget the remembered room') : chip('GO BACK', "mark('back')", AMBER, AMBER, 'walk back to ' + rem.name + ' (PATH FIND)');
+  html += remHere ? chip('FORGET', "mark('forget')", DIM, DEEP, 'forget the remembered room') : chip('GO BACK', "mark('back')", AMBER, AMBER, 'walk back to ' + rem.name + ' (' + walkBy + ')');
   html += '</div>';
 } else if (rem && here.id) {
   html += '<div onclick="window.loomWaypoints&&window.loomWaypoints.mark(\'remember\')" title="remember the room you\'re in (as REMEMBER in Here)" style="cursor:pointer;margin-top:6px;padding:4px 6px;border:1px dashed ' + RULE + ';display:flex;gap:8px;align-items:center;">';
@@ -120,7 +122,7 @@ for (var g = 0; g < order.length; g++) {
   if (folded) continue;
   for (var k = 0; k < ws.length; k++) {
     var w = ws[k], isHere = here.id === w.id;
-    var tip = isHere ? "you're here" : "walk to " + w.name + " (PATH FIND " + w.id + ")";
+    var tip = isHere ? "you're here" : "walk to " + w.name + " (" + (walkBy === "PATH FIND" ? "PATH FIND " + w.id : walkBy) + ")";
     html += '<div class="loom-wp-row" onclick="window.loomWaypoints&&window.loomWaypoints.go(\'' + js(w.id) + '\')" title="' + esc(tip) + '" style="cursor:pointer;padding:3px 4px;border-bottom:1px dotted ' + RULE + ';' + (isHere ? 'background:rgba(224,180,108,0.08);' : '') + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">';
     html += '<span style="min-width:0;font-family:' + SERIF + ';font-size:14px;color:' + (isHere ? AMBER : TXT) + ';"><span style="font-family:' + SYM + ';color:' + (isHere ? AMBER : DEEP) + ';margin-right:4px;">&#9873;</span>' + esc(w.name) + tagChips(w, curTag) + '</span>';

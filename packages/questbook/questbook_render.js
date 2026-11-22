@@ -192,7 +192,7 @@ if (!open) {
     if (sp.k === "go") {
       var wpt = QU.waypoint(sp.room);
       d2 = esc(sp.room) + ' &middot; ' + (wpt ? '<span style="font-family:' + SYM + ';color:' + AMBER + ';">&#9873;</span> ' + esc(wpt.name) : esc(sp.area || "")) + (here.id === sp.room ? ' &middot; you\'re here' : '');
-      if (isCur && here.id !== sp.room) btn = chip('WALK', 'act()', AMBER, AMBER, 'walk there (PATH FIND ' + sp.room + ')');
+      if (isCur && here.id !== sp.room) btn = chip('WALK', 'act()', AMBER, AMBER, 'walk there (' + ((client.loom.loom && client.loom.loom.answer && client.loom.loom.answer("questbook", "questbook.walk")) ? "Atlas's route" : 'PATH FIND ' + sp.room) + ')');
     } else if (sp.k === "do") {
       d2 = 'ticks when you send it from here';
       if (isCur) btn = chip(esc(verb(sp.cmd)), 'act()', AMBER, AMBER, 'send: ' + sp.cmd);
