@@ -3,7 +3,7 @@
 *Gold tracker: fortune, income and spending by session and by day, ranks, records and a goal.*
 
 <!-- loom:version coffers -->
-*This page describes coffers 1.4.0.*
+*This page describes coffers 1.4.1.*
 <!-- /loom:version -->
 
 ## What it is
@@ -152,7 +152,7 @@ Coffers proposes goals of its own too. When a single spend of more than a day's 
 
 ### The tab's views
 
-The tab opens on **Wealth**: fortune, goal, the Session and Today boxes, records and the graphs. The boxes have an **explained** row, which opens the other view.
+The tab opens on **Wealth**: fortune, goal, the Session and Today boxes, records and the graphs. How much of the money is explained is in the Accounts view (and in `COFFERS SESSIONS` and `DAYS`).
 
 **Accounts** shows, for the session, today or the last 7 days (click to switch):
 
