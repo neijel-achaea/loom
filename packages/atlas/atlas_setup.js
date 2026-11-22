@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.16.0", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.16.1", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -1545,7 +1545,7 @@ AT.walkStep = function (again) {
   var W = AT.walk;
   if (!W) return;
   if (get_variable("pauseTriggers") == "on") { AT.walkEnd("Loom was paused"); return; }
-  if (!again) { W.hasty = 0; if (W.retry) { clearTimeout(W.retry); W.retry = null; } }
+  if (!again) { W.hasty = 0; W.stumbles = 0; if (W.retry) { clearTimeout(W.retry); W.retry = null; } }
   var from = W.rooms[W.i], dir = W.dirs[W.i], R = AT.map && AT.map.rooms[from];
   if (AT.eq === false) {
     // Off equilibrium (after a warp): wait for it (AT.vitals sends the step).
@@ -1630,7 +1630,46 @@ AT.walkArrive = function (id) {
   if (id === W.to) { AT.walkEnd(""); return; }
   if (id === W.rooms[W.i]) return;                 // the same room again
   if (id === W.rooms[W.i + 1]) { W.i++; AT.walkStep(); return; }
+  // The fog put you somewhere else: a new route from there.
+  if (W.stumbled && Date.now() - W.stumbled < AT.stumbleMs) { AT.walkRefog(id); return; }
   AT.walkEnd("you left the route in " + AT.label(id));
+};
+// Fog (Ricardo): "You stumble through the fog, attempting to find a way out."
+// and the step isn't taken (or takes you elsewhere). The trigger "Atlas walk
+// fog stumble" → AT.walkStumble: the same step again after AT.hastyMs, at most
+// AT.stumbleMax times in a row (a step that goes through starts the count
+// again); a room off the route within AT.stumbleMs of a stumble → a new route
+// from it (AT.walkRefog), at most AT.refogMax times a walk.
+AT.stumbleMax = 10;
+AT.stumbleMs = 3000;
+AT.refogMax = 30;
+AT.walkStumble = function () {
+  var W = AT.walk;
+  if (!W) return;
+  W.stumbled = Date.now();
+  W.stumbles = (W.stumbles || 0) + 1;
+  if (W.stumbles > AT.stumbleMax) { AT.walkEnd("lost in the fog (" + AT.stumbleMax + " stumbles in a row)"); return; }
+  if (W.t) { clearTimeout(W.t); W.t = null; }
+  if (W.retry) clearTimeout(W.retry);
+  var step = W.i, at = AT.here ? AT.here.id : null;
+  W.retry = setTimeout(function () {
+    W.retry = null;
+    // Still in the step's room: send it again (elsewhere: walkArrive rerouted).
+    if (AT.walk === W && W.i === step && AT.here && AT.here.id === at && at === W.rooms[W.i]) AT.walkStep(true);
+  }, AT.hastyMs);
+};
+AT.walkRefog = function (id) {
+  var W = AT.walk;
+  if (W.retry) { clearTimeout(W.retry); W.retry = null; }
+  if (W.t) { clearTimeout(W.t); W.t = null; }
+  W.refogs = (W.refogs || 0) + 1;
+  if (W.refogs > AT.refogMax) { AT.walkEnd("the fog kept taking you off the route (" + AT.refogMax + " times)"); return; }
+  var P = AT.route(id, W.to, { noTele: W.noTele });
+  if (!P) { AT.walkEnd("the fog took you to " + AT.label(id) + ", and there's no route from there"); return; }
+  W.rooms = P.rooms; W.dirs = P.dirs; W.i = 0;
+  display_notice("[atlas] the fog took you to " + AT.label(id) + ": going on from there, " + P.dirs.length + " step" + (P.dirs.length === 1 ? "" : "s") + ".", "orange");
+  AT.walkStep();
+  run_function("atlas_render", {}, "atlas");
 };
 // why: "" arrived, null replaced by a new walk (quiet), else the reason it stopped.
 AT.walkEnd = function (why) {
