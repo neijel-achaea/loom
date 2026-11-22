@@ -16,7 +16,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.atlas) client.loom.atlas = {};
-client.loom.registry.atlas = { version: "0.15.1", keyword: "ATLAS", desc: "{{description}}",
+client.loom.registry.atlas = { version: "0.16.0", keyword: "ATLAS", desc: "{{description}}",
   redraw: function () { run_function("atlas_render", { full: true }, "atlas"); run_function("atlas_areas_render", [], "atlas"); } };
 var AT = client.loom.atlas;
 
@@ -25,6 +25,7 @@ AT.base = "https://ire-mudlet-mapping.github.io/AchaeaCrowdmap/Map/";
 //   atlas_fog = "off" while fog of war is off (absent: on);
 //   atlas_walk = "custom" while clicks walk Atlas's own route (absent: the
 //     game's PATH FIND; opt in while the pathfinder is new, Ricardo);
+//   atlas_exits = "off" while routes leave the crowdmap's other special exits out (absent: used);
 //   atlas_veil = "off" while routes leave PIERCE THE VEIL out (absent: used in dragonform);
 //   atlas_worms = "on" while Atlas's routes take wormholes (absent: left out);
 //   atlas_wild = "off" while the wilderness map stays in the main window
@@ -1204,9 +1205,21 @@ AT.setWorms = function (on) {
   if (on) set_variable("atlas_worms", "on"); else delete_variable("atlas_worms");
 };
 // The cost of a special exit for routes, 0 when Atlas doesn't take it.
+// The crowdmap's other special exits (enter grate, jump north, pull curtain,
+// touch rift, climb down, push barrel, say oniar…): ordinary ways through the
+// world anyone can take, so on unless you turn them off (Ricardo; ATLAS EXITS
+// OFF, setting atlas_exits = "off"). The step is the exit's command, sent as
+// it is; one that doesn't move you is marked broken and walked around, as a
+// missing wormhole. Never "buy …" (it spends) or "script: …" (Mudlet code),
+// nor "kneel …" (may need you to follow that god): Ricardo.
+AT.exitCost = 2;
+AT.useExits = get_variable("atlas_exits") !== "off";
+AT.setExits = function (on) { AT.useExits = !!on; if (on) delete_variable("atlas_exits"); else set_variable("atlas_exits", "off"); };
+AT.exitNever = /^(buy\b|kneel\b|script:)/i;
 AT.specialCost = function (cmd) {
   if (cmd === "worm warp") return AT.useWorms ? AT.wormCost : 0;
-  return 0;
+  if (!AT.useExits || AT.exitNever.test(cmd) || !/^[a-z]/i.test(cmd)) return 0;
+  return AT.exitCost;
 };
 AT.arrivedMs = 250;
 AT.setOwnWalk = function (on) {
