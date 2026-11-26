@@ -414,6 +414,16 @@ Crystalism's and artificing's settings, merged into magi in 0.1.0 (the old names
 | `patrolling_god` | legacy | 0.2 | one god before stances |  |
 | `patrol_last` | legacy | 0.1 | old name of patrolling_last |  |
 
+## ripples
+
+| Variable | Kind | Since | Holds | Was |
+|---|---|---|---|---|
+| `ripples_poll` | setting | 1.2 | seconds between quiet WADE STATUS reads in a ripple, or "off" (30) |  |
+| `ripples_names` | setting | 1.2 | your names for places, by the line before GO! |  |
+| `ripples_runs` | data | 1.2 | finished runs, newest last (60 kept): ripples, boon screens, renown |  |
+| `ripples_run` | data | 1.2 | the run under way, saved after each ripple, claim and status |  |
+| `ripples_codex` | data | 1.2 | every boon and affix seen, with what it does |  |
+
 ## room
 
 | Variable | Kind | Since | Holds | Was |

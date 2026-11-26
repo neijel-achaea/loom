@@ -36,6 +36,7 @@ Every integration between packages is listed on the [loom page](loom.md#integrat
 | [defcon](defcon.md) | — | Defence readiness for any class: five tiers, raised on login |
 | [dmgchart](dmgchart.md) | DmgChart | Damage dealt and taken by type per fight, health lasts, recorded sessions |
 | [huntstats](huntstats.md) | Stats | Per-area hunting records: xp, gold and kills an hour, Dragonhood |
+| [ripples](ripples.md) | Ripples | The Mnemosyne's wades: ripples, boons, affixes and runs |
 | [levelgraph](levelgraph.md) | Level | Level progress graphs per minute and per day, time to next level |
 | [partycomms](partycomms.md) | Party | Share vitals, rage and target with your party; party chips tab |
 | [security](security.md) | — | Antitheft for worn items and gold, backpack gold, selfish wrappers |
