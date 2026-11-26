@@ -3,7 +3,7 @@
 *The suite package: lists what's installed, checks for updates, holds every integration between packages, and a few shared helpers.*
 
 <!-- loom:version loom -->
-*This page describes loom 1.1.7.*
+*This page describes loom 1.1.8.*
 <!-- /loom:version -->
 
 ## What it is
@@ -102,6 +102,8 @@ Every link:
 | `huntstats-chronicle` | [huntstats](huntstats.md) | [chronicle](chronicle.md) | Each hunt you finish, as a line in the Chronicle's record of the day |
 | `standings-chronicle` | [standings](standings.md) | [chronicle](chronicle.md) | Who the people in a day are to you (STANDINGS WHO, band, recent notes), for its summary |
 | `ledger-chronicle` | [ledger](ledger.md) | [chronicle](chronicle.md) | Your goals, and ledger items naming the day's people, for the Chronicle's summaries |
+| `huntstats-ripples` | [huntstats](huntstats.md) | [ripples](ripples.md) | Damage taken in the Ripples tab, coloured against HUNTSTATS TANK |
+| `basher-ripples` | [basher](basher.md) | [ripples](ripples.md) | The basher's flees, counted per ripple in the Ripples tab |
 <!-- /loom:links -->
 
 Each package's page explains its links in more detail.

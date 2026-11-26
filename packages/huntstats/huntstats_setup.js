@@ -5,7 +5,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.huntstats) client.loom.huntstats = {};
-client.loom.registry.huntstats = { version: "1.3.1", keyword: "HUNTSTATS", desc: "{{description}}",
+client.loom.registry.huntstats = { version: "1.4.0", keyword: "HUNTSTATS", desc: "{{description}}",
   // Redrawn by loom when the tab theme changes (#310).
   redraw: function () { run_function("huntstats_render", [], "huntstats"); } };
 var HS = client.loom.huntstats;
@@ -405,6 +405,10 @@ try { if (get_variable("huntstats_button") !== undefined && get_variable("huntst
 //                      filed hunt earned there (total gold / hunts), or
 //                      undefined when no hunt there is on record
 HS.look = {
+  // look.tone(dps) -> { colour, word, cap } for damage taken per second,
+  //   against HUNTSTATS TANK and your max health, or undefined while max
+  //   health is unknown (ripples colours its damage the same way).
+  tone: function (dps) { var t = HS.tankTone(Number(dps)); return t ? { colour: t.colour, word: t.word, cap: t.cap } : undefined; },
   // look.party() -> the party's names as kept with HUNTSTATS PARTY, plus
   //   anyone who joined the hunt under way (#53 skips their gold).
   party: function () {

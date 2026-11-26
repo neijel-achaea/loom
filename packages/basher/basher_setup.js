@@ -9,7 +9,7 @@
 if (!client.loom) client.loom = {};
 if (!client.loom.registry) client.loom.registry = {};
 if (!client.loom.basher) client.loom.basher = {};
-client.loom.registry.basher = { version: "1.3.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
+client.loom.registry.basher = { version: "1.4.0", keyword: "BASHER", desc: "{{description}}", redraw: function () { if (client.loom.basher && client.loom.basher.draw) client.loom.basher.draw(); } };
 var B = client.loom.basher;
 
 // Wimpy (#121, Ricardo): during a run, flee one room back the way you came
@@ -560,6 +560,9 @@ try {
 
 // What other packages may read (through loom's links): the queue for Here.
 B.look = {
+  // look.flees() -> how many times it has fled since the page loaded
+  //   (ripples counts them per ripple).
+  flees: function () { return client.loom.basher.flees || 0; },
   queue: function () {
     var b = client.loom.basher;
     var q = b.queue();
@@ -882,6 +885,7 @@ B.flee = function (why) {
     return;
   }
   B.fleeing = { dir: dir, from: B.roomNum, at: Date.now(), sentAt: 0, why: why };
+  B.flees = (B.flees || 0) + 1;
   display_notice("[basher] " + why + ": fleeing " + dir.toUpperCase() + ".", "orange");
   B.fleeTick();
 };

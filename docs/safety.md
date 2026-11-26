@@ -64,6 +64,7 @@ The packages below send commands without you typing each one. Check them against
 | [defcon](defcon.md) | Sets curing priorities; raises insomnia when it clears; a pear when you choke underwater; setup commands at login | `DEFCON INIT AUTO OFF` for the login part |
 | [security](security.md) | Puts back watched items and backpack gold that are taken | `SECURITY ANTITHEFT OFF` |
 | [social](social.md) | Polls `QW` every 5 seconds (hidden) | `SOCIAL POLL OFF` |
+| [ripples](ripples.md) | While you wade: `WADE STATUS` after `GO!`, after kills and every 30 seconds in a ripple, and `BOON CLAIMED` after each claim (both hidden). Questions only: it never acts in the Mnemosyne | the run ends; `RIPPLES POLL OFF` |
 | [sigils](sigils.md), [patrolling](patrolling.md) | Probe or check each room you enter; patrolling reports lightning to your clan | `SIGILS WATCH OFF`, `PATROLLING OFF` |
 | [vision](vision.md), [partycomms](partycomms.md) | Tell your party about enemies nearby; share your vitals | `VISION ALERT OFF`, `PARTYCOMMS OFF` |
 | [loom](loom.md) | Agrees to convert up to 100 bound credits into lessons when you ask the game to | — |

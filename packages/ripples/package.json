@@ -1,0 +1,89 @@
+{
+ "type": "group",
+ "name": "ripples",
+ "enabled": true,
+ "description": "The Mnemosyne's wades: ripples, boons, affixes and runs in the Ripples tab",
+ "items": [
+  {
+   "type": "function",
+   "name": "onInstall",
+   "enabled": true,
+   "code": "@file:oninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onUninstall",
+   "enabled": true,
+   "code": "@file:onuninstall.js"
+  },
+  {
+   "type": "function",
+   "name": "onLoad",
+   "enabled": true,
+   "code": "@file:onload.js"
+  },
+  {
+   "type": "function",
+   "name": "onGMCP",
+   "enabled": true,
+   "code": "@file:ongmcp.js"
+  },
+  {
+   "type": "function",
+   "name": "ripples_setup",
+   "enabled": true,
+   "code": "@file:ripples_setup.js"
+  },
+  {
+   "type": "function",
+   "name": "ripples_render",
+   "enabled": true,
+   "code": "@file:ripples_render.js"
+  },
+  {
+   "type": "function",
+   "name": "ripples_status",
+   "enabled": true,
+   "code": "@file:ripples_status.js"
+  },
+  {
+   "type": "function",
+   "name": "ripples_help",
+   "enabled": true,
+   "code": "@file:ripples_help.js"
+  },
+  {
+   "type": "trigger",
+   "name": "ripples every line",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "@file:trigger_every_line.js"
+    }
+   ],
+   "text": "^(.*)$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": true
+  },
+  {
+   "type": "alias",
+   "name": "",
+   "enabled": true,
+   "actions": [
+    {
+     "type": "script",
+     "enabled": true,
+     "script": "@file:alias_ripples.js"
+    }
+   ],
+   "text": "^ripples(?:\\s+(.*))?$",
+   "matching": "regexp",
+   "whole_words": false,
+   "case_sensitive": false,
+   "prefix_suffix": true
+  }
+ ]
+}
