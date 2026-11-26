@@ -33,9 +33,9 @@ When a boon screen comes up, the main window also gets a line per option: how ma
 Two things the game only says when asked:
 
 - **`WADE STATUS`** gives the lives, wave progress, objective and the affixes (affixes aren't printed anywhere else). Ripples asks it a moment after `GO!`, after kills, and every 30 seconds in a ripple (`RIPPLES POLL` changes that or turns it off).
-- **`BOON CLAIMED`**: the line that says you claimed a boon doesn't name it, so Ripples asks once after each claim.
+- **`BOON CLAIMED`**: the line that says you claimed a boon doesn't name it, so Ripples asks once after each claim. Its table (boon, echoes, rarity) tells which option you took, and gives each boon's rarity for the Boons view.
 
-Both answers are hidden; a `WADE STATUS` you type yourself is shown as usual (and read too). Nothing is sent between ripples, while Loom is paused (`LOOM PAUSE ON`), or after you start leaving.
+Only the answers themselves are hidden (the status from its first line to its last, the boon table from its header to its closing rule); a `WADE STATUS` you type yourself is shown as usual (and read too). Nothing is sent between ripples, while Loom is paused (`LOOM PAUSE ON`), or after you start leaving.
 
 ## Commands
 
@@ -77,6 +77,6 @@ Ripples works on its own. Two of loom's links add to it, each on as soon as both
 ## Troubleshooting
 
 - **Lives, objective or affixes show "?".** `WADE STATUS` hasn't been read in this ripple: check `RIPPLES POLL` isn't off and Loom isn't paused.
-- **A boon shows as "?".** The `BOON CLAIMED` answer didn't name one of the options: `RIPPLES TOOK <boon>`, and please report the answer's lines.
+- **A boon shows as "?".** The `BOON CLAIMED` table didn't show which option grew: `RIPPLES TOOK <boon>`, and please report the table.
 - **A run never ended.** `RIPPLES END` (or `RIPPLES END DIED`) closes it.
 - **A place shows as the game's line.** It's a place not met before: `RIPPLES NAME <name>`.

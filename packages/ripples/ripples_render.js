@@ -21,6 +21,7 @@ var UP = "#93cf8a";
 var DOWN = "#de8a72";
 var SERIF = "Georgia,'Palatino Linotype','Book Antiqua',serif";
 var MONO = "Consolas,'DejaVu Sans Mono',monospace";
+var RAR = { common: "#a9b4b0", uncommon: "#93cf8a", rare: "#7fb2d6", epic: "#c9a0dc", legendary: "#e2bd5a" };
 var TYPES = { cutting: "#de8a72", blunt: "#7fb2d6", magical: "#c9a0dc", psychic: "#e0b45a", fire: "#f0883e", cold: "#5bc0de", poison: "#93cf8a", unblockable: "#d8d8d8", raw: "#8c8c8c", electricity: "#f2d43d", asphyxiation: "#7f8fa6" };
 
 function esc(s) { return String(s === undefined || s === null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
@@ -156,7 +157,8 @@ if (R.view === "wade") {
       var sc = run.screens[si];
       if (!sc.took) continue;
       var bd = R.codex.boons[sc.took];
-      held += row(esc(sc.took === "?" ? "? (" + sc.opts.length + " offered)" : sc.took), sc.after ? "R" + sc.after : "in", MUTED, bd && bd.d ? bd.d : (sc.took === "?" ? "offered: " + sc.opts.join(", ") : ""));
+      var ech = run.echo && run.echo[sc.took] > 1 ? ' <span style="color:' + MUTED + ';">&times;' + run.echo[sc.took] + '</span>' : '';
+      held += row('<span style="color:' + ((bd && RAR[bd.r]) || TXT) + ';">' + esc(sc.took === "?" ? "? (" + sc.opts.length + " offered)" : sc.took) + '</span>' + ech, sc.after ? "R" + sc.after : "in", MUTED, bd && bd.d ? bd.d : (sc.took === "?" ? "offered: " + sc.opts.join(", ") : ""));
     }
     var fl = R.hasFlees();
     var close = row("lowest here", lowTxt(shown), TXT, "the lowest health in " + (cur ? "this" : "the last") + " ripple") +
@@ -267,9 +269,9 @@ if (R.view === "boons") {
     var br = "";
     for (var bi = 0; bi < names.length; bi++) {
       var bn = names[bi], b = BS[bn], cdx = R.codex.boons[bn] || {};
-      br += '<tr>' + td(esc(bn), b.taken ? TXT : MUTED, true, cdx.d) + td(b.offered) + td(b.taken) + td(b.offered - b.taken, MUTED) + td(b.reach === null ? "&ndash;" : b.reach, b.depths.length < 3 ? DIM : TXT, false, b.depths.length + " finished runs held it") + '</tr>';
+      br += '<tr>' + td(esc(bn), b.taken ? TXT : MUTED, true, cdx.d) + td(cdx.r ? esc(cdx.r) : "", RAR[cdx.r] || MUTED, true) + td(b.offered) + td(b.taken) + td(b.offered - b.taken, MUTED) + td(b.reach === null ? "&ndash;" : b.reach, b.depths.length < 3 ? DIM : TXT, false, b.depths.length + " finished runs held it") + '</tr>';
     }
-    html += section("Every boon offered", scroller("boons", table(th("boon", true) + th("offered") + th("taken") + th("passed") + th("reach", false, "median depth of finished runs that held it"), br)) + note("reach is greyed under 3 runs. It shows how far runs went, not what the boon did: early picks ride along in every run."), true);
+    html += section("Every boon offered", scroller("boons", table(th("boon", true) + th("rarity", true, "from BOON CLAIMED, once you've held it") + th("offered") + th("taken") + th("passed") + th("reach", false, "median depth of finished runs that held it"), br)) + note("reach is greyed under 3 runs. It shows how far runs went, not what the boon did: early picks ride along in every run."), true);
     var takenOnce = 0;
     for (var tq = 0; tq < names.length; tq++) if (BS[names[tq]].taken) takenOnce++;
     html += section("Codex", '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>met <span style="color:' + TXT + ';">' + names.length + '</span> &middot; taken at least once <span style="color:' + TXT + ';">' + takenOnce + '</span></span></div>' + bar(pct(takenOnce, names.length), ACC, 6));

@@ -251,29 +251,58 @@ R.claimed = function () {
   R.scr = null;
   // The claim line names nothing: BOON CLAIMED tells which, quietly.
   if (!R.paused()) {
-    R.ccap = { s: s, text: [], at: Date.now(), before: r.held.slice() };
+    R.ccap = { s: s, at: Date.now(), on: false, rules: 0, rows: [], before: r.held.slice(), echo: JSON.parse(JSON.stringify(r.echo || {})) };
     send_command("boon claimed");
   }
   R.save();
   R.draw();
 };
+// BOON CLAIMED answers with a table (Ricardo, 2026-11-26):
+//   Boon        Echoes     Rarity
+//   ------------------------------
+//   Draconic Sweep   1     uncommon
+//   ------------------------------
+// It's read from its header to its closing rule, and only those lines are
+// hidden; anything before the header is left alone.
+R.claimLine = function (t) {
+  var q = R.ccap;
+  if (!q.on) {
+    if (/^Boon\s+Echoes\s+Rarity\s*$/.test(t)) { q.on = true; return true; }
+    return false;
+  }
+  if (/^-{20,}$/.test(t)) { q.rules++; if (q.rules >= 2) R.claimDone(); return true; }
+  var m = /^(\S.*?)\s+(\d+)\s+([A-Za-z]+)\s*$/.exec(t);
+  if (m) { q.rows.push({ name: m[1].trim(), echo: parseInt(m[2], 10), rar: m[3].toLowerCase() }); return true; }
+  if (t === "") return true;
+  // Not the table after all: stop reading, read the line as usual.
+  R.claimDone();
+  return false;
+};
 R.claimDone = function () {
   var q = R.ccap;
   R.ccap = null;
   if (!q || !R.run) return;
-  var txt = q.text.join("\n").toLowerCase();
-  var found = [], fresh = [];
-  for (var i = 0; i < q.s.opts.length; i++) {
-    var nm = q.s.opts[i];
-    if (nm === "Restoration") continue;
-    if (txt.indexOf(nm.toLowerCase()) >= 0) { found.push(nm); if (q.before.indexOf(nm) < 0) fresh.push(nm); }
+  var r = R.run, took = "?";
+  if (q.rows.length) {
+    var now = {}, names = [];
+    for (var i = 0; i < q.rows.length; i++) {
+      var w = q.rows[i];
+      now[w.name] = w.echo; names.push(w.name);
+      var cb = R.codex.boons[w.name] || (R.codex.boons[w.name] = {});
+      cb.r = w.rar;
+    }
+    // The claim: an option that's new in the list, or whose echoes grew.
+    var grew = [];
+    for (var k = 0; k < q.s.opts.length; k++) {
+      var nm = q.s.opts[k];
+      if (now[nm] !== undefined && now[nm] > (q.echo[nm] || 0)) grew.push(nm);
+    }
+    if (grew.length === 1) took = grew[0];
+    else if (grew.length === 0 && q.s.opts.indexOf("Restoration") >= 0) took = "Restoration";
+    r.held = names;
+    r.echo = now;
   }
-  var took = "?";
-  if (fresh.length === 1) took = fresh[0];
-  else if (fresh.length === 0 && found.length === 1) took = found[0];
-  else if (fresh.length === 0 && q.text.length && q.s.opts.indexOf("Restoration") >= 0) took = "Restoration";
   q.s.took = took;
-  if (took !== "?" && took !== "Restoration" && R.run.held.indexOf(took) < 0) R.run.held.push(took);
   if (took === "?") R.say("couldn't tell which boon you claimed (RIPPLES TOOK <boon> sets it).", "orange");
   R.save();
   R.draw();
@@ -345,7 +374,7 @@ R.statusDone = function () {
 R.line = function (raw) {
   var t = String(raw === undefined || raw === null ? "" : raw).replace(/\u00a0/g, " ").replace(/\s+$/, "");
   if (/^\d+h, \d+m\b/.test(t)) return false;                 // a prompt
-  if (R.ccap) { if (t !== "" && !/^(?:A fulgent eddy|You |Health lost|Damage dealt)/.test(t)) { R.ccap.text.push(t); return true; } }
+  if (R.ccap && R.claimLine(t)) return true;
   var m;
   if (/^You wade (\d+) ripples? deep into the tides of memory:$/.test(t)) {
     m = /^You wade (\d+)/.exec(t);
@@ -416,8 +445,7 @@ R.line = function (raw) {
 // ---- The prompt ---------------------------------------------------------------
 // After each prompt's lines: close what the prompt ends, ask WADE STATUS when due.
 R.prompt = function () {
-  if (R.ccap && R.ccap.text.length) R.claimDone();
-  else if (R.ccap && Date.now() - R.ccap.at > 8000) R.claimDone();
+  if (R.ccap && !R.ccap.on && Date.now() - R.ccap.at > 10000) R.claimDone();   // no answer: give up
   if (R.cap) R.statusDone();
   if (R.count === "0") R.count = null;
   var c = R.cur();
