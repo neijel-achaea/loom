@@ -152,12 +152,13 @@ if (R.view === "wade") {
     html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">' + box(caps(cur ? "This ripple" : "Last ripple") + rb) + box(caps("This run") + rbx) + '</div>';
     if (shown) html += section("Incoming damage &middot; " + (cur ? "this" : "last") + " ripple", dmgBar(shown));
     // Boons claimed, beside the close calls.
-    // The last five claimed, newest last; the rest folded into one line.
     var held = "", claimedAll = [];
     for (var sj = 0; sj < run.screens.length; sj++) if (run.screens[sj].took) claimedAll.push(run.screens[sj]);
-    var earlier = claimedAll.slice(0, Math.max(0, claimedAll.length - 5));
-    if (earlier.length) held += row('<span style="color:' + MUTED + ';">+' + earlier.length + ' earlier</span>', "", MUTED, earlier.map(function (x) { return x.took; }).join(", "));
-    var shownClaims = claimedAll.slice(-5);
+    // The last four, so they line up with the four close calls; the rest are
+    // counted in the heading (hover it for their names).
+    var earlier = claimedAll.slice(0, Math.max(0, claimedAll.length - 4));
+    var heldHead = "Boons claimed" + (earlier.length ? ' <span title="' + esc(earlier.map(function (x) { return x.took; }).join(", ")) + '" style="color:' + MUTED + ';letter-spacing:0.04em;">&middot; +' + earlier.length + ' earlier</span>' : "");
+    var shownClaims = claimedAll.slice(-4);
     for (var si = 0; si < shownClaims.length; si++) {
       var sc = shownClaims[si];
       var bd = R.codex.boons[sc.took];
@@ -169,7 +170,7 @@ if (R.view === "wade") {
       row("lowest in run", rt.low ? lowTxt(rt.low) + ' <span style="color:' + MUTED + ';">R' + rt.low.n + '</span>' : lowTxt(null), TXT) +
       row("flees", fl ? (shown ? R.fleesIn(shown) : 0) + ' <span style="color:' + MUTED + ';">/ ' + rt.flees + ' run</span>' : '<span style="color:' + DIM + ';">no basher</span>', TXT, fl ? "the basher's flees, this ripple / this run" : "counted when the basher (and loom) are installed") +
       row("lives lost", (shown ? shown.lost || 0 : 0) + ' <span style="color:' + MUTED + ';">/ ' + rt.lost + ' run</span>', rt.lost ? DOWN : TXT);
-    html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">' + box(caps("Boons claimed") + (held || quiet("None yet."))) + box(caps("Close calls") + close) + '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">' + box(caps(heldHead) + (held || quiet("None yet."))) + box(caps("Close calls") + close) + '</div>';
     // Splits against the best run
     var best = R.best();
     if (run.ripples.length) {
