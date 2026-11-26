@@ -12,13 +12,17 @@ Ripples follows your wades in the Mnemosyne, the roguelike trials beside the whi
 
 The **Ripples** tab has five views:
 
-- **Wade**, the run under way: the ripple and its place, your lives, the objective and wave progress, the affixes (each with how often you've survived it), this ripple's and this run's time, kills, xp and gold an hour and damage taken, the damage by type, the boons you've claimed, and each ripple's time against your best run.
-- **Ripples**: the run ripple by ripple; every place you've met (depths, how often you came out without losing a life, xp an hour); and a chart of time and damage taken by depth.
+- **Wade**, the run under way: the ripple and its place, your lives, the objective and wave progress with a guess at the denizens left, the affixes (each with how often you've survived it), this ripple's and this run's time, kills, xp and gold an hour and damage taken, the damage by type, the boons you've claimed beside your **close calls** (lowest health in this ripple and in the run, the basher's flees, lives lost), and each ripple's time against your best run.
+- **Ripples**: the run ripple by ripple (with the lowest health and the basher's flees in each); every place you've met (click one to rename it) (depths, how often you came out without losing a life, xp an hour); and a chart of time and damage taken by depth.
 - **Boons**: what's on offer now, with what each option did for you before; every boon offered, taken and passed, and the median depth of runs that held it; how much of the codex you've met.
 - **Affixes**: each affix seen, from what depth, how often you survived it, and how that compares with every other ripple at the same depths, so a deep affix isn't blamed for the depth.
 - **Runs**: your deepest ripple, totals, renown, how far runs get (the share that reached each ripple), and the list of runs and how they ended.
 
 ![The Wade view, mid-run on ripple 7](img/ripples.png)
+
+Damage taken a second is coloured as the Stats tab colours it: green under half of what you heal back, yellow up to it, red above (`HUNTSTATS TANK` when huntstats is installed, else 3% of your max health a second).
+
+The denizens left are a guess: the kills by the last `WADE STATUS`, divided by its wave progress, less the kills since.
 
 Wide tables scroll sideways when the tab is narrow, and keep their place when the tab redraws.
 
@@ -42,6 +46,7 @@ Both answers are hidden; a `WADE STATUS` you type yourself is shown as usual (an
 | `RIPPLES VIEW <view>` | WADE, RIPPLES, BOONS, AFFIXES or RUNS in the tab (or click them) |
 | `RIPPLES POLL <seconds>\|OFF` | how often WADE STATUS is asked quietly in a ripple (default 30) |
 | `RIPPLES NAME <name>\|DEFAULT` | name the place of this ripple (or the last one) |
+| `RIPPLES NAME <place> = <name>` | rename any place, for every ripple there (or click it in Ripples) |
 | `RIPPLES TOOK <boon>` | set the last boon claimed, when it couldn't tell |
 | `RIPPLES END [DIED]` | close the run under way by hand |
 | `RIPPLES WIPE` | forget every run, boon and affix (CONFIRM) |
@@ -50,7 +55,7 @@ Both answers are hidden; a `WADE STATUS` you type yourself is shown as usual (an
 | **Create a UI tab named 'Ripples'. While you wade it asks WADE STATUS after GO!, after kills and every POLL seconds, and BOON CLAIMED after each claim, and hides only those answers. It sends nothing while Loom is paused.** | |
 <!-- /loom:commands -->
 
-`RIPPLES NAME the old monastery` names the place of the ripple you're in (or the last one); the places met so far already have names. `RIPPLES TOOK Paean` fixes a claim it couldn't tell. `RIPPLES END` closes a run by hand, if the way out was missed.
+`RIPPLES NAME the old monastery` names the place of the ripple you're in (or the last one); `RIPPLES NAME the fey lake = Fey Lake` renames any place as it's shown, and clicking a place in the Ripples view does the same. Names are kept by the line the game prints before `GO!`, so every later ripple there takes the name. The places met so far already have names. `RIPPLES TOOK Paean` fixes a claim it couldn't tell. `RIPPLES END` closes a run by hand, if the way out was missed.
 
 ## Setting it up
 
@@ -60,7 +65,14 @@ Both answers are hidden; a `WADE STATUS` you type yourself is shown as usual (an
 
 ## Working with other packages
 
-Ripples reads nothing from other packages. **Atlas** sketches the ripples' rooms and the **basher** keeps one kill order for them; both notice the boon screen themselves. **Huntstats** files a whole wade under "the ruins of Seleucar"; Ripples is where it's split by ripple.
+Ripples works on its own. Two of loom's links add to it, each on as soon as both packages are installed:
+
+| Link | With | What it does |
+| --- | --- | --- |
+| `huntstats-ripples` | huntstats | Damage taken coloured against `HUNTSTATS TANK` (without it: 3% of max health a second) |
+| `basher-ripples` | basher | The basher's flees, per ripple and per run |
+
+**Atlas** sketches the ripples' rooms and the **basher** keeps one kill order for them; both notice the boon screen themselves. **Huntstats** files a whole wade under "the ruins of Seleucar"; Ripples is where it's split by ripple.
 
 ## Troubleshooting
 

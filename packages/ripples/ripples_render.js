@@ -60,6 +60,12 @@ function dmgBar(c) {
   if (other > 0) { segs += '<div style="width:' + Math.round(other * 10) / 10 + '%;background:#5a6663;"></div>'; leg += '<span>other ' + Math.round(other) + '%</span>'; }
   return '<div style="display:flex;height:8px;background:' + TRACK + ';">' + segs + '</div><div style="display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:3px;color:' + MUTED + ';">' + leg + '</div>';
 }
+function dps(v, bare) {
+  var t = R.tone(v);
+  return '<span style="color:' + (t ? t.colour : DOWN) + ';"' + (t ? ' title="' + esc(R.n(v) + "/s taken, " + t.word) + '"' : '') + '>' + R.n(v) + (bare ? '' : '/s') + '</span>';
+}
+function hpCol(p) { return p === null || p === undefined ? MUTED : (p < 25 ? DOWN : (p < 50 ? AIM : TXT)); }
+function lowTxt(c) { return c && c.minHp !== null && c.minHp !== undefined ? '<span style="color:' + hpCol(c.minPct) + ';">' + R.n(c.minHp) + ' &middot; ' + c.minPct + '%</span>' : '<span style="color:' + MUTED + ';">&ndash;</span>'; }
 function hearts(n) {
   if (n === null || n === undefined) return '<span style="color:' + DIM + ';" title="lives: WADE STATUS not read yet">&#9829; ?</span>';
   var s = "";
@@ -117,7 +123,8 @@ if (R.view === "wade") {
       }
       html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';gap:8px;"><span>objective: <span style="color:' + TXT + ';">' + (cur.obj ? esc(cur.obj) : "&hellip;") + '</span></span><span style="white-space:nowrap;">' + pace + '</span></div>';
       html += bar(cur.wave || 0, ACC, 6);
-      html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>' + (cur.wave !== null ? "wave " + cur.wave + "%" : "wave ?") + (cur.reward ? " &middot; reward: " + esc(cur.reward) : "") + '</span><span>' + (cur.lastPoll ? "status " + Math.max(0, Math.round((Date.now() - cur.lastPoll) / 1000)) + "s ago" : (R.poll ? "" : "RIPPLES POLL is off")) + '</span></div>';
+      var left = R.left(cur);
+      html += '<div style="display:flex;justify-content:space-between;color:' + MUTED + ';"><span>' + (cur.wave !== null ? "wave " + cur.wave + "%" : "wave ?") + (left !== null ? ' &middot; <span style="color:' + TXT + ';" title="guessed from the wave\'s progress and your kills at the last WADE STATUS">~' + left + ' left</span>' : "") + (cur.reward ? " &middot; reward: " + esc(cur.reward) : "") + '</span><span>' + (cur.lastPoll ? "status " + Math.max(0, Math.round((Date.now() - cur.lastPoll) / 1000)) + "s ago" : (R.poll ? "" : "RIPPLES POLL is off")) + '</span></div>';
       if (cur.lvl !== null || cur.spd !== null) html += '<div style="color:' + MUTED + ';">denizens <span style="color:' + TXT + ';">+' + (cur.lvl || 0) + ' levels</span>, <span style="color:' + TXT + ';">+' + (cur.spd || 0) + ' speed</span></div>';
       if (cur.aff.length) {
         html += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;">';
@@ -133,22 +140,30 @@ if (R.view === "wade") {
       html += quiet("Between ripples: choose a boon (Boons shows what each did for you before).");
     }
     var sec = shown ? R.secs(shown) : 0;
-    var rb = shown ? row("time", R.dur(sec * 1000)) + row("kills", shown.kills) + row("xp/h", R.n(perH(shown.xp, sec)), GOLD) + row("gold/h", R.n(perH(shown.gold, sec)), GOLD) + row("taken", R.n(R.dmgTotal(shown) / sec) + "/s", DOWN) + row("lives lost", shown.lost || 0, shown.lost ? DOWN : TXT) : quiet("&hellip;");
-    var rt = { kills: 0, xp: 0, gold: 0, lost: 0 };
-    for (var ri = 0; ri < run.ripples.length; ri++) { var rr = run.ripples[ri]; rt.kills += rr.kills; rt.xp += rr.xp; rt.gold += rr.gold; rt.lost += rr.lost || 0; }
+    var rb = shown ? row("time", R.dur(sec * 1000)) + row("kills", shown.kills) + row("xp/h", R.n(perH(shown.xp, sec)), GOLD) + row("gold/h", R.n(perH(shown.gold, sec)), GOLD) + row("taken", dps(R.dmgTotal(shown) / sec)) : quiet("&hellip;");
+    var rt = { kills: 0, xp: 0, gold: 0, lost: 0, flees: 0, low: null };
+    for (var ri = 0; ri < run.ripples.length; ri++) {
+      var rr = run.ripples[ri]; rt.kills += rr.kills; rt.xp += rr.xp; rt.gold += rr.gold; rt.lost += rr.lost || 0; rt.flees += R.fleesIn(rr);
+      if (rr.minHp !== null && rr.minHp !== undefined && (!rt.low || rr.minHp < rt.low.minHp)) rt.low = rr;
+    }
     var rs = (Date.now() - run.t0) / 1000;
-    var rbx = row("kills", rt.kills) + row("xp", R.n(rt.xp), GOLD) + row("xp/h", R.n(perH(rt.xp, rs)), GOLD) + row("renown", run.renown ? R.n(run.renown) : "0") + row("rerolls", run.rerolls === null ? "?" : run.rerolls) + row("lives lost", rt.lost, rt.lost ? DOWN : TXT);
+    var rbx = row("kills", rt.kills) + row("xp", R.n(rt.xp), GOLD) + row("xp/h", R.n(perH(rt.xp, rs)), GOLD) + row("renown", run.renown ? R.n(run.renown) : "0") + row("rerolls", run.rerolls === null ? "?" : run.rerolls);
     html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">' + box(caps(cur ? "This ripple" : "Last ripple") + rb) + box(caps("This run") + rbx) + '</div>';
     if (shown) html += section("Incoming damage &middot; " + (cur ? "this" : "last") + " ripple", dmgBar(shown));
-    // Boons held
+    // Boons claimed, beside the close calls.
     var held = "";
     for (var si = 0; si < run.screens.length; si++) {
       var sc = run.screens[si];
       if (!sc.took) continue;
       var bd = R.codex.boons[sc.took];
-      held += row(esc(sc.took === "?" ? "? (one of " + sc.opts.length + ")" : sc.took), sc.after ? "after R" + sc.after : "entry", MUTED, bd && bd.d ? bd.d : (sc.took === "?" ? "offered: " + sc.opts.join(", ") : ""));
+      held += row(esc(sc.took === "?" ? "? (" + sc.opts.length + " offered)" : sc.took), sc.after ? "R" + sc.after : "in", MUTED, bd && bd.d ? bd.d : (sc.took === "?" ? "offered: " + sc.opts.join(", ") : ""));
     }
-    html += section("Boons claimed", held || quiet("None yet."));
+    var fl = R.hasFlees();
+    var close = row("lowest here", lowTxt(shown), TXT, "the lowest health in " + (cur ? "this" : "the last") + " ripple") +
+      row("lowest in run", rt.low ? lowTxt(rt.low) + ' <span style="color:' + MUTED + ';">R' + rt.low.n + '</span>' : lowTxt(null), TXT) +
+      row("flees", fl ? (shown ? R.fleesIn(shown) : 0) + ' <span style="color:' + MUTED + ';">/ ' + rt.flees + ' run</span>' : '<span style="color:' + DIM + ';">no basher</span>', TXT, fl ? "the basher's flees, this ripple / this run" : "counted when the basher (and loom) are installed") +
+      row("lives lost", (shown ? shown.lost || 0 : 0) + ' <span style="color:' + MUTED + ';">/ ' + rt.lost + ' run</span>', rt.lost ? DOWN : TXT);
+    html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">' + box(caps("Boons claimed") + (held || quiet("None yet."))) + box(caps("Close calls") + close) + '</div>';
     // Splits against the best run
     var best = R.best();
     if (run.ripples.length) {
@@ -176,9 +191,9 @@ if (R.view === "ripples") {
     for (var li = 0; li < lr.ripples.length; li++) {
       var c = lr.ripples[li], s2 = R.secs(c), tt = topTypes(c);
       var top = tt.list.length ? tt.list[0][0] + " " + pct(tt.list[0][1], tt.tot) + "%" : "-";
-      rows += '<tr>' + td(c.n, (c.lost ? DOWN : TXT)) + td(esc(R.place(c)) + (c.reroll ? " &#9733;" : ""), TXT, true, c.intro) + td(R.dur(s2 * 1000)) + td(c.kills) + td(R.k(perH(c.xp, s2)), GOLD) + td(R.k(perH(c.gold, s2))) + td(R.n(tt.tot / s2), DOWN) + td(esc(top), MUTED, true) + td(c.lvl === null ? "-" : "+" + c.lvl, MUTED) + td(esc((c.aff || []).join(", ") || "-"), MUTED, true) + '</tr>';
+      rows += '<tr>' + td(c.n, (c.lost ? DOWN : TXT)) + td(esc(R.place(c)) + (c.reroll ? " &#9733;" : ""), TXT, true, c.intro) + td(R.dur(s2 * 1000)) + td(c.kills) + td(R.k(perH(c.xp, s2)), GOLD) + td(R.k(perH(c.gold, s2))) + td(dps(tt.tot / s2, true)) + td(c.minPct === null || c.minPct === undefined ? "-" : c.minPct + "%", hpCol(c.minPct), false, c.minHp !== null && c.minHp !== undefined ? "lowest health " + R.n(c.minHp) : "") + td(R.fleesIn(c) || "-", R.fleesIn(c) ? AIM : MUTED) + td(esc(top), MUTED, true) + td(c.lvl === null ? "-" : "+" + c.lvl, MUTED) + td(esc((c.aff || []).join(", ") || "-"), MUTED, true) + '</tr>';
     }
-    html += section((lr === R.run ? "This run" : "Last run") + ", ripple by ripple", scroller("last", table(th("#") + th("place", true) + th("time") + th("kills") + th("xp/h") + th("gold/h") + th("in/s", false, "damage taken per second") + th("top dmg", true) + th("lvl", false, "denizen levels added") + th("affixes", true), rows)) + note("&#9733; boss ripple (it gave a reroll) &middot; hover a place for the game's line"), true);
+    html += section((lr === R.run ? "This run" : "Last run") + ", ripple by ripple", scroller("last", table(th("#") + th("place", true) + th("time") + th("kills") + th("xp/h") + th("gold/h") + th("in/s", false, "damage taken per second, coloured as the Stats tab colours it") + th("low", false, "lowest health in the ripple") + th("fled", false, "the basher's flees") + th("top dmg", true) + th("lvl", false, "denizen levels added") + th("affixes", true), rows)) + note("&#9733; boss ripple (it gave a reroll) &middot; hover a place for the game's line"), true);
   }
   // Places, every run
   var PL = {}, allR = R.ripplesAll(true);
@@ -190,9 +205,9 @@ if (R.view === "ripples") {
   var pr = "";
   for (var pq = 0; pq < pk.length; pq++) {
     var pp = PL[pk[pq]], sp2 = pp.done ? pct(pp.ok, pp.done) : null;
-    pr += '<tr>' + td(esc(pk[pq]), TXT, true) + td(pp.lo === pp.hi ? pp.lo : pp.lo + "&ndash;" + pp.hi, MUTED) + td(pp.seen) + td(sp2 === null ? "-" : sp2 + "%", sp2 === null ? MUTED : survCol(sp2, pp.done)) + td(R.k(perH(pp.xp, pp.s)), GOLD) + '</tr>';
+    pr += '<tr>' + td('<span onclick="window.loomRipples&&window.loomRipples.rename(\'' + esc(pk[pq]).replace(/'/g, "\\'") + '\')" style="cursor:pointer;border-bottom:1px dotted ' + EDGE + ';">' + esc(pk[pq]) + '</span>', TXT, true, "click to rename") + td(pp.lo === pp.hi ? pp.lo : pp.lo + "&ndash;" + pp.hi, MUTED) + td(pp.seen) + td(sp2 === null ? "-" : sp2 + "%", sp2 === null ? MUTED : survCol(sp2, pp.done)) + td(R.k(perH(pp.xp, pp.s)), GOLD) + '</tr>';
   }
-  if (pr) html += section("Places &middot; every run", scroller("places", table(th("place", true) + th("depths") + th("seen") + th("survived", false, "ripples finished without losing a life") + th("xp/h"), pr)) + note("RIPPLES NAME &lt;name&gt; renames the place of the ripple you're in (or the last one)."));
+  if (pr) html += section("Places &middot; every run", scroller("places", table(th("place", true) + th("depths") + th("seen") + th("survived", false, "ripples finished without losing a life") + th("xp/h"), pr)) + note("Click a place to rename it, for every ripple there from now on (or RIPPLES NAME &lt;place&gt; = &lt;name&gt;)."));
   // By depth: median minutes and damage per second
   var DP = {};
   for (var dq = 0; dq < allR.length; dq++) {

@@ -3,7 +3,7 @@
 *An attended basher: you start each fight, it keeps attacking on balance and equilibrium, fires battlerage, breaks shields and steps back when you're hurt.*
 
 <!-- loom:version basher -->
-*This page describes basher 1.3.0.*
+*This page describes basher 1.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -137,6 +137,7 @@ Named NPCs are best left ignored.
 | hunting | Required: the main attack, battlerage costs and keys, shieldbreak and attack lines all come from hunting's class data (read only). |
 | room | Link `basher-room`: Here numbers each living mob in the kill order (filled on your target, outlined in gold on the next), dims the types this area ignores, and shows the basher's state beside the room name (⚔ PRIMED, RUNNING, FLEEING). |
 | social | Link `social-basher`: an enemy arriving during a run is named as such when the basher finishes the fight ("[basher] Grulk (enemy) is here: finishing a forest rat, nothing new after it."). |
+| ripples | Link `basher-ripples`: the Ripples tab counts the basher's flees in each ripple of the Mnemosyne. |
 
 Each link is on as soon as both packages are installed; `LOOM LINKS` lists them, `LOOM LINK <id> OFF` switches one off.
 

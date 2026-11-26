@@ -3,7 +3,7 @@
 *Your hunting records, area by area: experience, gold and kills an hour, how hard each area hits, where to go next, and the party's gold split.*
 
 <!-- loom:version huntstats -->
-*This page describes huntstats 1.3.1.*
+*This page describes huntstats 1.4.0.*
 <!-- /loom:version -->
 
 ## What it is
@@ -121,6 +121,7 @@ Huntstats works on its own. **hunting**'s F9 key shows the hunt under way when H
 | Link | With | What it does |
 | --- | --- | --- |
 | `social-huntstats` | social | Companions, the hunt's party and recent hunts' "with …" in the Stats tab in their social group colour. |
+| `huntstats-ripples` | ripples | Damage taken in the Ripples tab coloured as here, against `HUNTSTATS TANK`. |
 | `dmgchart-huntstats` | dmgchart | The damage you took per combat second and the biggest hit, per hunt and per area, in the filing notice, `HUNTSTATS AREAS`, `LOG` and the Stats tab. Nothing is recorded for a hunt the page reloaded in the middle of. |
 | `huntstats-coffers` | coffers | When you start hunting in an area with hunts on record, Coffers proposes a gold goal 10% over your average hunt there. It's taken back when the hunt is filed or you leave. |
 | `huntstats-chronicle` | chronicle | Each hunt filed is a line in the Chronicle's record of the day: the area, how long, and who hunted with you. |

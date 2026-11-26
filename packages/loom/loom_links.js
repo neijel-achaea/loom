@@ -1166,3 +1166,22 @@ L.addLink({
     }
   }
 });
+
+// #533 huntstats -> ripples (Ricardo): damage taken per second in the
+// Ripples tab, coloured as the Stats tab colours it (HUNTSTATS TANK).
+L.addLink({
+  id: "huntstats-ripples", src: "huntstats", dst: "ripples", issue: 533,
+  desc: "Damage taken in the Ripples tab, coloured against HUNTSTATS TANK",
+  answers: {
+    "damage.tone": function (dps) { var h = client.loom.huntstats; return (h && h.look && h.look.tone) ? h.look.tone(dps) : undefined; }
+  }
+});
+
+// #533 basher -> ripples (Ricardo): how often the basher fled, per ripple.
+L.addLink({
+  id: "basher-ripples", src: "basher", dst: "ripples", issue: 533,
+  desc: "The basher's flees, counted per ripple in the Ripples tab",
+  answers: {
+    "basher.flees": function () { var b = client.loom.basher; return (b && b.look && b.look.flees) ? b.look.flees() : undefined; }
+  }
+});

@@ -8,6 +8,7 @@ var hlRows = [
   ["RIPPLES VIEW <view>", "WADE, RIPPLES, BOONS, AFFIXES or RUNS in the tab (or click them)"],
   ["RIPPLES POLL <seconds>|OFF", "how often WADE STATUS is asked quietly in a ripple (default 30)"],
   ["RIPPLES NAME <name>|DEFAULT", "name the place of this ripple (or the last one)"],
+  ["RIPPLES NAME <place> = <name>", "rename any place, for every ripple there (or click it in Ripples)"],
   ["RIPPLES TOOK <boon>", "set the last boon claimed, when it couldn't tell"],
   ["RIPPLES END [DIED]", "close the run under way by hand"],
   ["RIPPLES WIPE", "forget every run, boon and affix (CONFIRM)"],

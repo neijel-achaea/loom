@@ -24,6 +24,13 @@ if (rpA[0] === "" || rpA[0] === "status") {
   run_function("ripples_render", [], "ripples");
 } else if (rpA[0] === "view") {
   R.say("RIPPLES VIEW WADE|RIPPLES|BOONS|AFFIXES|RUNS.", "orange");
+} else if (rpA[0] === "name" && rpRest.indexOf("=") > 0) {
+  // NAME <place as shown> = <new name>|DEFAULT: any place, for good.
+  var rpFrom = rpRest.slice(0, rpRest.indexOf("=")).trim(), rpTo = rpRest.slice(rpRest.indexOf("=") + 1).trim();
+  if (/^default$/i.test(rpTo)) rpTo = "";
+  var rpN = rpFrom ? R.rename(rpFrom, rpTo) : 0;
+  if (!rpN) R.say("no place shown as '" + rpFrom + "'. The Ripples view lists them (click one to rename it).", "orange");
+  else R.say(rpTo ? rpFrom + " is now " + rpTo + "." : rpFrom + " is back to its default name.", "lime");
 } else if (rpA[0] === "name") {
   // Names the place of the ripple you're in, or the last one.
   var rpSrc = R.run && R.run.ripples.length ? R.run : (R.runs.length ? R.runs[R.runs.length - 1] : null);

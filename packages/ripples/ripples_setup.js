@@ -47,6 +47,9 @@ function rpRun(r) {
     if (c.wave === undefined) c.wave = null;
     if (c.lvl === undefined) c.lvl = null;
     if (c.spd === undefined) c.spd = null;
+    if (c.minHp === undefined) c.minHp = null;
+    if (c.minPct === undefined) c.minPct = null;
+    c.flees = Number(c.flees) || 0;
   }
   r.screens = r.screens.filter(function (x) { return x && typeof x == "object" && Array.isArray(x.opts); });
   return r;
@@ -132,7 +135,7 @@ R.endRun = function (why) {
   if (!r) return;
   var now = Date.now();
   var c = R.cur();
-  if (c) { c.t1 = now; c.done = false; }
+  if (c) { c.flees = R.fleesIn(c); c.t1 = now; c.done = false; }
   r.t1 = now;
   r.end = why || (r.lives === 0 ? "died" : "left");
   r.depth = 0;
@@ -150,9 +153,9 @@ R.startRipple = function () {
   if (!R.run) R.startRun();
   var r = R.run, now = Date.now();
   var c = R.cur();
-  if (c) { c.t1 = now; c.done = false; }
+  if (c) { c.flees = R.fleesIn(c); c.t1 = now; c.done = false; }
   var last = r.ripples.length ? r.ripples[r.ripples.length - 1].n : 0;
-  r.ripples.push({ n: last + 1, t0: now, t1: 0, done: false, intro: R.intro || "", kills: 0, xp: 0, gold: 0, dmg: {}, lost: 0, aff: [], obj: "", wave: null, lvl: null, spd: null, reroll: false, renown: 0, lives: r.lives });
+  r.ripples.push({ n: last + 1, t0: now, t1: 0, done: false, intro: R.intro || "", kills: 0, xp: 0, gold: 0, dmg: {}, lost: 0, aff: [], obj: "", wave: null, lvl: null, spd: null, reroll: false, renown: 0, lives: r.lives, minHp: null, minPct: null, flees: 0, fleeBase: R.fleesNow() });
   R.intro = "";
   R.due = now + 1500;
   R.save();
@@ -162,6 +165,7 @@ R.startRipple = function () {
 R.endRipple = function () {
   var c = R.cur();
   if (!c) return;
+  c.flees = R.fleesIn(c);
   c.t1 = Date.now();
   c.done = true;
   R.save();
@@ -322,7 +326,7 @@ R.statusDone = function () {
   if (c) {
     if (q.n && c.n !== q.n) c.n = q.n;
     var w = parseInt(f["wave progress"], 10);
-    if (!isNaN(w)) c.wave = w;
+    if (!isNaN(w)) { c.wave = w; c.wKills = c.kills; }
     if (f["objective"]) c.obj = f["objective"];
     if (f["reward"]) c.reward = f["reward"];
     var lv = parseInt(f["denizen levels increased by"], 10);
@@ -427,6 +431,65 @@ R.prompt = function () {
   if (R.run && now - (R.saveAt || 0) > 30000) R.save();
 };
 
+// ---- Health, flees, damage colour ---------------------------------------------
+// The lowest health in each ripple: how close you came to dying.
+R.vitals = function (g) {
+  var hp = parseInt(g.hp, 10), mx = parseInt(g.maxhp, 10);
+  if (isNaN(hp) || isNaN(mx) || mx <= 0) return;
+  R.maxhp = mx;
+  var c = R.cur();
+  if (!c) return;
+  var p = Math.round(hp / mx * 100);
+  if (c.minHp === null || c.minHp === undefined || hp < c.minHp) { c.minHp = hp; c.minPct = p; c.minAt = Date.now(); }
+};
+// The basher's flees, through loom (link basher-ripples): a running count,
+// so a ripple's flees are the count now less the count when it began.
+R.fleesNow = function () {
+  var LL = client.loom.loom;
+  var v = (LL && LL.answer) ? LL.answer("ripples", "basher.flees") : undefined;
+  return typeof v == "number" ? v : null;
+};
+R.fleesIn = function (c) {
+  if (!c) return 0;
+  if (c.t1) return c.flees || 0;
+  var now = R.fleesNow();
+  if (now === null) return c.flees || 0;
+  if (c.fleeBase === null || c.fleeBase === undefined || now < c.fleeBase) c.fleeBase = 0;   // a reload since
+  return now - c.fleeBase;
+};
+R.hasFlees = function () { return R.fleesNow() !== null; };
+// Damage taken per second, coloured as huntstats colours it (link
+// huntstats-ripples, HUNTSTATS TANK); without it, the same rule at its
+// default of 3% of your max health a second.
+R.tone = function (dps) {
+  var LL = client.loom.loom;
+  var t = (LL && LL.answer) ? LL.answer("ripples", "damage.tone", dps) : undefined;
+  if (t && t.colour) return t;
+  if (!R.maxhp) return null;
+  var cap = 0.03 * R.maxhp;
+  if (dps < cap / 2) return { colour: "#8fd694", word: "under half of what you heal (3% of max health a second)", cap: cap };
+  if (dps <= cap) return { colour: "#e8c65a", word: "up to what you heal (3% of max health a second)", cap: cap };
+  return { colour: "#ff6a5e", word: "more than you heal (3% of max health a second)", cap: cap };
+};
+// Denizens left, guessed from the wave's progress at the last WADE STATUS
+// and the kills by then: null when there's nothing to go on.
+R.left = function (c) {
+  if (!c || !c.wave || c.wave >= 100 || !c.wKills) return null;
+  return Math.max(0, Math.round(c.wKills / (c.wave / 100) - c.kills));
+};
+// Renaming a place everywhere it shows: every place line now shown under
+// that name gets the new one, kept for the ripples to come.
+R.rename = function (from, to) {
+  var intros = {}, all = R.ripplesAll(true), n = 0;
+  for (var i = 0; i < all.length; i++) if (all[i].intro && R.place(all[i]).toLowerCase() === String(from).toLowerCase()) intros[all[i].intro] = 1;
+  for (var k in intros) if (intros.hasOwnProperty(k)) {
+    if (to) R.names[k] = String(to).slice(0, 40); else delete R.names[k];
+    n++;
+  }
+  if (n) { try { set_variable("ripples_names", JSON.stringify(R.names)); } catch (e) {} R.draw(); }
+  return n;
+};
+
 // ---- Numbers for the tab and the notices ------------------------------------
 R.allRuns = function () { return R.run ? R.runs.concat([R.run]) : R.runs.slice(); };
 R.secs = function (c) { return Math.max(1, ((c.t1 || Date.now()) - c.t0) / 1000); };
@@ -507,6 +570,14 @@ R.best = function () {
 if (!window.loomRipplesSx) window.loomRipplesSx = {};
 window.loomRipples = {
   view: function (v) { var X = client.loom && client.loom.ripples; if (X) { X.view = v; run_function("ripples_render", [], "ripples"); } },
+  rename: function (from) {
+    var X = client.loom && client.loom.ripples, to;
+    if (!X) return;
+    try { to = window.prompt("New name for " + from + " (empty: the default):", from); } catch (e) { to = null; }
+    if (to === null || to === undefined) return;
+    to = String(to).trim();
+    if (X.rename(from, to)) X.say(to ? from + " is now " + to + "." : from + " is back to its default name.", "lime");
+  },
   sort: function (k) { var X = client.loom && client.loom.ripples; if (X) { X.sort = k; run_function("ripples_render", [], "ripples"); } },
   keep: function (el) { try { window.loomRipplesSx[el.getAttribute("data-rp-sx")] = el.scrollLeft; } catch (e) {} }
 };
