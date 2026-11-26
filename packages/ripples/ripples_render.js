@@ -152,10 +152,14 @@ if (R.view === "wade") {
     html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;">' + box(caps(cur ? "This ripple" : "Last ripple") + rb) + box(caps("This run") + rbx) + '</div>';
     if (shown) html += section("Incoming damage &middot; " + (cur ? "this" : "last") + " ripple", dmgBar(shown));
     // Boons claimed, beside the close calls.
-    var held = "";
-    for (var si = 0; si < run.screens.length; si++) {
-      var sc = run.screens[si];
-      if (!sc.took) continue;
+    // The last five claimed, newest last; the rest folded into one line.
+    var held = "", claimedAll = [];
+    for (var sj = 0; sj < run.screens.length; sj++) if (run.screens[sj].took) claimedAll.push(run.screens[sj]);
+    var earlier = claimedAll.slice(0, Math.max(0, claimedAll.length - 5));
+    if (earlier.length) held += row('<span style="color:' + MUTED + ';">+' + earlier.length + ' earlier</span>', "", MUTED, earlier.map(function (x) { return x.took; }).join(", "));
+    var shownClaims = claimedAll.slice(-5);
+    for (var si = 0; si < shownClaims.length; si++) {
+      var sc = shownClaims[si];
       var bd = R.codex.boons[sc.took];
       var ech = run.echo && run.echo[sc.took] > 1 ? ' <span style="color:' + MUTED + ';">&times;' + run.echo[sc.took] + '</span>' : '';
       held += row('<span style="color:' + ((bd && RAR[bd.r]) || TXT) + ';">' + esc(sc.took === "?" ? "? (" + sc.opts.length + " offered)" : sc.took) + '</span>' + ech, sc.after ? "R" + sc.after : "in", MUTED, bd && bd.d ? bd.d : (sc.took === "?" ? "offered: " + sc.opts.join(", ") : ""));
