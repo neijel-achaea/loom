@@ -37,6 +37,7 @@ function rpRun(r) {
   r.t0 = Number(r.t0) || 0; r.t1 = Number(r.t1) || 0; r.renown = Number(r.renown) || 0;
   if (r.lives === undefined) r.lives = null;
   if (r.rerolls === undefined) r.rerolls = null;
+  if (typeof r.threads != "number") r.threads = null;
   r.ripples = r.ripples.filter(function (c) { return c && typeof c == "object" && !Array.isArray(c); });
   for (var i = 0; i < r.ripples.length; i++) {
     var c = r.ripples[i];
@@ -384,6 +385,14 @@ R.line = function (raw) {
   if (t.indexOf("flickers of power that may aide you") >= 0) { R.openScreen(); return false; }
   if (R.scr && R.screenLine(t)) return false;
   if (t === "You silently slip beneath the water and the world is as it once was.") { R.startRun(); return false; }
+  // Threads come by message a minute or so after you leave (Ricardo,
+  // 2026-11-26): "The Mnemosyne releases its hold, weaving 8 shimmering
+  // threads into your possession." Seen on arrival or when read with MSGS.
+  if (t.indexOf("The Mnemosyne releases its hold, weaving ") >= 0) {
+    var tm = /weaving (\d+) shimmering threads? into your possession/.exec(t);
+    if (tm) R.threads(parseInt(tm[1], 10));
+    return false;
+  }
   if (!R.run) {
     if (t === "You may once more wade the depths of the Mnemosyne.") { R.ready = Date.now(); R.draw(); }
     return false;
@@ -516,6 +525,17 @@ R.rename = function (from, to) {
   }
   if (n) { try { set_variable("ripples_names", JSON.stringify(R.names)); } catch (e) {} R.draw(); }
   return n;
+};
+
+// The threads go to the last finished run, once: reading the message again
+// changes nothing.
+R.threads = function (n) {
+  var r = R.runs.length ? R.runs[R.runs.length - 1] : null;
+  if (!r || (r.threads !== null && r.threads !== undefined)) return;
+  r.threads = n;
+  try { set_variable("ripples_runs", JSON.stringify(R.runs)); } catch (e) {}
+  R.say(n + " threads for the run that reached ripple " + R.depthOf(r) + ".", "lime");
+  R.draw();
 };
 
 // ---- Numbers for the tab and the notices ------------------------------------

@@ -16,7 +16,7 @@ The **Ripples** tab has five views:
 - **Ripples**: the run ripple by ripple (with the lowest health and the basher's flees in each); every place you've met (click one to rename it) (depths, how often you came out without losing a life, xp an hour); and a chart of time and damage taken by depth.
 - **Boons**: what's on offer now, with what each option did for you before; every boon offered, taken and passed, and the median depth of runs that held it; how much of the codex you've met.
 - **Affixes**: each affix seen, from what depth, how often you survived it, and how that compares with every other ripple at the same depths, so a deep affix isn't blamed for the depth.
-- **Runs**: your deepest ripple, totals, renown, how far runs get (the share that reached each ripple), and the list of runs and how they ended.
+- **Runs**: your deepest ripple, totals, renown and threads (from the message that comes a minute or so after you leave, credited to the last run), how far runs get (the share that reached each ripple), and the list of runs and how they ended.
 
 ![The Wade view, mid-run on ripple 7](img/ripples.png)
 

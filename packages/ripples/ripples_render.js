@@ -306,13 +306,14 @@ if (R.view === "runs") {
   if (!R.runs.length) html += quiet("No finished runs yet." + (R.run ? " One is under way." : ""));
   else {
     html += '<div style="margin:6px 0 1px;"><span style="font-family:' + SERIF + ';font-size:26px;color:' + ACC + ';">Ripple ' + B.d + '</span> <span style="font-family:' + SERIF + ';font-style:italic;color:' + MUTED + ';font-size:12px;">your deepest, ' + new Date(B.run.t0).toLocaleDateString(undefined, { day: "numeric", month: "short" }) + '</span></div>';
-    var depths = [], tw = 0, lost = 0, xp = 0, ren = 0;
+    var depths = [], tw = 0, lost = 0, xp = 0, ren = 0, thr = 0, thrRuns = 0, thrTime = 0;
     for (var rq = 0; rq < R.runs.length; rq++) {
       var ru = R.runs[rq];
       depths.push(R.depthOf(ru)); tw += ru.t1 - ru.t0; ren += ru.renown || 0;
+      if (typeof ru.threads == "number") { thr += ru.threads; thrRuns++; thrTime += ru.t1 - ru.t0; }
       for (var rz = 0; rz < ru.ripples.length; rz++) { lost += ru.ripples[rz].lost || 0; xp += ru.ripples[rz].xp; }
     }
-    html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:7px;">' + box(caps("All runs") + row("runs", R.runs.length) + row("median depth", R.median(depths)) + row("time wading", R.dur(tw)) + row("lives lost", lost, lost ? DOWN : TXT)) + box(caps("Rewards") + row("renown", R.n(ren)) + row("renown/h", R.n(perH(ren, tw / 1000))) + row("xp/h", R.n(perH(xp, tw / 1000)), GOLD) + row("threads", "not read yet", MUTED)) + '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:7px;">' + box(caps("All runs") + row("runs", R.runs.length) + row("median depth", R.median(depths)) + row("time wading", R.dur(tw)) + row("lives lost", lost, lost ? DOWN : TXT)) + box(caps("Rewards") + row("renown", R.n(ren)) + row("renown/h", R.n(perH(ren, tw / 1000))) + row("xp/h", R.n(perH(xp, tw / 1000)), GOLD) + (thrRuns ? row("threads", R.n(thr), GOLD, thrRuns + " of " + R.runs.length + " runs' threads seen") + row("threads/h", Math.round(perH(thr, thrTime / 1000) * 10) / 10) : row("threads", "none seen yet", MUTED, "they come by message a minute after you leave"))) + '</div>';
     // How far runs get: share reaching each depth
     var maxD = 0;
     for (var md2 = 0; md2 < depths.length; md2++) if (depths[md2] > maxD) maxD = depths[md2];
@@ -337,9 +338,9 @@ if (R.view === "runs") {
     for (var rk = R.runs.length - 1; rk >= 0 && rk >= R.runs.length - 15; rk--) {
       var rn = R.runs[rk], lastRip = rn.ripples.length ? rn.ripples[rn.ripples.length - 1] : null;
       var why = rn.end === "died" ? "died" + (rn.killer ? " &middot; " + esc(rn.killer) : "") : (rn.end === "left" ? "left" + (lastRip ? " &middot; " + esc(R.place(lastRip)) : "") : "?");
-      rl += '<tr>' + td(new Date(rn.t0).toLocaleDateString(undefined, { day: "numeric", month: "short" }), MUTED, true) + td(R.depthOf(rn), rn === B.run ? ACC : TXT) + td(R.dur(rn.t1 - rn.t0)) + td(rn.lives === null || rn.lives === undefined ? "?" : rn.lives) + td(R.n(rn.renown || 0)) + td(why, rn.end === "died" ? DOWN : MUTED, true) + '</tr>';
+      rl += '<tr>' + td(new Date(rn.t0).toLocaleDateString(undefined, { day: "numeric", month: "short" }), MUTED, true) + td(R.depthOf(rn), rn === B.run ? ACC : TXT) + td(R.dur(rn.t1 - rn.t0)) + td(rn.lives === null || rn.lives === undefined ? "?" : rn.lives) + td(R.n(rn.renown || 0)) + td(typeof rn.threads == "number" ? rn.threads : "&ndash;", typeof rn.threads == "number" ? GOLD : MUTED) + td(why, rn.end === "died" ? DOWN : MUTED, true) + '</tr>';
     }
-    html += section("Runs", scroller("runs", table(th("date", true) + th("depth") + th("time") + th("lives") + th("renown") + th("ended", true), rl)));
+    html += section("Runs", scroller("runs", table(th("date", true) + th("depth") + th("time") + th("lives") + th("renown") + th("threads") + th("ended", true), rl)));
   }
 }
 
